@@ -39,7 +39,7 @@ class ImageRegionFeaturesMixin:
             >>> mser[:5].bbox
 
         :references:
-            - Robotics, Vision & Control for Python, Section 12.1.1.2, P. Corke, Springer 2023.
+            - |RVC3|, Section 12.1.1.2.
 
         :seealso: :class:`MSERFeature`, `cv2.MSER_create <https://docs.opencv.org/4.5.2/d3/d28/classcv_1_1MSER.html>`_
         """
@@ -74,15 +74,21 @@ class ImageRegionFeaturesMixin:
         .. warning:: `PyTessearct <https://github.com/madmaze/pytesseract>`_ must be installed.
 
         :references:
-            - Robotics, Vision & Control for Python, Section 12.4.1, P. Corke, Springer 2023.
+            - |RVC3|, Section 12.4.1.
 
         :seealso: :class:`OCRWord`
         """
         try:
             import pytesseract
         except:
-            print("you need to install pytesseract:")
-            return
+            print("pytesseract is not installed:")
+            print("  OCR functionality will not be available")
+            print("  To install:")
+            print("    pip install pytesseract")
+            print(
+                "    Install the tesseract OCR engine from https://github.com/tesseract-ocr/tesseract?tab=readme-ov-file#installing-tesseract"
+            )
+            return []
 
         ocr = pytesseract.image_to_data(self._A, output_type=pytesseract.Output.DICT)
 
@@ -134,7 +140,7 @@ class MSERFeature:
             - J. Matas, O. Chum, M. Urban, and T. Pajdla.
               "Robust wide baseline stereo from maximally stable extremal regions."
               Proc. of British Machine Vision Conference, pages 384-396, 2002.
-            - Robotics, Vision & Control for Python, Section 12.1.2.2, P. Corke, Springer 2023.
+            - |RVC3|, Section 12.1.2.2.
 
 
         :seealso: :meth:`bbox` :meth:`points`

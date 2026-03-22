@@ -1,6 +1,7 @@
 :orphan:
 
-{% set title = class + '.' + name %}
+{% set cls = class.split('.')[-1] %}
+{% set title = cls + '.' + name %}
 {{ title | escape | underline}}
 
 .. currentmodule:: {{ module }}

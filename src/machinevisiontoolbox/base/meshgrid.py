@@ -32,7 +32,7 @@ def meshgrid(width: int, height: int) -> tuple[np.ndarray, np.ndarray]:
     .. runblock:: pycon
 
         >>> from machinevisiontoolbox import Image
-        >>> im = Image.Random(3, 4)
+        >>> im = Image.Random((3, 4))
         >>> U, V = im.meshgrid()
         >>> U
         >>> V

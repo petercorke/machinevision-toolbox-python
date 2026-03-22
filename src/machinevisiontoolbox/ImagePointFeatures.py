@@ -3,8 +3,11 @@ Detection and matching of keypoint and descriptor features (SIFT, ORB, etc.) in 
 """
 
 import math
+from typing import Any, Iterator
 
 import cv2 as cv
+import matplotlib.lines as mlines
+import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import numpy as np
 import spatialmath.base as smb
@@ -17,6 +20,7 @@ from machinevisiontoolbox.base import (
     findpeaks2d,
     name2color,
 )
+from machinevisiontoolbox._image_typing import _ImageBase
 from machinevisiontoolbox.decorators import (
     array_result,
     array_result2,
@@ -34,11 +38,11 @@ class BaseFeature2D:
 
     def __init__(
         self,
-        kp=None,
-        des=None,
-        scale=False,
-        orient=False,
-        image=None,
+        kp: list | np.ndarray | None = None,
+        des: np.ndarray | None = None,
+        scale: bool = False,
+        orient: bool = False,
+        image: np.ndarray | None = None,
     ):
         """
         Create set of 2D point features
@@ -61,7 +65,7 @@ class BaseFeature2D:
         iteration over individual features.  It also supports a number of
         convenience methods.
 
-        :note: OpenCV consider feature points as :obj:`opencv.KeyPoint` objects and the
+        .. note:: OpenCV consider feature points as :obj:`opencv.KeyPoint` objects and the
             descriptors as a multirow NumPy array.  This class provides a more
             convenient abstraction.
         """
@@ -69,19 +73,15 @@ class BaseFeature2D:
         # TODO flesh out sortby option, it can be by strength or scale
         # TODO what does nfeatures option to SIFT do? seemingly nothing
 
-        self._has_scale = scale
-        self._has_orient = orient
-        self._image = image
-
+        self._has_scale: bool = scale
+        self._has_orient: bool = orient
+        self._image: Any = image
+        self._feature_type: str | None = None
         if kp is None:
-            # initialise empty feature object
-            self._feature_type = None
-            self._kp = None
-            self._descriptor = None
-
+            self._kp: list[cv.KeyPoint] = []
         else:
-            self._kp = kp
-            self._descriptor = des
+            self._kp = list(kp)
+        self._descriptor: np.ndarray | None = des
 
     def __len__(self):
         """
@@ -128,29 +128,33 @@ class BaseFeature2D:
         :seealso: :meth:`.__len__`
         """
         new = self.__class__()
-
         new._has_scale = self._has_scale
         new._has_orient = self._has_orient
-
-        # index or slice the keypoint list
+        # compute canonical integer index list for both _kp and descriptor
+        n = len(self)
         if isinstance(i, int):
-            new._kp = [self._kp[i]]
+            idx: list[int] = [i if i >= 0 else n + i]
+            new._kp = [self._kp[idx[0]]]
         elif isinstance(i, slice):
-            new._kp = self._kp[i]
+            idx = list(range(*i.indices(n)))
+            new._kp = [self._kp[k] for k in idx]
+        elif isinstance(i, np.ndarray) and np.issubdtype(i.dtype, bool):
+            idx = [k for k, flag in enumerate(i.tolist()) if flag]
+            new._kp = [self._kp[k] for k in idx]
         elif isinstance(i, np.ndarray):
-            if np.issubdtype(i.dtype, bool):
-                new._kp = [self._kp[k] for k, true in enumerate(i) if true]
-            elif np.issubdtype(i.dtype, np.integer):
-                new._kp = [self._kp[k] for k in i]
-        elif isinstance(i, (list, tuple)):
-            new._kp = [self._kp[k] for k in i]
-
-        # index or slice the descriptor array
-        if len(self._descriptor.shape) == 1:
-            new._descriptor = self._descriptor
+            idx = [int(k) for k in i.flatten().tolist()]
+            new._kp = [self._kp[k] for k in idx]
         else:
-            new._descriptor = self._descriptor[i, :]
-
+            idx = [int(k) for k in i]
+            new._kp = [self._kp[k] for k in idx]
+        # index the descriptor rows using np.take (works with list[int])
+        if self._descriptor is not None and self._descriptor.size > 0:
+            if self._descriptor.ndim == 1:
+                new._descriptor = self._descriptor
+            else:
+                new._descriptor = np.take(self._descriptor, idx, axis=0)
+        else:
+            new._descriptor = None
         return new
 
     def __str__(self):
@@ -198,6 +202,10 @@ class BaseFeature2D:
         :seealso: :meth:`str`
         """
         return str(self)
+
+    def __iter__(self) -> "Iterator[BaseFeature2D]":
+        for i in range(len(self)):
+            yield self[i]
 
     def list(self):
         """
@@ -272,13 +280,15 @@ class BaseFeature2D:
             nh = nbins
 
         image = self._image
+        if image is None:
+            raise ValueError("no image associated with features")
         binwidth = image.width // nw
         binheight = image.height // nh
 
         keep = []
         bins = np.zeros((nh, nw), dtype="int")
 
-        for f in self.features:
+        for f in self:
             ix = f.p[0] // binwidth
             iy = f.p[1] // binheight
 
@@ -288,7 +298,7 @@ class BaseFeature2D:
 
         return self.__class__(keep)
 
-    def __add__(self, other):
+    def __add__(self, other: "BaseFeature2D | list | None") -> "BaseFeature2D":
         """
         Add feature sets
 
@@ -318,9 +328,11 @@ class BaseFeature2D:
 
         :seealso: :meth:`__radd__`
         """
-        if isinstance(other, list) and len(other) == 0 or other is None:
+        if other is None or (isinstance(other, list) and len(other) == 0):
             return self
-
+        assert isinstance(
+            other, BaseFeature2D
+        ), f"cannot add {type(other)} to BaseFeature2D"
         if self._feature_type != other._feature_type:
             raise TypeError(
                 "can't add different feature types:",
@@ -329,10 +341,9 @@ class BaseFeature2D:
             )
         new = self.__class__()
         new._feature_type = self._feature_type
-
         new._kp = self._kp + other._kp
-        new._descriptor = np.vstack((self._descriptor, other._descriptor))
-
+        if self._descriptor is not None and other._descriptor is not None:
+            new._descriptor = np.vstack((self._descriptor, other._descriptor))
         return new
 
     def __radd__(self, other):
@@ -432,7 +443,7 @@ class BaseFeature2D:
             >>> orb[0].id
             >>> orb[:5].id
 
-        :note: Defined by the ``id`` attribute of the image passed to the
+        .. note:: Defined by the ``id`` attribute of the image passed to the
             feature detector
         """
         return [kp.class_id for kp in self._kp]
@@ -542,7 +553,7 @@ class BaseFeature2D:
             >>> orb[0].descriptor
             >>> orb[:5].descriptor.shape
 
-        :note: For single feature return a 1D array vector, for multiple features return a set of column vectors.
+        .. note:: For single feature return a 1D array vector, for multiple features return a set of column vectors.
         """
         return self._descriptor
 
@@ -610,7 +621,7 @@ class BaseFeature2D:
             >>> dist = orb1.distance(orb2)
             >>> dist.shape
 
-        :note:
+        .. note::
             - The matrix is symmetric.
             - For the metric "L1" and "L2" the best match is the smallest distance
             - For the metric "ncc" the best match is the largest distance.  A value over
@@ -620,15 +631,17 @@ class BaseFeature2D:
         """
         metric_dict = {"L1": 1, "L2": 2}
 
+        if self._descriptor is None or other._descriptor is None:
+            raise ValueError("features have no descriptors")
         n1 = len(self)
         n2 = len(other)
         D = np.empty((n1, n2))
         if n1 == 1:
-            des1 = self._descriptor[np.newaxis, :]
+            des1 = self._descriptor.reshape(1, -1)
         else:
             des1 = self._descriptor
         if n2 == 1:
-            des2 = other._descriptor[np.newaxis, :]
+            des2 = other._descriptor.reshape(1, -1)
         else:
             des2 = other._descriptor
 
@@ -709,7 +722,7 @@ class BaseFeature2D:
 
         # create BFMatcher (brute force matcher) object
         # bf = cv.BFMatcher(cv.NORM_HAMMING, crossCheck=True)
-        bf = cv.BFMatcher_create(normType=metricdict[metric], crossCheck=crosscheck)
+        bf = cv.BFMatcher(normType=metricdict[metric], crossCheck=crosscheck)
 
         # Match descriptors.
         # matches0 = bf.match(d1, d2)
@@ -822,13 +835,16 @@ class BaseFeature2D:
 
         index = np.argsort(key)
 
+        sorted_index = index.tolist()
         if inplace:
-            self._kp = [self._kp[i] for i in index]
-            self._descriptor = self._descriptor[index, :]
+            self._kp = [self._kp[i] for i in sorted_index]
+            if self._descriptor is not None:
+                self._descriptor = np.take(self._descriptor, sorted_index, axis=0)
         else:
             new = self.__class__()
-            new._kp = [self._kp[i] for i in index]
-            new._descriptor = self._descriptor[index, :]
+            new._kp = [self._kp[i] for i in sorted_index]
+            if self._descriptor is not None:
+                new._descriptor = np.take(self._descriptor, sorted_index, axis=0)
             new._feature_type = self._feature_type
             return new
 
@@ -856,7 +872,7 @@ class BaseFeature2D:
             >>> support = orb[0].support(img)
             >>> support
 
-        :note: If the features come from multiple images then the feature's
+        .. note:: If the features come from multiple images then the feature's
             ``id`` attribute is used to index into ``images`` which must be a
             list of Image objects.
         """
@@ -919,7 +935,7 @@ class BaseFeature2D:
             >>> orb2 = orb.filter(minstrength=0.001)
             >>> len(orb2)
 
-        :note: If ``value`` is a range the ``numpy.Inf`` or ``-numpy.Inf``
+        .. note:: If ``value`` is a range the ``numpy.Inf`` or ``-numpy.Inf``
             can be used as values.
         """
 
@@ -957,6 +973,7 @@ class BaseFeature2D:
         image,
         drawing=None,
         isift=None,
+        color=(0, 255, 0),
         flags=cv.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS,
         **kwargs,
     ):
@@ -1008,12 +1025,12 @@ class BaseFeature2D:
         # TODO should check that isift is consistent with kp (min value is 0,
         # max value is <= len(kp))
         cv.drawKeypoints(
-            image=image.image,  # image, source image
+            image=image._A,  # image, source image
             # kp[isift],
             keypoints=kp,
             outImage=drawing,  # outimage
+            color=color,
             flags=flags,
-            **kwargs,
         )
 
         return image.__class__(drawing)
@@ -1027,14 +1044,17 @@ class BaseFeature2D:
         #                   matchesMask=matches,
         #                   flags=0)
 
+        h = max(im1._A.shape[0], im2._A.shape[0])
+        w = im1._A.shape[1] + im2._A.shape[1]
+        nplanes = im1._A.shape[2] if im1._A.ndim == 3 else 1
+        blank = np.zeros((h, w, max(nplanes, 3)), dtype=np.uint8)
         out = cv.drawMatchesKnn(
-            img1=im1.image,
+            img1=im1._A,
             keypoints1=sift1._kp,
-            img2=im2.image,
+            img2=im2._A,
             keypoints2=sift2._kp,
             matches1to2=matches,
-            outImg=None,
-            **kwargs,
+            outImg=blank,
         )
 
         return im1.__class__(out)
@@ -1081,7 +1101,7 @@ class BaseFeature2D:
         if filled:
             for kp in self:
                 centre = kp.p.flatten()
-                c = plt.Circle(
+                c = mpatches.Circle(
                     centre,
                     radius=kp.scale,
                     clip_on=True,
@@ -1096,7 +1116,7 @@ class BaseFeature2D:
                         + kp.scale
                         * np.r_[math.cos(kp.orientation), math.sin(kp.orientation)]
                     )
-                    l = plt.Line2D(
+                    l = mlines.Line2D(
                         (centre[0], circum[0]),
                         (centre[1], circum[1]),
                         color=handcolor,
@@ -1149,7 +1169,7 @@ class BaseFeature2D:
         to the circumference, like a clock hand.
 
         """
-        img = image.image
+        img = image._A
         if filled:
             for kp in self:
                 centre = kp.p.flatten()
@@ -1158,12 +1178,9 @@ class BaseFeature2D:
                     img,
                     centre,
                     radius=kp.scale,
-                    clip_on=True,
                     color=color,
-                    alpha=alpha,
                     **kwargs,
                 )
-                # draw_circle(img, centre, radius=kp.scale, clip_on=True, color=color, alpha=alpha, **kwargs)
 
                 if hand:
                     circum = (
@@ -1177,7 +1194,6 @@ class BaseFeature2D:
                         (centre[1], circum[1]),
                         color=handcolor,
                         thickness=handthickness,
-                        alpha=handalpha,
                     )
         else:
             if len(args) == 0 and len(kwargs) == 0:
@@ -1185,9 +1201,34 @@ class BaseFeature2D:
             draw_point(img, self.p, *args, fontsize=0.6, **kwargs)
 
     def draw2(self, image, color="y", type="point"):
-        img = image.image
+        img = image._A
         if isinstance(color, str):
-            color = name2color(color, dtype=image.dtype, colororder=image.colororder)
+            color_ndarray: np.ndarray = name2color(
+                color, dtype=image.dtype, colororder=image.colororder
+            )
+            color_scalar: tuple[float, float, float, float] = (
+                float(color_ndarray.flat[0]),
+                float(color_ndarray.flat[1]) if color_ndarray.size > 1 else 0.0,
+                float(color_ndarray.flat[2]) if color_ndarray.size > 2 else 0.0,
+                0.0,
+            )
+        elif isinstance(color, np.ndarray):
+            color_scalar = (
+                float(color.flat[0]),
+                float(color.flat[1]) if color.size > 1 else 0.0,
+                float(color.flat[2]) if color.size > 2 else 0.0,
+                0.0,
+            )
+        elif isinstance(color, (list, tuple)):
+            vals = list(color) + [0.0, 0.0, 0.0, 0.0]
+            color_scalar = (
+                float(vals[0]),
+                float(vals[1]),
+                float(vals[2]),
+                float(vals[3]),
+            )
+        else:
+            color_scalar = (0.0, 255.0, 0.0, 0.0)
 
         options = {
             "rich": cv.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS,
@@ -1199,7 +1240,7 @@ class BaseFeature2D:
             image=img,  # image, source image
             keypoints=self._kp,
             outImage=img,  # outimage
-            color=color,
+            color=color_scalar,
             flags=options[type] + cv.DRAW_MATCHES_FLAGS_DRAW_OVER_OUTIMG,
         )
 
@@ -1232,7 +1273,7 @@ class FeatureMatch:
             - can be sliced to extract a subset of matches
             - inlier/outlier status of matches
 
-        :note: This constructor would not be called directly, it is used by the
+        .. note:: This constructor would not be called directly, it is used by the
             ``match`` method of the :class:`BaseFeature2D` subclass.
 
         :seealso: :obj:`BaseFeature2D.match` `cv2.KeyPoint <https://docs.opencv.org/4.5.2/d2/d29/classcv_1_1KeyPoint.html#a507d41b54805e9ee5042b922e68e4372>`_
@@ -1287,6 +1328,8 @@ class FeatureMatch:
                 matches = [self._matches[k] for k in i]
                 if self._inliers is not None:
                     inliers = [self._inliers[k] for k in i]
+            else:
+                raise ValueError("bad index dtype")
         else:
             raise ValueError("bad index")
         return FeatureMatch(matches, self._kp1, self._kp2, inliers)
@@ -1352,7 +1395,7 @@ class FeatureMatch:
         feature set with specific ``id``. If no such match exists it returns
         None.
 
-        :note:
+        .. note::
             - For efficient lookup, on the first call a dict is built that maps
               feature id to index in the feature set.
             - Useful when features in the sets come from multiple images and
@@ -1390,7 +1433,7 @@ class FeatureMatch:
         feature set with specific ``id``. If no such match exists it returns
         None.
 
-        :note:
+        .. note::
             - For efficient lookup, on the first call a dict is built that maps
               feature id to index in the feature set.
             - Useful when features in the sets come from multiple images and
@@ -1548,12 +1591,14 @@ class FeatureMatch:
         :return: new match object containing only the inliers
         :rtype: :class:`FeatureMatch` instance
 
-        :note: Inlier/outlier status is typically set by some RANSAC-based
+        .. note:: Inlier/outlier status is typically set by some RANSAC-based
             algorithm that applies a geometric constraint to the sets of
             putative matches.
 
         :seealso: :obj:`CentralCamera.points2F`
         """
+        if self._inliers is None:
+            raise ValueError("inlier status has not been set")
         return self[self._inliers]
 
     @property
@@ -1570,6 +1615,8 @@ class FeatureMatch:
 
         :seealso: :obj:`entralCamera.points2F`
         """
+        if self._inliers is None:
+            raise ValueError("inlier status has not been set")
         return self[~self._inliers]
 
     def subset(self, N=100):
@@ -1935,7 +1982,7 @@ class LUCIDFeature(BaseFeature2D):
     pass
 
 
-class ImagePointFeaturesMixin:
+class ImagePointFeaturesMixin(_ImageBase):
     def _image2feature(
         self,
         cls,
@@ -1947,12 +1994,12 @@ class ImagePointFeaturesMixin:
         **kwargs,
     ):
         # https://datascience.stackexchange.com/questions/43213/freak-feature-extraction-opencv
-        algorithms = {
-            "SIFT": cv.SIFT_create,
-            "ORB": cv.ORB_create,
+        algorithms: dict[str, Any] = {
+            "SIFT": getattr(cv, "SIFT_create"),
+            "ORB": getattr(cv, "ORB_create"),
             "Harris": _Harris_create,
-            "BRISK": cv.BRISK_create,
-            "AKAZE": cv.AKAZE_create,
+            "BRISK": getattr(cv, "BRISK_create"),
+            "AKAZE": getattr(cv, "AKAZE_create"),
             # 'FREAK': (cv.FREAK_create, FREAKFeature),
             # 'DAISY': (cv.DAISY_create, DAISYFeature),
         }
@@ -2031,8 +2078,8 @@ class ImagePointFeaturesMixin:
             - Distinctive image features from scale-invariant keypoints.
               David G. Lowe
               Int. J. Comput. Vision, 60(2):91–110, November 2004.
-            - Robotics, Vision & Control for Python, Section 14.1,
-              P. Corke, Springer 2023.
+            - |RVC3|, Section 14.1.
+
 
         :seealso: :class:`SIFTFeature` `cv2.SIFT_create <https://docs.opencv.org/4.5.2/d7/d60/classcv_1_1SIFT.html>`_
         """
@@ -2190,8 +2237,7 @@ class ImagePointFeaturesMixin:
               CG Harris, MJ Stephens
               Proceedings of the Fourth Alvey Vision Conference, 1988
               Manchester, pp 147–151
-            - Robotics, Vision & Control for Python, Section 12.3.1,
-                P. Corke, Springer 2023.
+            - |RVC3|, Section 12.3.1.
 
         :seealso: :class:`HarrisFeature`
         """
@@ -2222,10 +2268,10 @@ class ImagePointFeaturesMixin:
 
         # WORK IN PROGRESS
 
-        detectors = {
-            "AGAST": cv.AgastFeatureDetector_create,
-            "FAST": cv.FastFeatureDetector_create,
-            "GoodFeaturesToTrack": cv.GFTTDetector_create,
+        detectors: dict[str, Any] = {
+            "AGAST": getattr(cv, "AgastFeatureDetector_create"),
+            "FAST": getattr(cv, "FastFeatureDetector_create"),
+            "GoodFeaturesToTrack": getattr(cv, "GFTTDetector_create"),
         }
 
         descriptors = {
@@ -2239,10 +2285,10 @@ class ImagePointFeaturesMixin:
         # eg. Feature2D('FAST', 'FREAK')
         if detector in detectors:
             # call it
-            kp = detectors[detector](self.image._A, **det_opts)
-        elif iscallable(detector):
+            kp = detectors[detector](self._A, **det_opts)
+        elif callable(detector):
             # call it
-            kp = detector(self.image._A, **det_opts)
+            kp = detector(self._A, **det_opts)
         else:
             raise ValueError("unknown detector")
 

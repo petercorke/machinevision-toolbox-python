@@ -35,11 +35,12 @@ class TestImageSources(unittest.TestCase):
         # zip archive with filter
         zf = ZipArchive("bridge-l.zip")
 
+        # files are README, camera-2.dat, image, image...
         self.assertEqual(len(zf), 253)
         self.assertIsInstance(zf[0], bytes)
-        self.assertIsInstance(zf[1], Image)
-        self.assertEqual(zf[1].shape, (488, 768))
-        self.assertEqual(zf[1].dtype, "uint16")
+        self.assertIsInstance(zf[2], Image)
+        self.assertEqual(zf[2].shape, (488, 768))
+        self.assertEqual(zf[2].dtype, "uint16")
 
         # test iteration
         count = 0
@@ -47,7 +48,7 @@ class TestImageSources(unittest.TestCase):
             count += 1
         self.assertEqual(count, 253)
 
-        zf = ZipArchive("bridge-l.zip", filter="*.pgm")
+        zf = ZipArchive("bridge-l.zip", filter="*.png")
         self.assertEqual(len(zf), 251)
         im = zf[0]
         self.assertIsInstance(im, Image)

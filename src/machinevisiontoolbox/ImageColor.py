@@ -62,10 +62,10 @@ class ImageColorMixin(_ImageBase):
             >>> img
             >>> img.mono()
 
-        :note: For a monochrome image returns a reference to the :class:`Image` instance.
+        .. note:: For a monochrome image returns a reference to the :class:`Image` instance.
 
         :references:
-            - Robotics, Vision & Control for Python, Section 10.2.7, P. Corke, Springer 2023.
+            - |RVC3|, Section 10.2.7.
 
         :seealso: :meth:`colorspace` :meth:`colorize`
         """
@@ -82,8 +82,8 @@ class ImageColorMixin(_ImageBase):
         elif opt == "value":
             # 'value' refers to the V in HSV space, not the CIE L*
             # the mean of the max and min of RGB values at each pixel
-            mn = self.image.min(axis=2)
-            mx = self.image.max(axis=2)
+            mn = self._A.min(axis=2)
+            mx = self._A.max(axis=2)
             return self.__class__(self.cast(mn / 2 + mx / 2))
 
         elif opt == "cv":
@@ -94,7 +94,7 @@ class ImageColorMixin(_ImageBase):
         else:
             raise TypeError("unknown type for opt")
 
-        return self.__class__(self.cast(mono.image))
+        return self.__class__(self.cast(mono._A))
 
     def chromaticity(self, which: str = "RG") -> Self:
         r"""
@@ -120,11 +120,11 @@ class ImageColorMixin(_ImageBase):
             >>> img.chromaticity()
             >>> img.chromaticity('RB')
 
-        :note: The chromaticity color planes are the same as ``which`` but
+        .. note:: The chromaticity color planes are the same as ``which`` but
           lower cased.
 
         :references:
-            - Robotics, Vision & Control for Python, Section 10.2.5, P. Corke, Springer 2023.
+            - |RVC3|, Section 10.2.5.
 
         :seealso: :func:`~machinevisiontoolbox.base.color.tristim2cc`
         """
@@ -133,9 +133,9 @@ class ImageColorMixin(_ImageBase):
         if self.nplanes != 3:
             raise ValueError("expecting 3 plane image")
 
-        sum = np.sum(self.image, axis=2)
-        r = self.plane(which[0]).image / sum
-        g = self.plane(which[1]).image / sum
+        sum = np.sum(self._A, axis=2)
+        r = self.plane(which[0])._A / sum
+        g = self.plane(which[1])._A / sum
 
         return self.__class__(
             np.dstack((r, g)), colororder=which.lower(), dtype="float32"
@@ -167,7 +167,7 @@ class ImageColorMixin(_ImageBase):
             >>> img.colorize('blue')  # blue shark
 
         :references:
-            - Robotics, Vision & Control for Python, Section 11.3, P. Corke, Springer 2023.
+            - |RVC3|, Section 11.3.
 
         :seealso: :meth:`mono`
         """
@@ -179,15 +179,15 @@ class ImageColorMixin(_ImageBase):
         else:
             color_arr = argcheck.getvector(color).astype(self.dtype)
         if self.iscolor:
-            raise ValueError(self.image, "Image must be greyscale")
+            raise ValueError(self._A, "Image must be greyscale")
 
         # alpha can be False, True, or scalar
         if alpha is False:
             out = np.dstack(
                 (
-                    color_arr[0] * self.image,
-                    color_arr[1] * self.image,
-                    color_arr[2] * self.image,
+                    color_arr[0] * self._A,
+                    color_arr[1] * self._A,
+                    color_arr[2] * self._A,
                 )
             )
         else:
@@ -196,9 +196,9 @@ class ImageColorMixin(_ImageBase):
 
             out = np.dstack(
                 (
-                    color_arr[0] * self.image,
-                    color_arr[1] * self.image,
-                    color_arr[2] * self.image,
+                    color_arr[0] * self._A,
+                    color_arr[1] * self._A,
+                    color_arr[2] * self._A,
                     alpha * np.ones(self.shape),
                 )
             )
@@ -252,13 +252,13 @@ class ImageColorMixin(_ImageBase):
 
           Pixels in the input image are assigned the label of the closest centroid.
 
-          :note: The colorspace of the images could a chromaticity space to classify
+          .. note:: The colorspace of the images could a chromaticity space to classify
             objects while ignoring brightness variation.
 
           :references:
-              - Robotics, Vision & Control for Python, Section 12.1.1.2, P. Corke, Springer 2023.
+              - |RVC3|, Section 12.1.1.2.
 
-        :seealso: `opencv.kmeans <https://docs.opencv.org/3.4/d5/d38/group__core__cluster.html#ga9a34dc06c6ec9460e90860f15bcd2f88>`_
+        :seealso: `opencv.kmeans <https://docs.opencv.org/4.x/d5/d38/group__core__cluster.html#ga9a34dc06c6ec9460e90860f15bcd2f88>`_
         """
         # TODO
         # colorspace can be RGB, rg, Lab, ab
@@ -332,10 +332,10 @@ class ImageColorMixin(_ImageBase):
             >>> im = Image.Read('flowers1.png')
             >>> im.colorspace('hsv')
 
-        :note: RGB images are assumed to be linear, or gamma decoded.
+        .. note:: RGB images are assumed to be linear, or gamma decoded.
 
         :references:
-            - Robotics, Vision & Control for Python, Section 10.2.7, 10.4.1, P. Corke, Springer 2023.
+            - |RVC3|, Section 10.2.7, 10.4.1.
 
         :seealso: :meth:`mono` :func:`~machinevisiontoolbox.base.color.colorspace_convert`
         """
@@ -359,7 +359,7 @@ class ImageColorMixin(_ImageBase):
         out = []
         # print('converting from', src, 'to', dst)
 
-        out = color.colorspace_convert(self.image, src, dst)
+        out = color.colorspace_convert(self._A, src, dst)
         # print('conversion done')
         if out.ndim > 2:
             colororder = dst
@@ -398,7 +398,7 @@ class ImageColorMixin(_ImageBase):
             >>> Image.Overlay(img1, img2, 'rg')
             >>> Image.Overlay(img1, img2, ((1, 0, 0), (0, 1, 0)))
 
-        :note: Images can be different size, the output image size is the
+        .. note:: Images can be different size, the output image size is the
           maximum of the dimensions of the input images.  Small dimensions are
           zero padded.  The top-left corner of both images are aligned.
 
@@ -438,7 +438,7 @@ class ImageColorMixin(_ImageBase):
             >>> img = Image(np.arange(8)[np.newaxis, :])  # create grey step wedge
             >>> img.gamma_encode('sRGB').disp()
 
-        :note:
+        .. note::
             - ``gamma`` is the reciprocal of the value used for gamma decoding
             - Gamma encoding is typically performed in a camera with
               :math:`\gamma=0.45`.
@@ -451,11 +451,11 @@ class ImageColorMixin(_ImageBase):
               double, processed, then converted back to the integer class.
 
         :references:
-            - Robotics, Vision & Control for Python, Section 10.2.7, 10.3.6, P. Corke, Springer 2023.
+            - |RVC3|, Section 10.2.7, 10.3.6.
 
         :seealso: :meth:`gamma_encode` :meth:`colorspace`
         """
-        out = color.gamma_encode(self.image, gamma)
+        out = color.gamma_encode(self._A, gamma)
         return self.__class__(out)
 
     def gamma_decode(self, gamma: str | float) -> Self:
@@ -482,7 +482,7 @@ class ImageColorMixin(_ImageBase):
             >>> img = Image.Read('street.png')
             >>> linear = img.gamma_decode('sRGB')
 
-        :note:
+        .. note::
             - ``gamma`` is the reciprocal of the value used for gamma encoding
             - Gamma decoding should be applied to any color image prior to
               colometric operations.
@@ -497,11 +497,11 @@ class ImageColorMixin(_ImageBase):
               double, processed, then converted back to the integer class.
 
         :references:
-            - Robotics, Vision & Control for Python, Section 10.2.7, 10.3.6, P. Corke, Springer 2023.
+            - |RVC3|, Section 10.2.7, 10.3.6.
 
         :seealso: :meth:`gamma_encode` :meth:`colorspace`
         """
-        out = color.gamma_decode(self.image, gamma)
+        out = color.gamma_decode(self._A, gamma)
         return self.__class__(out, colororder=self.colororder)
 
 

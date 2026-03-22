@@ -12,8 +12,9 @@
 #
 import os
 import sys
+from pathlib import Path
+from importlib.metadata import version as _pkg_version
 
-sys.path.insert(0, os.path.abspath("../.."))
 sys.path.append(os.path.abspath("exts"))
 print(os.path.abspath("exts"))
 
@@ -25,7 +26,10 @@ copyright = "2020-, Peter Corke"
 author = "Peter Corke and Dorian Tsai"
 
 # The full version, including alpha/beta/rc tags
-release = "1.0"
+try:
+    release = _pkg_version("machinevisiontoolbox")
+except Exception:
+    release = "unknown"
 
 
 # -- General configuration ---------------------------------------------------
@@ -48,6 +52,7 @@ extensions = [
     "sphinx_autorun",
     "sphinx.ext.intersphinx",
     "sphinx_favicon",
+    "sphinx_copybutton",
     "blockname",
 ]
 
@@ -76,7 +81,18 @@ templates_path = ["_templates"]
 autosummary_generate = True
 autodoc_member_order = "bysource"
 autosummary_imported_members = True
-add_module_name = False
+add_module_names = False
+autosectionlabel_prefix_document = True
+rst_epilog = """
+.. |RVC3| replace:: `P. Corke, Robotics, Vision & Control for Python, Springer, 2023 <https://link.springer.com/book/10.1007/978-3-031-06469-2>`__
+"""
+
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3", None),
+    "numpy": ("https://numpy.org/doc/stable", None),
+    "scipy": ("https://docs.scipy.org/doc/scipy", None),
+    "matplotlib": ("https://matplotlib.org/stable", None),
+}
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -89,18 +105,18 @@ exclude_patterns = ["test_*"]
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = "sphinx_rtd_theme"
+html_theme = "pydata_sphinx_theme"
 html_theme_options = {
-    "analytics_id": "G-9CWBLVEKRS",  #  Provided by Google in your dashboard
-    "analytics_anonymize_ip": False,
-    "github_user": "petercorke",
-    #'github_repo': 'spatialmath-python',
-    #'logo_name': False,
-    "logo_only": False,
-    "display_version": True,
-    "prev_next_buttons_location": "both",
+    "github_url": "https://github.com/petercorke/machinevision-toolbox-python",
+    "analytics": {"google_analytics_id": "G-9CWBLVEKRS"},
+    "show_prev_next": True,
+    "logo": {
+        "image_light": "../../figs/VisionToolboxLogo_CircBlack.png",
+        "image_dark": "../../figs/VisionToolboxLogo_CircBlack.png",
+    },
+    "footer_start": ["copyright"],
+    "footer_end": ["github-link.html"],
 }
-html_logo = "../../figs/VisionToolboxLogo_CircBlack.png"
 html_show_sourcelink = True
 
 # Add any paths that contain custom static files (such as style sheets) here,
@@ -148,11 +164,10 @@ mathjax3_config = {
 }
 
 intersphinx_mapping = {
-    "numpy": ("http://docs.scipy.org/doc/numpy/", None),
-    "scipy": ("http://docs.scipy.org/doc/scipy/reference/", None),
-    "matplotlib": ("http://matplotlib.org/stable/", None),
-    "open3d": ("http://www.open3d.org/docs/release/", None),
-    "opencv": ("http://docs.opencv.org/2.4/", None),
+    "numpy": ("https://numpy.org/doc/stable/", None),
+    "scipy": ("https://docs.scipy.org/doc/scipy/", None),
+    "matplotlib": ("https://matplotlib.org/stable/", None),
+    "open3d": ("https://www.open3d.org/docs/release/", None),
     "smtb": ("https://bdaiinstitute.github.io/spatialmath-python/", None),
     "pgraph": ("https://petercorke.github.io/pgraph-python/", None),
 }
@@ -192,3 +207,55 @@ favicons = [
         "type": "image/png",
     },
 ]
+
+
+def _generate_image_sidebar_toctree(app):
+    """Generate a canonical Image sidebar toctree with case-insensitive sorting."""
+    source_dir = Path(__file__).parent
+    stubs_dir = source_dir / "stubs"
+    output_path = source_dir / "_image_class_toctree.rst.inc"
+    prefix = "machinevisiontoolbox.Image."
+
+    entries = []
+    for stub_path in stubs_dir.glob("machinevisiontoolbox.Image.*.rst"):
+        stem = stub_path.stem
+        member = stem[len(prefix) :]
+        entries.append((member, f"stubs/{stem}"))
+
+    non_dunder = sorted(
+        (item for item in entries if not item[0].startswith("__")),
+        key=lambda item: item[0].casefold(),
+    )
+    dunder = sorted(
+        (item for item in entries if item[0].startswith("__")),
+        key=lambda item: item[0].casefold(),
+    )
+
+    lines = [
+        ".. toctree::",
+        "   :hidden:",
+        "",
+    ]
+    lines.extend(f"   {docname}" for _, docname in [*non_dunder, *dunder])
+    lines.append("")
+    output_path.write_text("\n".join(lines), encoding="utf-8")
+
+
+from sphinx.ext.autodoc import Documenter
+
+_orig_sort_members = Documenter.sort_members
+
+
+def _sort_members_ci(self, documenters, order):
+    """Sort autodoc members alphabetically using case-insensitive comparison."""
+    if order == "alphabetical":
+        documenters.sort(key=lambda e: e[0].name.split(".")[-1].casefold())
+        return documenters
+    return _orig_sort_members(self, documenters, order)
+
+
+Documenter.sort_members = _sort_members_ci
+
+
+def setup(app):
+    app.connect("builder-inited", _generate_image_sidebar_toctree)

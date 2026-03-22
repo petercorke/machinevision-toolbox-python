@@ -10,34 +10,39 @@ Image feature classes
 Whole image features
 ^^^^^^^^^^^^^^^^^^^^
 
-.. autoclass:: Histogram
-    :members:
-    :special-members:
+.. autosummary::
+    :toctree: stubs
+    :nosignatures:
 
+    Histogram
 
 Fiducial features
 ^^^^^^^^^^^^^^^^^
 
-.. autoclass:: Fiducial
-    :members:
-    :special-members:
+.. autosummary::
+    :toctree: stubs
+    :nosignatures:
+
+    Fiducial
 
 Blob features
 ^^^^^^^^^^^^^
 
-.. autoclass:: Blob
-    :members:
-    :special-members:
+.. autosummary::
+    :toctree: stubs
+    :nosignatures:
 
-.. autoclass:: Blobs
-    :members:
-    :special-members:
+    Blob
+    Blobs
 
 Line features
 ^^^^^^^^^^^^^
 
-.. autoclass:: machinevisiontoolbox.ImageLineFeatures.HoughFeature
-    :members:
+.. autosummary::
+    :toctree: stubs
+    :nosignatures:
+
+    ~ImageLineFeatures.HoughFeature
 
 Point features
 ^^^^^^^^^^^^^^
@@ -46,6 +51,8 @@ Point features
     :toctree: stubs
     :nosignatures:
 
+    ~ImagePointFeatures.BaseFeature2D
+    ~ImagePointFeatures.FeatureMatch
     ~ImagePointFeatures.SIFTFeature
     ~ImagePointFeatures.ORBFeature
     ~ImagePointFeatures.BRISKFeature
@@ -72,12 +79,11 @@ Point features
     :top-classes: ImagePointFeatures.BaseFeature2D
     :parts: 1
 
-.. autoclass:: machinevisiontoolbox.ImagePointFeatures.BaseFeature2D
-    :members:
-
 Convolution kernel class
 ------------------------
 
-.. autoclass:: Kernel
-    :members:
-    :special-members:
+.. autosummary::
+    :toctree: stubs
+    :nosignatures:
+
+    Kernel

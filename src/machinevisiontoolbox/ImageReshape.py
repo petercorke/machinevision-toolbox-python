@@ -117,11 +117,11 @@ class ImageReshapeMixin:
         if self.iscolor:
             planes = []
             for i, v in enumerate(value):
-                planes.append(np.pad(self.plane(i).image, pw, constant_values=(v, v)))
+                planes.append(np.pad(self.plane(i)._A, pw, constant_values=(v, v)))
             out = np.dstack(planes)
             return self.__class__(out, colororder=self.colororder)
         else:
-            out = np.pad(self.image, pw, constant_values=(value, value))
+            out = np.pad(self._A, pw, constant_values=(value, value))
             return self.__class__(out, colororder=self.colororder)
 
     def dice(self, grid=None, shape=None, overlap=0):
@@ -196,7 +196,7 @@ class ImageReshapeMixin:
         for v in range(0, self.height - shape[1] + 1, shape[1] - overlap[1]):
             for u in range(0, self.width - shape[0] + 1, shape[0] - overlap[0]):
                 subimages.append(
-                    self.__class__(self.image[v : v + shape[1], u : u + shape[0], ...])
+                    self.__class__(self._A[v : v + shape[1], u : u + shape[0], ...])
                 )
         return subimages
 
@@ -495,8 +495,7 @@ class ImageReshapeMixin:
         - ``sigma`` is None then  a value of ``m/2`` is used,
         - ``sigma`` is zero then no smoothing is performed.
 
-        :note:
-
+        .. note::
             - If the image has multiple planes, each plane is decimated.
             - Smoothing is applied to the image _before_ decimation to reduce
               high-spatial-frequency components and reduce eliminate aliasing
@@ -513,7 +512,7 @@ class ImageReshapeMixin:
             >>> img.decimate(2, sigma=0).print()
 
         :references:
-            - Robotics, Vision & Control for Python, Section 11.7.2, P. Corke, Springer 2023.
+            - |RVC3|, Section 11.7.2.
 
         :seealso: :meth:`replicate` :meth:`scale`
         """
@@ -529,7 +528,7 @@ class ImageReshapeMixin:
         else:
             ims = self
 
-        return self.__class__(ims.image[0::m, 0::m, ...], colororder=self.colororder)
+        return self.__class__(ims._A[0::m, 0::m, ...], colororder=self.colororder)
 
     def replicate(self, n=1):
         r"""
@@ -553,13 +552,13 @@ class ImageReshapeMixin:
             >>> bigger = img.replicate(2)
             >>> bigger.print()
 
-        :note:
+        .. note::
             - Works only for greyscale images.
             - The resulting image is "blocky", apply Gaussian smoothing to
               reduce this.
 
         :references:
-            - Robotics, Vision & Control for Python, Section 11.7.2, P. Corke, Springer 2023.
+            - |RVC3|, Section 11.7.2.
 
         :seealso: :meth:`decimate`
         """
@@ -649,10 +648,7 @@ class ImageReshapeMixin:
             raise ValueError("ROI should be top-left and bottom-right corners")
         # TODO check row/column ordering, and ndim check
 
-        if self.ndim > 2:
-            roi = self.image[top : bot + 1, left : right + 1, :]
-        else:
-            roi = self.image[top : bot + 1, left : right + 1]
+        roi = self._A[top : bot + 1, left : right + 1, ...]
 
         if bbox is None:
             return self.__class__(roi, colororder=self.colororder), [
@@ -713,7 +709,7 @@ class ImageReshapeMixin:
 
 
         :references:
-            - Robotics, Vision & Control for Python, Section 11.4.1.1, P. Corke, Springer 2023.
+            - |RVC3|, Section 11.4.1.1.
 
         :seealso: :meth:`trim` :meth:`scale`
         """
@@ -721,7 +717,7 @@ class ImageReshapeMixin:
         if bias < 0 or bias > 1:
             raise ValueError(bias, "bias must be in range [0, 1]")
 
-        im = self.image
+        im = self._A
 
         sc = np.r_[image2.shape[:2]] / np.r_[im.shape[:2]]
         o = self.scale(sc.max())
@@ -780,9 +776,9 @@ class ImageReshapeMixin:
             >>> img.scale(0.5)
 
         :references:
-            - Robotics, Vision & Control for Python, Section 11.7.2, P. Corke, Springer 2023.
+            - |RVC3|, Section 11.7.2.
 
-        :seealso: `opencv.resize <https://docs.opencv.org/3.4/da/d54/group__imgproc__transform.html#ga47a974309e9102f5f08231edc7e7529d>`_
+        :seealso: `opencv.resize <https://docs.opencv.org/4.x/da/d54/group__imgproc__transform.html#ga47a974309e9102f5f08231edc7e7529d>`_
         """
         # check inputs
         if not smb.isscalar(sfactor):
@@ -813,7 +809,7 @@ class ImageReshapeMixin:
                 im = self.smooth(sigma)
 
         out = cv.resize(
-            src=im.image,
+            src=im._A,
             dsize=None,
             fx=sfactor,
             fy=sfactor,
@@ -846,7 +842,7 @@ class ImageReshapeMixin:
             >>> out = img.rotate(0.5)
             >>> out.disp()
 
-        :note:
+        .. note::
             - Rotation is defined with respect to a z-axis which is into the
               image, therefore counter-clockwise is a positive angle.
             - The pixels in the corners of the resulting image will be
@@ -922,7 +918,7 @@ class ImageReshapeMixin:
             >>> U, V = img.meshgrid()
             >>> U
             >>> V
-            >>> Image(U**2 + V**2).image
+            >>> Image(U**2 + V**2).print()
 
         :seealso: :func:`~base.meshgrid`
         """
@@ -950,9 +946,9 @@ class ImageReshapeMixin:
 
         .. math:: Y_{u,v} = X_{u^\prime, v^\prime} \mbox{, where } u^\prime = U_{u,v}, v^\prime = V_{u,v}
 
-        :note:  Uses OpenCV.
+        .. note::  Uses OpenCV.
 
-        :seealso: :meth:`interp2d` :meth:`domain` `opencv.remap <https://docs.opencv.org/3.4/da/d54/group__imgproc__transform.html#gab75ef31ce5cdfb5c44b6da5f3b908ea4>`_
+        :seealso: :meth:`interp2d` :meth:`domain` `opencv.remap <https://docs.opencv.org/4.x/da/d54/group__imgproc__transform.html#gab75ef31ce5cdfb5c44b6da5f3b908ea4>`_
         """
         # TODO more interpolation modes
 
@@ -998,7 +994,7 @@ class ImageReshapeMixin:
         The coordinates in ``U`` and ``V`` are with respect to the domain
         of the input image but can be overridden by specifying ``Ud`` and ``Vd``.
 
-        :note:  Uses SciPy
+        .. note::  Uses SciPy
 
         :seealso: :meth:`domain` :meth:`meshgrid` :meth:`vspan` :func:`scipy.interpolate.griddata`
         """
@@ -1010,7 +1006,7 @@ class ImageReshapeMixin:
                 Ud, Vd = mvb.meshgrid(*self.domain)
 
         points = np.array((Ud.flatten(), Vd.flatten())).T
-        values = self.image.flatten()
+        values = self._A.flatten()
         xi = np.array((U.flatten(), V.flatten())).T
         Zi = sp.interpolate.griddata(points, values, xi)
 
@@ -1051,7 +1047,7 @@ class ImageReshapeMixin:
             >>> out = img.warp_affine(M, bgcolor=np.nan)  # unmapped pixels are NaNs
             >>> out.disp(badcolor="r")  # display warped image with NaNs as red
 
-        :note: Only the first two rows of ``M`` are used.
+        .. note:: Only the first two rows of ``M`` are used.
 
         An alternative approach is to warp the image into another image by using the
         `dst` option.  In this case no `bgcolor` or `size` should be specified. Only those pixels
@@ -1070,7 +1066,7 @@ class ImageReshapeMixin:
             >>>     img.warp_affine(M, dst=out)
             >>> out.disp()
 
-        :seealso: :meth:`warp` `opencv.warpAffine <https://docs.opencv.org/3.4/da/d54/group__imgproc__transform.html#ga0203d9ee5fcd28d40dbc4a1ea4451983>`_
+        :seealso: :meth:`warp` `opencv.warpAffine <https://docs.opencv.org/4.x/da/d54/group__imgproc__transform.html#ga0203d9ee5fcd28d40dbc4a1ea4451983>`_
         """
         flags = cv.INTER_CUBIC
         if inverse:
@@ -1093,13 +1089,13 @@ class ImageReshapeMixin:
         if bgcolor is None and dst is not None:
             bordermode = cv.BORDER_TRANSPARENT
             size = dst.size
-            dst = dst.image
+            dst = dst._A
 
         if isinstance(M, SE2):
             M = M.A
 
         out = cv.warpAffine(
-            src=self.image,
+            src=self._A,
             M=M[:2, :],
             dsize=size,
             flags=flags,
@@ -1146,9 +1142,9 @@ class ImageReshapeMixin:
         specified by ``background``.
 
         :references:
-            - Robotics, Vision & Control for Python, Section 14.8, P. Corke, Springer 2023.
+            - |RVC3|, Section 14.8.
 
-        :seealso: :meth:`warp` `opencv.warpPerspective <https://docs.opencv.org/3.4/da/d54/group__imgproc__transform.html#gaf73673a7e8e18ec6963e3774e6a94b87>`_
+        :seealso: :meth:`warp` `opencv.warpPerspective <https://docs.opencv.org/4.x/da/d54/group__imgproc__transform.html#gaf73673a7e8e18ec6963e3774e6a94b87>`_
         """
 
         if not smb.ismatrix(H, (3, 3)):
@@ -1216,9 +1212,9 @@ class ImageReshapeMixin:
             >>> out = images[12].undistort(K, distortion)
             >>> out.disp()
 
-        :seealso: :meth:`~machinevisiontoolbox.CentralCamera.images2C` `opencv.undistort <https://docs.opencv.org/3.4/da/d54/group__imgproc__transform.html#ga69f2545a8b62a6b0fc2ee060dc30559d>`_
+        :seealso: :meth:`~machinevisiontoolbox.CentralCamera.images2C` `opencv.undistort <https://docs.opencv.org/4.x/da/d54/group__imgproc__transform.html#ga69f2545a8b62a6b0fc2ee060dc30559d>`_
         """
-        undistorted = cv.undistort(src=self.image, cameraMatrix=K, distCoeffs=dist)
+        undistorted = cv.undistort(src=self._A, cameraMatrix=K, distCoeffs=dist)
         return self.__class__(undistorted, colororder=self.colororder)
 
     # ------------------------- operators ------------------------------ #
@@ -1248,10 +1244,10 @@ class ImageReshapeMixin:
             >>> Image.Read('street.png').view1d().shape
             >>> Image.Read('monalisa.png').view1d().shape
 
-        :note: This creates a view of the original image, so operations on
+        .. note:: This creates a view of the original image, so operations on
             the column will affect the original image.
         """
-        image = self.image
+        image = self._A
         if image.ndim == 2:
             return image.ravel()
         elif image.ndim == 3:

@@ -5,13 +5,13 @@ NumPy array type aliases used throughout the Machine Vision Toolbox.
 from typing import Any
 
 import numpy as np
+import numpy.typing as npt
 
 Array1d = np.ndarray[tuple[int], np.dtype]
 Array2d = np.ndarray[tuple[int, int], np.dtype]
 Array3d = np.ndarray[tuple[int, int, int], np.dtype]
 
-# DType = str | np.dtype # problematic for 3.9
-Dtype = Any
+Dtype = npt.DTypeLike
 
 # anything that can be converted into a 2-element array.  The scalar case is the special case
 # where both elements are the same.

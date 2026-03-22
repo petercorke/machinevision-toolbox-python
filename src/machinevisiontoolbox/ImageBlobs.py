@@ -175,7 +175,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
            * - :meth:`level`
              - The depth of the blob in the region tree.
 
-        :note: ``findContours`` can give surprising results for small images:
+        .. note:: ``findContours`` can give surprising results for small images:
 
             - The perimeter length is computed between the mid points of the pixels, and
               the OpenCV function ``arcLength`` seems to underestimate the perimeter
@@ -186,12 +186,12 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
               contour, see above.
 
         :references:
-            - Robotics, Vision & Control for Python, Section 12.1.2.1, P. Corke, Springer 2023.
+            - |RVC3|, Section 12.1.2.1.
 
         :seealso: :meth:`filter` :meth:`sort`
-            `opencv.moments <https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#ga556a180f43cab22649c23ada36a8a139>`_,
-            `opencv.boundingRect <https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#ga103fcbda2f540f3ef1c042d6a9b35ac7>`_,
-            `opencv.findContours <https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#gadf1ad6a0b82947fa1fe3c3d497f260e0>`_
+            `opencv.moments <https://docs.opencv.org/4.x/d3/dc0/group__imgproc__shape.html#ga556a180f43cab22649c23ada36a8a139>`_,
+            `opencv.boundingRect <https://docs.opencv.org/4.x/d3/dc0/group__imgproc__shape.html#ga103fcbda2f540f3ef1c042d6a9b35ac7>`_,
+            `opencv.findContours <https://docs.opencv.org/4.x/d3/dc0/group__imgproc__shape.html#gadf1ad6a0b82947fa1fe3c3d497f260e0>`_
         """
         super().__init__(self)
 
@@ -482,7 +482,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             to parents and children that are not in the filtered set.
 
         :references:
-            - Robotics, Vision & Control for Python, Section 12.1.2.1, P. Corke, Springer 2023.
+            - |RVC3|, Section 12.1.2.1.
 
         :seealso: :meth:`sort`
         """
@@ -558,7 +558,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> blobs.sort()
 
         :references:
-            - Robotics, Vision & Control for Python, Section 12.1.2.1, P. Corke, Springer 2023.
+            - |RVC3|, Section 12.1.2.1.
 
         :seealso: :meth:`filter`
         """
@@ -769,7 +769,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> blobs[0].bbox
             >>> blobs.bbox
 
-        :note: The bounding box is the smallest box with vertical and
+        .. note:: The bounding box is the smallest box with vertical and
             horizontal edges that fully encloses the blob.
 
         :seealso: :meth:`umin` :meth:`vmin` :meth:`umax` :meth:`umax`,
@@ -898,7 +898,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> blobs[0].bboxarea
             >>> blobs.bboxarea
 
-        :note: The bounding box is the smallest box with vertical and
+        .. note:: The bounding box is the smallest box with vertical and
             horizontal edges that fully encloses the blob.
 
         :seealso: :meth:`bbox` :meth:`area` :meth:`fillfactor`
@@ -928,7 +928,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> blobs[0].fillfactor
             >>> blobs.fillfactor
 
-        :note: The bounding box is the smallest box with vertical and
+        .. note:: The bounding box is the smallest box with vertical and
             horizontal edges that fully encloses the blob.
 
         :seealso: :meth:`bbox`
@@ -1288,7 +1288,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> blobs[0].perimeter_length
             >>> blobs.perimeter_length
 
-        :note: The length of the internal perimeter is found from summing
+        .. note:: The length of the internal perimeter is found from summing
             the external perimeter of each child blob.
 
         :seealso: :meth:`perimeter` :meth:`children`
@@ -1318,7 +1318,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> blobs[0].circularity
             >>> blobs.circularity
 
-        :note:  Kulpa's correction factor is applied to account for edge
+        .. note::  Kulpa's correction factor is applied to account for edge
             discretization:
 
             - Area and perimeter measurement of blobs in discrete binary pictures.
@@ -1367,7 +1367,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             for blob in blobs:
                 plt.plot(blob.perimeter[0], blob.perimeter[1], 'y-', linewidth=2)
 
-        :note: The perimeter is not closed, that is, the first and last point
+        .. note:: The perimeter is not closed, that is, the first and last point
             are not the same.
 
         :seealso: :meth:`perimeter_approx` :meth:`perimeter_hull` :meth:`plot_perimeter` :meth:`polar`
@@ -1427,10 +1427,10 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
                 perim = blob.perimeter_approx(5)
                 plt.plot(perim[0], perim[1], 'y.-')
 
-        :note: The perimeter is not closed, that is, the first and last point
+        .. note:: The perimeter is not closed, that is, the first and last point
             are not the same.
 
-        :seealso: :meth:`plot_perimeter` :meth:`perimeter` :meth:`perimeter_hull` :meth:`polar` `cv2.approxPolyDP <https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#ga0012a5fdaea70b8a9970165d98722b4c>`_
+        :seealso: :meth:`plot_perimeter` :meth:`perimeter` :meth:`perimeter_hull` :meth:`polar` `cv2.approxPolyDP <https://docs.opencv.org/4.x/d3/dc0/group__imgproc__shape.html#ga0012a5fdaea70b8a9970165d98722b4c>`_
         """
         perimeters = []
         for b in self.data:
@@ -1491,10 +1491,10 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
                 perim = blob.perimeter_hull()
                 plt.plot(perim[0], perim[1], 'y.-')
 
-        :note: The perimeter is not closed, that is, the first and last point
+        .. note:: The perimeter is not closed, that is, the first and last point
             are not the same.
 
-        :seealso: :meth:`plot_perimeter` :meth:`perimeter` :meth:`perimeter_approx` :meth:`perimeter_approx` :meth:`polar` `cv2.convexHull <https://docs.opencv.org/3.4/d3/dc0/group__imgproc__shape.html#ga014b28e56cb8854c0de4a211cb2be656>`_
+        :seealso: :meth:`plot_perimeter` :meth:`perimeter` :meth:`perimeter_approx` :meth:`perimeter_approx` :meth:`polar` `cv2.convexHull <https://docs.opencv.org/4.x/d3/dc0/group__imgproc__shape.html#ga014b28e56cb8854c0de4a211cb2be656>`_
         """
         perimeters = []
         for b in self.data:
@@ -1529,7 +1529,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> p = blobs[0].polar()
             >>> p.shape
 
-        :note: The points are evenly spaced around the perimeter but are
+        .. note:: The points are evenly spaced around the perimeter but are
             not evenly spaced in subtended angle.
 
         :seealso: :meth:`polarmatch` :meth:`perimeter`
@@ -1582,7 +1582,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> blobs = im.blobs()
             >>> blobs.polarmatch(1)
 
-        :note:
+        .. note::
             - Can be considered as matching two functions defined over :math:`S^1`.
             - Orientation is obtained by cross-correlation of the polar-angle
               profile.
@@ -1957,7 +1957,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         :param kwargs: line style parameters passed to ``plot``
 
-                Compute the minimal enclosing box whose sides are parallel to the axes of the
+        Compute the minimal enclosing box whose sides are parallel to the axes of the
         equivalent ellipse.  Return a list of vertices (not closed) and a list
         of box centroids.
         Highlights the perimeter of a blob or blobs on the current plot.
@@ -2060,7 +2060,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         <https://graphviz.org>`_ code to represent the blob hierarchy as a
         directed graph.  By default output is to the console.
 
-        :note: If ``filename`` is a file object then the file will *not*
+        .. note:: If ``filename`` is a file object then the file will *not*
             be closed after the GraphViz model is written.
 
         :seealso: :meth:`child` :meth:`parent` :meth:`level`
@@ -2128,7 +2128,7 @@ class ImageBlobsMixin:
             >>> print(blobs)
 
         :references:
-            - Robotics, Vision & Control for Python, Section 12.1.2.1, P. Corke, Springer 2023.
+            - |RVC3|, Section 12.1.2.1.
         """
 
         # TODO do the feature extraction here

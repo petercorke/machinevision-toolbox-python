@@ -9,14 +9,14 @@ morph_op = np.min
 pause = 0.5
 
 a = Image.Random(10)  # random input image
-b = Image.Zeros(10)  # "empty" output image
+b = Image.Constant(10, value=np.nan, dtype="float")  # "empty" output image
 
 # create two adjacent subplots, and display the input image on the left
-fig, ax = plt.subplots(1, 2, figsize=(10, 5))
+fig, (input, output) = plt.subplots(1, 2, figsize=(10, 5))
 set_window_title("Morphological operation demonstration")
 
-wa = a.showpixels(textcolors="blue", ax=ax[0], windowsize=1)
-b.showpixels(ax=ax[1])
+wa = a.showpixels(textcolors=("yellow", "blue"), ax=input, windowsize=1)
+b.showpixels(textcolors=("yellow", "blue"), ax=output, fmt="{:.0f}")
 
 # wa is an object that can highlight windows in the corresponding image
 
@@ -29,8 +29,8 @@ for v in range(1, a.shape[0] - 1):
         b.image[v, u] = morph_op(window)  # perform the morphological operation
 
         # update the display of the output image
-        ax[1].cla()
-        b.showpixels(ax=ax[1])
+        output.cla()
+        b.showpixels(textcolors=("yellow", "blue"), maxval=255, ax=output, fmt="{:.0f}")
 
         if pause is None:
             plt.waitforbuttonpress()

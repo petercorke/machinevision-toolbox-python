@@ -13,7 +13,8 @@ instance has a very large number of methods that perform useful operations on an
 and wrap low-level operations performed using NumPy or OpenCV.
 
 .. autoclass:: machinevisiontoolbox.Image
-   :special-members: __init__
+
+.. include:: _image_class_toctree.rst.inc
 
 Image attributes and datatype
 -----------------------------
@@ -24,20 +25,19 @@ Image attributes
 Describe the attributes of an :class:`~machinevisiontoolbox.ImageCore.Image`.
 
 .. autosummary::
-   :toctree: stubs
    :nosignatures:
 
-   ~width
-   ~height
-   ~size
-   ~npixels
-   ~name
-   ~centre
-   ~centre_int
+   ~__repr__
+   ~__str__
    ~center
    ~center_int
-   ~__str__
-   ~__repr__
+   ~centre
+   ~centre_int
+   ~height
+   ~name
+   ~npixels
+   ~size
+   ~width
 
 Predicates
 ^^^^^^^^^^
@@ -45,14 +45,13 @@ Predicates
 Test attributes of an ``Image``.
 
 .. autosummary::
-   :toctree: stubs
    :nosignatures:
 
-   ~isfloat
-   ~isint
+   ~isbgr
    ~isbool
    ~iscolor
-   ~isbgr
+   ~isfloat
+   ~isint
    ~isrgb
 
 Image coordinates
@@ -61,15 +60,14 @@ Image coordinates
 Describe the pixel coordinates of an ``Image``.
 
 .. autosummary::
-   :toctree: stubs
    :nosignatures:
 
-   ~umax
-   ~vmax
-   ~uspan
-   ~vspan
-   ~meshgrid
    ~contains
+   ~meshgrid
+   ~umax
+   ~uspan
+   ~vmax
+   ~vspan
 
 NumPy pixel data
 ^^^^^^^^^^^^^^^^
@@ -77,18 +75,17 @@ NumPy pixel data
 Return ``Image`` pixel data as a NumPy array.
 
 .. autosummary::
-   :toctree: stubs
    :nosignatures:
 
-   ~A
-   ~rgb
+   ~array
+   ~array_as
    ~bgr
-   ~image
-   ~to_int
-   ~to_float
-   ~view1d
-   ~shape
    ~ndim
+   ~rgb
+   ~shape
+   ~to_float
+   ~to_int
+   ~view1d
 
 Getting and setting pixels
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -96,12 +93,11 @@ Getting and setting pixels
 Access individual pixels or groups of pixels.
 
 .. autosummary::
-   :toctree: stubs
    :nosignatures:
 
+   ~__getitem__
    ~pixel
    ~pixels_mask
-   ~__getitem__
 
 Image datatype
 ^^^^^^^^^^^^^^
@@ -109,26 +105,20 @@ Image datatype
 Describe or change the datatype of ``Image`` pixel values.
 
 .. autosummary::
-   :toctree: stubs
    :nosignatures:
 
-   ~isfloat
-   ~isint
-   ~isbool
-   ~dtype
-   ~to
    ~astype
-   ~to_int
-   ~to_float
    ~cast
-   ~like
-   ~minval
-   ~maxval
-   ~true
+   ~dtype
    ~false
-   ~numnan
-   ~numinf
    ~fixbad
+   ~like
+   ~maxval
+   ~minval
+   ~numinf
+   ~numnan
+   ~to
+   ~true
 
 Image processing
 ----------------
@@ -139,17 +129,14 @@ Sub images
 Extract sub-images or planes from an ``Image`` instance.
 
 .. autosummary::
-   :toctree: stubs
    :nosignatures:
 
-   ~roi
+   ~blue
+   ~copy
+   ~green
    ~plane
    ~red
-   ~green
-   ~blue
-   ~__getitem__
-   ~pixel
-   ~copy
+   ~roi
 
 Color info
 ^^^^^^^^^^
@@ -157,20 +144,15 @@ Color info
 Return information about the color planes of an ``Image`` instance.
 
 .. autosummary::
-   :toctree: stubs
    :nosignatures:
 
-   ~iscolor
-   ~isbgr
-   ~isrgb
-   ~colororder
-   ~colororder_str
    ~colordict
    ~colordict2list
    ~colordict2str
+   ~colororder
    ~colororder2dict
+   ~colororder_str
    ~nplanes
-   ~plane
 
 Color space and gamma
 ^^^^^^^^^^^^^^^^^^^^^
@@ -178,16 +160,15 @@ Color space and gamma
 Convert between color spaces and perform gamma encoding and decoding.
 
 .. autosummary::
-   :toctree: stubs
    :nosignatures:
 
-   ~mono
-   ~colorize
    ~chromaticity
+   ~colorize
    ~colorspace
-   ~gamma_encode
    ~gamma_decode
+   ~gamma_encode
    ~kmeans_color
+   ~mono
 
 
 Composition
@@ -196,17 +177,16 @@ Composition
 Combine multiple ``Image`` instances into a single ``Image`` instance.
 
 .. autosummary::
-   :toctree: stubs
    :nosignatures:
 
-   ~Hstack
-   ~Vstack
-   ~Pstack
-   ~Tile
-   ~Overlay
-   ~blend
    ~anaglyph
+   ~blend
+   ~Hstack
+   ~Overlay
+   ~Pstack
    ~stdisp
+   ~Tile
+   ~Vstack
 
 Monadic functions
 ^^^^^^^^^^^^^^^^^
@@ -214,7 +194,6 @@ Monadic functions
 Operate elementwise on an ``Image`` instance and returns a new ``Image`` instance.
 
 .. autosummary::
-   :toctree: stubs
    :nosignatures:
 
    ~abs
@@ -235,13 +214,10 @@ Dyadic functions
 Operate elementwise on two ``Image`` instances and return a new ``Image`` instance.
 
 .. autosummary::
-   :toctree: stubs
    :nosignatures:
 
    ~apply2
-   ~blend
    ~choose
-   ~direction
    ~paste
 
 
@@ -251,17 +227,15 @@ Linear filtering
 Linear filtering operations including convolution, corner and edge detection.
 
 .. autosummary::
-   :toctree: stubs
    :nosignatures:
 
-   ~convolve
-   ~smooth
-   ~gradients
-   ~direction
-   ~Harris_corner_strength
-   ~scalespace
-   ~pyramid
    ~canny
+   ~convolve
+   ~gradients
+   ~Harris_corner_strength
+   ~pyramid
+   ~scalespace
+   ~smooth
 
 Non-linear (morphological) filtering
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -269,24 +243,23 @@ Non-linear (morphological) filtering
 Variety of non-linear morphological operations.
 
 .. autosummary::
-   :toctree: stubs
    :nosignatures:
 
-   ~window
-   ~zerocross
-   ~rank
-   ~medianfilter
-   ~distance_transform
-   ~erode
-   ~dilate
    ~close
-   ~open
-   ~morph
+   ~dilate
+   ~distance_transform
+   ~endpoint
+   ~erode
    ~hitormiss
+   ~medianfilter
+   ~morph
+   ~open
+   ~rank
    ~thin
    ~thin_animate
-   ~endpoint
    ~triplepoint
+   ~window
+   ~zerocross
 
 Image labeling
 ^^^^^^^^^^^^^^
@@ -294,13 +267,11 @@ Image labeling
 Binary, greyscale and color image segmentation using various algorithms.
 
 .. autosummary::
-   :toctree: stubs
    :nosignatures:
 
    ~labels_binary
-   ~labels_MSER
    ~labels_graphseg
-   ~kmeans_color
+   ~labels_MSER
 
 Image similarity
 ^^^^^^^^^^^^^^^^
@@ -308,16 +279,15 @@ Image similarity
 Various scalar image similarity measures.
 
 .. autosummary::
-   :toctree: stubs
    :nosignatures:
 
-   ~sad
-   ~ssd
    ~ncc
+   ~sad
+   ~similarity
+   ~ssd
+   ~zncc
    ~zsad
    ~zssd
-   ~zncc
-   ~similarity
 
 Shape changing
 ^^^^^^^^^^^^^^
@@ -325,18 +295,15 @@ Shape changing
 Changing the shape of an ``Image`` instance.
 
 .. autosummary::
-   :toctree: stubs
    :nosignatures:
 
-   ~trim
-   ~pad
    ~decimate
    ~dice
+   ~pad
    ~replicate
-   ~roi
    ~samesize
    ~scale
-   ~view1d
+   ~trim
 
 Image distortion
 ^^^^^^^^^^^^^^^^
@@ -344,17 +311,16 @@ Image distortion
 Distorting the image within an ``Image`` instance.
 
 .. autosummary::
-   :toctree: stubs
    :nosignatures:
 
+   ~interp2d
    ~roll
    ~rotate
    ~rotate_spherical
+   ~undistort
    ~warp
    ~warp_affine
    ~warp_perspective
-   ~interp2d
-   ~undistort
 
 Multiview operations
 ^^^^^^^^^^^^^^^^^^^^
@@ -362,16 +328,13 @@ Multiview operations
 Stereo image processing, rectification, and display.
 
 .. autosummary::
-   :toctree: stubs
    :nosignatures:
 
-   ~stdisp
-   ~anaglyph
-   ~stereo_simple
    ~DSI_refine
+   ~rectify_homographies
    ~stereo_BM
    ~stereo_SGBM
-   ~rectify_homographies
+   ~stereo_simple
 
 Operators
 ^^^^^^^^^
@@ -397,42 +360,40 @@ Arithmetic and bitwise logical operations can be performed elementwise on:
 
 
 .. autosummary::
-   :toctree: stubs
    :nosignatures:
 
-   ~__neg__
    ~__add__
-   ~__sub__
-   ~__mul__
-   ~__pow__
-   ~__truediv__
-   ~__floordiv__
    ~__and__
-   ~__or__
-   ~__xor__
-   ~__lshift__
-   ~__rshift__
+   ~__floordiv__
    __invert__
+   ~__lshift__
+   ~__mul__
+   ~__neg__
+   ~__or__
+   ~__pow__
    ~__radd__
-   ~__rsub__
-   ~__rmul__
-   ~__rtruediv__
    ~__rfloordiv__
+   ~__rmul__
+   ~__rshift__
+   ~__rsub__
+   ~__rtruediv__
+   ~__sub__
+   ~__truediv__
+   ~__xor__
 
 
 Logical operations can be performed elementwise on: ``Image`` ☆ ``Image``.
 The result is always an ``Image`` with boolean pixel values:
 
 .. autosummary::
-   :toctree: stubs
    :nosignatures:
 
    ~__eq__
-   ~__ne__
-   ~__gt__
    ~__ge__
-   ~__lt__
+   ~__gt__
    ~__le__
+   ~__lt__
+   ~__ne__
 
 
 Inplace arithmetic operators
@@ -446,19 +407,18 @@ Arithmetic and bitwise logical operations can be performed elementwise on:
 The result is always an ``Image``.  A scalar value is broadcast across the whole image.
 
 .. autosummary::
-   :toctree: stubs
    :nosignatures:
 
    ~__iadd__
-   ~__isub__
-   ~__imul__
-   ~__itruediv__
-   ~__ifloordiv__
    ~__iand__
-   ~__ior__
-   ~__ixor__
+   ~__ifloordiv__
    ~__ilshift__
+   ~__imul__
+   ~__ior__
    ~__irshift__
+   ~__isub__
+   ~__itruediv__
+   ~__ixor__
 
 Plane stacking operators
 """"""""""""""""""""""""
@@ -468,12 +428,25 @@ A scalar  value is broadcast across the whole image to create a new ``Image`` in
 In place stacking allows for planes to be appended.
 
 .. autosummary::
-   :toctree: stubs
    :nosignatures:
    
-   ~__mod__
    ~__imod__
+   ~__mod__
 
+Image statistics
+----------------
+
+ .. autosummary::
+   :nosignatures:
+
+   ~max
+   ~mean
+   ~median
+   ~min
+   ~stats
+   ~std
+   ~var
+   ~hist
 
 Image feature extraction
 ------------------------
@@ -486,51 +459,34 @@ Histograms
 """"""""""
 
 .. autosummary::
-   :toctree: stubs
    :nosignatures:
 
    ~hist
 
-Statistical measures
-""""""""""""""""""""
-
- .. autosummary::
-   :toctree: stubs
-   :nosignatures:
-
-   ~mean
-   ~std
-   ~var
-   ~median
-   ~min
-   ~max
-   ~stats
 
 Image moments
 """""""""""""
 
 .. autosummary::
-   :toctree: stubs
    :nosignatures:
 
+   ~humoments
+   ~moments
    ~mpq
    ~npq
    ~upq
-   ~moments
-   ~humoments
 
 Other
 """""
 
 .. autosummary::
-   :toctree: stubs
    :nosignatures:
 
-   ~sum
-   ~nonzero
    ~flatnonzero
-   ~peak2d
+   ~nonzero
    ~otsu
+   ~peak2d
+   ~sum
 
 Region features
 ^^^^^^^^^^^^^^^
@@ -538,7 +494,6 @@ Region features
 Find homogeneous regions, text or fiducual tags.
 
 .. autosummary::
-   :toctree: stubs
    :nosignatures:
 
    ~blobs
@@ -551,7 +506,6 @@ Fiducial features
 ^^^^^^^^^^^^^^^^^
 
 .. autosummary::
-   :toctree: stubs
    :nosignatures:
 
    ~fiducial
@@ -562,10 +516,8 @@ Line features
 Find lines in an image.
 
 .. autosummary::
-   :toctree: stubs
    :nosignatures:
 
-   ~canny
    ~Hough
 
 Point/corner features
@@ -574,15 +526,14 @@ Point/corner features
 Find distincitive points in an image.
 
 .. autosummary::
-   :toctree: stubs
    :nosignatures:
 
-   ~SIFT
-   ~ORB
-   ~BRISK
    ~AKAZE
-   ~Harris
+   ~BRISK
    ~ComboFeature
+   ~Harris
+   ~ORB
+   ~SIFT
 
 
 Image i/o
@@ -592,33 +543,27 @@ File
 ^^^^
 
 .. autosummary::
-   :toctree: stubs
    :nosignatures:
 
+   ~metadata
    ~Read
    ~write
-   ~metadata
 
 Graphical
 ^^^^^^^^^
 
 .. autosummary::
-   :toctree: stubs
    :nosignatures:
 
    ~disp
    ~showpixels
-   ~anaglyph
-   ~stdisp
 
 Text
 ^^^^
 
 .. autosummary::
-   :toctree: stubs
    :nosignatures:
    
-   ~String
    ~print
    ~strhcat
 
@@ -628,19 +573,18 @@ Constant images
 Create images that are constant, random, or have a simple geometric pattern.
 
 .. autosummary::
-   :toctree: stubs
    :nosignatures:
 
-   ~Zeros
-   ~Constant
-   ~String
-   ~Random
-   ~Squares
-   ~Circles
-   ~Ramp
-   ~Sin
    ~Chequerboard
+   ~Circles
+   ~Constant
    ~Polygons
+   ~Ramp
+   ~Random
+   ~Sin
+   ~Squares
+   ~String
+   ~Zeros
 
 Graphical annotation
 --------------------
@@ -649,28 +593,18 @@ Render simple graphical annotations into an image.  The equivalent functions ``p
 from SpatialMath Toolbox create graphical overlays rather than changing the the image data.
 
 .. autosummary::
-   :toctree: stubs
    :nosignatures:
 
-   ~draw_line
-   ~draw_point
    ~draw_box
    ~draw_circle
-   ~draw_text
    ~draw_labelbox
+   ~draw_line
+   ~draw_point
+   ~draw_text
 
 
 Test images
 -----------
 
 Sometimes, for pedagogy and unit tests, it is helpful to create, process and numerically
-display small example images.  These functions can help with that
-
-.. autosummary::
-   :toctree: stubs
-   :nosignatures:
-
-   ~String
-   ~print
-   ~strhcat
-   ~showpixels
+display small example images.

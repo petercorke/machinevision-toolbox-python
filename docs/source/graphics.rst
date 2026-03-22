@@ -10,3 +10,4 @@ in a figure window.
 
 .. automodule:: machinevisiontoolbox.base.graphics
    :members:
+   :member-order: alphabetical

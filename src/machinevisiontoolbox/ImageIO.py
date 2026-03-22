@@ -28,6 +28,7 @@ from machinevisiontoolbox.base import (
     iwrite,
     mvtb_path_to_datafile,
 )
+from machinevisiontoolbox.mvtb_types import Dtype
 
 # from numpy.lib.arraysetops import isin
 
@@ -67,11 +68,11 @@ class ImageIOMixin(_ImageBase):
             >>> Image.Read('flowers1.png', reduce=4)
             >>> Image.Read('flowers1.png', gamma='sRGB') # linear tristimulus values
 
-        :note:  If the path is not absolute it is first searched for relative
+        .. note::  If the path is not absolute it is first searched for relative
             to the current directory, and if not found, it is searched for in
-            the ``images`` folder of the ```mvtb_data`` package <https://github.com/petercorke/machinevision-toolbox-python/tree/master/mvtb-data>`_.
+            the ``images`` folder of the `mvtb_data package <https://github.com/petercorke/machinevision-toolbox-python/tree/master/mvtb-data>`_.
 
-        :seealso: :func:`~machinevisiontoolbox.base.imageio.iread` :func:`~machinevisiontoolbox.base.imageio.convert`  `cv2.imread <https://docs.opencv.org/master/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56>`_
+        :seealso: :func:`~machinevisiontoolbox.base.imageio.iread` :func:`~machinevisiontoolbox.base.imageio.convert`  `cv2.imread <https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56>`_
         """
         if not isinstance(filename, (str, Path)):
             raise ValueError("expecting a string or path")
@@ -141,14 +142,14 @@ class ImageIOMixin(_ImageBase):
             self._A, title=title, colororder="RGB" if self.isrgb else "BGR", **kwargs
         )
 
-    def write(self, filename, dtype="uint8", **kwargs):
+    def write(self, filename, dtype: Dtype = "uint8", **kwargs):
         """
         Write image to file
 
         :param filename: filename to write to
         :type filename: str
         :param dtype: data type to convert to, before writing
-        :type dtype: str
+        :type dtype: str or NumPy dtype
         :param kwargs: options for :func:`~machinevisiontoolbox.base.iwrite`
 
         Write image data to a file.  The file format is taken from the extension
@@ -162,7 +163,7 @@ class ImageIOMixin(_ImageBase):
             >>> img = Image.Read('flowers1.png')
             >>> img.write('flowers.jpg')
 
-        :seealso: :func:`~machinevisiontoolbox.base.iwrite` `cv2.imwrite <https://docs.opencv.org/master/d4/da8/group__imgcodecs.html#gabbc7ef1aa2edfaa87772f1202d67e0ce>`_
+        :seealso: :func:`~machinevisiontoolbox.base.iwrite` `cv2.imwrite <https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html#gabbc7ef1aa2edfaa87772f1202d67e0ce>`_
         """
 
         # cv.imwrite can only save 8-bit single channel or 3-channel BGR images
@@ -171,7 +172,7 @@ class ImageIOMixin(_ImageBase):
         # #gabbc7ef1aa2edfaa87772f1202d67e0ce
         # TODO imwrite has many quality/type flags
 
-        ret = iwrite(self.image.astype(dtype), filename, **kwargs)
+        ret = iwrite(self._A.astype(dtype), filename, **kwargs)
 
         return ret
 
@@ -198,7 +199,7 @@ class ImageIOMixin(_ImageBase):
             >>> meta['FocalLength']
             >>> img.metadata('FocalLength')  # get specific metadata item
 
-        :note:  Metadata items will be converted, where possible, to int or float values.
+        .. note::  Metadata items will be converted, where possible, to int or float values.
 
         """
         try:
@@ -248,7 +249,13 @@ class ImageIOMixin(_ImageBase):
                 return val
 
     def showpixels(
-        self, textcolors=["yellow", "blue"], fmt=None, ax=None, windowsize=0, **kwargs
+        self,
+        textcolors=["yellow", "blue"],
+        fmt=None,
+        ax=None,
+        windowsize=0,
+        maxval=None,
+        **kwargs,
     ):
         """
         Display image with pixel values
@@ -331,20 +338,28 @@ class ImageIOMixin(_ImageBase):
             ax = plt.gca()
 
         if self.isint:
-            fmt = "{:d}"
-            halfway = self.maxval / 2
+            if fmt is None:
+                fmt = "{:d}"
+            halfway = self.maxval // 2
         elif self.isfloat:
-            fmt = "{:.2f}"
+            if fmt is None:
+                fmt = "{:.2f}"
             halfway = 0.5
         elif self.isbool:
-            fmt = "{:d}"
+            if fmt is None:
+                fmt = "{:d}"
             halfway = 0.5
         else:
             raise ValueError("unsupported image type")
 
-        image = self.image
+        if maxval is not None:
+            halfway = maxval / 2
+
+        image = self._A
         for v in range(self.height):
             for u in range(self.width):
+                if np.isnan(image[v, u]):
+                    continue
                 if isinstance(textcolors, (list, tuple)):
                     if image[v, u] < halfway:
                         color = textcolors[0]
@@ -400,18 +415,12 @@ class ImageIOMixin(_ImageBase):
                 self.patch.set_x(u - self.h - 0.5)
                 self.patch.set_y(v - self.h - 0.5)
 
-                return self.image[
+                return self.image._A[
                     v - self.h : v + self.h + 1, u - self.h : u + self.h + 1
                 ]
 
         if windowsize > 0:
             return Window(self, h=windowsize, ax=ax, **kwargs)
-
-    # def ascvtype(self):
-    #     if np.issubdtype(self.image.dtype, np.floating):
-    #         return self.image.astype(np.float32)
-    #     else:
-    #         return self.image.astype(np.uint8)
 
     def anaglyph(self, right, colors="rc", disp=0):
         """
@@ -468,8 +477,8 @@ class ImageIOMixin(_ImageBase):
             right = Image.Read("rocks2-r.png", reduce=2)
             left.anaglyph(right).disp()
 
-        :reference:
-            - Robotics, Vision & Control for Python, Section 14.4, P. Corke, Springer 2023.
+        :references:
+            - |RVC3|, Section 14.4.
 
         :seealso: :meth:`stdisp` :meth:`Overlay`
         """
@@ -532,10 +541,10 @@ class ImageIOMixin(_ImageBase):
             right = Image.Read("rocks2-r.png", reduce=2)
             left.stdisp(right, interactive=False)
 
-        :note: The images are assumed to be epipolar aligned.
+        .. note:: The images are assumed to be epipolar aligned.
 
-        :reference:
-            - Robotics, Vision & Control for Python, Section 14.4, P. Corke, Springer 2023.
+        :references:
+            - |RVC3|, Section 14.4.
 
         :seealso: :meth:`anaglyph`
         """

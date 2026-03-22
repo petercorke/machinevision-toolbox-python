@@ -6,3 +6,4 @@ as NumPy arrays.
 
 .. automodule:: machinevisiontoolbox.base.shapes
    :members:
+   :member-order: alphabetical

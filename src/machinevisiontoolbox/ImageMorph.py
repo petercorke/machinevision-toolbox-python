@@ -84,12 +84,12 @@ class ImageMorphMixin(_ImageBase):
             >>> img.print()
             >>> img.erode(np.ones((3,3))).print()
 
-        :note:
+        .. note::
             - It is cheaper to apply a smaller structuring element multiple times
               than one large one, the effective structuring element is the
               Minkowski sum of the structuring element with itself N times.
             - The structuring element typically has odd side lengths.
-            - For a greyscale image this is the maximum value over the
+            - For a greyscale image erosion is the maximum value over the
               structuring element.
 
         .. warning:: treats NaNs in input image as standard IEEE-754 floating-point
@@ -98,10 +98,10 @@ class ImageMorphMixin(_ImageBase):
             output pixel NaN.  Use :meth:`fixbad` for handling NaN values.
 
         :references:
-            - Robotics, Vision & Control for Python, Section 11.6, P. Corke, Springer 2023.
+            - |RVC3|, Section 11.6.
 
         :seealso: :meth:`dilate`
-            `opencv.erode <https://docs.opencv.org/3.4/d4/d86/group__imgproc__filter.html#gaeb1e0c1033e3f6b891a25d0511362aeb>`_
+            `opencv.erode <https://docs.opencv.org/4.x/d4/d86/group__imgproc__filter.html#gaeb1e0c1033e3f6b891a25d0511362aeb>`_
         """
 
         # check if valid input:
@@ -157,17 +157,17 @@ class ImageMorphMixin(_ImageBase):
 
             >>> from machinevisiontoolbox import Image
             >>> import numpy as np
-            >>> pixels = np.zeros((7,7)); pixels[3,3] = 1
+            >>> pixels = np.zeros((7,7), dtype='uint8'); pixels[3,3] = 1
             >>> img = Image(pixels)
             >>> img.print()
             >>> img.dilate(np.ones((3,3))).print()
 
-        :note:
+        .. note::
             - It is cheaper to apply a smaller structuring element multiple times
               than one large one, the effective structuring element is the
               Minkowski sum of the structuring element with itself N times.
             - The structuring element typically has odd side lengths.
-            - For a greyscale image this is the minimum value over the
+            - For a greyscale image dilation is the minimum value over the
               structuring element.
 
         .. warning:: treats NaNs in input image as standard IEEE-754 floating-point
@@ -176,9 +176,9 @@ class ImageMorphMixin(_ImageBase):
             output pixel NaN.  Use :meth:`fixbad` for handling NaN values.
 
         :references:
-            - Robotics, Vision & Control for Python, Section 11.6, P. Corke, Springer 2023.
+            - |RVC3|, Section 11.6.
 
-        :seealso: :meth:`erode` `opencv.dilate <https://docs.opencv.org/3.4/d4/d86/group__imgproc__filter.html#ga4ff0f3318642c4f469d0e11f242f3b6c>`_
+        :seealso: :meth:`erode` `opencv.dilate <https://docs.opencv.org/4.x/d4/d86/group__imgproc__filter.html#ga4ff0f3318642c4f469d0e11f242f3b6c>`_
         """
 
         # check if valid input:
@@ -187,9 +187,8 @@ class ImageMorphMixin(_ImageBase):
         if n <= 0:
             raise ValueError(n, "n must be greater than 0")
 
-        # for im in [img.image in self]: # then can use cv.dilate(im)
         out = cv.dilate(
-            src=self.to_int(),
+            src=self.array_as("uint8"),
             kernel=self._getse(se),
             iterations=n,
             borderType=self._bordertype_cv(border, exclude=("wrap")),
@@ -236,7 +235,7 @@ class ImageMorphMixin(_ImageBase):
         ``'diff'``     maximum - minimum value over the structuring element
         =============  =======================================================
 
-        :note:
+        .. note::
             - It is cheaper to apply a smaller structuring element multiple times
               than one large one, the effective structuring element is the
               Minkowski sum of the structuring element with itself N times.
@@ -245,9 +244,9 @@ class ImageMorphMixin(_ImageBase):
             - For a binary image, min = erosion, max = dilation.
 
         :references:
-            - Robotics, Vision & Control for Python, Section 11.6, P. Corke, Springer 2023.
+            - |RVC3|, Section 11.6.
 
-        :seealso: :meth:`erode` :meth:`dilate` `opencv.morphologyEx <https://docs.opencv.org/3.4/d4/d86/group__imgproc__filter.html#ga67493776e3ad1a3df63883829375201f>`_
+        :seealso: :meth:`erode` :meth:`dilate` `opencv.morphologyEx <https://docs.opencv.org/4.x/d4/d86/group__imgproc__filter.html#ga67493776e3ad1a3df63883829375201f>`_
         """
 
         # check if valid input:
@@ -342,7 +341,7 @@ class ImageMorphMixin(_ImageBase):
             >>> img.print('{:1d}')
             >>> img.open(np.ones((5,5))).print('{:1d}')
 
-        :note:
+        .. note::
             - For binary image an opening operation can be used to eliminate
               small white noise regions.
             - It is cheaper to apply a smaller structuring element multiple times
@@ -356,9 +355,9 @@ class ImageMorphMixin(_ImageBase):
             output pixel NaN.  Use :meth:`fixbad` for handling NaN values.
 
         :references:
-            - Robotics, Vision & Control for Python, Section 11.6, P. Corke, Springer 2023.
+            - |RVC3|, Section 11.6.
 
-        :seealso: :meth:`close :meth:`morph` `opencv.morphologyEx <https://docs.opencv.org/3.4/d4/d86/group__imgproc__filter.html#ga67493776e3ad1a3df63883829375201f>`_
+        :seealso: :meth:`close :meth:`morph` `opencv.morphologyEx <https://docs.opencv.org/4.x/d4/d86/group__imgproc__filter.html#ga67493776e3ad1a3df63883829375201f>`_
         """
 
         # probably cleanest approach:
@@ -412,7 +411,7 @@ class ImageMorphMixin(_ImageBase):
             >>> img.print('{:1d}')
             >>> img.close(np.ones((5,5))).print('{:1d}')
 
-        :note:
+        .. note::
             - For binary image a closing operation can be used to eliminate
               joins between regions.
             - It is cheaper to apply a smaller structuring element multiple times
@@ -426,9 +425,9 @@ class ImageMorphMixin(_ImageBase):
             output pixel NaN.  Use :meth:`fixbad` for handling NaN values.
 
         :references:
-            - Robotics, Vision & Control for Python, Section 11.6, P. Corke, Springer 2023.
+            - |RVC3|, Section 11.6.
 
-        :seealso: :meth:`open` :meth:`morph` `opencv.morphologyEx <https://docs.opencv.org/3.4/d4/d86/group__imgproc__filter.html#ga67493776e3ad1a3df63883829375201f>`_
+        :seealso: :meth:`open` :meth:`morph` `opencv.morphologyEx <https://docs.opencv.org/4.x/d4/d86/group__imgproc__filter.html#ga67493776e3ad1a3df63883829375201f>`_
         """
         out = cv.morphologyEx(
             src=self.to_int(),
@@ -488,15 +487,14 @@ class ImageMorphMixin(_ImageBase):
             >>> se
             >>> img.hitormiss(se).print()
 
-        :note: For the single argument case ``s1`` :math:`=S_1 - S_2`.
+        .. note:: For the single argument case ``s1`` :math:`=S_1 - S_2`.
 
         :references:
-            - Robotics, Vision & Control for Python, Section 11.6.3, P. Corke,
-              Springer 2023.
+            - |RVC3|, Section 11.6.3.
 
         :seealso: :meth:`thin` :meth:`endpoint` :meth:`triplepoint`
             `opencv.morphologyEx
-            <https://docs.opencv.org/3.4/d4/d86/group__imgproc__filter.html#ga67493776e3ad1a3df63883829375201f>`_
+            <https://docs.opencv.org/4.x/d4/d86/group__imgproc__filter.html#ga67493776e3ad1a3df63883829375201f>`_
         """
         # check valid input
         # TODO also check if binary image?
@@ -531,7 +529,7 @@ class ImageMorphMixin(_ImageBase):
             >>> skeleton = img.thin()
 
         :references:
-            - Robotics, Vision & Control for Python, Section 11.6.3, P. Corke, Springer 2023.
+            - |RVC3|, Section 11.6.3.
 
         :seealso: :meth:`thin_animate` :meth:`hitormiss` :meth:`endpoint` :meth:`triplepoint`
         """
@@ -586,7 +584,7 @@ class ImageMorphMixin(_ImageBase):
             >>> img.thin_animate()
 
         :references:
-        - Robotics, Vision & Control for Python, Section 11.6.3, P. Corke, Springer 2023.
+            - |RVC3|, Section 11.6.3.
 
         :seealso: :meth:`thin` :meth:`hitormiss` :meth:`endpoint` :meth:`triplepoint`
         """
@@ -640,10 +638,10 @@ class ImageMorphMixin(_ImageBase):
             >>> img.print()
             >>> img.endpoint().print()
 
-        :note: Computed using the hit-or-miss morphological operator.
+        .. note:: Computed using the hit-or-miss morphological operator.
 
         :references:
-            - Robotics, Vision & Control for Python, Section 11.6.3, P. Corke, Springer 2023.
+            - |RVC3|, Section 11.6.3.
 
         :seealso: :meth:`hitormiss` :meth:`thin` :meth:`triplepoint`
         """
@@ -685,10 +683,10 @@ class ImageMorphMixin(_ImageBase):
             >>> img.print()
             >>> img.triplepoint().print()
 
-        :note: Computed using the hit-or-miss morphological operator.
+        .. note:: Computed using the hit-or-miss morphological operator.
 
         :references:
-            - Robotics, Vision & Control for Python, Section 11.6.3, P. Corke, Springer 2023.
+            - |RVC3|, Section 11.6.3.
 
         :seealso: :meth:`hitormiss` :meth:`thin` :meth:`endpoint`
         """

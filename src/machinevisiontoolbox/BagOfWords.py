@@ -59,7 +59,7 @@ class BagOfWords:
 
         :seealso: :meth:`recall` :meth:`~machinevisiontoolbox.ImagePointFeatures.BaseFeature2D`
             :meth:`~machinevisiontoolbox.ImagePointFeatures.SIFT`
-            `cv2.kmeans <https://docs.opencv.org/master/d5/d38/group__core__cluster.html#ga9a34dc06c6ec9460e90860f15bcd2f88>`_
+            `cv2.kmeans <https://docs.opencv.org/4.x/d5/d38/group__core__cluster.html#ga9a34dc06c6ec9460e90860f15bcd2f88>`_
         """
 
         if images is None:

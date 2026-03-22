@@ -132,7 +132,7 @@ def loadspectrum(
           for more info.
 
     :references:
-        - Robotics, Vision & Control for Python, Section 10.1, P. Corke, Springer 2023.
+        - |RVC3|, Section 10.1.
     """
     global _spectra
 
@@ -197,7 +197,7 @@ def blackbody(λ: np.ndarray | float, T: float) -> np.ndarray | float:
         >>> print(e[:5])
 
     :references:
-        - Robotics, Vision & Control for Python, Section 10.1, P. Corke, Springer 2023.
+        - |RVC3|, Section 10.1.
     """
 
     # physical constants
@@ -269,7 +269,7 @@ def lambda2rg(
           primaries at 15500 (645.16), 19000 (526.32), and 22500 (444.44) cm-1.
 
     :references:
-        - Robotics, Vision & Control for Python, Section 10.1, P. Corke, Springer 2023.
+        - |RVC3|, Section 10.1.
 
     :seealso: :func:`lambda2xy` :func:`cmfrgb`
     """
@@ -333,7 +333,7 @@ def cmfrgb(λ: ArrayLike, e: ArrayLike | None = None, **kwargs: Any) -> np.ndarr
         >>> cmfrgb(l, e)
 
     :references:
-        - Robotics, Vision & Control for Python, Section 10.1, P. Corke, Springer 2023.
+        - |RVC3|, Section 10.1.
 
     :seealso: :func:`~lambda2rg`
     """
@@ -398,7 +398,7 @@ def tristim2cc(tri: np.ndarray) -> np.ndarray:
         >>> cc.shape
 
     :references:
-        - Robotics, Vision & Control for Python, Section 10.1, P. Corke, Springer 2023.
+        - |RVC3|, Section 10.1.
     """
 
     # TODO check if tri is correct shape? can be vector or matrix
@@ -458,7 +458,7 @@ def lambda2xy(λ: np.ndarray | float, *args: Any) -> np.ndarray:
 
 
     :references:
-        - Robotics, Vision & Control for Python, Section 10.1, P. Corke, Springer 2023.
+        - |RVC3|, Section 10.1.
 
     :seealso: :func:`lambda2rg` :func:`cmfxyz` :func:`ccxyz`
     """
@@ -520,7 +520,7 @@ def cmfxyz(
 
 
     :references:
-        - Robotics, Vision & Control for Python, Section 10.1, P. Corke, Springer 2023.
+        - |RVC3|, Section 10.1.
 
     :seealso: :func:`lambda2xy` :func:`ccxyz`
     """
@@ -549,7 +549,7 @@ def luminos(λ: np.ndarray | float, **kwargs: Any) -> np.ndarray | float:
     :rtype: float, ndarray(N)
 
     Return the photopic luminosity function for the wavelengths in
-    :math:`\lambda` [m]. If :math:`\lambda`𝜆 is an array then the result is an
+    :math:`\lambda` [m]. If :math:`\lambda` is an array then the result is an
     array whose elements are the luminosity at the corresponding
     :math:`\lambda`.
 
@@ -567,7 +567,7 @@ def luminos(λ: np.ndarray | float, **kwargs: Any) -> np.ndarray | float:
           wavelengths are perceived by the light-adapted human eye.
 
     :references:
-        - Robotics, Vision & Control for Python, Section 10.1, P. Corke, Springer 2023.
+        - |RVC3|, Section 10.1.
 
     :seealso: :func:`rluminos`
     """
@@ -611,7 +611,7 @@ def rluminos(λ: np.ndarray | float, **kwargs: Any) -> np.ndarray | float:
           human eye.
 
     :references:
-        - Robotics, Vision & Control for Python, Section 10.1, P. Corke, Springer 2023.
+        - |RVC3|, Section 10.1.
     """
 
     λ = smb.getvector(λ)
@@ -647,7 +647,7 @@ def ccxyz(λ: np.ndarray | float, e: np.ndarray | float | None = None) -> np.nda
 
     .. runblock:: pycon
 
-        >>> from machinevisiontoolbox import ccxyz, loadspectrum
+        >>> from machinevisiontoolbox import ccxyz, loadspectrum, lambda2rg
         >>> import numpy as np
         >>> ccxyz(550e-9)
         >>> ccxyz([550e-9, 600e-9])
@@ -656,7 +656,7 @@ def ccxyz(λ: np.ndarray | float, e: np.ndarray | float | None = None) -> np.nda
         >>> lambda2rg(l, e)
 
     :references:
-        - Robotics, Vision & Control for Python, Section 10.1, P. Corke, Springer 2023.
+        - |RVC3|, Section 10.1.
 
     :seealso: :func:`cmfxyz` :func:`lambda2xy`
     """
@@ -769,7 +769,7 @@ def name2color(
     .. note:: Uses color database from Matplotlib.
 
     :references:
-        - Robotics, Vision & Control for Python, Section 10.1, P. Corke, Springer 2023.
+        - |RVC3|, Section 10.1.
 
     :seealso: :func:`~color2name`
     """
@@ -844,7 +844,7 @@ def color2name(color: np.ndarray | list[float], colorspace: str = "RGB") -> str:
         - Tristiumuls values are [0,1]
 
     :references:
-        - Robotics, Vision & Control for Python, Section 10.1, P. Corke, Springer 2023.
+        - |RVC3|, Section 10.1.
 
     :seealso: :func:`~name2color`
     """
@@ -1117,7 +1117,7 @@ def plot_chromaticity_diagram(
             colors, due to the gamut of the display device.
 
     :references:
-        - Robotics, Vision & Control for Python, Section 10.1, P. Corke, Springer 2023.
+        - |RVC3|, Section 10.1.
 
     :seealso: :func:`plot_spectral_locus`
     """
@@ -1422,7 +1422,7 @@ def gamma_encode(image: np.ndarray, gamma: float | str = "sRGB") -> np.ndarray:
           double, encoded, then converted back to the integer class.
 
     :references:
-        - Robotics, Vision & Control for Python, Section 10.1, P. Corke, Springer 2023.
+        - |RVC3|, Section 10.1.
 
     :seealso: :func:`gamma_decode` :func:`colorspace_convert`
     """
@@ -1495,7 +1495,7 @@ def gamma_decode(image: np.ndarray, gamma: float | str = "sRGB") -> np.ndarray:
           double, encoded, then converted back to the integer class.
 
     :references:
-        - Robotics, Vision & Control for Python, Section 10.1, P. Corke, Springer 2023.
+        - |RVC3|, Section 10.1.
 
     :seealso: :func:`gamma_encode`
     """
@@ -1678,7 +1678,7 @@ def shadow_invariant(
         - “Dealing with shadows: Capturing intrinsic scene appear for image-based outdoor localisation,”
           P. Corke, R. Paul, W. Churchill, and P. Newman
           Proc. Int. Conf. Intelligent Robots and Systems (IROS), pp. 2085–2 2013.
-        - Robotics, Vision & Control for Python, Section 10.1, P. Corke, Springer 2023.
+        - |RVC3|, Section 10.4.2.
     """
 
     # Convert the image into a vector (h*w,channel)

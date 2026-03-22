@@ -7,4 +7,5 @@ More comprehensive Python tools for color science can be found at
 
 .. automodule:: machinevisiontoolbox.base.color
    :members:
+   :member-order: alphabetical
    

@@ -6,3 +6,4 @@ NumPy arrays.
 
 .. automodule:: machinevisiontoolbox.base.imageio
    :members:
+   :member-order: alphabetical

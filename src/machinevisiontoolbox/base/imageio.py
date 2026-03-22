@@ -250,7 +250,7 @@ def idisp(
         - This functionality requires that ``pyclip`` is installed.
 
     :references:
-        - Robotics, Vision & Control for Python, Section 10.1, P. Corke, Springer 2023.
+        - |RVC3|, Section 10.1.
 
     :seealso: :func:`matplotlib.imshow` `cv2.imshow <https://docs.opencv.org/4.x/d7/dfc/group__highgui.html#ga453d42fe4cb60e5723281a89973ee563>`_
     """
@@ -328,6 +328,9 @@ def idisp(
 
             if ax is None:
                 fig, ax = plt.subplots()  # fig creates a new window
+
+        if fig is None:
+            fig = ax.figure
 
         # aspect ratio:
         if not square:
@@ -780,7 +783,7 @@ def iread(
     If the path is not absolute it is first searched for relative
     to the current directory, and if not found, it is searched for in
     the ``images`` folder of the
-    ```mvtb_data`` package <https://github.com/petercorke/machinevision-toolbox-python/tree/master/mvtb-data>`_.
+    `mvtb-data package <https://github.com/petercorke/machinevision-toolbox-python/tree/master/mvtb-data>`_.
 
     If ``file`` is a list or contains a wildcard, the result will be a list of
     ``(image, path)`` tuples.  They will be sorted by path.
@@ -813,7 +816,7 @@ def iread(
           recursive globbing with the ``**`` pattern.
 
     :references:
-        - Robotics, Vision & Control for Python, Section 10.1, P. Corke, Springer 2023.
+        - |RVC3|, Section 10.1.
 
     :seealso: :func:`convert` `cv2.imread <https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56>`_
     """
@@ -1038,8 +1041,8 @@ def iwrite(
     :return: successful write
     :rtype: bool
 
-    Writes the image ``im`` to ``filename`` using cv.imwrite(), with **kwargs
-    passed as options.  The file type is taken from the extension in
+    Writes the image ``im`` to ``filename`` using cv.imwrite(), passing any
+    keyword arguments as options.  The file type is taken from the extension in
     ``filename``.
 
     Example::

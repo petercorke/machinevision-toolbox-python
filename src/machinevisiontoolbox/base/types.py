@@ -6,9 +6,11 @@ from __future__ import annotations
 
 import numpy as np
 
+from machinevisiontoolbox.mvtb_types import Dtype
+
 
 def int_image(
-    image: np.ndarray, intclass: str = "uint8", maxintval: int | None = None
+    image: np.ndarray, intclass: Dtype = "uint8", maxintval: int | None = None
 ) -> np.ndarray:
     """
     Convert image to integer type
@@ -17,7 +19,7 @@ def int_image(
     :type image: ndarray(H,W), ndarray(H,W,P)
     :param intclass: integer class to convert to, the name of any integer
         class supported by NumPy, defaults to ``'uint8'``
-    :type intclass: str
+    :type intclass: str or NumPy dtype
     :param maxintval: maximum value of integer, defaults to maximum positive
         value of ``image`` datatype
     :type maxintval: int
@@ -50,10 +52,12 @@ def int_image(
     .. note:: Works for greyscale or color (arbitrary number of planes) image
 
     :references:
-        - Robotics, Vision & Control for Python, Section 10.1, P. Corke, Springer 2023.
+        - |RVC3|, Section 10.1.
 
     :seealso: :func:`float_image`
     """
+
+    intclass = np.dtype(intclass)
 
     if np.issubdtype(image.dtype, bool):
         return image.astype(intclass) * np.iinfo(intclass).max
@@ -74,7 +78,7 @@ def int_image(
 
 
 def float_image(
-    image: np.ndarray, floatclass: str = "float32", maxintval: int | None = None
+    image: np.ndarray, floatclass: Dtype = "float32", maxintval: int | None = None
 ) -> np.ndarray:
     """
     Convert image to float type
@@ -82,7 +86,7 @@ def float_image(
     :param image: input image
     :type image: ndarray(H,W), ndarray(H,W,P)
     :param floatclass: 'single', 'double', 'float32' [default], 'float64'
-    :type floatclass: str
+    :type floatclass: str or NumPy dtype
     :param maxintval: maximum value of integer, defaults to maximum positive
         value of ``image`` datatype
     :type maxintval: int
@@ -113,20 +117,14 @@ def float_image(
     .. note:: Works for greyscale or color (arbitrary number of planes) image
 
     :references:
-        - Robotics, Vision & Control for Python, Section 10.1, P. Corke, Springer 2023.
+        - |RVC3|, Section 10.1.
 
     :seealso: :func:`int_image`
     """
 
-    if floatclass not in (
-        "float",
-        "single",
-        "double",
-        "half",
-        "float16",
-        "float32",
-        "float64",
-    ):
+    floatclass = np.dtype(floatclass)
+
+    if not np.issubdtype(floatclass, np.floating):
         raise ValueError("bad float type")
 
     if np.issubdtype(image.dtype, np.integer):

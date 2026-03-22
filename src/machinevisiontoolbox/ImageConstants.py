@@ -11,7 +11,7 @@ import warnings
 import xml.etree.ElementTree as ET
 from collections.abc import Iterable
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any, Self, Sequence
 
 import cv2 as cv
 import numpy as np
@@ -23,6 +23,7 @@ from spatialmath.base import islistof, isscalar
 from machinevisiontoolbox.base import float_image, int_image, name2color
 from machinevisiontoolbox.base.imageio import convert, idisp, iread, iwrite
 from machinevisiontoolbox.ImageSpatial import Kernel
+from machinevisiontoolbox.mvtb_types import Dtype
 
 # import spatialmath.base.argcheck as argcheck
 
@@ -86,9 +87,9 @@ class ImageConstantsMixin:
         w: int | Sequence[int] | None = None,
         h: int | None = None,
         colororder: str | None = None,
-        dtype: str = "uint8",
+        dtype: Dtype = "uint8",
         size: Sequence[int] | None = None,
-    ) -> "Image":
+    ) -> Self:
         """
         Create image with zero value pixels
 
@@ -99,7 +100,7 @@ class ImageConstantsMixin:
         :param colororder: color plane names, defaults to None
         :type colororder: str
         :param dtype: NumPy datatype, defaults to 'uint8'
-        :type dtype: str, optional
+        :type dtype: str or NumPy dtype, optional
         :return: image of zero values
         :rtype: :class:`Image`
 
@@ -130,9 +131,9 @@ class ImageConstantsMixin:
         h: int | None = None,
         value: Any = 0,
         colororder: str | None = None,
-        dtype: str | None = None,
+        dtype: Dtype | None = None,
         size: Sequence[int] | None = None,
-    ) -> "Image":
+    ) -> Self:
         """
         Create image with all pixels having same value
 
@@ -145,7 +146,7 @@ class ImageConstantsMixin:
         :param colororder: color plane names, defaults to None
         :type colororder: str
         :param dtype: NumPy datatype, defaults to 'uint8'
-        :type dtype: str, optional
+        :type dtype: str or NumPy dtype, optional
         :return: image of constant values
         :rtype: :class:`Image`
 
@@ -158,19 +159,12 @@ class ImageConstantsMixin:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> img = Image.Constant(10, value=17)
-            >>> img
-            >>> img.image[0, 0]
-            >>> img = Image.Constant(10, 20, [100, 50, 200], colororder='RGB')
-            >>> img
-            >>> img.image[0, 0, :]
-            >>> img = Image.Constant(10, value=range(6), colororder='ABCDEF')
-            >>> img
-            >>> img.image[0, 0, :]
-            >>> img = Image.Constant(10, value='cyan')
-            >>> img.image[0, 0, :]
+            >>> Image.Constant(10, value=17).print()
+            >>> Image.Constant(10, 20, [100, 50, 200], colororder='RGB').print()
+            >>> Image.Constant(10, value=range(6), colororder='ABCDEF').print()
+            >>> Image.Constant(10, value='lightgreen').print()
 
-        :note: If ``len(value) == 3`` and ``colororder`` is not specified
+        .. note:: If ``len(value) == 3`` and ``colororder`` is not specified
             then RGB is assumed.
 
         :seealso: :meth:`Zeros`
@@ -236,7 +230,7 @@ class ImageConstantsMixin:
             >>> img = Image.String('01234|56789|87654')
             >>> img.print()
 
-        :note: Pixel values are determined by the unicode value of the
+        .. note:: Pixel values are determined by the unicode value of the
             character relative to unicode for '0', so other ASCII characters
             (apart from pipe) can be used to obtain pixel values greater than 9.
             'Z' is 90 and 'z' is 122.
@@ -321,7 +315,7 @@ class ImageConstantsMixin:
         return cls(pixels, colororder=colororder, **kwargs)
 
     @classmethod
-    def Random(cls, size, colororder=None, dtype="uint8", maxval=None):
+    def Random(cls, size, colororder=None, dtype: Dtype = "uint8", maxval=None):
         """
         Create image with random pixel values
 
@@ -330,7 +324,7 @@ class ImageConstantsMixin:
         :param colororder: color plane names, defaults to None
         :type colororder: str
         :param dtype: NumPy datatype, defaults to 'uint8'
-        :type dtype: str, optional
+        :type dtype: str or NumPy dtype, optional
         :param maxval: maximum value for random values, defaults to None
         :type maxval: same as ``dtype``, optional
         :return: image of random values
@@ -350,14 +344,13 @@ class ImageConstantsMixin:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> img = Image.Random(5)
-            >>> img
-            >>> img.image
-            >>> img = Image.Random(5, colororder='RGB')
-            >>> img
-            >>> img.red().image
-            >>> img = Image.Random(5, dtype='float32')
-            >>> img.image
+            >>> img = Image.Random(3)
+            >>> img.print()
+            >>> img = Image.Random(3, colororder='RGB')
+            >>> img.print()
+            >>> img.red().print()
+            >>> img = Image.Random(3, dtype='float32')
+            >>> img.print
 
         Ramps in the x, y and diagonal directions:
 
@@ -368,21 +361,23 @@ class ImageConstantsMixin:
 
         """
         shape = _getshape(cls, None, None, colororder, size)
+        dtype = np.dtype(dtype)
 
-        if maxval is None:
-            if np.issubdtype(dtype, np.integer):
+        if np.issubdtype(dtype, np.integer):
+            if maxval is None:
                 maxval = np.iinfo(dtype).max
             else:
-                maxval = 1.0
-        if np.issubdtype(dtype, np.integer):
+                maxval = int(maxval)
             im = np.random.randint(0, maxval, size=shape, dtype=dtype)
         elif np.issubdtype(dtype, np.floating):
+            if maxval is None:
+                maxval = 1.0
             im = (np.random.rand(*shape) * maxval).astype(dtype)
 
         return cls(im, colororder=colororder)
 
     @classmethod
-    def Squares(cls, number, size=256, fg=1, bg=0, dtype="uint8"):
+    def Squares(cls, number, size=256, fg=1, bg=0, dtype: Dtype = "uint8"):
         """
         Create image containing grid of squares
 
@@ -395,7 +390,7 @@ class ImageConstantsMixin:
         :param bg: pixel value of the background, defaults to 0
         :type bg: int, optional
         :param dtype: NumPy datatype, defaults to 'uint8'
-        :type dtype: str, optional
+        :type dtype: str or NumPy dtype, optional
         :return: grid of squares
         :rtype: :class:`Image`
 
@@ -407,7 +402,7 @@ class ImageConstantsMixin:
 
             >>> from machinevisiontoolbox import Image
             >>> img = Image.Squares(2, size=14, bg=1, fg=9)
-            >>> img.image
+            >>> img.print()
 
         ``number`` equal to 1, 2 and 8:
 
@@ -419,7 +414,7 @@ class ImageConstantsMixin:
             z = Image.Squares(8, size=100)
             Image.Hstack((x, y, z), sep=4, bgcolor=1).disp()
 
-        :note: Image is square.
+        .. note:: Image is square.
         """
         shape = _getshape(cls, None, None, None, size)
 
@@ -437,7 +432,7 @@ class ImageConstantsMixin:
         return cls(im)
 
     @classmethod
-    def Circles(cls, number, size=256, fg=1, bg=0, dtype="uint8"):
+    def Circles(cls, number, size=256, fg=1, bg=0, dtype: Dtype = "uint8"):
         """
         Create image containing grid of circles
 
@@ -450,7 +445,7 @@ class ImageConstantsMixin:
         :param bg: pixel value of the background, defaults to 0
         :type bg: int, optional
         :param dtype: NumPy datatype, defaults to 'uint8'
-        :type dtype: str, optional
+        :type dtype: str or NumPy dtype, optional
         :return: grid of circles
         :rtype: :class:`Image`
 
@@ -462,7 +457,7 @@ class ImageConstantsMixin:
 
             >>> from machinevisiontoolbox import Image
             >>> img = Image.Circles(2, 14, bg=1, fg=9)
-            >>> img.A
+            >>> img.print()
 
         ``number`` equal to 1, 2 and 8:
 
@@ -490,7 +485,7 @@ class ImageConstantsMixin:
         return cls(im)
 
     @classmethod
-    def Ramp(cls, size=256, cycles=2, dir="x", dtype="float32"):
+    def Ramp(cls, size=256, cycles=2, dir="x", dtype: Dtype = "float32"):
         """
         Create image of linear ramps
 
@@ -501,7 +496,7 @@ class ImageConstantsMixin:
         :param cycles: Number of complete ramps, defaults to 2
         :type cycles: int, optional
         :param dtype: NumPy datatype, defaults to 'float32'
-        :type dtype: str, optional
+        :type dtype: str or NumPy dtype, optional
         :return: intensity ramps
         :rtype: :class:`Image`
 
@@ -564,7 +559,7 @@ class ImageConstantsMixin:
         return cls(image, dtype=dtype)
 
     @classmethod
-    def Sin(cls, size=256, cycles=2, dir="x", dtype="float32"):
+    def Sin(cls, size=256, cycles=2, dir="x", dtype: Dtype = "float32"):
         """
         Create image of sinusoidal intensity pattern
 
@@ -575,7 +570,7 @@ class ImageConstantsMixin:
         :param cycles: Number of complete cycles, defaults to 2
         :type cycles: int, optional
         :param dtype: NumPy datatype, defaults to 'float32'
-        :type dtype: str, optional
+        :type dtype: str or NumPy dtype, optional
         :return: sinusoidal pattern
         :rtype: :class:`Image`
 
@@ -589,8 +584,8 @@ class ImageConstantsMixin:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> Image.Sin(10, 2).image
-            >>> Image.Sin(10, 2, dtype='uint8').image
+            >>> Image.Sin(10, 2).print()
+            >>> Image.Sin(10, 2, dtype='uint8').print()
 
         ``cycles`` equal to 1, 4 and 18:
 
@@ -625,7 +620,7 @@ class ImageConstantsMixin:
         return cls(image, dtype=dtype)
 
     @classmethod
-    def Chequerboard(cls, size=256, square=32, dtype="uint8"):
+    def Chequerboard(cls, size=256, square=32, dtype: Dtype = "uint8"):
         """Create chequerboard pattern
 
         :param size: image size, width x height, defaults to 256x256
@@ -633,7 +628,7 @@ class ImageConstantsMixin:
         :param square: cell dimension in pixels, defaults to 32
         :type square: int, optional
         :param dtype: image data type, defaults to "uint8"
-        :type dtype: str, optional
+        :type dtype: str or NumPy dtype, optional
         :return: chequerboard pattern
         :rtype: :class:`Image`
 
@@ -649,9 +644,9 @@ class ImageConstantsMixin:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> Image.Chequerboard(16, 2).image
+            >>> Image.Chequerboard(8, 2).print()
 
-        ``square`` equal to16, 32 and 64:
+        ``square`` equal to 16, 32 and 64:
 
         .. plot::
 
@@ -681,7 +676,7 @@ class ImageConstantsMixin:
         return cls(image, dtype=dtype)
 
     @classmethod
-    def Polygons(cls, size, polygons, color=1, bg=0, shift=0, dtype="uint8"):
+    def Polygons(cls, size, polygons, color=1, bg=0, shift=0, dtype: Dtype = "uint8"):
         """
         Create an image containing filled polygons
 
@@ -694,7 +689,7 @@ class ImageConstantsMixin:
         :param shift: number of fractional bits in the vertex coordinates, defaults to 0
         :type shift: int, optional
         :param dtype: image data type, defaults to "uint8"
-        :type dtype: str, optional
+        :type dtype: str or NumPy dtype, optional
         :return: image containing the polygons
         :rtype: :class:`Image`
 
@@ -724,7 +719,8 @@ class ImageConstantsMixin:
 
         .. runblock:: pycon
 
-            >>> from machinevisiontoolbox import Image, Polygon2
+            >>> from machinevisiontoolbox import Image
+            >>> from spatialmath import Polygon2
             >>> p1 = Polygon2([(10, 10), (20, 10), (20, 20), (10, 20)])
             >>> p2 = Polygon2([(30, 30), (40, 30), (40, 40), (30, 40)])
             >>> img = Image.Polygons(50, [p1, p2])

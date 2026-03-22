@@ -60,10 +60,10 @@ class ImageMultiviewMixin(_ImageBase):
             >>> rocks_r = Image.Read("rocks2-r.png", reduce=2)
             >>> disparity, similarity, DSI = rocks_l.stereo_simple(rocks_r, hw=3, drange=[40, 90])
 
-        :note: The images are assumed to be epipolar aligned.
+        .. note:: The images are assumed to be epipolar aligned.
 
         :references:
-            - Robotics, Vision & Control for Python, Section 14.4, P. Corke, Springer 2023.
+            - |RVC3|, Section 14.4.
 
         .. warning:: Not fast.
 
@@ -95,8 +95,8 @@ class ImageMultiviewMixin(_ImageBase):
 
         # left = self.mono().image.astype(np.float32)
         # right = right.mono().image.astype(np.float32)
-        left_arr = self.mono().image
-        right_arr = right.mono().image
+        left_arr = self.mono()._A
+        right_arr = right.mono()._A
 
         # convert to window stacks
         left_arr = window_stack(left_arr, hw)
@@ -190,7 +190,7 @@ class ImageMultiviewMixin(_ImageBase):
             >>> disparity = Image.DSI_refine(DSI)
 
         :references:
-            - Robotics, Vision & Control for Python, Section 14.4.1, P. Corke, Springer 2023.
+            - |RVC3|, Section 14.4.1.
 
         :seealso: :meth:`stereo_simple`
         """
@@ -262,14 +262,14 @@ class ImageMultiviewMixin(_ImageBase):
             >>> rocks_r = Image.Read("rocks2-r.png", reduce=2)
             >>> disparity = rocks_l.stereo_BM(rocks_r, hw=3, drange=[40, 90], speckle=(200, 2))
 
-        :note: The images are assumed to be epipolar aligned.
+        .. note:: The images are assumed to be epipolar aligned.
 
         :references:
-            - Robotics, Vision & Control for Python, Section 14.4.2.7, P. Corke, Springer 2023.
+            - |RVC3|, Section 14.4.2.7.
 
-        :seealso: :meth:`stereo_SGBM` :meth:`stereo_simple` `opencv.StereoBM <https://docs.opencv.org/3.4/d9/dba/classcv_1_1StereoBM.html>`_
+        :seealso: :meth:`stereo_SGBM` :meth:`stereo_simple` `opencv.StereoBM <https://docs.opencv.org/4.x/d9/dba/classcv_1_1StereoBM.html>`_
         """
-        # https://docs.opencv.org/master/d9/dba/classcv_1_1StereoBM.html
+        # https://docs.opencv.org/4.x/d9/dba/classcv_1_1StereoBM.html
 
         if isinstance(drange, int):
             drange = (0, drange)
@@ -285,8 +285,8 @@ class ImageMultiviewMixin(_ImageBase):
         stereo = cv.StereoBM_create(numDisparities=ndisparities, blockSize=2 * hw + 1)  # type: ignore[attr-defined]
         stereo.setMinDisparity(drange[0])
 
-        left_arr = self.mono().image.astype(np.uint8)
-        right_arr = right.mono().image.astype(np.uint8)
+        left_arr = self.mono()._A.astype(np.uint8)
+        right_arr = right.mono()._A.astype(np.uint8)
 
         # set speckle filter
         # it seems to make very little difference
@@ -339,18 +339,18 @@ class ImageMultiviewMixin(_ImageBase):
             >>> rocks_r = Image.Read("rocks2-r.png", reduce=2)
             >>> disparity = rocks_l.stereo_SGBM(rocks_r, hw=3, drange=[40, 90], speckle=(200, 2))
 
-        :note: The images are assumed to be epipolar aligned.
+        .. note:: The images are assumed to be epipolar aligned.
 
         :references:
             - Stereo processing by semiglobal matching and mutual information,
               Heiko Hirschmuller,
               IEEE Transactions on Pattern Analysis and Machine Intelligence,
               30(2):328–341, 2008.
-            - Robotics, Vision & Control for Python, Section 14.4.2.7, P. Corke, Springer 2023.
+            - |RVC3|, Section 14.4.2.7.
 
-        :seealso: :meth:`stereo_SGBM` :meth:`stereo_simple` `opencv.StereoSGBM <https://docs.opencv.org/3.4/d2/d85/classcv_1_1StereoSGBM.html>`_
+        :seealso: :meth:`stereo_SGBM` :meth:`stereo_simple` `opencv.StereoSGBM <https://docs.opencv.org/4.x/d2/d85/classcv_1_1StereoSGBM.html>`_
         """
-        # https://docs.opencv.org/master/d2/d85/classcv_1_1StereoSGBM.html#details
+        # https://docs.opencv.org/4.x/d2/d85/classcv_1_1StereoSGBM.html#details
 
         if isinstance(drange, int):
             drange = (0, drange)
@@ -367,8 +367,8 @@ class ImageMultiviewMixin(_ImageBase):
             minDisparity=drange[0], numDisparities=ndisparities, blockSize=2 * hw + 1
         )
 
-        left_arr = self.mono().image.astype(np.uint8)
-        right_arr = right.mono().image.astype(np.uint8)
+        left_arr = self.mono()._A.astype(np.uint8)
+        right_arr = right.mono()._A.astype(np.uint8)
 
         # set speckle filter
         # it seems to make very little difference
@@ -416,9 +416,9 @@ class ImageMultiviewMixin(_ImageBase):
             >>> walls_r_rect = walls_r.warp_perspective(H_r)
 
         :references:
-            - Robotics, Vision & Control for Python, Section 14.4.3, P. Corke, Springer 2023.
+            - |RVC3|, Section 14.4.3.
 
-        :seealso: :meth:`warp_perspective` :class:`Match` `opencv.stereoRectifyUncalibrated <https://docs.opencv.org/3.4/d9/d0c/group__calib3d.html#gaadc5b14471ddc004939471339294f052>`_
+        :seealso: :meth:`warp_perspective` :class:`Match` `opencv.stereoRectifyUncalibrated <https://docs.opencv.org/4.x/d9/d0c/group__calib3d.html#gaadc5b14471ddc004939471339294f052>`_
         """
         retval, H1, H2 = cv.stereoRectifyUncalibrated(
             points1=m.inliers.p1, points2=m.inliers.p2, F=F, imgSize=self.size

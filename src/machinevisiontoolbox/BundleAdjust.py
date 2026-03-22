@@ -184,9 +184,8 @@ if pgraph_installed:
             .. warning:: This class assumes that all camera views have the same camera
                 intrinsics.
 
-            :reference:
-                - Robotics, Vision & Control for Python, Section 14.3.2,
-                  P. Corke, Springer 2023.
+            :references:
+                - |RVC3|, Section 14.3.2.
 
             :seealso: :meth:`optimize` :class:`~machinevisiontoolbox.Camera.CentralCamera` :class:`pgraph.UGraph`
             """
@@ -552,9 +551,8 @@ if pgraph_installed:
             camera poses and landmark positions in order to minimize the total
             reprojection error.
 
-            :reference:
-                - Robotics, Vision & Control for Python, Section 14.3.2,
-                  P. Corke, Springer 2023.
+            :references:
+                - |RVC3|, Section 14.3.2.
 
             :seealso: :meth:`nstates` :meth:`solve` :meth:`build_linear_system`
             """
@@ -644,9 +642,8 @@ if pgraph_installed:
                   since fixed elements are omitted from the variable state
                   vector used for the optimization.
 
-            :reference:
-                - Robotics, Vision & Control for Python, Section 14.3.2, F.2.4,
-                  P. Corke, Springer 2023.
+            :references:
+                - |RVC3|, Section 14.3.2, F.2.4.
 
             :seealso: :meth:`build_linear_system`
             """
@@ -675,9 +672,8 @@ if pgraph_installed:
             Build the block structured Hessian matrix based on current bundle
             adjustment state and the Jacobians.
 
-            :reference:
-                - Robotics, Vision & Control for Python, Section 14.3.2, F.2.4,
-                  P. Corke, Springer 2023.
+            :references:
+                - |RVC3|, Section 14.3.2, F.2.4.
 
             :seealso: :meth:`spy` :meth:`~Camera.CentralCamera.derivatives`
             """

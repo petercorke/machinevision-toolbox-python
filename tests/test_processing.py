@@ -9,6 +9,10 @@ from machinevisiontoolbox import Image
 
 # from pathlib import Path
 
+# TODO
+#  - test rank/median filter with a known image and footprint, check output is correct
+#  - test rank/median filter for color images, check output is correct
+
 
 class TestImageProcessingBase(unittest.TestCase):
 
@@ -144,11 +148,6 @@ class TestImageProcessingBase(unittest.TestCase):
         nt.assert_array_almost_equal(imi.shape, im.shape)
 
         im = np.random.randint(1, 255, (3, 5, 3), int)
-        im = Image(im)
-        imi = im.to_int()
-        nt.assert_array_almost_equal(imi.shape, im.shape)
-
-        im = np.random.randint(1, 255, (3, 5, 3, 10), int)
         im = Image(im)
         imi = im.to_int()
         nt.assert_array_almost_equal(imi.shape, im.shape)

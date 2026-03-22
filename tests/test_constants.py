@@ -16,24 +16,24 @@ class TestImageConstants(unittest.TestCase):
         self.assertEqual(im.size, (5, 9))
         self.assertEqual(im.dtype, np.uint8)
         self.assertFalse(im.iscolor)
-        self.assertTrue(np.all(im.A == 0))
+        self.assertTrue(np.all(im._A == 0))
 
         im = Image.Zeros(5)
         self.assertEqual(im.size, (5, 5))
         self.assertEqual(im.dtype, np.uint8)
         self.assertFalse(im.iscolor)
-        self.assertTrue(np.all(im.A == 0))
+        self.assertTrue(np.all(im._A == 0))
 
         im = Image.Zeros((5, 9))
         self.assertEqual(im.size, (5, 9))
         self.assertEqual(im.dtype, np.uint8)
         self.assertFalse(im.iscolor)
-        self.assertTrue(np.all(im.A == 0))
+        self.assertTrue(np.all(im._A == 0))
 
         im = Image.Zeros((5, 9), colororder="ABCD")
         self.assertEqual(im.size, (5, 9))
         self.assertEqual(im.dtype, np.uint8)
-        self.assertTrue(np.all(im.A == 0))
+        self.assertTrue(np.all(im._A == 0))
         self.assertTrue(im.iscolor)
         self.assertEqual(im.nplanes, 4)
         self.assertEqual(im.colororder_str, "A:B:C:D")
@@ -41,7 +41,7 @@ class TestImageConstants(unittest.TestCase):
         im = Image.Zeros((5, 9), dtype="float32")
         self.assertEqual(im.size, (5, 9))
         self.assertEqual(im.dtype, np.float32)
-        self.assertTrue(np.all(im.A == 0.0))
+        self.assertTrue(np.all(im._A == 0.0))
 
         im = Image.Zeros((5, 9), dtype="float32", colororder="ABCD")
         self.assertEqual(im.size, (5, 9))
@@ -55,19 +55,19 @@ class TestImageConstants(unittest.TestCase):
         self.assertEqual(im.size, (5, 9))
         self.assertEqual(im.dtype, np.uint8)
         self.assertFalse(im.iscolor)
-        self.assertTrue(np.all(im.A == 42))
+        self.assertTrue(np.all(im._A == 42))
 
         im = Image.Constant(5, value=42)
         self.assertEqual(im.size, (5, 5))
         self.assertEqual(im.dtype, np.uint8)
         self.assertFalse(im.iscolor)
-        self.assertTrue(np.all(im.A == 42))
+        self.assertTrue(np.all(im._A == 42))
 
         im = Image.Constant((5, 9), value=42)
         self.assertEqual(im.size, (5, 9))
         self.assertEqual(im.dtype, np.uint8)
         self.assertFalse(im.iscolor)
-        self.assertTrue(np.all(im.A == 42))
+        self.assertTrue(np.all(im._A == 42))
 
         im = Image.Constant((5, 9), value="red")
         self.assertEqual(im.size, (5, 9))
@@ -75,9 +75,9 @@ class TestImageConstants(unittest.TestCase):
         self.assertTrue(im.iscolor)
         self.assertEqual(im.nplanes, 3)
         self.assertEqual(im.colororder_str, "R:G:B")
-        self.assertTrue(np.all(im.A[:, :, 0] == 255))
-        self.assertTrue(np.all(im.A[:, :, 1] == 0))
-        self.assertTrue(np.all(im.A[:, :, 2] == 0))
+        self.assertTrue(np.all(im._A[:, :, 0] == 255))
+        self.assertTrue(np.all(im._A[:, :, 1] == 0))
+        self.assertTrue(np.all(im._A[:, :, 2] == 0))
 
         im = Image.Constant((5, 9), value="red", colororder="XYZ")
         self.assertEqual(im.size, (5, 9))
@@ -85,9 +85,9 @@ class TestImageConstants(unittest.TestCase):
         self.assertTrue(im.iscolor)
         self.assertEqual(im.nplanes, 3)
         self.assertEqual(im.colororder_str, "X:Y:Z")
-        self.assertTrue(np.all(im.A[:, :, 0] == 255))
-        self.assertTrue(np.all(im.A[:, :, 1] == 0))
-        self.assertTrue(np.all(im.A[:, :, 2] == 0))
+        self.assertTrue(np.all(im._A[:, :, 0] == 255))
+        self.assertTrue(np.all(im._A[:, :, 1] == 0))
+        self.assertTrue(np.all(im._A[:, :, 2] == 0))
 
         im = Image.Constant((5, 9), value=(40, 41, 42, 43), colororder="ABCD")
         self.assertEqual(im.size, (5, 9))
@@ -95,10 +95,10 @@ class TestImageConstants(unittest.TestCase):
         self.assertTrue(im.iscolor)
         self.assertEqual(im.nplanes, 4)
         self.assertEqual(im.colororder_str, "A:B:C:D")
-        self.assertTrue(np.all(im.A[:, :, 0] == 40))
-        self.assertTrue(np.all(im.A[:, :, 1] == 41))
-        self.assertTrue(np.all(im.A[:, :, 2] == 42))
-        self.assertTrue(np.all(im.A[:, :, 3] == 43))
+        self.assertTrue(np.all(im._A[:, :, 0] == 40))
+        self.assertTrue(np.all(im._A[:, :, 1] == 41))
+        self.assertTrue(np.all(im._A[:, :, 2] == 42))
+        self.assertTrue(np.all(im._A[:, :, 3] == 43))
 
         im = Image.Constant(
             (5, 9), dtype="float32", value=(0.40, 0.41, 0.42, 0.43), colororder="ABCD"
@@ -108,15 +108,15 @@ class TestImageConstants(unittest.TestCase):
         self.assertTrue(im.iscolor)
         self.assertEqual(im.nplanes, 4)
         self.assertEqual(im.colororder_str, "A:B:C:D")
-        self.assertTrue(np.all(im.A[:, :, 0] == 0.40))
-        self.assertTrue(np.all(im.A[:, :, 1] == 0.41))
-        self.assertTrue(np.all(im.A[:, :, 2] == 0.42))
-        self.assertTrue(np.all(im.A[:, :, 3] == 0.43))
+        self.assertTrue(np.all(im._A[:, :, 0] == 0.40))
+        self.assertTrue(np.all(im._A[:, :, 1] == 0.41))
+        self.assertTrue(np.all(im._A[:, :, 2] == 0.42))
+        self.assertTrue(np.all(im._A[:, :, 3] == 0.43))
 
         im = Image.Constant((5, 9), value=0.74, dtype="float32")
         self.assertEqual(im.size, (5, 9))
         self.assertEqual(im.dtype, np.float32)
-        self.assertTrue(np.all(im.A == 0.74))
+        self.assertTrue(np.all(im._A == 0.74))
 
         with self.assertRaises(ValueError) as context:
             im = Image.Constant(5, 9, value=(40, 41, 42), colororder="ABCD")
@@ -137,7 +137,7 @@ class TestImageConstants(unittest.TestCase):
         self.assertFalse(im.iscolor)
         self.assertTrue(
             np.all(
-                im.A
+                im._A
                 == np.array(
                     [
                         [False, False, True, True, False, False],
@@ -162,7 +162,7 @@ class TestImageConstants(unittest.TestCase):
         self.assertFalse(im.iscolor)
         self.assertTrue(
             np.all(
-                im.A
+                im._A
                 == np.array(
                     [
                         [0, 0, 1, 2, 0, 0],
@@ -193,7 +193,7 @@ class TestImageConstants(unittest.TestCase):
         self.assertFalse(img.iscolor)
         self.assertTrue(
             np.all(
-                img.A
+                img._A
                 == np.array(
                     [
                         [0, 1, 2, 3, 4],
@@ -218,40 +218,40 @@ class TestImageConstants(unittest.TestCase):
         self.assertEqual(im.size, (5, 9))
         self.assertEqual(im.dtype, np.uint8)
         self.assertFalse(im.iscolor)
-        self.assertTrue(im.A.var() > 10)
+        self.assertTrue(im._A.var() > 10)
 
         im = Image.Random(size=(5, 9, 3))
         self.assertEqual(im.size, (5, 9))
         self.assertEqual(im.nplanes, 3)
         self.assertEqual(im.dtype, np.uint8)
         self.assertTrue(im.iscolor)
-        self.assertTrue(im.A.var() > 10)
+        self.assertTrue(im._A.var() > 10)
 
         im = Image.Random(size=(5, 9), colororder="ABCD")
         self.assertEqual(im.size, (5, 9))
         self.assertEqual(im.nplanes, 4)
         self.assertEqual(im.dtype, np.uint8)
         self.assertTrue(im.iscolor)
-        self.assertTrue(im.A.var() > 10)
+        self.assertTrue(im._A.var() > 10)
 
         im = Image.Random(5)
         self.assertEqual(im.size, (5, 5))
         self.assertEqual(im.dtype, np.uint8)
         self.assertFalse(im.iscolor)
-        self.assertTrue(im.A.var() > 10)
+        self.assertTrue(im._A.var() > 10)
 
         im = Image.Random((5, 9))
         self.assertEqual(im.size, (5, 9))
         self.assertEqual(im.dtype, np.uint8)
         self.assertFalse(im.iscolor)
-        self.assertTrue(im.A.var() > 10)
+        self.assertTrue(im._A.var() > 10)
 
         im = Image.Random((5, 9), maxval=10)
         self.assertEqual(im.size, (5, 9))
         self.assertEqual(im.dtype, np.uint8)
         self.assertFalse(im.iscolor)
-        self.assertTrue(im.A.var() > 3)
-        self.assertTrue(im.A.max() == 9)
+        self.assertTrue(im._A.var() > 3)
+        self.assertTrue(im._A.max() == 9)
 
         im = Image.Random((5, 9), colororder="ABCD")
         self.assertEqual(im.size, (5, 9))
@@ -259,43 +259,43 @@ class TestImageConstants(unittest.TestCase):
         self.assertTrue(im.iscolor)
         self.assertEqual(im.nplanes, 4)
         self.assertEqual(im.colororder_str, "A:B:C:D")
-        self.assertTrue(np.all(im.A.var(axis=(0, 1)) > 10))
+        self.assertTrue(np.all(im._A.var(axis=(0, 1)) > 10))
 
         im = Image.Random((5, 9), dtype="float32")
         self.assertEqual(im.size, (5, 9))
         self.assertEqual(im.dtype, np.float32)
-        self.assertTrue(im.A.var() > 0.05)
-        self.assertTrue(np.all(im.A.max() < 1.0))
-        self.assertTrue(np.any(im.A.max() > 0.5))
+        self.assertTrue(im._A.var() > 0.05)
+        self.assertTrue(np.all(im._A.max() < 1.0))
+        self.assertTrue(np.any(im._A.max() > 0.5))
 
         im = Image.Random((5, 9), dtype="float32", maxval=10)
         self.assertEqual(im.size, (5, 9))
         self.assertEqual(im.dtype, np.float32)
-        self.assertTrue(im.A.var() > 0.5)
-        self.assertTrue(np.all(im.A.max() < 10.0))
-        self.assertTrue(np.any(im.A.max() > 5))
+        self.assertTrue(im._A.var() > 0.5)
+        self.assertTrue(np.all(im._A.max() < 10.0))
+        self.assertTrue(np.any(im._A.max() > 5))
 
     def test_squares(self):
         im = Image.Squares(1, size=100)
         self.assertEqual(im.size, (100, 100))
         self.assertEqual(im.dtype, np.uint8)
         self.assertFalse(im.iscolor)
-        self.assertTrue(im.A.min() == 0)
-        self.assertTrue(im.A.max() == 1)
+        self.assertTrue(im._A.min() == 0)
+        self.assertTrue(im._A.max() == 1)
 
         im = Image.Squares(1, size=100, fg=30, bg=20)
         self.assertEqual(im.size, (100, 100))
         self.assertEqual(im.dtype, np.uint8)
         self.assertFalse(im.iscolor)
-        self.assertTrue(im.A.min() == 20)
-        self.assertTrue(im.A.max() == 30)
+        self.assertTrue(im._A.min() == 20)
+        self.assertTrue(im._A.max() == 30)
 
         im = Image.Squares(1, size=100, fg=3, bg=2, dtype="float32")
         self.assertEqual(im.size, (100, 100))
         self.assertEqual(im.dtype, np.float32)
         self.assertFalse(im.iscolor)
-        self.assertTrue(im.A.min() == 2.0)
-        self.assertTrue(im.A.max() == 3.0)
+        self.assertTrue(im._A.min() == 2.0)
+        self.assertTrue(im._A.max() == 3.0)
 
         im = Image.Squares(1, size=5, fg=3, bg=2)
         self.assertEqual(im.size, (5, 5))
@@ -303,7 +303,7 @@ class TestImageConstants(unittest.TestCase):
         self.assertFalse(im.iscolor)
         self.assertTrue(
             np.all(
-                im.A
+                im._A
                 == np.array(
                     [
                         [2, 2, 2, 2, 2],
@@ -321,22 +321,22 @@ class TestImageConstants(unittest.TestCase):
         self.assertEqual(im.size, (100, 100))
         self.assertEqual(im.dtype, np.uint8)
         self.assertFalse(im.iscolor)
-        self.assertTrue(im.A.min() == 0)
-        self.assertTrue(im.A.max() == 1)
+        self.assertTrue(im._A.min() == 0)
+        self.assertTrue(im._A.max() == 1)
 
         im = Image.Circles(1, size=100, fg=30, bg=20)
         self.assertEqual(im.size, (100, 100))
         self.assertEqual(im.dtype, np.uint8)
         self.assertFalse(im.iscolor)
-        self.assertTrue(im.A.min() == 20)
-        self.assertTrue(im.A.max() == 30)
+        self.assertTrue(im._A.min() == 20)
+        self.assertTrue(im._A.max() == 30)
 
         im = Image.Circles(1, size=100, fg=3, bg=2, dtype="float32")
         self.assertEqual(im.size, (100, 100))
         self.assertEqual(im.dtype, np.float32)
         self.assertFalse(im.iscolor)
-        self.assertTrue(im.A.min() == 2.0)
-        self.assertTrue(im.A.max() == 3.0)
+        self.assertTrue(im._A.min() == 2.0)
+        self.assertTrue(im._A.max() == 3.0)
 
         im = Image.Circles(1, size=5, fg=3, bg=2)
         self.assertEqual(im.size, (5, 5))
@@ -344,7 +344,7 @@ class TestImageConstants(unittest.TestCase):
         self.assertFalse(im.iscolor)
         self.assertTrue(
             np.all(
-                im.A
+                im._A
                 == np.array(
                     [
                         [2, 2, 2, 2, 2],
@@ -362,32 +362,32 @@ class TestImageConstants(unittest.TestCase):
         self.assertEqual(im.size, (100, 100))
         self.assertEqual(im.dtype, np.uint8)
         self.assertFalse(im.iscolor)
-        self.assertTrue(im.A.min() == 0)
-        self.assertTrue(im.A.max() == 255)
-        self.assertTrue(im.A[0, 0] < im.A[0, 1])
-        self.assertTrue(im.A[0, 0] == im.A[1, 0])
+        self.assertTrue(im._A.min() == 0)
+        self.assertTrue(im._A.max() == 255)
+        self.assertTrue(im._A[0, 0] < im._A[0, 1])
+        self.assertTrue(im._A[0, 0] == im._A[1, 0])
 
         im = Image.Ramp(size=100, dir="y", dtype="uint8")
         self.assertEqual(im.size, (100, 100))
         self.assertEqual(im.dtype, np.uint8)
         self.assertFalse(im.iscolor)
-        self.assertTrue(im.A.min() == 0)
-        self.assertTrue(im.A.max() == 255)
-        self.assertTrue(im.A[0, 0] < im.A[1, 0])
-        self.assertTrue(im.A[0, 0] == im.A[0, 1])
+        self.assertTrue(im._A.min() == 0)
+        self.assertTrue(im._A.max() == 255)
+        self.assertTrue(im._A[0, 0] < im._A[1, 0])
+        self.assertTrue(im._A[0, 0] == im._A[0, 1])
 
         im = Image.Ramp(size=100)
         self.assertEqual(im.size, (100, 100))
         self.assertEqual(im.dtype, np.float32)
         self.assertFalse(im.iscolor)
-        self.assertTrue(im.A.min() == 0)
-        self.assertTrue(im.A.max() == 1.0)
-        self.assertTrue(im.A[0, 0] < im.A[0, 1])
-        self.assertTrue(im.A[0, 0] == im.A[1, 0])
+        self.assertTrue(im._A.min() == 0)
+        self.assertTrue(im._A.max() == 1.0)
+        self.assertTrue(im._A[0, 0] < im._A[0, 1])
+        self.assertTrue(im._A[0, 0] == im._A[1, 0])
 
         im = Image.Ramp(size=20)
         nt.assert_almost_equal(
-            im.A[0, :],
+            im._A[0, :],
             np.array(
                 [
                     0.0,
@@ -419,41 +419,41 @@ class TestImageConstants(unittest.TestCase):
         self.assertEqual(im.size, (100, 100))
         self.assertEqual(im.dtype, np.float32)
         self.assertFalse(im.iscolor)
-        self.assertTrue(im.A.min() < 0.05)
-        self.assertTrue(im.A.max() > 0.95)
-        self.assertTrue(im.A[0, 0] < im.A[0, 1])
-        self.assertTrue(im.A[0, 0] == im.A[1, 0])
+        self.assertTrue(im._A.min() < 0.05)
+        self.assertTrue(im._A.max() > 0.95)
+        self.assertTrue(im._A[0, 0] < im._A[0, 1])
+        self.assertTrue(im._A[0, 0] == im._A[1, 0])
 
         im = Image.Sin(size=100, dir="y")
         self.assertEqual(im.size, (100, 100))
         self.assertEqual(im.dtype, np.float32)
         self.assertFalse(im.iscolor)
-        self.assertTrue(im.A.min() < 0.05)
-        self.assertTrue(im.A.max() > 0.95)
-        self.assertTrue(im.A[0, 0] < im.A[1, 0])
-        self.assertTrue(im.A[0, 0] == im.A[0, 1])
+        self.assertTrue(im._A.min() < 0.05)
+        self.assertTrue(im._A.max() > 0.95)
+        self.assertTrue(im._A[0, 0] < im._A[1, 0])
+        self.assertTrue(im._A[0, 0] == im._A[0, 1])
 
         im = Image.Sin(size=100, dtype="uint8")
         self.assertEqual(im.size, (100, 100))
         self.assertEqual(im.dtype, np.uint8)
         self.assertFalse(im.iscolor)
-        self.assertTrue(im.A.min() < 5)
-        self.assertTrue(im.A.max() > 250)
-        self.assertTrue(im.A[0, 0] < im.A[0, 1])
-        self.assertTrue(im.A[0, 0] == im.A[1, 0])
+        self.assertTrue(im._A.min() < 5)
+        self.assertTrue(im._A.max() > 250)
+        self.assertTrue(im._A[0, 0] < im._A[0, 1])
+        self.assertTrue(im._A[0, 0] == im._A[1, 0])
 
         im = Image.Sin(size=(100, 200), dtype="uint8")
         self.assertEqual(im.size, (100, 200))
         self.assertEqual(im.dtype, np.uint8)
         self.assertFalse(im.iscolor)
-        self.assertTrue(im.A.min() < 5)
-        self.assertTrue(im.A.max() > 250)
-        self.assertTrue(im.A[0, 0] < im.A[0, 1])
-        self.assertTrue(im.A[0, 0] == im.A[1, 0])
+        self.assertTrue(im._A.min() < 5)
+        self.assertTrue(im._A.max() > 250)
+        self.assertTrue(im._A[0, 0] < im._A[0, 1])
+        self.assertTrue(im._A[0, 0] == im._A[1, 0])
 
         im = Image.Sin(size=20)
         nt.assert_almost_equal(
-            im.A[0, :],
+            im._A[0, :],
             np.array(
                 [
                     0.5,
@@ -485,25 +485,25 @@ class TestImageConstants(unittest.TestCase):
         self.assertEqual(im.size, (64, 64))
         self.assertEqual(im.dtype, np.uint8)
         self.assertFalse(im.iscolor)
-        self.assertEqual(im.A.min(), 0)
-        self.assertEqual(im.A.max(), 255)
-        self.assertTrue(im.A.sum(), 64 * 64 * 255 / 2)
+        self.assertEqual(im._A.min(), 0)
+        self.assertEqual(im._A.max(), 255)
+        self.assertTrue(im._A.sum(), 64 * 64 * 255 / 2)
 
         im = Image.Chequerboard(size=(64, 128))
         self.assertEqual(im.size, (64, 128))
         self.assertEqual(im.dtype, np.uint8)
         self.assertFalse(im.iscolor)
-        self.assertEqual(im.A.min(), 0)
-        self.assertEqual(im.A.max(), 255)
-        self.assertTrue(im.A.sum(), 64 * 128 * 255 / 2)
+        self.assertEqual(im._A.min(), 0)
+        self.assertEqual(im._A.max(), 255)
+        self.assertTrue(im._A.sum(), 64 * 128 * 255 / 2)
 
         im = Image.Chequerboard(size=(64, 128), dtype="float32")
         self.assertEqual(im.size, (64, 128))
         self.assertEqual(im.dtype, np.float32)
         self.assertFalse(im.iscolor)
-        self.assertEqual(im.A.min(), 0.0)
-        self.assertEqual(im.A.max(), 1.0)
-        self.assertTrue(im.A.sum(), 64 * 128 / 2)
+        self.assertEqual(im._A.min(), 0.0)
+        self.assertEqual(im._A.max(), 1.0)
+        self.assertTrue(im._A.sum(), 64 * 128 / 2)
 
     def test_polygons(self):
         from spatialmath import Polygon2

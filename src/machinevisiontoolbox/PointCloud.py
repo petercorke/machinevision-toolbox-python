@@ -13,7 +13,6 @@ try:
 
     _open3d = True
 except ImportError:
-    print("open3d not installed")
     _open3d = False
 
 
@@ -47,6 +46,12 @@ class PointCloud:
 
         :seealso: :func:`__getattr__` :obj:`open3d.geometry.PointCloud` :class:`~machinevisiontoolbox.ImageCore.Image` :class:`~machinevisiontoolbox.Camera.CentralCamera`
         """
+        if not _open3d:
+            raise RuntimeError(
+                "PointCloud class requires Open3D to be installed: pip install open3d\n"
+                " ** Note that Open3d typically does not run on the latest Python version(s)"
+            )
+
         from machinevisiontoolbox import Image
 
         if not _open3d:
@@ -95,7 +100,7 @@ class PointCloud:
         :return: Open3D image
         :rtype: :class:`open3d.geometry.Image` instance
         """
-        img = image.image
+        img = image._A
         if not img.data.c_contiguous:
             img = img.copy()  # make contiguous
         return o3d.geometry.Image(img)
@@ -188,9 +193,9 @@ class PointCloud:
         :rtype: ndarray(3,N)
 
         Points are returned as columns of the array. The columns correspond
-        to the same columns in the :property:`colors` and :property:`normal` properties.
+        to the same columns in the :attr:`colors` and :attr:`normal` properties.
 
-        :seealso: :property:`colors` :property:`normals`
+        :seealso: :attr:`colors` :attr:`normals`
         """
         return np.asarray(self._pcd.points).T
 
@@ -203,9 +208,9 @@ class PointCloud:
         :rtype: ndarray(3,N)
 
         Point colors are returned as columns of the array. The columns correspond
-        to the same columns in the :property:`points` and :property:`normal` properties.
+        to the same columns in the :attr:`points` and :attr:`normal` properties.
 
-        :seealso: :property:`points` :property:`normals`
+        :seealso: :attr:`points` :attr:`normals`
         """
         return np.asarray(self._pcd.colors).T
 
@@ -229,7 +234,7 @@ class PointCloud:
         If the path is not absolute it is first searched for relative
         to the current directory, and if not found, it is searched for in
         the ``data`` folder of the
-        ```mvtb_data`` package <https://github.com/petercorke/machinevision-toolbox-python/tree/master/mvtb-data>`_.
+        `mvtb_data package <https://github.com/petercorke/machinevision-toolbox-python/tree/master/mvtb-data>`_.
 
         """
 
@@ -369,7 +374,7 @@ class PointCloud:
 
     def __rmul__(self, T):
         """
-        Overload * operator to transform points
+        Overloaded * operator to transform points
 
         :param T: _description_
         :type T: :class:`~spatialmath.pose3d.SE3`
@@ -388,7 +393,7 @@ class PointCloud:
 
     def __imul__(self, T):
         """
-        Overload *= operator to transform points
+        Overloaded ``*=`` operator to transform points
 
         :param T: _description_
         :type T: :class:`~spatialmath.pose3d.SE3`
@@ -396,7 +401,7 @@ class PointCloud:
         :rtype: :class:`PointCloud`
 
         Transform a :class:`PointCloud` by inplace multiplication by an
-        :class:`~spatialmath..pose3d.SE3` instance.
+        :class:`~spatialmath.pose3d.SE3` instance.
 
         :seealso: :meth:`__rmul__` :meth:`transform`
         """
@@ -432,7 +437,7 @@ class PointCloud:
 
     def __add__(self, other):
         """
-        Overload the + operator to concatenate point clouds
+        Overloaded the + operator to concatenate point clouds
 
         :param other: second point cloud
         :type other: :class:`PointCloud`
@@ -514,9 +519,9 @@ class PointCloud:
         :rtype: ndarray(3,N)
 
         Point normals are returned as columns of the array.  The columns correspond
-        to the same columns in the :property:`points` and :property:`colors` properties.
+        to the same columns in the :attr:`points` and :attr:`colors` properties.
 
-        :seealso: :meth:`estimate_normals` :property:`points` :property:`colors`
+        :seealso: :meth:`estimate_normals` :attr:`points` :attr:`colors`
         """
         return np.asarray(self._pcd.normals).T
 

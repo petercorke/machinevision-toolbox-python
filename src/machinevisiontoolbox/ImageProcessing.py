@@ -2,9 +2,12 @@
 Spatial filtering, convolution, edge detection, and general image processing operations.
 """
 
+from __future__ import annotations
+
 import os.path
 from collections import namedtuple
 from pathlib import Path
+from typing import TYPE_CHECKING
 from warnings import warn
 
 import cv2 as cv
@@ -16,6 +19,7 @@ import scipy as sp
 from scipy import interpolate
 from spatialmath.base import argcheck, e2h, getvector, h2e, transl2
 
+from machinevisiontoolbox._image_typing import _ImageBase
 from machinevisiontoolbox.base import (
     colorname,
     float_image,
@@ -26,8 +30,11 @@ from machinevisiontoolbox.base import (
     name2color,
 )
 
+if TYPE_CHECKING:
+    from machinevisiontoolbox.ImageCore import Image
 
-class ImageProcessingMixin:
+
+class ImageProcessingMixin(_ImageBase):
     # ======================= image processing ============================= #
 
     def LUT(self, lut, colororder=None):
@@ -62,43 +69,59 @@ class ImageProcessingMixin:
             >>> img = Image([[100, 150], [200, 250]])
             >>> img.LUT(np.arange(255, -1, -1, dtype='uint8')).A
 
-        :note: Works only for ``uint8`` and ``int8`` image and LUT.
+        .. note:: Works only for ``uint8`` and ``int8`` image and LUT.
 
         :references:
-            - Robotics, Vision & Control for Python, Section 11.3, P. Corke, Springer 2023.
+            - |RVC3|, Section 11.3.
 
-        :seealso: `cv2.LUT <https://docs.opencv.org/master/d2/de8/group__core__array.html#gab55b8d062b7f5587720ede032d34156f>`_
+        :seealso: `cv2.LUT <https://docs.opencv.org/4.x/d2/de8/group__core__array.html#gab55b8d062b7f5587720ede032d34156f>`_
         """
-        image = self.to_int()
+        image = self.to_int()  # type: ignore[attr-defined]
         lut = np.array(lut).astype(np.uint8)
         if lut.ndim == 2:
             lut = lut[np.newaxis, ...]
-            if self.nplanes == 1:
+            if self.nplanes == 1:  # type: ignore[attr-defined]
                 image = np.dstack((image,) * lut.shape[2])
 
         out = cv.LUT(src=image, lut=lut)
         if colororder is None:
-            colororder = self.colororder
+            colororder = self.colororder  # type: ignore[attr-defined]
 
-        return self.__class__(self.like(out), colororder=colororder)
+        return self.__class__(self.like(out), colororder=colororder)  # type: ignore[attr-defined]
 
-    def apply(self, func, vectorize=False):
+    def apply(self, func, vectorize=False, **kwargs):
         """
         Apply a function to an image
 
         :param func: function to apply to image or pixel
         :type func: callable
+        :param vectorize: if True apply function to each pixel, defaults to False
+        :type vectorize: bool, optional
+        :param kwargs: additional keyword arguments to pass to function
         :return: transformed image
         :rtype: :class:`Image`
 
-        If ``vectorize`` is False the function is called with a single argument
-        which is the underlying NumPy array, and it must return a NumPy array.
-        The return array can have different dimensions to its argument.
+        If ``vectorize`` is False:
 
-        If ``vectorize`` is True the function is called for every pixel with a
-        single argument which is a scalar or a 1d-array of length equal to the
-        number of color planes. The return array will have the same dimensions
-        to its argument.
+        - the function is called with a single argument which is
+          the underlying NumPy array
+        - the function must return a NumPy array, which can have different dimensions
+          to its argument.  This allows for a large number of NumPy or OpenCV functions to
+          be applied to an image.
+        - For a multiplane image the function is called with a 3D array, and can
+          return an array with the same or a different number of channels.
+        - the returned NumPy array is encapsulated in a new ``Image``.
+
+        If ``vectorize`` is True:
+
+        - the function is called for every pixel with a single argument which is a
+          scalar.
+        - for a color image the same function is called for each plane with the corresponding pixel value as a scalar.
+        - the return array will have the same dimensions (width, height, planes)
+          as its argument.
+
+        The function ``func`` is called with the image or pixel value as the first argument,
+        followed by any additional keyword arguments.
 
         Example:
 
@@ -108,40 +131,56 @@ class ImageProcessingMixin:
             >>> import numpy as np
             >>> import math
             >>> img = Image([[1, 2], [3, 4]])
-            >>> img.apply(np.sqrt).image
-            >>> img.apply(lambda x: math.sqrt(x), vectorize=True).image
+            >>> img.apply(np.sqrt).print()
+            >>> img.apply(lambda x: math.sqrt(x), vectorize=True).print()
 
-        :note: Slow when ``vectorize=True`` which involves a large number
-            of calls to ``func``.
+        .. note::
+            - Slow when ``vectorize=True`` which involves a large number
+              of calls to ``func``.
+
 
         :references:
-            - Robotics, Vision & Control for Python, Section 11.3, P. Corke, Springer 2023.
+            - |RVC3|, Section 11.3.
 
-        :seealso: :meth:`apply2`
+        :seealso: :meth:`apply2` :meth:`numpy.vectorize`
         """
         if vectorize:
-            func = np.vectorize(func)
-        return self.__class__(func(self._A), colororder=self.colororder)
+            func = np.vectorize(func, **kwargs)
+        return self.__class__(func(self._A, **kwargs), colororder=self.colororder)  # type: ignore[attr-defined]
 
-    def apply2(self, other, func, vectorize=False):
+    def apply2(self, other, func, vectorize=False, **kwargs):
         """
         Apply a function to two images
 
         :param func: function to apply to image or pixel
         :type func: callable
         :raises ValueError: images must have same size
+        :param vectorize: if True apply function to each pixel, defaults to False
+        :type vectorize: bool, optional
+        :param kwargs: additional keyword arguments passed to the function
         :return: transformed image
         :rtype: :class:`Image`
 
-        If ``vectorize`` is False the function is called with two arguments
-        which are the underlying NumPy arrays, and it must return a NumPy array.
-        The return array can have different dimensions to its arguments.
+        If ``vectorize`` is False:
 
-        If ``vectorize`` is True the function is called for every pixel in both
-        images with two arguments which are the corresponding pixel values as a
-        scalar or 1d-array of length equal to the number of color planes. The
-        function returns a scalar or a 1d-array. The return array will have the
-        same dimensions to its argument.
+        - the function ``func`` is called with two arguments which are
+          the underlying NumPy array of ``self`` and ``other``.
+        - the function must return a NumPy array, which can have different dimensions
+          to its arguments.  This allows for a large number of NumPy or OpenCV functions to
+          be applied to an image.
+        - For a multiplane image the function is called with a 3D array, and can
+          return an array with the same or a different number of channels.
+        - the returned NumPy array is encapsulated in a new ``Image``.
+
+        If ``vectorize`` is True:
+
+        - the function ``func`` is called for every pixel with two arguments which are the corresponding scalar pixel values from
+          ``self`` and ``other``.
+        - the images must have the same width, height, and number of channels
+        - for a color image the function is called for every pixel on every plane.
+        - the return array will have the same dimensions (width, height, planes)
+          as its argument.
+
 
         Example:
 
@@ -152,16 +191,17 @@ class ImageProcessingMixin:
             >>> import math
             >>> img1 = Image([[1, 2], [3, 4]])
             >>> img2 = Image([[5, 6], [7, 8]])
-            >>> img1.apply2(img2, np.hypot).image
-            >>> img1.apply2(img2, lambda x, y: math.hypot(x,y), vectorize=True).image
+            >>> img1.apply2(img2, np.hypot).print()
+            >>> img1.apply2(img2, lambda x, y: math.hypot(x,y), vectorize=True).print()
 
-        :note: Slow when ``vectorize=True`` which involves a large number
-            of calls to ``func``.
+        .. note::
+            - Slow when ``vectorize`` is ``True`` which involves a large number
+              of calls to ``func``.
 
         :references:
-            - Robotics, Vision & Control for Python, Section 11.4, P. Corke, Springer 2023.
+            - |RVC3|, Section 11.4.
 
-        :seealso: :meth:`apply`
+        :seealso: :meth:`apply` :meth:`numpy.vectorize`
         """
         if self.size != other.size:
             raise ValueError("two images must have same size")
@@ -230,7 +270,7 @@ class ImageProcessingMixin:
         if dy is not None:
             rv = dy
 
-        return self.__class__(np.roll(self.image, (ru, rv), (1, 0)))
+        return self.__class__(np.roll(self._A, (ru, rv), (1, 0)))
 
     def normhist(self):
         """
@@ -250,15 +290,15 @@ class ImageProcessingMixin:
             >>> img = Image([[10, 20, 30], [40, 41, 42], [70, 80, 90]])
             >>> img.normhist().A
 
-        :note:
+        .. note::
             - The histogram of the normalized image is approximately uniform,
               that is, all grey levels ae equally likely to occur.
             - Color images automatically converted to grayscale
 
         :references:
-            - Robotics, Vision & Control for Python, Section 11.3, P. Corke, Springer 2023.
+            - |RVC3|, Section 11.3.
 
-        :seealso: `cv2.equalizeHist <https://docs.opencv.org/master/d6/dc7/group__imgproc__hist.html#ga7e54091f0c937d49bf84152a16f76d6e>`_
+        :seealso: `cv2.equalizeHist <https://docs.opencv.org/4.x/d6/dc7/group__imgproc__hist.html#ga7e54091f0c937d49bf84152a16f76d6e>`_
         """
         out = cv.equalizeHist(src=self.to_int())
         return self.__class__(self.like(out))
@@ -296,8 +336,7 @@ class ImageProcessingMixin:
 
         :references:
 
-            - Robotics, Vision & Control for Python, Section 12.1, P. Corke,
-              Springer 2023.
+            - |RVC3|, Section 12.1.
         """
 
         # TODO make all infinity values = None?
@@ -363,7 +402,7 @@ class ImageProcessingMixin:
         |``'otsu'``     | Otsu's method finds the threshold that minimizes    |
         |               | the within-class variance. This technique is        |
         |               | effective for a bimodal greyscale histogram.        |
-        +---------------+-----------------------------------------------------|
+        +---------------+-----------------------------------------------------+
         |``'triangle'`` | The triangle method constructs a line between the   |
         |               | histogram peak and the farthest end of the          |
         |               | histogram. The threshold is the point of maximum    |
@@ -378,9 +417,9 @@ class ImageProcessingMixin:
 
             >>> from machinevisiontoolbox import Image
             >>> img = Image([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
-            >>> img.threshold(5).image
+            >>> img.threshold(5).print()
 
-        :note:
+        .. note::
             - The threshold is applied to all color planes
             - If threshold is 'otsu' or 'triangle' the image must be greyscale,
               and the computed threshold is also returned.
@@ -392,13 +431,13 @@ class ImageProcessingMixin:
             - Automatic measurement of sister chromatid exchange frequency"
               Zack (Zack GW, Rogers WE, Latt SA (1977),
               J. Histochem. Cytochem. 25 (7): 741–53.
-            - Robotics, Vision & Control for Python, Section 12.1.1, P. Corke, Springer 2023.
+            - |RVC3|, Section 12.1.1.
 
         :seealso:
             :meth:`threshold_interactive`
             :meth:`threshold_adaptive_`
             :meth:`otsu`
-            `opencv.threshold <https://docs.opencv.org/3.4/d7/d1b/group__imgproc__misc.html#gae8a4a146d1ca78c626a53577199e9c57>`_
+            `opencv.threshold <https://docs.opencv.org/4.x/d7/d1b/group__imgproc__misc.html#gae8a4a146d1ca78c626a53577199e9c57>`_
         """
 
         # dictionary of threshold options from OpenCV
@@ -425,9 +464,7 @@ class ImageProcessingMixin:
 
         elif argcheck.isscalar(t):
             # threshold is given
-            _, imt = cv.threshold(
-                src=self.image, thresh=t, maxval=self.maxval, type=flag
-            )
+            _, imt = cv.threshold(src=self._A, thresh=t, maxval=self.maxval, type=flag)
             return self.__class__(imt)
 
         else:
@@ -466,9 +503,9 @@ class ImageProcessingMixin:
         .. math:: Y_{u,v} = \left\{ \begin{array}{l} m \mbox{, if } X_{u,v} > t \\ 0 \mbox{, otherwise} \end{array} \right.
 
         :references:
-            - Robotics, Vision & Control for Python, Section 12.1.1.1, P. Corke, Springer 2023.
+            - |RVC3|, Section 12.1.1.1.
 
-        :seealso: :meth:`threshold` :meth:`threshold_adaptive` :meth:`otsu` `opencv.threshold <https://docs.opencv.org/3.4/d7/d1b/group__imgproc__misc.html#gae8a4a146d1ca78c626a53577199e9c57>`_
+        :seealso: :meth:`threshold` :meth:`threshold_adaptive` :meth:`otsu` `opencv.threshold <https://docs.opencv.org/4.x/d7/d1b/group__imgproc__misc.html#gae8a4a146d1ca78c626a53577199e9c57>`_
         """
 
         # ACKNOWLEDGEMENT: https://matplotlib.org/devdocs/gallery/widgets/range_slider.html
@@ -479,7 +516,7 @@ class ImageProcessingMixin:
 
         # N = 128
         Ncolors = 256
-        img = self.image
+        img = self._A
         t = int((img.max() + img.min()) / 2)
 
         x = np.linspace(self.min(), self.max(), Ncolors)
@@ -487,7 +524,8 @@ class ImageProcessingMixin:
         fig, axs = plt.subplots(1, 2, figsize=(10, 5))
         plt.subplots_adjust(bottom=0.25)
         try:
-            fig.canvas.manager.set_window_title(title)  # for 3.4 onward
+            if title is not None and fig.canvas.manager is not None:
+                fig.canvas.manager.set_window_title(title)  # for 3.4 onward
         except:
             pass
 
@@ -502,7 +540,7 @@ class ImageProcessingMixin:
         axs[1].set_title("Histogram of pixel intensities")
 
         # Create the Slider
-        slider_ax = plt.axes([0.20, 0.1, 0.60, 0.03])
+        slider_ax = plt.axes((0.20, 0.1, 0.60, 0.03))
         slider = Slider(slider_ax, "Threshold", img.min(), img.max(), valinit=t)
 
         # Create the Vertical lines on the histogram
@@ -597,7 +635,7 @@ class ImageProcessingMixin:
         that are to be segmented from the background.
 
         :references:
-            - Robotics, Vision & Control for Python, Section 12.1.1.1, P. Corke, Springer 2023.
+            - |RVC3|, Section 12.1.1.1.
 
         :seealso:
             :meth:`threshold`
@@ -649,7 +687,7 @@ class ImageProcessingMixin:
             >>> img = Image.Read('street.png')
             >>> img.otsu()
 
-        :note:
+        .. note::
             - Converts a color image to greyscale.
             - OpenCV implementation gives slightly different result to
               MATLAB Machine Vision Toolbox.
@@ -661,15 +699,15 @@ class ImageProcessingMixin:
             - An improved method for image thresholding on the valley-emphasis
               method. H-F Ng, D. Jargalsaikhan etal. Signal and Info Proc.
               Assocn. Annual Summit and Conf (APSIPA). 2013. pp1-4
-            - Robotics, Vision & Control for Python, Section 12.1.1, P. Corke, Springer 2023.
+            - |RVC3|, Section 12.1.1.
 
-        :seealso: :meth:`threshold` :meth:`threshold_interactive` :meth:`threshold_adaptive`  `opencv.threshold <https://docs.opencv.org/3.4/d7/d1b/group__imgproc__misc.html#gae8a4a146d1ca78c626a53577199e9c57>`_
+        :seealso: :meth:`threshold` :meth:`threshold_interactive` :meth:`threshold_adaptive`  `opencv.threshold <https://docs.opencv.org/4.x/d7/d1b/group__imgproc__misc.html#gae8a4a146d1ca78c626a53577199e9c57>`_
         """
         # OpenCV returns the threshold and the thresholded image, but we only want the threshold
         _, t = self.threshold(t="otsu")
         return t
 
-    def blend(self, image2, alpha, beta=None, gamma=0):
+    def blend(self, image2: "Image", alpha: float, beta: float | None =None, gamma: float=0, dtype: str|None = None) -> "Image":
         r"""
         Image blending
 
@@ -679,14 +717,16 @@ class ImageProcessingMixin:
         :type alpha: float
         :param beta: fraction of ``image2``, defaults to 1-``alpha``
         :type beta: float, optional
-        :param gamma: gamma nonlinearity, defaults to 0
+        :param gamma: image offset, defaults to 0
         :type gamma: int, optional
+        :param dtype: data type of the result, defaults to same as ``self``
+        :type dtype: str, optional
         :raises ValueError: images are not same size
         :raises ValueError: images are of different type
         :return: blended image
         :rtype: :class:`Image`
 
-        The resulting image is
+        The resulting image isn a linear blend of the two input images ``self`` and ``image2`` according to:
 
         .. math::
 
@@ -701,11 +741,11 @@ class ImageProcessingMixin:
             >>> img2 = Image([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
             >>> img1.blend(img2, 0.5, 2).A
 
-        :note:
-            - For integer images the result is saturated.
+        .. note::
+            - For ``uint8`` images the result may be saturated.  To avoid this specify ``dtype='float'`` and the result will be a floating point image.
             - For a multiplane image each plane is processed independently.
 
-        :seealso: :meth:`choose` `cv2.addWeighted <https://docs.opencv.org/master/d2/de8/group__core__array.html#gafafb2513349db3bcff51f54ee5592a19>`_
+        :seealso: :meth:`choose` `cv2.addWeighted <https://docs.opencv.org/4.x/d2/de8/group__core__array.html#gafafb2513349db3bcff51f54ee5592a19>`_
         """
 
         if self.shape != image2.shape:
@@ -713,10 +753,19 @@ class ImageProcessingMixin:
         if self.isint != image2.isint:
             raise ValueError("images must be both int or both floating type")
 
+        if dtype is None:
+            dtype = -1
+        elif dtype in ("float", "float32"):
+            dtype = cv.CV_32F
+        elif dtype in ("double", "float64"):
+            dtype = cv.CV_64F
+        else:
+            raise ValueError("dtype must be 'float', 'double', 'float32', or 'float64'")
+        
         if beta is None:
             beta = 1 - alpha
         out = cv.addWeighted(
-            src1=self._A, alpha=alpha, src2=image2._A, beta=beta, gamma=gamma
+            src1=self._A, alpha=alpha, src2=image2._A, beta=beta, gamma=gamma, dtype=dtype
         )
         return self.__class__(out, colororder=self.colororder)
 
@@ -758,11 +807,12 @@ class ImageProcessingMixin:
             >>> img1 = Image.Constant(3, value=10)
             >>> img2 = Image.Constant(3, value=80)
             >>> img = Image([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
-            >>> img1.choose(img2, img >=5).image
+            >>> img1.choose(img2, img >=5).print()
             >>> img1 = Image.Constant(3, value=[0,0,0])
-            >>> img1.choose('red', img>=5).red().image
+            >>> img1.choose('red', img>=5).red().print()
 
-        :note:
+        .. note::
+
             - If image and ``image2`` are both greyscale then the result is
               greyscale.
             - If either of image and ``image2`` are color then the result is color.
@@ -773,9 +823,9 @@ class ImageProcessingMixin:
               color value, or a string containing the name of a color which is
               found using :meth:`name2color`.
 
-        :seealso: :func:`~machinevisiontoolbox.base.color.name2color` `opencv.bitwise_and <https://docs.opencv.org/master/d2/de8/group__core__array.html#ga60b4d04b251ba5eb1392c34425497e14>`_
+        :seealso: :func:`~machinevisiontoolbox.base.color.name2color` `opencv.bitwise_and <https://docs.opencv.org/4.x/d2/de8/group__core__array.html#ga60b4d04b251ba5eb1392c34425497e14>`_
         """
-        im1 = self.image
+        im1 = self._A
 
         if isinstance(mask, self.__class__):
             mask = mask._A > 0
@@ -788,7 +838,7 @@ class ImageProcessingMixin:
 
         if isinstance(image2, self.__class__):
             # second image is Image type
-            im2 = image2.image
+            im2 = image2._A
             if im1.shape != im2.shape:
                 raise ValueError("image and image2 must be same size")
         else:
@@ -820,8 +870,9 @@ class ImageProcessingMixin:
             if im1.ndim == 2 and im2.ndim > 2:
                 im1 = np.repeat(np.atleast_3d(im1), im2.shape[2], axis=2)
 
-        m = cv.bitwise_and(src1=mask, src2=np.uint8([1]))
-        m_not = cv.bitwise_xor(src1=mask, src2=np.uint8([1]))
+        ones = np.ones_like(mask, dtype=np.uint8)
+        m = cv.bitwise_and(src1=mask, src2=ones)
+        m_not = cv.bitwise_xor(src1=mask, src2=ones)
 
         out = cv.bitwise_and(src1=im1, src2=im1, mask=m_not) + cv.bitwise_and(
             src1=im2, src2=im2, mask=mask
@@ -873,11 +924,12 @@ class ImageProcessingMixin:
             >>> from machinevisiontoolbox import Image
             >>> img1 = Image.Constant(5, value=10)
             >>> pattern = Image([[11, 12], [13, 14]])
-            >>> img1.copy().paste(pattern, (1,2)).image
-            >>> img1.copy().paste(pattern, (1,2), method='add').image
-            >>> img1.copy().paste(pattern, (1,2), method='mean').image
+            >>> img1.copy().paste(pattern, (1,2)).print()
+            >>> img1.copy().paste(pattern, (1,2), method='add').print()
+            >>> img1.copy().paste(pattern, (1,2), method='mean').print()
 
-        :note:
+        .. note::
+
             - Pixels outside the pasted region are unaffected.
             - If ``copy`` is False the image is modified in place
             - For ``position='centre'`` an odd sized pattern is assumed.  For
@@ -936,20 +988,20 @@ class ImageProcessingMixin:
             # pattern has multiple planes, replicate the canvas
             # sadly, this doesn't work because repmat doesn't work on 3D
             # arrays
-            # o = np.matlib.repmat(canvas.image, [1, 1, npc])
+            # o = np.matlib.repmat(canvas._A, [1, 1, npc])
             o = np.dstack([self._A for i in range(npc)])
             colororder = pattern.colororder
         else:
             if copy:
-                o = self.image.copy()
+                o = self._A.copy()
             else:
-                o = self.image
+                o = self._A
 
         if npc < nc:
             pim = np.dstack([pattern._A for i in range(nc)])
-            # pattern.image = np.matlib.repmat(pattern.image, [1, 1, nc])
+            # pattern._A = np.matlib.repmat(pattern._A, [1, 1, nc])
         else:
-            pim = pattern.image
+            pim = pattern._A
 
         if method == "set":
             if pattern.iscolor:
@@ -1026,6 +1078,9 @@ class ImageProcessingMixin:
         :return: _description_
         :rtype: _type_
 
+        Low becomes high and high becomes low.  The resulting image has the same
+        datatype and size as the original image.  The transformation is:
+
         For an integer image
 
         .. math:: Y_{u,v} = \left\{ \begin{array}{l} p_{\mbox{max}} \mbox{, if } X_{u,v} = 0 \\ p_{\mbox{min}} \mbox{, otherwise} \end{array}\right.
@@ -1043,12 +1098,12 @@ class ImageProcessingMixin:
 
             >>> from machinevisiontoolbox import Image
             >>> img = Image([[0, 1], [2, 3]])
-            >>> img.invert().image
+            >>> img.invert().print()
         """
         if self.isint:
-            out = self.maxval + self.minval - self.image
+            out = self.maxval + self.minval - self._A
         elif self.isfloat:
-            out = 1.0 - self.image
+            out = 1.0 - self._A
         return self.__class__(out)
 
     # def scalespace(self, n, sigma=1):

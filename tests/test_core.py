@@ -930,6 +930,23 @@ class TestImage(unittest.TestCase):
         nt.assert_array_equal(z.plane(0).A, a.A)
         nt.assert_array_equal(z.plane(1).A, np.zeros_like(a.A))
 
+    def test_imod_plane_stack(self):
+        a = Image([[1, 2], [3, 4]])
+        b = Image([[5, 6], [7, 8]])
+        a_orig = a.A.copy()
+        a %= b
+        self.assertEqual(a.nplanes, 2)
+        nt.assert_array_equal(a.plane(0).A, a_orig)
+        nt.assert_array_equal(a.plane(1).A, b.A)
+
+        # scalar appended as a plane
+        a = Image([[1, 2], [3, 4]])
+        a_orig = a.A.copy()
+        a %= 0
+        self.assertEqual(a.nplanes, 2)
+        nt.assert_array_equal(a.plane(0).A, a_orig)
+        nt.assert_array_equal(a.plane(1).A, np.zeros_like(a_orig))
+
     def test_bitwise(self):
         x = np.array([[0b0011, 0b0101], [0b1010, 0b1100]], dtype="uint8")
         y = np.array([[0b0110, 0b0011], [0b1001, 0b0101]], dtype="uint8")
@@ -1078,6 +1095,39 @@ class TestImage(unittest.TestCase):
         self.assertEqual(im_grey.nplanes, 1)
         im_rgb = Image.Random(size=(10, 10), colororder="RGB")
         self.assertEqual(im_rgb.nplanes, 3)
+
+    def test_planes_iterator(self):
+        x = np.arange(24).reshape((2, 4, 3))
+        im = Image(x, size=(4, 2), colororder="RGB")
+
+        planes = list(im.planes())
+        self.assertEqual(len(planes), 3)
+        for i, plane in enumerate(im.planes()):
+            self.assertIsInstance(plane, Image)
+            self.assertEqual(plane.shape, (2, 4))
+            self.assertEqual(plane.nplanes, 1)
+            nt.assert_array_equal(planes[i].A, x[:, :, i])
+
+    def test_init_input_check(self):
+        # 1D array without size
+        x = np.zeros((10,))
+        with self.assertRaises(ValueError):
+            y = Image(x)
+
+        # 4D array without size
+        x = np.zeros((10, 10, 3, 2))
+        with self.assertRaises(ValueError):
+            y = Image(x)
+
+        # incorrect argument type
+        with self.assertRaises(ValueError):
+            y = Image("image")
+
+    def test_init_singleton_removal(self):
+        x = np.zeros((5, 10, 1))
+        im = Image(x)
+        self.assertEqual(im.shape, (5, 10))
+        self.assertEqual(im.nplanes, 1)
 
 
 # ------------------------------------------------------------------------ #

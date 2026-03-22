@@ -9,7 +9,7 @@ import os
 import os.path
 import urllib
 import warnings
-from collections.abc import Sequence
+from collections.abc import Iterator, Sequence
 from math import nan
 from pathlib import Path
 
@@ -256,7 +256,6 @@ class Image(
             Use the option ``copy=True`` if you want to copy the data.
 
         """
-        self._A = None
         self._name = None
         self._colororder = None
         self.id = id
@@ -309,6 +308,11 @@ class Image(
 
         else:
             raise ValueError("bad argument passed to Image constructor")
+
+        if not isinstance(image, np.ndarray):
+            raise ValueError(
+                "bad argument passed to Image constructor: must be ndarray or list of lists"
+            )
 
         if binary:
             image = image > 0
@@ -395,6 +399,13 @@ class Image(
 
                     image = image.reshape(*newsize)
 
+        if image.ndim not in (2, 3):
+            raise ValueError(
+                "bad ndarray passed to Image constructor: must be 2D or 3D array"
+            )
+        if image.ndim == 3 and image.shape[2] == 1:
+            image = image[:, :, 0]  # squeeze out singleton plane
+
         # assign the image to the object, copying if requested
         if copy:
             self._A = image.copy()
@@ -456,8 +467,8 @@ class Image(
         if self.domain is not None:
             s += f", u::{self.domain[0][0]:.3g}:{self.domain[0][-1]:.3g}, v::{self.domain[1][0]:.3g}:{self.domain[1][-1]:.3g}"
 
-        nnan = np.sum(np.isnan(self.image))
-        ninf = np.sum(np.isinf(self.image))
+        nnan = np.sum(np.isnan(self._A))
+        ninf = np.sum(np.isinf(self._A))
         if nnan + ninf > 0:
             s += " (contains "
             if nnan > 0:
@@ -468,8 +479,65 @@ class Image(
 
         return s
 
+    def rprint(self, **kwargs) -> "Image":
+        """
+        Print image pixels in compact format and return image
+
+        :param fmt: format string, defaults to None
+        :type fmt: str, optional
+        :param separator: value separator, defaults to single space
+        :type separator: str, optional
+        :param precision: precision for floating point pixel values, defaults to 2
+        :type precision: int, optional
+        :param header: print image summary header, defaults to True
+        :type header: bool, optional
+        :param file: file to print to, defaults to None
+        :type file: file, optional
+        :return: the printed image
+        :rtype: :class:`Image`
+
+        Very compact display of pixel numerical values in grid layout and return the image itself.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Squares(1, 10).rprint()
+            >>> print(img)
+            >>> img = Image.Squares(1, 10, dtype='float').rprint(precision=1, header=True)
+            >>> print(img)
+
+        The function returns the image, which is why we see the image ``repr`` value
+        after the printed pixels in this python intrepreter.
+
+        The `rprint` method is particularly useful in a method chain, for example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Random(3).rprint()
+            >>> print(img) # return result of print() is the image itself
+
+        .. note::
+
+            - For a boolean image True and False are displayed as 1 and 0
+              respectively.
+            - For a multiplane images the planes are printed sequentially, along
+              with the plane's name.
+
+        :seealso: :meth:`print` :meth:`Image.strhcat` :meth:`Image.showpixels`
+        """
+        self.print(**kwargs)
+        return self
+
     def print(
-        self, fmt: str | None = None, separator: str = " ", precision: int = 2
+        self,
+        fmt: str | None = None,
+        separator: str = " ",
+        precision: int = 2,
+        header: bool = False,
+        file=None,
     ) -> None:
         """
         Print image pixels in compact format
@@ -480,6 +548,12 @@ class Image(
         :type separator: str, optional
         :param precision: precision for floating point pixel values, defaults to 2
         :type precision: int, optional
+        :param header: print image summary header, defaults to True
+        :type header: bool, optional
+        :param file: file to print to, defaults to None
+        :type file: file, optional
+        :return: the printed image
+        :rtype: :class:`Image`
 
         Very compact display of pixel numerical values in grid layout.
 
@@ -491,16 +565,27 @@ class Image(
             >>> img = Image.Squares(1, 10)
             >>> img.print()
             >>> img = Image.Squares(1, 10, dtype='float')
-            >>> img.print()
+            >>> img.print(precision=1, header=True)
 
-        :note:
+        .. note::
+
             - For a boolean image True and False are displayed as 1 and 0
               respectively.
             - For a multiplane images the planes are printed sequentially, along
               with the plane's name.
 
-        :seealso: :meth:`Image.strhcat` :meth:`Image.showpixels`
+        :seealso: :meth:`rprint` :meth:`Image.strhcat` :meth:`Image.showpixels`
         """
+
+        def format_plane(plane, fmt, indent="  "):
+            rows = []
+            for v in plane.vspan():
+                row = indent
+                for u in plane.uspan():
+                    row += (fmt or "{}").format(plane._A[v, u])
+                rows.append(row)
+            return rows
+
         if fmt is None:
             if self.isint:
                 width = max(len(str(self.max())), len(str(self.min())))
@@ -513,18 +598,16 @@ class Image(
                 width = max(len(ff.format(self.max())), len(ff.format(self.min())))
                 fmt = f"{separator}{{:{width}.{precision}f}}"
 
+        if header:
+            print(self, file=file)
+
         if self.iscolor:
-            # recurse over planes
             plane_names = (self.colororder_str or "").split(":")
-            for plane in range(self.nplanes):
-                print(f"plane {plane_names[plane]}:")
-                self.plane(plane).print()
+            for i, plane in enumerate(self.planes()):
+                print(f"  plane {plane_names[i]}:")
+                print("\n".join(format_plane(plane, fmt, indent="    ")), file=file)
         else:
-            for v in self.vspan():
-                row = ""
-                for u in self.uspan():
-                    row += (fmt or "{}").format(self.image[v, u])
-                print(row)
+            print("\n".join(format_plane(self, fmt)), file=file)
 
     @classmethod
     def strhcat(
@@ -541,7 +624,7 @@ class Image(
         :param widths: number of digits for the formatted array elements, defaults to 1.
             If scalar applies to all images, if list applies to each image.
         :type widths: int or list of ints, optional
-        :param arraysep: separator between arrays, defaults to " |"
+        :param arraysep: separator between arrays, defaults to ``" |"``
         :type arraysep: str, optional
         :param labels: list of labels for each array, defaults to None
         :type labels: list of str, optional
@@ -643,9 +726,9 @@ class Image(
 
     def __repr__(self) -> str:
         """
-        Single line summary of image parameters
+        Readable representation of image parameters
 
-        :return: single line summary of image
+        :return: summary of image enclosed in angle brackets
         :rtype: str
 
         Example:
@@ -654,9 +737,9 @@ class Image(
 
             >>> from machinevisiontoolbox import Image
             >>> img = Image.Read('flowers1.png')
-            >>> im
+            >>> img
         """
-        return str(self)
+        return f"<{str(self)}>"
 
     def copy(self, copy: bool = True) -> "Image":
         """
@@ -702,7 +785,7 @@ class Image(
         For the first two cases the color plane indices are implicit in the
         order in the string.
 
-        :note: Changing the color order does not change the order of the planes
+        .. note:: Changing the color order does not change the order of the planes
             in the image array, it simply changes their label.
 
         :seealso: :meth:`colororder_str` :meth:`colordict` :meth:`plane` :meth:`red` :meth:`green` :meth:`blue`
@@ -832,7 +915,7 @@ class Image(
             >>> from machinevisiontoolbox import Image
             >>> Image.colordict2list({'R': 0, 'G': 1, 'B': 2})
 
-        :note: The color planes are sorted by their index value.  There is no
+        .. note:: The color planes are sorted by their index value.  There is no
             check that the lowest plane index is zero.
 
         :seealso: :meth:`colordict2str` :meth:`colororder2dict`
@@ -856,7 +939,7 @@ class Image(
             >>> from machinevisiontoolbox import Image
             >>> Image.colordict2str({'R': 0, 'G': 1, 'B': 2})
 
-        :note: The color planes are sorted by their index value.  There is no
+        .. note:: The color planes are sorted by their index value.  There is no
             check that the lowest plane index is zero.
 
         :seealso: :meth:`colordict2list` :meth:`colororder2dict`
@@ -908,7 +991,7 @@ class Image(
             >>> img.name = 'my image'
             >>> img.name
 
-        :note: Images loaded from a file have their name initially set to
+        .. note:: Images loaded from a file have their name initially set to
             the full file pathname.
 
         :seealso: :meth:`Read`
@@ -1020,9 +1103,8 @@ class Image(
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> img = Image.Read('flowers1.png')
-            >>> img.numnan
-            >>> img[0, 0] = np.nan
+            >>> from numpy import nan
+            >>> img = Image([[1, 2], [3, nan]], dtype='float32')
             >>> img.numnan
 
         :seealso: :meth:`numinf`
@@ -1042,9 +1124,8 @@ class Image(
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> img = Image.Read('flowers1.png')
-            >>> img.numinf
-            >>> img[0, 0] = np.inf
+            >>> from numpy import inf
+            >>> img = Image([[1, 2], [3, inf]], dtype='float32')
             >>> img.numinf
 
         :seealso: :meth:`numnan`
@@ -1154,7 +1235,7 @@ class Image(
             >>> with np.printoptions(threshold=10):
             >>>     img.uspan()
 
-        :note: If the image has a ``domain`` specified the horizontal
+        .. note:: If the image has a ``domain`` specified the horizontal
             component of this is returned instead.
 
         .. warning:: Computed using :meth:`numpy.arange` and for ``step>1`` the
@@ -1186,7 +1267,7 @@ class Image(
             >>> with np.printoptions(threshold=10):
             >>>     img.vspan()
 
-        :note: If the image has a ``domain`` specified the vertical
+        .. note:: If the image has a ``domain`` specified the vertical
             component of this is returned instead.
 
         .. warning:: Computed using :meth:`numpy.arange` and for ``step>1`` the
@@ -1215,7 +1296,7 @@ class Image(
             >>> img = Image.Read('flowers1.png')
             >>> img.size
 
-        :note: The dimensions are in a different order compared to :meth:`shape`.
+        .. note:: The dimensions are in a different order compared to :meth:`shape`.
 
         :seealso: :meth:`width` :meth:`height` :meth:`shape`
         """
@@ -1239,7 +1320,7 @@ class Image(
             >>> img = Image.Zeros((51,51))
             >>> img.centre
 
-        :note: If the image has an even dimension the centre will lie
+        .. note:: If the image has an even dimension the centre will lie
             between pixels.
 
         :seealso: :meth:`center` :meth:`centre_int`
@@ -1264,7 +1345,7 @@ class Image(
             >>> img = Image.Zeros((51,51))
             >>> img.center
 
-        :note:
+        .. note::
             - If the image has an even dimension the centre will lie
               between pixels.
             - Same as ``centre``, just US spelling
@@ -1291,7 +1372,7 @@ class Image(
             >>> img = Image.Zeros((51,51))
             >>> img.centre_int
 
-        :note: If the image has an even dimension the centre coordinate will
+        .. note:: If the image has an even dimension the centre coordinate will
               be truncated toward zero.
 
         :seealso: :meth:`centre`
@@ -1318,7 +1399,7 @@ class Image(
             >>> img = Image.Zeros((51,51))
             >>> img.center_int
 
-        :note:
+        .. note::
             - If the image has an even dimension the centre coordinate will
               be truncated toward zero.
             - Same as ``centre_int``, just US spelling
@@ -1335,7 +1416,7 @@ class Image(
         :return: Number of pixels in image plane: width x height
         :rtype: int
 
-        :note: Number of planes is not considered.
+        .. note:: Number of planes is not considered.
 
         Example:
 
@@ -1368,7 +1449,7 @@ class Image(
             >>> img = Image.Read('street.png')
             >>> img.shape
 
-        :note: The dimensions are in a different order compared to :meth:`size`.
+        .. note:: The dimensions are in a different order compared to :meth:`size`.
 
         :seealso: :meth:`size` :meth:`nplanes` :meth:`ndim` :meth:`iscolor`
         """
@@ -1467,7 +1548,7 @@ class Image(
             >>> img = Image.Read('flowers1.png')
             >>> img.isbgr
 
-        :note: Is False if image is not color.
+        .. note:: Is False if image is not color.
 
         :seealso: :meth:`colororder`
         """
@@ -1489,7 +1570,7 @@ class Image(
             >>> img = Image.Read('flowers1.png')
             >>> img.isrgb
 
-        :note: Is False if image is not color.
+        .. note:: Is False if image is not color.
 
         :seealso: :meth:`colororder`
         """
@@ -1500,7 +1581,7 @@ class Image(
         Convert image datatype
 
         :param dtype: Numpy data type
-        :type dtype: str
+        :type dtype: str or NumPy dtype
         :return: image
         :rtype: :class:`Image`
 
@@ -1514,11 +1595,11 @@ class Image(
 
             >>> from machinevisiontoolbox import Image
             >>> img = Image.Random(3)
-            >>> img.image
-            >>> img.to('float').image
+            >>> img.print()
+            >>> img.to('float').print()
             >>> img = Image.Random(3, dtype='float')
-            >>> img.image
-            >>> img.to('uint8').image
+            >>> img.print()
+            >>> img.to('uint8').print()
 
         :seealso: :meth:`astype` :meth:`to_int` :meth:`to_float`
         """
@@ -1537,7 +1618,7 @@ class Image(
         Cast image datatype
 
         :param dtype: Numpy data type
-        :type dtype: str
+        :type dtype: str or NumPy dtype
         :return: image
         :rtype: :class:`Image`
 
@@ -1550,11 +1631,11 @@ class Image(
 
             >>> from machinevisiontoolbox import Image
             >>> img = Image.Random(3)
-            >>> img.image
-            >>> img.astype('float').image
+            >>> img.print()
+            >>> img.astype('float').print()
             >>> img = Image.Random(3, dtype='float')
-            >>> img.image
-            >>> img.astype('uint8').image
+            >>> img.print()
+            >>> img.astype('uint8').print()
 
         :seealso: :meth:`to`
         """
@@ -1583,12 +1664,52 @@ class Image(
             >>> type(img)
             >>> type(img.image)
 
-        :note: For a color image the color plane order is given by the
+        .. note:: For a color image the color plane order is given by the
             colororder dictionary.
+
+        .. deprecated:: 1.0.3
+            Use :meth:`array` instead.
 
         :seealso: :meth:`A` :meth:`colororder`
         """
+        warnings.warn(
+            "image property will be deprecated in v2.0, use .array instead",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         return self._A  # type: ignore[return-value]
+
+    @property
+    def array(self) -> np.ndarray:
+        """
+        Image as NumPy array
+
+        :return: image as a NumPy array
+        :rtype: ndarray(H,W) or ndarray(H,W,3)
+
+        Return a reference to the encapsulated NumPy array that holds the pixel
+        values.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read('flowers1.png')
+            >>> type(img)
+            >>> type(img.array)
+
+        .. note:: For a color image the color plane order is given by the
+            colororder dictionary.
+
+        .. warning:: This property is for accessing the NumPy image data for
+           passing to a NumPy, OpenCV or other function.  It is not intended for direct
+           manipulation of the image data -- doing so may make the state of the
+           Image instance inconsistent.
+
+        :seealso: :meth:`array_as` :meth:`rgb` :meth:`bgr` :meth:`colororder`
+        """
+        return self._A
 
     @property
     def A(self) -> Array2d | Array3d:
@@ -1620,12 +1741,21 @@ class Image(
             >>> img.A = np.zeros((50,50))
             >>> img
 
-        :seealso: :meth:`image`
+        .. deprecated:: 1.0.3
+            Use :meth:`array` instead for accessing the NumPy image data and the
+            :meth:`Image` constructor for creating a new ``Image`` with a different array.
+
+        :seealso: :meth:`array` :meth:`image`
         """
         return self._A  # type: ignore[return-value]
 
     @A.setter
     def A(self, A: Array2d | Array3d) -> None:
+        warnings.warn(
+            "A setter will be deprecated in v2.0, use Image constructor instead",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         self._A = A
 
     @property
@@ -1670,12 +1800,12 @@ class Image(
 
     # ------------------------- datatype operations ----------------------- #
 
-    def to_int(self, intclass: Dtype = "uint8"):
+    def to_int(self, intclass: Dtype = "uint8") -> np.ndarray:
         """
         Image as integer NumPy array
 
         :param intclass: name of NumPy supported integer class, default is 'uint8'
-        :type intclass: str, optional
+        :type intclass: str or NumPy dtype, optional
         :return: NumPy array with integer values
         :rtype: ndarray(H,W) or ndarray(H,W,P)
 
@@ -1708,20 +1838,28 @@ class Image(
             >>> img.to_int('uint8')
             >>> img.to_int('uint16')
 
-        :note: Works for greyscale or color (arbitrary number of planes) image
+        .. note:: Works for greyscale or color (arbitrary number of planes) image
 
-        :seealso: :func:`to_float` :meth:`cast` :meth:`like`
+        .. deprecated:: 1.0.3
+            Use :meth:`array_as` instead.
+
+        :seealso: :meth:`array_as` :meth:`to_float` :meth:`cast` :meth:`like`
         """
-        return int_image(self.image, intclass)
+        warnings.warn(
+            "to_int property will be deprecated in v2.0, use .array_as(int_type) instead",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return int_image(self._A, intclass)
 
-    def to_float(self, floatclass: Dtype = "float32"):
+    def to_float(self, floatclass: Dtype = "float32") -> np.ndarray:
         """
         Image as float NumPy array
 
         :param floatclass: 'single', 'double', 'float32' [default], 'float64'
-        :type floatclass: str
-        :return: Image with floating point pixel types
-        :rtype: :class:`Image`
+        :type floatclass: str or NumPy dtype
+        :return: NumPy array with floating point values
+        :rtype: ndarray(H,W) or ndarray(H,W,P)
 
         Return a NumPy array with pixels converted to the floating point class ``floatclass``
         and the values span the range 0 to 1. For the case where the input image
@@ -1748,11 +1886,74 @@ class Image(
             >>> img = Image([[False, True], [True, False]])
             >>> img.to_float()
 
-        :note: Works for greyscale or color (arbitrary number of planes) image
+        .. note:: Works for greyscale or color (arbitrary number of planes) image
 
-        :seealso: :meth:`to_int` :meth:`cast` :meth:`like`
+        .. deprecated:: 1.0.3
+            Use :meth:`array_as` instead.
+
+        :seealso: :meth:`array_as` :meth:`to_int` :meth:`cast` :meth:`like`
         """
-        return float_image(self.image, floatclass)
+        warnings.warn(
+            "to_float property will be deprecated in v2.0, use .array_as(float_type) instead",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return float_image(self._A, floatclass)
+
+    def array_as(self, dtype: Dtype | None = None) -> np.ndarray:
+        """
+        Convert Image to NumPy array of specified type
+
+        :param dtype: data type of the output array
+        :type dtype: str or np.dtype
+        :return: NumPy array with specified type
+        :rtype: ndarray(H,W) or ndarray(H,W,P)
+
+        Return a NumPy array with pixels converted to the specified data type.
+
+        =========  ========================================  ====================================
+        Input      Output int                                Output float
+        =========  ========================================  ====================================
+        float      scaled [-1,1] → [min_int, max_int]        cast, values unchanged
+        int        scaled by max_int_output/max_int_input    scaled [min_int, max_int] → [-1, 1]
+        uint       scaled by max_int_output/max_int_input    scaled [0, max_int] → [0, 1]
+        bool       False → 0, True → max_int                 False → 0.0, True → 1.0
+        =========  ========================================  ====================================
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image([[5_000, 10_000], [30_000, 60_000]]) # uint16 image
+            >>> img
+            >>> img.array_as('uint8')
+            >>> img.array_as('uint32')
+            >>> img.array_as('float')
+            >>> img = Image([[0.0, 0.3], [0.5, 1.0]])
+            >>> img
+            >>> img.array_as('uint8')
+            >>> img = Image([[False, True], [True, False]])
+            >>> img
+            >>> img.array_int('uint8')
+            >>> img.array_int('float')
+
+        .. note:: Works for greyscale or color (arbitrary number of planes) image
+
+        .. warning:: This method assumes that all integer values are unsigned.
+
+        :seealso: :meth:`array` :func:`array_float` :meth:`cast` :meth:`like`
+        """
+        if dtype is None:
+            return self._A
+        else:
+            dtype = np.dtype(dtype)  # convert to dtype if it's a string
+            if np.issubdtype(dtype, np.integer) or np.issubdtype(dtype, np.bool_):
+                return int_image(self._A, dtype)
+            elif np.issubdtype(dtype, np.floating):
+                return float_image(self._A, dtype)
+            else:
+                raise ValueError("unsupported dtype specified")
 
     def cast(self, value: int | float) -> Any:
         """
@@ -1776,7 +1977,7 @@ class Image(
             >>> x
             >>> type(x)
 
-        :note: Scalars are cast to NumPy types not native Python types.
+        .. note:: Scalars are cast to NumPy types not native Python types.
 
         :seealso: :meth:`like`
         """
@@ -1987,10 +2188,10 @@ class Image(
             >>> img = Image.Read('flowers1.png')
             >>> img.nplanes
 
-        :note: A greyscale image is stored internally as a 2D NumPy array
-            which has zero planes, but ``nplanes`` will return ` in that case.
+        .. note:: A greyscale image is stored internally as a 2D NumPy array
+            which has zero planes, but ``nplanes`` will return 1 in that case.
 
-        :seealso: :meth:`shape` :meth:`ndim`
+        :seealso: :meth:`iscolor` :meth:`shape` :meth:`ndim`
         """
         if self._A is None:
             return 0
@@ -1998,6 +2199,27 @@ class Image(
             return 1
         else:
             return int(self._A.shape[-1])  # type: ignore[return-value]
+
+    def planes(self) -> Iterator[Image]:
+        """
+        Iterator for image planes
+
+        :return out: image containing a single plane
+        :rtype: :class:`Image`
+
+        Iterator that returns sequential image planes.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read("flowers4.png") # in BGR order
+            >>> for plane in img.planes():
+            >>>     print(plane)
+        """
+        for i in range(self.nplanes):
+            yield self.plane(i)
 
     def plane(self, planes) -> "Image":
         """
@@ -2194,7 +2416,7 @@ class Image(
             and isinstance(keys[1], int)
         ):
             # integer keys for row and column, the result is a scalar or vector over planes
-            return self.image[keys[1], keys[0]]
+            return self._A[keys[1], keys[0]]
         elif (
             isinstance(keys, tuple)
             and len(keys) == 3
@@ -2203,10 +2425,10 @@ class Image(
             and isinstance(keys[2], int)
         ):
             # integer keys for row and column, the result is a scalar or vector over planes
-            return self.image[keys[1], keys[0], keys[2]]
+            return self._A[keys[1], keys[0], keys[2]]
         elif isinstance(keys, int):
             # single integer index, it's a color plane index
-            return self.__class__(self.image[..., keys])
+            return self.__class__(self._A[..., keys])
         elif isinstance(keys, str):
             # color plane by name
             return self.plane(keys)
@@ -2288,7 +2510,7 @@ class Image(
 
         :seealso: :meth:`__getitem__` :meth:`roi`
         """
-        return self.image[v, u]
+        return self._A[v, u]
 
     def pixels_mask(
         self,
@@ -2331,14 +2553,14 @@ class Image(
                 raise ValueError("mask must be a 2D image")
             if mask.shape != self.shape[:2]:
                 raise ValueError("mask must be same shape as image")
-            mask_array = mask.image
+            mask_array = mask.array
         else:
             # its a Polygon2 or list of Polygon2, we create a mask image from it
-            mask_array = Image.Polygons(self.size, mask, color=1, dtype="uint8").image
+            mask_array = Image.Polygons(self.size, mask, color=1, dtype="uint8").array
 
         v, u = np.where(mask_array > 0)
         # Access the pixel values in the original image
-        pixel_values = self.image[v, u, ...].T
+        pixel_values = self._A[v, u, ...].T
 
         # optionally add the
         if coords:
@@ -2446,13 +2668,13 @@ class Image(
         """
         Overloaded ``*`` operator
 
-        :return: elementwise product of images
+        :return: element-wise product of images
         :rtype: :class:`Image`
 
         Compute the product of an Image with another image or a scalar.
         Supports:
 
-        * image ``*`` image, elementwise
+        * image ``*`` image, element-wise
         * scalar ``*`` image
         * image ``*`` scalar
 
@@ -2463,9 +2685,9 @@ class Image(
             >>> from machinevisiontoolbox import Image
             >>> img = Image([[1, 2], [3, 4]])
             >>> z = img * img
-            >>> z.image
+            >>> z.array
             >>> z = 2 * img
-            >>> z.image
+            >>> z.array
 
         ..warning:: Values will be wrapped not clipped to the range of the
             pixel datatype.
@@ -2476,6 +2698,16 @@ class Image(
         return self._binop(self, other, lambda x, y: y * x)
 
     def __imul__(self, other) -> "Image":
+        """
+        Overloaded in-place ``*=`` operator
+
+        :return: self, modified in place
+        :rtype: :class:`Image`
+
+        Multiply an Image in place by another image or a scalar.
+
+        :seealso: :meth:`__mul__`
+        """
         self._A = self._binop(self, other, lambda x, y: x * y)._A
         return self
 
@@ -2483,10 +2715,10 @@ class Image(
         """
         Overloaded ``**`` operator
 
-        :return: elementwise exponent of image
+        :return: element-wise exponent of image
         :rtype: :class:`Image`
 
-        Compute the elementwise power of an Image.
+        Compute the element-wise power of an Image.
 
         Example:
 
@@ -2495,7 +2727,7 @@ class Image(
             >>> from machinevisiontoolbox import Image
             >>> img = Image([[1, 2], [3, 4]])
             >>> z = img**3
-            >>> z.image
+            >>> z.array
 
         ..warning:: Values will be wrapped not clipped to the range of the
             pixel datatype.
@@ -2508,13 +2740,13 @@ class Image(
         """
         Overloaded ``+`` operator
 
-        :return: elementwise addition of images
+        :return: element-wise addition of images
         :rtype: :class:`Image`
 
         Compute the sum of an Image with another image or a scalar.
         Supports:
 
-        * image ``+`` image, elementwise
+        * image ``+`` image, element-wise
         * scalar ``+`` image
         * image ``+`` scalar
 
@@ -2525,9 +2757,9 @@ class Image(
             >>> from machinevisiontoolbox import Image
             >>> img = Image([[1, 2], [3, 4]])
             >>> z = img + img
-            >>> z.image
+            >>> z.array
             >>> z = 10 + img
-            >>> z.image
+            >>> z.array
 
         ..warning:: Values will be wrapped not clipped to the range of the
             pixel datatype.
@@ -2538,6 +2770,16 @@ class Image(
         return self._binop(self, other, lambda x, y: y + x)
 
     def __iadd__(self, other) -> "Image":
+        """
+        Overloaded in-place ``+=`` operator
+
+        :return: self, modified in place
+        :rtype: :class:`Image`
+
+        Add another image or a scalar to an Image in place.
+
+        :seealso: :meth:`__add__`
+        """
         self._A = self._binop(self, other, lambda x, y: x + y)._A
         return self
 
@@ -2545,13 +2787,13 @@ class Image(
         """
         Overloaded ``-`` operator
 
-        :return: elementwise subtraction of images
+        :return: element-wise subtraction of images
         :rtype: :class:`Image`
 
         Compute the difference of an Image with another image or a scalar.
         Supports:
 
-        * image ``-`` image, elementwise
+        * image ``-`` image, element-wise
         * scalar ``-`` image
         * image ``-`` scalar
 
@@ -2562,9 +2804,9 @@ class Image(
             >>> from machinevisiontoolbox import Image
             >>> img = Image([[1, 2], [3, 4]])
             >>> z = img - img
-            >>> z.image
+            >>> z.array
             >>> z = img - 1
-            >>> z.image
+            >>> z.array
 
         ..warning:: Values will be wrapped not clipped to the range of the
             pixel datatype.
@@ -2575,6 +2817,16 @@ class Image(
         return self._binop(self, other, lambda x, y: y - x)
 
     def __isub__(self, other) -> "Image":
+        """
+        Overloaded in-place ``-=`` operator
+
+        :return: self, modified in place
+        :rtype: :class:`Image`
+
+        Subtract another image or a scalar from an Image in place.
+
+        :seealso: :meth:`__sub__`
+        """
         self._A = self._binop(self, other, lambda x, y: x - y)._A
         return self
 
@@ -2582,13 +2834,13 @@ class Image(
         """
         Overloaded ``/`` operator
 
-        :return: elementwise division of images
+        :return: element-wise division of images
         :rtype: :class:`Image`
 
         Compute the quotient of an Image with another image or a scalar.
         Supports:
 
-        * image ``/`` image, elementwise
+        * image ``/`` image, element-wise
         * scalar ``/`` image
         * image ``/`` scalar
 
@@ -2599,11 +2851,11 @@ class Image(
             >>> from machinevisiontoolbox import Image
             >>> img = Image([[1, 2], [3, 4]])
             >>> z = img / img
-            >>> z.image
+            >>> z.array
             >>> z = img / 2
-            >>> z.image
+            >>> z.array
 
-        :note: The resulting values are floating point.
+        .. note:: The resulting values are floating point.
         """
         return self._binop(self, other, lambda x, y: x / y)
 
@@ -2611,6 +2863,16 @@ class Image(
         return self._binop(self, other, lambda x, y: y / x)
 
     def __itruediv__(self, other) -> "Image":
+        """
+        Overloaded in-place ``/=`` operator
+
+        :return: self, modified in place
+        :rtype: :class:`Image`
+
+        Divide an Image in place by another image or a scalar.
+
+        :seealso: :meth:`__truediv__`
+        """
         self._A = self._binop(self, other, lambda x, y: x / y)._A
         return self
 
@@ -2618,7 +2880,7 @@ class Image(
         """
         Overloaded ``//`` operator
 
-        :return: elementwise floored division of images
+        :return: element-wise floored division of images
         :rtype: :class:`Image`
 
         Compute the integer quotient of an Image with another image or a scalar.
@@ -2635,9 +2897,9 @@ class Image(
             >>> from machinevisiontoolbox import Image
             >>> img = Image([[1, 2], [3, 4]])
             >>> z = img / 2
-            >>> z.image
+            >>> z.array
             >>> z = img // 2
-            >>> z.image
+            >>> z.array
         """
         return self._binop(self, other, lambda x, y: x // y)
 
@@ -2645,6 +2907,16 @@ class Image(
         return self._binop(self, other, lambda x, y: y // x)
 
     def __ifloordiv__(self, other) -> "Image":
+        """
+        Overloaded in-place ``//=`` operator
+
+        :return: self, modified in place
+        :rtype: :class:`Image`
+
+        Divide an Image in place by another image or a scalar, rounding down.
+
+        :seealso: :meth:`__floordiv__`
+        """
         self._A = self._binop(self, other, lambda x, y: x // y)._A
         return self
 
@@ -2652,20 +2924,21 @@ class Image(
         """
         Overloaded unary ``-`` operator
 
-        :return: elementwise negation of image
+        :return: element-wise negation of image
         :rtype: :class:`Image`
 
 
-        Compute the elementwise negation of an Image.
+        Compute the element-wise negation of an Image.
 
         Example:
 
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> img = Image([[1, -2], [-3, 4]], 'int8')
-            >>> z = -img
-            >>> z.image
+            >>> img = Image([[1, -2], [-3, 4]], dtype='int8')
+            >>> img.print()
+            >>> neg_img = -img
+            >>> neg_img.print()
         """
         return self._unop(self, lambda x: -x)
 
@@ -2674,7 +2947,7 @@ class Image(
         """
         Overloaded ``&`` operator
 
-        :return: elementwise binary-and of images
+        :return: element-wise binary-and of images
         :rtype: :class:`Image`
 
         Compute the binary-and of an Image with another image or a scalar.
@@ -2691,13 +2964,23 @@ class Image(
             >>> from machinevisiontoolbox import Image
             >>> img = Image([[1, 2], [3, 4]])
             >>> z = img & Image([[2, 2], [2, 2]])
-            >>> z.image
+            >>> z.array
             >>> z = img & 1
-            >>> z.image
+            >>> z.array
         """
         return self._binop(self, other, lambda x, y: x & y)
 
     def __iand__(self, other) -> "Image":
+        """
+        Overloaded in-place ``&=`` operator
+
+        :return: self, modified in place
+        :rtype: :class:`Image`
+
+        Bitwise-AND an Image in place with another image or a scalar.
+
+        :seealso: :meth:`__and__`
+        """
         self._A = self._binop(self, other, lambda x, y: x & y)._A
         return self
 
@@ -2705,7 +2988,7 @@ class Image(
         """
         Overloaded ``|`` operator
 
-        :return: elementwise binary-or of images
+        :return: element-wise binary-or of images
         :rtype: :class:`Image`
 
         Compute the binary-or of an Image with another image or a scalar.
@@ -2722,13 +3005,23 @@ class Image(
             >>> from machinevisiontoolbox import Image
             >>> img = Image([[1, 2], [3, 4]])
             >>> z = img | Image([[2, 2], [2, 2]])
-            >>> z.image
+            >>> z.array
             >>> z = img | 1
-            >>> z.image
+            >>> z.array
         """
         return self._binop(self, other, lambda x, y: x | y)
 
     def __ior__(self, other) -> "Image":
+        """
+        Overloaded in-place ``|=`` operator
+
+        :return: self, modified in place
+        :rtype: :class:`Image`
+
+        Bitwise-OR an Image in place with another image or a scalar.
+
+        :seealso: :meth:`__or__`
+        """
         self._A = self._binop(self, other, lambda x, y: x | y)._A
         return self
 
@@ -2736,7 +3029,7 @@ class Image(
         """
         Overloaded ``^`` operator
 
-        :return: elementwise binary-xor of images
+        :return: element-wise binary-xor of images
         :rtype: :class:`Image`
 
         Compute the binary-xor of an Image with another image or a scalar.
@@ -2753,13 +3046,23 @@ class Image(
             >>> from machinevisiontoolbox import Image
             >>> img = Image([[1, 2], [3, 4]])
             >>> z = img ^ Image([[2, 2], [2, 2]])
-            >>> z.image
+            >>> z.array
             >>> z = img ^ 1
-            >>> z.image
+            >>> z.array
         """
         return self._binop(self, other, lambda x, y: x ^ y)
 
     def __ixor__(self, other) -> "Image":
+        """
+        Overloaded in-place ``^=`` operator
+
+        :return: self, modified in place
+        :rtype: :class:`Image`
+
+        Bitwise-XOR an Image in place with another image or a scalar.
+
+        :seealso: :meth:`__xor__`
+        """
         self._A = self._binop(self, other, lambda x, y: x ^ y)._A
         return self
 
@@ -2767,7 +3070,7 @@ class Image(
         """
         Overloaded ``<<`` operator
 
-        :return: elementwise binary-left-shift of images
+        :return: element-wise binary-left-shift of images
         :rtype: :class:`Image`
 
         Left shift pixel values in an Image.
@@ -2779,13 +3082,23 @@ class Image(
             >>> from machinevisiontoolbox import Image
             >>> img = Image([[1, 2], [3, 4]])
             >>> z = img  << 1
-            >>> z.image
+            >>> z.array
         """
         if not isinstance(other, int):
             raise ValueError("left shift must be by integer amount")
         return self._binop(self, other, lambda x, y: x << y)
 
     def __ilshift__(self, other) -> "Image":
+        """
+        Overloaded in-place ``<<=`` operator
+
+        :return: self, modified in place
+        :rtype: :class:`Image`
+
+        Left-shift pixel values of an Image in place.
+
+        :seealso: :meth:`__lshift__`
+        """
         if not isinstance(other, int):
             raise ValueError("left shift must be by integer amount")
         self._A = self._binop(self, other, lambda x, y: x << y)._A
@@ -2795,7 +3108,7 @@ class Image(
         """
         Overloaded ``>>`` operator
 
-        :return: elementwise binary-right-shift of images
+        :return: element-wise binary-right-shift of images
         :rtype: :class:`Image`
 
         Right shift pixel values in an Image.
@@ -2807,13 +3120,23 @@ class Image(
             >>> from machinevisiontoolbox import Image
             >>> img = Image([[1, 2], [3, 4]])
             >>> z = img >> 2
-            >>> z.image
+            >>> z.array
         """
         if not isinstance(other, int):
             raise ValueError("left shift must be by integer amount")
         return self._binop(self, other, lambda x, y: x >> y)
 
     def __irshift__(self, other) -> "Image":
+        """
+        Overloaded in-place ``>>=`` operator
+
+        :return: self, modified in place
+        :rtype: :class:`Image`
+
+        Right-shift pixel values of an Image in place.
+
+        :seealso: :meth:`__rshift__`
+        """
         if not isinstance(other, int):
             raise ValueError("right shift must be by integer amount")
         self._A = self._binop(self, other, lambda x, y: x >> y)._A
@@ -2853,40 +3176,28 @@ class Image(
         return self.Pstack((self, other))
 
     def __imod__(self, other) -> "Image":
+        """
+        Overloaded in-place ``%=`` operator
+
+        :return: self, modified in place
+        :rtype: :class:`Image`
+
+        Stack the planes of another image (or a scalar plane) onto this Image
+        in place.
+
+        :seealso: :meth:`__mod__`
+        """
         if smb.isscalar(other):
             other = Image.Constant(self.size, value=other, dtype=str(self._A.dtype))
-        return self.Pstack((self, other))
-
-        #     co = self.colororder_str
-        #     if co is not None:
-        #         co += ":?"
-        #     return self.__class__(
-        #         np.dstack(
-        #             (self.A, np.full(self.A.shape[:2], other, dtype=self.A.dtype))
-        #         ),
-        #         colororder=co,
-        #     )
-        # else:
-        #     assert (
-        #         self.A.shape[0] == other.A.shape[0]
-        #         and self.A.shape[1] == other.A.shape[1]
-        #     ), "images must have same number of rows and columns"
-        #     assert self.A.dtype == other.A.dtype, "images must have same data type"
-
-        #     co = (self.colororder_str or "") + ":" + (other.colororder_str or "")
-        #     if co == ":":
-        #         co = None
-        #     return self.__class__(
-        #         np.dstack((self.A, other.A)),
-        #         colororder=co,
-        #     )
+        self._A = self.Pstack((self, other))._A
+        return self
 
     # relational
     def __eq__(self, other) -> "Image":
         """
         Overloaded ``==`` operator
 
-        :return: elementwise comparison of pixels
+        :return: element-wise comparison of pixels
         :rtype: bool :class:`Image`
 
         Compute the equality between an Image and another image or a scalar.
@@ -2902,10 +3213,8 @@ class Image(
 
             >>> from machinevisiontoolbox import Image
             >>> img = Image([[1, 2], [3, 4]])
-            >>> z = img == 2
-            >>> z.image
-            >>> z = img == Image([[0, 2], [3, 4]])
-            >>> z.image
+            >>> (img == 2).print()
+            >>> (img == Image([[0, 2], [3, 4]])).print()
 
         :seealso: :meth:`true` :meth:`false`
         """
@@ -2915,7 +3224,7 @@ class Image(
         """
         Overloaded ``!=`` operator
 
-        :return: elementwise comparison of pixels
+        :return: element-wise comparison of pixels
         :rtype: bool :class:`Image`
 
         Compute the inequality between an Image and another image or a scalar.
@@ -2931,10 +3240,8 @@ class Image(
 
             >>> from machinevisiontoolbox import Image
             >>> img = Image([[1, 2], [3, 4]])
-            >>> z = img != 2
-            >>> z.image
-            >>> z = img != Image([[0, 2], [3, 4]])
-            >>> z.image
+            >>> (img != 2).print()
+            >>> (img != Image([[0, 2], [3, 4]])).print()
 
         :seealso: :meth:`true` :meth:`false`
         """
@@ -2944,7 +3251,7 @@ class Image(
         """
         Overloaded ``>`` operator
 
-        :return: elementwise comparison of pixels
+        :return: element-wise comparison of pixels
         :rtype: bool :class:`Image`
 
         Compute the inequality between an Image and another image or a scalar.
@@ -2960,10 +3267,8 @@ class Image(
 
             >>> from machinevisiontoolbox import Image
             >>> img = Image([[1, 2], [3, 4]])
-            >>> z = img > 2
-            >>> z.image
-            >>> z = img > Image([[0, 2], [3, 4]])
-            >>> z.image
+            >>> (img > 2).print()
+            >>> (img > Image([[0, 2], [3, 4]])).print()
 
         :seealso: :meth:`true` :meth:`false`
         """
@@ -2973,7 +3278,7 @@ class Image(
         """
         Overloaded ``>=`` operator
 
-        :return: elementwise comparison of pixels
+        :return: element-wise comparison of pixels
         :rtype: bool :class:`Image`
 
         Compute the inequality between an Image and another image or a scalar.
@@ -2989,10 +3294,8 @@ class Image(
 
             >>> from machinevisiontoolbox import Image
             >>> img = Image([[1, 2], [3, 4]])
-            >>> z = img >= 2
-            >>> z.image
-            >>> z = img >= Image([[0, 2], [3, 4]])
-            >>> z.image
+            >>> (img >= 2).print()
+            >>> (img >= Image([[0, 2], [3, 4]])).print()
 
         :seealso: :meth:`true` :meth:`false`
         """
@@ -3002,7 +3305,7 @@ class Image(
         """
         Overloaded ``<`` operator
 
-        :return: elementwise comparison of images
+        :return: element-wise comparison of images
         :rtype: bool :class:`Image`
 
         Compute the inequality between an Image and another image or a scalar.
@@ -3018,10 +3321,8 @@ class Image(
 
             >>> from machinevisiontoolbox import Image
             >>> img = Image([[1, 2], [3, 4]])
-            >>> z = img < 2
-            >>> z.image
-            >>> z = img < Image([[10, 2], [3, 4]])
-            >>> z.image
+            >>> (img < 2).print()
+            >>> (img < Image([[0, 2], [3, 4]])).print()
 
         :seealso: :meth:`true` :meth:`false`
         """
@@ -3031,7 +3332,7 @@ class Image(
         """
         Overloaded ``<=`` operator
 
-        :return: elementwise comparison of images
+        :return: element-wise comparison of images
         :rtype: bool :class:`Image`
 
         Compute the inequality between an Image and another image or a scalar.
@@ -3047,10 +3348,8 @@ class Image(
 
             >>> from machinevisiontoolbox import Image
             >>> img = Image([[1, 2], [3, 4]])
-            >>> z = img <= 2
-            >>> z.image
-            >>> z = img <= Image([[0, 2], [3, 4]])
-            >>> z.image
+            >>> (img <= 2).print()
+            >>> (img <= Image([[0, 2], [3, 4]])).print()
 
         :seealso: :meth:`true` :meth:`false`
         """
@@ -3060,7 +3359,7 @@ class Image(
         """
         Overloaded ``~`` operator
 
-        :return: elementwise inversion of logical values
+        :return: element-wise inversion of logical values
         :rtype: boo, :class:`Image`
 
         Returns logical not operation where image values are interpretted as:
@@ -3075,7 +3374,7 @@ class Image(
             >>> from machinevisiontoolbox import Image
             >>> img = Image([[True, False], [False, True]])
             >>> z = ~img
-            >>> z.image
+            >>> z.print()
         """
 
         return self._unop(self, lambda x: ~x)
@@ -3129,10 +3428,10 @@ class Image(
         """
         Absolute value of image
 
-        :return: elementwise absolute value of image
+        :return: element-wise absolute value of image
         :rtype: :class:`Image`
 
-        Return elementwise absolute value of pixel values.
+        Return element-wise absolute value of pixel values.
 
         Example:
 
@@ -3140,8 +3439,7 @@ class Image(
 
             >>> from machinevisiontoolbox import Image
             >>> img = Image([[-1, 2], [3, -4]], dtype='int8')
-            >>> z = img.abs()
-            >>> z.image
+            >>> img.abs().print()
         """
         return self._unop(self, np.abs)
 
@@ -3149,10 +3447,10 @@ class Image(
         """
         Square root of image
 
-        :return: elementwise square root of image
+        :return: element-wise square root of image
         :rtype: :class:`Image`
 
-        Return elementwise square root of pixel values.
+        Return element-wise square root of pixel values.
 
         Example:
 
@@ -3160,8 +3458,7 @@ class Image(
 
             >>> from machinevisiontoolbox import Image
             >>> img = Image([[1, 2], [3, 4]])
-            >>> z = img.sqrt()
-            >>> z.image
+            >>> img.sqrt().print()
         """
         return self._unop(self, np.sqrt)
 
@@ -3204,7 +3501,7 @@ class Image(
 
         :seealso: :func:`~machinevisiontoolbox.base.graphics.draw_line`
         """
-        draw_line(self.image, start, end, **kwargs)
+        draw_line(self._A, start, end, **kwargs)
 
     def draw_circle(
         self,
@@ -3256,7 +3553,7 @@ class Image(
         """
         if center is not None and centre is None:
             centre = center
-        draw_circle(self.image, centre, radius, **kwargs)
+        draw_circle(self._A, centre, radius, **kwargs)
 
     def draw_box(self, **kwargs: Any) -> None:
         """
@@ -3289,7 +3586,7 @@ class Image(
 
         :seealso: :func:`~machinevisiontoolbox.base.graphics.draw_box`
         """
-        draw_box(self.image, **kwargs)
+        draw_box(self._A, **kwargs)
 
     def draw_labelbox(self, text: str, **kwargs: Any) -> None:
         """
@@ -3323,7 +3620,7 @@ class Image(
 
         :seealso: :func:`~machinevisiontoolbox.base.graphics.draw_labelbox`
         """
-        draw_labelbox(self.image, text, **kwargs)
+        draw_labelbox(self._A, text, **kwargs)
 
     def draw_text(
         self, pos: tuple[int, int] | np.ndarray, text: str, **kwargs: Any
@@ -3357,7 +3654,7 @@ class Image(
 
         :seealso: :func:`~machinevisiontoolbox.base.graphics.draw_text`
         """
-        draw_text(self.image, pos, text, **kwargs)
+        draw_text(self._A, pos, text, **kwargs)
 
     def draw_point(
         self,
@@ -3402,7 +3699,7 @@ class Image(
 
         :seealso: :func:`~machinevisiontoolbox.base.graphics.draw_text`
         """
-        draw_point(self.image, pos, marker, text, **kwargs)
+        draw_point(self._A, pos, marker, text, **kwargs)
 
     @classmethod
     def Pstack(cls, images, colororder=None):

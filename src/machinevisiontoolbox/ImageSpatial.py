@@ -10,6 +10,8 @@ import spatialmath.base.argcheck as argcheck
 from matplotlib import cm
 from scipy import signal
 
+from machinevisiontoolbox.mvtb_types import Dtype
+
 """
 Image processing kernel operations on the Image class
 """
@@ -198,13 +200,13 @@ class Kernel:
             K = Kernel.Gauss(5, h=15)
             K.disp3d()
 
-        :note:
+        .. note::
             - The volume under the Gaussian kernel is one.
             - If the kernel is strongly truncated, ie. it is non-zero at the
               edges of the window then the volume will be less than one.
 
         :references:
-            - Robotics, Vision & Control for Python, Section 11.5.1.1, P. Corke, Springer 2023.
+            - |RVC3|, Section 11.5.1.1.
 
         :seealso: :meth:`DGauss`
         """
@@ -249,11 +251,11 @@ class Kernel:
             >>> K
             >>> K.print()
 
-        :note:
+        .. note::
             - This kernel has an isotropic response to image gradient.
 
         :references:
-            - Robotics, Vision & Control for Python, Section 11.5.1.3, P. Corke, Springer 2023.
+            - |RVC3|, Section 11.5.1.3.
 
         :seealso: :meth:`LoG` :meth:`zerocross`
         """
@@ -291,12 +293,12 @@ class Kernel:
             >>> K
             >>> K.print()
 
-        :note:
+        .. note::
             - This kernel is an effective vertical-edge detector
             - The y-derivative (horizontal-edge) kernel is ``K.T``
 
         :references:
-            - Robotics, Vision & Control for Python, Section 11.5.1.3, P. Corke, Springer 2023.
+            - |RVC3|, Section 11.5.1.3.
 
         :seealso: :meth:`DGauss`
         """
@@ -355,13 +357,13 @@ class Kernel:
             K = Kernel.DoG(5, h=15)
             K.disp3d()
 
-        :note:
+        .. note::
             - This kernel is similar to the Laplacian of Gaussian and is often
               used as an efficient approximation.
             - This is a "Mexican hat" shaped kernel
 
         :references:
-            - Robotics, Vision & Control for Python, Section 11.5.1.3, P. Corke, Springer 2023.
+            - |RVC3|, Section 11.5.1.3.
 
         :seealso: :meth:`LoG` :meth:`Gauss`
         """
@@ -427,10 +429,10 @@ class Kernel:
             K = Kernel.LoG(5, h=15)
             K.disp3d()
 
-        :note: This is the classic "Mexican hat" shaped kernel
+        .. note:: This is the classic "Mexican hat" shaped kernel
 
         :references:
-            - Robotics, Vision & Control for Python, Section 11.5.1.3, P. Corke, Springer 2023.
+            - |RVC3|, Section 11.5.1.3.
 
         :seealso: :meth:`Laplace` :meth:`DoG` :meth:`Gauss` :meth:`zerocross`
         """
@@ -496,13 +498,13 @@ class Kernel:
             K = Kernel.DGauss(5, h=15)
             K.disp3d()
 
-        :note:
+        .. note::
             - This kernel is the horizontal derivative of the Gaussian, :math:`dG/dx`.
             - The vertical derivative, :math:`dG/dy`, is the transpose of this kernel.
             - This kernel is an effective edge detector.
 
         :references:
-            - Robotics, Vision & Control for Python, Section 11.5.1.3, P. Corke, Springer 2023.
+            - |RVC3|, Section 11.5.1.3.
 
         :seealso: :meth:`HGauss` :meth:`Gauss` :meth:`Sobel`
         """
@@ -605,7 +607,7 @@ class Kernel:
         )
 
     @classmethod
-    def Circle(cls, radius, h=None, normalize=False, dtype="uint8"):
+    def Circle(cls, radius, h=None, normalize=False, dtype: Dtype = "uint8"):
         r"""
         Circular structuring element
 
@@ -642,7 +644,7 @@ class Kernel:
             >>> Kernel.Circle([2, 3])
 
         :references:
-            - Robotics, Vision & Control for Python, Section 11.5.1.1, P. Corke, Springer 2023.
+            - |RVC3|, Section 11.5.1.1.
 
         :seealso: :meth:`Box`
         """
@@ -709,7 +711,7 @@ class Kernel:
             >>> Kernel.Box(2, normalize=False)
 
         :references:
-            - Robotics, Vision & Control for Python, Section 11.5.1.1, P. Corke, Springer 2023.
+            - |RVC3|, Section 11.5.1.1.
 
         :seealso: :meth:`Circle`
         """
@@ -880,14 +882,14 @@ class ImageSpatialMixin:
             >>> img = Image.Read('monalisa.png')
             >>> img.smooth(sigma=3).disp()
 
-        :note:
+        .. note::
             - Smooths all planes of the input image.
             - The Gaussian kernel has a unit volume.
             - If input image is integer it is converted to float, convolved,
               then converted back to integer.
 
         :references:
-            - Robotics, Vision & Control for Python, Section 11.5.1, P. Corke, Springer 2023.
+            - |RVC3|, Section 11.5.1.
 
         :seealso: :meth:`machinevisiontoolbox.Kernel.Gauss` :meth:`convolve`
         """
@@ -951,7 +953,7 @@ class ImageSpatialMixin:
             >>> img = Image.Read('monalisa.png')
             >>> img.convolve(K=np.ones((11,11))).disp()
 
-        :note:
+        .. note::
             - The kernel is typically square with an odd side length.
             - The result has the same datatype as the input image.  For a kernel
               where the results could be negative (eg. edge detection kernel)
@@ -966,13 +968,13 @@ class ImageSpatialMixin:
             window propagates to make the output pixel NaN.  Use :meth:`fixbad` for handling NaN values.
 
         :references:
-            - Robotics, Vision & Control for Python, Section 11.5.1, P. Corke, Springer 2023.
+            - |RVC3|, Section 11.5.1.
 
         :seealso:
             :class:`~.Kernel`
             :meth:`~smooth`
-            :func:`opencv.filter2D`
-            :func:`opencv.copyMakeBorder`
+            `cv2.filter2D <https://docs.opencv.org/4.x/d4/d86/group__imgproc__filter.html#ga27c049795ce870216ddfb366086b5a04>`_
+            `cv2.copyMakeBorder <https://docs.opencv.org/4.x/d2/de8/group__core__array.html#ga2ac1049c2c3dd25c2b41bffe17658a36>`_
             :meth:`.fixbad`
         """
 
@@ -1067,7 +1069,7 @@ class ImageSpatialMixin:
             >>> Iu, Iv = img.gradients()
 
         :references:
-            - Robotics, Vision & Control for Python, Section 11.5.1.3, P. Corke, Springer 2023.
+            - |RVC3|, Section 11.5.1.3.
 
         :seealso: :class:`~machinevisiontoolbox.ImageSpatial.Kernel`
         """
@@ -1106,7 +1108,7 @@ class ImageSpatialMixin:
             >>> direction = Iu.direction(Iv)
 
         :references:
-            - Robotics, Vision & Control for Python, Section 11.5.1.3, P. Corke, Springer 2023.
+            - |RVC3|, Section 11.5.1.3.
 
         :seealso: :meth:`gradients`
         """
@@ -1130,13 +1132,13 @@ class ImageSpatialMixin:
         for high gradient in a single direction.
 
         :references:
-            - Robotics, Vision & Control for Python, Section 12.3.1, P. Corke, Springer 2023.
+            - |RVC3|, Section 12.3.1.
 
         :seealso:
             :meth:`gradients`
             :meth:`Harris`
         """
-        dst = cv.cornerHarris(src=self.mono().image, blockSize=2, ksize=2 * h + 1, k=k)
+        dst = cv.cornerHarris(src=self.mono()._A, blockSize=2, ksize=2 * h + 1, k=k)
         return self.__class__(dst)
 
     def window(self, func, h=None, se=None, border="reflect", bordervalue=0, **kwargs):
@@ -1182,13 +1184,13 @@ class ImageSpatialMixin:
             >>> img = Image.Read('monalisa.png', grey=True)
             >>> out = img.window(np.median, h=3)
 
-        :note:
+        .. note::
             - The structuring element should have an odd side length.
             - Is slow since the function ``func`` must be invoked once for
               every output pixel.
 
         :references:
-            - Robotics, Vision & Control for Python, Section 11.5.3, P. Corke, Springer 2023.
+            - |RVC3|, Section 11.5.3.
 
         :seealso: :func:`scipy.ndimage.generic_filter`
         """
@@ -1226,27 +1228,27 @@ class ImageSpatialMixin:
 
         .. runblock:: pycon
 
-            >>> from machinevisiontoolbox import Image, base
-            >>> U, V = base.meshgrid(6, 6)
+            >>> from machinevisiontoolbox import Image, meshgrid
+            >>> U, V = meshgrid(6, 6)
             >>> img = Image(U - V - 2, dtype='float')
             >>> img.print()
             >>> img.zerocross().print()
 
-        :note: Uses morphological filtering with 3x3 structuring element, which can
+        .. note:: Uses morphological filtering with 3x3 structuring element, which can
             lead to erroneous values in border pixels.
 
         :references:
-            - Robotics, Vision & Control for Python, Section 11.5.1.3, P. Corke, Springer 2023.
+            - |RVC3|, Section 11.5.1.3.
 
         :seealso:
             :meth:`Laplace`
             :meth:`LoG`
         """
-        min = cv.morphologyEx(self.image, cv.MORPH_ERODE, np.ones((3, 3)))
-        max = cv.morphologyEx(self.image, cv.MORPH_DILATE, np.ones((3, 3)))
+        min = cv.morphologyEx(self._A, cv.MORPH_ERODE, np.ones((3, 3)))
+        max = cv.morphologyEx(self._A, cv.MORPH_DILATE, np.ones((3, 3)))
         zeroCross = np.logical_or(
-            np.logical_and(min < 0, self.image > 0),
-            np.logical_and(max > 0, self.image < 0),
+            np.logical_and(min < 0, self._A > 0),
+            np.logical_and(max > 0, self._A < 0),
         )
         return self.__class__(zeroCross)
 
@@ -1271,11 +1273,11 @@ class ImageSpatialMixin:
             >>> mona = Image.Read("monalisa.png", dtype="float");
             >>> G, L, scales = mona.scalespace(8, sigma=8);
 
-        :note: The two image sequences have the same length, the original image is
+        .. note:: The two image sequences have the same length, the original image is
             not included in the list of smoothed images.
 
         :references:
-            - Robotics, Vision & Control for Python, Section 12.3.2, P. Corke, Springer 2023.
+            - |RVC3|, Section 12.3.2.
 
         :seealso:
             :meth:`pyramid`
@@ -1329,12 +1331,12 @@ class ImageSpatialMixin:
             >>> len(pyramid)
             >>> pyramid
 
-        :note:
+        .. note::
             - Works for greyscale images only.
             - Converts a color image to greyscale.
 
         :references:
-            - Robotics, Vision & Control for Python, Section 12.3.2, P. Corke, Springer 2023.
+            - |RVC3|, Section 12.3.2.
 
         :seealso:
             :meth:`smooth`
@@ -1365,7 +1367,7 @@ class ImageSpatialMixin:
         # list comprehension approach
         # TODO pyr = [cv.pyrdown(inputs(i)) for i in range(N) if conditional]
 
-        impyr = im.image
+        impyr = im._A
         pyr = [impyr]
         for i in range(N):
             if impyr.shape[0] == 1 or impyr.shape[1] == 1:
@@ -1405,7 +1407,7 @@ class ImageSpatialMixin:
             >>> img = Image.Read('monalisa.png')
             >>> edges = img.canny()
 
-        :note:
+        .. note::
             - Produces a zero image with single pixel wide edges having
               non-zero values.
             - Larger values correspond to stronger edges.
@@ -1416,7 +1418,7 @@ class ImageSpatialMixin:
             - "A Computational Approach To Edge Detection", J. Canny,
               IEEE Trans. Pattern Analysis and Machine Intelligence,
               8(6):679–698, 1986.
-            - Robotics, Vision & Control for Python, Section 11.5.1.3, P. Corke, Springer 2023.
+            - |RVC3|, Section 11.5.1.3.
 
         """
 
@@ -1498,13 +1500,13 @@ class ImageSpatialMixin:
             >>> img.rank(h=1, rank=4).print()  # median filter
             >>> img.rank(h=1, rank='median').print()  # median filter
 
-        :note:
+        .. note::
             - The footprint should have an odd side length.
             - The input can be logical, uint8, uint16, float or double, the
               output is always double.
 
         :references:
-            - Robotics, Vision & Control for Python, Section 11.5.3, P. Corke, Springer 2023.
+            - |RVC3|, Section 11.5.3.
 
         :seealso: :obj:`scipy.ndimage.rank_filter`
         """
@@ -1529,10 +1531,14 @@ class ImageSpatialMixin:
 
         r = int(footprint.sum() - rank - 1)
 
-        out = sp.ndimage.rank_filter(
-            self._A, r, footprint=footprint, mode=self._bordertype_sp(border)
-        )
-        return self.__class__(out)
+        out = []
+        for plane in self.planes():
+            out.append(
+                sp.ndimage.rank_filter(
+                    self._A, r, footprint=footprint, mode=self._bordertype_sp(border)
+                )
+            )
+        return self.__class__(np.dstack(out), colororder=self.colororder)
 
     def medianfilter(self, h=1, **kwargs):
         r"""
@@ -1553,18 +1559,19 @@ class ImageSpatialMixin:
 
             >>> from machinevisiontoolbox import Image
             >>> import numpy as np
-            >>> img = Image(np.arange(25).reshape((5,5)))
-            >>> img.A
-            >>> img.medianfilter(h=1).A  # median filter
+            >>> array = np.arange(25).reshape((5,5))
+            >>> array[2, 2] = 0
+            >>> img = Image(array)
+            >>> img.print()
+            >>> img.medianfilter(h=1).print()  # median filter
             >>> img = Image.Read('monalisa.png')
             >>> img.medianfilter(h=5).disp()  # ameliorate background cracking
 
-        :note: This filter is effective for removing impulse (aka
+        .. note:: This filter is effective for removing impulse (aka
             salt and pepper) noise.
 
         :references:
-            - Robotics, Vision & Control for Python, Section 11.5.3, P. Corke,
-              Springer 2023.
+            - |RVC3|, Section 11.5.3.
 
         :seealso: :meth:`rank`
         """
@@ -1600,7 +1607,7 @@ class ImageSpatialMixin:
             >>> img.distance_transform().print(precision=3)
             >>> img.distance_transform(norm="L1").print()
 
-        :note:
+        .. note::
             - The output image is the same size as the input image.
             - Distance is computed using a sliding window and is an
               approximation of true distance.
@@ -1609,9 +1616,9 @@ class ImageSpatialMixin:
             - The signed-distance function is ``image.distance_transform() - image.distance_transform(invert=True)``
 
         :references:
-            - Robotics, Vision & Control for Python, Section 11.6.4, P. Corke, Springer 2023.
+            - |RVC3|, Section 11.6.4.
 
-        :seealso: `opencv.distanceTransform <https://docs.opencv.org/3.4/d7/d1b/group__imgproc__misc.html#ga8a0b7fdfcb7a13dde018988ba3a43042>`_
+        :seealso: `opencv.distanceTransform <https://docs.opencv.org/4.x/d7/d1b/group__imgproc__misc.html#ga8a0b7fdfcb7a13dde018988ba3a43042>`_
         """
         # OpenCV does distance to nearest zero pixel
         # this function does distance to nearest non-zero pixel by default,
@@ -1665,7 +1672,7 @@ class ImageSpatialMixin:
             >>> N
             >>> labels.print()
 
-        :note:
+        .. note::
             - This algorithm is variously known as region labelling,
               connectivity analysis, region coloring, connected component analysis,
               blob labelling.
@@ -1676,11 +1683,11 @@ class ImageSpatialMixin:
               two blobs.
 
         :references:
-            - Robotics, Vision & Control for Python, Section 12.1.2.1, P. Corke, Springer 2023.
+            - |RVC3|, Section 12.1.2.1.
 
         :seealso:
             :meth:`blobs`
-            `cv2.connectedComponents <https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#gaedef8c7340499ca391d459122e51bef5>`_
+            `cv2.connectedComponents <https://docs.opencv.org/4.x/d3/dc0/group__imgproc__shape.html#gaedef8c7340499ca391d459122e51bef5>`_
             :meth:`labels_graphseg`
             :meth:`labels_MSER`
         """
@@ -1735,13 +1742,13 @@ class ImageSpatialMixin:
             - Linear time maximally stable extremal regions,
               David Nistér and Henrik Stewénius,
               In Computer Vision–ECCV 2008, pages 183–196. Springer, 2008.
-            - Robotics, Vision & Control for Python, Section 12.1.2.2, P. Corke, Springer 2023.
+            - |RVC3|, Section 12.1.2.2.
 
         :seealso:
             :meth:`labels_binary`
             :meth:`labels_graphseg`
             :meth:`blobs`
-            `opencv.MSER_create <https://docs.opencv.org/3.4/d3/d28/classcv_1_1MSER.html>`_
+            `opencv.MSER_create <https://docs.opencv.org/4.x/d3/d28/classcv_1_1MSER.html>`_
         """
 
         mser = cv.MSER_create(**kwargs)
@@ -1781,13 +1788,13 @@ class ImageSpatialMixin:
             - Efficient graph-based image segmentation,
               Pedro F Felzenszwalb and Daniel P Huttenlocher,
               volume 59, pages 167–181. Springer, 2004.
-            - Robotics, Vision & Control for Python, Section 12.1.2.2, P. Corke, Springer 2023.
+            - |RVC3|, Section 12.1.2.2.
 
         :seealso:
             :meth:`labels_binary`
             :meth:`labels_MSER`
             :meth:`blobs`
-            `opencv.createGraphSegmentation <https://docs.opencv.org/3.4/d5/df0/group__ximgproc__segmentation.html#ga5e3e721c5f16e34d3ad52b9eeb6d2860>`_
+            `opencv.createGraphSegmentation <https://docs.opencv.org/4.x/d5/df0/group__ximgproc__segmentation.html#ga5e3e721c5f16e34d3ad52b9eeb6d2860>`_
         """
         # P. Felzenszwalb, D. Huttenlocher: "Graph-Based Image Segmentation
         segmenter = cv.ximgproc.segmentation.createGraphSegmentation(
@@ -1825,10 +1832,10 @@ class ImageSpatialMixin:
             >>> img1.sad(img2+10)
             >>> img1.sad(img2*2)
 
-        :note: Not invariant to pixel value scale or offset.
+        .. note:: Not invariant to pixel value scale or offset.
 
         :references:
-            - Robotics, Vision & Control for Python, Section 11.5.2, P. Corke, Springer 2023.
+            - |RVC3|, Section 11.5.2.
 
         :seealso:
             :meth:`zsad`
@@ -1841,9 +1848,9 @@ class ImageSpatialMixin:
 
         # out = []
         # for im in self:
-        # m = np.abs(im.image - image2.image)
+        # m = np.abs(im._A - image2._A)
         # out.append(np.sum(m))
-        m = np.abs(image1.image - image2.image)
+        m = np.abs(image1._A - image2._A)
         out = np.sum(m)
         return out
 
@@ -1873,10 +1880,10 @@ class ImageSpatialMixin:
             >>> img1.ssd(img2+10)
             >>> img1.ssd(img2*2)
 
-        :note: Not invariant to pixel value scale or offset.
+        .. note:: Not invariant to pixel value scale or offset.
 
         :references:
-            - Robotics, Vision & Control for Python, Section 11.5.2, P. Corke, Springer 2023.
+            - |RVC3|, Section 11.5.2.
 
         :seealso:
             :meth:`zssd`
@@ -1886,7 +1893,7 @@ class ImageSpatialMixin:
 
         if not np.all(image1.shape == image2.shape):
             raise ValueError("image2 shape is not equal to image1")
-        m = np.power((image1.image - image2.image), 2)
+        m = np.power((image1._A - image2._A), 2)
         return np.sum(m)
 
     def ncc(image1, image2):  # lgtm[py/not-named-self] pylint: disable=no-self-argument
@@ -1915,12 +1922,12 @@ class ImageSpatialMixin:
             >>> img1.ncc(img2+10)
             >>> img1.ncc(img2*2)
 
-        :note:
+        .. note::
             - The ``ncc`` similarity measure is invariant to scale changes in
               image intensity.
 
         :references:
-            - Robotics, Vision & Control for Python, Section 11.5.2, P. Corke, Springer 2023.
+            - |RVC3|, Section 11.5.2.
 
         :seealso:
             :meth:`zncc`
@@ -1930,12 +1937,12 @@ class ImageSpatialMixin:
         if not np.all(image1.shape == image2.shape):
             raise ValueError("image2 shape is not equal to image1")
 
-        denom = np.sqrt(np.sum(image1.image**2) * np.sum(image2.image**2))
+        denom = np.sqrt(np.sum(image1._A**2) * np.sum(image2._A**2))
 
         if denom < 1e-10:
             return 0
         else:
-            return np.sum(image1.image * image2.image) / denom
+            return np.sum(image1._A * image2._A) / denom
 
     def zsad(
         image1, image2
@@ -1966,12 +1973,12 @@ class ImageSpatialMixin:
             >>> img1.zsad(img2+10)
             >>> img1.zsad(img2*2)
 
-        :note:
+        .. note::
             - The ``zsad`` similarity measure is invariant to changes in image
               brightness offset.
 
         :references:
-            - Robotics, Vision & Control for Python, Section 11.5.2, P. Corke, Springer 2023.
+            - |RVC3|, Section 11.5.2.
 
         :seealso:
             :meth:`zsad`
@@ -1981,8 +1988,8 @@ class ImageSpatialMixin:
         if not np.all(image1.shape == image2.shape):
             raise ValueError("image2 shape is not equal to image1")
 
-        image1 = image1.image - np.mean(image1.image)
-        image2 = image2.image - np.mean(image2.image)
+        image1 = image1._A - np.mean(image1._A)
+        image2 = image2._A - np.mean(image2._A)
         m = np.abs(image1 - image2)
         return np.sum(m)
 
@@ -2014,12 +2021,12 @@ class ImageSpatialMixin:
             >>> img1.zssd(img2+10)
             >>> img1.zssd(img2*2)
 
-        :note:
+        .. note::
             - The ``zssd`` similarity measure is invariant to changes in image
               brightness offset.
 
         :references:
-            - Robotics, Vision & Control for Python, Section 11.5.2, P. Corke, Springer 2023.
+            - |RVC3|, Section 11.5.2.
 
         :seealso:
             :meth:`zssd`
@@ -2030,8 +2037,8 @@ class ImageSpatialMixin:
         if not np.all(image1.shape == image2.shape):
             raise ValueError("image2 shape is not equal to image1")
 
-        image1 = image1.image - np.mean(image1.image)
-        image2 = image2.image - np.mean(image2.image)
+        image1 = image1._A - np.mean(image1._A)
+        image2 = image2._A - np.mean(image2._A)
         m = np.power(image1 - image2, 2)
         return np.sum(m)
 
@@ -2063,12 +2070,12 @@ class ImageSpatialMixin:
             >>> img1.zncc(img2+10)
             >>> img1.zncc(img2*2)
 
-        :note:
+        .. note::
             - The ``zncc`` similarity measure is invariant to affine changes (offset and scale factor)
               in image intensity (brightness offset and scale).
 
         :references:
-            - Robotics, Vision & Control for Python, Section 11.5.2, P. Corke, Springer 2023.
+            - |RVC3|, Section 11.5.2.
 
         :seealso:
             :meth:`zncc`
@@ -2079,8 +2086,8 @@ class ImageSpatialMixin:
         if not np.all(image1.shape == image2.shape):
             raise ValueError("image2 shape is not equal to image1")
 
-        image1 = image1.image - np.mean(image1.image)
-        image2 = image2.image - np.mean(image2.image)
+        image1 = image1._A - np.mean(image1._A)
+        image2 = image2._A - np.mean(image2._A)
         denom = np.sqrt(np.sum(np.power(image1, 2) * np.sum(np.power(image2, 2))))
 
         if denom < 1e-10:
@@ -2115,7 +2122,7 @@ class ImageSpatialMixin:
             >>> sim = crowd.similarity(T, "zncc")
             >>> sim.disp(colormap="signed", colorbar=True);
 
-        :note:
+        .. note::
             - For NCC and ZNCC the maximum similarity value corresponds to the most likely
               template location.  For SSD and ZSSD the minimum value
               corresponds to the most likely location.
@@ -2124,9 +2131,9 @@ class ImageSpatialMixin:
               to NaN.
 
         :references:
-            - Robotics, Vision & Control for Python, Section 11.5.2, P. Corke, Springer 2023.
+            - |RVC3|, Section 11.5.2.
 
-        :seealso: `cv2.matchTemplate <https://docs.opencv.org/master/df/dfb/group__imgproc__object.html#ga586ebfb0a7fb604b35a23d85391329be>`_
+        :seealso: `cv2.matchTemplate <https://docs.opencv.org/4.x/df/dfb/group__imgproc__object.html#ga586ebfb0a7fb604b35a23d85391329be>`_
         """
 
         # check inputs

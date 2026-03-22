@@ -2,7 +2,8 @@
 ``machinevisiontoolbox.base`` subpackage
 ****************************************
 
-These functions operate directly on images as NumPy ndarrays, without the :class:`~machinevisiontoolbox.Image` wrapper.
+These functions are the foundation of the Machine Vision Toolbox and its :class:`~machinevisiontoolbox.Image` class.
+The functions operate on, and return, NumPy ndarrays.
 
 .. toctree::
    :maxdepth: 2

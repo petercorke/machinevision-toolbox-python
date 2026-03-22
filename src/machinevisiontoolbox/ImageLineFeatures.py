@@ -63,17 +63,20 @@ class HoughFeature:
         :math:`[-\pi, \pi)`, while :math:`\rho` is quantized into steps of
         ``drho`` spanning the vertical dimension of the image.
 
-        :note: Lines are not detected until :meth:`lines` or  :meth:`lines_p`
-            is called.  This instance simply holds parameters.
+        .. note::
 
-        :reference:
-            - Robotics, Vision & Control for Python, Section 12.2, P. Corke,
-              Springer 2023.
+            - Lines are not detected until :meth:`lines` or  :meth:`lines_p`
+              is called.  This instance simply holds parameters.
+            - The OpenCV implementation works with ``uint8`` images only, other formats
+              will be converted to ``uint8``.
+
+        :references:
+            - |RVC3|, Section 12.2.
 
         :seealso: :meth:`lines` :meth:`lines_p`
         """
 
-        self.image = image.to_int()
+        self.image = image.array_as(np.uint8)
         self.dtheta = np.pi / ntheta
         self.drho = drho
         self.A: np.ndarray | None = None
@@ -95,7 +98,10 @@ class HoughFeature:
 
         .. math:: u \cos \theta + v \sin \theta = \rho
 
-        :seealso: :meth:`plot_lines` :meth:`lines_p` `opencv.HoughLines <https://docs.opencv.org/3.4/dd/d1a/group__imgproc__feature.html#ga46b4e588934f6c8dfd509cc6e0e4545a>`_
+        :references:
+            - |RVC3|, Section 12.2.
+
+        :seealso: :meth:`plot_lines` :meth:`lines_p` `opencv.HoughLines <https://docs.opencv.org/4.x/dd/d1a/group__imgproc__feature.html#ga46b4e588934f6c8dfd509cc6e0e4545a>`_
         """
         lines = cv.HoughLines(
             image=self.image, rho=self.drho, theta=self.dtheta, threshold=minvotes
@@ -128,7 +134,7 @@ class HoughFeature:
         line segment is described by its end points :math:`(u_1, v_1)` and
         :math:`(u_2, v_2)`.
 
-        :seealso: :meth:`plot_lines` :meth:`lines` `opencv.HoughLinesP <https://docs.opencv.org/3.4/dd/d1a/group__imgproc__feature.html#ga8618180a5948286384e3b7ca02f6feeb>`_
+        :seealso: :meth:`plot_lines` :meth:`lines` `opencv.HoughLinesP <https://docs.opencv.org/4.x/dd/d1a/group__imgproc__feature.html#ga8618180a5948286384e3b7ca02f6feeb>`_
         """
         if seed is not None:
             cv.setRNGSeed(seed)

@@ -2,9 +2,12 @@
 Video, camera, image-collection, and ZIP-archive sources for streaming images.
 """
 
+from __future__ import annotations
+
 import fnmatch
 import os
 import zipfile
+from typing import Any
 
 # from numpy.lib.arraysetops import isin
 from abc import ABC, abstractmethod
@@ -50,13 +53,21 @@ class VideoFile(ImageSource):
         >>>   # process image
 
     :references:
-        - Robotics, Vision & Control for Python, Section 11.1.4, P. Corke, Springer 2023.
+        - |RVC3|, Section 11.1.4.
 
     :seealso: :func:`~machinevisiontoolbox.base.imageio.convert`
-        `opencv.VideoCapture <https://docs.opencv.org/master/d8/dfe/classcv_1_1VideoCapture.html#a57c0e81e83e60f36c83027dc2a188e80>`_
+        `opencv.VideoCapture <https://docs.opencv.org/4.x/d8/dfe/classcv_1_1VideoCapture.html#a57c0e81e83e60f36c83027dc2a188e80>`_
     """
 
-    def __init__(self, filename, **kwargs):
+    filename: str
+    nframes: int
+    shape: tuple
+    fps: int
+    args: dict
+    cap: cv.VideoCapture | None
+    i: int
+
+    def __init__(self, filename: str, **kwargs: Any) -> None:
 
         self.filename = str(mvtb_path_to_datafile("images", filename))
 
@@ -72,14 +83,15 @@ class VideoFile(ImageSource):
         self.cap = None
         self.i = 0
 
-    def __iter__(self):
+    def __iter__(self) -> VideoFile:
         self.i = 0
         if self.cap is not None:
             self.cap.release()
         self.cap = cv.VideoCapture(self.filename)
         return self
 
-    def __next__(self):
+    def __next__(self) -> Image:
+        assert self.cap is not None
         ret, frame = self.cap.read()
         if ret is False:
             self.cap.release()
@@ -93,10 +105,10 @@ class VideoFile(ImageSource):
             self.i += 1
             return im
 
-    def __len__(self):
+    def __len__(self) -> int:
         return self.nframes
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"VideoFile({os.path.basename(self.filename)}) {self.shape[1]} x {self.shape[0]}, {self.nframes} frames @ {self.fps}fps"
 
 
@@ -130,28 +142,33 @@ class VideoCamera(ImageSource):
 
 
     :references:
-        - Robotics, Vision & Control for Python, Section 11.1.3, P. Corke, Springer 2023.
+        - |RVC3|, Section 11.1.3.
 
     :seealso: :func:`~machinevisiontoolbox.base.imageio.convert`
-        `cv2.VideoCapture <https://docs.opencv.org/master/d8/dfe/classcv_1_1VideoCapture.html#a57c0e81e83e60f36c83027dc2a188e80>`_,
+        `cv2.VideoCapture <https://docs.opencv.org/4.x/d8/dfe/classcv_1_1VideoCapture.html#a57c0e81e83e60f36c83027dc2a188e80>`_,
     """
 
-    def __init__(self, id=0, rgb=True, **kwargs):
+    id: int
+    cap: cv.VideoCapture
+    args: dict
+    rgb: bool
+    i: int
+
+    def __init__(self, id: int = 0, rgb: bool = True, **kwargs: Any) -> None:
 
         self.id = id
-        self.cap = None
+        self.cap = cv.VideoCapture(id)
         self.args = kwargs
         self.rgb = rgb
-        self.cap = cv.VideoCapture(self.id)
-
-    def __iter__(self):
         self.i = 0
-        if self.cap is not None:
-            self.cap.release()
+
+    def __iter__(self) -> VideoCamera:
+        self.i = 0
+        self.cap.release()
         self.cap = cv.VideoCapture(self.id)
         return self
 
-    def __next__(self):
+    def __next__(self) -> Image:
         ret, frame = self.cap.read()  # frame will be in BGR order
         if ret is False:
             print("camera read fail, camera is released")
@@ -170,7 +187,7 @@ class VideoCamera(ImageSource):
             self.i += 1
             return img
 
-    def grab(self):
+    def grab(self) -> Image:
         """
         Grab single frame from camera
 
@@ -182,7 +199,7 @@ class VideoCamera(ImageSource):
         stream = iter(self)
         return next(stream)
 
-    def release(self):
+    def release(self) -> None:
         """
         Release the camera
 
@@ -191,12 +208,12 @@ class VideoCamera(ImageSource):
         """
         self.cap.release()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         backend = self.cap.getBackendName()
         return f"VideoCamera({self.id}) {self.width} x {self.height} @ {self.framerate}fps using {backend}"
 
-    # see https://docs.opencv.org/3.4/d4/d15/group__videoio__flags__base.html#gaeb8dd9c89c10a5c63c139bf7c4f5704d
-    properties = {
+    # see https://docs.opencv.org/4.x/d4/d15/group__videoio__flags__base.html#gaeb8dd9c89c10a5c63c139bf7c4f5704d
+    properties: dict[str, int] = {
         "brightness": cv.CAP_PROP_BRIGHTNESS,
         "contrast": cv.CAP_PROP_CONTRAST,
         "saturation": cv.CAP_PROP_SATURATION,
@@ -212,7 +229,7 @@ class VideoCamera(ImageSource):
         "ios:whitebalance": cv.CAP_PROP_IOS_DEVICE_WHITEBALANCE,
     }
 
-    def get(self, property=None):
+    def get(self, property: str | None = None) -> float | dict[str, float]:
         """
         Get camera property
 
@@ -252,7 +269,7 @@ class VideoCamera(ImageSource):
                 for property in self.properties
             }
 
-    def set(self, property, value):
+    def set(self, property: str, value: float) -> float:
         """
         Set camera property
 
@@ -288,7 +305,7 @@ class VideoCamera(ImageSource):
         return self.cap.set(self.properties[property], value)
 
     @property
-    def width(self):
+    def width(self) -> int:
         """
         Width of video frame
 
@@ -300,7 +317,7 @@ class VideoCamera(ImageSource):
         return int(self.cap.get(cv.CAP_PROP_FRAME_WIDTH))
 
     @property
-    def height(self):
+    def height(self) -> int:
         """
         Height of video frame
 
@@ -312,7 +329,7 @@ class VideoCamera(ImageSource):
         return int(self.cap.get(cv.CAP_PROP_FRAME_HEIGHT))
 
     @property
-    def framerate(self):
+    def framerate(self) -> int:
         """
         Camera frame rate
 
@@ -328,7 +345,7 @@ class VideoCamera(ImageSource):
         return fps
 
     @property
-    def shape(self):
+    def shape(self) -> tuple[int, int]:
         """
         Shape of video frame
 
@@ -372,20 +389,29 @@ class ImageCollection(ImageSource):
         >>> img = files[i]  # load i'th file from the collection
 
     :references:
-        - Robotics, Vision & Control for Python, Section 11.1.2, P. Corke, Springer 2023.
+        - |RVC3|, Section 11.1.2.
 
     :seealso: :func:`~machinevisiontoolbox.base.imageio.convert`
-        `cv2.imread <https://docs.opencv.org/master/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56>`_
+        `cv2.imread <https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56>`_
     """
 
-    def __init__(self, filename=None, loop=False, **kwargs):
+    images: list
+    names: list
+    args: dict
+    loop: bool
+    i: int
+
+    def __init__(
+        self, filename: str | None = None, loop: bool = False, **kwargs: Any
+    ) -> None:
 
         if filename is not None:
             self.images, self.names = iread(filename, rgb=True)
         self.args = kwargs
         self.loop = loop
+        self.i = 0
 
-    def __getitem__(self, i):
+    def __getitem__(self, i: int | slice) -> ImageCollection | Image:
 
         if isinstance(i, slice):
             # slice of a collection -> ImageCollection
@@ -403,17 +429,17 @@ class ImageCollection(ImageSource):
             else:
                 return Image(im, id=i, name=self.names[i])
 
-    def __iter__(self):
+    def __iter__(self) -> ImageCollection:
         self.i = 0
         return self
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "\n".join([str(f) for f in self.names])
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self)
 
-    def __next__(self):
+    def __next__(self) -> Image:
         if self.i >= len(self.names):
             if self.loop:
                 self.i = 0
@@ -428,7 +454,7 @@ class ImageCollection(ImageSource):
         self.i += 1
         return im
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.images)
 
 
@@ -470,25 +496,38 @@ class ZipArchive(ImageSource):
         >>> image = images[i]  # load i'th file from the archive
 
     :references:
-        - Robotics, Vision & Control for Python, Section 11.1.2, P. Corke, Springer 2023.
+        - |RVC3|, Section 11.1.2.
 
     :seealso: :meth:`open` :func:`~machinevisiontoolbox.base.imageio.convert`
-        `cv2.imread <https://docs.opencv.org/master/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56>`_
+        `cv2.imread <https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56>`_
     """
 
-    def __init__(self, filename, filter=None, loop=False, **kwargs):
+    zipfile: zipfile.ZipFile
+    files: list[str]
+    args: dict
+    loop: bool
+    i: int
+
+    def __init__(
+        self,
+        filename: str,
+        filter: str | None = None,
+        loop: bool = False,
+        **kwargs: Any,
+    ) -> None:
 
         filename = mvtb_path_to_datafile("images", filename)
         self.zipfile = zipfile.ZipFile(filename, "r")
         if filter is None:
-            files = self.zipfile.namelist()
+            files = [f for f in self.zipfile.namelist() if not f.endswith("/")]
         else:
             files = fnmatch.filter(self.zipfile.namelist(), filter)
         self.files = sorted(files)
         self.args = kwargs
         self.loop = loop
+        self.i = 0
 
-    def open(self, name):
+    def open(self, name: str):
         """
         Open a file from the archive
 
@@ -505,14 +544,14 @@ class ZipArchive(ImageSource):
         """
         return self.zipfile.open(name)
 
-    def ls(self):
+    def ls(self) -> None:
         """
         List all files within the archive to stdout.
         """
         for name in self.zipfile.namelist():
             print(name)
 
-    def __getitem__(self, i):
+    def __getitem__(self, i: int) -> Image | bytes:
         im = self._read(i)
         if isinstance(im, np.ndarray):
             if im.ndim == 3:
@@ -523,14 +562,14 @@ class ZipArchive(ImageSource):
             # not an image file, just return the contents
             return im
 
-    def __iter__(self):
+    def __iter__(self) -> ZipArchive:
         self.i = 0
         return self
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "\n".join(self.files)
 
-    def __next__(self):
+    def __next__(self) -> Image | bytes:
         if self.i >= len(self.files):
             if self.loop:
                 self.i = 0
@@ -546,10 +585,10 @@ class ZipArchive(ImageSource):
         self.i += 1
         return im
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.files)
 
-    def _read(self, i):
+    def _read(self, i: int) -> np.ndarray | bytes:
         data = self.zipfile.read(self.files[i])
         img = cv.imdecode(
             np.frombuffer(data, np.uint8), cv.IMREAD_ANYDEPTH | cv.IMREAD_UNCHANGED
@@ -589,25 +628,30 @@ class WebCam(ImageSource):
         for details.
 
     :references:
-        - Robotics, Vision & Control for Python, Section 11.1.5, P. Corke, Springer 2023.
+        - |RVC3|, Section 11.1.5.
 
     :seealso: :func:`~machinevisiontoolbox.base.imageio.convert`
-        `cv2.VideoCapture <https://docs.opencv.org/master/d8/dfe/classcv_1_1VideoCapture.html#a57c0e81e83e60f36c83027dc2a188e80>`_
+        `cv2.VideoCapture <https://docs.opencv.org/4.x/d8/dfe/classcv_1_1VideoCapture.html#a57c0e81e83e60f36c83027dc2a188e80>`_
     """
 
-    def __init__(self, url, **kwargs):
+    url: str
+    args: dict
+    cap: cv.VideoCapture | None
+
+    def __init__(self, url: str, **kwargs: Any) -> None:
 
         self.url = url
         self.args = kwargs
         self.cap = None
 
-    def __iter__(self):
+    def __iter__(self) -> WebCam:
         if self.cap is not None:
             self.cap.release()
         self.cap = cv.VideoCapture(self.url)
         return self
 
-    def __next__(self):
+    def __next__(self) -> Image:
+        assert self.cap is not None
         ret, frame = self.cap.read()
         if ret is False:
             self.cap.release()
@@ -619,7 +663,7 @@ class WebCam(ImageSource):
             else:
                 return Image(im)
 
-    def grab(self):
+    def grab(self) -> Image:
         """
         Grab frame from web camera
 
@@ -685,14 +729,27 @@ class EarthView(ImageSource):
         - Uses the `Google Maps Static API <https://developers.google.com/maps/documentation/maps-static/start>`_
 
     :references:
-        - Robotics, Vision & Control for Python, Section 11.1.6, P. Corke, Springer 2023.
+        - |RVC3|, Section 11.1.6.
 
     :seealso: :meth:`grab` :func:`~machinevisiontoolbox.base.imageio.convert`
     """
 
+    key: str | None
+    type: str
+    scale: int
+    zoom: int
+    shape: tuple
+    args: dict
+
     def __init__(
-        self, key=None, type="satellite", zoom=18, scale=1, shape=(500, 500), **kwargs
-    ):
+        self,
+        key: str | None = None,
+        type: str = "satellite",
+        zoom: int = 18,
+        scale: int = 1,
+        shape: tuple = (500, 500),
+        **kwargs: Any,
+    ) -> None:
 
         if key is None:
             self.key = os.getenv("GOOGLE_KEY")
@@ -707,15 +764,15 @@ class EarthView(ImageSource):
 
     def grab(
         self,
-        lat,
-        lon,
-        zoom=None,
-        type=None,
-        scale=None,
-        shape=None,
-        roadnames=False,
-        placenames=False,
-    ):
+        lat: float,
+        lon: float,
+        zoom: int | None = None,
+        type: str | None = None,
+        scale: int | None = None,
+        shape: tuple | None = None,
+        roadnames: bool = False,
+        placenames: bool = False,
+    ) -> Image:
         """
         Google map view as an image
 

@@ -108,11 +108,26 @@ class TestImage(unittest.TestCase):
 
     def test_im_from_string(self):
         img = Image.String("01234|56789|87654")
+        nt.assert_array_equal(
+            img.A, np.array([[0, 1, 2, 3, 4], [5, 6, 7, 8, 9], [8, 7, 6, 5, 4]])
+        )
+
+    def test_print(self):
+
+        img = Image.String("01234|56789|87654")
 
         f = io.StringIO()
         with contextlib.redirect_stdout(f):
-            img.print()
-        self.assertEqual(f.getvalue(), " 0 1 2 3 4\n 5 6 7 8 9\n 8 7 6 5 4\n")
+            img.print(header=False)
+        self.assertEqual(f.getvalue(), "   0 1 2 3 4\n   5 6 7 8 9\n   8 7 6 5 4\n")
+
+        f = io.StringIO()
+        with contextlib.redirect_stdout(f):
+            img.print(header=True)
+        self.assertEqual(
+            f.getvalue(),
+            "Image: 5 x 3 (uint8), 1 anonymous plane\n   0 1 2 3 4\n   5 6 7 8 9\n   8 7 6 5 4\n",
+        )
 
     def test_im_to_string(self):
         img = Image.String("01234|56789|87654")

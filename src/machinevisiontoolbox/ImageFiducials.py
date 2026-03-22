@@ -114,15 +114,15 @@ class ImageFiducialsMixin(_ImageBase):
 
             >>> from machinevisiontoolbox import Image
             >>> img = Image.Read('tags.png')
-            >>> fiducials = im.fiducial('5x5_50')
+            >>> fiducials = img.fiducial('5x5_50')
             >>> fiducials
             >>> fiducials[0].corners
 
-        :note: ``side`` is the dimension of the square that contains the
+        .. note:: ``side`` is the dimension of the square that contains the
             small white squares inside the black background.
 
         :references:
-            - Robotics, Vision & Control for Python, Section 13.6.1, P. Corke, Springer 2023.
+            - |RVC3|, Section 13.6.1.
 
         :seealso: :class:`Fiducial` :class:`ArUcoBoard`
         """
@@ -235,7 +235,7 @@ class Fiducial:
         Returns the pose of the tag with respect to the camera.  The x- and
         y-axes are in the marker plane and the z-axis is out of the marker.
 
-        :note: Accurate camera intrinsics and dimension parameters are
+        .. note:: Accurate camera intrinsics and dimension parameters are
             required for this value to be metric.
         """
         return self._pose
@@ -606,7 +606,7 @@ class ArUcoBoard(FiducialCollection):
         have the correct dimensions.  The size is of the chart is invariant to the
         ``dpi`` parameter, that simply affects the resolution of the image and file size.
 
-        :note: This method assumes that the dimensions given in the constructor are in
+        .. note:: This method assumes that the dimensions given in the constructor are in
             meters.
         """
         # dots per m

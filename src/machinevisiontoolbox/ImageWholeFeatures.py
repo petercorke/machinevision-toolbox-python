@@ -49,7 +49,7 @@ class ImageWholeFeaturesMixin(_ImageBase):
             >>> img.sum(axis=2)
 
 
-        :note:
+        .. note::
             - The return value type is the same as the image type.
             - By default the result is a scalar computed over all pixels,
               if the ``axis`` option is given the results is a 1D or 2D NumPy
@@ -66,8 +66,8 @@ class ImageWholeFeaturesMixin(_ImageBase):
         """
         Minimum value of all pixels
 
-        :param args: additional positional arguments to :func:`numpy.min`
-        :param kwargs: additional keyword arguments to :func:`numpy.min`
+        :param args: additional positional arguments to :func:`numpy.nanmin`
+        :param kwargs: additional keyword arguments to :func:`numpy.nanmin`
         :return: minimum value
 
         Example:
@@ -78,16 +78,16 @@ class ImageWholeFeaturesMixin(_ImageBase):
             >>> img = Image.Read('flowers1.png')
             >>> img.min()
             >>> img = Image.Read('flowers1.png', dtype='float32')
-            >>> img.min(axis=2)
+            >>> img.min(axis=(0,1)) # minimum over each plane
 
-        :note:
+        .. note::
             - The return value type is the same as the image type.
             - By default the result is a scalar computed over all pixels,
               if the ``axis`` option is given the results is a 1D or 2D NumPy
               array.
             - NaN values are ignored
 
-        :seealso: :func:`numpy.nanmin` :meth:`numnan`
+        :seealso: :meth:`stats` :meth:`hist` :meth:`Hough` :meth:`max` :func:`numpy.nanmin` :meth:`numnan`
         """
         return np.nanmin(self._A, *args, **kwargs)
 
@@ -95,8 +95,8 @@ class ImageWholeFeaturesMixin(_ImageBase):
         """
         Maximum value of all pixels
 
-        :param args: additional positional arguments to :func:`numpy.max`
-        :param kwargs: additional keyword arguments to :func:`numpy.max`
+        :param args: additional positional arguments to :func:`numpy.nanmax`
+        :param kwargs: additional keyword arguments to :func:`numpy.nanmax`
         :return: maximum value
 
         Example:
@@ -107,16 +107,16 @@ class ImageWholeFeaturesMixin(_ImageBase):
             >>> img = Image.Read('flowers1.png')
             >>> img.max()
             >>> img = Image.Read('flowers1.png', dtype='float32')
-            >>> img.max(axis=2)
+            >>> img.max(axis=(0,1)) # maximum over each plane
 
-        :note:
+        .. note::
             - The return value type is the same as the image type.
             - By default the result is a scalar computed over all pixels,
               if the ``axis`` option is given the results is a 1D or 2D NumPy
               array.
             - NaN values are ignored
 
-        :seealso: :func:`numpy.nanmax` :meth:`numnan`
+        :seealso: :meth:`stats` :meth:`hist` :meth:`min` :func:`numpy.nanmax` :meth:`numnan`
         """
         return np.nanmax(self._A, *args, **kwargs)
 
@@ -124,8 +124,8 @@ class ImageWholeFeaturesMixin(_ImageBase):
         """
         Mean value of all pixels
 
-        :param args: additional positional arguments to :func:`numpy.mean`
-        :param kwargs: additional keyword arguments to :func:`numpy.mean`
+        :param args: additional positional arguments to :func:`numpy.nanmean`
+        :param kwargs: additional keyword arguments to :func:`numpy.nanmean`
         :return: mean value
 
         Example:
@@ -136,16 +136,16 @@ class ImageWholeFeaturesMixin(_ImageBase):
             >>> img = Image.Read('flowers1.png')
             >>> img.mean()
             >>> img = Image.Read('flowers1.png', dtype='float32')
-            >>> img.mean(axis=2)
+            >>> img.mean(axis=(0,1)) # mean over each plane
 
-        :note:
+        .. note::
             - The return value type is the same as the image type.
             - By default the result is a scalar computed over all pixels,
               if the ``axis`` option is given the results is a 1D or 2D NumPy
               array.
             - NaN values are ignored
 
-        :seealso: :func:`numpy.nanmean` :meth:`numnan`
+        :seealso: :meth:`stats` :meth:`hist` :meth:`Hough` :meth:`std` :meth:`median` :func:`numpy.nanmean` :meth:`numnan`
         """
         return np.nanmean(self._A, *args, **kwargs)
 
@@ -153,8 +153,8 @@ class ImageWholeFeaturesMixin(_ImageBase):
         """
         Standard deviation of all pixels
 
-        :param args: additional positional arguments to :func:`numpy.std`
-        :param kwargs: additional keyword arguments to :func:`numpy.std`
+        :param args: additional positional arguments to :func:`numpy.nanstd`
+        :param kwargs: additional keyword arguments to :func:`numpy.nanstd`
         :return: standard deviation value
 
         Example:
@@ -165,16 +165,16 @@ class ImageWholeFeaturesMixin(_ImageBase):
             >>> img = Image.Read('flowers1.png')
             >>> img.std()
             >>> img = Image.Read('flowers1.png', dtype='float32')
-            >>> img.std()
+            >>> img.std(axis=(0,1)) # std over each plane
 
-        :note:
+        .. note::
             - The return value type is the same as the image type.
             - By default the result is a scalar computed over all pixels,
               if the ``axis`` option is given the results is a 1D or 2D NumPy
               array.
             - NaN values are ignored
 
-        :seealso: :func:`numpy.nanstd` :meth:`numnan`
+        :seealso: :meth:`stats` :meth:`hist` :meth:`mean` :meth:`var` :func:`numpy.nanstd` :meth:`numnan`
         """
         return float(np.nanstd(self._A, *args, **kwargs))
 
@@ -182,8 +182,8 @@ class ImageWholeFeaturesMixin(_ImageBase):
         """
         Variance of all pixels
 
-        :param args: additional positional arguments to :func:`numpy.var`
-        :param kwargs: additional keyword arguments to :func:`numpy.var`
+        :param args: additional positional arguments to :func:`numpy.nanvar`
+        :param kwargs: additional keyword arguments to :func:`numpy.nanvar`
         :return: variance value
 
         Example:
@@ -194,25 +194,25 @@ class ImageWholeFeaturesMixin(_ImageBase):
             >>> img = Image.Read('flowers1.png')
             >>> img.var()
             >>> img = Image.Read('flowers1.png', dtype='float32')
-            >>> img.var()
+            >>> img.var(axis=(0,1)) # variance over each plane
 
-        :note:
+        .. note::
             - The return value type is the same as the image type.
             - By default the result is a scalar computed over all pixels,
               if the ``axis`` option is given the results is a 1D or 2D NumPy
               array.
             - NaN values are ignored
 
-        :seealso: :func:`numpy.nanvar` :meth:`numnan`
+        :seealso: :meth:`stats` :meth:`hist` :meth:`std` :func:`numpy.nanvar` :meth:`numnan`
         """
-        return float(np.var(self._A, *args, **kwargs))
+        return float(np.nanvar(self._A, *args, **kwargs))
 
     def median(self, *args, **kwargs) -> int | float:
         """
         Median value of all pixels
 
-        :param args: additional positional arguments to :func:`numpy.median`
-        :param kwargs: additional keyword arguments to :func:`numpy.median`
+        :param args: additional positional arguments to :func:`numpy.nanmedian`
+        :param kwargs: additional keyword arguments to :func:`numpy.nanmedian`
         :return: median value
 
         Example:
@@ -223,16 +223,16 @@ class ImageWholeFeaturesMixin(_ImageBase):
             >>> img = Image.Read('flowers1.png')
             >>> img.median()
             >>> img = Image.Read('flowers1.png', dtype='float32')
-            >>> img.median()
+            >>> img.median(axis=(0,1)) # median over each plane
 
-        :note:
+        .. note::
             - The return value type is the same as the image type.
             - By default the result is a scalar computed over all pixels,
               if the ``axis`` option is given the results is a 1D or 2D NumPy
               array.
             - NaN values are ignored
 
-        :seealso: :func:`numpy.nanmedian` :meth:`numnan`
+        :seealso: :meth:`stats` :meth:`hist` :meth:`mean` :meth:`std` :func:`numpy.nanmedian` :meth:`numnan`
         """
         return np.nanmedian(self._A, *args, **kwargs)
 
@@ -253,8 +253,13 @@ class ImageWholeFeaturesMixin(_ImageBase):
             >>> img = Image.Read('flowers1.png')
             >>> img.stats()
 
-        :note: Statistics are printed to standard output and also returned as a
-            dictionary.
+        .. note::
+
+            - Statistics are printed to standard output and also returned as a
+              dictionary.
+            - NaN values are ignored, but their number is displayed as part of the statistics if non zero.
+
+        :seealso: :meth:`hist` :meth:`min` :meth:`max` :meth:`mean` :meth:`std` :meth:`median`
         """
 
         def plane_stats(plane):
@@ -271,9 +276,9 @@ class ImageWholeFeaturesMixin(_ImageBase):
         def printstats(plane):
             stats = plane_stats(plane)
             s = (
-                f"range={stats['min']:g} - {stats['max']:g}, "
+                f"range={stats['min']:g} - {stats['max']:g}; "
                 f"mean={stats['mean']:g}, "
-                f"sdev={stats['sdev']:g}, "
+                f"𝜎={stats['sdev']:g}; "
                 f"median={stats['median']:g}"
             )
             nnan = stats["nan"]
@@ -305,7 +310,7 @@ class ImageWholeFeaturesMixin(_ImageBase):
 
         :param nbins: number of histogram bins, defaults to 256
         :type nbins: int, optional
-        :param opt: histogram option
+        :param opt: histogram option, defaults to None; options are 'sorted' to sort the histogram by count rather than bin value
         :type opt: str
         :return: histogram of image
         :rtype: :class:`~machinevisiontoolbox.ImageWholeFeatures.Histogram`
@@ -342,21 +347,36 @@ class ImageWholeFeaturesMixin(_ImageBase):
             img = Image.Read('flowers1.png')
             img.hist().plot(style='stack')
 
-        :note:
-            - For an integer  image the bins spans the greylevel range 0-255.
+        Example::
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read('flowers1.png')
+            >>> hist = img.hist()
+            >>> hist
+            >>> hist.plot(style='overlay')
+
+        .. plot::
+
+            from machinevisiontoolbox import Image
+            img = Image.Read('flowers1.png')
+            img.hist().plot(style='overlay')
+
+        .. note::
+            - For a `uint8` image the bins spans the greylevel range 0-255.
             - For a floating point image the histogram spans the greylevel range
               0.0 to 1.0 with 256 bins.
             - For floating point images all NaN and Inf values are first
               removed.
-            - Computed using OpenCV CalcHist. Only works on floats up to 32 bit,
+            - Computed using OpenCV `calcHist`. Only works on floats up to 32 bit,
               float64 images are automatically converted to float32.
 
         :references:
-            - Robotics, Vision & Control for Python, Section 14.4.3, P. Corke, Springer 2023.
+            - |RVC3|, Section 14.4.3.
 
         :seealso:
+            :meth:`stats` 
             :class:`~machinevisiontoolbox.ImageWholeFeatures.Histogram`
-            `opencv.calcHist <https://docs.opencv.org/3.4/d6/dc7/group__imgproc__hist.html#ga4b2b5fd75503ff9e6844cc4dcdaed35d>`_
+            `opencv.calcHist <https://docs.opencv.org/4.x/d6/dc7/group__imgproc__hist.html#ga4b2b5fd75503ff9e6844cc4dcdaed35d>`_
         """
 
         # check inputs
@@ -486,12 +506,12 @@ class ImageWholeFeaturesMixin(_ImageBase):
             >>> img = Image.Read('shark1.png')
             >>> img.mpq(1, 0)
 
-        :note:
+        .. note::
             - Supports single channel images only.
             - ``mpq(0, 0)`` is the same as ``sum()`` but less efficient.
 
         :references:
-            - Robotics, Vision & Control for Python, Section 12.1.3.4, P. Corke, Springer 2023.
+            - |RVC3|, Section 12.1.3.4.
 
         :seealso: :meth:`sum` :meth:`npq` :meth:`upq`
         """
@@ -530,12 +550,12 @@ class ImageWholeFeaturesMixin(_ImageBase):
             >>> img = Image.Read('shark1.png')
             >>> img.upq(2, 2)
 
-        :note:
+        .. note::
             - The central moments are invariant to translation.
             - Supports single channel images only.
 
         :references:
-            - Robotics, Vision & Control for Python, Section 12.1.3.4, P. Corke, Springer 2023.
+            - |RVC3|, Section 12.1.3.4.
 
         :seealso: :meth:`sum` :meth:`mpq` :meth:`upq`
         """
@@ -579,13 +599,13 @@ class ImageWholeFeaturesMixin(_ImageBase):
             >>> img = Image.Read('shark1.png')
             >>> img.npq(2, 2)
 
-        :note:
+        .. note::
             - The normalized central moments are invariant to translation and
               scale.
             - Supports single channel images only.
 
         :references:
-            - Robotics, Vision & Control for Python, Section 12.1.3.4, P. Corke, Springer 2023.
+            - |RVC3|, Section 12.1.3.4.
 
         :seealso: :meth:`sum` :meth:`mpq` :meth:`upq`
         """
@@ -625,13 +645,13 @@ class ImageWholeFeaturesMixin(_ImageBase):
             >>> img = Image.Read('shark1.png')
             >>> img.moments()
 
-        :note:
+        .. note::
             - Converts a color image to greyscale.
 
         :references:
-            - Robotics, Vision & Control for Python, Section 12.1.3.4, P. Corke, Springer 2023.
+            - |RVC3|, Section 12.1.3.4.
 
-        :seealso: :meth:`mpq` :meth:`npq` :meth:`upq` `opencv.moments <https://docs.opencv.org/master/d8/d23/classcv_1_1Moments.html>`_
+        :seealso: :meth:`mpq` :meth:`npq` :meth:`upq` `opencv.moments <https://docs.opencv.org/4.x/d8/d23/classcv_1_1Moments.html>`_
         """
         return cv.moments(array=self.mono().to_int(), binaryImage=binary)
 
@@ -652,7 +672,7 @@ class ImageWholeFeaturesMixin(_ImageBase):
             >>> img = Image.Read('shark1.png', dtype='float')
             >>> img.humoments()
 
-        :note:
+        .. note::
             - Image is assumed to be a binary image of a single connected
               region
             - These invariants are a function of object shape and are invariant
@@ -661,9 +681,9 @@ class ImageWholeFeaturesMixin(_ImageBase):
         :references:
             - M-K. Hu, Visual pattern recognition by moment invariants. IRE
               Trans. on Information Theory, IT-8:pp. 179-187, 1962.
-            - Robotics, Vision & Control for Python, Section 12.1.3.6, P. Corke, Springer 2023.
+            - |RVC3|, Section 12.1.3.6.
 
-        :seealso: :meth:`moments` `opencv.HuMoments <https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#gab001db45c1f1af6cbdbe64df04c4e944>`_
+        :seealso: :meth:`moments` `opencv.HuMoments <https://docs.opencv.org/4.x/d3/dc0/group__imgproc__shape.html#gab001db45c1f1af6cbdbe64df04c4e944>`_
         """
 
         # TODO check for binary image
@@ -694,7 +714,7 @@ class ImageWholeFeaturesMixin(_ImageBase):
             >>> img.nonzero()
 
         :references:
-            - Robotics, Vision & Control for Python, Section 12.1.3.2, P. Corke, Springer 2023.
+            - |RVC3|, Section 12.1.3.2.
 
         :seealso: :meth:`flatnonzero`
         """
@@ -756,7 +776,7 @@ class ImageWholeFeaturesMixin(_ImageBase):
             >>> img.A
             >>> img.peak2d(interp=True)
 
-        :note:
+        .. note::
             - Edges elements will never be returned as maxima.
             - To find minima, use ``peak2d(-image)``.
             - The ``interp`` option fits points in the neighbourhood about the
@@ -809,7 +829,7 @@ class Histogram:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> im = Image.Random()
+            >>> im = Image.Random(256)
             >>> h = im.hist(100)
             >>> print(h)
         """
@@ -831,7 +851,7 @@ class Histogram:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> im = Image.Random()
+            >>> im = Image.Random(256)
             >>> h = im.hist(100)
             >>> h
         """

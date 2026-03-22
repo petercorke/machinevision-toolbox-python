@@ -5,8 +5,6 @@
 .. autoclass:: {{ objname }}
 
    {% block methods %}
-   .. automethod:: __init__
-
    {% if methods %}
    .. rubric:: {{ _('Methods') }}
 
@@ -14,7 +12,7 @@
       :toctree: {{ objname }}
       :nosignatures:
 
-   {% for item in methods if item != '__init__' %}
+   {% for item in methods | reject('equalto', '__init__') | list | sort(case_sensitive=False) %}
       ~{{ name }}.{{ item }}
    {%- endfor %}
    {% endif %}
@@ -28,7 +26,7 @@
       :toctree: {{ objname }}
       :nosignatures:
 
-   {% for item in attributes %}
+   {% for item in attributes | sort(case_sensitive=False) %}
       ~{{ name }}.{{ item }}
    {%- endfor %}
    {% endif %}
