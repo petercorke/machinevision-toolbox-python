@@ -1,0 +1,104 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-15, windows-latest]
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: mamba-org/setup-micromamba@v2
+        with:
+          init-shell: >-
+            bash
+            powershell
+          environment-name: myenv
+          create-args: >-
+            python=${{ matrix.python-version }}
+            numpy
+            pip
+            pytest
+            pytest-timeout
+            pytest-xvfb
+            matplotlib-base
+            setuptools
+            opencv
+            scipy
+            spatialmath-python
+            ansitable
+            wcwidth
+            hatchling
+
+      - name: Install libegl (Linux)
+        if: runner.os == 'Linux'
+        run: micromamba install -y -n myenv -c conda-forge libegl
+
+      - name: Install package
+        run: |
+          micromamba run -n myenv pip install .[dev] --no-deps --no-build-isolation
+          cd mvtb-data && micromamba run -n myenv pip install . --no-deps --no-build-isolation
+
+      - name: Run tests
+        env:
+          MPLBACKEND: Agg
+        run: micromamba run -n myenv python -m pytest --timeout=50 --timeout-method=thread
+
+  codecov:
+    needs: test
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: mamba-org/setup-micromamba@v2
+        with:
+          init-shell: bash
+          environment-name: myenv
+          create-args: >-
+            python=3.13
+            numpy
+            pip
+            coverage
+            pytest
+            pytest-timeout
+            matplotlib-base
+            setuptools
+            opencv
+            scipy
+            spatialmath-python
+            ansitable
+            wcwidth
+            hatchling
+
+      - name: Install libegl
+        run: micromamba install -y -n myenv -c conda-forge libegl
+
+      - name: Install package
+        run: |
+          micromamba run -n myenv pip install .[dev] --no-deps --no-build-isolation
+          cd mvtb-data && micromamba run -n myenv pip install . --no-deps --no-build-isolation
+
+      - name: Run coverage
+        env:
+          MPLBACKEND: Agg
+        run: |
+          micromamba run -n myenv coverage run --source=machinevisiontoolbox -m pytest --timeout=50
+          micromamba run -n myenv coverage xml
+
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.xml
