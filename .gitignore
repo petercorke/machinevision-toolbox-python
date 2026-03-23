@@ -1,4 +1,8 @@
 
+### MacOS ###
+.DS_Store
+
+
 ### Python ###
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -72,3 +76,6 @@ docs/source/stubs/*
 # latex products
 .log
 .aux
+
+# LLVM profiling data
+*.profraw
