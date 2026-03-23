@@ -379,7 +379,7 @@ class ImageIOMixin(_ImageBase):
                     fmt.format(image[v, u]),
                     horizontalalignment="center",
                     verticalalignment="center",
-                    color=color,
+                    color=np.rint(color, dtype="uint8"),
                     **kwargs,
                 )
 
