@@ -74,6 +74,7 @@ jobs:
             coverage
             pytest
             pytest-timeout
+            pytest-xvfb
             matplotlib-base
             setuptools
             opencv
