@@ -1,16 +1,17 @@
 # Machine Vision Toolbox for Python
 
-[![A Python Robotics Package](https://raw.githubusercontent.com/petercorke/robotics-toolbox-python/main/.github/svg/py_collection.min.svg)](https://github.com/petercorke/robotics-toolbox-python)
-[![Powered by Spatial Maths](https://raw.githubusercontent.com/petercorke/spatialmath-python/main/.github/svg/sm_powered.min.svg)](https://github.com/petercorke/spatialmath-python)
-[![QUT Centre for Robotics Open Source](https://github.com/qcr/qcr.github.io/raw/main/misc/badge.svg)](https://qcr.github.io)
+[![A Python Robotics Package](https://raw.githubusercontent.com/petercorke/robotics-toolbox-python/master/.github/svg/py_collection.min.svg)](https://github.com/petercorke/robotics-toolbox-python)
+[![QUT Centre for Robotics Open Source](https://github.com/qcr/qcr.github.io/raw/master/misc/badge.svg)](https://qcr.github.io)
+[![Powered by Spatial Maths](https://raw.githubusercontent.com/petercorke/spatialmath-python/master/.github/svg/sm_powered.min.svg)](https://github.com/petercorke/spatialmath-python)
+[![Powered by NumPy](https://img.shields.io/badge/powered_by-NumPy-013243?logo=numpy&logoColor=white)](https://numpy.org)
+[![Powered by OpenCV](https://raw.githubusercontent.com/petercorke/machinevision-toolbox-python/main/.github/svg/opencv_powered.svg)](https://opencv.org)
+[![Powered by Open3D](https://raw.githubusercontent.com/petercorke/machinevision-toolbox-python/main/.github/svg/open3d_powered.svg)](https://open3d.org)
+
 
 [![PyPI version](https://badge.fury.io/py/machinevision-toolbox-python.svg)](https://badge.fury.io/py/machinevision-toolbox-python)
 ![Python Version](https://img.shields.io/pypi/pyversions/machinevision-toolbox-python.svg)
-[![Powered by OpenCV](https://raw.githubusercontent.com/petercorke/machinevision-toolbox-python/main/.github/svg/opencv_powered.svg)](https://opencv.org)
-[![Powered by Open3D](https://raw.githubusercontent.com/petercorke/machinevision-toolbox-python/main/.github/svg/open3d_powered.svg)](https://open3d.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-
-[![Build Status](https://github.com/petercorke/machinevision-toolbox-python/actions/workflows/main.yml/badge.svg)](https://github.com/petercorke/machinevision-toolbox-python/actions?query=workflow%3Abuild)
+[![Build Status](https://github.com/petercorke/machinevision-toolbox-python/actions/workflows/ci.yml/badge.svg)](https://github.com/petercorke/machinevision-toolbox-python/actions/workflows/ci.yml)
 [![Coverage](https://codecov.io/gh/petercorke/machinevision-toolbox-python/branch/main/graph/badge.svg)](https://codecov.io/gh/petercorke/machinevision-toolbox-python)
 [![PyPI - Downloads](https://img.shields.io/pypi/dw/machinevision-toolbox-python)](https://pypistats.org/packages/machinevision-toolbox-python)
 
@@ -47,9 +48,9 @@ The Machine Vision Toolbox for Python (MVTB-P) provides many functions that are 
   - multiview geometry: camera calibration, stereo vision, bundle adjustment
   - bag of words
 
-Advantages of this Python Toolbox are that:
+Advantages of this Python Toolbox include:
 
-- it uses, as much as possible, [OpenCV](https://opencv.org) and [NumPy](https://numpy.org) which are portable, efficient, comprehensive and mature collection of functions for image processing and feature extraction;
+- it uses, as much as possible mature, efficient and portable functions which provide a comprehensive and mature collection of functions for image processing and feature extraction;
 - it wraps the OpenCV functions in a consistent way, hiding some of the gnarly details of OpenCV like conversion to/from float32 and the BGR color order.
 - it is has similarity to the <a href="https://github.com/petercorke/machinevision-toolbox-matlab">Machine Vision Toolbox for MATLAB<sup>&reg;</sup></a>
 
