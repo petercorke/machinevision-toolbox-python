@@ -49,6 +49,7 @@ extensions = [
     "sphinx.ext.doctest",
     "sphinx.ext.autosectionlabel",
     "sphinx.ext.inheritance_diagram",
+    "sphinx_autorun",
     "sphinx.ext.intersphinx",
     "sphinx_favicon",
     "sphinx_copybutton",
