@@ -11,7 +11,10 @@ import warnings
 import xml.etree.ElementTree as ET
 from collections.abc import Iterable
 from pathlib import Path
-from typing import Any, Self, Sequence
+from typing import TYPE_CHECKING, Any, Sequence
+
+if TYPE_CHECKING:
+    from typing import Self
 
 import cv2 as cv
 import numpy as np
