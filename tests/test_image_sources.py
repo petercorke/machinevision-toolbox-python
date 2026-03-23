@@ -11,10 +11,19 @@ from pathlib import Path
 
 import numpy as np
 import numpy.testing as nt
+import pytest
 
 # import machinevisiontoolbox as mvt
 from machinevisiontoolbox import Image, ImageCollection, ZipArchive, VideoFile
-from machinevisiontoolbox.base import iread
+from machinevisiontoolbox.base import iread, mvtb_path_to_datafile
+
+
+def _has_file(*args):
+    try:
+        mvtb_path_to_datafile(*args)
+        return True
+    except ValueError:
+        return False
 
 
 class TestImageSources(unittest.TestCase):
@@ -31,6 +40,9 @@ class TestImageSources(unittest.TestCase):
         self.assertEqual(images[0].colororder_str, "R:G:B")
         self.assertEqual(images[0].nplanes, 3)
 
+    @pytest.mark.skipif(
+        not _has_file("images", "bridge-l.zip"), reason="bridge-l.zip not available"
+    )
     def test_ziparchive(self):
         # zip archive with filter
         zf = ZipArchive("bridge-l.zip")
