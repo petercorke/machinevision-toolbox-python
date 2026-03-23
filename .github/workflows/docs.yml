@@ -39,6 +39,16 @@ jobs:
       - name: Build docs
         run: sphinx-build -b html docs/source docs/build/html
 
+      - name: Build wheel for JupyterLite
+        run: |
+          pip install build
+          python -m build --wheel --outdir lite/pypi
+
+      - name: Build JupyterLite site
+        run: |
+          pip install jupyterlite-core jupyterlite-pyodide-kernel
+          cd lite && jupyter lite build --output-dir ../docs/build/html/lite
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: docs/build/html
