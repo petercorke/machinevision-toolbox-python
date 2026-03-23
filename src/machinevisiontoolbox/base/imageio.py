@@ -14,11 +14,9 @@ from typing import Any, Callable
 import cv2 as cv
 import matplotlib as mpl
 import matplotlib.cm as cm
-import matplotlib.pyplot as plt
 
 # pyright: reportMissingImports=false
 import numpy as np
-from matplotlib.backend_tools import ToolBase, ToolToggleBase
 
 from machinevisiontoolbox.base.color import colorspace_convert, gamma_decode
 from machinevisiontoolbox.base.data import mvtb_path_to_datafile
@@ -38,6 +36,68 @@ from spatialmath.base import islistof
 
 __last_windowname: str | None = None
 __last_window_number: int = 0
+
+
+def _ensure_mpl_backend() -> None:
+    """Select a matplotlib backend appropriate for the current environment.
+
+    Called lazily inside :func:`idisp` so that notebook cells can configure the
+    backend (e.g. ``%matplotlib widget``) **before** importing
+    :mod:`machinevisiontoolbox`, and so that the choice is deferred to runtime
+    rather than fixed at module import time.
+
+    Priority:
+    - If a backend is already initialised (pyplot has been imported), do nothing.
+    - Pyodide (JupyterLite): use the IPython inline backend (no DOM access needed).
+    - Google Colab: use inline.
+    - Generic IPython/Jupyter session where no backend is set yet: leave it to
+      IPython's ``%matplotlib`` magic or the user's config.
+    """
+    import sys
+
+    if "matplotlib.pyplot" in sys.modules:
+        # pyplot already imported → backend is already chosen, don't interfere
+        return
+
+    import matplotlib as mpl
+
+    if mpl.is_interactive() or mpl.get_backend() != mpl.rcParams["backend"]:  # type: ignore[attr-defined]
+        # already configured
+        return
+
+    current = dict.__getitem__(mpl.rcParams, "backend")  # avoids auto-resolve
+    if current != "agg" and current.lower() != "agg":
+        # user/environment has already set something explicit
+        return
+
+    if sys.platform == "emscripten":
+        # Pyodide / JupyterLite — use IPython inline (Agg-based, no DOM)
+        mpl.use("module://matplotlib_inline.backend_inline")
+        return
+
+    try:
+        import google.colab  # noqa: F401
+
+        mpl.use("module://matplotlib_inline.backend_inline")
+        return
+    except ImportError:
+        pass
+
+
+def _plt():
+    """Return :mod:`matplotlib.pyplot`, importing it on first call.
+
+    Importing pyplot triggers backend initialisation, so we call
+    :func:`_ensure_mpl_backend` first to give the environment a chance to
+    configure the backend before pyplot locks it in.
+    """
+    import sys
+
+    if "matplotlib.pyplot" not in sys.modules:
+        _ensure_mpl_backend()
+    import matplotlib.pyplot as plt
+
+    return plt
 
 
 def idisp(
@@ -279,6 +339,7 @@ def idisp(
     # cv.imshow does not play nicely with .ipynb
     if matplotlib:  # _isnotebook() and
         ## display using matplotlib
+        plt = _plt()
 
         # if flatten:
         #     # either make new subplots for each channel
@@ -719,7 +780,7 @@ def idisp(
 
 def set_window_title(title: str) -> None:
     try:
-        plt.gcf().canvas.manager.set_window_title(title)  # type: ignore  # for 3.4 onward
+        _plt().gcf().canvas.manager.set_window_title(title)  # type: ignore  # for 3.4 onward
     except:
         pass
 

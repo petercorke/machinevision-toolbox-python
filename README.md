@@ -28,6 +28,7 @@
 <li><a href="https://github.com/petercorke/machinevision-toolbox-python/wiki">Wiki (examples and details)</a></li>
 <li><a href="installation#">Installation</a></li>
 <li><a href="https://github.com/petercorke/machinevision-toolbox-python/blob/main/CHANGELOG.md">Changelog</a></li>
+<li><a href="https://petercorke.github.io/machinevision-toolbox-python/lite/">Web-based Jupyter notebook (zero install, experimental)</a></li>
 </ul>
 </td>
 </tr>

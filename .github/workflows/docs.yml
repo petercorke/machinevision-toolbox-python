@@ -46,7 +46,7 @@ jobs:
 
       - name: Build JupyterLite site
         run: |
-          pip install jupyterlite-core jupyterlite-pyodide-kernel jupyter-server
+          pip install jupyterlite-core jupyterlite-pyodide-kernel jupyter-server ipympl
           cd lite && jupyter lite build --output-dir ../docs/build/html/lite
 
       - uses: actions/upload-pages-artifact@v3
