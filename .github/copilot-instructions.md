@@ -1,5 +1,5 @@
 * docstrings are ReST format for use with Sphinx.  Check syntax with ``rstcheck`` and use the Sphinx directives for parameters, return values, etc.  See https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html for details.
-* when an API argument might be a scalar or an interable I prefer to accept either and decide at run time, promoting the scalar to a list if needed.
+* when an API argument might be a scalar or an iterable I prefer to accept either and decide at run time, promoting the scalar to a list if needed using spatialmath.getvector()
 * when a return value might be a scalar or single-element iterable (list, numpy array) I prefer to return the scalar value if possible.
 * methods,arguments and docstrings use Australian English.  That's English English but with color and program, rather than colour and programme.
 * all new code should use type hinting.
