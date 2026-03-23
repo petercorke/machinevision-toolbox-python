@@ -6,6 +6,7 @@ import contextlib
 import io
 import os
 import unittest
+import urllib.error
 from collections.abc import Iterable
 from pathlib import Path
 
@@ -51,7 +52,10 @@ class TestBaseImageIO(unittest.TestCase):
         self.assertIsInstance(im[1][0], str)
 
         # URL image
-        im = iread("https://petercorke.com/files/images/monalisa.png")
+        try:
+            im = iread("https://petercorke.com/files/images/monalisa.png")
+        except (ValueError, urllib.error.URLError) as e:
+            raise unittest.SkipTest(f"Network unavailable: {e}") from e
         self.assertIsInstance(im[0], np.ndarray)
         self.assertIsInstance(im[1], str)
         self.assertEqual(im[0].shape, (700, 677, 3))
@@ -330,7 +334,7 @@ class TestIdisp(unittest.TestCase):
     def test_idisp_greyscale_no_display(self):
         """Test idisp with greyscale image without displaying"""
         im = np.random.randint(0, 256, (50, 50), dtype=np.uint8)
-        
+
         from machinevisiontoolbox.base.imageio import idisp
 
         # Test with matplotlib=False to avoid display
@@ -341,45 +345,45 @@ class TestIdisp(unittest.TestCase):
     def test_idisp_color_image(self):
         """Test idisp with color image"""
         im = np.random.randint(0, 256, (50, 50, 3), dtype=np.uint8)
-        
+
         from machinevisiontoolbox.base.imageio import idisp
-        
+
         result = idisp(im, matplotlib=False)
         self.assertIsNone(result)
 
     def test_idisp_with_title(self):
         """Test idisp with custom title"""
         im = np.ones((30, 30), dtype=np.uint8) * 128
-        
+
         from machinevisiontoolbox.base.imageio import idisp
-        
+
         result = idisp(im, matplotlib=False, title="Test Image")
         self.assertIsNone(result)
 
     def test_idisp_uint16_image(self):
         """Test idisp with uint16 image"""
         im = np.random.randint(0, 65535, (30, 30), dtype=np.uint16)
-        
+
         from machinevisiontoolbox.base.imageio import idisp
-        
+
         result = idisp(im, matplotlib=False)
         self.assertIsNone(result)
 
     def test_idisp_float_image(self):
         """Test idisp with float image"""
         im = np.random.rand(30, 30).astype(np.float32)
-        
+
         from machinevisiontoolbox.base.imageio import idisp
-        
+
         result = idisp(im, matplotlib=False)
         self.assertIsNone(result)
 
     def test_idisp_with_vrange(self):
         """Test idisp with custom value range"""
         im = np.random.randint(0, 256, (30, 30), dtype=np.uint8)
-        
+
         from machinevisiontoolbox.base.imageio import idisp
-        
+
         result = idisp(im, matplotlib=False, vrange=(50, 200))
         self.assertIsNone(result)
 
@@ -387,18 +391,18 @@ class TestIdisp(unittest.TestCase):
         """Test idisp with black pixel value"""
         im = np.ones((30, 30), dtype=np.uint8) * 128
         im[0, 0] = 0
-        
+
         from machinevisiontoolbox.base.imageio import idisp
-        
+
         result = idisp(im, matplotlib=False, black=50)
         self.assertIsNone(result)
 
     def test_idisp_with_darken(self):
         """Test idisp with darken option"""
         im = np.ones((30, 30), dtype=np.uint8) * 200
-        
+
         from machinevisiontoolbox.base.imageio import idisp
-        
+
         result = idisp(im, matplotlib=False, darken=0.5)
         self.assertIsNone(result)
 
@@ -412,53 +416,53 @@ class TestConvertAdvanced(unittest.TestCase):
         bgr_im[:, :, 0] = 100  # Blue
         bgr_im[:, :, 1] = 150  # Green
         bgr_im[:, :, 2] = 200  # Red
-        
+
         from machinevisiontoolbox.base.imageio import convert
-        
+
         mono = convert(bgr_im, mono=True)
-        
+
         self.assertEqual(len(mono.shape), 2)
         self.assertEqual(mono.dtype, np.uint8)
 
     def test_convert_with_gamma(self):
         """Test gamma correction in convert"""
         im = (np.random.rand(10, 10) * 255).astype(np.uint8)
-        
+
         from machinevisiontoolbox.base.imageio import convert
 
         # gamma decode should apply gamma correction
-        result = convert(im, gamma='sRGB')
-        
+        result = convert(im, gamma="sRGB")
+
         self.assertIsInstance(result, np.ndarray)
 
     def test_convert_float_image_dtype(self):
         """Test float image conversion between dtypes"""
         im = np.random.rand(10, 10).astype(np.float32)
-        
+
         from machinevisiontoolbox.base.imageio import convert
-        
-        result = convert(im, dtype='float64')
-        
+
+        result = convert(im, dtype="float64")
+
         self.assertEqual(result.dtype, np.float64)
 
     def test_convert_uint16_to_uint8(self):
         """Test uint16 to uint8 conversion"""
         im = np.random.randint(0, 65535, (10, 10), dtype=np.uint16)
-        
+
         from machinevisiontoolbox.base.imageio import convert
-        
-        result = convert(im, dtype='uint8')
-        
+
+        result = convert(im, dtype="uint8")
+
         self.assertEqual(result.dtype, np.uint8)
 
     def test_convert_uint8_to_float(self):
         """Test uint8 to float conversion"""
         im = np.random.randint(0, 256, (10, 10), dtype=np.uint8)
-        
+
         from machinevisiontoolbox.base.imageio import convert
-        
-        result = convert(im, dtype='float32')
-        
+
+        result = convert(im, dtype="float32")
+
         self.assertEqual(result.dtype, np.float32)
         # Float values should be normalized to 0-1 range
         self.assertLessEqual(np.max(result), 1.0)
@@ -470,21 +474,21 @@ class TestConvertAdvanced(unittest.TestCase):
         rgb_im[:, :, 0] = 100  # Red
         rgb_im[:, :, 1] = 150  # Green
         rgb_im[:, :, 2] = 200  # Blue
-        
+
         from machinevisiontoolbox.base.imageio import convert
-        
+
         mono = convert(rgb_im, mono=True)
-        
+
         self.assertEqual(len(mono.shape), 2)
 
     def test_convert_with_multiple_options(self):
         """Test convert with multiple options combined"""
         im = np.random.randint(0, 256, (20, 30, 3), dtype=np.uint8)
-        
+
         from machinevisiontoolbox.base.imageio import convert
-        
-        result = convert(im, mono=True, reduce=2, dtype='float32')
-        
+
+        result = convert(im, mono=True, reduce=2, dtype="float32")
+
         self.assertEqual(len(result.shape), 2)
         self.assertEqual(result.dtype, np.float32)
         self.assertLess(result.shape[0], 20)
@@ -497,12 +501,12 @@ class TestIwriteAdvanced(unittest.TestCase):
         """Test writing JPEG format"""
         im = np.random.randint(0, 256, (50, 50, 3), dtype=np.uint8)
         filename = "./test_image.jpg"
-        
+
         result = iwrite(im, filename)
-        
+
         self.assertTrue(result)
         self.assertTrue(os.path.isfile(filename))
-        
+
         if os.path.isfile(filename):
             os.remove(filename)
 
@@ -510,12 +514,12 @@ class TestIwriteAdvanced(unittest.TestCase):
         """Test writing BMP format"""
         im = np.random.randint(0, 256, (30, 30, 3), dtype=np.uint8)
         filename = "./test_image.bmp"
-        
+
         result = iwrite(im, filename)
-        
+
         self.assertTrue(result)
         self.assertTrue(os.path.isfile(filename))
-        
+
         if os.path.isfile(filename):
             os.remove(filename)
 
@@ -523,11 +527,11 @@ class TestIwriteAdvanced(unittest.TestCase):
         """Test writing greyscale image to JPEG"""
         im = np.random.randint(0, 256, (30, 30), dtype=np.uint8)
         filename = "./test_grey.jpg"
-        
+
         result = iwrite(im, filename)
-        
+
         self.assertTrue(result)
-        
+
         if os.path.isfile(filename):
             os.remove(filename)
 
@@ -535,12 +539,12 @@ class TestIwriteAdvanced(unittest.TestCase):
         """Test writing with compression options"""
         im = np.random.randint(0, 256, (50, 50, 3), dtype=np.uint8)
         filename = "./test_compressed.png"
-        
+
         # PNG compression level
         result = iwrite(im, filename)
-        
+
         self.assertTrue(result)
-        
+
         if os.path.isfile(filename):
             os.remove(filename)
 
@@ -551,16 +555,16 @@ class TestConvertErrorHandling(unittest.TestCase):
     def test_convert_invalid_dtype(self):
         """Test convert with invalid dtype"""
         im = np.ones((10, 10), dtype=np.uint8)
-        
+
         from machinevisiontoolbox.base.imageio import convert
-        
+
         with self.assertRaises(ValueError):
-            convert(im, dtype='invalid_type')
+            convert(im, dtype="invalid_type")
 
     def test_convert_invalid_roi_values(self):
         """Test convert with invalid ROI values"""
         im = np.arange(100, dtype=np.uint8).reshape(10, 10)
-        
+
         from machinevisiontoolbox.base.imageio import convert
 
         # This should either work or raise an error gracefully
@@ -580,7 +584,7 @@ class TestIreadAdvanced(unittest.TestCase):
         """Test iread with different reduce values"""
         im1, _ = iread("monalisa.png")
         im3, _ = iread("monalisa.png", reduce=3)
-        
+
         # Reduce factor of 3 should make image smaller
         self.assertLess(im3.shape[0], im1.shape[0])
         self.assertLess(im3.shape[1], im1.shape[1])
@@ -588,7 +592,7 @@ class TestIreadAdvanced(unittest.TestCase):
     def test_iread_color_with_mono(self):
         """Test iread color image with mono option"""
         im, _ = iread("monalisa.png", mono=True)
-        
+
         # Result should be 2D (greyscale)
         self.assertEqual(len(im.shape), 2)
 
@@ -596,15 +600,17 @@ class TestIreadAdvanced(unittest.TestCase):
         """Test iread with alpha channel option"""
         # Reading PNG which may have alpha
         im, _ = iread("monalisa.png", alpha=True)
-        
+
         self.assertIsInstance(im, np.ndarray)
         self.assertGreater(len(im.shape), 1)
 
     def test_iread_url_handling(self):
         """Test iread with URL"""
         # This tests the URL loading path
-        im, filename = iread("https://petercorke.com/files/images/monalisa.png")
-        
+        try:
+            im, filename = iread("https://petercorke.com/files/images/monalisa.png")
+        except (ValueError, urllib.error.URLError) as e:
+            raise unittest.SkipTest(f"Network unavailable: {e}") from e
         self.assertIsInstance(im, np.ndarray)
         self.assertIsInstance(filename, str)
 
@@ -638,31 +644,31 @@ class TestConvertColorOrder(unittest.TestCase):
         rgb_im[:, :, 0] = 100  # Red
         rgb_im[:, :, 1] = 150  # Green
         rgb_im[:, :, 2] = 200  # Blue
-        
+
         from machinevisiontoolbox.base.imageio import convert
-        
+
         bgr_im = convert(rgb_im, rgb=True)
-        
+
         self.assertEqual(bgr_im.shape, rgb_im.shape)
 
     def test_convert_preserves_2d_shape(self):
         """Test that 2D images stay 2D after conversion"""
         im = np.random.randint(0, 256, (20, 20), dtype=np.uint8)
-        
+
         from machinevisiontoolbox.base.imageio import convert
-        
+
         result = convert(im, reduce=2)
-        
+
         self.assertEqual(len(result.shape), 2)
 
     def test_convert_preserves_3d_shape(self):
         """Test that 3D images stay 3D after conversion"""
         im = np.random.randint(0, 256, (20, 20, 3), dtype=np.uint8)
-        
+
         from machinevisiontoolbox.base.imageio import convert
-        
+
         result = convert(im, reduce=2)
-        
+
         self.assertEqual(len(result.shape), 3)
         self.assertEqual(result.shape[2], 3)
 
@@ -674,11 +680,11 @@ class TestIwriteEdgeCases(unittest.TestCase):
         """Test writing single pixel image"""
         im = np.array([[255]], dtype=np.uint8)
         filename = "./test_single.png"
-        
+
         result = iwrite(im, filename)
-        
+
         self.assertTrue(result)
-        
+
         if os.path.isfile(filename):
             os.remove(filename)
 
@@ -686,11 +692,11 @@ class TestIwriteEdgeCases(unittest.TestCase):
         """Test writing large image"""
         im = np.random.randint(0, 256, (500, 500, 3), dtype=np.uint8)
         filename = "./test_large.png"
-        
+
         result = iwrite(im, filename)
-        
+
         self.assertTrue(result)
-        
+
         if os.path.isfile(filename):
             os.remove(filename)
 
@@ -698,11 +704,11 @@ class TestIwriteEdgeCases(unittest.TestCase):
         """Test writing float image with 0-1 range"""
         im = np.random.rand(30, 30).astype(np.float32)
         filename = "./test_float_range.png"
-        
+
         result = iwrite(im, filename)
-        
+
         self.assertTrue(result)
-        
+
         if os.path.isfile(filename):
             os.remove(filename)
 
@@ -710,13 +716,14 @@ class TestIwriteEdgeCases(unittest.TestCase):
         """Test that iwrite works with nested paths"""
         im = np.random.randint(0, 256, (20, 20), dtype=np.uint8)
         filename = "./temp_test_dir/test.png"
-        
+
         try:
             result = iwrite(im, filename)
             if result:
                 self.assertTrue(os.path.isfile(filename))
                 # Cleanup
                 import shutil
+
                 if os.path.isdir("./temp_test_dir"):
                     shutil.rmtree("./temp_test_dir")
         except Exception:
@@ -730,36 +737,36 @@ class TestIdisp2D3D(unittest.TestCase):
     def test_idisp_tall_image(self):
         """Test idisp with tall aspect ratio"""
         im = np.random.randint(0, 256, (200, 50), dtype=np.uint8)
-        
+
         from machinevisiontoolbox.base.imageio import idisp
-        
+
         result = idisp(im, matplotlib=False)
         self.assertIsNone(result)
 
     def test_idisp_wide_image(self):
         """Test idisp with wide aspect ratio"""
         im = np.random.randint(0, 256, (50, 200), dtype=np.uint8)
-        
+
         from machinevisiontoolbox.base.imageio import idisp
-        
+
         result = idisp(im, matplotlib=False)
         self.assertIsNone(result)
 
     def test_idisp_single_channel_3d(self):
         """Test idisp with 3D array with 1 channel"""
         im = np.random.randint(0, 256, (50, 50, 1), dtype=np.uint8)
-        
+
         from machinevisiontoolbox.base.imageio import idisp
-        
+
         result = idisp(im, matplotlib=False)
         self.assertIsNone(result)
 
     def test_idisp_4channel_image(self):
         """Test idisp with 4-channel RGBA image"""
         im = np.random.randint(0, 256, (50, 50, 4), dtype=np.uint8)
-        
+
         from machinevisiontoolbox.base.imageio import idisp
-        
+
         result = idisp(im, matplotlib=False)
         self.assertIsNone(result)
 
@@ -770,32 +777,32 @@ class TestConvertRoiEdgeCases(unittest.TestCase):
     def test_convert_roi_full_image(self):
         """Test ROI that covers full image"""
         im = np.arange(100, dtype=np.uint8).reshape(10, 10)
-        
+
         from machinevisiontoolbox.base.imageio import convert
-        
+
         result = convert(im, roi=[0, 10, 0, 10])
-        
+
         self.assertIsInstance(result, np.ndarray)
 
     def test_convert_roi_small_region(self):
         """Test ROI with very small region"""
         im = np.arange(100, dtype=np.uint8).reshape(10, 10)
-        
+
         from machinevisiontoolbox.base.imageio import convert
-        
+
         result = convert(im, roi=[5, 6, 5, 6])
-        
+
         self.assertEqual(result.shape[0], 1)
         self.assertEqual(result.shape[1], 1)
 
     def test_convert_roi_with_color(self):
         """Test ROI extraction on color image"""
         im = np.random.randint(0, 256, (20, 20, 3), dtype=np.uint8)
-        
+
         from machinevisiontoolbox.base.imageio import convert
-        
+
         result = convert(im, roi=[5, 15, 5, 15])
-        
+
         self.assertEqual(len(result.shape), 3)
         self.assertEqual(result.shape[2], 3)
 
@@ -809,7 +816,7 @@ class TestIreadPathHandling(unittest.TestCase):
 
         # Create a Path object
         path = Path("wally.png")
-        
+
         try:
             im, filename = iread_fn(str(path))
             self.assertIsInstance(im, np.ndarray)
@@ -822,7 +829,7 @@ class TestIreadPathHandling(unittest.TestCase):
         """Test iread with absolute path"""
         # Use an image that should exist
         from machinevisiontoolbox.base import iread as iread_fn
-        
+
         try:
             im, filename = iread_fn("monalisa.png")
             self.assertIsInstance(im, np.ndarray)
@@ -837,41 +844,41 @@ class TestConvertDataTypeAliases(unittest.TestCase):
     def test_convert_dtype_int_alias(self):
         """Test 'int' dtype alias converts to uint8"""
         im = np.random.rand(10, 10).astype(np.float32)
-        
+
         from machinevisiontoolbox.base.imageio import convert
-        
-        result = convert(im, dtype='int')
-        
+
+        result = convert(im, dtype="int")
+
         self.assertEqual(result.dtype, np.uint8)
 
     def test_convert_dtype_float_alias(self):
         """Test 'float' dtype alias converts to float32"""
         im = np.random.randint(0, 256, (10, 10), dtype=np.uint8)
-        
+
         from machinevisiontoolbox.base.imageio import convert
-        
-        result = convert(im, dtype='float')
-        
+
+        result = convert(im, dtype="float")
+
         self.assertEqual(result.dtype, np.float32)
 
     def test_convert_dtype_double_alias(self):
         """Test 'double' dtype alias converts to float64"""
         im = np.random.randint(0, 256, (10, 10), dtype=np.uint8)
-        
+
         from machinevisiontoolbox.base.imageio import convert
-        
-        result = convert(im, dtype='double')
-        
+
+        result = convert(im, dtype="double")
+
         self.assertEqual(result.dtype, np.float64)
 
     def test_convert_dtype_half_alias(self):
         """Test 'half' dtype alias converts to float16"""
         im = np.random.randint(0, 256, (10, 10), dtype=np.uint8)
-        
+
         from machinevisiontoolbox.base.imageio import convert
-        
-        result = convert(im, dtype='half')
-        
+
+        result = convert(im, dtype="half")
+
         self.assertEqual(result.dtype, np.float16)
 
 
@@ -884,7 +891,7 @@ class TestHelperFunctions(unittest.TestCase):
     def test_isnotebook(self):
         """Test _isnotebook function"""
         from machinevisiontoolbox.base.imageio import _isnotebook
-        
+
         result = _isnotebook()
         # Should return a boolean
         self.assertIsInstance(result, bool)
@@ -898,7 +905,7 @@ class TestIdisp_matplotlib_paths(unittest.TestCase):
     def test_idisp_with_block_float(self):
         """Test idisp with block as float (fps conversion)"""
         im = np.random.randint(0, 256, (30, 30), dtype=np.uint8)
-        
+
         from machinevisiontoolbox.base.imageio import idisp
 
         # Pass block as float for fps conversion
@@ -908,88 +915,88 @@ class TestIdisp_matplotlib_paths(unittest.TestCase):
     def test_idisp_flatten_option(self):
         """Test idisp with flatten option"""
         im = np.random.randint(0, 256, (30, 30, 3), dtype=np.uint8)
-        
+
         from machinevisiontoolbox.base.imageio import idisp
-        
+
         result = idisp(im, matplotlib=False, flatten=True)
         self.assertIsNone(result)
 
     def test_idisp_ynormal_option(self):
         """Test idisp with ynormal (y-axis direction) option"""
         im = np.random.randint(0, 256, (30, 30), dtype=np.uint8)
-        
+
         from machinevisiontoolbox.base.imageio import idisp
-        
+
         result = idisp(im, matplotlib=False, ynormal=True)
         self.assertIsNone(result)
 
     def test_idisp_extent_option(self):
         """Test idisp with extent (axis limits) option"""
         im = np.random.randint(0, 256, (30, 30), dtype=np.uint8)
-        
+
         from machinevisiontoolbox.base.imageio import idisp
-        
+
         result = idisp(im, matplotlib=False, extent=[0, 100, 0, 100])
         self.assertIsNone(result)
 
     def test_idisp_axes_false(self):
         """Test idisp with axes disabled"""
         im = np.random.randint(0, 256, (30, 30), dtype=np.uint8)
-        
+
         from machinevisiontoolbox.base.imageio import idisp
-        
+
         result = idisp(im, matplotlib=False, axes=False)
         self.assertIsNone(result)
 
     def test_idisp_frame_false(self):
         """Test idisp with frame disabled"""
         im = np.random.randint(0, 256, (30, 30), dtype=np.uint8)
-        
+
         from machinevisiontoolbox.base.imageio import idisp
-        
+
         result = idisp(im, matplotlib=False, frame=False)
         self.assertIsNone(result)
 
     def test_idisp_gui_false(self):
         """Test idisp with GUI disabled"""
         im = np.random.randint(0, 256, (30, 30), dtype=np.uint8)
-        
+
         from machinevisiontoolbox.base.imageio import idisp
-        
+
         result = idisp(im, matplotlib=False, gui=False)
         self.assertIsNone(result)
 
     def test_idisp_square_false(self):
         """Test idisp with square=False (auto aspect ratio)"""
         im = np.random.randint(0, 256, (20, 40), dtype=np.uint8)
-        
+
         from machinevisiontoolbox.base.imageio import idisp
-        
+
         result = idisp(im, matplotlib=False, square=False)
         self.assertIsNone(result)
 
     def test_idisp_colormap_option(self):
         """Test idisp with colormap for greyscale"""
         im = np.random.randint(0, 256, (30, 30), dtype=np.uint8)
-        
+
         from machinevisiontoolbox.base.imageio import idisp
-        
-        result = idisp(im, matplotlib=False, colormap='hot')
+
+        result = idisp(im, matplotlib=False, colormap="hot")
         self.assertIsNone(result)
 
     def test_idisp_plain_option(self):
         """Test idisp with plain=True"""
         im = np.random.randint(0, 256, (30, 30), dtype=np.uint8)
-        
+
         from machinevisiontoolbox.base.imageio import idisp
-        
+
         result = idisp(im, matplotlib=False, plain=True)
         self.assertIsNone(result)
 
     def test_idisp_powernorm_option(self):
         """Test idisp with powernorm for non-linear scaling"""
         im = np.random.randint(0, 256, (30, 30), dtype=np.uint8)
-        
+
         from machinevisiontoolbox.base.imageio import idisp
 
         # powernorm takes a tuple of (vmin, vmax) for power law
@@ -999,27 +1006,33 @@ class TestIdisp_matplotlib_paths(unittest.TestCase):
     def test_idisp_badcolor_option(self):
         """Test idisp with badcolor for out-of-range values"""
         im = np.random.randint(0, 256, (30, 30), dtype=np.uint8)
-        
+
         from machinevisiontoolbox.base.imageio import idisp
-        
-        result = idisp(im, matplotlib=False, badcolor='red')
+
+        result = idisp(im, matplotlib=False, badcolor="red")
         self.assertIsNone(result)
 
     def test_idisp_undercolor_overcolor(self):
         """Test idisp with undercolor and overcolor"""
         im = np.random.randint(100, 200, (30, 30), dtype=np.uint8)
-        
+
         from machinevisiontoolbox.base.imageio import idisp
-        
-        result = idisp(im, matplotlib=False, undercolor='blue', overcolor='yellow', vrange=(120, 180))
+
+        result = idisp(
+            im,
+            matplotlib=False,
+            undercolor="blue",
+            overcolor="yellow",
+            vrange=(120, 180),
+        )
         self.assertIsNone(result)
 
     def test_idisp_sequence_images(self):
         """Test idisp with sequence of images"""
         images = [np.random.randint(0, 256, (20, 20), dtype=np.uint8) for _ in range(3)]
-        
+
         from machinevisiontoolbox.base.imageio import idisp
-        
+
         for im in images:
             result = idisp(im, matplotlib=False)
             self.assertIsNone(result)
@@ -1027,27 +1040,27 @@ class TestIdisp_matplotlib_paths(unittest.TestCase):
     def test_idisp_grid_option(self):
         """Test idisp with grid display"""
         im = np.random.randint(0, 256, (30, 30), dtype=np.uint8)
-        
+
         from machinevisiontoolbox.base.imageio import idisp
-        
+
         result = idisp(im, matplotlib=False, grid=True)
         self.assertIsNone(result)
 
     def test_idisp_colorbar_option(self):
         """Test idisp with colorbar"""
         im = np.random.randint(0, 256, (30, 30), dtype=np.uint8)
-        
+
         from machinevisiontoolbox.base.imageio import idisp
-        
+
         result = idisp(im, matplotlib=False, colorbar=True)
         self.assertIsNone(result)
 
     def test_idisp_width_height_options(self):
         """Test idisp with width and height options"""
         im = np.random.randint(0, 256, (30, 30), dtype=np.uint8)
-        
+
         from machinevisiontoolbox.base.imageio import idisp
-        
+
         result = idisp(im, matplotlib=False, width=200, height=200)
         self.assertIsNone(result)
 
@@ -1060,11 +1073,11 @@ class TestConvertBgra(unittest.TestCase):
         bgra_im = np.zeros((10, 10, 4), dtype=np.uint8)
         bgra_im[:, :, 0] = 100  # Blue
         bgra_im[:, :, 3] = 255  # Alpha
-        
+
         from machinevisiontoolbox.base.imageio import convert
-        
+
         result = convert(bgra_im, alpha=False)
-        
+
         # Should have 3 channels after removing alpha
         self.assertEqual(result.shape[2], 3)
 
@@ -1073,11 +1086,11 @@ class TestConvertBgra(unittest.TestCase):
         bgra_im = np.zeros((10, 10, 4), dtype=np.uint8)
         bgra_im[:, :, 0] = 100  # Blue
         bgra_im[:, :, 3] = 255  # Alpha
-        
+
         from machinevisiontoolbox.base.imageio import convert
-        
+
         result = convert(bgra_im, alpha=True)
-        
+
         # Should keep 4 channels
         self.assertEqual(result.shape[2], 4)
 
@@ -1088,7 +1101,7 @@ class TestIreadColororder(unittest.TestCase):
     def test_iread_returns_string_filename(self):
         """Test that iread returns string filename, not Path"""
         im, filename = iread("monalisa.png")
-        
+
         # Should always return string, not Path object
         self.assertIsInstance(filename, str)
         self.assertTrue(isinstance(filename, str))
@@ -1100,11 +1113,11 @@ class TestConvertGamma(unittest.TestCase):
     def test_convert_srgb_gamma(self):
         """Test sRGB gamma decoding"""
         im = np.random.randint(0, 256, (10, 10), dtype=np.uint8)
-        
+
         from machinevisiontoolbox.base.imageio import convert
-        
-        result = convert(im, gamma='sRGB')
-        
+
+        result = convert(im, gamma="sRGB")
+
         # Result should be different from input due to gamma correction
         self.assertIsInstance(result, np.ndarray)
         # Values should be affected by gamma decode
@@ -1114,11 +1127,11 @@ class TestConvertGamma(unittest.TestCase):
     def test_convert_gamma_with_other_options(self):
         """Test gamma with other transformations"""
         im = np.random.randint(0, 256, (20, 20), dtype=np.uint8)
-        
+
         from machinevisiontoolbox.base.imageio import convert
-        
-        result = convert(im, gamma='sRGB', reduce=2)
-        
+
+        result = convert(im, gamma="sRGB", reduce=2)
+
         self.assertIsInstance(result, np.ndarray)
 
 
@@ -1130,13 +1143,15 @@ class TestIdisp_with_figures(unittest.TestCase):
         # Use non-interactive backend for testing
         import matplotlib
         import matplotlib.pyplot as plt
-        matplotlib.use('Agg')
+
+        matplotlib.use("Agg")
         plt.ioff()  # Turn off interactive mode
 
     def tearDown(self):
         """Cleanup matplotlib figures"""
         import matplotlib.pyplot as plt
-        plt.close('all')
+
+        plt.close("all")
 
     def test_idisp_with_existing_figure(self):
         """Test idisp reusing existing figure"""
@@ -1147,7 +1162,7 @@ class TestIdisp_with_figures(unittest.TestCase):
         # Create a figure
         fig = plt.figure()
         im = np.random.randint(0, 256, (30, 30), dtype=np.uint8)
-        
+
         result = idisp(im, fig=fig)
         # When using matplotlib, idisp returns AxesImage or similar
         self.assertIsNotNone(result)
@@ -1157,10 +1172,10 @@ class TestIdisp_with_figures(unittest.TestCase):
         import matplotlib.pyplot as plt
 
         from machinevisiontoolbox.base.imageio import idisp
-        
+
         fig, ax = plt.subplots()
         im = np.random.randint(0, 256, (30, 30), dtype=np.uint8)
-        
+
         try:
             # coordformat handling may fail in headless environment
             result = idisp(im, ax=ax, coordformat=None)
@@ -1174,10 +1189,10 @@ class TestIdisp_with_figures(unittest.TestCase):
         import matplotlib.pyplot as plt
 
         from machinevisiontoolbox.base.imageio import idisp
-        
+
         fig, ax = plt.subplots()
         im = np.random.randint(0, 256, (30, 30), dtype=np.uint8)
-        
+
         result = idisp(im, fig=fig, ax=ax)
         self.assertIsNotNone(result)
 
@@ -1186,16 +1201,16 @@ class TestIdisp_with_figures(unittest.TestCase):
         import matplotlib.pyplot as plt
 
         from machinevisiontoolbox.base.imageio import idisp
-        
+
         fig, ax = plt.subplots()
         im1 = np.random.randint(0, 256, (30, 30), dtype=np.uint8)
         im2 = np.random.randint(0, 256, (30, 30), dtype=np.uint8)
-        
+
         try:
             # Display first image with coordformat=None to avoid interactive issues
             result1 = idisp(im1, ax=ax, reuse=True, coordformat=None)
             # Reuse path returns None when successful
-            
+
             # Display second image reusing axis
             result2 = idisp(im2, ax=ax, reuse=True, coordformat=None)
             # Both calls should complete without error
@@ -1208,15 +1223,15 @@ class TestIdisp_with_figures(unittest.TestCase):
         import matplotlib.pyplot as plt
 
         from machinevisiontoolbox.base.imageio import idisp
-        
+
         im1 = np.random.randint(0, 256, (20, 20), dtype=np.uint8)
         im2 = np.random.randint(0, 256, (30, 30), dtype=np.uint8)
-        
+
         # First display creates figure
         result1 = idisp(im1)
         # Second display creates another figure
         result2 = idisp(im2)
-        
+
         # Both should work without error
         self.assertIsNotNone(result1)
         self.assertIsNotNone(result2)
@@ -1226,11 +1241,11 @@ class TestIdisp_with_figures(unittest.TestCase):
         import matplotlib.pyplot as plt
 
         from machinevisiontoolbox.base.imageio import idisp
-        
+
         fig, ax = plt.subplots()
         im = np.random.randint(0, 256, (30, 30, 3), dtype=np.uint8)
-        
-        result = idisp(im, fig=fig, ax=ax, colororder='RGB')
+
+        result = idisp(im, fig=fig, ax=ax, colororder="RGB")
         self.assertIsNotNone(result)
 
     def test_idisp_with_fps_parameter(self):
@@ -1238,10 +1253,10 @@ class TestIdisp_with_figures(unittest.TestCase):
         import matplotlib.pyplot as plt
 
         from machinevisiontoolbox.base.imageio import idisp
-        
+
         fig, ax = plt.subplots()
         im = np.random.randint(0, 256, (30, 30), dtype=np.uint8)
-        
+
         # fps should control animation delay
         result = idisp(im, fig=fig, ax=ax, fps=10)
         self.assertIsNotNone(result)
@@ -1251,9 +1266,9 @@ class TestIdisp_with_figures(unittest.TestCase):
         import matplotlib.pyplot as plt
 
         from machinevisiontoolbox.base.imageio import idisp
-        
+
         im = np.random.randint(0, 256, (30, 30), dtype=np.uint8)
-        
+
         result = idisp(im, width=400, height=400)
         self.assertIsNotNone(result)
 
@@ -1262,10 +1277,10 @@ class TestIdisp_with_figures(unittest.TestCase):
         import matplotlib.pyplot as plt
 
         from machinevisiontoolbox.base.imageio import idisp
-        
+
         im = np.random.randint(0, 256, (30, 30), dtype=np.uint8)
-        
-        result = idisp(im, colormap='jet', ncolors=256)
+
+        result = idisp(im, colormap="jet", ncolors=256)
         self.assertIsNotNone(result)
 
     def test_idisp_bgr_color_order(self):
@@ -1273,10 +1288,10 @@ class TestIdisp_with_figures(unittest.TestCase):
         import matplotlib.pyplot as plt
 
         from machinevisiontoolbox.base.imageio import idisp
-        
+
         im = np.random.randint(0, 256, (30, 30, 3), dtype=np.uint8)
-        
-        result = idisp(im, colororder='BGR')
+
+        result = idisp(im, colororder="BGR")
         self.assertIsNotNone(result)
 
     def test_idisp_darken_true(self):
@@ -1284,9 +1299,9 @@ class TestIdisp_with_figures(unittest.TestCase):
         import matplotlib.pyplot as plt
 
         from machinevisiontoolbox.base.imageio import idisp
-        
+
         im = np.ones((30, 30), dtype=np.uint8) * 200
-        
+
         result = idisp(im, darken=True)
         self.assertIsNotNone(result)
 
@@ -1298,13 +1313,13 @@ class TestIdisp_with_figures(unittest.TestCase):
         import matplotlib.pyplot as plt
 
         from machinevisiontoolbox.base.imageio import idisp
-        
+
         im = np.random.randint(0, 256, (30, 30), dtype=np.uint8)
-        
+
         with tempfile.TemporaryDirectory() as tmpdir:
-            figpath = os.path.join(tmpdir, 'test_fig.png')
+            figpath = os.path.join(tmpdir, "test_fig.png")
             result = idisp(im, savefigname=figpath)
-            
+
             # idisp should return something
             self.assertIsNotNone(result)
 
@@ -1317,9 +1332,9 @@ class TestIdisp_with_figures(unittest.TestCase):
         # Create figure first
         fig = plt.figure()
         ax = fig.add_subplot(111)
-        
+
         im = np.random.randint(0, 256, (30, 30), dtype=np.uint8)
-        
+
         # idisp should get current axis
         result = idisp(im, ax=None)
         self.assertIsNotNone(result)
@@ -1329,10 +1344,10 @@ class TestIdisp_with_figures(unittest.TestCase):
         import matplotlib.pyplot as plt
 
         from machinevisiontoolbox.base.imageio import idisp
-        
+
         im = np.random.randint(50, 200, (30, 30), dtype=np.uint8)
-        
-        result = idisp(im, vrange=(75, 150), colormap='viridis')
+
+        result = idisp(im, vrange=(75, 150), colormap="viridis")
         self.assertIsNotNone(result)
 
     def test_idisp_undercolor_overcolor_with_vrange(self):
@@ -1340,15 +1355,15 @@ class TestIdisp_with_figures(unittest.TestCase):
         import matplotlib.pyplot as plt
 
         from machinevisiontoolbox.base.imageio import idisp
-        
+
         im = np.random.randint(0, 256, (30, 30), dtype=np.uint8)
-        
+
         result = idisp(
-            im, 
+            im,
             vrange=(80, 180),
-            undercolor='cyan',
-            overcolor='magenta',
-            badcolor='black'
+            undercolor="cyan",
+            overcolor="magenta",
+            badcolor="black",
         )
         self.assertIsNotNone(result)
 
@@ -1357,9 +1372,9 @@ class TestIdisp_with_figures(unittest.TestCase):
         import matplotlib.pyplot as plt
 
         from machinevisiontoolbox.base.imageio import idisp
-        
+
         im = np.random.randint(0, 65535, (30, 30), dtype=np.uint16)
-        
+
         result = idisp(im, vrange=(1000, 50000))
         self.assertIsNotNone(result)
 
@@ -1368,9 +1383,9 @@ class TestIdisp_with_figures(unittest.TestCase):
         import matplotlib.pyplot as plt
 
         from machinevisiontoolbox.base.imageio import idisp
-        
+
         im = np.random.rand(30, 30).astype(np.float32)
-        
+
         result = idisp(im, vrange=(0.2, 0.8))
         self.assertIsNotNone(result)
 
@@ -1391,9 +1406,9 @@ class TestIdisp_with_figures(unittest.TestCase):
         import matplotlib.pyplot as plt
 
         from machinevisiontoolbox.base.imageio import idisp
-        
+
         im = np.random.randint(0, 256, (30, 30), dtype=np.uint8)
-        
+
         result = idisp(im, axes=True, grid=True)
         self.assertIsNotNone(result)
 
@@ -1402,9 +1417,9 @@ class TestIdisp_with_figures(unittest.TestCase):
         import matplotlib.pyplot as plt
 
         from machinevisiontoolbox.base.imageio import idisp
-        
+
         im = np.random.randint(0, 256, (30, 30), dtype=np.uint8)
-        
+
         result = idisp(im, frame=False, plain=True)
         self.assertIsNotNone(result)
 
@@ -1413,10 +1428,10 @@ class TestIdisp_with_figures(unittest.TestCase):
         import matplotlib.pyplot as plt
 
         from machinevisiontoolbox.base.imageio import idisp
-        
+
         fig, ax = plt.subplots()
         im = np.random.randint(0, 256, (20, 20), dtype=np.uint8)
-        
+
         try:
             result = idisp(im, ax=ax, extent=[0, 10, 0, 10], coordformat=None)
             self.assertIsNotNone(result)
@@ -1429,22 +1444,23 @@ class TestIdisp_with_figures(unittest.TestCase):
         import matplotlib.pyplot as plt
 
         from machinevisiontoolbox.base.imageio import idisp
-        
+
         fig, ax = plt.subplots()
-        
+
         try:
             # First greyscale
             im_grey = np.random.randint(0, 256, (30, 30), dtype=np.uint8)
             result1 = idisp(im_grey, ax=ax, reuse=True, coordformat=None)
-            
+
             # Then color
             im_color = np.random.randint(0, 256, (30, 30, 3), dtype=np.uint8)
             result2 = idisp(im_color, ax=ax, reuse=True, coordformat=None)
-            
+
             # Reuse path should complete without error
         except (AttributeError, TypeError):
             # In headless environments, canvas operations may fail
             pass
+
 
 # -------
 

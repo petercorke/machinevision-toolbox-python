@@ -886,15 +886,32 @@ def iread(
         filename.startswith("http://") or filename.startswith("https://")
     ):
         # reading from a URL
+        import ssl
 
-        resp = urllib.request.urlopen(filename)
+        ctx = ssl.create_default_context()
+        req = urllib.request.Request(
+            filename,
+            headers={"User-Agent": "machinevisiontoolbox-python/1.0"},
+        )
+        try:
+            resp = urllib.request.urlopen(req, context=ctx)
+        except urllib.error.HTTPError as e:
+            raise ValueError(f"HTTP {e.code} fetching {filename}") from e
+        except urllib.error.URLError as e:
+            raise ValueError(f"Could not fetch {filename}: {e.reason}") from e
+
+        if resp.status != 200:
+            raise ValueError(f"HTTP {resp.status} fetching {filename}")
         array = np.asarray(bytearray(resp.read()), dtype="uint8")
         image = cv.imdecode(array, -1)
         if image is not None:
             image = convert(image, **kwargs)
             return (image, filename)
         else:
-            raise ValueError(f"Could not decode byte stream in {filename}")
+            raise ValueError(
+                f"Could not decode image data from {filename} "
+                f"(content-type: {resp.headers.get('Content-Type', 'unknown')})"
+            )
 
     elif isinstance(filename, (str, Path)):
         # reading from a file
