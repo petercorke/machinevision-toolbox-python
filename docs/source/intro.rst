@@ -190,6 +190,98 @@ Install the current code base from GitHub and pip install a link to that cloned 
 	% cd machinevision-toolbox-python
 	% pip install -e .
 
+Command line tools
+==================
+
+All tools accept image file names as command line arguments.  These file names can be:
+
+* a file name.  If the file is not found locally, it is searched for in the accompanying
+  image data folder, for example ``street.png``
+* a URL, for example ``https://petercorke.com/files/images/mon
+
+
+MVTB tool
+---------
+
+``mvtbtool`` is a command line tool that starts an interactive IPython session with the
+MVTB toolbox, NumPy and Matplotlib already imported. It has the advantage of command
+history, tab completion, and inline help.  For example::
+
+	% mvtbtool
+	_  _ ____ ____ _  _ _ _  _ ____    _  _ _ ____ _ ____ _  _ 
+	|\/| |__| |    |__| | |\ | |___    |  | | [__  | |  | |\ | 
+	|  | |  | |___ |  | | | \| |___     \/  | ___] | |__| | \| 
+															
+	___ ____ ____ _    ___  ____ _  _                          
+	|  |  | |  | |    |__] |  |  \/                           
+	|  |__| |__| |___ |__] |__| _/\_  
+
+	for Python
+
+	You're running: MVTB==0.9.7, SMTB==1.1.13, NumPy==1.26.4, SciPy==1.14.1,
+					Matplotlib==3.10.0, OpenCV==4.10.0, Open3D==0.18.0
+	 .
+	 .
+	 .
+	>>> 
+
+Images can be loaded by listing them as command line arguments, either as a filename or a URL::
+
+	% mvtbtool street.png 
+
+and the images appear in the IPython session as ``img`` which is an instance, or a list
+of instances, of :class:`~machinevisiontoolbox.ImageCore.Image` objects, in the order
+they are listed on the command line. For example:: 
+
+	% mvtbtool street.png https://petercorke.com/files/images/monalisa.png
+
+A script can be run at startup using the ``--run`` option. For example:
+
+.. code-block:: python
+   :caption: myscript.py
+
+   img.disp()
+
+then we can run the script at startup with an image file by::
+
+	% mvtbtool street.png --run=myscript.py
+
+and the result is a display of the image in an interactive Matplotlib window and the
+IPython session is left open for further experimentation.
+
+`IPython <https://ipython.readthedocs.io/en/stable/index.html>`_ has many configuration options and mechanisms including command line arguments,
+configuration files and startup scripts.  The ``mvtbtool`` command line tool provides a
+simple way to start an IPython session with the MVTB toolbox preloaded and with some
+custom configuration.  For example, to specify a Matplotlib backend and run a startup
+script::
+
+	% mvtbtool --backend=Qt5Agg -i=myscript.py
+
+``mvtbtool``'s command line arguments are processed before IPython's command line options.
+
+Image tool
+----------
+
+``imtool`` is a command line tool that opens a window for each of the images specified
+on the command line.  For example::
+
+	% imtool street.png https://petercorke.com/files/images/monalisa.png
+
+Essentially, it is just another image browser, but images are displayed using ``idisp``
+which has a number of useful features such as the ability to display pixel values on
+hover, zoom and pan the image.
+
+
+Tag tool
+---------
+
+``tagtool`` is a command line tool that highlights the AR markers (ArUco or AprilTag) in
+the specified image.  For example::
+
+	% tagtool lab-scene.png
+
+.. image:: https://github.com/petercorke/machinevision-toolbox-python/raw/main/figs/tagtool.png
+	:alt: Binary image showing bounding boxes and centroids
 
 Examples
 ========
@@ -267,8 +359,8 @@ which will display::
 	f.plot_centroid(fig, 'x', color='y')
 	plt.show(block=True)  # display the result
 
-![Binary image showing bounding boxes and centroids](https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/shark2+boxes.png)
-
+.. image:: https://github.com/petercorke/machinevision-toolbox-python/raw/main/figs/shark2+boxes.png
+	:alt: Binary image showing bounding boxes and centroids
 
 Binary blob hierarchy
 ---------------------
@@ -280,7 +372,7 @@ We load a binary image with nested objects
 	im = mvtb.Image("multiblobs.png")
 	im.disp()
 
-.. image:: https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/multi.png
+.. image:: https://github.com/petercorke/machinevision-toolbox-python/raw/main/figs/multi.png
 	:alt: Binary image showing bounding boxes and centroids
 
 .. code-block:: python
@@ -317,7 +409,7 @@ belongs to
 and request the blob label image which we then display
 
 
-.. image:: https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/multi_labelled.png
+.. image:: https://github.com/petercorke/machinevision-toolbox-python/raw/main/figs/multi_labelled.png
 	:alt: Binary image showing bounding boxes and centroids
 
 Camera modelling
@@ -373,7 +465,7 @@ We can define an edge-based cube model and project it into the camera's image pl
 	>>> X, Y, Z = mkcube(0.2, pose=SE3(0, 0, 1), edge=True)
 	>>> cam.mesh(X, Y, Z)
 
-.. image:: https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/cube.png
+.. image:: https://github.com/petercorke/machinevision-toolbox-python/raw/main/figs/cube.png
 	:alt: Perspective camera view
 
 
@@ -386,7 +478,7 @@ Plot the CIE chromaticity space
 
 	>>> showcolorspace("xy")
 
-.. image:: https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/colorspace.png
+.. image:: https://github.com/petercorke/machinevision-toolbox-python/raw/main/figs/colorspace.png
 	:alt: CIE chromaticity space
 
 Load the spectrum of sunlight at the Earth's surface and compute the CIE xy chromaticity coordinates
