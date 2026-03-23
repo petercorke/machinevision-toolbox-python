@@ -14,19 +14,19 @@ help:
 	@echo " make help - this message$(BLACK)"
 
 test:
-	pytest
+	python -m pytest
 
 coverage:
-	coverage run --source='machinevisiontoolbox' -m pytest
+	coverage run --source='src/machinevisiontoolbox' -m pytest
 	coverage report
 	coverage html
-	open htmlcov/index.html
+	open -a Safari htmlcov/index.html
 
 docs: .FORCE
-	(cd docs; make html)
+	(cd docs; make html O="-w warnings.txt")
 
 view: .FORCE
-	open docs/build/html/index.html
+	open -a Safari docs/build/html/index.html
 
 dist: .FORCE
 	# $(MAKE) test
