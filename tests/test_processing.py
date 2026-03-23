@@ -182,7 +182,7 @@ class TestImageProcessingBase(unittest.TestCase):
         im = Image(im)
         imf = im.to_float()
         nt.assert_array_almost_equal(imf.shape, im.shape)
-        nt.assert_array_almost_equal(imf, im.image.astype(np.float32) / 65535.0)
+        nt.assert_array_almost_equal(imf, im.array.astype(np.float32) / 65535.0)
 
     def test_testpattern(self):
         tp = Image.Ramp(dir="x", size=20, cycles=2)
@@ -224,10 +224,10 @@ class TestImageProcessingBase(unittest.TestCase):
         # TODO not yet converted to python:
         # tp = im.testpattern('line', 20, np.pi / 6, 10)
         # self.assertEqual(tp.shape, (20, 20))
-        # self.assertEqual(tp.image[10, 0], 1)
-        # self.assertEqual(tp.image[11, 1], 1)
-        # self.assertEqual(tp.image[16, 11], 1)
-        # self.assertEqual(np.sum(tp.image), 17)
+        # self.assertEqual(tp.array[10, 0], 1)
+        # self.assertEqual(tp.array[11, 1], 1)
+        # self.assertEqual(tp.array[16, 11], 1)
+        # self.assertEqual(np.sum(tp.array), 17)
 
     def test_paste(self):
 
@@ -246,28 +246,28 @@ class TestImageProcessingBase(unittest.TestCase):
             ]
         )
         cp = canvas.paste(im, (2, 1))
-        nt.assert_array_almost_equal(cp.image, out)
+        nt.assert_array_almost_equal(cp.array, out)
 
         canvas = np.zeros((5, 5))
         canvas = Image(canvas)
         cp = canvas.paste(im, (3, 2), position="centre")
-        nt.assert_array_almost_equal(cp.image, out)
+        nt.assert_array_almost_equal(cp.array, out)
 
         canvas = np.zeros((5, 5))
         canvas = Image(canvas)
         cp = canvas.paste(im, (2, 1), method="set")
-        nt.assert_array_almost_equal(cp.image, out)
+        nt.assert_array_almost_equal(cp.array, out)
 
         canvas = np.zeros((5, 5))
         canvas = Image(canvas)
         cp = canvas.paste(im, (2, 1), method="mean")
-        nt.assert_array_almost_equal(cp.image, out / 2)
+        nt.assert_array_almost_equal(cp.array, out / 2)
 
         canvas = np.zeros((5, 5))
         canvas = Image(canvas)
         cp = canvas.paste(im, (2, 1), method="add")
         cp2 = cp.paste(im, (2, 1), method="add")
-        nt.assert_array_almost_equal(cp2.image, out * 2)
+        nt.assert_array_almost_equal(cp2.array, out * 2)
 
     def test_choose(self):
 

@@ -43,11 +43,11 @@ class TestImageProcessingColor(unittest.TestCase):
 
         a = Image(np.array([[0.4]]))
         g = a.gamma_encode(0.5)
-        nt.assert_array_almost_equal(g.image * g.image, a.image)
+        nt.assert_array_almost_equal(g.array * g.array, a.array)
 
         a = Image(np.array([[64.0]]))
         g = a.gamma_encode(0.5)
-        nt.assert_array_almost_equal(g.image * g.image, a.image)
+        nt.assert_array_almost_equal(g.array * g.array, a.array)
 
         # test for shape
         g = a.gamma("srgb")
@@ -56,7 +56,7 @@ class TestImageProcessingColor(unittest.TestCase):
         a = Image(np.random.rand(5, 5))
         g = a.gamma(0.5)
         nt.assert_array_almost_equal(g.shape, a.shape)
-        nt.assert_array_almost_equal(g.gamma(2).image, a.image)
+        nt.assert_array_almost_equal(g.gamma(2).array, a.array)
 
         a = Image(np.random.rand(5, 5, 3))
         g = a.gamma(0.5)
@@ -74,7 +74,7 @@ class TestImageProcessingColor(unittest.TestCase):
         self.assertAlmostEqual(out.A[0, 0, 2], 0.1)
         # TODO mask functionality not yet implemented
 
-    @unittest.skip("Code has a bug: mono.image should be mono")
+    @unittest.skip("Code has a bug: mono.array should be mono")
     def test_mono(self):
         # input an image that is not mono
         im = Image.Read("monalisa.png")
