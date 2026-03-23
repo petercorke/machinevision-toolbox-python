@@ -3,7 +3,7 @@ Version reporting for the Machine Vision Toolbox and its dependencies.
 """
 
 
-def version() -> None:
+def mvtb_version() -> None:
     """
     OpenCV and Machine Vision Toolbox version.
 
@@ -30,4 +30,4 @@ def version() -> None:
 
 
 if __name__ == "__main__":
-    version()
+    mvtb_version()

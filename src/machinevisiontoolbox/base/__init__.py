@@ -71,5 +71,5 @@ __all__ = [
     "findpeaks2d",
     "findpeaks3d",
     # version
-    "version",
+    "mvtb_version",
 ]
