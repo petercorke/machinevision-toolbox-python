@@ -32,17 +32,19 @@
 </td>
 </tr>
 </table>
-<p style="font-size:80%">A toolbox for machine vision that Pythonically wraps NumPy, SciPy, OpenCV, and Open3D.</p>
+<p style="font-size:80%">A modern Python toolbox for machine/computer vision.</p>
 
 ## Synopsis
 
-The Machine Vision Toolbox for Python (MVTB-P) provides many functions that are useful in machine vision and vision-based control. The main components are:
+The Machine Vision Toolbox for Python (MVTB-P) provides a consistent, Pythonic and powerful API for machine/computer vision.
+It is built on mature and efficient foundations such as NumPy, SciPy, Matplotlib, OpenCV, and Open3D.
+The main components are:
 
 - An `Image` object with nearly 200 methods and properties that wrap functions
   from [NumPy](https://numpy.org), [OpenCV](https://opencv.org), [SciPy](https://scipy.org), and [Open3D](https://www.open3d.org). Methods support monadic, dyadic, filtering, edge detection,
   mathematical morphology and feature extraction (blobs, lines and point/corner features), as well as operator overloading. Images are stored as encapsulated [NumPy](https://numpy.org) arrays
   along with image metadata.
-- An object-oriented wrapper of Open3D functions that supports a subset of operations, but allows operator overloading and is compatible with the [Spatial Math Toolbox](https://github.com/petercorke/spatialmath-python).
+- An object-oriented wrapper of [Open3D](https://www.open3d.org) functions that supports a subset of operations, but allows operator overloading and is compatible with the [Spatial Math Toolbox](https://github.com/petercorke/spatialmath-python).
 - A collection of camera projection classes for central (normal perspective), fisheye, catadioptric and spherical cameras.
 - Some advanced algorithms such as:
   - multiview geometry: camera calibration, stereo vision, bundle adjustment
@@ -50,9 +52,9 @@ The Machine Vision Toolbox for Python (MVTB-P) provides many functions that are 
 
 Advantages of this Python Toolbox include:
 
-- it uses, as much as possible mature, efficient and portable functions which provide a comprehensive and mature collection of functions for image processing and feature extraction;
-- it wraps the OpenCV functions in a consistent way, hiding some of the gnarly details of OpenCV like conversion to/from float32 and the BGR color order.
-- it is has similarity to the <a href="https://github.com/petercorke/machinevision-toolbox-matlab">Machine Vision Toolbox for MATLAB<sup>&reg;</sup></a>
+- its use of mature, efficient and portable functions which provide a comprehensive and mature collection of functions for image processing and feature extraction;
+- wrapping the OpenCV functions in a consistent way, hiding some of the gnarly details of OpenCV like conversion to/from float32 and the BGR color order.
+- similarity to the <a href="https://github.com/petercorke/machinevision-toolbox-matlab">Machine Vision Toolbox for MATLAB<sup>&reg;</sup></a>
 
 # Getting going
 
