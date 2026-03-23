@@ -9,12 +9,14 @@
 # using an wrapper script built during package installation.
 
 import argparse
+
 # import stuff
 import sys
 import textwrap
 from importlib.metadata import PackageNotFoundError, version
 from math import pi  # lgtm [py/unused-import]
 
+from matplotlib import image
 import numpy as np
 from spatialmath import *  # lgtm [py/polluting-import]
 from spatialmath.base import *  # lgtm [py/polluting-import]
@@ -40,7 +42,12 @@ SE3._ansimatrix = True
 
 def parse_arguments():
     parser = argparse.ArgumentParser("Machine Vision Toolbox shell")
-    parser.add_argument("script", default=None, nargs="?", help="specify script to run")
+    parser.add_argument(
+        "-r",
+        "--run",
+        default=None,
+        help="script to run at startup, but not displayed.  Same as IPython's builtin -i option",
+    )
     parser.add_argument(
         "-B", "--backend", default=None, help="specify graphics backend"
     )
@@ -51,22 +58,26 @@ def parse_arguments():
         help="specify terminal color scheme (neutral, lightbg, nocolor, linux), linux is for dark mode",
     )
     parser.add_argument("-x", "--confirmexit", default=False, help="confirm exit")
-    parser.add_argument("-p", "--prompt", default=">>> ", help="input prompt")
+    parser.add_argument("-P", "--prompt", default=">>> ", help="input prompt")
 
     parser.add_argument(
         "-a", "--showassign", default=False, help="display the result of assignments"
     )
-    parser.add_argument("script", default=None, nargs="?", help="specify script to run")
 
     parser.add_argument(
-        "-r",
+        "-R",
         "--resultprefix",
         default=None,
         help="execution result prefix, include {} for execution count number",
     )
 
-    args = parser.parse_args()
-    return args
+    parser.add_argument(
+        "images",
+        nargs="*",
+        help="images to load on startup. These appear in the variable img; or img[0], img[1], ... if multiple are specified",
+    )
+
+    return parser.parse_known_args()
 
 
 def make_banner(args):
@@ -132,7 +143,7 @@ func/object??      - show source code
 
 
 def main():
-    args = parse_arguments()
+    args, ipython_args = parse_arguments()
 
     if args.backend is not None:
         print(f"Using matplotlib backend {args.backend}")
@@ -140,11 +151,11 @@ def main():
 
     make_banner(args)
 
-    if args.script is not None:
-        path = Path(args.script)
-        if not path.exists():
-            raise ValueError(f"script does not exist: {args.script}")
-        exec(path.read_text())
+    # if args.script is not None:
+    #     path = Path(args.script)
+    #     if not path.exists():
+    #         raise ValueError(f"script does not exist: {args.script}")
+    #     exec(path.read_text())
 
     ## drop into IPython
     import IPython
@@ -184,8 +195,48 @@ def main():
         f"%matplotlib{' '+args.backend if args.backend is not None else ''}",
         "_precision = %precision %.3g;",
     ]
+
+    namespace = {k: v for k, v in globals().items() if not k.startswith("__")}
+    # load images if specified on the command line
+
+    if _colored:
+        print(Fore.green)
+    try:
+        if len(args.images) > 0:
+            print("Loading images...")
+            images = []
+            for i, filename in enumerate(args.images, 1):
+                if len(args.images) > 1:
+                    print(f"  {filename} --> img[{i-1}]")
+                else:
+                    print(f"  {filename} --> img")
+                images.append(Image.Read(filename))
+            if len(images) == 1:
+                namespace["img"] = images[0]
+            elif len(images) > 1:
+                namespace["img"] = images
+            print()
+
+        if args.run is not None:
+            if _colored:
+                print(Fore.yellow)
+            print(f"%run -i {args.run}")
+            code.append(f"%run -i '{args.run}'")
+    except Exception as e:
+        if _colored:
+            print(Fore.red)
+        print(f"Error loading images or running script: {e}")
+        print("Dropping into IPython without images or script.")
+
+    if _colored:
+        print(Style.reset)
+
     c.InteractiveShellApp.exec_lines = code
-    IPython.start_ipython(config=c, user_ns=globals())
+
+    # Clear argv so IPython doesn't try to execute our image filenames as scripts
+    sys.argv = sys.argv[:1]
+
+    IPython.start_ipython(config=c, user_ns=namespace, argv=ipython_args)
 
 
 if __name__ == "__main__":
