@@ -138,7 +138,7 @@ class ImageFiducialsMixin(_ImageBase):
         # ids is ndarray of shape (N,1) holding the tag ids
 
         fiducials = []
-        if len(ids) == 0:
+        if ids is None or len(ids) == 0:
             return fiducials  # no markers found
         if K is not None and side is not None:
             rvecs, tvecs, p3d = cv.aruco.estimatePoseSingleMarkers(
