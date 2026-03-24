@@ -65,7 +65,7 @@ class TestImageCoreOperations(unittest.TestCase):
 
         try:
             # Cast to uint8
-            img_uint8 = img_float.to_uint8()
+            img_uint8 = img_float.array_as("uint8")
             self.assertEqual(img_uint8.dtype, np.uint8)
         except:
             pass
@@ -73,7 +73,7 @@ class TestImageCoreOperations(unittest.TestCase):
         try:
             # Cast to float
             img_uint8 = Image(np.random.rand(10, 10) * 255, dtype="uint8")
-            img_float2 = img_uint8.to_float()
+            img_float2 = img_uint8.array_as("float32")
             self.assertTrue(np.issubdtype(img_float2.dtype, np.floating))
         except:
             pass

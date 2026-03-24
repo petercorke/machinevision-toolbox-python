@@ -64,6 +64,12 @@ class TestImageSpatial(unittest.TestCase):
         smoothed = im.smooth(sigma=1.0)
         self.assertEqual(smoothed.size, im.size)
 
+    def test_medianfilter(self):
+        """Test median filter"""
+        im = Image.Random(size=(20, 20), dtype="uint8")
+        filtered = im.medianfilter()
+        self.assertEqual(filtered.size, im.size)
+
     # new test
     def test_canny(self):
         """Test Canny edge detection"""

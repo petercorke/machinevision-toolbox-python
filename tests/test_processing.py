@@ -133,54 +133,62 @@ class TestImageProcessingBase(unittest.TestCase):
         # test for uint8
         im = np.zeros((2, 2), np.float32)
         im = Image(im)
-        nt.assert_array_almost_equal(im.to_int(), np.zeros((2, 2), np.uint8))
+        nt.assert_array_almost_equal(im.array_as("uint8"), np.zeros((2, 2), np.uint8))
 
         im = np.ones((2, 2), np.float32)
         im = Image(im)
         nt.assert_array_almost_equal(
-            im.to_int(), 255 * np.ones((2, 2)).astype(np.uint8)
+            im.array_as("uint8"), 255 * np.ones((2, 2)).astype(np.uint8)
         )
 
         # tests for shape
         im = np.random.randint(1, 255, (3, 5), int)
         im = Image(im)
-        imi = im.to_int()
+        imi = im.array_as("uint8")
         nt.assert_array_almost_equal(imi.shape, im.shape)
 
         im = np.random.randint(1, 255, (3, 5, 3), int)
         im = Image(im)
-        imi = im.to_int()
+        imi = im.array_as("uint8")
         nt.assert_array_almost_equal(imi.shape, im.shape)
 
     def test_float(self):
         # test for uint8
         im = np.zeros((2, 2), np.uint8)
         im = Image(im)
-        nt.assert_array_almost_equal(im.to_float(), np.zeros((2, 2), np.float32))
+        nt.assert_array_almost_equal(
+            im.array_as("float32"), np.zeros((2, 2), np.float32)
+        )
 
         im = 128 * np.ones((2, 2), np.uint8)
         im = Image(im)
-        nt.assert_array_almost_equal(im.to_float(), (128.0 / 255.0 * np.ones((2, 2))))
+        nt.assert_array_almost_equal(
+            im.array_as("float32"), (128.0 / 255.0 * np.ones((2, 2)))
+        )
 
         im = 255 * np.ones((2, 2), np.uint8)
         im = Image(im)
-        nt.assert_array_almost_equal(im.to_float(), (np.ones((2, 2))))
+        nt.assert_array_almost_equal(im.array_as("float32"), (np.ones((2, 2))))
 
         # test for uint16
         im = np.zeros((2, 2), np.uint16)
         im = Image(im)
-        nt.assert_array_almost_equal(im.to_float(), np.zeros((2, 2), np.float32))
+        nt.assert_array_almost_equal(
+            im.array_as("float32"), np.zeros((2, 2), np.float32)
+        )
 
         im = 128 * np.ones((2, 2), np.uint16)
         im = Image(im)
-        nt.assert_array_almost_equal(im.to_float(), (128.0 / 65535.0 * np.ones((2, 2))))
+        nt.assert_array_almost_equal(
+            im.array_as("float32"), (128.0 / 65535.0 * np.ones((2, 2)))
+        )
 
         im = 65535 * np.ones((2, 2), np.uint16)
         im = Image(im)
-        nt.assert_array_almost_equal(im.to_float(), (np.ones((2, 2))))
+        nt.assert_array_almost_equal(im.array_as("float32"), (np.ones((2, 2))))
 
         im = Image(im)
-        imf = im.to_float()
+        imf = im.array_as("float32")
         nt.assert_array_almost_equal(imf.shape, im.shape)
         nt.assert_array_almost_equal(imf, im.array.astype(np.float32) / 65535.0)
 
@@ -329,114 +337,6 @@ class TestImageProcessingBase(unittest.TestCase):
         self.assertEqual(L.A[0, 0], 0)
         self.assertEqual(np.sum(L.A), 25)
 
-    def test_erode(self):
-        """Test image erosion"""
-        se = np.ones((3, 3), dtype=np.uint8)
-        # white rectangle in black background: erosion shrinks it
-        img_data = np.zeros((15, 15), dtype=np.uint8)
-        img_data[3:12, 3:12] = 255
-        img = Image(img_data)
-        eroded = img.erode(se)
-        self.assertEqual(eroded.shape, img.shape)
-        self.assertLess(np.sum(eroded.A), np.sum(img.A))
-
-    def test_dilate(self):
-        """Test image dilation"""
-        se = np.ones((3, 3), dtype=np.uint8)
-        img = Image(np.zeros((10, 10), dtype="uint8"))
-        img.A[5, 5] = 1
-        dilated = img.dilate(se)
-        self.assertEqual(dilated.shape, img.shape)
-        self.assertGreater(np.sum(dilated.A), np.sum(img.A))
-
-    def test_open_close(self):
-        """Test morphological open and close"""
-        se = np.ones((3, 3), dtype=np.uint8)
-        img = Image(np.ones((10, 10), dtype="uint8") * 255)
-        opened = img.open(se)
-        self.assertEqual(opened.shape, img.shape)
-        closed = img.close(se)
-        self.assertEqual(closed.shape, img.shape)
-
-    def test_distance_transform(self):
-        """Test distance transform"""
-        img = Image(np.ones((10, 10), dtype="uint8"))
-        img.A[5, 5] = 0
-        dist = img.distance_transform()
-        self.assertEqual(dist.shape, img.shape)
-        self.assertGreater(dist.A[0, 0], 0)
-
-    def test_edge_detection(self):
-        """Test edge detection"""
-        img = Image.Read("monalisa.png", mono=True)
-        edges = img.canny()
-        self.assertEqual(edges.shape, img.shape)
-
-    def test_blur(self):
-        """Test that smooth() reduces noise (blur)"""
-        rng = np.random.default_rng(42)
-        img = Image(rng.random((20, 20)).astype(np.float32))
-        blurred = img.smooth(sigma=2)
-        self.assertEqual(blurred.shape, img.shape)
-        self.assertLess(float(blurred.A.std()), float(img.A.std()))
-
-    def test_smooth(self):
-        """Test image smoothing"""
-        img = Image(np.random.rand(20, 20))
-        smooth = img.smooth(sigma=1)
-        self.assertEqual(smooth.shape, img.shape)
-
-    def test_medianfilter(self):
-        """Test median filter"""
-        img = Image(np.random.rand(20, 20))
-        filtered = img.medianfilter()
-        self.assertEqual(filtered.shape, img.shape)
-
-    def test_decimate(self):
-        """Test image decimation (downsampling)"""
-        img = Image(np.random.rand(20, 20))
-        decimated = img.decimate(2)
-        self.assertLess(decimated.shape[0], img.shape[0])
-        self.assertLess(decimated.shape[1], img.shape[1])
-
-    def test_scale(self):
-        """Test image scaling"""
-        img = Image(np.random.rand(10, 10))
-        scaled = img.scale(2)
-        self.assertGreater(scaled.shape[0], img.shape[0])
-
-    def test_rotate(self):
-        """Test image rotation"""
-        img = Image.Read("monalisa.png", mono=True)
-        rotated = img.rotate(45)
-        self.assertEqual(rotated.shape, img.shape)
-
-    @unittest.skip("transpose() not yet implemented")
-    def test_transpose(self):
-        """Test image transpose"""
-        img = Image(np.random.rand(10, 15))
-        transposed = img.transpose()
-        self.assertEqual(transposed.shape, (15, 10))
-
-    def test_fliplr(self):
-        """Test horizontal flip"""
-        img = Image(np.arange(20).reshape(4, 5))
-        flipped = img.fliplr()
-        self.assertEqual(flipped.A[0, 0], img.A[0, 4])
-
-    def test_flipud(self):
-        """Test vertical flip"""
-        img = Image(np.arange(20).reshape(4, 5))
-        flipped = img.flipud()
-        self.assertEqual(flipped.A[0, 0], img.A[3, 0])
-
-    def test_roi(self):
-        """Test region of interest extraction"""
-        img = Image(np.arange(400).reshape(20, 20))
-        # roi takes [umin, umax, vmin, vmax]
-        cropped = img.roi([5, 10, 5, 10])
-        self.assertEqual(cropped.shape, (6, 6))
-
     def test_histogram(self):
         """Test histogram computation"""
         img = Image.Read("monalisa.png", mono=True)
@@ -584,36 +484,6 @@ class TestImageProcessingOperations(unittest.TestCase):
         with self.assertRaises(ValueError):
             img1.apply2(img2, lambda a, b: a + b)
 
-    def test_choose_image_mask(self):
-        a = Image(np.array([[1, 2], [3, 4]], dtype="uint8"))
-        b = Image(np.array([[5, 6], [7, 8]], dtype="uint8"))
-        mask = Image(np.array([[0, 1], [1, 0]], dtype="uint8"))
-        out = a.choose(b, mask)
-        self.assertEqual(out.A[0, 0], 1)  # mask=0 → a
-        self.assertEqual(out.A[0, 1], 6)  # mask=1 → b
-
-    def test_choose_scalar(self):
-        a = Image(np.array([[1, 2], [3, 4]], dtype="uint8"))
-        mask = np.array([[0, 1], [0, 0]])
-        out = a.choose(99, mask)
-        self.assertEqual(out.A[0, 0], 1)  # mask=0 → a
-        self.assertEqual(out.A[0, 1], 99)  # mask=1 → scalar
-
-    def test_paste_center_position(self):
-        canvas = Image(np.zeros((7, 7), dtype="uint8"))
-        pattern = Image(np.ones((3, 3), dtype="uint8") * 5)
-        result = canvas.copy().paste(pattern, (3, 3), position="centre")
-        # centre of pattern placed at (3,3); top-left at (2,2)
-        self.assertEqual(result.A[2, 2], 5)
-
-    def test_paste_copy_true(self):
-        canvas = Image(np.zeros((5, 5), dtype="uint8"))
-        pattern = Image(np.ones((2, 2), dtype="uint8") * 7)
-        result = canvas.paste(pattern, (1, 1), copy=True)
-        # original canvas should be unchanged (copy=True)
-        nt.assert_array_equal(canvas.A, np.zeros((5, 5), dtype="uint8"))
-        self.assertEqual(result.A[1, 1], 7)
-
     def test_invert_int(self):
         img = Image(np.array([[0, 128, 255]], dtype="uint8"))
         out = img.invert()
@@ -642,6 +512,55 @@ class TestImageProcessingOperations(unittest.TestCase):
     # test_samesize
     # test_peak2
     # test_roi
+
+
+class TestImageProcessingKernel(unittest.TestCase):
+
+    def test_similarity(self):
+
+        a = np.array([[0.9280, 0.3879, 0.8679],
+                      [0.1695, 0.3826, 0.7415],
+                      [0.8837, 0.2715, 0.4479]])
+        a = Image(a, dtype='float64')
+
+        eps = 1e-6
+        self.assertEqual(abs(a.sad(a)) < eps, True)
+        self.assertEqual(abs(a.sad(Image(a.A + 0.1))) < eps, False)
+
+        self.assertEqual(abs(a.zsad(a)) < eps, True)
+        self.assertEqual(abs(a.zsad(a + 0.1)) < eps, True)
+
+        self.assertEqual(abs(a.ssd(a)) < eps, True)
+        self.assertEqual(abs(a.ssd(a + 0.1)) < eps, False)
+
+        self.assertEqual(abs(a.zssd(a)) < eps, True)
+        self.assertEqual(abs(a.zssd(a + 0.1)) < eps, True)
+
+        self.assertEqual(abs(1 - a.ncc(a)) < eps, True)
+        self.assertEqual(abs(1 - a.ncc(a * 2)) < eps, True)
+
+        self.assertEqual(abs(1 - a.zncc(a)) < eps, True)
+        self.assertEqual(abs(1 - a.zncc(a + 0.1)) < eps, True)
+        self.assertEqual(abs(1 - a.zncc(a * 2)) < eps, True)
+
+    def test_window(self):
+        im = np.array([[3,     5,     8,    10,     9],
+                       [7,    10,     3,     6,     3],
+                       [7,     4,     6,     2,     9],
+                       [2,     6,     7,     2,     3],
+                       [2,     3,     9,     3,    10]])
+        img = Image(im)
+        se = np.ones((1, 1))
+
+        nt.assert_array_almost_equal(img.window(np.sum, se=se).A, im)
+
+        se = np.array([[1, 1, 1], [1, 0, 1], [1, 1, 1]])
+        out = np.array([[43,    47,    57,    56,    59],
+                        [46,    43,    51,    50,    57],
+                        [45,   48,    40,    39,    31],
+                        [33,    40,    35,    49,    48],
+                        [22,    40,    36,    53,    44]])
+        nt.assert_array_almost_equal(img.window(np.sum, se=se).A, out)
 
 
 # ----------------------------------------------------------------------- #

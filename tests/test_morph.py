@@ -305,6 +305,14 @@ class TestImageProcessingMorph(unittest.TestCase):
 
     # tc.assertEqual(humoments(im), out, 'absTol', 1e-8);
 
+    def test_distance_transform(self):
+        """Test distance transform"""
+        img = Image(np.ones((10, 10), dtype="uint8"))
+        img.A[5, 5] = 0
+        dist = img.distance_transform()
+        self.assertEqual(dist.shape, img.shape)
+        self.assertGreater(dist.A[0, 0], 0)
+
     # TODO
     # getse?
     # label

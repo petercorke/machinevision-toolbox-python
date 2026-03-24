@@ -545,15 +545,15 @@ class TestImage(unittest.TestCase):
         self.assertEqual(img.dtype, np.bool_)
         nt.assert_array_almost_equal(img.A * 1, im)
 
-        x = img.to_int()
+        x = img.array_as("uint8")
         self.assertEqual(x.dtype, np.uint8)
         nt.assert_array_almost_equal(x, im * 255)
 
-        x = img.to_int("uint16")
+        x = img.array_as("uint16")
         self.assertEqual(x.dtype, np.uint16)
         nt.assert_array_almost_equal(x, im * 65535)
 
-        x = img.to_float()
+        x = img.array_as("float32")
         self.assertEqual(x.dtype, np.float32)
         nt.assert_array_almost_equal(x, im)
 

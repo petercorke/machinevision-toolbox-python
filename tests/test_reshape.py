@@ -407,6 +407,18 @@ class TestImageReshape(unittest.TestCase):
         # Add test cases for the rotate_spherical method
         pass
 
+    def test_fliplr(self):
+        """Test horizontal flip"""
+        img = Image(np.arange(20).reshape(4, 5))
+        flipped = img.fliplr()
+        self.assertEqual(flipped.A[0, 0], img.A[0, 4])
+
+    def test_flipud(self):
+        """Test vertical flip"""
+        img = Image(np.arange(20).reshape(4, 5))
+        flipped = img.flipud()
+        self.assertEqual(flipped.A[0, 0], img.A[3, 0])
+
     def test_meshgrid(self):
         # Add test cases for the meshgrid method
         im = Image.Random(size=(3, 4))
