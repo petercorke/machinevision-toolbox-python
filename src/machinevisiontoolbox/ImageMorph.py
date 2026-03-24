@@ -74,6 +74,10 @@ class ImageMorphMixin(_ImageBase):
         Returns the image after morphological erosion with the structuring
         element ``se`` applied ``n`` times.
 
+        The image can be of any type and boolean images where True is treated as 1 and
+        False as 0. The structuring element should be a 2D array of non-negative
+        integers, where non-zero values indicate the shape of the structuring element.
+
         Example:
 
         .. runblock:: pycon
@@ -115,7 +119,7 @@ class ImageMorphMixin(_ImageBase):
             raise ValueError(n, "n must be greater than 0")
 
         out = cv.erode(
-            src=self.to_int(),
+            src=self._A,
             kernel=self._getse(se),
             iterations=n,
             borderType=self._bordertype_cv(border, exclude=("wrap")),
@@ -123,7 +127,7 @@ class ImageMorphMixin(_ImageBase):
             **kwargs,
         )
 
-        return self.__class__(out)
+        return self.__class__(out, dtype=self.dtype)
 
     def dilate(
         self,
@@ -150,6 +154,10 @@ class ImageMorphMixin(_ImageBase):
 
         Returns the image after morphological dilation with the structuring
         element ``se`` applied ``n`` times.
+
+        The image can be of any type and boolean images where True is treated as 1 and
+        False as 0. The structuring element should be a 2D array of non-negative
+        integers, where non-zero values indicate the shape of the structuring element.
 
         Example:
 
@@ -196,7 +204,7 @@ class ImageMorphMixin(_ImageBase):
             **kwargs,
         )
 
-        return self.__class__(out)
+        return self.__class__(out, dtype=self.dtype)
 
     def morph(
         self,
@@ -226,6 +234,10 @@ class ImageMorphMixin(_ImageBase):
 
         Apply the morphological operation ``oper`` with structuring element ``se``
         to the image ``n`` times.
+
+        The image can be of any type and boolean images where True is treated as 1 and
+        False as 0. The structuring element should be a 2D array of non-negative
+        integers, where non-zero values indicate the shape of the structuring element.
 
         =============  =======================================================
         ``'oper'``     description
@@ -263,7 +275,7 @@ class ImageMorphMixin(_ImageBase):
             raise ValueError(n, "n must be greater than 0")
 
         if self.isbool:
-            image = self.to_int()
+            image = self.array_as("uint8")
         else:
             image = self._A
 
@@ -300,10 +312,7 @@ class ImageMorphMixin(_ImageBase):
         else:
             raise ValueError("morph does not support oper")
 
-        if self.isbool:
-            out = out.astype(bool)
-
-        return self.__class__(out)
+        return self.__class__(out, dtype=self.dtype)
 
     def open(
         self,
@@ -330,6 +339,10 @@ class ImageMorphMixin(_ImageBase):
 
         Returns the image after morphological opening with the structuring
         element ``se`` applied as ``n`` erosions followed by ``n`` dilations.
+
+        The image can be of any type and boolean images where True is treated as 1 and
+        False as 0. The structuring element should be a 2D array of non-negative
+        integers, where non-zero values indicate the shape of the structuring element.
 
         Example:
 
@@ -365,7 +378,7 @@ class ImageMorphMixin(_ImageBase):
         # return self.__class__(out)
 
         out = cv.morphologyEx(
-            src=self.to_int(),
+            src=self._A,
             op=cv.MORPH_OPEN,
             kernel=self._getse(se),
             iterations=n,
@@ -373,7 +386,7 @@ class ImageMorphMixin(_ImageBase):
             borderValue=bordervalue,
             **kwargs,
         )
-        return self.__class__(out)
+        return self.__class__(out, dtype=self.dtype)
 
     def close(
         self,
@@ -400,6 +413,10 @@ class ImageMorphMixin(_ImageBase):
 
         Returns the image after morphological opening with the structuring
         element ``se`` applied as ``n`` dilations followed by ``n`` erosions.
+
+        The image can be of any type and boolean images where True is treated as 1 and
+        False as 0. The structuring element should be a 2D array of non-negative
+        integers, where non-zero values indicate the shape of the structuring element.
 
         Example:
 
@@ -430,7 +447,7 @@ class ImageMorphMixin(_ImageBase):
         :seealso: :meth:`open` :meth:`morph` `opencv.morphologyEx <https://docs.opencv.org/4.x/d4/d86/group__imgproc__filter.html#ga67493776e3ad1a3df63883829375201f>`_
         """
         out = cv.morphologyEx(
-            src=self.to_int(),
+            src=self._A,
             op=cv.MORPH_CLOSE,
             kernel=self._getse(se),
             iterations=n,
@@ -438,7 +455,7 @@ class ImageMorphMixin(_ImageBase):
             borderValue=bordervalue,
             **kwargs,
         )
-        return self.__class__(out)
+        return self.__class__(out, dtype=self.dtype)
 
     def hitormiss(
         self,
@@ -503,7 +520,7 @@ class ImageMorphMixin(_ImageBase):
             s1 = s1 - s2
 
         out = cv.morphologyEx(src=self._A, op=cv.MORPH_HITMISS, kernel=s1)
-        return self.__class__(out)
+        return self.__class__(out, dtype=self.dtype)
 
     def thin(self, **kwargs) -> Self:
         """
@@ -556,7 +573,7 @@ class ImageMorphMixin(_ImageBase):
                 break
             o = im
 
-        return self.__class__(o)
+        return self.__class__(o, dtype=self.dtype)
 
     def thin_animate(self, delay: float = 0.5, **kwargs) -> Self:
         """
@@ -615,7 +632,7 @@ class ImageMorphMixin(_ImageBase):
                 break
             o = im
 
-        return self.__class__(o)
+        return self.__class__(o, dtype=self.dtype)
 
     def endpoint(self, **kwargs) -> Self:
         """
@@ -660,7 +677,7 @@ class ImageMorphMixin(_ImageBase):
         for i in range(se.shape[2]):
             out = np.logical_or(out, self.hitormiss(se[:, :, i])._A)
 
-        return self.__class__(out)
+        return self.__class__(out, dtype=self.dtype)
 
     def triplepoint(self, **kwargs) -> Self:
         """
@@ -713,7 +730,7 @@ class ImageMorphMixin(_ImageBase):
         for i in range(se.shape[2]):
             out = np.bitwise_or(out, self.hitormiss(se[:, :, i])._A)
 
-        return self.__class__(out)
+        return self.__class__(out, dtype=self.dtype)
 
 
 if __name__ == "__main__":

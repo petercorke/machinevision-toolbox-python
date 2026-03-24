@@ -76,7 +76,7 @@ class ImageProcessingMixin(_ImageBase):
 
         :seealso: `cv2.LUT <https://docs.opencv.org/4.x/d2/de8/group__core__array.html#gab55b8d062b7f5587720ede032d34156f>`_
         """
-        image = self.to_int()  # type: ignore[attr-defined]
+        image = self.array_as("uint8")
         lut = np.array(lut).astype(np.uint8)
         if lut.ndim == 2:
             lut = lut[np.newaxis, ...]
@@ -300,7 +300,7 @@ class ImageProcessingMixin(_ImageBase):
 
         :seealso: `cv2.equalizeHist <https://docs.opencv.org/4.x/d6/dc7/group__imgproc__hist.html#ga7e54091f0c937d49bf84152a16f76d6e>`_
         """
-        out = cv.equalizeHist(src=self.to_int())
+        out = cv.equalizeHist(src=self.array_as("uint8"))
         return self.__class__(self.like(out))
 
     def stretch(self, max=1, range=None, clip=True):
@@ -456,7 +456,7 @@ class ImageProcessingMixin(_ImageBase):
             flag |= threshold_dict[t]
 
             threshvalue, imt = cv.threshold(
-                src=self.to_int(), thresh=0.0, maxval=self.maxval, type=flag
+                src=self._A, thresh=0.0, maxval=self.maxval, type=flag
             )
             return self.__class__(self.like(imt)), self.like(
                 int(threshvalue), maxint=255
@@ -646,7 +646,9 @@ class ImageProcessingMixin(_ImageBase):
         # TODO options
         # looks like Niblack
 
-        im = self.to_int()
+        if self.iscolor:
+            raise ValueError("adaptive thresholding only works for grayscale images")
+        im = self.array_as("uint8")  # only accepts 8-channel image
 
         if blocksize is not None:
             h = (blocksize - 1) // 2
@@ -707,7 +709,14 @@ class ImageProcessingMixin(_ImageBase):
         _, t = self.threshold(t="otsu")
         return t
 
-    def blend(self, image2: "Image", alpha: float, beta: float | None =None, gamma: float=0, dtype: str|None = None) -> "Image":
+    def blend(
+        self,
+        image2: "Image",
+        alpha: float,
+        beta: float | None = None,
+        gamma: float = 0,
+        dtype: str | None = None,
+    ) -> "Image":
         r"""
         Image blending
 
@@ -761,11 +770,16 @@ class ImageProcessingMixin(_ImageBase):
             dtype = cv.CV_64F
         else:
             raise ValueError("dtype must be 'float', 'double', 'float32', or 'float64'")
-        
+
         if beta is None:
             beta = 1 - alpha
         out = cv.addWeighted(
-            src1=self._A, alpha=alpha, src2=image2._A, beta=beta, gamma=gamma, dtype=dtype
+            src1=self._A,
+            alpha=alpha,
+            src2=image2._A,
+            beta=beta,
+            gamma=gamma,
+            dtype=dtype,
         )
         return self.__class__(out, colororder=self.colororder)
 

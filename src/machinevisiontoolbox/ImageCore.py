@@ -1606,12 +1606,7 @@ class Image(
         # convert image to different type, does rescaling
         # as just changes type
         dtype = np.dtype(dtype)  # convert to dtype if it's a string
-
-        if np.issubdtype(dtype, np.integer):
-            out = self.to_int(dtype)
-        elif np.issubdtype(dtype, np.floating):
-            out = self.to_float(dtype)
-        return self.__class__(out, dtype=dtype)
+        return self.__class__(self.array_as(dtype), dtype=dtype)
 
     def astype(self, dtype: Dtype) -> "Image":
         """

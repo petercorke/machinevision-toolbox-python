@@ -1453,7 +1453,10 @@ class ImageSpatialMixin:
         upper = min(1, (1.0 + sigma) * v)
 
         out = cv.Canny(
-            image=self.to_int(), threshold1=lower, threshold2=upper, L2gradient=False
+            image=self.array_as("uint8"),
+            threshold1=lower,
+            threshold2=upper,
+            L2gradient=False,
         )
 
         return self.__class__(out)
@@ -1625,10 +1628,10 @@ class ImageSpatialMixin:
         # and the OpenCV thing if invert=True
         if invert:
             # distance to nearest zero pixel
-            im = self.to_int()
+            im = self.array_as("uint8")
         else:
             # distance to nearest non-zero pixel, invert the image
-            im = self.invert().to_int()
+            im = self.invert().array_as("uint8")
 
         normdict = {
             "L1": cv.DIST_L1,
@@ -1706,7 +1709,7 @@ class ImageSpatialMixin:
             raise TypeError(ltype, "ltype must be either int32 or uint16")
 
         retval, labels = cv.connectedComponents(
-            image=self.to_int(), connectivity=connectivity, ltype=ltype
+            image=self.array_as("uint8"), connectivity=connectivity, ltype=ltype
         )
         return self.__class__(labels), retval
 
@@ -1752,7 +1755,7 @@ class ImageSpatialMixin:
         """
 
         mser = cv.MSER_create(**kwargs)
-        regions, _ = mser.detectRegions(self.to_int())
+        regions, _ = mser.detectRegions(self.array_as("uint8"))
 
         if len(regions) < 256:
             dtype = np.uint8
@@ -1800,7 +1803,7 @@ class ImageSpatialMixin:
         segmenter = cv.ximgproc.segmentation.createGraphSegmentation(
             sigma=0.5, k=2000, min_size=100
         )
-        out = segmenter.processImage(self.to_int())
+        out = segmenter.processImage(self.array_as("uint8"))
 
         return self.__class__(out), np.max(out) + 1
 

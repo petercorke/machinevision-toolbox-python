@@ -359,7 +359,7 @@ def mkcylinder(
         Z = Z - h / 2
 
     if pose is not None:
-        P = np.row_stack((X.flatten(), Y.flatten(), Z.flatten()))
+        P = np.vstack((X.flatten(), Y.flatten(), Z.flatten()))
         P_arr = np.asarray(pose * P)
         X = P_arr[0, :].reshape(X.shape)
         Y = P_arr[1, :].reshape(X.shape)

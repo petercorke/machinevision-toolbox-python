@@ -266,7 +266,7 @@ class ImageColorMixin(_ImageBase):
         if seed is not None:
             cv.setRNGSeed(seed)
 
-        data = self.to_float().reshape((-1, self.nplanes))
+        data = self.array_as("float32").reshape((-1, self.nplanes))
         criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 10, 1.0)
 
         if k is not None:
