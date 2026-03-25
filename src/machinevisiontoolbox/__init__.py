@@ -8,6 +8,7 @@ from machinevisiontoolbox.Sources import (
     ZipArchive,
     EarthView,
     WebCam,
+    RosBag,
 )
 from machinevisiontoolbox.ImageReshape import *
 from machinevisiontoolbox.ImageIO import *

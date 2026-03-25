@@ -6,7 +6,11 @@ from __future__ import annotations
 
 import fnmatch
 import os
+import tempfile
+import urllib.request
 import zipfile
+from collections import Counter
+from datetime import datetime, timezone
 from typing import Any
 
 # from numpy.lib.arraysetops import isin
@@ -14,9 +18,25 @@ from abc import ABC, abstractmethod
 
 import cv2 as cv
 import numpy as np
+from ansitable import ANSITable, Column
 
 from machinevisiontoolbox import Image
 from machinevisiontoolbox.base import convert, iread, mvtb_path_to_datafile
+
+try:
+    from rosbags.rosbag1 import Reader as _RosBagReader
+    from rosbags.typesys import Stores as _Stores, get_typestore as _get_typestore
+
+    _rosbags_available = True
+except ImportError:
+    _rosbags_available = False
+
+try:
+    import open3d as _o3d
+
+    _open3d_available = True
+except ImportError:
+    _open3d_available = False
 
 
 class ImageSource(ABC):
@@ -857,6 +877,361 @@ class EarthView(ImageSource):
             colororder = None
         im = convert(data[0], **self.args)
         return Image(im, colororder=colororder)
+
+
+# ROS PointCloud2 field datatype constants → (numpy dtype, byte size)
+_PC2_DTYPE = {
+    1: (np.int8, 1),
+    2: (np.uint8, 1),
+    3: (np.int16, 2),
+    4: (np.uint16, 2),
+    5: (np.int32, 4),
+    6: (np.uint32, 4),
+    7: (np.float32, 4),
+    8: (np.float64, 8),
+}
+
+
+def _resolve_typestore(release: str):
+    """Return a typestore for the given ROS release name.
+
+    The *release* string is matched case-insensitively against
+    :class:`~rosbags.typesys.Stores` member names, so short names such as
+    ``"noetic"`` or ``"humble"`` are accepted in addition to the full enum
+    name (e.g. ``"ROS1_NOETIC"``).
+
+    :param release: release name, or substring thereof
+    :type release: str
+    :raises ImportError: if the ``rosbags`` package is not installed
+    :raises ValueError: if the name matches no enum member, or is ambiguous
+    :return: configured typestore
+    """
+    if not _rosbags_available:
+        raise ImportError(
+            "rosbags is required for ROS bag support. "
+            "Install it with: pip install rosbags"
+        )
+    key = release.upper()
+    matches = [s for s in _Stores if key in s.name]
+    if not matches:
+        valid = [s.name for s in _Stores]
+        raise ValueError(f"Unknown release {release!r}. Valid options: {valid}")
+    if len(matches) > 1:
+        exact = [s for s in matches if s.name == key]
+        if exact:
+            return _get_typestore(exact[0])
+        ambiguous = [s.name for s in matches]
+        raise ValueError(f"Ambiguous release {release!r}, matches: {ambiguous}")
+    return _get_typestore(matches[0])
+
+
+class RosBag(ImageSource):
+    """
+    Iterate images and point clouds from a ROS 1 bag file.
+
+    :param filename: path to a ``.bag`` file, or an ``http(s)://`` URL
+    :type filename: str or Path
+    :param release: ROS release name (or unique substring), e.g. ``"noetic"``
+    :type release: str
+    :param topicfilter: only yield messages from this topic or list of topics;
+        ``None`` accepts all topics
+    :type topicfilter: str or list of str or None
+    :param msgfilter: only yield messages whose type contains this substring
+        or matches any entry in the list; ``None`` accepts all types,
+        defaults to ``"Image"``
+    :type msgfilter: str or list of str or None
+    :param dtype: numpy dtype for image pixel data, or a ``{topic: dtype}``
+        mapping for per-topic overrides, defaults to ``"uint8"``
+    :type dtype: str or dict
+    :param colororder: colour-plane order for image data, or a
+        ``{topic: colororder}`` mapping for per-topic overrides
+    :type colororder: str or dict or None
+    :raises ImportError: if the ``rosbags`` package is not installed
+
+    The resulting object is an iterator that yields:
+
+    - :class:`Image` for messages whose type ends in ``Image``
+    - ``open3d.geometry.PointCloud`` for ``PointCloud2`` messages
+      (requires ``open3d``)
+    - the raw deserialised message object for all other types
+
+    Each yielded object carries a ``timestamp`` attribute (ROS nanosecond
+    epoch) and a ``topic`` attribute.
+
+    **Usage modes**
+
+    *Implicit* — iterating directly over the object opens and closes the bag
+    file automatically around the loop::
+
+        >>> from machinevisiontoolbox import RosBag
+        >>> for img in RosBag("mybag.bag", release="noetic"):
+        ...     img.disp()
+
+    *Explicit context manager* — use a ``with`` statement when you need to
+    make multiple passes over the bag, call helper methods such as
+    :meth:`topics` or :meth:`print`, or simply want a guaranteed close even
+    if an exception is raised::
+
+        >>> bag = RosBag("mybag.bag", release="noetic", msgfilter=None)
+        >>> with bag:
+        ...     bag.print()                     # inspect topics
+        ...     for msg in bag:                 # iterate messages
+        ...         print(msg.topic, msg.timestamp)
+
+    .. note::
+        ``filename`` may be an ``http://`` or ``https://`` URL, in which case
+        the bag file is downloaded to a temporary file on first use and that
+        file is reused for the lifetime of the ``RosBag`` object.  The
+        temporary file is deleted automatically when the object is garbage
+        collected or when the script exits.
+    """
+
+    filename: str
+    release: str
+    dtype: np.dtype | str | dict
+    colororder: str | dict | None
+
+    def __init__(
+        self,
+        filename: str,
+        release: str = "ROS1_NOETIC",
+        topicfilter: str | list[str] | None = None,
+        msgfilter: str | list[str] | None = "Image",
+        dtype: np.dtype | str | dict = "uint8",
+        colororder: str | dict | None = None,
+    ) -> None:
+        if not _rosbags_available:
+            raise ImportError(
+                "rosbags is required for ROS bag support. "
+                "Install it with: pip install rosbags"
+            )
+        self.filename = filename
+        self.release = release
+        self._topic_filter = topicfilter
+        self._msgfilter = msgfilter
+        self.reader = None
+        self.connections = []
+        self.typestore = _resolve_typestore(release)
+        self.dtype = dtype
+        self.colororder = colororder
+        self._tmpfile: str | None = None
+
+    def __repr__(self) -> str:
+        return (
+            f"RosBag({str(self.filename)!r}, release={self.release!r}, "
+            f"topicfilter={self._topic_filter!r}, msgfilter={self._msgfilter!r})"
+        )
+
+    def __str__(self) -> str:
+        return f"RosBag({str(self.filename)!r})"
+
+    @staticmethod
+    def format_local_time(timestamp_ns: int, fmt: str | None = None) -> str:
+        """Format a ROS timestamp to a local-time string.
+
+        :param timestamp_ns: ROS timestamp in nanoseconds since the Unix epoch (UTC)
+        :type timestamp_ns: int
+        :param fmt: :func:`~datetime.datetime.strftime` format string;
+            defaults to ISO 8601 with millisecond precision
+        :type fmt: str or None
+        :return: formatted time string
+        :rtype: str
+
+        :seealso: `strftime format codes <https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes>`_
+        """
+        dt = datetime.fromtimestamp(
+            timestamp_ns / 1_000_000_000, tz=timezone.utc
+        ).astimezone()
+        return dt.strftime(fmt) if fmt else dt.isoformat(timespec="milliseconds")
+
+    @property
+    def topicfilter(self) -> str | list[str] | None:
+        """Topic filter — ``None`` accepts all topics."""
+        return self._topic_filter
+
+    @topicfilter.setter
+    def topicfilter(self, topicfilter: str | list[str] | None) -> None:
+        self._topic_filter = topicfilter
+
+    @property
+    def msgfilter(self) -> str | list[str] | None:
+        """Message-type filter — ``None`` accepts all message types."""
+        return self._msgfilter
+
+    @msgfilter.setter
+    def msgfilter(self, msgfilter: str | list[str] | None) -> None:
+        self._msgfilter = msgfilter
+
+    def _allowed(self, x) -> bool:
+        msg_ok = (
+            self._msgfilter is None
+            or (
+                isinstance(self._msgfilter, list)
+                and any(f in x.msgtype for f in self._msgfilter)
+            )
+            or (isinstance(self._msgfilter, str) and self._msgfilter in x.msgtype)
+        )
+        topic_ok = (
+            self._topic_filter is None
+            or (isinstance(self._topic_filter, list) and x.topic in self._topic_filter)
+            or (isinstance(self._topic_filter, str) and x.topic == self._topic_filter)
+        )
+        return msg_ok and topic_ok
+
+    def __del__(self) -> None:
+        self._close_reader()
+        if self._tmpfile is not None:
+            from pathlib import Path as _Path
+
+            _Path(self._tmpfile).unlink(missing_ok=True)
+            self._tmpfile = None
+
+    def _close_reader(self) -> None:
+        if self.reader is not None:
+            self.reader.close()
+            self.reader = None
+
+    def _open_reader(self) -> _RosBagReader:
+        if self.reader is not None:
+            return self.reader
+
+        filename = str(self.filename)
+        if filename.startswith(("http://", "https://")):
+            if self._tmpfile is None:
+                with tempfile.NamedTemporaryFile(suffix=".bag", delete=False) as tmp:
+                    self._tmpfile = tmp.name
+                print(f"Downloading {filename} ...")
+                urllib.request.urlretrieve(filename, self._tmpfile)
+            path = self._tmpfile
+        else:
+            path = self.filename
+
+        self.reader = _RosBagReader(path)
+        self.reader.open()
+        self.connections = [x for x in self.reader.connections if self._allowed(x)]
+        return self.reader
+
+    def topics(self) -> dict[str, str]:
+        """All topics found in the ROS bag.
+
+        :return: mapping of topic name to message type
+        :rtype: dict
+        """
+        reader = self._open_reader()
+        topicdict = {conn.topic: conn.msgtype for conn in reader.connections}
+        self._close_reader()
+        return topicdict
+
+    def traffic(self) -> Counter:
+        """Message counts by type across the entire bag.
+
+        :return: mapping of message type to count
+        :rtype: :class:`~collections.Counter`
+        """
+        reader = self._open_reader()
+        counts = Counter(conn.msgtype for conn, _ts, _raw in reader.messages())
+        self._close_reader()
+        return counts
+
+    def print(self) -> None:
+        """Print a summary table of topics in the ROS bag.
+
+        For each topic, shows the message type, total message count, and
+        whether it passes the current topic and message filters.
+        """
+        table = ANSITable(
+            Column("topic", colalign="<", headalign="^"),
+            Column("msgtype", colalign="<", headalign="^"),
+            Column("count", colalign=">", headalign="^"),
+            Column("allowed", colalign="^", headalign="^"),
+            border="thin",
+        )
+        counts = self.traffic()
+        for topic, msgtype in self.topics().items():
+            conn_stub = type("_C", (), {"topic": topic, "msgtype": msgtype})
+            allowed = self._allowed(conn_stub)
+            table.row(
+                topic,
+                msgtype,
+                counts[msgtype],
+                "✓" if allowed else "✗",
+                style="bold" if allowed else None,
+            )
+        print(table)
+
+    def __enter__(self) -> RosBag:
+        self._open_reader()
+        return self
+
+    def __exit__(self, exc_type, exc, tb) -> None:
+        self._close_reader()
+
+    def __iter__(self) -> RosBag:
+        self._open_reader()
+        try:
+            for connection, timestamp, rawdata in self.reader.messages(
+                connections=self.connections
+            ):
+                msg = self.typestore.deserialize_ros1(rawdata, connection.msgtype)
+
+                if connection.msgtype.endswith("Image"):
+                    if isinstance(self.dtype, dict):
+                        dtype = self.dtype.get(connection.topic, "uint8")
+                    else:
+                        dtype = self.dtype or "uint8"
+
+                    arr = np.frombuffer(msg.data, dtype=dtype).reshape(
+                        msg.height, msg.width, -1
+                    )
+
+                    if isinstance(self.colororder, dict):
+                        colororder = self.colororder.get(connection.topic, None)
+                    else:
+                        colororder = self.colororder
+
+                    if colororder is None and arr.shape[2] == 3:
+                        colororder = "BGR"
+
+                    img = Image(arr, colororder=colororder)
+                    img.timestamp = timestamp
+                    img.topic = connection.topic
+                    yield img
+
+                elif connection.msgtype.endswith("PointCloud2"):
+                    if not _open3d_available:
+                        raise ImportError(
+                            "open3d is required to read PointCloud2 messages. "
+                            "Install it with: pip install open3d"
+                        )
+
+                    raw = np.frombuffer(msg.data, dtype=np.uint8).reshape(
+                        -1, msg.point_step
+                    )
+
+                    def extract(field):
+                        dtype, size = _PC2_DTYPE[field.datatype]
+                        col = raw[:, field.offset : field.offset + size * field.count]
+                        return col.view(dtype).flatten().astype(np.float64)
+
+                    pc2_fields = {f.name: f for f in msg.fields}
+                    x = extract(pc2_fields["x"])
+                    y = extract(pc2_fields["y"])
+                    z = extract(pc2_fields["z"])
+
+                    mask = np.isfinite(x) & np.isfinite(y) & np.isfinite(z)
+                    points = np.column_stack([x[mask], y[mask], z[mask]])
+
+                    pcd = _o3d.geometry.PointCloud()
+                    pcd.points = _o3d.utility.Vector3dVector(points)
+                    pcd.timestamp = timestamp
+                    pcd.topic = connection.topic
+                    yield pcd
+
+                else:
+                    msg.topic = connection.topic
+                    yield msg
+        finally:
+            self._close_reader()
 
 
 if __name__ == "__main__":
