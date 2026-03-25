@@ -178,7 +178,7 @@ Using pip
 
 Install a snapshot from PyPI::
 
-	% pip install machinevision-toolbox-python
+	$ pip install machinevision-toolbox-python
 
 
 From GitHub source
@@ -186,147 +186,15 @@ From GitHub source
 
 Install the current code base from GitHub and pip install a link to that cloned copy::
 
-	% git clone https://github.com/petercorke/machinevision-toolbox-python.git
-	% cd machinevision-toolbox-python
-	% pip install -e .
-
-Command line tools
-==================
-
-All tools accept image file names as command line arguments.  These file names can be:
-
-* a file name.  If the file is not found locally, it is searched for in the accompanying
-  image data folder, for example ``street.png``
-* a URL, for example ``https://petercorke.com/files/images/mon
+	$ git clone https://github.com/petercorke/machinevision-toolbox-python.git
+	$ cd machinevision-toolbox-python
+	$ pip install -e .
 
 
-MVTB tool
----------
-
-``mvtbtool`` is a command line tool that starts an interactive IPython session with the
-MVTB toolbox, NumPy and Matplotlib already imported. It has the advantage of command
-history, tab completion, and inline help.  For example::
-
-	% mvtbtool
-	_  _ ____ ____ _  _ _ _  _ ____    _  _ _ ____ _ ____ _  _ 
-	|\/| |__| |    |__| | |\ | |___    |  | | [__  | |  | |\ | 
-	|  | |  | |___ |  | | | \| |___     \/  | ___] | |__| | \| 
-															
-	___ ____ ____ _    ___  ____ _  _                          
-	|  |  | |  | |    |__] |  |  \/                           
-	|  |__| |__| |___ |__] |__| _/\_  
-
-	for Python
-
-	You're running: MVTB==0.9.7, SMTB==1.1.13, NumPy==1.26.4, SciPy==1.14.1,
-					Matplotlib==3.10.0, OpenCV==4.10.0, Open3D==0.18.0
-	 .
-	 .
-	 .
-	>>> 
-
-Images can be loaded by listing them as command line arguments, either as a filename or a URL::
-
-	% mvtbtool street.png 
-
-and the images appear in the IPython session as ``img`` which is an instance, or a list
-of instances, of :class:`~machinevisiontoolbox.ImageCore.Image` objects, in the order
-they are listed on the command line. For example:: 
-
-	% mvtbtool street.png https://petercorke.com/files/images/monalisa.png
-
-A script can be run at startup using the ``--run`` option. For example:
-
-.. code-block:: python
-   :caption: myscript.py
-
-   img.disp()
-
-then we can run the script at startup with an image file by::
-
-	% mvtbtool street.png --run=myscript.py
-
-and the result is a display of the image in an interactive Matplotlib window and the
-IPython session is left open for further experimentation.
-
-`IPython <https://ipython.readthedocs.io/en/stable/index.html>`_ has many configuration options and mechanisms including command line arguments,
-configuration files and startup scripts.  The ``mvtbtool`` command line tool provides a
-simple way to start an IPython session with the MVTB toolbox preloaded and with some
-custom configuration.  For example, to specify a Matplotlib backend and run a startup
-script::
-
-	% mvtbtool --backend=Qt5Agg -i=myscript.py
-
-``mvtbtool``'s command line arguments are processed before IPython's command line options.
-
-Image tool
-----------
-
-``imtool`` is a command line tool that opens a window for each of the images specified
-on the command line.  For example::
-
-	% imtool street.png https://petercorke.com/files/images/monalisa.png
-
-Essentially, it is just another image browser, but images are displayed using ``idisp``
-which has a number of useful features such as the ability to display pixel values on
-hover, zoom and pan the image.
-
-
-Tag tool
----------
-
-``tagtool`` is a command line tool that highlights the AR markers (ArUco or AprilTag) in
-the specified image.  For example::
-
-	% tagtool lab-scene.png
-
-.. image:: https://github.com/petercorke/machinevision-toolbox-python/raw/main/figs/tagtool.png
-	:alt: Binary image showing bounding boxes and centroids
 
 Examples
 ========
 
-MVTB tool
----------
-
-An interactive IPython session with all the MVTB tools loaded. Start a session from
-the shell::
-
-	% mvtbtool
-	_  _ ____ ____ _  _ _ _  _ ____    _  _ _ ____ _ ____ _  _ 
-	|\/| |__| |    |__| | |\ | |___    |  | | [__  | |  | |\ | 
-	|  | |  | |___ |  | | | \| |___     \/  | ___] | |__| | \| 
-															
-	___ ____ ____ _    ___  ____ _  _                          
-	|  |  | |  | |    |__] |  |  \/                           
-	|  |__| |__| |___ |__] |__| _/\_  
-
-	for Python
-
-	You're running: MVTB==0.9.7, SMTB==1.1.13, NumPy==1.26.4, SciPy==1.14.1,
-                    Matplotlib==3.10.0, OpenCV==4.10.0, Open3D==0.18.0
-
-	from machinevisiontoolbox import *
-	from spatialmath import *
-
-	matplotlib interactive mode on
-
-	func/object?       - show brief help
-	help(func/object)  - show detailed help
-	func/object??      - show source code
-
-		
-	Python 3.10.16 (main, Dec 11 2024, 10:22:29) [Clang 14.0.6 ]
-	Type 'copyright', 'credits' or 'license' for more information
-	IPython 8.31.0 -- An enhanced Interactive Python. Type '?' for help.
-	Using matplotlib backend: macosx
-
-	>>> im = Image.Read("monalisa.png")
-
-	>>> im.disp()
-	Out[2]: <matplotlib.image.AxesImage at 0x1690e9720>
-
-It has the advantage of command history, tab completion, and inline help.
 
 Binary blobs
 ------------
@@ -493,5 +361,136 @@ Load the spectrum of sunlight at the Earth's surface and compute the CIE xy chro
 		[[0.33272798 0.3454013 ]]
 	>>> print(colorname(xy, 'xy'))
 		khaki
+
+Command line tools
+==================
+
+All tools accept image file names as command line arguments.  These file names can be:
+
+* a file name.  If the file is not found locally, it is searched for in the accompanying
+  image data folder, for example ``street.png``
+* a URL, for example ``https://petercorke.com/files/images/mon
+
+MVTB tool
+---------
+
+An interactive IPython session with the
+MVTB toolbox, NumPy and Matplotlib already imported. It has the advantage of command
+history, tab completion, and inline help.  For example::
+
+	$ mvtbtool
+	_  _ ____ ____ _  _ _ _  _ ____    _  _ _ ____ _ ____ _  _ 
+	|\/| |__| |    |__| | |\ | |___    |  | | [__  | |  | |\ | 
+	|  | |  | |___ |  | | | \| |___     \/  | ___] | |__| | \| 
+															
+	___ ____ ____ _    ___  ____ _  _                          
+	|  |  | |  | |    |__] |  |  \/                           
+	|  |__| |__| |___ |__] |__| _/\_  
+
+	for Python
+
+	You're running: MVTB==0.9.7, SMTB==1.1.13, NumPy==1.26.4, SciPy==1.14.1,
+					Matplotlib==3.10.0, OpenCV==4.10.0, Open3D==0.18.0
+	 .
+	 .
+	 .
+	>>> im = Image.Read("monalisa.png")
+	>>> im.disp()
+	Out[2]: <matplotlib.image.AxesImage at 0x1690e9720>
+
+Images can be loaded by listing them as command line arguments, either as a filename or a URL::
+
+	$ mvtbtool street.png 
+
+and the images appear in the IPython session as ``img`` which is an instance, or a list
+of instances, of :class:`~machinevisiontoolbox.ImageCore.Image` objects, in the order
+they are listed on the command line. For example:: 
+
+	$ mvtbtool street.png https://petercorke.com/files/images/monalisa.png
+
+A script can be run at startup using the ``--run`` option. For example:
+
+.. code-block:: python
+   :caption: myscript.py
+
+   img.disp()
+
+then we can run the script at startup with an image file by::
+
+	$ mvtbtool street.png --run=myscript.py
+
+and the result is a display of the image in an interactive Matplotlib window and the
+IPython session is left open for further experimentation.
+
+`IPython <https://ipython.readthedocs.io/en/stable/index.html>`_ has many configuration options and mechanisms including command line arguments,
+configuration files and startup scripts.  The ``mvtbtool`` command line tool provides a
+simple way to start an IPython session with the MVTB toolbox preloaded and with some
+custom configuration.  For example, to specify a Matplotlib backend and run a startup
+script::
+
+	$ mvtbtool --backend=Qt5Agg -i=myscript.py
+
+``mvtbtool``'s command line arguments are processed before IPython's command line options.
+
+.. command-output:: mvtbtool --help
+
+
+Image tool
+----------
+
+``imtool`` is a command line tool that opens a window for each of the images specified
+on the command line.  For example::
+
+	$ imtool street.png https://petercorke.com/files/images/monalisa.png
+
+Essentially, it is just another image browser, but images are displayed using ``idisp``
+which has a number of useful features such as the ability to display pixel values on
+hover, zoom and pan the image.
+
+.. command-output:: imtool --help
+
+Tag tool
+---------
+
+``tagtool`` is a command line tool that highlights the AR markers (ArUco or AprilTag) in
+the specified image.  For example::
+
+	$ tagtool lab-scene.png
+
+.. image:: https://github.com/petercorke/machinevision-toolbox-python/raw/main/figs/tagtool.png
+	:alt: Binary image showing bounding boxes and centroids
+
+.. command-output:: tagtool --help
+
+
+OCR tool
+--------
+
+``ocrtool`` is a command line tool that performs optical character recognition (OCR) on the specified image.  For example::
+
+	$ ocrtool text.png
+.. image::
+
+.. command-output:: ocrtool --help
+
+
+ROS bag tool
+------------
+
+``rosbagtool`` is a command line tool that reads images from a ROS bag file and displays them.  For example::
+
+	$ rosbagtool mybag.bag
+
+.. command-output:: rosbagtool --help
+
+
+Jupyter notebooks
+=================
+
+The Toolbox includes a number of Jupyter notebooks that demonstrate the use of the
+
+ROS and PyTorch interfaces
+==========================
+
 
 

@@ -53,6 +53,7 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx_favicon",
     "sphinx_copybutton",
+    "sphinxcontrib.programoutput",
     "blockname",
 ]
 

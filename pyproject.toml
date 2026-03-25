@@ -68,12 +68,11 @@ dev = ["pytest", "coverage", "flake8"]
 
 docs = [
     "sphinx",
-    "recommonmark",
     "pydata-sphinx-theme",
-    "sphinxcontrib-jsmath",
-    "sphinx-markdown-tables",
     "sphinx-favicon",
     "sphinx-copybutton",
+    "sphinxcontrib-programoutput",
+    "sphinx-autorun @ git+https://github.com/petercorke/sphinx-autorun.git",
 ]
 
 jupyter = ["ipywidgets", "ipympl"]
