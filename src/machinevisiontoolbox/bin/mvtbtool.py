@@ -1,23 +1,23 @@
 #!/usr/bin/env python3
+"""
+Interactive Machine Vision Toolbox shell — starts an IPython session with
+NumPy, MVTB, and SpatialMath pre-imported.
 
-# a simple Machine Vision Toolbox "shell", runs Python3 and loads in NumPy, MVTB, SMTB
-#
-# Run it from the shell by
-#
-#  % mvtbtool
-#
-# using an wrapper script built during package installation.
+Usage::
+
+    $ mvtbtool
+    $ mvtbtool street.png
+    $ mvtbtool street.png --run=myscript.py
+"""
 
 import argparse
-
-# import stuff
 import sys
 import textwrap
 from importlib.metadata import PackageNotFoundError, version
 from math import pi  # lgtm [py/unused-import]
 
-from matplotlib import image
 import numpy as np
+from matplotlib import image
 from spatialmath import *  # lgtm [py/polluting-import]
 from spatialmath.base import *  # lgtm [py/polluting-import]
 

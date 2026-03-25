@@ -1,20 +1,18 @@
 #!/usr/bin/env python3
 """
-Command-line tool to detect and display AR tags (ArUco/AprilTag) in images.
+Command-line tool to inspect and display images from ROS bag files.
 
 Usage::
 
-    $ tagtool lab-scene.png
+    $ bagtool mybag.bag
 """
 
 import argparse
 
 import matplotlib.pyplot as plt
 from colored import Fore, Style
-from spatialmath import Polygon2
-from spatialmath.base import plot_point, plot_text
 
-from machinevisiontoolbox import *  # lgtm [py/unused-import]
+from machinevisiontoolbox import Image, RosBag
 from machinevisiontoolbox.bin._bintools import CustomHelpFormatter, MVTB_LINK
 
 
@@ -45,47 +43,7 @@ def getargs():
     parser.add_argument(
         "-v", "--verbose", help="Show image details", action="store_true"
     )
-    parser.add_argument(
-        "-d",
-        "--dict",
-        type=str,
-        default="4x4_50",
-        help="Aruco dictionary to use, default is %(default)s",
-    )
-    parser.add_argument(
-        "-s",
-        "--side",
-        type=int,
-        default=25,
-        help="Tag side length, default is %(default)s",
-    )
-    parser.add_argument(
-        "-f",
-        "--focallength",
-        type=str,
-        default=None,
-        help="Focal length in units of pixels: f | fu,fv, default is %(default)s",
-    )
-    parser.add_argument(
-        "-p",
-        "--principalpoint",
-        type=str,
-        default=None,
-        help="Principal in units of pixels: pu,pv. If not specified use image centre, default is %(default)s",
-    )
-    parser.add_argument(
-        "-a",
-        "--axes",
-        help="Show axes on the image",
-        action="store_true",
-        default=False,
-    )
-    parser.add_argument(
-        "--gamma-correction",
-        action="store_true",
-        default=False,
-        help="Apply gamma decode to image, default is %(default)s",
-    )
+
     parser.add_argument(
         "--channel",
         choices=["r", "g", "b"],
@@ -200,22 +158,15 @@ def visualize_image(image, args, block):
 def main():
     args = getargs()
 
-    if len(args.files) > 10:
-        args.block = True
+    # if len(args.files) > 10:
+    #     args.block = True
 
-    for i, file in enumerate(args.files):
-        try:
-            img = Image.Read(file, rgb=False)
-        except ValueError:
-            print(f"File {file} not found")
+    #     visualize_image(img, args, block)
 
-        if i == len(args.files) - 1:
-            # last one
-            block = True
-        else:
-            block = args.block
-
-        visualize_image(img, args, block)
+    for filename in args.files:
+        bag = RosBag(filename)
+        print(f"{Fore.CYAN}{Style.BOLD}{bag}{Style.RESET}")
+        bag.print()
 
 
 if __name__ == "__main__":

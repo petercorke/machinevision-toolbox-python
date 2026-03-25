@@ -1,42 +1,24 @@
 #!/usr/bin/env python3
+"""
+Command-line tool to display images using the Machine Vision Toolbox.
 
-# interactive tool to browse images using machinevisiontoolbox.Image.disp()
-#
-# Run it from the shell by
-#
-#  % imtool
-#
+Usage::
 
+    $ imtool street.png monalisa.png
+"""
 
-# import stuff
 import argparse
-import textwrap as _textwrap
 
 from colored import Fore, Style
 
 from machinevisiontoolbox import *  # lgtm [py/unused-import]
+from machinevisiontoolbox.bin._bintools import LineWrapRawTextHelpFormatter, MVTB_LINK
 
 
 def getargs():
-    # https://stackoverflow.com/questions/40419276/python-how-to-print-text-to-console-as-hyperlink
-    def link(uri, label=None):
-        if label is None:
-            label = uri
-        parameters = ""
-
-        # OSC 8 ; params ; URI ST <name> OSC 8 ;; ST
-        escape_mask = "\033]8;{};{}\033\\{}\033]8;;\033\\"
-
-        return escape_mask.format(parameters, uri, label)
-
-    class LineWrapRawTextHelpFormatter(argparse.RawDescriptionHelpFormatter):
-        def _split_lines(self, text, width):
-            text = self._whitespace_matcher.sub(" ", text).strip()
-            return _textwrap.wrap(text, 80)
-
     parser = argparse.ArgumentParser(
         formatter_class=LineWrapRawTextHelpFormatter,
-        description=f"Display an image using {link('https://github.com/petercorke/machinevision-toolbox-python', 'Machine Vision Toolbox for Python')}",
+        description=f"Display an image using {MVTB_LINK}",
     )
     parser.add_argument(
         "files",

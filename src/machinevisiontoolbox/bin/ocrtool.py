@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-Command-line tool to detect and display AR tags (ArUco/AprilTag) in images.
+Command-line tool to perform optical character recognition (OCR) on images.
 
 Usage::
 
-    $ tagtool lab-scene.png
+    $ ocrtool text.png
 """
 
 import argparse

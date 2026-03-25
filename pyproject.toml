@@ -97,10 +97,16 @@ ignore = ["docs", "tests", "examples"]
 mvtbtool = "machinevisiontoolbox.bin.mvtbtool:main"
 imtool = "machinevisiontoolbox.bin.imtool:main"
 tagtool = "machinevisiontoolbox.bin.tagtool:main"
+ocrtool = "machinevisiontoolbox.bin.ocrtool:main"
+bagtool = "machinevisiontoolbox.bin.bagtool:main"
+labeltool = "machinevisiontoolbox.bin.labeltool:main"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.hatch.metadata]
+allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/machinevisiontoolbox"]
