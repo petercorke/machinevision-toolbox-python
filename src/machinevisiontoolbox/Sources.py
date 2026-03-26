@@ -44,6 +44,39 @@ class ImageSource(ABC):
     def __init__():
         pass
 
+    def torch(self, device="cpu", normalize=True):
+        """
+        Convert the entire collection into a single 4D PyTorch tensor.
+        Shape: (N, C, H, W) where N is the number of images.
+        """
+        if not self.images:
+            return torch.empty(0)
+
+        # 1. Consistency Check
+        # All images in a PyTorch batch MUST have the same dimensions.
+        first_shape = self.images[0].data.shape
+        for i, img in enumerate(self.images):
+            if img.data.shape != first_shape:
+                raise ValueError(
+                    f"All images must have the same shape for batching. "
+                    f"Image 0 is {first_shape}, but Image {i} is {img.data.shape}."
+                )
+
+        # 2. Efficient Conversion
+        # We leverage the individual Image.to_pytorch() logic,
+        # then stack them along a new 'batch' dimension.
+        # We remove the extra batch dim added by Image.to_pytorch (unsqueeze(0))
+        # before stacking to avoid a 5D tensor.
+        tensors = [
+            img.to_pytorch(device=device, normalize=normalize).squeeze(0)
+            for img in self.images
+        ]
+
+        # 3. Stack into a 4D tensor (N, C, H, W)
+        batch_tensor = torch.stack(tensors, dim=0)
+
+        return batch_tensor
+
 
 class VideoFile(ImageSource):
     """

@@ -40,6 +40,7 @@ from machinevisiontoolbox.ImageLineFeatures import ImageLineFeaturesMixin
 from machinevisiontoolbox.ImageMorph import ImageMorphMixin
 from machinevisiontoolbox.ImageMultiview import ImageMultiviewMixin
 from machinevisiontoolbox.ImagePointFeatures import ImagePointFeaturesMixin
+from machinevisiontoolbox.ImageTorch import ImageTorchMixin
 from machinevisiontoolbox.ImageProcessing import ImageProcessingMixin
 from machinevisiontoolbox.ImageRegionFeatures import ImageRegionFeaturesMixin
 from machinevisiontoolbox.ImageReshape import ImageReshapeMixin
@@ -71,6 +72,7 @@ class Image(
     ImageLineFeaturesMixin,
     ImagePointFeaturesMixin,
     ImageMultiviewMixin,
+    ImageTorchMixin,
 ):
     def __init__(
         self,

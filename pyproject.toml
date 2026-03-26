@@ -79,6 +79,8 @@ jupyter = ["ipywidgets", "ipympl"]
 
 open3d = ["open3d-python"]
 
+torch = ["torch"]
+
 [tool.pytest.ini_options]
 pythonpath = ["src", "mvtb-data", "mvtb-data/mvtbdata"]
 addopts = "--tb=short"
