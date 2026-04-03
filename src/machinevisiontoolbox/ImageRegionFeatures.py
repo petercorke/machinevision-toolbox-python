@@ -469,13 +469,23 @@ class OCRWord:
 
         :seealso: :func:`~machinevisiontoolbox.base.graphics.plot_labelbox`
         """
-        plot_labelbox(
-            self.text,
-            tl=(self.l, self.t),
-            wh=(self.w, self.h),
-            color="y",
-            linestyle="--",
-        )
+        try:
+            plot_labelbox(
+                self.text,
+                lb=(self.l, self.t),
+                wh=(self.w, self.h),
+                color="y",
+                linestyle="--",
+            )
+        except TypeError:
+            # workaround for spatialmath bug where linestyle is passed twice to
+            # matplotlib.patches.Rectangle
+            plot_labelbox(
+                self.text,
+                lb=(self.l, self.t),
+                wh=(self.w, self.h),
+                color="y",
+            )
 
 
 if __name__ == "__main__":
