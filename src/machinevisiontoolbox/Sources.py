@@ -1796,6 +1796,10 @@ class SyncRosStreams:
         for stream in self.streams:
             stream.__exit__(exc_type, exc, tb)
 
+    def __str__(self) -> str:
+        topics = ", ".join(getattr(stream, "topic", "<unknown>") for stream in self.streams)
+        return f"SyncRosStreams([{topics}])"
+
     def __repr__(self) -> str:
         return (
             f"SyncRosStreams(nstreams={len(self.streams)}, "

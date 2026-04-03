@@ -549,6 +549,16 @@ class TestSyncRosStreams(unittest.TestCase):
         self.assertIn("SyncRosStreams", r)
         self.assertIn("nstreams=2", r)
 
+    def test_str_includes_topics(self):
+        s1, s2 = _fake_stream(1), _fake_stream(1)
+        s1.topic = "/camera/rgb"
+        s2.topic = "/camera/depth"
+        sync = SyncRosStreams([s1, s2], tolerance=0.05)
+        s = str(sync)
+        self.assertIn("SyncRosStreams", s)
+        self.assertIn("/camera/rgb", s)
+        self.assertIn("/camera/depth", s)
+
 
 # ---------------------------------------------------------------------------
 # FakeRosBridge – minimal rosbridge v2.0 WebSocket server for live tests
