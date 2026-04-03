@@ -13,7 +13,7 @@ from machinevisiontoolbox.Sources import (
 from machinevisiontoolbox.ImageReshape import *
 from machinevisiontoolbox.ImageIO import *
 from machinevisiontoolbox import base
-from machinevisiontoolbox.ImageSpatial import Kernel
+from machinevisiontoolbox.Kernel import Kernel
 from machinevisiontoolbox.ImageBlobs import Blobs, Blob
 from machinevisiontoolbox.ImageWholeFeatures import *
 from machinevisiontoolbox.ImageRegionFeatures import *

@@ -25,7 +25,7 @@ from spatialmath.base import islistof, isscalar
 # from numpy.lib.arraysetops import isin
 from machinevisiontoolbox.base import float_image, int_image, name2color
 from machinevisiontoolbox.base.imageio import convert, idisp, iread, iwrite
-from machinevisiontoolbox.ImageSpatial import Kernel
+from machinevisiontoolbox.Kernel import Kernel
 from machinevisiontoolbox.mvtb_types import Dtype
 
 # import spatialmath.base.argcheck as argcheck

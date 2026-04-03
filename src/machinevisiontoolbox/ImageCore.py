@@ -44,7 +44,8 @@ from machinevisiontoolbox.ImageTorch import ImageTorchMixin
 from machinevisiontoolbox.ImageProcessing import ImageProcessingMixin
 from machinevisiontoolbox.ImageRegionFeatures import ImageRegionFeaturesMixin
 from machinevisiontoolbox.ImageReshape import ImageReshapeMixin
-from machinevisiontoolbox.ImageSpatial import ImageSpatialMixin, Kernel
+from machinevisiontoolbox.ImageSpatial import ImageSpatialMixin
+from machinevisiontoolbox.Kernel import Kernel
 from machinevisiontoolbox.ImageWholeFeatures import ImageWholeFeaturesMixin
 from machinevisiontoolbox.mvtb_types import *
 

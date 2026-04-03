@@ -21,6 +21,7 @@ if TYPE_CHECKING:
     from machinevisiontoolbox.ImageCore import Image
 
 from machinevisiontoolbox._image_typing import _ImageBase
+from machinevisiontoolbox.Kernel import Kernel
 
 
 class ImageMorphMixin(_ImageBase):
@@ -28,7 +29,7 @@ class ImageMorphMixin(_ImageBase):
     Image processing morphological operations on the Image class
     """
 
-    def _getse(self, se: np.ndarray | list) -> np.ndarray:
+    def _getse(self, se: np.ndarray | Kernel | list) -> np.ndarray:
         """
         Get structuring element
 
@@ -40,6 +41,8 @@ class ImageMorphMixin(_ImageBase):
         - ``IM.getse(se)`` converts matrix ``se`` into a uint8 numpy array for
           opencv, which only accepts kernels of type CV_8U
         """
+        if isinstance(se, Kernel):
+            se = se.K
         se = np.array(se).astype(np.uint8)
         if se.min() < 0:
             raise ValueError(
