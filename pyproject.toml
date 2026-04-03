@@ -66,6 +66,8 @@ dependencies = [
 #  jupyter - jupyter notebook support
 #  open3d - open3d support (open3d generally won't work with latest Python)
 
+dev = ["pytest", "coverage", "ruff"]
+
 ros = ["rosbags", "roslibpy", "websockets"]
 
 docs = [
@@ -87,11 +89,14 @@ torch = ["torch"]
 pythonpath = ["src", "mvtb-data", "mvtb-data/mvtbdata"]
 addopts = "--tb=short"
 
-[tool.isort]
-known_first_party = ["machinevisiontoolbox"]
-multi_line_output = 3
-include_trailing_comma = true
-force_sort_within_sections = false
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["machinevisiontoolbox"]
 
 [tool.pyright]
 include = ["src"]
@@ -125,7 +130,7 @@ skip = "*.pyc,htmlcov"
 
 [tool.black]
 line-length = 88
-target-version = ['py310', 'py311', 'py312']
+target-version = ['py310', 'py311', 'py312', 'py313']
 exclude = "camera_derivatives.py"
 
 [tool.coverage.run]
