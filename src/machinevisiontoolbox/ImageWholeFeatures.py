@@ -373,6 +373,8 @@ class ImageWholeFeaturesMixin(_ImageBase):
         :references:
             - |RVC3|, Section 14.4.3.
 
+        .. important:: Uses OpenCV function ``cv2.calcHist`` which accepts single-channel, CV_8U or CV_32F images (float64 images are automatically converted to float32).
+
         :seealso:
             :meth:`stats` 
             :class:`~machinevisiontoolbox.ImageWholeFeatures.Histogram`
@@ -651,6 +653,8 @@ class ImageWholeFeaturesMixin(_ImageBase):
         :references:
             - |RVC3|, Section 12.1.3.4.
 
+        .. important:: Uses OpenCV function ``cv2.moments`` which accepts single-channel, CV_8U, CV_16U, CV_16S, CV_32F or CV_64F images (colour images are automatically converted to greyscale).
+
         :seealso: :meth:`mpq` :meth:`npq` :meth:`upq` `opencv.moments <https://docs.opencv.org/4.x/d8/d23/classcv_1_1Moments.html>`_
         """
         return cv.moments(array=self.mono().to_int(), binaryImage=binary)
@@ -683,11 +687,14 @@ class ImageWholeFeaturesMixin(_ImageBase):
               Trans. on Information Theory, IT-8:pp. 179-187, 1962.
             - |RVC3|, Section 12.1.3.6.
 
+        .. important:: Uses OpenCV functions ``cv2.moments`` and ``cv2.HuMoments`` which accept single-channel, CV_8U, CV_16U, CV_16S, CV_32F or CV_64F images.
+
         :seealso: :meth:`moments` `opencv.HuMoments <https://docs.opencv.org/4.x/d3/dc0/group__imgproc__shape.html#gab001db45c1f1af6cbdbe64df04c4e944>`_
         """
 
         # TODO check for binary image
 
+        self._opencv_type_check(self._A, "single-channel", "CV_8U", "CV_16U", "CV_16S", "CV_32F", "CV_64F")
         moments = cv.moments(array=self._A)
         hu = cv.HuMoments(m=moments)
         return hu.flatten()

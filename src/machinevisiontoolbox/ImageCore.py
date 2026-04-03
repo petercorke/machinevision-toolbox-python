@@ -820,6 +820,65 @@ class Image(
         self._colororder = cdict
 
     @staticmethod
+    def _opencv_type_check(array: np.ndarray, *accepted_types: str) -> None:
+        """
+        Check that a NumPy array has a type accepted by an OpenCV function.
+
+        :param array: array to check
+        :type array: np.ndarray
+        :param accepted_types: accepted OpenCV type strings
+        :type accepted_types: str
+        :raises TypeError: if the array dtype or channel count is not accepted by OpenCV
+
+        Recognised type strings:
+
+        - Depth strings: ``"CV_8U"``, ``"CV_8S"``, ``"CV_16U"``, ``"CV_16S"``,
+          ``"CV_32S"``, ``"CV_32F"``, ``"CV_64F"``
+        - Channel strings: ``"single-channel"`` (array must be 2D),
+          ``"multiple-channel"`` (array may be 2D or 3D)
+
+        Example::
+
+            Image._opencv_type_check(img, "single-channel", "CV_8U")
+            Image._opencv_type_check(img, "multiple-channel", "CV_8U", "CV_16S", "CV_32F")
+        """
+        _dtype_map = {
+            "CV_8U": np.uint8,
+            "CV_8S": np.int8,
+            "CV_16U": np.uint16,
+            "CV_16S": np.int16,
+            "CV_32S": np.int32,
+            "CV_32F": np.float32,
+            "CV_64F": np.float64,
+        }
+        _channel_specs = {"single-channel", "multiple-channel"}
+
+        dtype_specs = [t for t in accepted_types if t not in _channel_specs]
+        channel_types = [t for t in accepted_types if t in _channel_specs]
+
+        if channel_types:
+            if "single-channel" in channel_types and array.ndim != 2:
+                raise TypeError(
+                    f"OpenCV requires a single-channel (2D) array, got shape {array.shape}"
+                )
+            if "multiple-channel" in channel_types and array.ndim not in (2, 3):
+                raise TypeError(
+                    f"OpenCV requires a 2D or 3D array, got shape {array.shape}"
+                )
+
+        if dtype_specs:
+            for t in dtype_specs:
+                if t not in _dtype_map:
+                    raise ValueError(f"unknown OpenCV type string: {t!r}")
+            accepted_dtypes = [np.dtype(_dtype_map[t]) for t in dtype_specs]
+            # OpenCV Python bindings accept np.bool_ arrays as CV_8U (8-bit)
+            if "CV_8U" in dtype_specs:
+                accepted_dtypes.append(np.dtype(np.bool_))
+            if array.dtype not in accepted_dtypes:
+                type_list = ", ".join(dtype_specs)
+                raise TypeError(f"OpenCV requires {type_list}, got {array.dtype}")
+
+    @staticmethod
     def colordict(colororder) -> dict[str, int]:
         """
         Parse a color order specification

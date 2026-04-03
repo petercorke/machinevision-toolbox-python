@@ -101,6 +101,8 @@ class HoughFeature:
         :references:
             - |RVC3|, Section 12.2.
 
+        .. important:: Uses OpenCV function ``cv2.HoughLines`` which accepts single-channel, CV_8U images (images are pre-converted to uint8 when the :class:`Hough` object is created).
+
         :seealso: :meth:`plot_lines` :meth:`lines_p` `opencv.HoughLines <https://docs.opencv.org/4.x/dd/d1a/group__imgproc__feature.html#ga46b4e588934f6c8dfd509cc6e0e4545a>`_
         """
         lines = cv.HoughLines(
@@ -133,6 +135,8 @@ class HoughFeature:
         Return a set of line segments that have at least ``minvotes`` of support.  Each
         line segment is described by its end points :math:`(u_1, v_1)` and
         :math:`(u_2, v_2)`.
+
+        .. important:: Uses OpenCV function ``cv2.HoughLinesP`` which accepts single-channel, CV_8U images (images are pre-converted to uint8 when the :class:`Hough` object is created).
 
         :seealso: :meth:`plot_lines` :meth:`lines` `opencv.HoughLinesP <https://docs.opencv.org/4.x/dd/d1a/group__imgproc__feature.html#ga8618180a5948286384e3b7ca02f6feeb>`_
         """

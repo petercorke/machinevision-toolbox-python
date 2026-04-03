@@ -970,6 +970,8 @@ class ImageSpatialMixin:
         :references:
             - |RVC3|, Section 11.5.1.
 
+        .. important:: Uses OpenCV functions ``cv2.filter2D`` and ``cv2.copyMakeBorder`` which accept multiple-channel, CV_8U, CV_16U, CV_16S, CV_32F or CV_64F images.
+
         :seealso:
             :class:`~.Kernel`
             :meth:`~smooth`
@@ -1002,6 +1004,7 @@ class ImageSpatialMixin:
         if mode not in modeopt:
             raise ValueError(mode, "opt is not a valid option")
 
+        self._opencv_type_check(self._A, "multiple-channel", "CV_8U", "CV_16U", "CV_16S", "CV_32F", "CV_64F")
         img = self._A
         if border == "pad" and value != 0:
             img = cv.copyMakeBorder(
@@ -1134,10 +1137,14 @@ class ImageSpatialMixin:
         :references:
             - |RVC3|, Section 12.3.1.
 
+        .. important:: Uses OpenCV function ``cv2.cornerHarris`` which accepts single-channel, CV_8U, CV_32F or CV_64F images (colour images are automatically converted to greyscale).
+
         :seealso:
             :meth:`gradients`
             :meth:`Harris`
+            `cv2.cornerHarris <https://docs.opencv.org/4.x/dd/d1a/group__imgproc__feature.html#gac1fc3598018010880e370e2f709b4345>`_
         """
+        self._opencv_type_check(self._A, "multiple-channel", "CV_8U", "CV_32F", "CV_64F")
         dst = cv.cornerHarris(src=self.mono()._A, blockSize=2, ksize=2 * h + 1, k=k)
         return self.__class__(dst)
 
@@ -1338,13 +1345,17 @@ class ImageSpatialMixin:
         :references:
             - |RVC3|, Section 12.3.2.
 
+        .. important:: Uses OpenCV function ``cv2.pyrDown`` which accepts single-channel, CV_8U, CV_16U, CV_16S, CV_32F or CV_64F images (colour images are automatically converted to greyscale).
+
         :seealso:
             :meth:`smooth`
             :meth:`scalespace`
+            `cv2.pyrDown <https://docs.opencv.org/4.x/d4/d86/group__imgproc__filter.html#gaf9bba239dfca11654cb7f50f889fc2ff>`_
         """
 
         # check inputs, greyscale only
         im = self.mono()
+        self._opencv_type_check(im._A, "single-channel", "CV_8U", "CV_16U", "CV_16S", "CV_32F", "CV_64F")
 
         if not argcheck.isscalar(sigma):
             raise ValueError(sigma, "sigma must be a scalar")
@@ -1621,8 +1632,11 @@ class ImageSpatialMixin:
         :references:
             - |RVC3|, Section 11.6.4.
 
+        .. important:: Uses OpenCV function ``cv2.distanceTransform`` which accepts single-channel, CV_8U images.
+
         :seealso: `opencv.distanceTransform <https://docs.opencv.org/4.x/d7/d1b/group__imgproc__misc.html#ga8a0b7fdfcb7a13dde018988ba3a43042>`_
         """
+        self._opencv_type_check(self._A, "single-channel", "CV_8U")
         # OpenCV does distance to nearest zero pixel
         # this function does distance to nearest non-zero pixel by default,
         # and the OpenCV thing if invert=True
@@ -1688,6 +1702,8 @@ class ImageSpatialMixin:
         :references:
             - |RVC3|, Section 12.1.2.1.
 
+        .. important:: Uses OpenCV function ``cv2.connectedComponents`` which accepts single-channel, CV_8U images.
+
         :seealso:
             :meth:`blobs`
             `cv2.connectedComponents <https://docs.opencv.org/4.x/d3/dc0/group__imgproc__shape.html#gaedef8c7340499ca391d459122e51bef5>`_
@@ -1697,6 +1713,7 @@ class ImageSpatialMixin:
         if not (connectivity in [4, 8]):
             raise ValueError(conn, "connectivity must be 4 or 8")
 
+        self._opencv_type_check(self._A, "single-channel", "CV_8U")
         # make labels uint32s, unique and never recycled?
         # set ltype to default to cv.CV_32S
         if ltype == "int32":
@@ -2136,6 +2153,8 @@ class ImageSpatialMixin:
         :references:
             - |RVC3|, Section 11.5.2.
 
+        .. important:: Uses OpenCV function ``cv2.matchTemplate`` which accepts multiple-channel, CV_8U or CV_32F images.
+
         :seealso: `cv2.matchTemplate <https://docs.opencv.org/4.x/df/dfb/group__imgproc__object.html#ga586ebfb0a7fb604b35a23d85391329be>`_
         """
 
@@ -2143,6 +2162,7 @@ class ImageSpatialMixin:
         if ((T.shape[0] % 2) == 0) or ((T.shape[1] % 2) == 0):
             raise ValueError("template T must have odd dimensions")
 
+        self._opencv_type_check(self._A, "multiple-channel", "CV_8U", "CV_32F")
         metricdict = {
             "ssd": cv.TM_SQDIFF,
             "zssd": cv.TM_SQDIFF,

@@ -104,7 +104,9 @@ class ImageMorphMixin(_ImageBase):
         :references:
             - |RVC3|, Section 11.6.
 
-        :seealso: :meth:`dilate`
+        .. important:: Uses OpenCV function ``cv2.erode`` which accepts multiple-channel, CV_8U, CV_16U, CV_16S, CV_32F or CV_64F images.
+
+        :seealso: :meth:`dilate` :meth:`open` :meth:`close` :meth:`morph`
             `opencv.erode <https://docs.opencv.org/4.x/d4/d86/group__imgproc__filter.html#gaeb1e0c1033e3f6b891a25d0511362aeb>`_
         """
 
@@ -118,6 +120,9 @@ class ImageMorphMixin(_ImageBase):
         if n <= 0:
             raise ValueError(n, "n must be greater than 0")
 
+        self._opencv_type_check(
+            self._A, "multiple-channel", "CV_8U", "CV_16U", "CV_16S", "CV_32F", "CV_64F"
+        )
         out = cv.erode(
             src=self._A,
             kernel=self._getse(se),
@@ -186,7 +191,9 @@ class ImageMorphMixin(_ImageBase):
         :references:
             - |RVC3|, Section 11.6.
 
-        :seealso: :meth:`erode` `opencv.dilate <https://docs.opencv.org/4.x/d4/d86/group__imgproc__filter.html#ga4ff0f3318642c4f469d0e11f242f3b6c>`_
+        .. important:: Uses OpenCV function ``cv2.dilate`` which accepts multiple-channel, CV_8U, CV_16U, CV_16S, CV_32F or CV_64F images.
+
+        :seealso: :meth:`erode` :meth:`morph` :meth:`open` :meth:`close` `opencv.dilate <https://docs.opencv.org/4.x/d4/d86/group__imgproc__filter.html#ga4ff0f3318642c4f469d0e11f242f3b6c>`_
         """
 
         # check if valid input:
@@ -195,8 +202,11 @@ class ImageMorphMixin(_ImageBase):
         if n <= 0:
             raise ValueError(n, "n must be greater than 0")
 
+        self._opencv_type_check(
+            self._A, "multiple-channel", "CV_8U", "CV_16U", "CV_16S", "CV_32F", "CV_64F"
+        )
         out = cv.dilate(
-            src=self.array_as("uint8"),
+            src=self._A,
             kernel=self._getse(se),
             iterations=n,
             borderType=self._bordertype_cv(border, exclude=("wrap")),
@@ -258,7 +268,9 @@ class ImageMorphMixin(_ImageBase):
         :references:
             - |RVC3|, Section 11.6.
 
-        :seealso: :meth:`erode` :meth:`dilate` `opencv.morphologyEx <https://docs.opencv.org/4.x/d4/d86/group__imgproc__filter.html#ga67493776e3ad1a3df63883829375201f>`_
+        .. important:: Uses OpenCV function ``cv2.morphologyEx`` which accepts multiple-channel, CV_8U, CV_16U, CV_16S, CV_32F or CV_64F images.
+
+        :seealso: :meth:`erode` :meth:`dilate` :meth:`open` :meth:`close` `opencv.morphologyEx <https://docs.opencv.org/4.x/d4/d86/group__imgproc__filter.html#ga67493776e3ad1a3df63883829375201f>`_
         """
 
         # check if valid input:
@@ -279,6 +291,10 @@ class ImageMorphMixin(_ImageBase):
         else:
             image = self._A
 
+        self._opencv_type_check(
+            image, "multiple-channel", "CV_8U", "CV_16U", "CV_16S", "CV_32F", "CV_64F"
+        )
+
         if op == "min":
             out = cv.morphologyEx(
                 src=image,
@@ -291,7 +307,7 @@ class ImageMorphMixin(_ImageBase):
             )
         elif op == "max":
             out = cv.morphologyEx(
-                src=self._A,
+                src=image,
                 op=cv.MORPH_DILATE,
                 kernel=self._getse(se),
                 iterations=n,
@@ -301,7 +317,7 @@ class ImageMorphMixin(_ImageBase):
             )
         elif op == "diff":
             out = cv.morphologyEx(
-                src=self._A,
+                src=image,
                 op=cv.MORPH_GRADIENT,
                 kernel=self._getse(se),
                 iterations=n,
@@ -370,13 +386,18 @@ class ImageMorphMixin(_ImageBase):
         :references:
             - |RVC3|, Section 11.6.
 
-        :seealso: :meth:`close :meth:`morph` `opencv.morphologyEx <https://docs.opencv.org/4.x/d4/d86/group__imgproc__filter.html#ga67493776e3ad1a3df63883829375201f>`_
+        .. important:: Uses OpenCV function ``cv2.morphologyEx`` which accepts multiple-channel, CV_8U, CV_16U, CV_16S, CV_32F or CV_64F images.
+
+        :seealso: :meth:`close` :meth:`morph` :meth:`erode` :meth:`dilate` `opencv.morphologyEx <https://docs.opencv.org/4.x/d4/d86/group__imgproc__filter.html#ga67493776e3ad1a3df63883829375201f>`_
         """
 
         # probably cleanest approach:
         # out = [self.erode(se, **kwargs).dilate(se, **kwargs) for im in self]
         # return self.__class__(out)
 
+        self._opencv_type_check(
+            self._A, "multiple-channel", "CV_8U", "CV_16U", "CV_16S", "CV_32F", "CV_64F"
+        )
         out = cv.morphologyEx(
             src=self._A,
             op=cv.MORPH_OPEN,
@@ -444,8 +465,13 @@ class ImageMorphMixin(_ImageBase):
         :references:
             - |RVC3|, Section 11.6.
 
-        :seealso: :meth:`open` :meth:`morph` `opencv.morphologyEx <https://docs.opencv.org/4.x/d4/d86/group__imgproc__filter.html#ga67493776e3ad1a3df63883829375201f>`_
+        .. important:: Uses OpenCV function ``cv2.morphologyEx`` which accepts multiple-channel, CV_8U, CV_16U, CV_16S, CV_32F or CV_64F images.
+
+        :seealso: :meth:`open` :meth:`morph` :meth:`erode` :meth:`dilate` `opencv.morphologyEx <https://docs.opencv.org/4.x/d4/d86/group__imgproc__filter.html#ga67493776e3ad1a3df63883829375201f>`_
         """
+        self._opencv_type_check(
+            self._A, "multiple-channel", "CV_8U", "CV_16U", "CV_16S", "CV_32F", "CV_64F"
+        )
         out = cv.morphologyEx(
             src=self._A,
             op=cv.MORPH_CLOSE,
@@ -509,6 +535,8 @@ class ImageMorphMixin(_ImageBase):
         :references:
             - |RVC3|, Section 11.6.3.
 
+        .. important:: Uses OpenCV function ``cv2.morphologyEx`` (with ``MORPH_HITMISS``) which accepts single-channel, CV_8U or CV_16S images.
+
         :seealso: :meth:`thin` :meth:`endpoint` :meth:`triplepoint`
             `opencv.morphologyEx
             <https://docs.opencv.org/4.x/d4/d86/group__imgproc__filter.html#ga67493776e3ad1a3df63883829375201f>`_
@@ -519,6 +547,7 @@ class ImageMorphMixin(_ImageBase):
         if s2 is not None:
             s1 = s1 - s2
 
+        self._opencv_type_check(self._A, "single-channel", "CV_8U", "CV_16S")
         out = cv.morphologyEx(src=self._A, op=cv.MORPH_HITMISS, kernel=s1)
         return self.__class__(out, dtype=self.dtype)
 

@@ -258,6 +258,8 @@ class ImageColorMixin(_ImageBase):
           :references:
               - |RVC3|, Section 12.1.1.2.
 
+        .. important:: Uses OpenCV function ``cv2.kmeans`` which accepts multiple-channel, CV_32F images (images are automatically converted to float32).
+
         :seealso: `opencv.kmeans <https://docs.opencv.org/4.x/d5/d38/group__core__cluster.html#ga9a34dc06c6ec9460e90860f15bcd2f88>`_
         """
         # TODO

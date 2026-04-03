@@ -74,8 +74,11 @@ class ImageProcessingMixin(_ImageBase):
         :references:
             - |RVC3|, Section 11.3.
 
+        .. important:: Uses OpenCV function ``cv2.LUT`` which accepts multiple-channel, CV_8U images.
+
         :seealso: `cv2.LUT <https://docs.opencv.org/4.x/d2/de8/group__core__array.html#gab55b8d062b7f5587720ede032d34156f>`_
         """
+        self._opencv_type_check(self._A, "multiple-channel", "CV_8U")
         image = self.array_as("uint8")
         lut = np.array(lut).astype(np.uint8)
         if lut.ndim == 2:
@@ -298,8 +301,11 @@ class ImageProcessingMixin(_ImageBase):
         :references:
             - |RVC3|, Section 11.3.
 
+        .. important:: Uses OpenCV function ``cv2.equalizeHist`` which accepts single-channel, CV_8U images.
+
         :seealso: `cv2.equalizeHist <https://docs.opencv.org/4.x/d6/dc7/group__imgproc__hist.html#ga7e54091f0c937d49bf84152a16f76d6e>`_
         """
+        self._opencv_type_check(self._A, "single-channel", "CV_8U")
         out = cv.equalizeHist(src=self.array_as("uint8"))
         return self.__class__(self.like(out))
 
@@ -433,12 +439,15 @@ class ImageProcessingMixin(_ImageBase):
               J. Histochem. Cytochem. 25 (7): 741–53.
             - |RVC3|, Section 12.1.1.
 
+        .. important:: Uses OpenCV function ``cv2.threshold`` which accepts multiple-channel, CV_8U, CV_16U, CV_16S, CV_32F or CV_64F images.
+
         :seealso:
             :meth:`threshold_interactive`
             :meth:`threshold_adaptive_`
             :meth:`otsu`
             `opencv.threshold <https://docs.opencv.org/4.x/d7/d1b/group__imgproc__misc.html#gae8a4a146d1ca78c626a53577199e9c57>`_
         """
+        self._opencv_type_check(self._A, "multiple-channel", "CV_8U", "CV_16U", "CV_16S", "CV_32F", "CV_64F")
 
         # dictionary of threshold options from OpenCV
         options_dict = {
@@ -637,6 +646,8 @@ class ImageProcessingMixin(_ImageBase):
         :references:
             - |RVC3|, Section 12.1.1.1.
 
+        .. important:: Uses OpenCV function ``cv2.adaptiveThreshold`` which accepts single-channel, CV_8U images.
+
         :seealso:
             :meth:`threshold`
             :meth:`threshold_interactive`
@@ -648,6 +659,7 @@ class ImageProcessingMixin(_ImageBase):
 
         if self.iscolor:
             raise ValueError("adaptive thresholding only works for grayscale images")
+        self._opencv_type_check(self._A, "single-channel", "CV_8U")
         im = self.array_as("uint8")  # only accepts 8-channel image
 
         if blocksize is not None:
@@ -754,6 +766,8 @@ class ImageProcessingMixin(_ImageBase):
             - For ``uint8`` images the result may be saturated.  To avoid this specify ``dtype='float'`` and the result will be a floating point image.
             - For a multiplane image each plane is processed independently.
 
+        .. important:: Uses OpenCV function ``cv2.addWeighted`` which accepts multiple-channel, CV_8U, CV_16U, CV_16S, CV_32F or CV_64F images.
+
         :seealso: :meth:`choose` `cv2.addWeighted <https://docs.opencv.org/4.x/d2/de8/group__core__array.html#gafafb2513349db3bcff51f54ee5592a19>`_
         """
 
@@ -773,6 +787,7 @@ class ImageProcessingMixin(_ImageBase):
 
         if beta is None:
             beta = 1 - alpha
+        self._opencv_type_check(self._A, "multiple-channel", "CV_8U", "CV_16U", "CV_16S", "CV_32F", "CV_64F")
         out = cv.addWeighted(
             src1=self._A,
             alpha=alpha,
@@ -836,6 +851,8 @@ class ImageProcessingMixin(_ImageBase):
               value corresponding to a greyscale, a 3-vector corresponding to a
               color value, or a string containing the name of a color which is
               found using :meth:`name2color`.
+
+        .. important:: Uses OpenCV functions ``cv2.bitwise_and`` and ``cv2.bitwise_xor`` which accept multiple-channel, CV_8U, CV_16U, CV_16S, CV_32S, CV_32F or CV_64F images.
 
         :seealso: :func:`~machinevisiontoolbox.base.color.name2color` `opencv.bitwise_and <https://docs.opencv.org/4.x/d2/de8/group__core__array.html#ga60b4d04b251ba5eb1392c34425497e14>`_
         """
