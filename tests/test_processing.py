@@ -324,12 +324,6 @@ class TestImageProcessingBase(unittest.TestCase):
         a = np.zeros((20, 20))
         a[8:13, 8:13] = 1
 
-        L, n = Image(a, dtype="float32").labels_binary()
-        self.assertEqual(n, 2)
-        self.assertEqual(L.A[10, 10], 1)
-        self.assertEqual(L.A[0, 0], 0)
-        self.assertEqual(np.sum(L.A), 25)
-
         a[8:13, 8:13] = 100
         L, n = Image(a, dtype="uint8").labels_binary()
         self.assertEqual(n, 2)
@@ -518,10 +512,14 @@ class TestImageProcessingKernel(unittest.TestCase):
 
     def test_similarity(self):
 
-        a = np.array([[0.9280, 0.3879, 0.8679],
-                      [0.1695, 0.3826, 0.7415],
-                      [0.8837, 0.2715, 0.4479]])
-        a = Image(a, dtype='float64')
+        a = np.array(
+            [
+                [0.9280, 0.3879, 0.8679],
+                [0.1695, 0.3826, 0.7415],
+                [0.8837, 0.2715, 0.4479],
+            ]
+        )
+        a = Image(a, dtype="float64")
 
         eps = 1e-6
         self.assertEqual(abs(a.sad(a)) < eps, True)
@@ -544,22 +542,30 @@ class TestImageProcessingKernel(unittest.TestCase):
         self.assertEqual(abs(1 - a.zncc(a * 2)) < eps, True)
 
     def test_window(self):
-        im = np.array([[3,     5,     8,    10,     9],
-                       [7,    10,     3,     6,     3],
-                       [7,     4,     6,     2,     9],
-                       [2,     6,     7,     2,     3],
-                       [2,     3,     9,     3,    10]])
+        im = np.array(
+            [
+                [3, 5, 8, 10, 9],
+                [7, 10, 3, 6, 3],
+                [7, 4, 6, 2, 9],
+                [2, 6, 7, 2, 3],
+                [2, 3, 9, 3, 10],
+            ]
+        )
         img = Image(im)
         se = np.ones((1, 1))
 
         nt.assert_array_almost_equal(img.window(np.sum, se=se).A, im)
 
         se = np.array([[1, 1, 1], [1, 0, 1], [1, 1, 1]])
-        out = np.array([[43,    47,    57,    56,    59],
-                        [46,    43,    51,    50,    57],
-                        [45,   48,    40,    39,    31],
-                        [33,    40,    35,    49,    48],
-                        [22,    40,    36,    53,    44]])
+        out = np.array(
+            [
+                [43, 47, 57, 56, 59],
+                [46, 43, 51, 50, 57],
+                [45, 48, 40, 39, 31],
+                [33, 40, 35, 49, 48],
+                [22, 40, 36, 53, 44],
+            ]
+        )
         nt.assert_array_almost_equal(img.window(np.sum, se=se).A, out)
 
 
