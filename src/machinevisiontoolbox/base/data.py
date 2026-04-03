@@ -6,6 +6,7 @@ package, sidestepping PyPI size limits by keeping large data independent of code
 from __future__ import annotations
 
 import importlib
+import importlib.resources
 from pathlib import Path
 from typing import Any, Callable
 
@@ -181,8 +182,7 @@ def mvtb_path_to_datafile(
 
     # otherwise, look for it in mvtbdata
 
-    mvtbdata = importlib.import_module("mvtbdata")
-    root = Path(mvtbdata.__path__[0])
+    root = Path(str(importlib.resources.files("mvtbdata")))
     # if folder:
     #     root = root / folder
     # root = Path(__file__).parent.parent / "images"
