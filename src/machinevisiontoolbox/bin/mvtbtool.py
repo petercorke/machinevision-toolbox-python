@@ -92,6 +92,12 @@ def parse_arguments():
         default=None,
         help="execution result prefix, include {} for execution count number",
     )
+    parser.add_argument(
+        "--reload",
+        default=False,
+        action="store_true",
+        help="enable autoreload of any imported modules, same as IPython's builtin %%autoreload 2",
+    )
 
     parser.add_argument(
         "images",
@@ -217,6 +223,9 @@ def main():
         f"%matplotlib{' '+args.backend if args.backend is not None else ''}",
         "_precision = %precision %.3g;",
     ]
+    if args.reload:
+        code.append("%load_ext autoreload")
+        code.append("%autoreload 2")
 
     namespace = {k: v for k, v in globals().items() if not k.startswith("__")}
     # load images if specified on the command line
