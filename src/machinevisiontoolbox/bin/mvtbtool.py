@@ -22,6 +22,7 @@ from spatialmath import *  # lgtm [py/polluting-import]
 from spatialmath.base import *  # lgtm [py/polluting-import]
 
 from machinevisiontoolbox import *  # lgtm [py/unused-import]
+from machinevisiontoolbox.bin._bintools import CustomDefaultsHelpFormatter
 
 try:
     from colored import Fore, Style
@@ -41,27 +42,48 @@ SE3._ansimatrix = True
 
 
 def parse_arguments():
-    parser = argparse.ArgumentParser("Machine Vision Toolbox shell")
+    parser = argparse.ArgumentParser(
+        description="Machine Vision Toolbox shell",
+        formatter_class=CustomDefaultsHelpFormatter,
+    )
     parser.add_argument(
         "-r",
         "--run",
         default=None,
-        help="script to run at startup, but not displayed.  Same as IPython's builtin -i option",
+        help="script to run at startup, but not displayed. Same as IPython's builtin -i option",
     )
     parser.add_argument(
-        "-B", "--backend", default=None, help="specify graphics backend"
+        "-B",
+        "--backend",
+        default=None,
+        metavar="BACKEND",
+        help="specify %(metavar)s as the Matplotlib graphics backend (e.g. 'TkAgg', 'Qt5Agg', 'WebAgg', etc).  By default, the backend is chosen automatically by Matplotlib.",
     )
     parser.add_argument(
-        "-c",
-        "--color",
+        "-t",
+        "--theme",
         default="neutral",
-        help="specify terminal color scheme (neutral, lightbg, nocolor, linux), linux is for dark mode",
+        help="specify terminal color theme (neutral, lightbg, nocolor, linux), linux is for dark mode",
     )
-    parser.add_argument("-x", "--confirmexit", default=False, help="confirm exit")
-    parser.add_argument("-P", "--prompt", default=">>> ", help="input prompt")
+    parser.add_argument(
+        "-x",
+        "--confirmexit",
+        default=False,
+        help="confirm exit",
+        action="store_true",
+    )
+    parser.add_argument(
+        "-P",
+        "--prompt",
+        default=">>> ",
+        help="input prompt string",
+    )
 
     parser.add_argument(
-        "-a", "--showassign", default=False, help="display the result of assignments"
+        "-a",
+        "--showassign",
+        default=False,
+        help="automatically display the result of assignments, use ';' to suppress output",
     )
 
     parser.add_argument(
@@ -183,7 +205,7 @@ def main():
     # set configuration options, there are lots, see
     # https://ipython.readthedocs.io/en/stable/config/options/terminal.html
     c = Config()
-    c.InteractiveShellEmbed.colors = args.color
+    c.InteractiveShellEmbed.colors = args.theme
     c.InteractiveShell.confirm_exit = args.confirmexit
     # c.InteractiveShell.prompts_class = ClassicPrompts
     c.InteractiveShell.prompts_class = MyPrompt

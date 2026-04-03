@@ -15,19 +15,21 @@ from spatialmath import Polygon2
 from spatialmath.base import plot_point, plot_text
 
 from machinevisiontoolbox import *  # lgtm [py/unused-import]
-from machinevisiontoolbox.bin._bintools import CustomHelpFormatter, MVTB_LINK
+from machinevisiontoolbox.bin._bintools import (
+    CustomDefaultsHelpFormatter,
+    MVTB_LINK,
+)
 
 
 def getargs():
     parser = argparse.ArgumentParser(
-        formatter_class=CustomHelpFormatter,
-        description=f"Display AR tags in image using {MVTB_LINK}.  "
+        formatter_class=CustomDefaultsHelpFormatter,
+        description=f"Display AR tags in image using Machine Vision Toolbox for Python."
         "AR tags are highlighted with their IDs and the canonic top-left corner is marked.",
         epilog="A camera model is required to determine poses, this requires that focal length is specified.",
     )
     parser.add_argument(
         "files",
-        default=None,
         nargs="+",
         help="list of image files to view, files can also include those distributed with machinevision toolbox, eg. 'lab-scene.png'",
     )
@@ -40,7 +42,9 @@ def getargs():
     )
 
     # -g show grid
-    parser.add_argument("-g", "--grid", help="Show grid", action="store_true")
+    parser.add_argument(
+        "-g", "--grid", help="Overlay grid on images", action="store_true"
+    )
     # -v verbose show image details
     parser.add_argument(
         "-v", "--verbose", help="Show image details", action="store_true"
@@ -64,14 +68,14 @@ def getargs():
         "--focallength",
         type=str,
         default=None,
-        help="Focal length in units of pixels: f | fu,fv, default is %(default)s",
+        help="Focal length in units of pixels: f | fu,fv",
     )
     parser.add_argument(
         "-p",
         "--principalpoint",
         type=str,
         default=None,
-        help="Principal in units of pixels: pu,pv. If not specified use image centre, default is %(default)s",
+        help="Principal point coordinate in units of pixels: pu,pv. If not specified use image centre",
     )
     parser.add_argument(
         "-a",
@@ -79,17 +83,6 @@ def getargs():
         help="Show axes on the image",
         action="store_true",
         default=False,
-    )
-    parser.add_argument(
-        "--gamma-correction",
-        action="store_true",
-        default=False,
-        help="Apply gamma decode to image, default is %(default)s",
-    )
-    parser.add_argument(
-        "--channel",
-        choices=["r", "g", "b"],
-        help="Color channel, default is %(default)s",
     )
 
     return parser.parse_args()

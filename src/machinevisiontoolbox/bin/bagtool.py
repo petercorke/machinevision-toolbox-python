@@ -8,27 +8,133 @@ Usage::
 """
 
 import argparse
+import atexit
+import itertools
+import os
+import sys
+import tempfile
+from urllib.parse import urlparse
 
-import matplotlib.pyplot as plt
+import requests
+from tqdm import tqdm
 from colored import Fore, Style
 
-from machinevisiontoolbox import Image, RosBag
-from machinevisiontoolbox.bin._bintools import CustomHelpFormatter, MVTB_LINK
+from machinevisiontoolbox import (
+    Image,
+    PointCloud,
+    RosBag,
+    ImageSequence,
+    PointCloudSequence,
+)
+from machinevisiontoolbox.bin._bintools import (
+    CustomDefaultsHelpFormatter,
+    MVTB_LINK,
+)
+
+
+def _download_bag(url: str, keep: bool) -> tuple[str, bool]:
+    """
+    Download a ROS bag file from *url*.
+
+    :param url: HTTP or HTTPS URL to download.
+    :param keep: if ``True``, save the file in the current directory using the
+        remote filename; otherwise write to a temporary file.
+    :return: ``(local_path, is_temp)`` — *local_path* is the path to the
+        downloaded file, *is_temp* is ``True`` when the file is temporary.
+    """
+    remote_name = os.path.basename(urlparse(url).path) or "download.bag"
+
+    if keep:
+        local_path = remote_name
+        if os.path.exists(local_path):
+            print(
+                f"Error: '{local_path}' already exists in the current directory. "
+                "Remove it or run without --keep.",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+        is_temp = False
+    else:
+        suffix = os.path.splitext(remote_name)[1] or ".bag"
+        tmp = tempfile.NamedTemporaryFile(suffix=suffix, delete=False)
+        local_path = tmp.name
+        tmp.close()
+        is_temp = True
+
+    print(f"Downloading {url}")
+    with requests.get(url, stream=True, timeout=60) as r:
+        r.raise_for_status()
+        total = int(r.headers.get("content-length", 0)) or None
+        with (
+            open(local_path, "wb") as f,
+            tqdm(
+                total=total,
+                unit="B",
+                unit_scale=True,
+                unit_divisor=1024,
+                desc=remote_name,
+            ) as bar,
+        ):
+            for chunk in r.iter_content(chunk_size=65536):
+                f.write(chunk)
+                bar.update(len(chunk))
+
+    return local_path, is_temp
 
 
 def getargs():
     parser = argparse.ArgumentParser(
-        formatter_class=CustomHelpFormatter,
-        description=f"Display AR tags in image using {MVTB_LINK}.  "
-        "AR tags are highlighted with their IDs and the canonic top-left corner is marked.",
-        epilog="A camera model is required to determine poses, this requires that focal length is specified.",
+        formatter_class=CustomDefaultsHelpFormatter,
+        description=f"Display images or pointclouds from a ROS bag file using Machine Vision Toolbox for Python.",
     )
     parser.add_argument(
         "files",
-        default=None,
         nargs="+",
-        help="list of image files to view, files can also include those distributed with machinevision toolbox, eg. 'lab-scene.png'",
+        help="list of ROS bag files to view.  URLs (http:// or https://) are also supported and will be downloaded before viewing, see --keep option below.",
     )
+
+    msgtype = parser.add_mutually_exclusive_group()
+    msgtype.add_argument(
+        "-i",
+        "--image",
+        action="store_true",
+        default=False,
+        help="only display image messages (Image / CompressedImage), same as --msgfilter=Image",
+    )
+    msgtype.add_argument(
+        "-p",
+        "--pointcloud",
+        action="store_true",
+        default=False,
+        help="only display point cloud messages (PointCloud2), same as --msgfilter=PointCloud2",
+    )
+
+    # -t, --topic only display images from the specified topic, this is a filter string and must appear in the name of the desired topic
+    parser.add_argument(
+        "-t",
+        "--topic",
+        metavar="FILTER",
+        help="Only display messages from topics containing %(metavar)s",
+        default=None,
+    )
+    # -m, --message only display messages of the specified type, this is a filter string and must appear in the message type, eg. 'image' to show only image messages
+    parser.add_argument(
+        "-m",
+        "--message",
+        metavar="FILTER",
+        help="Only display messages of type containing %(metavar)s",
+        default=None,
+    )
+
+    # -v, --view display images
+    parser.add_argument(
+        "-v", "--view", help="Display images in bag file", action="store_true"
+    )
+    # -l, --list only filtered messages in bag file, do not display images
+    parser.add_argument(
+        "-l", "--list", help="List topics in bag file", action="store_true"
+    )
+
     parser.add_argument(
         "-b",
         "--block",
@@ -37,136 +143,127 @@ def getargs():
         help="block after each image",
     )
 
-    # -g show grid
-    parser.add_argument("-g", "--grid", help="Show grid", action="store_true")
-    # -v verbose show image details
+    # -a, --animate display images in bag file as an animation
     parser.add_argument(
-        "-v", "--verbose", help="Show image details", action="store_true"
+        "-a", "--animate", help="Animate images in bag file", action="store_true"
+    )
+
+    # -g show grid
+    parser.add_argument(
+        "-g", "--grid", help="Overlay grid on images", action="store_true"
     )
 
     parser.add_argument(
-        "--channel",
-        choices=["r", "g", "b"],
-        help="Color channel, default is %(default)s",
+        "--colororder",
+        help="Override the default color order for the image messages",
+    )
+
+    parser.add_argument(
+        "--dtype",
+        help="Override the default data type for the image messages",
+    )
+
+    parser.add_argument(
+        "-k",
+        "--keep",
+        action="store_true",
+        default=False,
+        help="when a file argument is a URL, save the downloaded bag in the current directory",
+    )
+    parser.add_argument(
+        "--no-progress",
+        action="store_true",
+        default=False,
+        help="disable the tqdm progress bar when scanning bag metadata",
     )
 
     return parser.parse_args()
 
 
-def visualize_image(image, args, block):
-    if args.verbose:
-        print(image)
-
-    # get parameters for a camera model
-    if args.focallength is not None:
-        f = args.focallength.split(",")
-        if len(f) == 1:
-            f = [float(f[0]), float(f[0])]
-        elif len(f) == 2:
-            f = [float(f[0]), float(f[1])]
-
-        if args.principalpoint is not None:
-            pp = args.principalpoint.split(",")
-            if len(pp) == 1:
-                pp = [float(pp[0]), float(pp[0])]
-            elif len(pp) == 2:
-                pp = [float(pp[0]), float(pp[1])]
-        else:
-            pp = [image.width / 2, image.height / 2]
-
-        camera = CentralCamera(f=f, pp=pp)
-        if args.verbose:
-            print(camera)
-    else:
-        camera = None
-
-    # find the tags and sort them
-    if camera is None:
-        tags = image.fiducial(dict=args.dict)
-    else:
-        tags = image.fiducial(dict=args.dict, K=camera.K, side=args.side)
-    tags.sort(key=lambda x: x.id)
-
-    # display the coordinate frames
-    if args.axes:
-        for tag in tags:
-            tag.draw(image, length=10, thick=20)
-        image.disp()
-
-    # highlight the tags in the image
-    image.disp()
-
-    if camera is not None:
-        table = ANSITable(
-            Column("id", headalign="^", colalign=">"),
-            Column("RMSE (pix)", headalign="^", colalign=">", fmt="{:.2f}"),
-            Column("Rmax (pix)", headalign="^", colalign=">", fmt="{:.2f}"),
-            Column("pose", headalign="^", colalign="<"),
-            border="thin",
-        )
-
-    for i, tag in enumerate(tags):
-        if camera is not None:
-            # compute residuals
-            p3d = tag.p3d.squeeze().T
-            p2d = camera.project_point(p3d, objpose=tag.pose)
-            resid = p2d - tag.corners
-            print(tag.corners)
-            rmse = np.sqrt(np.mean(resid**2))
-            rmax = np.max(np.abs(resid))
-
-            # add row to table
-            table.row(
-                tag.id,
-                rmse,
-                rmax,
-                tag.pose.strline(),
-                bgcolor="red" if rmax >= 1 else None,
-            )
-            outline_color = "red" if rmax >= 1 else "blue"
-
-        else:
-            if i == 0:
-                print("tag IDs:", tag.id, end="")
-            else:
-                print(f", {tag.id}", end="")
-            outline_color = "blue"
-
-        # create an outline around the tag
-        polygon = Polygon2(tag.corners)
-        polygon.plot(facecolor="white", alpha=0.8, edgecolor=outline_color, linewidth=2)
-        plot_text(
-            polygon.centroid(),
-            str(tag.id),
-            color=outline_color,
-            fontsize=12,
-            horizontalalignment="center",
-        )
-        # mark the top left corner
-        plot_point(tag.corners[:, 0], color=outline_color, marker="o", markersize=5)
-
-    if camera is not None:
-        table.print()
-    else:
-        print()
-
-    print()
-
-    plt.show(block=block)
-
-
 def main():
     args = getargs()
 
-    # if len(args.files) > 10:
-    #     args.block = True
+    # Resolve any URL arguments to local files
+    for i, f in enumerate(args.files):
+        if f.startswith(("http://", "https://")):
+            local, is_temp = _download_bag(f, args.keep)
+            args.files[i] = local
+            if is_temp:
+                atexit.register(os.unlink, local)
 
-    #     visualize_image(img, args, block)
+    if not args.view and not args.animate and not args.list:
+        for filename in args.files:
+            bag = RosBag(filename, topicfilter=args.topic)
+            print(f"{Fore.CYAN}{Style.BOLD}{bag}{Style.RESET}")
+            bag.print(progress=not args.no_progress)
+        return
 
     for filename in args.files:
-        bag = RosBag(filename)
-        print(f"{Fore.CYAN}{Style.BOLD}{bag}{Style.RESET}")
-        bag.print()
+        # Derive msgfilter from -i/-p flags when --message is not explicitly given
+        if args.image:
+            msgfilter = "Image"
+        elif args.pointcloud:
+            msgfilter = "PointCloud2"
+        else:
+            msgfilter = args.message
+
+        bag = RosBag(
+            filename,
+            topicfilter=args.topic,
+            msgfilter=msgfilter,
+            colororder=args.colororder,
+            dtype=args.dtype,
+        )
+
+        # Check for topic ambiguity when --topic is not specified (skip for --list)
+        if args.topic is None and not args.list:
+            all_topics = bag.topics()
+            if msgfilter == "Image":
+                relevant = {t: m for t, m in all_topics.items() if "Image" in m}
+            elif msgfilter == "PointCloud2":
+                relevant = {t: m for t, m in all_topics.items() if "PointCloud2" in m}
+            else:
+                relevant = {
+                    t: m
+                    for t, m in all_topics.items()
+                    if "Image" in m or "PointCloud2" in m
+                }
+            if len(relevant) == 0:
+                print(f"  {filename}: no matching topics found", file=sys.stderr)
+                continue
+            elif len(relevant) > 1:
+                print(
+                    f"  {filename}: multiple matching topics, use --topic to select one:",
+                    file=sys.stderr,
+                )
+                for t, m in relevant.items():
+                    print(f"    {t}  ({m})", file=sys.stderr)
+                continue
+
+        bag_iter = iter(bag)
+        first = next(bag_iter, None)
+        if first is None:
+            print(f"No matching messages in {filename}", file=sys.stderr)
+            continue
+        frames = list(itertools.chain([first], bag_iter))
+
+        if args.list:
+            for frame in frames:
+                ts = getattr(frame, "timestamp", None)
+                prefix = RosBag.format_local_time(ts) if ts is not None else ""
+                print(f"{prefix}  {frame}")
+        elif args.pointcloud or (not args.image and not isinstance(first, Image)):
+            PointCloudSequence(frames).disp(
+                animate=args.animate,
+                title=os.path.basename(filename),
+            )
+        else:
+            ImageSequence(frames).disp(
+                animate=args.animate,
+                title=filename,
+                grid=args.grid,
+                badcolor="red",
+            )
 
 
 if __name__ == "__main__":

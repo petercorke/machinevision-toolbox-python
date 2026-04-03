@@ -11,18 +11,19 @@ import argparse
 
 from colored import Fore, Style
 
-from machinevisiontoolbox import *  # lgtm [py/unused-import]
-from machinevisiontoolbox.bin._bintools import LineWrapRawTextHelpFormatter, MVTB_LINK
+from machinevisiontoolbox import Image
+from machinevisiontoolbox.bin._bintools import CustomDefaultsHelpFormatter, MVTB_LINK
+from ansitable import ANSITable, Column
+import matplotlib.pyplot as plt
 
 
 def getargs():
     parser = argparse.ArgumentParser(
-        formatter_class=LineWrapRawTextHelpFormatter,
-        description=f"Display an image using {MVTB_LINK}",
+        formatter_class=CustomDefaultsHelpFormatter,
+        description=f"Display an image using Machine Vision Toolbox for Python.",
     )
     parser.add_argument(
         "files",
-        default=None,
         nargs="+",
         help="list of image files to view, files can also include those distributed with machinevision toolbox, eg. 'monalisa.png'",
     )
@@ -34,15 +35,19 @@ def getargs():
         help="block after each image",
     )
     # -m show metadata
-    parser.add_argument("--metadata", "-m", help="Show metadata", action="store_true")
+    parser.add_argument(
+        "--metadata", "-m", help="Print image metadata to stdout", action="store_true"
+    )
     # -p pick points
     parser.add_argument("--points", "-p", help="Pick points", action="store_true")
     # csv output for pick points
     parser.add_argument(
-        "--csv", "-c", help="Output picked points as CSV", action="store_true"
+        "--csv", "-c", help="Output picked points as CSV to stdout", action="store_true"
     )
     # -g show grid
-    parser.add_argument("--grid", "-g", help="Show grid", action="store_true")
+    parser.add_argument(
+        "--grid", "-g", help="Overlay grid on images", action="store_true"
+    )
     # -v verbose show image details
     parser.add_argument(
         "--verbose", "-v", help="Show image details", action="store_true"
@@ -76,7 +81,7 @@ def visualize_image(image, args, block):
     {Fore.yellow}Click on points in the image (first click might just select the window and get lost)
     * left click to add a point
     * right click to remove point
-    * CR when done
+    * Enter when done
     * you can zoom in using the magnifier button at bottom{Style.reset}
     """
         )

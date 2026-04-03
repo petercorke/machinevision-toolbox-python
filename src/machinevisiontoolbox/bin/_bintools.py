@@ -37,12 +37,24 @@ class CustomHelpFormatter(argparse.HelpFormatter):
         return wrapped
 
 
+class CustomDefaultsHelpFormatter(
+    CustomHelpFormatter, argparse.ArgumentDefaultsHelpFormatter
+):
+    """Custom formatter that also appends default values in help output."""
+
+
 class LineWrapRawTextHelpFormatter(argparse.RawDescriptionHelpFormatter):
     """Argparse formatter that reflowes whitespace and wraps at 80 columns."""
 
     def _split_lines(self, text: str, width: int) -> list[str]:
         text = self._whitespace_matcher.sub(" ", text).strip()
         return textwrap.wrap(text, 80)
+
+
+class LineWrapRawTextDefaultsHelpFormatter(
+    LineWrapRawTextHelpFormatter, argparse.ArgumentDefaultsHelpFormatter
+):
+    """Line-wrapped formatter that also appends default values."""
 
 
 MVTB_URL = "https://github.com/petercorke/machinevision-toolbox-python"
