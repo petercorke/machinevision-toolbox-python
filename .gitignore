@@ -8,7 +8,7 @@ dependencies*
 # ROS bag files
 *.bag
 # but keep test fixtures
-!tests/data/*.bag
+!mvtb-data/mvtbdata/data/*.bag
 
 # old notebooks
 notebooks/old/*
