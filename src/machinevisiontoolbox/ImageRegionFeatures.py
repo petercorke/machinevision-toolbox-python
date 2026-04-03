@@ -11,7 +11,15 @@ from ansitable import ANSITable, Column
 from spatialmath import SE3
 
 from machinevisiontoolbox.decorators import array_result
-from machinevisiontoolbox.ImagePointFeatures import BaseFeature2D
+from machinevisiontoolbox.base import plot_labelbox
+
+try:
+    import pytesseract as _pytesseract
+
+    _pytesseract_available = True
+except ImportError:
+    _pytesseract = None
+    _pytesseract_available = False
 
 
 class ImageRegionFeaturesMixin:
@@ -46,7 +54,7 @@ class ImageRegionFeaturesMixin:
 
         return MSERFeature(self, **kwargs)
 
-    def ocr(self, minconf=50, plot=False):
+    def ocr(self, minconf=50, plot=False, return_bbox=False):
         """
         Optical character recognition
 
@@ -78,9 +86,7 @@ class ImageRegionFeaturesMixin:
 
         :seealso: :class:`OCRWord`
         """
-        try:
-            import pytesseract
-        except:
+        if not _pytesseract_available:
             print("pytesseract is not installed:")
             print("  OCR functionality will not be available")
             print("  To install:")
@@ -90,7 +96,7 @@ class ImageRegionFeaturesMixin:
             )
             return []
 
-        ocr = pytesseract.image_to_data(self._A, output_type=pytesseract.Output.DICT)
+        ocr = _pytesseract.image_to_data(self._A, output_type=_pytesseract.Output.DICT)
 
         # create list of dicts, rather than dict of lists
         n = len(ocr["conf"])
