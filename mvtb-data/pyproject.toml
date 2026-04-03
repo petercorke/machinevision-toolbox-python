@@ -1,9 +1,7 @@
 [project]
 name = "mvtbdata"
 version = "1.6"
-authors = [
-  { name="Peter Corke", email="rvc@petercorke.com" },
-]
+authors = [{ name = "Peter Corke", email = "rvc@petercorke.com" }]
 description = "Data files for the Machine Vision Toolbox for Python"
 readme = "README.md"
 requires-python = ">=3.7"
@@ -12,21 +10,26 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-keywords = [
-    "python machine vision",
-    "images",
-    "image sequences",
-]
+keywords = ["python machine vision", "images", "image sequences"]
 
 [project.urls]
 "Homepage" = "https://github.com/petercorke/machinevision-toolbox-python/mvtb-data"
 "Bug Tracker" = "https://github.com/petercorke/machinevision-toolbox-python/issues"
 
 [tool.setuptools.packages.find]
-where = ["mvtbdata", "mvtbdata/data", "mvtbdata/images"]
+where = ["."]
 
 [tool.setuptools.package-data]
 mvtbdata = [
-    "*.png", "*.jpg", "*.mp4",
-    "*.dat", "*.mat", "*.yml", "*.txt", "*.ply",
+    "**/*.png",
+    "**/*.jpg",
+    "**/*.mp4",
+    "**/*.dat",
+    "**/*.mat",
+    "**/*.yml",
+    "**/*.txt",
+    "**/*.ply",
+    "**/*.bag",
+    "**/*.db3",
+    "**/*.yaml",
 ]
