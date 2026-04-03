@@ -117,43 +117,6 @@ Just click the <img src="https://colab.research.google.com/assets/colab-badge.sv
 Colab will pull the notebook from GitHub, and allow you to interact with it in a browser tab. If you modify the notebook you have the option of saving it in your own GitHub account, or on Google Drive.  
 
 
-# Lecture resources
-
-## Lecture A1 Introduction to Robotic Vision (7:30pm Monday, 30 minutes)
-
-This is an easy no-maths lecture to get you thinking about the wonderful sense of vision that we have, and that robots should have.
-
-The books that I mentioned are:
-
-* [The Eye, by Simon Ings](https://www.amazon.com/dp/0747592861), how the eye works for non-biologists
-
-* [Vision and Brain: How We Perceive the World (MIT Press),
-by James V. Stone](https://www.amazon.com/dp/0262517736), another book for non-specialists that describes human visual process.
-
-* [Animal Eyes (Oxford Animal Biology Series) 2nd Edition
-by Michael F. Land and Dan-Eric Nilsson](https://www.amazon.com/dp/0199581142), discusses how the eyes of animals have evolved to fit their particular ecological niche, trading off light levels, size, field of view, resolution etc.
-
-* [In the Blink of an Eye: How Vision Kick-Started the Big Bang of Evolution,
-by Andrew Parker](https://www.amazon.com/dp/0565094009), proposes an interesting theory about how the mutation that led to vision might have dramatically spurred the development of life on Earth
-
-* [Seeing Through Illusions 1st Edition
-by Richard Gregory](https://www.amazon.com/dp/0192802852), this book takes a neuropsychological approach to what visual illusions can tell us about how our brains perceive the world.
-
-
-
-## Lecture A2  Cameras and Image Formation (8:30am Tuesday, 60 minutes)
-
-This lecture introduces the process of image formation, how the 3D world is projected into a 2D image. Topics include central projection model, homographies, and camera
-calibration.
-
-* <a href="Slides/A2-Image-geometry.pdf" target="_blank">Lecture PDF file</a>
-
-* Robotics, Vision & Control: Section 13.1
-
-* Robot Academy video masterclasses (each is a collection of short videos, ~1h total run time)
-
-  * [How images are formed](https://robotacademy.net.au/masterclass/how-images-are-formed/)
-  * [The geometry of image formation](https://robotacademy.net.au/masterclass/the-geometry-of-image-formation/)
 
 * Jupyter/Python Notebooks
 
@@ -163,19 +126,7 @@ calibration.
   * [`homography.ipynb`](homographies.ipynb),  extension: computing an homography <a href="https://colab.research.google.com/github/rvss-australia/RVSS/blob/main/Robotic_Vision/homography.ipynb" target="_blank"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
 
 
-## Lecture A3 Image Processing (9:45am Tuesday, 60 minutes)
 
-This lecture introduces the fundamentals of image processing.  Topics include pixels and images, image arithmetic, spatial operations such as convolution, and operations on images to find motion, simple blob objects, and image features.
-
-* <a href="Slides/A1-Image-processing.pdf" target="_blank">Lecture PDF file</a>
-
-* Robotics, Vision & Control: Chapters 11 and 12
-
-* Robot Academy video masterclasses (each is a collection of short videos, ~1h total run time)
-  * [Getting images into a computer](https://robotacademy.net.au/masterclass/getting-images-into-a-computer/)
-  * [Image processing](https://robotacademy.net.au/masterclass/image-processing/)
-  * [Spatial operators](https://robotacademy.net.au/masterclass/spatial-operators/)
-  * [Feature extraction](https://robotacademy.net.au/masterclass/feature-extraction/)
 
 * Jupyter/Python Notebooks
 
