@@ -14,6 +14,9 @@ constructed entirely in Python.
 
 from __future__ import annotations
 
+import asyncio
+import base64
+import json
 import threading
 import time
 import unittest
@@ -70,15 +73,16 @@ _skip_roslibpy = pytest.mark.skipif(
 # Helpers
 # ---------------------------------------------------------------------------
 
-N_FRAMES = 3           # messages per topic in the fixture bags
+N_FRAMES = 3  # messages per topic in the fixture bags
 STAMP0 = 1_700_000_000_000_000_000  # first timestamp (ns)
-STEP = 100_000_000                  # timestamp step between frames (ns)
-W, H = 8, 6            # image dimensions in fixture
+STEP = 100_000_000  # timestamp step between frames (ns)
+W, H = 8, 6  # image dimensions in fixture
 
 
 # ---------------------------------------------------------------------------
 # _resolve_typestore
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.skipif(not _rosbags_importable, reason="rosbags not installed")
 class TestResolveTypestore(unittest.TestCase):
@@ -114,6 +118,7 @@ class TestResolveTypestore(unittest.TestCase):
 # RosBag – ROS 1
 # ---------------------------------------------------------------------------
 
+
 @_skip_import
 @_skip_bags
 class TestRosBagRos1(unittest.TestCase):
@@ -139,7 +144,7 @@ class TestRosBagRos1(unittest.TestCase):
 
     def test_default_yields_images_only(self):
         msgs = list(self._bag())
-        self.assertEqual(len(msgs), N_FRAMES * 2)   # compressed + raw
+        self.assertEqual(len(msgs), N_FRAMES * 2)  # compressed + raw
         for m in msgs:
             self.assertIsInstance(m, Image)
 
@@ -175,9 +180,7 @@ class TestRosBagRos1(unittest.TestCase):
             self.assertEqual(m.topic, "/camera/raw")
 
     def test_topicfilter_list(self):
-        msgs = list(
-            self._bag(topicfilter=["/camera/compressed", "/camera/raw"])
-        )
+        msgs = list(self._bag(topicfilter=["/camera/compressed", "/camera/raw"]))
         self.assertEqual(len(msgs), N_FRAMES * 2)
 
     # --- message type filter ---
@@ -231,6 +234,7 @@ class TestRosBagRos1(unittest.TestCase):
 # RosBag – ROS 2  (same logical tests, different fixture path / release)
 # ---------------------------------------------------------------------------
 
+
 @_skip_import
 @_skip_bags
 class TestRosBagRos2(unittest.TestCase):
@@ -273,11 +277,15 @@ class TestRosBagRos2(unittest.TestCase):
 # RosMessage dataclass
 # ---------------------------------------------------------------------------
 
+
 class TestRosMessage(unittest.TestCase):
 
     def _make(self, **kwargs):
         defaults = dict(
-            topic="/test", msgtype="std_msgs/msg/String", timestamp=42, data={"data": "hi"}
+            topic="/test",
+            msgtype="std_msgs/msg/String",
+            timestamp=42,
+            data={"data": "hi"},
         )
         defaults.update(kwargs)
         return RosMessage(**defaults)
@@ -298,6 +306,7 @@ class TestRosMessage(unittest.TestCase):
 # ---------------------------------------------------------------------------
 # RosStream – injected callback tests (no ROS runtime needed)
 # ---------------------------------------------------------------------------
+
 
 def _make_mock_stream(output="image", message="sensor_msgs/CompressedImage"):
     """Build a RosStream-like object bypassing roslibpy entirely."""
@@ -349,18 +358,14 @@ class TestRosStreamCallback(unittest.TestCase):
         self.assertEqual(stream._latest_timestamp, 10_500_000_000)
 
     def test_message_mode_sets_rosmessage(self):
-        stream = _make_mock_stream(
-            output="message", message="sensor_msgs/Imu"
-        )
+        stream = _make_mock_stream(output="message", message="sensor_msgs/Imu")
         msg = {"header": {"stamp": {"secs": 5, "nsecs": 0}}, "data": "x"}
         stream._process_frame(msg)
         self.assertIsNone(stream._latest_frame)
         self.assertIsInstance(stream._latest_message, RosMessage)
 
     def test_message_mode_rosmessage_fields(self):
-        stream = _make_mock_stream(
-            output="message", message="sensor_msgs/Imu"
-        )
+        stream = _make_mock_stream(output="message", message="sensor_msgs/Imu")
         payload = {"header": {"stamp": {"secs": 7, "nsecs": 0}}, "val": 3}
         stream._process_frame(payload)
         m = stream._latest_message
@@ -439,6 +444,7 @@ class TestRosStreamValidation(unittest.TestCase):
 # SyncRosStreams – pure Python, no ROS needed
 # ---------------------------------------------------------------------------
 
+
 class _FakeItem:
     """Minimal timestamped item for SyncRosStreams tests."""
 
@@ -495,7 +501,7 @@ class TestSyncRosStreams(unittest.TestCase):
         self.assertEqual(b.timestamp, t)
 
     def test_within_tolerance_matches(self):
-        tol = 20_000_000   # 20 ms in ns
+        tol = 20_000_000  # 20 ms in ns
         t0 = 1_000_000_000
         # stream2 is 10 ms ahead — within 20 ms tolerance
         s1 = _fake_stream(t0)
@@ -542,6 +548,384 @@ class TestSyncRosStreams(unittest.TestCase):
         r = repr(sync)
         self.assertIn("SyncRosStreams", r)
         self.assertIn("nstreams=2", r)
+
+
+# ---------------------------------------------------------------------------
+# FakeRosBridge – minimal rosbridge v2.0 WebSocket server for live tests
+# ---------------------------------------------------------------------------
+
+_websockets_available = False
+try:
+    import websockets  # noqa: F401
+
+    _websockets_available = True
+except ImportError:
+    pass
+
+_skip_live = pytest.mark.skipif(
+    not (_roslibpy_importable and _websockets_available),
+    reason="roslibpy or websockets not installed",
+)
+
+N_LIVE = 5  # frames to collect per live test
+_CAM_HZ = 30  # simulated camera frame rate (Hz)
+_IMU_HZ = 100  # simulated IMU message rate (Hz)
+
+
+class FakeRosBridge:
+    """
+    Minimal rosbridge v2.0 WebSocket server for integration testing.
+
+    Publishes three topics once a client subscribes:
+
+    - ``/camera/compressed``  ``sensor_msgs/CompressedImage``  at _CAM_HZ Hz
+    - ``/camera/raw``         ``sensor_msgs/Image``            at _CAM_HZ Hz
+    - ``/imu/data``           ``sensor_msgs/Imu``              at _IMU_HZ Hz
+
+    Use as a context manager; ``server.port`` is available after entering::
+
+        with FakeRosBridge() as server:
+            stream = RosStream("/camera/compressed", port=server.port)
+    """
+
+    W, H = 8, 6
+    TOPICS: dict[str, tuple[str, float]] = {
+        "/camera/compressed": ("sensor_msgs/CompressedImage", 1 / _CAM_HZ),
+        "/camera/raw": ("sensor_msgs/Image", 1 / _CAM_HZ),
+        "/imu/data": ("sensor_msgs/Imu", 1 / _IMU_HZ),
+    }
+
+    def __init__(self) -> None:
+        self.host = "127.0.0.1"
+        self.port: int = 0
+        self._loop: asyncio.AbstractEventLoop | None = None
+        self._thread: threading.Thread | None = None
+        self._ready = threading.Event()
+        self._stop_event: asyncio.Event | None = None
+
+    def start(self) -> None:
+        self._thread = threading.Thread(
+            target=self._run, daemon=True, name="FakeRosBridge"
+        )
+        self._thread.start()
+        assert self._ready.wait(timeout=5.0), "FakeRosBridge did not start in time"
+
+    def stop(self) -> None:
+        if self._loop is not None and self._stop_event is not None:
+            self._loop.call_soon_threadsafe(self._stop_event.set)
+        if self._thread is not None:
+            self._thread.join(timeout=5.0)
+
+    def __enter__(self) -> "FakeRosBridge":
+        self.start()
+        return self
+
+    def __exit__(self, *_: object) -> None:
+        self.stop()
+
+    def _run(self) -> None:
+        try:
+            from websockets.asyncio.server import serve as _ws_serve
+        except ImportError:
+            from websockets.legacy.server import serve as _ws_serve  # type: ignore[no-redef]
+
+        self._loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(self._loop)
+        self._stop_event = asyncio.Event()
+
+        async def _serve() -> None:
+            async with _ws_serve(self._handler, self.host, 0) as server:
+                self.port = server.sockets[0].getsockname()[1]
+                self._ready.set()
+                await self._stop_event.wait()
+
+        try:
+            self._loop.run_until_complete(_serve())
+        except Exception:
+            self._ready.set()  # unblock caller if startup failed
+
+    # --- message builders ------------------------------------------------
+
+    def _build_compressed(self, seq: int, t_ns: int) -> dict:
+        import io
+
+        from PIL import Image as PILImage
+
+        frame = np.zeros((self.H, self.W, 3), dtype=np.uint8)
+        frame[:, :, 2] = (seq * 40) % 256
+        buf = io.BytesIO()
+        PILImage.fromarray(frame, "RGB").save(buf, format="JPEG", quality=85)
+        data = base64.b64encode(buf.getvalue()).decode("ascii")
+        sec, nsec = divmod(t_ns, 1_000_000_000)
+        return {
+            "header": {"stamp": {"secs": sec, "nsecs": nsec}, "frame_id": "camera"},
+            "format": "jpeg",
+            "data": data,
+        }
+
+    def _build_image(self, seq: int, t_ns: int) -> dict:
+        frame = np.zeros((self.H, self.W, 3), dtype=np.uint8)
+        frame[:, :, 0] = (seq * 40) % 256
+        data = base64.b64encode(frame.tobytes()).decode("ascii")
+        sec, nsec = divmod(t_ns, 1_000_000_000)
+        return {
+            "header": {"stamp": {"secs": sec, "nsecs": nsec}, "frame_id": "camera"},
+            "height": self.H,
+            "width": self.W,
+            "encoding": "rgb8",
+            "is_bigendian": 0,
+            "step": self.W * 3,
+            "data": data,
+        }
+
+    def _build_imu(self, seq: int, t_ns: int) -> dict:
+        sec, nsec = divmod(t_ns, 1_000_000_000)
+        return {
+            "header": {"stamp": {"secs": sec, "nsecs": nsec}, "frame_id": "imu"},
+            "orientation": {"x": 0.0, "y": 0.0, "z": 0.0, "w": 1.0},
+            "orientation_covariance": [-1.0] + [0.0] * 8,
+            "angular_velocity": {"x": 0.01 * seq, "y": 0.0, "z": 0.0},
+            "angular_velocity_covariance": [-1.0] + [0.0] * 8,
+            "linear_acceleration": {"x": 0.0, "y": 0.0, "z": 9.81},
+            "linear_acceleration_covariance": [-1.0] + [0.0] * 8,
+        }
+
+    def _builder_for(self, topic: str):
+        return {
+            "/camera/compressed": self._build_compressed,
+            "/camera/raw": self._build_image,
+            "/imu/data": self._build_imu,
+        }[topic]
+
+    async def _handler(self, websocket) -> None:
+        tasks: dict[str, asyncio.Task] = {}
+        try:
+            async for raw in websocket:
+                try:
+                    msg = json.loads(raw)
+                except (json.JSONDecodeError, ValueError):
+                    continue
+                op = msg.get("op")
+                if op == "subscribe":
+                    topic = msg.get("topic", "")
+                    if topic in self.TOPICS and topic not in tasks:
+                        _, interval = self.TOPICS[topic]
+                        builder = self._builder_for(topic)
+                        tasks[topic] = asyncio.create_task(
+                            self._publish_loop(websocket, topic, builder, interval)
+                        )
+                elif op == "unsubscribe":
+                    topic = msg.get("topic", "")
+                    if t := tasks.pop(topic, None):
+                        t.cancel()
+        except Exception:
+            pass
+        finally:
+            for task in tasks.values():
+                task.cancel()
+
+    async def _publish_loop(
+        self, websocket, topic: str, builder, interval: float
+    ) -> None:
+        t_ns = STAMP0
+        seq = 0
+        step_ns = int(interval * 1_000_000_000)
+        try:
+            while True:
+                payload = json.dumps(
+                    {"op": "publish", "topic": topic, "msg": builder(seq, t_ns)}
+                )
+                await websocket.send(payload)
+                seq += 1
+                t_ns += step_ns
+                await asyncio.sleep(interval)
+        except asyncio.CancelledError:
+            pass
+        except Exception:
+            pass
+
+
+# ---------------------------------------------------------------------------
+# RosStream – live tests against FakeRosBridge
+# ---------------------------------------------------------------------------
+
+
+@_skip_live
+class TestRosStreamLive(unittest.TestCase):
+    """
+    End-to-end tests using a real roslibpy connection to FakeRosBridge.
+
+    The fake server speaks rosbridge v2.0 over a plain WebSocket; roslibpy
+    connects to it just as it would to a real rosbridge server, exercising
+    the full RosStream code path.
+    """
+
+    server: FakeRosBridge
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.server = FakeRosBridge()
+        cls.server.start()
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        cls.server.stop()
+
+    def _grab(self, stream: "RosStream", timeout: float = 5.0):
+        """Call stream.grab() in a background thread with a timeout."""
+        from concurrent.futures import ThreadPoolExecutor
+        from concurrent.futures import TimeoutError as FuturesTimeout
+
+        with ThreadPoolExecutor(max_workers=1) as pool:
+            try:
+                return pool.submit(stream.grab).result(timeout=timeout)
+            except FuturesTimeout:
+                raise AssertionError(f"grab() did not return within {timeout}s")
+
+    def _collect(self, stream: "RosStream", n: int, timeout: float = 10.0) -> list:
+        """Collect *n* items from *stream* in a background thread."""
+        from concurrent.futures import ThreadPoolExecutor
+        from concurrent.futures import TimeoutError as FuturesTimeout
+
+        items: list = []
+
+        def _run() -> None:
+            for item in stream:
+                items.append(item)
+                if len(items) >= n:
+                    break
+
+        with ThreadPoolExecutor(max_workers=1) as pool:
+            try:
+                pool.submit(_run).result(timeout=timeout)
+            except FuturesTimeout:
+                raise AssertionError(
+                    f"collected only {len(items)}/{n} items within {timeout}s"
+                )
+        return items
+
+    def _stream(self, topic: str, **kwargs) -> "RosStream":
+        stream = RosStream(
+            topic, host=self.server.host, port=self.server.port, **kwargs
+        )
+
+        # Twisted's reactor is a singleton that cannot restart once stopped.
+        # Patch each stream's terminate() to only close the WebSocket connection
+        # without stopping the reactor, so the next test can reuse it.
+        def _safe_terminate() -> None:
+            try:
+                if stream.client.is_connected:
+                    stream.client.close()
+            except Exception:
+                pass
+
+        stream.client.terminate = _safe_terminate
+        return stream
+
+    # --- compressed image ---
+
+    def test_grab_compressed_shape(self):
+        with self._stream("/camera/compressed") as stream:
+            img = self._grab(stream)
+        self.assertIsInstance(img, Image)
+        self.assertEqual(img.shape[:2], (FakeRosBridge.H, FakeRosBridge.W))
+
+    def test_grab_compressed_timestamp(self):
+        with self._stream("/camera/compressed") as stream:
+            img = self._grab(stream)
+        self.assertGreater(img.timestamp, 0)
+
+    def test_grab_compressed_topic(self):
+        with self._stream("/camera/compressed") as stream:
+            img = self._grab(stream)
+        self.assertEqual(img.topic, "/camera/compressed")
+
+    # --- raw image ---
+
+    def test_grab_raw_image_shape(self):
+        with self._stream("/camera/raw", message="sensor_msgs/Image") as stream:
+            img = self._grab(stream)
+        self.assertIsInstance(img, Image)
+        self.assertEqual(img.shape[:2], (FakeRosBridge.H, FakeRosBridge.W))
+
+    # --- IMU in message mode ---
+
+    def test_imu_message_mode_type(self):
+        with self._stream(
+            "/imu/data", message="sensor_msgs/Imu", output="message"
+        ) as stream:
+            msgs = self._collect(stream, N_LIVE)
+        self.assertEqual(len(msgs), N_LIVE)
+        for m in msgs:
+            self.assertIsInstance(m, RosMessage)
+
+    def test_imu_message_mode_fields(self):
+        with self._stream(
+            "/imu/data", message="sensor_msgs/Imu", output="message"
+        ) as stream:
+            msgs = self._collect(stream, N_LIVE)
+        for m in msgs:
+            self.assertEqual(m.topic, "/imu/data")
+            self.assertEqual(m.msgtype, "sensor_msgs/Imu")
+            self.assertGreater(m.timestamp, 0)
+
+    # --- blocking iterator ---
+
+    def test_iterate_n_frames(self):
+        with self._stream("/camera/compressed") as stream:
+            imgs = self._collect(stream, N_LIVE)
+        self.assertEqual(len(imgs), N_LIVE)
+        for img in imgs:
+            self.assertIsInstance(img, Image)
+            self.assertEqual(img.shape[:2], (FakeRosBridge.H, FakeRosBridge.W))
+
+    def test_iterate_timestamps_monotone(self):
+        with self._stream("/camera/compressed") as stream:
+            imgs = self._collect(stream, N_LIVE)
+        stamps = [img.timestamp for img in imgs]
+        for i in range(1, len(stamps)):
+            self.assertGreater(stamps[i], stamps[i - 1])
+
+    # --- repr ---
+
+    def test_repr(self):
+        with self._stream("/camera/compressed") as stream:
+            _ = self._grab(stream)
+            r = repr(stream)
+        self.assertIn("RosStream", r)
+        self.assertIn("/camera/compressed", r)
+
+    # --- SyncRosStreams ---
+
+    def test_sync_two_image_streams(self):
+        """Sync compressed + raw at the same rate; every frame should match."""
+        from concurrent.futures import ThreadPoolExecutor
+        from concurrent.futures import TimeoutError as FuturesTimeout
+
+        s1 = self._stream("/camera/compressed")
+        s2 = self._stream("/camera/raw", message="sensor_msgs/Image")
+        sync = SyncRosStreams([s1, s2], tolerance=0.1)
+        pairs: list = []
+
+        def _run() -> None:
+            with sync:
+                for pair in sync:
+                    pairs.append(pair)
+                    if len(pairs) >= N_LIVE:
+                        break
+
+        with ThreadPoolExecutor(max_workers=1) as pool:
+            try:
+                pool.submit(_run).result(timeout=15.0)
+            except FuturesTimeout:
+                raise AssertionError(
+                    f"SyncRosStreams collected only {len(pairs)}/{N_LIVE} pairs"
+                )
+
+        self.assertEqual(len(pairs), N_LIVE)
+        for a, b in pairs:
+            self.assertIsInstance(a, Image)
+            self.assertIsInstance(b, Image)
 
 
 if __name__ == "__main__":

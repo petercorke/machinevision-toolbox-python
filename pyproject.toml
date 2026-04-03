@@ -47,6 +47,8 @@ dependencies = [
     "pgraph-python",
     "ansitable",
     "mvtb-data",
+    "requests",
+    "tqdm",
 ]
 
 [project.urls]
@@ -64,7 +66,7 @@ dependencies = [
 #  jupyter - jupyter notebook support
 #  open3d - open3d support (open3d generally won't work with latest Python)
 
-dev = ["pytest", "coverage", "flake8"]
+ros = ["rosbags", "roslibpy", "websockets"]
 
 docs = [
     "sphinx",
