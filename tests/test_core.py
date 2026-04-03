@@ -758,6 +758,12 @@ class TestImage(unittest.TestCase):
         nt.assert_array_almost_equal(imx.A, np.ones((2, 3)))
 
         imx = Image(np.ones((2, 3), dtype="float64"))
+        self.assertEqual(imx.dtype, np.dtype("float32"))
+        self.assertFalse(imx.isint)
+        self.assertTrue(imx.isfloat)
+        nt.assert_array_almost_equal(imx.array, np.ones((2, 3)))
+
+        imx = Image(np.ones((2, 3), dtype="float64"), dtype=True)
         self.assertEqual(imx.dtype, np.dtype("float64"))
         self.assertFalse(imx.isint)
         self.assertTrue(imx.isfloat)
@@ -767,13 +773,31 @@ class TestImage(unittest.TestCase):
         self.assertEqual(imx.dtype, np.dtype("float64"))
         self.assertFalse(imx.isint)
         self.assertTrue(imx.isfloat)
-        nt.assert_array_almost_equal(imx.A, np.ones((2, 3)))
+        nt.assert_array_almost_equal(imx.array, np.ones((2, 3)))
+
+        imx = Image(np.ones((2, 3)), dtype="float64")
+        self.assertEqual(imx.dtype, np.dtype("float64"))
+        self.assertFalse(imx.isint)
+        self.assertTrue(imx.isfloat)
+        nt.assert_array_almost_equal(imx.array, np.ones((2, 3)))
 
         imx = Image(np.ones((2, 3), dtype="int16"))
+        self.assertEqual(imx.dtype, np.dtype("uint8"))
+        self.assertTrue(imx.isint)
+        self.assertFalse(imx.isfloat)
+        nt.assert_array_almost_equal(imx.array, np.ones((2, 3)))
+
+        imx = Image(np.ones((2, 3), dtype="int16"), dtype=True)
         self.assertEqual(imx.dtype, np.dtype("int16"))
         self.assertTrue(imx.isint)
         self.assertFalse(imx.isfloat)
-        nt.assert_array_almost_equal(imx.A, np.ones((2, 3)))
+        nt.assert_array_almost_equal(imx.array, np.ones((2, 3)))
+
+        imx = Image(np.ones((2, 3)), dtype="int16")
+        self.assertEqual(imx.dtype, np.dtype("int16"))
+        self.assertTrue(imx.isint)
+        self.assertFalse(imx.isfloat)
+        nt.assert_array_almost_equal(imx.array, np.ones((2, 3)))
 
         imx = Image(np.ones((2, 3), dtype="uint8"))
         self.assertEqual(imx.dtype, np.dtype("uint8"))

@@ -80,7 +80,7 @@ class Image(
         colororder: str | dict | None = None,
         copy: bool = False,
         size: tuple | list | None = None,
-        dtype: Dtype | None = None,
+        dtype: Dtype | bool | None = None,
         name: str | None = None,
         id: int | None = None,
         domain=None,
@@ -138,20 +138,28 @@ class Image(
 
         **Pixel datatype**
 
-        The ``dtype`` of an image comes from the encapsulated NumPy pixel array.
-        If ``image`` is an :class:`Image` instance or NumPy ndarray then its dtype is
-        determined by the NumPy ndarray.
+        If ``dtype`` is a string or a NumPy dtype, the pixel data type is set to that type.
 
-        If ``image`` is given as a list of lists and ``dtype`` is not given,
-        then the :class:`Image` type is:
+        If ``dtype`` is ``True`` the pixel data type is inherited from the input if it is a NumPy array.
 
-        - float32 if the list contains any floating point values, otherwise
-        - the smallest signed or unsigned int that can represent its
-          value span.
+        If ``dtype`` is not given and:
 
-        An image can have boolean pixel values.  When used in a numerical expression,
-        its values will be cast to integer values of 0 or 1 representing
-        False and True respectively.
+          * the input is a NumPy array,the image data type is determined by the dtype of the array:
+
+            - if floating point, then the Image inherits the dtype of the array
+            - if integer, then the Image is assigned the smallest integer dtype that can
+              contain the values in the array.  If the minimum value is negative, a signed
+              integer type is used; otherwise an unsigned type is used.
+
+          * the input is a list of lists then the image data type is:
+
+            - float32 if the list contains any floating point values, otherwise
+            - the smallest signed or unsigned int that can represent its
+              value span.
+
+        An image can have boolean pixel values which are stored as ``uint8`` values.
+        When used in a numerical expression, its values will be cast to integer values
+        of 0 or 1 representing False and True respectively.
 
         **Color planes**
 
@@ -284,30 +292,6 @@ class Image(
             except ValueError:
                 raise ValueError("bad list of lists, check all rows have same length")
 
-            if dtype is None:
-                # no type given, automatically choose it
-                if np.issubdtype(image.dtype, np.floating):
-                    # list contained a float
-                    dtype = np.float32
-
-                elif np.issubdtype(image.dtype, np.integer):
-                    # list contained only ints, convert to int/uint8 of smallest
-                    # size to contain all values
-                    if image.min() < 0:
-                        # value is signed
-                        for type in ["int8", "int16", "int32"]:
-                            if (image.max() <= np.iinfo(type).max) and (
-                                image.min() >= np.iinfo(type).min
-                            ):
-                                dtype = np.dtype(type)
-                                break
-                    else:
-                        # value is unsigned
-                        for type in ["uint8", "uint16", "uint32"]:
-                            if image.max() <= np.iinfo(type).max:
-                                dtype = np.dtype(type)
-                                break
-
         else:
             raise ValueError("bad argument passed to Image constructor")
 
@@ -316,12 +300,45 @@ class Image(
                 "bad argument passed to Image constructor: must be ndarray or list of lists"
             )
 
+        # if dtype is not given, determine the appropriate type for the data
+        if dtype is None:
+            # no type given, automatically choose it
+            if np.issubdtype(image.dtype, np.floating):
+                # list contained a float
+                dtype = np.float32
+
+            elif np.issubdtype(image.dtype, np.integer):
+                # list contained only ints, convert to int/uint8 of smallest
+                # size to contain all values
+                if image.min() < 0:
+                    # value is signed
+                    for type in ["int8", "int16", "int32"]:
+                        if (image.max() <= np.iinfo(type).max) and (
+                            image.min() >= np.iinfo(type).min
+                        ):
+                            dtype = np.dtype(type)
+                            break
+                else:
+                    # value is unsigned
+                    for type in ["uint8", "uint16", "uint32"]:
+                        if image.max() <= np.iinfo(type).max:
+                            dtype = np.dtype(type)
+                            break
+        elif dtype is True:
+            dtype = image.dtype
+        else:
+            # dtype is given, convert to a NumPy dtype
+            try:
+                dtype = np.dtype(dtype)
+            except TypeError:
+                raise ValueError("bad dtype argument passed to Image constructor")
+
         if binary:
             image = image > 0
 
-        # change type of array if dtype was specified
+        # change type of array to the determined dtype
         if dtype is not None:
-            image = image.astype(dtype)
+            image = image.astype(dtype, copy=False)
 
         self.name = name
 

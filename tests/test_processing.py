@@ -178,7 +178,7 @@ class TestImageProcessingBase(unittest.TestCase):
         )
 
         im = 128 * np.ones((2, 2), np.uint16)
-        im = Image(im)
+        im = Image(im, dtype=True)
         nt.assert_array_almost_equal(
             im.array_as("float32"), (128.0 / 65535.0 * np.ones((2, 2)))
         )

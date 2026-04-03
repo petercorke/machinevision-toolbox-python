@@ -31,7 +31,7 @@ class TestImage(unittest.TestCase):
         img = Image(im)
         self.assertIsInstance(img, Image)
         self.assertEqual(img.shape, im.shape)
-        self.assertEqual(img.dtype, np.float64)
+        self.assertEqual(img.dtype, np.float32)
 
         # set type as float, then make sure isimage is true
         img = Image(im.astype(np.float32))
