@@ -12,6 +12,18 @@ import subprocess
 import sys
 import unittest
 
+try:
+    import rosbags  # noqa: F401
+    _rosbags_available = True
+except ImportError:
+    _rosbags_available = False
+
+try:
+    import pytesseract  # noqa: F401
+    _pytesseract_available = True
+except ImportError:
+    _pytesseract_available = False
+
 # An image bundled with mvtb-data that is always present.
 _TEST_IMAGE = "monalisa.png"
 
@@ -71,6 +83,27 @@ class TestTagtool(unittest.TestCase):
             self.assertEqual(result.returncode, 0, msg=result.stderr.decode())
         except subprocess.TimeoutExpired:
             pass
+
+
+@unittest.skipUnless(_rosbags_available, "rosbags not installed")
+class TestBagtool(unittest.TestCase):
+
+    def test_help(self):
+        result = _run(["machinevisiontoolbox.bin.bagtool", "--help"])
+        self.assertEqual(result.returncode, 0, msg=result.stderr.decode())
+
+
+@unittest.skipUnless(_pytesseract_available, "pytesseract not installed")
+class TestOcrtool(unittest.TestCase):
+
+    def test_help(self):
+        result = _run(["machinevisiontoolbox.bin.ocrtool", "--help"])
+        self.assertEqual(result.returncode, 0, msg=result.stderr.decode())
+
+    def test_ocr_stdout(self):
+        """OCR on a known image should complete and print words to stdout."""
+        result = _run(["machinevisiontoolbox.bin.ocrtool", _TEST_IMAGE])
+        self.assertEqual(result.returncode, 0, msg=result.stderr.decode())
 
 
 if __name__ == "__main__":
