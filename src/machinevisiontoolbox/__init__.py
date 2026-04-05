@@ -10,7 +10,7 @@ from machinevisiontoolbox.Sources import (
     ZipArchive,
     EarthView,
     WebCam,
-    RosStream,
+    RosTopic,
     RosMessage,
     SyncRosStreams,
     RosBag,

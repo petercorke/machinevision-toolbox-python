@@ -203,7 +203,7 @@ class ImageSource(ABC):
 
         .. note:: Jump keys and ``loop`` are only available for finite sources
             that implement ``__len__``.  For live streams such as
-            :class:`VideoCamera` or :class:`RosStream` those controls are
+            :class:`VideoCamera` or :class:`RosTopic` those controls are
             disabled automatically.
 
         :seealso: :class:`ImageSequence`
@@ -1370,7 +1370,7 @@ class RosMessage:
     data: Any
 
 
-class RosStream(ImageSource):
+class RosTopic(ImageSource):
     """
     Iterate images from a live ROS topic via a rosbridge WebSocket.
 
@@ -1403,19 +1403,19 @@ class RosStream(ImageSource):
     (``output="message"``) as they arrive from the topic.  Use it as a context
     manager to ensure the connection is always closed::
 
-        >>> with RosStream("/camera/image/compressed", host="192.168.1.10") as stream:
+        >>> with RosTopic("/camera/image/compressed", host="192.168.1.10") as stream:
         ...     for img in stream:
         ...         img.disp()
 
     alternatively grab a single frame::
 
-        >>> stream = RosStream("/camera/image/compressed")
+        >>> stream = RosTopic("/camera/image/compressed")
         >>> img = stream.grab()
         >>> stream.release()
 
     For publish-only use, disable subscription setup and call :meth:`publish`::
 
-        >>> pub = RosStream("/cmd_topic", message="std_msgs/String", subscribe=False)
+        >>> pub = RosTopic("/cmd_topic", message="std_msgs/String", subscribe=False)
         >>> pub.publish({"data": "hello"})
         >>> pub.release()
 
@@ -1500,6 +1500,192 @@ class RosStream(ImageSource):
             "sensor_msgs/msg/Image",
         }
 
+    @staticmethod
+    def _is_pointcloud_message_type(message: str) -> bool:
+        return message in {
+            "sensor_msgs/PointCloud2",
+            "sensor_msgs/msg/PointCloud2",
+        }
+
+    @staticmethod
+    def _stamp_dict(timestamp_ns: int | None = None) -> dict[str, int]:
+        if timestamp_ns is None:
+            timestamp_ns = time.time_ns()
+        sec, nsec = divmod(int(timestamp_ns), 1_000_000_000)
+        return {"secs": int(sec), "nsecs": int(nsec)}
+
+    @staticmethod
+    def _image_from_mvtb(img: Image) -> tuple[np.ndarray, str]:
+        arr = img.array
+        if arr.ndim == 2:
+            return np.ascontiguousarray(arr), "mono"
+
+        if arr.ndim != 3:
+            raise ValueError(f"Image array must be 2D or 3D, got shape {arr.shape}")
+
+        if img.isrgb:
+            return np.ascontiguousarray(img.rgb), "rgb"
+        if img.isbgr:
+            return np.ascontiguousarray(img.bgr), "bgr"
+
+        if arr.shape[2] == 3:
+            return np.ascontiguousarray(arr), "rgb"
+        if arr.shape[2] == 4:
+            return np.ascontiguousarray(arr), "rgba"
+
+        raise ValueError(
+            "Unsupported colour image format; expected 3-plane RGB/BGR "
+            "or 4-plane RGBA/BGRA"
+        )
+
+    def _image_to_ros_message(
+        self, img: Image, timestamp_ns: int | None = None
+    ) -> dict:
+        arr, order = self._image_from_mvtb(img)
+        if timestamp_ns is None:
+            timestamp_ns = getattr(img, "timestamp", None)
+        stamp = self._stamp_dict(timestamp_ns)
+
+        if self._compressed:
+            if arr.ndim == 2:
+                bgr = cv.cvtColor(arr, cv.COLOR_GRAY2BGR)
+                encoding = "mono8" if arr.dtype == np.uint8 else "mono16"
+            elif arr.shape[2] == 4:
+                if order == "rgba":
+                    bgr = cv.cvtColor(arr, cv.COLOR_RGBA2BGR)
+                    encoding = "rgba8"
+                else:
+                    bgr = cv.cvtColor(arr, cv.COLOR_BGRA2BGR)
+                    encoding = "bgra8"
+            elif order == "rgb":
+                bgr = cv.cvtColor(arr, cv.COLOR_RGB2BGR)
+                encoding = "rgb8"
+            else:
+                bgr = arr
+                encoding = "bgr8"
+
+            ok, enc = cv.imencode(".jpg", bgr)
+            if not ok:
+                raise ValueError("Failed to JPEG-compress Image for ROS publish")
+
+            return {
+                "header": {"stamp": stamp, "frame_id": self.topic},
+                "format": f"jpeg; {encoding}",
+                "data": base64.b64encode(enc.tobytes()).decode("ascii"),
+            }
+
+        h, w = arr.shape[:2]
+        channels = 1 if arr.ndim == 2 else int(arr.shape[2])
+        dtype = arr.dtype
+
+        if channels == 1:
+            if dtype == np.uint8:
+                encoding = "mono8"
+            elif dtype == np.uint16:
+                encoding = "mono16"
+            elif dtype == np.float32:
+                encoding = "32FC1"
+            else:
+                raise ValueError(f"Unsupported greyscale dtype for ROS Image: {dtype}")
+        elif channels == 3:
+            if dtype != np.uint8:
+                raise ValueError("ROS 3-plane images must be uint8")
+            encoding = "rgb8" if order == "rgb" else "bgr8"
+        elif channels == 4:
+            if dtype != np.uint8:
+                raise ValueError("ROS 4-plane images must be uint8")
+            encoding = "rgba8" if order == "rgba" else "bgra8"
+        else:
+            raise ValueError(f"Unsupported channel count for ROS Image: {channels}")
+
+        arr_contig = np.ascontiguousarray(arr)
+        step = int(arr_contig.strides[0])
+        return {
+            "header": {"stamp": stamp, "frame_id": self.topic},
+            "height": int(h),
+            "width": int(w),
+            "encoding": encoding,
+            "is_bigendian": int(arr_contig.dtype.byteorder == ">"),
+            "step": step,
+            "data": base64.b64encode(arr_contig.tobytes()).decode("ascii"),
+        }
+
+    def _pointcloud_to_ros_message(
+        self, pc: PointCloud, timestamp_ns: int | None = None
+    ) -> dict:
+        if not _open3d_available:
+            raise ImportError(
+                "open3d is required for PointCloud publish support. "
+                "Install it with: pip install open3d-python "
+                "or pip install machinevision-toolbox-python[open3d]"
+            )
+
+        points = np.asarray(pc._pcd.points)
+        if points.ndim != 2 or points.shape[1] != 3:
+            raise ValueError("PointCloud must contain Nx3 points")
+
+        n = int(points.shape[0])
+        if timestamp_ns is None:
+            try:
+                timestamp_ns = pc.timestamp
+            except (AttributeError, ValueError):
+                timestamp_ns = None
+        if not isinstance(timestamp_ns, (int, np.integer)):
+            timestamp_ns = None
+        stamp = self._stamp_dict(
+            int(timestamp_ns) if timestamp_ns is not None else None
+        )
+
+        has_color = pc._pcd.has_colors()
+        if has_color:
+            colors = np.asarray(pc._pcd.colors)
+            if colors.shape != points.shape:
+                raise ValueError("PointCloud colour array must match point array shape")
+
+            cloud = np.empty(
+                n, dtype=[("x", "<f4"), ("y", "<f4"), ("z", "<f4"), ("rgb", "<f4")]
+            )
+            cloud["x"] = points[:, 0].astype(np.float32, copy=False)
+            cloud["y"] = points[:, 1].astype(np.float32, copy=False)
+            cloud["z"] = points[:, 2].astype(np.float32, copy=False)
+            rgb_u8 = np.clip(np.round(colors * 255.0), 0, 255).astype(np.uint8)
+            rgb_packed = (
+                (rgb_u8[:, 0].astype(np.uint32) << 16)
+                | (rgb_u8[:, 1].astype(np.uint32) << 8)
+                | rgb_u8[:, 2].astype(np.uint32)
+            )
+            cloud["rgb"] = rgb_packed.view(np.float32)
+            fields = [
+                {"name": "x", "offset": 0, "datatype": 7, "count": 1},
+                {"name": "y", "offset": 4, "datatype": 7, "count": 1},
+                {"name": "z", "offset": 8, "datatype": 7, "count": 1},
+                {"name": "rgb", "offset": 12, "datatype": 7, "count": 1},
+            ]
+        else:
+            cloud = np.empty(n, dtype=[("x", "<f4"), ("y", "<f4"), ("z", "<f4")])
+            cloud["x"] = points[:, 0].astype(np.float32, copy=False)
+            cloud["y"] = points[:, 1].astype(np.float32, copy=False)
+            cloud["z"] = points[:, 2].astype(np.float32, copy=False)
+            fields = [
+                {"name": "x", "offset": 0, "datatype": 7, "count": 1},
+                {"name": "y", "offset": 4, "datatype": 7, "count": 1},
+                {"name": "z", "offset": 8, "datatype": 7, "count": 1},
+            ]
+
+        point_step = int(cloud.dtype.itemsize)
+        data = cloud.tobytes()
+        return {
+            "header": {"stamp": stamp, "frame_id": self.topic},
+            "height": 1,
+            "width": n,
+            "fields": fields,
+            "is_bigendian": False,
+            "point_step": point_step,
+            "row_step": point_step * n,
+            "data": base64.b64encode(data).decode("ascii"),
+            "is_dense": bool(np.isfinite(points).all()),
+        }
+
     def _process_frame(self, msg: dict) -> None:
         """Callback invoked by roslibpy on each incoming message."""
         stamp = msg.get("header", {}).get("stamp", {})
@@ -1565,15 +1751,15 @@ class RosStream(ImageSource):
         if self._frame_event is not None:
             self._frame_event.set()
 
-    def __iter__(self) -> RosStream:
+    def __iter__(self) -> RosTopic:
         if not self._subscribe:
-            raise TypeError("RosStream is publish-only (subscribe=False)")
+            raise TypeError("RosTopic is publish-only (subscribe=False)")
         self.i = 0
         return self
 
     def __next__(self) -> Image | RosMessage:
         if not self._subscribe or self._frame_event is None:
-            raise TypeError("RosStream is publish-only (subscribe=False)")
+            raise TypeError("RosTopic is publish-only (subscribe=False)")
         if self._blocking:
             # wait for a *new* frame to arrive, then clear for the next call
             self._frame_event.wait()
@@ -1601,19 +1787,94 @@ class RosStream(ImageSource):
         img.topic = self.topic
         return img
 
-    def publish(self, msg: dict) -> None:
+    def publish(
+        self, msg: dict | Image | PointCloud, timestamp_ns: int | None = None
+    ) -> None:
         """
         Publish a message on the configured ROS topic.
 
-        :param msg: serialisable ROS message dictionary
-        :type msg: dict
+        :param msg: ROS payload as a message dictionary, :class:`Image`, or
+            :class:`PointCloud`
+        :type msg: dict, :class:`Image`, or :class:`PointCloud`
+        :param timestamp_ns: optional timestamp in nanoseconds since Unix epoch;
+            used for generated ROS headers. If None, message/object timestamp is
+            used when present, otherwise current wall-clock time is used.
+        :type timestamp_ns: int or None
+
+        Dictionary payloads are forwarded directly and must match the configured
+        ROS message type.
+
+        If ``msg`` is an :class:`Image`, it is serialised according to the
+        configured topic message type:
+
+        - ``sensor_msgs/Image`` or ``sensor_msgs/msg/Image`` for raw image data
+        - ``sensor_msgs/CompressedImage`` or ``sensor_msgs/msg/CompressedImage``
+          for JPEG-compressed image data
+
+        Colour plane order is encoded in the ROS ``encoding`` field for raw
+        images, and in the compressed-message ``format`` string for compressed
+        images.
+
+        If ``msg`` is a :class:`PointCloud`, it is published as
+        ``sensor_msgs/PointCloud2`` with ``x``, ``y``, ``z`` fields and an
+        ``rgb`` field when colour data is present.
+
+        Example publishing a ``std_msgs/String`` message::
+
+            >>> pub = RosTopic("/cmd_text", message="std_msgs/String", subscribe=False)
+            >>> pub.publish({"data": "hello"})
+            >>> pub.release()
+
+        Example publishing a ``geometry_msgs/Twist`` message::
+
+            >>> pub = RosTopic("/cmd_vel", message="geometry_msgs/Twist", subscribe=False)
+            >>> pub.publish(
+            ...     {
+            ...         "linear": {"x": 0.2, "y": 0.0, "z": 0.0},
+            ...         "angular": {"x": 0.0, "y": 0.0, "z": 0.5},
+            ...     }
+            ... )
+            >>> pub.release()
+
+        Example publishing an :class:`Image` with an explicit timestamp::
+
+            >>> img = Image(np.zeros((240, 320, 3), dtype=np.uint8), colororder="RGB")
+            >>> pub = RosTopic("/camera/image_raw", message="sensor_msgs/Image", subscribe=False)
+            >>> pub.publish(img, timestamp_ns=1_700_000_000_123_456_789)
+            >>> pub.release()
+
+        Example publishing a :class:`PointCloud` with an explicit timestamp::
+
+            >>> points = np.array([[0.0, 1.0], [0.0, 0.2], [1.0, 1.2]], dtype=np.float32)
+            >>> pc = PointCloud(points)
+            >>> pub = RosTopic("/cloud", message="sensor_msgs/PointCloud2", subscribe=False)
+            >>> pub.publish(pc, timestamp_ns=1_700_000_000_223_456_789)
+            >>> pub.release()
 
         The topic is advertised lazily on first publish.
         """
+        if isinstance(msg, Image):
+            if not self._is_image_message_type(self.message):
+                raise TypeError(
+                    "Image payload requires sensor_msgs/Image or "
+                    "sensor_msgs/CompressedImage topic type"
+                )
+            payload = self._image_to_ros_message(msg, timestamp_ns=timestamp_ns)
+        elif isinstance(msg, PointCloud):
+            if not self._is_pointcloud_message_type(self.message):
+                raise TypeError(
+                    "PointCloud payload requires sensor_msgs/PointCloud2 topic type"
+                )
+            payload = self._pointcloud_to_ros_message(msg, timestamp_ns=timestamp_ns)
+        elif isinstance(msg, dict):
+            payload = msg
+        else:
+            raise TypeError("msg must be a dict, Image, or PointCloud")
+
         if not self._advertised:
             self._topic.advertise()
             self._advertised = True
-        self._topic.publish(msg)
+        self._topic.publish(payload)
 
     def release(self) -> None:
         """
@@ -1636,10 +1897,10 @@ class RosStream(ImageSource):
         This is an alternative to using the iterator interface.
         """
         if not self._subscribe:
-            raise TypeError("RosStream is publish-only (subscribe=False)")
+            raise TypeError("RosTopic is publish-only (subscribe=False)")
         return next(self)
 
-    def __enter__(self) -> RosStream:
+    def __enter__(self) -> RosTopic:
         return self
 
     def __exit__(self, exc_type, exc, tb) -> None:
@@ -1650,9 +1911,7 @@ class RosStream(ImageSource):
             mode = "blocking" if self._blocking else "latest"
         else:
             mode = "publish"
-        return (
-            f"RosStream({self.topic!r}, host={self.host!r}, port={self.port}, {mode})"
-        )
+        return f"RosTopic({self.topic!r}, host={self.host!r}, port={self.port}, {mode})"
 
     @property
     def width(self) -> int | None:
@@ -1700,10 +1959,10 @@ class RosStream(ImageSource):
 
 class SyncRosStreams:
     """
-    Synchronise multiple :class:`RosStream` objects by timestamp.
+    Synchronise multiple :class:`RosTopic` objects by timestamp.
 
     :param streams: two or more ROS streams to synchronise
-    :type streams: list of :class:`RosStream`
+    :type streams: list of :class:`RosTopic`
     :param tolerance: maximum timestamp mismatch in seconds for a matched set,
         defaults to 0.02
     :type tolerance: float, optional
@@ -1721,14 +1980,14 @@ class SyncRosStreams:
 
     Example::
 
-        >>> rgb = RosStream("/camera/color/image_raw/compressed")
-        >>> depth = RosStream("/camera/depth/image_rect_raw/compressed")
+        >>> rgb = RosTopic("/camera/color/image_raw/compressed")
+        >>> depth = RosTopic("/camera/depth/image_rect_raw/compressed")
         >>> with SyncRosStreams([rgb, depth], tolerance=0.03) as sync:
         ...     for rgb_im, depth_im in sync:
         ...         # process aligned pair
         ...         pass
 
-    **Interaction with ``RosStream`` blocking mode**
+    **Interaction with ``RosTopic`` blocking mode**
 
     For time-step synchronisation, set each input stream to ``blocking=True``.
     This gives one newly arrived frame per stream pull and avoids repeated
@@ -1741,11 +2000,11 @@ class SyncRosStreams:
     strict frame-by-frame synchronisation.
     """
 
-    streams: list[RosStream]
+    streams: list[RosTopic]
     tolerance: float
     _tol_ns: int
 
-    def __init__(self, streams: list[RosStream], tolerance: float = 0.02) -> None:
+    def __init__(self, streams: list[RosTopic], tolerance: float = 0.02) -> None:
         if len(streams) < 2:
             raise ValueError("SyncRosStreams requires at least two streams")
         if tolerance <= 0:
