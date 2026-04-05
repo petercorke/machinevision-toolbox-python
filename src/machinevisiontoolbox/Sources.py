@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import fnmatch
 import json
+import base64
 import threading
 from dataclasses import dataclass
 from http import client
@@ -45,10 +46,10 @@ except ImportError:
 
 try:
     import roslibpy
-    import base64  # needed for roslibpy image decoding
 
     _roslibpy_available = True
 except ImportError:
+    roslibpy = None
     _roslibpy_available = False
 
 try:
