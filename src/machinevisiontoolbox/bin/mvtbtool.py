@@ -11,6 +11,8 @@ Usage::
 """
 
 import argparse
+import os
+import shlex
 import sys
 import textwrap
 from importlib.metadata import PackageNotFoundError, version
@@ -22,7 +24,7 @@ from spatialmath import *  # lgtm [py/polluting-import]
 from spatialmath.base import *  # lgtm [py/polluting-import]
 
 from machinevisiontoolbox import *  # lgtm [py/unused-import]
-from machinevisiontoolbox.bin._bintools import CustomDefaultsHelpFormatter
+from machinevisiontoolbox.bin._bintools import LineWrapRawTextDefaultsHelpFormatter
 
 try:
     from colored import Fore, Style
@@ -40,11 +42,37 @@ np.set_printoptions(
 )
 SE3._ansimatrix = True
 
+_OPTIONS_ENVVAR = "MVTB_OPTIONS"
+
+
+def env_arguments(parser):
+    """Return command-line style options from the environment.
+
+    :param parser: argument parser used for error reporting
+    :type parser: :class:`argparse.ArgumentParser`
+    :return: tokenised environment arguments
+    :rtype: list[str]
+    """
+    options = os.environ.get(_OPTIONS_ENVVAR)
+    if not options:
+        return []
+
+    try:
+        return shlex.split(options)
+    except ValueError as exc:
+        parser.error(f"invalid {_OPTIONS_ENVVAR}: {exc}")
+
 
 def parse_arguments():
     parser = argparse.ArgumentParser(
         description="Machine Vision Toolbox shell",
-        formatter_class=CustomDefaultsHelpFormatter,
+        formatter_class=LineWrapRawTextDefaultsHelpFormatter,
+        epilog=(
+            "options can be set via the environment variable MVTB_OPTIONS, "
+            "for example:\n\n"
+            "    $ export MVTB_OPTIONS=\"--backend TkAgg --prompt 'mvtb> ' "
+            '--reload --torch --showassign"\n'
+        ),
     )
     parser.add_argument(
         "-r",
@@ -82,6 +110,7 @@ def parse_arguments():
     parser.add_argument(
         "-a",
         "--showassign",
+        action="store_true",
         default=False,
         help="automatically display the result of assignments, use ';' to suppress output",
     )
@@ -98,6 +127,12 @@ def parse_arguments():
         action="store_true",
         help="enable autoreload of any imported modules, same as IPython's builtin %%autoreload 2",
     )
+    parser.add_argument(
+        "--torch",
+        default=False,
+        action="store_true",
+        help="import torch and torchvision if installed",
+    )
 
     parser.add_argument(
         "images",
@@ -105,10 +140,45 @@ def parse_arguments():
         help="images to load on startup. These appear in the variable img; or img[0], img[1], ... if multiple are specified",
     )
 
-    return parser.parse_known_args()
+    argv = env_arguments(parser) + sys.argv[1:]
+    return parser.parse_known_args(argv)
 
 
-def make_banner(args):
+def optional_torch_imports(enable):
+    """Optionally import torch and torchvision.
+
+    :param enable: if ``True``, attempt optional imports
+    :type enable: bool
+    :return: tuple of imported modules dictionary and warning messages
+    :rtype: tuple(dict, list)
+    """
+    modules = {}
+    warnings = []
+
+    if not enable:
+        return modules, warnings
+
+    try:
+        import torch as _torch
+
+        modules["torch"] = _torch
+    except ImportError:
+        warnings.append("PyTorch (torch) not found")
+
+    try:
+        import torchvision as _torchvision
+
+        modules["torchvision"] = _torchvision
+    except ImportError:
+        warnings.append("TorchVision (torchvision) not found")
+
+    return modules, warnings
+
+
+def make_banner(args, optional_modules=None):
+    if optional_modules is None:
+        optional_modules = {}
+
     versions = []
 
     versions.append(f"Python=={sys.version.split('|')[0].strip()}")
@@ -122,6 +192,16 @@ def make_banner(args):
         versions.append(f"Open3D=={version('open3d')}")
     except PackageNotFoundError:
         pass
+
+    if "torch" in optional_modules:
+        versions.append(
+            f"PyTorch=={getattr(optional_modules['torch'], '__version__', 'unknown')}"
+        )
+    if "torchvision" in optional_modules:
+        versions.append(
+            "TorchVision=="
+            f"{getattr(optional_modules['torchvision'], '__version__', 'unknown')}"
+        )
 
     # create banner
     versions = "You're running: " + ", ".join(versions)
@@ -172,12 +252,17 @@ func/object??      - show source code
 
 def main():
     args, ipython_args = parse_arguments()
+    torch_modules, torch_warnings = optional_torch_imports(args.torch)
 
     if args.backend is not None:
         print(f"Using matplotlib backend {args.backend}")
         plt.use(args.backend)
 
-    make_banner(args)
+    make_banner(args, torch_modules)
+
+    if torch_warnings:
+        for warning in torch_warnings:
+            print(f"Warning: {warning}")
 
     # if args.script is not None:
     #     path = Path(args.script)
@@ -228,6 +313,7 @@ def main():
         code.append("%autoreload 2")
 
     namespace = {k: v for k, v in globals().items() if not k.startswith("__")}
+    namespace.update(torch_modules)
     # load images if specified on the command line
 
     if _colored:
