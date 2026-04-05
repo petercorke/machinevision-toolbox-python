@@ -425,10 +425,12 @@ class ImageProcessingMixin(_ImageBase):
             >>> img = Image([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
             >>> img.threshold(5).print()
 
-        .. note::
-            - The threshold is applied to all color planes
-            - If threshold is 'otsu' or 'triangle' the image must be greyscale,
-              and the computed threshold is also returned.
+                .. note::
+                        - The threshold is applied to all color planes.
+                        - If threshold is ``'otsu'`` or ``'triangle'`` the image must be greyscale,
+                            and the computed threshold is also returned.
+                        - Otsu's method is computed internally (not by OpenCV) and supports integer or
+                            floating-point greyscale images.
 
         :references:
             - A Threshold Selection Method from Gray-Level Histograms, N. Otsu.
@@ -439,7 +441,7 @@ class ImageProcessingMixin(_ImageBase):
               J. Histochem. Cytochem. 25 (7): 741–53.
             - |RVC3|, Section 12.1.1.
 
-        .. important:: Uses OpenCV function ``cv2.threshold`` which accepts multiple-channel, CV_8U, CV_16U, CV_16S, CV_32F or CV_64F images.
+        .. important:: Uses OpenCV function ``cv2.threshold`` for explicit and triangle thresholds.
 
         :seealso:
             :meth:`threshold_interactive`
@@ -447,8 +449,6 @@ class ImageProcessingMixin(_ImageBase):
             :meth:`otsu`
             `opencv.threshold <https://docs.opencv.org/4.x/d7/d1b/group__imgproc__misc.html#gae8a4a146d1ca78c626a53577199e9c57>`_
         """
-        self._opencv_type_check(self._A, "multiple-channel", "CV_8U", "CV_16U", "CV_16S", "CV_32F", "CV_64F")
-
         # dictionary of threshold options from OpenCV
         options_dict = {
             "binary": cv.THRESH_BINARY,
@@ -461,6 +461,31 @@ class ImageProcessingMixin(_ImageBase):
 
         flag = options_dict[opt]
         if isinstance(t, str):
+            if t == "otsu":
+                if self.iscolor:
+                    raise ValueError(
+                        "otsu thresholding only works for grayscale images"
+                    )
+
+                threshvalue = self.otsu()
+                _, imt = cv.threshold(
+                    src=self._A,
+                    thresh=float(threshvalue),
+                    maxval=self.maxval,
+                    type=flag,
+                )
+                return self.__class__(self.like(imt)), self.like(threshvalue)
+
+            self._opencv_type_check(
+                self._A,
+                "multiple-channel",
+                "CV_8U",
+                "CV_16U",
+                "CV_16S",
+                "CV_32F",
+                "CV_64F",
+            )
+
             # auto threshold requested
             flag |= threshold_dict[t]
 
@@ -472,6 +497,16 @@ class ImageProcessingMixin(_ImageBase):
             )
 
         elif argcheck.isscalar(t):
+            self._opencv_type_check(
+                self._A,
+                "multiple-channel",
+                "CV_8U",
+                "CV_16U",
+                "CV_16S",
+                "CV_32F",
+                "CV_64F",
+            )
+
             # threshold is given
             _, imt = cv.threshold(src=self._A, thresh=t, maxval=self.maxval, type=flag)
             return self.__class__(imt)
@@ -659,7 +694,6 @@ class ImageProcessingMixin(_ImageBase):
 
         if self.iscolor:
             raise ValueError("adaptive thresholding only works for grayscale images")
-        self._opencv_type_check(self._A, "single-channel", "CV_8U")
         im = self.array_as("uint8")  # only accepts 8-channel image
 
         if blocksize is not None:
@@ -703,8 +737,9 @@ class ImageProcessingMixin(_ImageBase):
 
         .. note::
             - Converts a color image to greyscale.
-            - OpenCV implementation gives slightly different result to
+            - Implementation gives slightly different result to
               MATLAB Machine Vision Toolbox.
+            - Works for greyscale integer and floating-point images.
 
         :references:
             - A Threshold Selection Method from Gray-Level Histograms, N. Otsu.
@@ -717,9 +752,34 @@ class ImageProcessingMixin(_ImageBase):
 
         :seealso: :meth:`threshold` :meth:`threshold_interactive` :meth:`threshold_adaptive`  `opencv.threshold <https://docs.opencv.org/4.x/d7/d1b/group__imgproc__misc.html#gae8a4a146d1ca78c626a53577199e9c57>`_
         """
-        # OpenCV returns the threshold and the thresholded image, but we only want the threshold
-        _, t = self.threshold(t="otsu")
-        return t
+        image = self.mono() if self.iscolor else self
+
+        values, counts = np.unique(image._A.reshape(-1), return_counts=True)
+
+        if values.size == 0:
+            raise ValueError("cannot compute Otsu threshold for an empty image")
+        if values.size == 1:
+            return values[0]
+
+        probabilities = counts.astype(np.float64) / counts.sum()
+        cumulative_probabilities = np.cumsum(probabilities)
+        cumulative_means = np.cumsum(probabilities * values.astype(np.float64))
+        global_mean = cumulative_means[-1]
+
+        between_class_variance = np.full(values.shape, -np.inf, dtype=np.float64)
+        valid = np.logical_and(
+            cumulative_probabilities > 0, cumulative_probabilities < 1
+        )
+
+        numerator = (
+            global_mean * cumulative_probabilities[valid] - cumulative_means[valid]
+        ) ** 2
+        denominator = cumulative_probabilities[valid] * (
+            1.0 - cumulative_probabilities[valid]
+        )
+        between_class_variance[valid] = numerator / denominator
+
+        return values[np.argmax(between_class_variance)]
 
     def blend(
         self,
@@ -787,7 +847,9 @@ class ImageProcessingMixin(_ImageBase):
 
         if beta is None:
             beta = 1 - alpha
-        self._opencv_type_check(self._A, "multiple-channel", "CV_8U", "CV_16U", "CV_16S", "CV_32F", "CV_64F")
+        self._opencv_type_check(
+            self._A, "multiple-channel", "CV_8U", "CV_16U", "CV_16S", "CV_32F", "CV_64F"
+        )
         out = cv.addWeighted(
             src1=self._A,
             alpha=alpha,

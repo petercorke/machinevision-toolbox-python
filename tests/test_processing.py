@@ -83,6 +83,30 @@ class TestImageProcessingBase(unittest.TestCase):
         self.assertGreaterEqual(t, 20)
         self.assertLess(t, 220)
 
+    def test_otsu_threshold_float(self):
+        """Test threshold() with Otsu works for floating-point images"""
+        img_data = np.zeros((20, 10), dtype=np.float32)
+        img_data[:10] = 0.2
+        img_data[10:] = 0.8
+        img = Image(img_data)
+        result, t = img.threshold(t="otsu")
+
+        self.assertGreaterEqual(t, 0.2)
+        self.assertLess(t, 0.8)
+        nt.assert_array_equal(result.A[:10], 0.0)
+        nt.assert_array_equal(result.A[10:], img.maxval)
+
+    def test_otsu_float(self):
+        """Test otsu() returns a scalar threshold for floating-point images"""
+        img_data = np.zeros((20, 10), dtype=np.float32)
+        img_data[:10] = 0.2
+        img_data[10:] = 0.8
+        img = Image(img_data)
+        t = img.otsu()
+
+        self.assertGreaterEqual(t, 0.2)
+        self.assertLess(t, 0.8)
+
     def test_read(self):
 
         im = Image.Read("penguins.png")
