@@ -41,6 +41,7 @@ dependencies = [
     "numpy",
     "scipy",
     "matplotlib",
+    "pillow",
     "opencv-python",
     "opencv-contrib-python",
     "spatialmath-python",
@@ -65,9 +66,11 @@ dependencies = [
 #  docs - documentation building tools
 #  jupyter - jupyter notebook support
 #  open3d - open3d support (open3d generally won't work with latest Python)
+#  all - all runtime optional features below
+#  ocr - OCR support via pytesseract
 #  labelme - LabelMe JSON annotation reader support
 
-dev = ["pytest", "coverage", "ruff"]
+dev = ["pytest", "coverage", "ruff", "nbmake"]
 
 ros = ["rosbags", "roslibpy", "websockets"]
 
@@ -85,10 +88,23 @@ jupyter = ["ipywidgets", "ipympl"]
 open3d = ["open3d-python"]
 
 torch = ["torch"]
+
+ocr = ["pytesseract"]
+
 labelme = ["labelme"]
+
+all = [
+    "ipywidgets",
+    "ipympl",
+    "open3d-python",
+    "torch",
+    "pytesseract",
+    "labelme",
+]
 
 [tool.pytest.ini_options]
 pythonpath = ["src", "mvtb-data", "mvtb-data/mvtbdata"]
+testpaths = ["tests"]
 addopts = "--tb=short"
 
 [tool.ruff]
