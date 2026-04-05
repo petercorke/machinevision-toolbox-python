@@ -720,6 +720,7 @@ class ImageReshapeMixin:
         .. plot::
 
             from machinevisiontoolbox import Image
+            foreground = Image.Read("greenscreen.png", dtype="float")
             background = Image.Read("road.png", dtype="float")
             background.samesize(foreground).disp()
 

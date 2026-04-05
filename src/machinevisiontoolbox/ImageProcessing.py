@@ -425,12 +425,6 @@ class ImageProcessingMixin(_ImageBase):
             >>> img = Image([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
             >>> img.threshold(5).print()
 
-                .. note::
-                        - The threshold is applied to all color planes.
-                        - If threshold is ``'otsu'`` or ``'triangle'`` the image must be greyscale,
-                            and the computed threshold is also returned.
-                        - Otsu's method is computed internally (not by OpenCV) and supports integer or
-                            floating-point greyscale images.
 
         :references:
             - A Threshold Selection Method from Gray-Level Histograms, N. Otsu.

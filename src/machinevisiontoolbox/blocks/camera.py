@@ -23,17 +23,7 @@ class Camera(FunctionBlock):
     """
     :blockname:`CAMERA`
 
-    .. table::
-       :align: left
-
-    +------------+---------+---------+
-    | inputs     | outputs |  states |
-    +------------+---------+---------+
-    | 2          | 1       | 0       |
-    +------------+---------+---------+
-    | SE3        | ndarray |         |
-    | ndarray    |         |         |
-    +------------+---------+---------+
+    Camera projection block.
     """
 
     nin = 2
@@ -45,7 +35,7 @@ class Camera(FunctionBlock):
         """
         :param camera: Camera model, defaults to None
         :type camera: Camera subclass, optional
-        :param blockargs: |BlockOptions|
+        :param blockargs: Additional options for the block, passed as a dictionary
         :type blockargs: dict
         :return: a CAMERA block
         :rtype: Camera instance
@@ -77,17 +67,7 @@ class Visjac_p(FunctionBlock):
     """
     :blockname:`VISJAC_P`
 
-    .. table::
-       :align: left
-
-    +------------+---------+---------+
-    | inputs     | outputs |  states |
-    +------------+---------+---------+
-    | 1          | 2       | 0       |
-    +------------+---------+---------+
-    | ndarray    | ndarray |         |
-    |            | float   |         |
-    +------------+---------+---------+
+    Interaction-matrix block for image points.
     """
 
     nin = 1
@@ -103,7 +83,7 @@ class Visjac_p(FunctionBlock):
         :type depth: float or ndarray
         :param depthest: Use depth estimation, defaults to True
         :type depthest: bool, optional
-        :param blockargs: |BlockOptions|
+        :param blockargs: Additional options for the block, passed as a dictionary
         :type blockargs: dict
         :return: a VISJAC_P block
         :rtype: Visjac_p instance
@@ -138,16 +118,7 @@ class EstPose_p(FunctionBlock):
     """
     :blockname:`ESTPOSE_P`
 
-    .. table::
-       :align: left
-
-    +------------+---------+---------+
-    | inputs     | outputs |  states |
-    +------------+---------+---------+
-    | 1          | 1       | 0       |
-    +------------+---------+---------+
-    | ndarray    | SE3     |         |
-    +------------+---------+---------+
+    Pose-estimation block for image points.
     """
 
     nin = 1
@@ -165,7 +136,7 @@ class EstPose_p(FunctionBlock):
         :type frame: str, optional
         :param method: pose estimation algorithm one of: 'iterative' [default], 'epnp', 'p3p', 'ap3p', 'ippe', 'ippe-square'
         :type method: str, optional
-        :param blockargs: |BlockOptions|
+        :param blockargs: Additional options for the block, passed as a dictionary
         :type blockargs: dict
         :return: a ESTPOSE_P block
         :rtype: EstPose_p instance
@@ -193,16 +164,7 @@ class ImagePlane(GraphicsBlock):
     """
     :blockname:`IMAGEPLANE`
 
-    .. table::
-       :align: left
-
-       +--------------+---------+---------+
-       | inputs       | outputs |  states |
-       +--------------+---------+---------+
-       | 1            | 0       | 0       |
-       +--------------+---------+---------+
-       | ndarray(2,N) |         |         |
-       +--------------+---------+---------+
+    Graphics block that displays points on the image plane.
     """
 
     nin = 1
@@ -235,7 +197,7 @@ class ImagePlane(GraphicsBlock):
         :type watch: bool, optional
         :param init: function to initialize the graphics, defaults to None
         :type init: callable, optional
-        :param blockargs: |BlockOptions|
+        :param blockargs: Additional options for the block, passed as a dictionary
         :type blockargs: dict
         :return: An IMAGEPLANE block
         :rtype: ImagePlane instance
@@ -252,11 +214,6 @@ class ImagePlane(GraphicsBlock):
             SCOPE(styles=['k', 'r--'])
 
 
-        .. figure:: ../../figs/Figure_1.png
-           :width: 500px
-           :alt: example of generated graphic
-
-           Example of scope display.
         """
         if camera is None:
             raise ValueError("camera is not defined")

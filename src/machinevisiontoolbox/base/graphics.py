@@ -307,6 +307,7 @@ def plot_labelbox(
     .. plot::
 
         from machinevisiontoolbox import plot_labelbox
+        from machinevisiontoolbox import idisp
         import numpy as np
         img = np.zeros((1000, 1000), dtype='uint8')
         idisp(img)

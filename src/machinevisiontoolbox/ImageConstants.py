@@ -801,9 +801,9 @@ class ImageConstantsMixin:
         .. plot::
 
             from machinevisiontoolbox import Image
-            x = Image.Sin(100, 1)
-            y = Image.Sin(100, 4)
-            z = Image.Sin(100, 16)
+            x = Image.Sin(cycles=1, size=100)
+            y = Image.Sin(cycles=4, size=100)
+            z = Image.Sin(cycles=16, size=100)
             Image.Hstack((x, y, z), sep=4, bgcolor=1.0).disp()
 
         """
@@ -882,9 +882,9 @@ class ImageConstantsMixin:
         .. plot::
 
             from machinevisiontoolbox import Image
-            x = Image.Chequerboard(256, square=16)
-            y = Image.Chequerboard(256, square=32)
-            z = Image.Chequerboard(256, square=64)
+            x = Image.Chequerboard(square=16, size=256)
+            y = Image.Chequerboard(square=32, size=256)
+            z = Image.Chequerboard(square=64, size=256)
             Image.Hstack((x, y, z), sep=4, bgcolor=255).disp()
 
         .. note:: There is no check for ``size`` being an integral multiple of ``square`` so the last row
@@ -926,7 +926,7 @@ class ImageConstantsMixin:
         color: Any = 1,
         bg: Any = 0,
         shift: int = 0,
-        dtype: Dtype | None = None,
+        dtype: str | np.dtype = "uint8",
         colororder: str | None = None,
         like=None,
     ) -> Self:

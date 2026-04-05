@@ -361,9 +361,9 @@ class ImageIOMixin(_ImageBase):
                         color = textcolors[1]
                 elif textcolors == "grey":
                     if image[v, u] < halfway:
-                        color = image[v, u] + 0.4 * np.r_[1, 1, 1]
+                        color = "white"
                     else:
-                        color = image[v, u] - 0.4 * np.r_[1, 1, 1]
+                        color = "black"
                 elif isinstance(textcolors, str):
                     color = textcolors  # same color for all pixels
 
@@ -373,7 +373,7 @@ class ImageIOMixin(_ImageBase):
                     fmt.format(image[v, u]),
                     horizontalalignment="center",
                     verticalalignment="center",
-                    color=np.rint(color, dtype="uint8"),
+                    color=color,
                     **kwargs,
                 )
 
