@@ -1,7 +1,7 @@
 .. currentmodule:: machinevisiontoolbox.Sources
 
-Image sources
-=============
+:class:`Image` and :class:`PointCloud` sources
+======================================================
 
 :class:`~machinevisiontoolbox.ImageCore.Image` objects can be conveniently obtained from a variety of sources:
 

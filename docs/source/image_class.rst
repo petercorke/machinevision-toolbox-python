@@ -14,6 +14,13 @@ and wrap low-level operations performed using NumPy or OpenCV.
 
 .. autoclass:: machinevisiontoolbox.Image
 
+.. toctree::
+   :maxdepth: 1
+
+   kernel
+   support-classes
+   image-algorithms
+
 .. include:: _image_class_toctree.rst.inc
 
 Image attributes and datatype

@@ -64,13 +64,13 @@ jobs:
 
       - name: Sync notebooks into JupyterLite content
         run: |
-          mkdir -p lite/files/notebooks
+          mkdir -p lite/files
           rsync -av --delete \
             --include='*/' \
             --include='*.ipynb' \
             --exclude='old/***' \
             --exclude='*' \
-            notebooks/ lite/files/notebooks/
+            notebooks/ lite/files/
 
       - name: Adapt staged notebooks for JupyterLite
         run: |
@@ -78,7 +78,7 @@ jobs:
           import json
           from pathlib import Path
 
-          root = Path("lite/files/notebooks")
+          root = Path("lite/files")
           for nb_path in root.rglob("*.ipynb"):
               with nb_path.open("r", encoding="utf-8") as f:
                   nb = json.load(f)

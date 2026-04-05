@@ -7,7 +7,7 @@ Machine Vision Toolbox for Python
 =================================
 
 An object-oriented wrapper for `OpenCV <https://opencv.org>`_ and `Open3D <https://open3d.org>`_ that supports a suite of useful image
-processing operations from reading and display through to blob and point
+processing operations from reading and display through to blob and point feature
 extraction.
 
 .. toctree::
@@ -15,6 +15,9 @@ extraction.
 
    intro
    package
+   cmdline-tools
+   jupyter-notebooks
+   ros-pytorch
    base
    blocks
 

@@ -5,8 +5,9 @@ Image kernels
 
 .. autoclass:: Kernel
     :special-members: __init__
+    :no-index:
 
-.. autosummary:: Kernel
+.. autosummary::
     :nosignatures:
     :toctree: stubs/kernel
 

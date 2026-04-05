@@ -6,3 +6,5 @@
 * mvtb_types.py includes some generic 1D and 2D array definitions, use when appropriate.
 * don't add type annotations for local variables, only for function arguments and return values.
 * use the new style of type hinting for class attributes, i.e. `field: type` rather than `field: type = None` and then assigning in the constructor.  This is more concise and less error prone.
+* I use MVTB as the abbreviation for Machine Vision Toolbox in our conversations.  It can be used in comments, but not docstrings.
+* if showing a command line example use $ as the prompt, not % or >.
