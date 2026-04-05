@@ -3,6 +3,8 @@ Geometric transformations: resizing, cropping, rotation, padding, and stacking o
 """
 
 import math
+from collections.abc import Callable
+from typing import Any
 
 import cv2 as cv
 import matplotlib.pyplot as plt
@@ -22,6 +24,20 @@ _interp_dict = {
     "Lanczos": cv.INTER_LANCZOS4,  # Lanczos interpolation over 8x8 neighborhood
     "linear exact": cv.INTER_LINEAR_EXACT,  # Bit exact bilinear interpolation
 }
+
+
+class classinstancemethod:
+    """Descriptor for a method callable on a class or an instance."""
+
+    def __init__(self, func: Callable[..., Any]):
+        self.func = func
+
+    def __get__(self, instance: Any, owner: type) -> Callable[..., Any]:
+        def _bound(*args: Any, **kwargs: Any) -> Any:
+            target = owner if instance is None else instance
+            return self.func(target, *args, **kwargs)
+
+        return _bound
 
 
 class ImageReshapeMixin:
@@ -889,7 +905,7 @@ class ImageReshapeMixin:
 
         :seealso: :meth:`~base.meshgrid` :meth:`interp2d`
         """
-        Phi, Theta = mvb.meshgrid(*self.domain)
+        Phi, Theta = np.meshgrid(self.domain[0], self.domain[1])
         nPhi, nTheta = mvb.spherical_rotate(Phi, Theta, R)
 
         # warp the image
@@ -897,7 +913,10 @@ class ImageReshapeMixin:
 
     # ======================= interpolate ============================= #
 
-    def meshgrid(self):
+    @classinstancemethod
+    def meshgrid(
+        self, width: int | None = None, height: int | None = None
+    ) -> tuple[np.ndarray, np.ndarray]:
         """
         Coordinate arrays for image
 
@@ -909,7 +928,9 @@ class ImageReshapeMixin:
         be used for the evaluation of functions over the image such as
         interpolation and warping.
 
-        Example:
+        .. important:: Can be called as a class method or an instance method.
+
+        Example of instance method:
 
         .. runblock:: pycon
 
@@ -920,10 +941,31 @@ class ImageReshapeMixin:
             >>> V
             >>> Image(U**2 + V**2).print()
 
+        Example of class method:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> U, V = Image.meshgrid(3, 3)
+            >>> U
+            >>> V
+            >>> Image(U**2 + V**2).print()
+
         :seealso: :func:`~base.meshgrid`
         """
+        if isinstance(self, type):
+            if width is None or height is None:
+                raise ValueError(
+                    "width and height must be specified when calling meshgrid as a class method"
+                )
+            return mvb.meshgrid(width, height)
 
-        return mvb.meshgrid(self.width, self.height)
+        if width is not None or height is not None:
+            raise ValueError(
+                "width and height are only valid when calling meshgrid as a class method"
+            )
+
+        return mvb.meshgrid(self.width, self.height)  # type: ignore[attr-defined]
 
     def warp(self, U, V, interp=None, domain=None):
         r"""
@@ -1003,7 +1045,7 @@ class ImageReshapeMixin:
             if self.domain is None:
                 Ud, Vd = self.meshgrid()
             else:
-                Ud, Vd = mvb.meshgrid(*self.domain)
+                Ud, Vd = np.meshgrid(self.domain[0], self.domain[1])
 
         points = np.array((Ud.flatten(), Vd.flatten())).T
         values = self._A.flatten()
