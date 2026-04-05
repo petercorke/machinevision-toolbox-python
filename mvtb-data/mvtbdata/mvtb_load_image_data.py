@@ -1,6 +1,13 @@
 #! /usr/bin/env python
+import argparse
+
 from machinevisiontoolbox.base import mvtb_path_to_datafile
 from urllib import request, error
+
+try:
+    from tqdm import tqdm
+except ImportError:
+    tqdm = None
 
 # perhaps add a progress bar
 # https://stackoverflow.com/questions/41106599/python-3-5-urllib-request-urlopen-progress-bar-available
@@ -27,15 +34,54 @@ def download(filename, force=False):
     except error.URLError as e:
         print(f"URL error: {e.reason} fetching {webroot + filename}")
         return
-    print(f"downloading {filename}...", end="")
-    data = response.read()
+    total = response.headers.get("Content-Length")
+    total = int(total) if total is not None else None
 
-    # save locally
-    f = open(localfile, "wb")
-    f.write(data)
-    f.close()
+    if tqdm is None:
+        print(f"downloading {filename}...", end="")
+    else:
+        print(f"downloading {filename}...")
+
+    chunk_size = 64 * 1024
+
+    with open(localfile, "wb") as f:
+        if tqdm is None:
+            while True:
+                chunk = response.read(chunk_size)
+                if not chunk:
+                    break
+                f.write(chunk)
+        else:
+            with tqdm(
+                total=total,
+                unit="B",
+                unit_scale=True,
+                unit_divisor=1024,
+                desc=filename,
+                leave=False,
+            ) as pbar:
+                while True:
+                    chunk = response.read(chunk_size)
+                    if not chunk:
+                        break
+                    f.write(chunk)
+                    pbar.update(len(chunk))
+
     print(f"downloaded {filename} --> {localfile}")
 
 
-download("bridge-l.zip")
-download("bridge-r.zip")
+def main():
+    parser = argparse.ArgumentParser(description="Download MVTB image data files")
+    parser.add_argument(
+        "--override",
+        action="store_true",
+        help="download files even if they are already present",
+    )
+    args = parser.parse_args()
+
+    download("bridge-l.zip", force=args.override)
+    download("bridge-r.zip", force=args.override)
+
+
+if __name__ == "__main__":
+    main()
