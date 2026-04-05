@@ -1746,7 +1746,10 @@ class IBVS_polar(VisualServo):
 
         ax.set_title(self.name)
         ax.set_facecolor("lightyellow")
-        ax.figure.canvas.set_window_title("Machine Vision Toolbox for Python")
+        try:
+            ax.figure.canvas.set_window_title("Machine Vision Toolbox for Python")
+        except AttributeError:
+            pass
 
         # TODO figure out axes ticks, etc
         return ax  # likely this return is not necessary
