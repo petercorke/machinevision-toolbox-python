@@ -122,6 +122,7 @@ def idisp(
     title: str | None = None,
     grid: bool = False,
     axes: bool = True,
+    axlabels: tuple[str, str] | list[str] = ("u (pixels)", "v (pixels)"),
     gui: bool = True,
     frame: bool = True,
     plain: bool = False,
@@ -196,6 +197,8 @@ def idisp(
     :type plain: bool, optional
     :param colorbar: add colorbar to image, default False
     :type colorbar: bool, optional
+    :param axlabels: labels for axes, default "u (pixels)" and "v (pixels)"
+    :type axlabels: array_like(2), optional
 
     :param width: figure width in millimetres, defaults to Matplotlib default
     :type width: float, optional
@@ -636,9 +639,9 @@ def idisp(
         if not axes:
             ax.axis("off")
 
-        if extent is None:
-            ax.set_xlabel("u (pixels)")
-            ax.set_ylabel("v (pixels)")
+        ax.set_xlabel(axlabels[0])
+        ax.set_ylabel(axlabels[1])
+
         if grid is not False:
             # if grid is True:
             #     ax.grid(True)
