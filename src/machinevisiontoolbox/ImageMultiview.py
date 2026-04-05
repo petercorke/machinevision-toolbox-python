@@ -421,6 +421,6 @@ class ImageMultiviewMixin(_ImageBase):
         :seealso: :meth:`warp_perspective` :class:`Match` `opencv.stereoRectifyUncalibrated <https://docs.opencv.org/4.x/d9/d0c/group__calib3d.html#gaadc5b14471ddc004939471339294f052>`_
         """
         retval, H1, H2 = cv.stereoRectifyUncalibrated(
-            points1=m.inliers.p1, points2=m.inliers.p2, F=F, imgSize=self.size
+            points1=m.inliers.p1.T, points2=m.inliers.p2.T, F=F, imgSize=self.size
         )
         return H1, H2
