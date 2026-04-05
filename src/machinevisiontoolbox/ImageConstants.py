@@ -37,6 +37,8 @@ from machinevisiontoolbox.mvtb_types import Dtype
 #  - consistently use fg and bg for foreground and background values
 #
 
+_MISSING = object()
+
 
 def _getshape(
     cls,
@@ -79,6 +81,66 @@ def _getshape(
         shape.append(p)
 
     return shape
+
+
+def _format_constant_preferred_call(
+    value: Any,
+    size: int | Sequence[int],
+    colororder: str | None,
+    dtype: Dtype | None,
+) -> str:
+    if isinstance(size, list):
+        size = tuple(size)
+
+    parts = [repr(value), f"size={size!r}"]
+    if colororder is not None:
+        parts.append(f"colororder={colororder!r}")
+    if dtype is not None:
+        parts.append(f"dtype={dtype!r}")
+    return f"Image.Constant({', '.join(parts)})"
+
+
+def _resolve_pattern_options(
+    cls,
+    *,
+    size: Any,
+    dtype: Dtype | None,
+    colororder: str | None,
+    like: Any,
+    default_size: Any,
+    default_dtype: Dtype,
+):
+    if like is not None and not isinstance(like, cls):
+        raise TypeError("like must be an Image")
+
+    if size is None:
+        if like is not None:
+            size = like.size
+        elif default_size is not None:
+            size = default_size
+        else:
+            raise ValueError("size must be specified by size or like")
+    elif isinstance(size, cls):
+        size = size.size
+
+    if dtype is None:
+        if like is not None:
+            dtype = like.dtype
+        else:
+            dtype = default_dtype
+
+    if colororder is None and like is not None and like.iscolor:
+        colororder = like.colororder_str.replace(":", "")
+
+    return size, dtype, colororder
+
+
+def _pattern_image(cls, image: np.ndarray, colororder: str | None):
+    if colororder is not None:
+        image = np.repeat(
+            image[..., np.newaxis], len(cls.colordict(colororder)), axis=2
+        )
+    return cls(image, colororder=colororder)
 
 
 class ImageConstantsMixin:
@@ -130,9 +192,8 @@ class ImageConstantsMixin:
     @classmethod
     def Constant(
         cls,
-        w: int | Sequence[int] | None = None,
-        h: int | None = None,
-        value: Any = 0,
+        *args,
+        value: Any = _MISSING,
         colororder: str | None = None,
         dtype: Dtype | None = None,
         size: Sequence[int] | None = None,
@@ -140,10 +201,6 @@ class ImageConstantsMixin:
         """
         Create image with all pixels having same value
 
-        :param w: width, or (width, height)
-        :type w: int, (int, int)
-        :param h: height, defaults to None
-        :type h: int, optional
         :param value: value for all pixels, defaults to 0
         :type value: scalar, array_like, str
         :param colororder: color plane names, defaults to None
@@ -162,16 +219,76 @@ class ImageConstantsMixin:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> Image.Constant(10, value=17).print()
-            >>> Image.Constant(10, 20, [100, 50, 200], colororder='RGB').print()
-            >>> Image.Constant(10, value=range(6), colororder='ABCDEF').print()
-            >>> Image.Constant(10, value='lightgreen').print()
+            >>> Image.Constant(17, size=10).print()
+            >>> Image.Constant([100, 50, 200], size=(10, 20), colororder='RGB').print()
+            >>> Image.Constant(range(6), size=10, colororder='ABCDEF').print()
+            >>> Image.Constant('lightgreen', size=10).print()
+
+        .. note:: Legacy calls that specify image size positionally, such as
+            ``Image.Constant(10, 20, value=17)``, are supported in v2 but emit
+            a ``DeprecationWarning`` with the preferred replacement form.
 
         .. note:: If ``len(value) == 3`` and ``colororder`` is not specified
             then RGB is assumed.
 
         :seealso: :meth:`Zeros`
         """
+        if size is not None:
+            if len(args) > 1:
+                raise TypeError(
+                    "Constant() accepts at most one positional value when size= is used"
+                )
+            if len(args) == 1:
+                if value is not _MISSING:
+                    raise TypeError("Constant() got multiple values for value")
+                value = args[0]
+            elif value is _MISSING:
+                value = 0
+
+            w = None
+            h = None
+        else:
+            if len(args) == 0:
+                raise ValueError("dimensions not specified by size, w, h")
+            if len(args) > 3:
+                raise TypeError("Constant() accepts at most three positional arguments")
+
+            if len(args) == 1:
+                w = args[0]
+                h = None
+            elif len(args) == 2 and isinstance(args[0], (tuple, list)):
+                w = args[0]
+                h = None
+                if value is not _MISSING:
+                    raise TypeError("Constant() got multiple values for value")
+                value = args[1]
+            else:
+                w = args[0]
+                h = args[1]
+
+            if len(args) == 3:
+                if value is not _MISSING:
+                    raise TypeError("Constant() got multiple values for value")
+                value = args[2]
+            elif len(args) != 2 or not isinstance(args[0], (tuple, list)):
+                if value is _MISSING:
+                    value = 0
+            elif value is _MISSING:
+                value = 0
+
+            if isinstance(w, list):
+                preferred_size = tuple(w)
+            elif h is not None:
+                preferred_size = (w, h)
+            else:
+                preferred_size = w
+            warnings.warn(
+                "Positional size arguments to Image.Constant are deprecated; "
+                f"use {_format_constant_preferred_call(value, preferred_size, colororder, dtype)} instead",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+
         shape = _getshape(cls, w, h, colororder, size)
 
         if isinstance(value, float) and dtype is None:
@@ -380,20 +497,35 @@ class ImageConstantsMixin:
         return cls(im, colororder=colororder)
 
     @classmethod
-    def Squares(cls, number, size=256, fg=1, bg=0, dtype: Dtype = "uint8"):
+    def Squares(
+        cls,
+        number: int,
+        *,
+        size: int | Sequence[int] | None = None,
+        fg: Any = 1,
+        bg: Any = 0,
+        dtype: Dtype | None = None,
+        colororder: str | None = None,
+        like=None,
+    ) -> Self:
         """
         Create image containing grid of squares
 
         :param number: number of squares horizontally and vertically
         :type number: int
-        :param size: image width and height, defaults to 256
-        :type size: int, optional
+        :param size: image size; scalar gives a square image, defaults to 256
+        :type size: int or 2-tuple, optional
         :param fg: pixel value of the squares, defaults to 1
         :type fg: int, float, optional
         :param bg: pixel value of the background, defaults to 0
         :type bg: int, optional
         :param dtype: NumPy datatype, defaults to 'uint8'
         :type dtype: str or NumPy dtype, optional
+        :param colororder: colour plane names for the output image, defaults to None
+        :type colororder: str or None, optional
+        :param like: template image supplying default ``size``, ``dtype`` and
+            ``colororder`` when those are not given explicitly
+        :type like: :class:`Image` or None, optional
         :return: grid of squares
         :rtype: :class:`Image`
 
@@ -419,36 +551,63 @@ class ImageConstantsMixin:
 
         .. note:: Image is square.
         """
+        size, dtype, colororder = _resolve_pattern_options(
+            cls,
+            size=size,
+            dtype=dtype,
+            colororder=colororder,
+            like=like,
+            default_size=256,
+            default_dtype="uint8",
+        )
+        dtype = np.dtype(dtype)
         shape = _getshape(cls, None, None, None, size)
+        height, width = shape[:2]
 
-        im = np.full(shape, bg, dtype=dtype)
-        d = size // (3 * number + 1)
-        side = 2 * d + 1  # keep it odd
+        im = np.full((height, width), bg, dtype=dtype)
+        dx = width // (3 * number + 1)
+        dy = height // (3 * number + 1)
+        s2 = min(dx, dy)
+        side = 2 * s2 + 1
         sq = np.full((side, side), fg, dtype=dtype)
-        s2 = side // 2
         for r in range(number):
-            y0 = (r * 3 + 2) * d
+            y0 = (r * 3 + 2) * dy
             for c in range(number):
-                x0 = (c * 3 + 2) * d
-                im[y0 - s2 : y0 + s2 + 1, x0 - s2 : x0 + s2 + 1, ...] = sq
+                x0 = (c * 3 + 2) * dx
+                im[y0 - s2 : y0 + s2 + 1, x0 - s2 : x0 + s2 + 1] = sq
 
-        return cls(im)
+        return _pattern_image(cls, im, colororder)
 
     @classmethod
-    def Circles(cls, number, size=256, fg=1, bg=0, dtype: Dtype = "uint8"):
+    def Circles(
+        cls,
+        number: int,
+        *,
+        size: int | Sequence[int] | None = None,
+        fg: Any = 1,
+        bg: Any = 0,
+        dtype: Dtype | None = None,
+        colororder: str | None = None,
+        like=None,
+    ) -> Self:
         """
         Create image containing grid of circles
 
         :param number: number of circles horizontally and vertically
         :type number: int
-        :param size: image width and height, defaults to 256
-        :type size: int, optional
+        :param size: image size; scalar gives a square image, defaults to 256
+        :type size: int or 2-tuple, optional
         :param fg: pixel value of the circles, defaults to 1
         :type fg: int, float, optional
         :param bg: pixel value of the background, defaults to 0
         :type bg: int, optional
         :param dtype: NumPy datatype, defaults to 'uint8'
         :type dtype: str or NumPy dtype, optional
+        :param colororder: colour plane names for the output image, defaults to None
+        :type colororder: str or None, optional
+        :param like: template image supplying default ``size``, ``dtype`` and
+            ``colororder`` when those are not given explicitly
+        :type like: :class:`Image` or None, optional
         :return: grid of circles
         :rtype: :class:`Image`
 
@@ -459,7 +618,7 @@ class ImageConstantsMixin:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> img = Image.Circles(2, 14, bg=1, fg=9)
+            >>> img = Image.Circles(2, size=14, bg=1, fg=9)
             >>> img.print()
 
         ``number`` equal to 1, 2 and 8:
@@ -472,23 +631,43 @@ class ImageConstantsMixin:
             z = Image.Circles(8, size=100)
             Image.Hstack((x, y, z), sep=4, bgcolor=1).disp()
         """
+        size, dtype, colororder = _resolve_pattern_options(
+            cls,
+            size=size,
+            dtype=dtype,
+            colororder=colororder,
+            like=like,
+            default_size=256,
+            default_dtype="uint8",
+        )
+        dtype = np.dtype(dtype)
         shape = _getshape(cls, None, None, None, size)
-        im = np.full(shape, bg, dtype=dtype)
-        d = size // (3 * number + 1)
-        side = 2 * d + 1  # keep it odd
-        s2 = side // 2
+        height, width = shape[:2]
+        im = np.full((height, width), bg, dtype=dtype)
+        dx = width // (3 * number + 1)
+        dy = height // (3 * number + 1)
+        s2 = min(dx, dy)
         circle = Kernel.Circle(s2).K.astype(dtype) * (fg - bg) + bg
 
         for r in range(number):
-            y0 = (r * 3 + 2) * d
+            y0 = (r * 3 + 2) * dy
             for c in range(number):
-                x0 = (c * 3 + 2) * d
-                im[y0 - s2 : y0 + s2 + 1, x0 - s2 : x0 + s2 + 1, ...] = circle
+                x0 = (c * 3 + 2) * dx
+                im[y0 - s2 : y0 + s2 + 1, x0 - s2 : x0 + s2 + 1] = circle
 
-        return cls(im)
+        return _pattern_image(cls, im, colororder)
 
     @classmethod
-    def Ramp(cls, size=256, cycles=2, dir="x", dtype: Dtype = "float32"):
+    def Ramp(
+        cls,
+        cycles: int = 2,
+        dir: str = "x",
+        *,
+        size: int | Sequence[int] | None = None,
+        dtype: Dtype | None = None,
+        colororder: str | None = None,
+        like=None,
+    ) -> Self:
         """
         Create image of linear ramps
 
@@ -500,6 +679,11 @@ class ImageConstantsMixin:
         :type cycles: int, optional
         :param dtype: NumPy datatype, defaults to 'float32'
         :type dtype: str or NumPy dtype, optional
+        :param colororder: colour plane names for the output image, defaults to None
+        :type colororder: str or None, optional
+        :param like: template image supplying default ``size``, ``dtype`` and
+            ``colororder`` when those are not given explicitly
+        :type like: :class:`Image` or None, optional
         :return: intensity ramps
         :rtype: :class:`Image`
 
@@ -515,8 +699,8 @@ class ImageConstantsMixin:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> Image.Ramp(10, 2).print()
-            >>> Image.Ramp(10, 3, dtype='uint8').print()
+            >>> Image.Ramp(cycles=2, size=10).print()
+            >>> Image.Ramp(cycles=3, size=10, dtype='uint8').print()
 
         Ramps in the x, y and diagonal directions:
 
@@ -530,39 +714,56 @@ class ImageConstantsMixin:
 
 
         """
-        if smb.isscalar(size):
-            size = (size, size)
+        size, dtype, colororder = _resolve_pattern_options(
+            cls,
+            size=size,
+            dtype=dtype,
+            colororder=colororder,
+            like=like,
+            default_size=256,
+            default_dtype="float32",
+        )
+        dtype = np.dtype(dtype)
+        shape = _getshape(cls, None, None, None, size)
+        height, width = shape[:2]
 
-        if dir == "y":
-            size = (size[1], size[0])
-
-        c = size[0] / cycles
-        if np.issubdtype(dtype, np.integer):
-            max = np.iinfo(dtype).max
-        else:
-            max = 1.0
-
-        x = np.arange(0, size[0])
-
-        if dir in ("x", "y"):
-            s = np.expand_dims(np.mod(x, c) / (c - 1) * max, axis=0).astype(dtype)
-            image = np.repeat(s, size[1], axis=0)
-
-            if dir == "y":
-                image = image.T
-
+        if dir == "x":
+            c = width / cycles
+            x = np.arange(0, width)
+            maxval = np.iinfo(dtype).max if np.issubdtype(dtype, np.integer) else 1.0
+            s = np.expand_dims(np.mod(x, c) / (c - 1) * maxval, axis=0).astype(dtype)
+            image = np.repeat(s, height, axis=0)
+        elif dir == "y":
+            c = height / cycles
+            y = np.arange(0, height)
+            maxval = np.iinfo(dtype).max if np.issubdtype(dtype, np.integer) else 1.0
+            s = np.expand_dims(np.mod(y, c) / (c - 1) * maxval, axis=1).astype(dtype)
+            image = np.repeat(s, width, axis=1)
         elif dir == "xy":
-            image = np.zeros(size, dtype=dtype)
-            for row in range(size[1]):
-                image[row, :] = np.mod(x + row, c) / (c - 1) * max
+            c = width / cycles
+            x = np.arange(0, width)
+            maxval = np.iinfo(dtype).max if np.issubdtype(dtype, np.integer) else 1.0
+            image = np.zeros((height, width), dtype=dtype)
+            for row in range(height):
+                image[row, :] = np.mod(x + row, c) / (c - 1) * maxval
+            image = image.astype(dtype)
 
         else:
             raise ValueError("dir must be 'x', 'y' or 'xy'")
 
-        return cls(image, dtype=dtype)
+        return _pattern_image(cls, image, colororder)
 
     @classmethod
-    def Sin(cls, size=256, cycles=2, dir="x", dtype: Dtype = "float32"):
+    def Sin(
+        cls,
+        cycles: int = 2,
+        dir: str = "x",
+        *,
+        size: int | Sequence[int] | None = None,
+        dtype: Dtype | None = None,
+        colororder: str | None = None,
+        like=None,
+    ) -> Self:
         """
         Create image of sinusoidal intensity pattern
 
@@ -574,6 +775,11 @@ class ImageConstantsMixin:
         :type cycles: int, optional
         :param dtype: NumPy datatype, defaults to 'float32'
         :type dtype: str or NumPy dtype, optional
+        :param colororder: colour plane names for the output image, defaults to None
+        :type colororder: str or None, optional
+        :param like: template image supplying default ``size``, ``dtype`` and
+            ``colororder`` when those are not given explicitly
+        :type like: :class:`Image` or None, optional
         :return: sinusoidal pattern
         :rtype: :class:`Image`
 
@@ -587,8 +793,8 @@ class ImageConstantsMixin:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> Image.Sin(10, 2).print()
-            >>> Image.Sin(10, 2, dtype='uint8').print()
+            >>> Image.Sin(cycles=2, size=10).print()
+            >>> Image.Sin(cycles=2, size=10, dtype='uint8').print()
 
         ``cycles`` equal to 1, 4 and 18:
 
@@ -601,29 +807,46 @@ class ImageConstantsMixin:
             Image.Hstack((x, y, z), sep=4, bgcolor=1.0).disp()
 
         """
-        if smb.isscalar(size):
-            size = (size, size)
-        if dir == "y":
-            size = (size[1], size[0])
-
-        image = np.zeros(size[0], dtype=dtype)
-        c = size[0] / cycles
-        x = np.arange(0, size[0])
-        if np.issubdtype(dtype, np.integer):
-            max = np.iinfo(dtype).max
-        else:
-            max = 1.0
-        s = np.expand_dims((np.sin(x / c * 2 * np.pi) + 1) * max / 2, axis=0).astype(
-            dtype
+        size, dtype, colororder = _resolve_pattern_options(
+            cls,
+            size=size,
+            dtype=dtype,
+            colororder=colororder,
+            like=like,
+            default_size=256,
+            default_dtype="float32",
         )
-        image = np.repeat(s, size[1], axis=0)
-        if dir == "y":
-            image = image.T
+        dtype = np.dtype(dtype)
+        shape = _getshape(cls, None, None, None, size)
+        height, width = shape[:2]
 
-        return cls(image, dtype=dtype)
+        if dir == "x":
+            c = width / cycles
+            x = np.arange(0, width)
+            maxval = np.iinfo(dtype).max if np.issubdtype(dtype, np.integer) else 1.0
+            s = np.expand_dims((np.sin(x / c * 2 * np.pi) + 1) * maxval / 2, axis=0)
+            image = np.repeat(s, height, axis=0).astype(dtype)
+        elif dir == "y":
+            c = height / cycles
+            y = np.arange(0, height)
+            maxval = np.iinfo(dtype).max if np.issubdtype(dtype, np.integer) else 1.0
+            s = np.expand_dims((np.sin(y / c * 2 * np.pi) + 1) * maxval / 2, axis=1)
+            image = np.repeat(s, width, axis=1).astype(dtype)
+        else:
+            raise ValueError("dir must be 'x' or 'y'")
+
+        return _pattern_image(cls, image, colororder)
 
     @classmethod
-    def Chequerboard(cls, size=256, square=32, dtype: Dtype = "uint8"):
+    def Chequerboard(
+        cls,
+        square: int = 32,
+        *,
+        size: int | Sequence[int] | None = None,
+        dtype: Dtype | None = None,
+        colororder: str | None = None,
+        like=None,
+    ) -> Self:
         """Create chequerboard pattern
 
         :param size: image size, width x height, defaults to 256x256
@@ -632,6 +855,11 @@ class ImageConstantsMixin:
         :type square: int, optional
         :param dtype: image data type, defaults to "uint8"
         :type dtype: str or NumPy dtype, optional
+        :param colororder: colour plane names for the output image, defaults to None
+        :type colororder: str or None, optional
+        :param like: template image supplying default ``size``, ``dtype`` and
+            ``colororder`` when those are not given explicitly
+        :type like: :class:`Image` or None, optional
         :return: chequerboard pattern
         :rtype: :class:`Image`
 
@@ -647,7 +875,7 @@ class ImageConstantsMixin:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> Image.Chequerboard(8, 2).print()
+            >>> Image.Chequerboard(square=2, size=8).print()
 
         ``square`` equal to 16, 32 and 64:
 
@@ -662,27 +890,51 @@ class ImageConstantsMixin:
         .. note:: There is no check for ``size`` being an integral multiple of ``square`` so the last row
             and column may be of different size to the others.
         """
+        size, dtype, colororder = _resolve_pattern_options(
+            cls,
+            size=size,
+            dtype=dtype,
+            colororder=colororder,
+            like=like,
+            default_size=256,
+            default_dtype="uint8",
+        )
+        dtype = np.dtype(dtype)
+
         if np.issubdtype(dtype, np.integer):
-            max = np.iinfo(dtype).max
+            maxval = np.iinfo(dtype).max
         else:
-            max = 1.0
+            maxval = 1.0
 
-        if smb.isscalar(size):
-            size = (size, size)
-        image = np.zeros((size[1], size[0]), dtype=dtype)
+        shape = _getshape(cls, None, None, None, size)
+        height, width = shape[:2]
+        image = np.zeros((height, width), dtype=dtype)
 
-        for row in range(size[1]):
-            for col in range(size[0]):
+        for row in range(height):
+            for col in range(width):
                 if (row // square) % 2 == (col // square) % 2:
-                    image[row, col] = max
+                    image[row, col] = maxval
 
-        return cls(image, dtype=dtype)
+        return _pattern_image(cls, image, colororder)
 
     @classmethod
-    def Polygons(cls, size, polygons, color=1, bg=0, shift=0, dtype: Dtype = "uint8"):
+    def Polygons(
+        cls,
+        polygons,
+        *,
+        size: int | Sequence[int] | None = None,
+        color: Any = 1,
+        bg: Any = 0,
+        shift: int = 0,
+        dtype: Dtype | None = None,
+        colororder: str | None = None,
+        like=None,
+    ) -> Self:
         """
         Create an image containing filled polygons
 
+        :param size: image size, defaults to None
+        :type size: int or 2-tuple, optional
         :param polygons: polygon or list of polygons
         :type polygons: :class:`Polygon2` or list of :class:`Polygon2`
         :param color: pixel value for the polygons, defaults to 1
@@ -693,6 +945,11 @@ class ImageConstantsMixin:
         :type shift: int, optional
         :param dtype: image data type, defaults to "uint8"
         :type dtype: str or NumPy dtype, optional
+        :param colororder: colour plane names for the output image, defaults to None
+        :type colororder: str or None, optional
+        :param like: template image supplying default ``size``, ``dtype`` and
+            ``colororder`` when those are not given explicitly
+        :type like: :class:`Image` or None, optional
         :return: image containing the polygons
         :rtype: :class:`Image`
 
@@ -726,7 +983,7 @@ class ImageConstantsMixin:
             >>> from spatialmath import Polygon2
             >>> p1 = Polygon2([(10, 10), (20, 10), (20, 20), (10, 20)])
             >>> p2 = Polygon2([(30, 30), (40, 30), (40, 40), (30, 40)])
-            >>> img = Image.Polygons(50, [p1, p2])
+            >>> img = Image.Polygons([p1, p2], size=50)
             >>> img
 
         :seealso: :meth:`sm.Polygon2` :meth:`cv.fillPoly`
@@ -734,12 +991,18 @@ class ImageConstantsMixin:
         if isinstance(polygons, Polygon2):
             polygons = [polygons]
 
-        if isinstance(size, int):
-            size = (size, size)
-        elif isinstance(size, cls):
-            size = size.size
-        elif isinstance(size, (tuple, list)):
-            size = (size[1], size[0])
+        size, dtype, colororder = _resolve_pattern_options(
+            cls,
+            size=size,
+            dtype=dtype,
+            colororder=colororder,
+            like=like,
+            default_size=None,
+            default_dtype="uint8",
+        )
+        dtype = np.dtype(dtype)
+        shape = _getshape(cls, None, None, None, size)
+        height, width = shape[:2]
 
         if isinstance(color, Iterable):
             if len(color) != len(polygons):
@@ -748,7 +1011,7 @@ class ImageConstantsMixin:
         else:
             colors = [color] * len(polygons)
 
-        im = np.full(size, bg, dtype="uint8")
+        im = np.full((height, width), bg, dtype=dtype)
 
         for polygon, color in zip(polygons, colors):
             vertices = (
@@ -756,7 +1019,7 @@ class ImageConstantsMixin:
             )  # Nx1x2
             cv.fillPoly(img=im, pts=[vertices], color=color, shift=shift)
 
-        return cls(im, dtype=dtype)
+        return _pattern_image(cls, im, colororder)
 
 
 if __name__ == "__main__":

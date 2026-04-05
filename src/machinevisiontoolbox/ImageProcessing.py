@@ -818,7 +818,7 @@ class ImageProcessingMixin(_ImageBase):
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> img1 = Image.Constant(3, value=4)
+            >>> img1 = Image.Constant(4, size=3)
             >>> img2 = Image([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
             >>> img1.blend(img2, 0.5, 2).A
 
@@ -895,11 +895,11 @@ class ImageProcessingMixin(_ImageBase):
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> img1 = Image.Constant(3, value=10)
-            >>> img2 = Image.Constant(3, value=80)
+            >>> img1 = Image.Constant(10, size=3)
+            >>> img2 = Image.Constant(80, size=3)
             >>> img = Image([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
             >>> img1.choose(img2, img >=5).print()
-            >>> img1 = Image.Constant(3, value=[0,0,0])
+            >>> img1 = Image.Constant([0,0,0], size=3)
             >>> img1.choose('red', img>=5).red().print()
 
         .. note::
@@ -1015,7 +1015,7 @@ class ImageProcessingMixin(_ImageBase):
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> img1 = Image.Constant(5, value=10)
+            >>> img1 = Image.Constant(10, size=5)
             >>> pattern = Image([[11, 12], [13, 14]])
             >>> img1.copy().paste(pattern, (1,2)).print()
             >>> img1.copy().paste(pattern, (1,2), method='add').print()

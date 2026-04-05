@@ -1102,7 +1102,7 @@ class ImageReshapeMixin:
             >>> import numpy as np
             >>> from spatialmath import SE2
             >>> img = Image.Read('monalisa.png')
-            >>> out = Image.Constant(1000, 200, 0)
+            >>> out = Image.Constant(0, size=(1000, 200))
             >>> for i in range(10):
             >>>     M = SE2(90 * (i + 1), 100) * SE2(i * np.pi * 2 / 15) * np.diag([0.1, 0.1, 1])  # scale, rotate, translate
             >>>     img.warp_affine(M, dst=out)

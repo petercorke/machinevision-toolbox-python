@@ -123,6 +123,43 @@ class TestImageConstants(unittest.TestCase):
         with self.assertRaises(ValueError) as context:
             im = Image.Constant((5, 9), value=(40, 41, 42), colororder="ABCD")
 
+    def test_constant_new_style(self):
+        im = Image.Constant(42, size=(5, 9))
+        self.assertEqual(im.size, (5, 9))
+        self.assertEqual(im.dtype, np.uint8)
+        self.assertFalse(im.iscolor)
+        self.assertTrue(np.all(im._A == 42))
+
+    def test_constant_legacy_warning_includes_preferred_call(self):
+        with self.assertWarnsRegex(
+            DeprecationWarning,
+            r"Image\.Constant\(42, size=\(5, 9\)\)",
+        ):
+            im = Image.Constant(5, 9, 42)
+
+        self.assertEqual(im.size, (5, 9))
+        self.assertTrue(np.all(im._A == 42))
+
+    def test_constant_legacy_warning_includes_kwargs(self):
+        with self.assertWarnsRegex(
+            DeprecationWarning,
+            r"Image\.Constant\('red', size=\(5, 9\), colororder='XYZ', dtype='uint8'\)",
+        ):
+            im = Image.Constant(5, 9, value="red", colororder="XYZ", dtype="uint8")
+
+        self.assertEqual(im.size, (5, 9))
+        self.assertEqual(im.colororder_str, "X:Y:Z")
+
+    def test_constant_legacy_tuple_size_and_value(self):
+        with self.assertWarnsRegex(
+            DeprecationWarning,
+            r"Image\.Constant\(3, size=\(4, 4\)\)",
+        ):
+            im = Image.Constant((4, 4), 3)
+
+        self.assertEqual(im.size, (4, 4))
+        self.assertTrue(np.all(im._A == 3))
+
     def test_string_binary_and_numeric(self):
         im = Image.String(
             r"""
@@ -315,6 +352,13 @@ class TestImageConstants(unittest.TestCase):
                 ),
             )
         )
+
+        like = Image.Zeros((7, 9), dtype="float32", colororder="ABCD")
+        im = Image.Squares(1, like=like)
+        self.assertEqual(im.size, (7, 9))
+        self.assertEqual(im.dtype, np.float32)
+        self.assertTrue(im.iscolor)
+        self.assertEqual(im.colororder_str, "A:B:C:D")
 
     def test_circles(self):
         im = Image.Circles(1, size=100)
@@ -511,19 +555,19 @@ class TestImageConstants(unittest.TestCase):
         p1 = Polygon2([(10, 10), (12, 10), (12, 12), (10, 12)])  # 2x2
         p2 = Polygon2([(30, 30), (40, 30), (40, 40), (30, 40)])  # 10x10
 
-        im = Image.Polygons((50, 60), p1)
+        im = Image.Polygons(p1, size=(50, 60))
         self.assertEqual(im.size, (50, 60))
         self.assertEqual(im.dtype, np.uint8)
         self.assertFalse(im.iscolor)
         self.assertEqual(im.sum(), 9)
 
-        im = Image.Polygons((50, 60), [p1, p2], color=1)
+        im = Image.Polygons([p1, p2], size=(50, 60), color=1)
         self.assertEqual(im.size, (50, 60))
         self.assertEqual(im.dtype, np.uint8)
         self.assertFalse(im.iscolor)
         self.assertEqual(im.sum(), 9 + 11 * 11)
 
-        im = Image.Polygons((50, 60), [p1, p2], color=[5, 1])
+        im = Image.Polygons([p1, p2], size=(50, 60), color=[5, 1])
         self.assertEqual(im.sum(), 5 * 9 + 11 * 11)
 
 
