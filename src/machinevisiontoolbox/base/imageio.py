@@ -368,20 +368,24 @@ def idisp(
                 # attempt to reuse an axes, saves all the setup overhead
                 if ax is None:
                     ax = plt.gca()
+
+                # look for an image in the axes to update, if there is one
+                updated = False
                 for c in ax.get_children():
                     if isinstance(c, mpl.image.AxesImage):  # type: ignore
                         c.set_data(im)  # type: ignore
+                        updated = True
+                if updated:
+                    set_window_title(title)
 
-                        set_window_title(title)
+                    if fps is not None:
+                        # print("pausing", 1.0 / fps)
+                        plt.pause(1.0 / fps)
 
-                if fps is not None:
-                    # print("pausing", 1.0 / fps)
-                    plt.pause(1.0 / fps)
+                    if block is not None:
+                        plt.show(block=block)
 
-                if block is not None:
-                    plt.show(block=block)
-
-                return
+                    return
 
             if fig is not None:
                 # make this figure the current one
