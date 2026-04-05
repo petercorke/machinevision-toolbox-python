@@ -9,7 +9,6 @@ import json
 import threading
 from dataclasses import dataclass
 from http import client
-import io
 import os
 import tempfile
 import time
@@ -2212,41 +2211,19 @@ class RosBag(ImageSource):
 
                 # now check if it's an image or point cloud we can convert
                 if connection.msgtype.endswith("CompressedImage"):
-                    # 1. Open the byte stream
-                    # Pillow identifies the container (JPEG/PNG/etc.) automatically
-                    try:
-                        with PILImage.open(io.BytesIO(msg.data)) as pil_img:
+                    # Compressed sensor_msgs/CompressedImage: JPEG or PNG bytes
+                    np_arr = np.frombuffer(msg.data, np.uint8)
+                    img_array = cv.imdecode(np_arr, cv.IMREAD_UNCHANGED)
+                    if img_array is None:
+                        raise RuntimeError("Failed to decode compressed image")
 
-                            # 2. Map PIL mode to color order
-                            # 'L' is 8-bit mono, 'I' is 32-bit int, 'F' is 32-bit float
-                            mode_to_order = {
-                                "RGB": "rgb",
-                                "RGBA": "rgba",
-                                "BGR": "bgr",
-                                "L": None,
-                                "I": None,
-                                "F": None,
-                            }
-
-                            # Default to 'rgb' if mode is unusual, but try to be specific
-                            colororder = mode_to_order.get(pil_img.mode, "rgb")
-
-                            # 3. Handle the "BGR-in-JPEG" legacy quirk
-                            # In 2011-era ROS, BGR images were often shoved into JPEGs.
-                            # PIL will decode them as RGB, but the channels remain swapped.
-                            fmt_str = getattr(msg, "format", "").lower()
-                            if "bgr" in fmt_str and colororder == "rgb":
-                                colororder = "bgr"
-
-                            # 4. Convert to numpy array
-                            # This handles bit-depth automatically (uint8 for RGB, float32 for F, etc.)
-                            img_array = np.array(pil_img)
-
-                    except Exception as e:
-                        # Re-raise with context for robotics debugging
-                        raise RuntimeError(
-                            f"Failed to decode compressed image: {e}"
-                        ) from e
+                    # OpenCV decodes colour images as BGR by default.
+                    if img_array.ndim == 2:
+                        colororder = None
+                    elif img_array.shape[2] == 4:
+                        colororder = "bgra"
+                    else:
+                        colororder = "bgr"
 
                     # check for a per-topic override
                     if isinstance(self.colororder, dict):
@@ -2254,7 +2231,9 @@ class RosBag(ImageSource):
                     else:
                         colororder = self.colororder
 
-                    img = Image(img_array, colororder=colororder)
+                    img = Image(
+                        img_array, colororder=colororder.upper() if colororder else None
+                    )
                     img.timestamp = self._stamp_to_ns(msg.header.stamp)
                     img.topic = connection.topic
                     yield img
@@ -2298,7 +2277,9 @@ class RosBag(ImageSource):
                     else:
                         img_array = data.reshape((msg.height, msg.width))
 
-                    img = Image(img_array, colororder=colororder)
+                    img = Image(
+                        img_array, colororder=colororder.upper() if colororder else None
+                    )
                     img.timestamp = self._stamp_to_ns(msg.header.stamp)
                     img.topic = connection.topic
                     yield img
