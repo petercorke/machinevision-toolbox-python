@@ -3,6 +3,24 @@ name: Docs
 on:
   push:
     branches: [main]
+    paths:
+      - docs/**
+      - notebooks/**
+      - lite/**
+      - src/**
+      - mvtb-data/**
+      - pyproject.toml
+      - .github/workflows/docs.yml
+  pull_request:
+    branches: [main]
+    paths:
+      - docs/**
+      - notebooks/**
+      - lite/**
+      - src/**
+      - mvtb-data/**
+      - pyproject.toml
+      - .github/workflows/docs.yml
   workflow_dispatch:
 
 permissions:
@@ -44,18 +62,93 @@ jobs:
           pip install build
           python -m build --wheel --outdir lite/pypi
 
+      - name: Sync notebooks into JupyterLite content
+        run: |
+          mkdir -p lite/files/notebooks
+          rsync -av --delete \
+            --include='*/' \
+            --include='*.ipynb' \
+            --exclude='old/***' \
+            --exclude='*' \
+            notebooks/ lite/files/notebooks/
+
+      - name: Adapt staged notebooks for JupyterLite
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path("lite/files/notebooks")
+          for nb_path in root.rglob("*.ipynb"):
+              with nb_path.open("r", encoding="utf-8") as f:
+                  nb = json.load(f)
+
+              meta = nb.setdefault("metadata", {})
+              meta["kernelspec"] = {
+                  "name": "python",
+                  "display_name": "Python (Pyodide)",
+                  "language": "python",
+              }
+              meta.setdefault("language_info", {})
+              meta["language_info"]["name"] = "python"
+
+              for cell in nb.get("cells", []):
+                  if cell.get("cell_type") != "code":
+                      continue
+                  source = cell.get("source", [])
+                  if isinstance(source, str):
+                      lines = source.splitlines(keepends=True)
+                  else:
+                      lines = source
+
+                  new_lines = []
+                  changed = False
+                  for line in lines:
+                      if line.strip() == "%matplotlib ipympl":
+                          newline = "\n" if line.endswith("\n") else ""
+                          new_lines.append(f"%matplotlib inline{newline}")
+                          changed = True
+                      else:
+                          new_lines.append(line)
+
+                  if changed:
+                      cell["source"] = (
+                          new_lines
+                          if not isinstance(source, str)
+                          else "".join(new_lines)
+                      )
+
+              with nb_path.open("w", encoding="utf-8") as f:
+                  json.dump(nb, f, indent=1)
+                  f.write("\n")
+          PY
+
       - name: Build JupyterLite site
         run: |
           pip install jupyterlite-core jupyterlite-pyodide-kernel jupyter-server
           cd lite && jupyter lite build --output-dir ../docs/build/html/lite
 
+      - name: Package notebooks zip
+        run: |
+          rm -f docs/build/html/mvtb_notebooks.zip
+          zip -r docs/build/html/mvtb_notebooks.zip notebooks
+
+      - name: Upload notebooks zip artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mvtb_notebooks
+          path: docs/build/html/mvtb_notebooks.zip
+          if-no-files-found: error
+
       - uses: actions/upload-pages-artifact@v3
+        if: github.event_name == 'push'
         with:
           path: docs/build/html
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    if: github.event_name == 'push'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
