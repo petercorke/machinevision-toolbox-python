@@ -8,6 +8,7 @@ import cv2 as cv
 import numpy as np
 
 from machinevisiontoolbox.ImagePointFeatures import BaseFeature2D
+from machinevisiontoolbox import Image
 
 
 # TODO: remove top N% and bottom M% of words by frequency
@@ -351,22 +352,30 @@ class BagOfWords:
         # rearrange the cluster centroids
         self._centroids = self._centroids[map]
 
-    def similarity(self, arg):
+    def similarity(self, query):
         """
-        Compute similarity between bag and query images
+        Compute similarity between bag of words and query
 
-        :param other: bag of words
-        :type other: BagOfWords
-        :return: confusion matrix
+        :param query: bag of words or image features
+        :type query: BagOfWords or ndarray
+        :return: similarity matrix
         :rtype: ndarray(M,N)
 
         The array has rows corresponding to the images in ``self`` and
-        columns corresponding to the images in ``other``.
+        columns corresponding to the queries in ``query``.
+
+        ``query`` can be:
+
+        - a single image, a list of images, or an Image iterator (like VideoFile,
+          ZipArchive etc.) for which the visual words are computed using the same
+          dictionary of visual words as the bag.
+        - a set of image features, in which case the similarity is computed between the
+          bag and the query features, or
 
         :seealso: :meth:`.closest`
         """
-        if isinstance(arg, np.ndarray):
-            wwfv = arg
+        if isinstance(query, np.ndarray):
+            wwfv = query
             sim = np.empty((wwfv.shape[1], self.nimages))
 
             for j, vj in enumerate(wwfv.T):
@@ -378,10 +387,8 @@ class BagOfWords:
                             np.linalg.norm(vi) * np.linalg.norm(vj)
                         )
         else:
-            images = arg
-            if not hasattr(images, "__iter__"):
-                # if not iterable like a FileCollection or VideoFile turn the image
-                # into a list of 1
+            images = query
+            if isinstance(images, Image):
                 images = [images]
 
             # similarity has bag index as column, query index as row
