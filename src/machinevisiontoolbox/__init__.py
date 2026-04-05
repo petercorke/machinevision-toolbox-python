@@ -1,14 +1,20 @@
 # isort: skip_file
 # classes
 from machinevisiontoolbox.ImageCore import Image
+from machinevisiontoolbox.PointCloud import PointCloud
 from machinevisiontoolbox.Sources import (
     VideoFile,
     VideoCamera,
     ImageCollection,
+    ImageSequence,
     ZipArchive,
     EarthView,
     WebCam,
+    RosStream,
+    RosMessage,
+    SyncRosStreams,
     RosBag,
+    PointCloudSequence,
     TensorStack,
     LabelMe,
 )
@@ -28,7 +34,6 @@ from machinevisiontoolbox.Camera import (
     CatadioptricCamera,
     SphericalCamera,
 )
-from machinevisiontoolbox.PointCloud import PointCloud
 from machinevisiontoolbox.BagOfWords import BagOfWords
 from machinevisiontoolbox.BundleAdjust import BundleAdjust
 from machinevisiontoolbox.VisualServo import *

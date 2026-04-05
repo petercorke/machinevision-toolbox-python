@@ -420,7 +420,7 @@ class TestImageReshape(unittest.TestCase):
         self.assertEqual(flipped.A[0, 0], img.A[3, 0])
 
     def test_meshgrid(self):
-        # Add test cases for the meshgrid method
+        # instance method call
         im = Image.Random(size=(3, 4))
         U, V = im.meshgrid()
 
@@ -428,6 +428,11 @@ class TestImageReshape(unittest.TestCase):
             for v in range(im.height):
                 self.assertEqual(U[v, u], u)
                 self.assertEqual(V[v, u], v)
+
+        # class method call for book compatibility
+        Uc, Vc = Image.meshgrid(im.width, im.height)
+        nt.assert_array_equal(Uc, U)
+        nt.assert_array_equal(Vc, V)
 
     def test_warp(self):
         # Add test cases for the decimate method

@@ -4,7 +4,9 @@
 
 import contextlib
 import io
+import json
 import os
+import tempfile
 import unittest
 from collections.abc import Iterable
 from pathlib import Path
@@ -12,6 +14,20 @@ from pathlib import Path
 import numpy as np
 import numpy.testing as nt
 import pytest
+
+try:
+    import torch
+
+    _torch_available = True
+except ImportError:
+    _torch_available = False
+
+try:
+    import labelme  # noqa: F401
+
+    _labelme_available = True
+except ImportError:
+    _labelme_available = False
 
 # import machinevisiontoolbox as mvt
 from machinevisiontoolbox import Image, ImageCollection, ZipArchive, VideoFile

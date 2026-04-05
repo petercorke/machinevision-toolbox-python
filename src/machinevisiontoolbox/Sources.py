@@ -17,8 +17,11 @@ import zipfile
 from collections import Counter, deque
 from tqdm import tqdm
 from datetime import datetime, timezone
-from typing import Any, Literal
-from PIL import Image as PILImage
+from typing import TYPE_CHECKING, Any, Literal
+
+if TYPE_CHECKING:
+    import torch
+    from numpy.typing import DTypeLike
 
 # from numpy.lib.arraysetops import isin
 from abc import ABC, abstractmethod
@@ -55,30 +58,30 @@ try:
 except ImportError:
     _open3d_available = False
 
-try:
-    import pytesseract as _pytesseract
-
-    _pytesseract_available = True
-except ImportError:
-    _pytesseract = None
-    _pytesseract_available = False
-
 
 class ImageSource(ABC):
     @abstractmethod
     def __init__():
         pass
 
-    def torch(self, device: str = "cpu", normalize="imagenet") -> "torch.Tensor":
+    def tensor(
+        self,
+        device: str = "cpu",
+        normalize="imagenet",
+        dtype: "torch.dtype | None" = None,
+    ) -> "torch.Tensor":
         """
         Convert all images from this source into a single 4D PyTorch tensor.
 
-        :param device: target PyTorch device, e.g. ``"cpu"`` or ``"cuda"``,
+        :param device: target PyTorch device, e.g. ``"cpu"``, ``"cuda"`` or ``"mps"``,
             defaults to ``"cpu"``
         :type device: str, optional
         :param normalize: normalisation to apply to each frame; passed directly
-            to :meth:`Image.torch`, defaults to ``"imagenet"``
+            to :meth:`Image.tensor`, defaults to ``"imagenet"``
         :type normalize: str, tuple, or None, optional
+        :param dtype: output tensor dtype, for example ``torch.float32``;
+            passed directly to :meth:`Image.tensor`, defaults to None
+        :type dtype: torch.dtype or None, optional
         :raises ImportError: if PyTorch is not installed
         :raises TypeError: if the source is not finite (no ``__len__``)
         :raises TypeError: if any yielded item is not an :class:`Image`
@@ -95,7 +98,7 @@ class ImageSource(ABC):
         Example::
 
             >>> from machinevisiontoolbox import VideoFile
-            >>> t = VideoFile("traffic_sequence.mpg").torch(normalize=None)
+            >>> t = VideoFile("traffic_sequence.mpg").tensor(normalize=None)
             >>> t.shape
             torch.Size([N, 3, H, W])
         """
@@ -103,13 +106,15 @@ class ImageSource(ABC):
             import torch as _torch
         except ImportError:
             raise ImportError(
-                "PyTorch is required for torch(). " "Install it with: pip install torch"
+                "PyTorch is required for tensor(). "
+                "Install it with: pip install torch "
+                "or pip install machinevision-toolbox-python[torch]"
             )
 
         if not hasattr(self, "__len__"):
             raise TypeError(
                 f"{type(self).__name__} is not a finite source; "
-                "torch() requires a source with a known length"
+                "tensor() requires a source with a known length"
             )
 
         n = len(self)
@@ -122,7 +127,7 @@ class ImageSource(ABC):
                 f"Expected Image, got {type(first).__name__}; "
                 "use a msgfilter or topicfilter to select only image topics"
             )
-        first_t = first.torch(device=device, normalize=normalize).squeeze(
+        first_t = first.tensor(device=device, normalize=normalize, dtype=dtype).squeeze(
             0
         )  # (C, H, W)
         expected_shape = first_t.shape
@@ -131,13 +136,14 @@ class ImageSource(ABC):
         out = _torch.empty((n,) + expected_shape, dtype=first_t.dtype, device=device)
         out[0] = first_t
 
-        for i, img in enumerate(it, start=1):
+        for i in range(1, n):
+            img = next(it)
             if not isinstance(img, Image):
                 raise TypeError(
                     f"Frame {i}: expected Image, got {type(img).__name__}; "
                     "use a msgfilter or topicfilter to select only image topics"
                 )
-            t = img.torch(device=device, normalize=normalize).squeeze(0)
+            t = img.tensor(device=device, normalize=normalize, dtype=dtype).squeeze(0)
             if t.shape != expected_shape:
                 raise ValueError(
                     f"Frame {i} shape {tuple(t.shape)} differs from "
@@ -1326,7 +1332,8 @@ def _resolve_typestore(release: str):
     if not _rosbags_available:
         raise ImportError(
             "rosbags is required for ROS bag support. "
-            "Install it with: pip install rosbags"
+            "Install it with: pip install rosbags "
+            "or pip install machinevision-toolbox-python[ros]"
         )
     key = release.upper()
     matches = [s for s in _Stores if key in s.name]
@@ -1451,7 +1458,8 @@ class RosStream(ImageSource):
         if not _roslibpy_available:
             raise ImportError(
                 "roslibpy is required for ROS streaming support. "
-                "Install it with: pip install roslibpy"
+                "Install it with: pip install roslibpy "
+                "or pip install machinevision-toolbox-python[ros]"
             )
 
         self.host = host
@@ -1798,7 +1806,9 @@ class SyncRosStreams:
             stream.__exit__(exc_type, exc, tb)
 
     def __str__(self) -> str:
-        topics = ", ".join(getattr(stream, "topic", "<unknown>") for stream in self.streams)
+        topics = ", ".join(
+            getattr(stream, "topic", "<unknown>") for stream in self.streams
+        )
         return f"SyncRosStreams([{topics}])"
 
     def __repr__(self) -> str:
@@ -1867,6 +1877,12 @@ class RosBag(ImageSource):
         collected or when the script exits.
 
     .. note::
+        If ``filename`` is a relative path that does not exist in the current
+        working directory, it is looked up in the ``mvtb-data`` companion
+        package automatically.  Bag files placed there can therefore be
+        referenced by their bare name, e.g. ``RosBag("forest.bag")``.
+
+    .. note::
         The ``release`` argument controls the ROS message definitions used to
         parse the bag file.  This is important because message definitions can
         change between ROS releases, and using the wrong definitions can lead to
@@ -1895,7 +1911,8 @@ class RosBag(ImageSource):
         if not _rosbags_available:
             raise ImportError(
                 "rosbags is required for ROS bag support. "
-                "Install it with: pip install rosbags"
+                "Install it with: pip install rosbags "
+                "or pip install machinevision-toolbox-python[ros]"
             )
         self.filename = filename
         self.release = release
@@ -2049,6 +2066,13 @@ class RosBag(ImageSource):
             path = self.filename
 
         from pathlib import Path as _BagPath
+
+        # Resolve via mvtb_path_to_datafile: returns path unchanged if the file
+        # exists locally, otherwise searches the mvtb-data companion package.
+        try:
+            path = mvtb_path_to_datafile("data", path)
+        except (ValueError, ModuleNotFoundError):
+            pass  # fall through; rosbags will raise a clear error on open
 
         self._is_ros2 = _BagPath(path).is_dir()
         self.reader = (_RosBagReader2 if self._is_ros2 else _RosBagReader1)(path)
@@ -2290,7 +2314,8 @@ class RosBag(ImageSource):
                     if not _open3d_available:
                         raise ImportError(
                             "open3d is required to read PointCloud2 messages. "
-                            "Install it with: pip install open3d"
+                            "Install it with: pip install open3d-python "
+                            "or pip install machinevision-toolbox-python[open3d]"
                         )
 
                     # 1. Map ROS datatypes to numpy dtypes
@@ -2852,5 +2877,10 @@ if __name__ == "__main__":
     import pytest
 
     pytest.main(
-        [str(Path(__file__).parent.parent.parent / "tests" / "test_sources.py"), "-v"]
+        [
+            str(
+                Path(__file__).parent.parent.parent / "tests" / "test_image_sources.py"
+            ),
+            "-v",
+        ]
     )

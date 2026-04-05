@@ -9,6 +9,8 @@ import zipfile
 from collections import namedtuple
 from pathlib import Path
 
+import PIL.Image
+from PIL.ExifTags import TAGS
 import cv2 as cv
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
@@ -96,34 +98,6 @@ class ImageIOMixin(_ImageBase):
             )  # OpenCV file read order)
         elif isinstance(data, list):
             raise ValueError("wildcard read not support, use FileCollection instead")
-
-    def Tensor(self, tensor, **kwargs) -> "Image":
-        """
-        Create image from tensor
-
-        :param tensor: image data as a tensor
-        :type tensor: array-like
-        :param kwargs: options applied to image frames, see :func:`~machinevisiontoolbox.base.imageio.convert`
-        :return: image from tensor
-        :rtype: :class:`Image`
-
-        Create an image from a 2D or 3D array.  The array is converted to an
-        image using the same options as for file reading.
-
-        Example:
-
-        .. runblock:: pycon
-
-            >>> from machinevisiontoolbox import Image
-            >>> img = Image.Tensor([[1,2],[3,4]])
-            >>> img
-        """
-        from torch import argmax
-
-        arr = np.asarray(tensor)
-        return self.Image(
-            argmax(tensor["out"].squeeze(), dim=0).detach().cpu().numpy(), **kwargs
-        )
 
     def disp(self, title=None, **kwargs):
         """
@@ -230,14 +204,6 @@ class ImageIOMixin(_ImageBase):
         .. note::  Metadata items will be converted, where possible, to int or float values.
 
         """
-        try:
-            import PIL
-            import PIL.Image
-            from PIL.ExifTags import TAGS
-        except ImportError:
-            print("Pillow is required to read image file metadata\npip install pillow")
-            return None
-
         image = PIL.Image.open(self.name)  # type: ignore[arg-type]
         exif = {}
 

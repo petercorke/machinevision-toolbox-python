@@ -87,12 +87,14 @@ class ImageRegionFeaturesMixin:
         :seealso: :class:`OCRWord`
         """
         if not _pytesseract_available:
-            print("pytesseract is not installed:")
-            print("  OCR functionality will not be available")
-            print("  To install:")
-            print("    pip install pytesseract")
             print(
-                "    Install the tesseract OCR engine from https://github.com/tesseract-ocr/tesseract?tab=readme-ov-file#installing-tesseract"
+                "pytesseract is required for OCR functionality. "
+                "Install it with: pip install pytesseract "
+                "or pip install machinevision-toolbox-python[ocr]"
+            )
+            print(
+                "Install the tesseract OCR engine from "
+                "https://github.com/tesseract-ocr/tesseract?tab=readme-ov-file#installing-tesseract"
             )
             return []
 
