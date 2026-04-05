@@ -1,44 +1,44 @@
 # Machine Vision Toolbox for Python
 
+<div align="center">
+  <img src="https://github.com/petercorke/machinevision-toolbox-python/raw/main/figs/VisionToolboxLogo_NoBackgnd@2x.png" width="350">
+  <br>
+  <strong>A modern Python toolbox for machine/computer vision.</strong>
+  <br><br>
+  
+  [![JupyterLite](https://img.shields.io/badge/Try_it_Now-JupyterLite-orange?style=for-the-badge&logo=jupyter)](https://petercorke.github.io/machinevision-toolbox-python/lite/lab/index.html?path=intro.ipynb)
+  [![PyPI version](https://img.shields.io/pypi/v/machinevision-toolbox-python?style=for-the-badge&color=blue)](https://pypi.org/project/machinevision-toolbox-python/)
+  [![Documentation](https://img.shields.io/badge/Docs-View_Online-blue?style=for-the-badge)](https://petercorke.github.io/machinevision-toolbox-python/)
+
+  <p>
+    <a href="https://github.com/petercorke/machinevision-toolbox-python">GitHub</a> •
+    <a href="https://github.com/petercorke/machinevision-toolbox-python/wiki">Wiki</a> •
+    <a href="https://github.com/petercorke/machinevision-toolbox-python/blob/main/CHANGELOG.md">Changelog</a> •
+    <a href="#installation">Installation</a>
+  </p>
+</div>
+
+---
+
+### Status & Ecosystem
 [![A Python Robotics Package](https://raw.githubusercontent.com/petercorke/robotics-toolbox-python/master/.github/svg/py_collection.min.svg)](https://github.com/petercorke/robotics-toolbox-python)
 [![QUT Centre for Robotics Open Source](https://github.com/qcr/qcr.github.io/raw/master/misc/badge.svg)](https://qcr.github.io)
-
-[![Powered by Spatial Maths](https://raw.githubusercontent.com/petercorke/spatialmath-python/master/.github/svg/sm_powered.min.svg)](https://github.com/petercorke/spatialmath-python)
-[![Powered by NumPy](https://img.shields.io/badge/powered_by-NumPy-013243?logo=numpy&logoColor=white)](https://numpy.org)
-[![Powered by OpenCV](https://raw.githubusercontent.com/petercorke/machinevision-toolbox-python/main/.github/svg/opencv_powered.svg)](https://opencv.org)
-[![Powered by Open3D](https://raw.githubusercontent.com/petercorke/machinevision-toolbox-python/main/.github/svg/open3d_powered.svg)](https://open3d.org)
-
-[![PyPI version](https://badge.fury.io/py/machinevision-toolbox-python.svg)](https://badge.fury.io/py/machinevision-toolbox-python)
 [![Build Status](https://github.com/petercorke/machinevision-toolbox-python/actions/workflows/ci.yml/badge.svg)](https://github.com/petercorke/machinevision-toolbox-python/actions/workflows/ci.yml)
 [![Coverage](https://codecov.io/gh/petercorke/machinevision-toolbox-python/branch/main/graph/badge.svg)](https://codecov.io/gh/petercorke/machinevision-toolbox-python)
 ![Python Version](https://img.shields.io/pypi/pyversions/machinevision-toolbox-python.svg)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![PyPI - Downloads](https://img.shields.io/pypi/dw/machinevision-toolbox-python)](https://pypistats.org/packages/machinevision-toolbox-python)
 
-<!-- [![GitHub stars](https://img.shields.io/github/stars/petercorke/machinevision-toolbox-python.svg?style=social&label=Star)](https://GitHub.com/petercorke/machinevision-toolbox-python/stargazers/) -->
-
-<table style="border:0px">
-<tr style="border:0px">
-<td style="border:0px">
-<img src="https://github.com/petercorke/machinevision-toolbox-python/raw/main/figs/VisionToolboxLogo_NoBackgnd@2x.png" width="200"></td>
-<td style="border:0px">
-
-<li><a href="https://github.com/petercorke/machinevision-toolbox-python">GitHub repository </a></li>
-<li><a href="https://petercorke.github.io/machinevision-toolbox-python/">Documentation</a></li>
-<li><a href="https://github.com/petercorke/machinevision-toolbox-python/wiki">Wiki (examples and details)</a></li>
-<li><a href="installation#">Installation</a></li>
-<li><a href="https://github.com/petercorke/machinevision-toolbox-python/blob/main/CHANGELOG.md">Changelog</a></li>
-<li><a href="https://petercorke.github.io/machinevision-toolbox-python/lite/">Web-based Jupyter notebook (zero install, experimental)</a></li>
-</ul>
-</td>
-</tr>
-</table>
-<p style="font-size:80%">A modern Python toolbox for machine/computer vision.</p>
+### Powered by
+[![Powered by Spatial Maths](https://raw.githubusercontent.com/petercorke/spatialmath-python/master/.github/svg/sm_powered.min.svg)](https://github.com/petercorke/spatialmath-python)
+[![Powered by NumPy](https://img.shields.io/badge/powered_by-NumPy-013243?logo=numpy&logoColor=white)](https://numpy.org)
+[![Powered by OpenCV](https://raw.githubusercontent.com/petercorke/machinevision-toolbox-python/main/.github/svg/opencv_powered.svg)](https://opencv.org)
+[![Powered by Open3D](https://raw.githubusercontent.com/petercorke/machinevision-toolbox-python/main/.github/svg/open3d_powered.svg)](https://open3d.org)
 
 ## Synopsis
 
 The Machine Vision Toolbox for Python (MVTB-P) provides a consistent, Pythonic and powerful API for machine/computer vision.
-It is built on mature and efficient foundations such as NumPy, SciPy, Matplotlib, OpenCV, and Open3D.
+It is built on mature and efficient foundations such as NumPy, SciPy, Matplotlib, OpenCV, and Open3D and plays nicely with PyTorch and ROS.
 The main components are:
 
 - An `Image` object with nearly 200 methods and properties that wrap functions
@@ -53,9 +53,13 @@ The main components are:
 
 Advantages of this Python Toolbox include:
 
-- its use of mature, efficient and portable functions which provide a comprehensive and mature collection of functions for image processing and feature extraction;
-- wrapping the OpenCV functions in a consistent way, hiding some of the gnarly details of OpenCV like conversion to/from float32 and the BGR color order.
-- similarity to the <a href="https://github.com/petercorke/machinevision-toolbox-matlab">Machine Vision Toolbox for MATLAB<sup>&reg;</sup></a>
+- use of mature, efficient and portable functions which provide a comprehensive and mature collection of functions for image processing and feature extraction;
+- support for method chaining to describe pipelines like `Image.Read("monalisa.png").convolve(Kernel.Gauss(4)).disp()`
+- the OpenCV functions are wrapped in a consistent way, hiding some of the gnarly details of OpenCV like conversion to/from float32 and the BGR color order.
+
+
+> [!IMPORTANT]
+> **v2.0 Release:** This version introduces breaking changes to the `Image` class APIs. See the [Migration Guide](link) for details.
 
 # Getting going
 
@@ -376,6 +380,8 @@ This Python version differs in using an object to encapsulate the pixel data and
 image metadata, rather than just a native object holding pixel data. The many
 functions become methods of the image object which reduces namespace pollutions,
 and allows the easy expression of sequential operations using "dot chaining".
+
+# Acknowledgement
 
 The first version was created by Dorian Tsai during 2020, and based on the
 MATLAB version.  That work was funded by an Australian University Teacher of

@@ -1,10 +1,7 @@
 [project]
 name = "machinevision-toolbox-python"
 version = "1.1.0"
-authors = [
-    { name = "Peter Corke", email = "rvc@petercorke.com" },
-    { name = "Dorian Tsai" },
-]
+authors = [{ name = "Peter Corke", email = "rvc@petercorke.com" }]
 description = "Python tools for machine vision - education and research"
 readme = "README.md"
 requires-python = ">=3.10"
