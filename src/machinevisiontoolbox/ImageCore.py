@@ -440,7 +440,7 @@ class Image(
         if colororder is None:
             if self.nplanes == 3:
                 self.colororder = "RGB"
-                warnings.warn("defaulting color to RGB")
+                # warnings.warn("defaulting color to RGB")
         else:
             self.colororder = color_dict
 
