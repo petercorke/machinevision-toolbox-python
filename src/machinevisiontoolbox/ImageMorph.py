@@ -123,11 +123,22 @@ class ImageMorphMixin(_ImageBase):
         if n <= 0:
             raise ValueError(n, "n must be greater than 0")
 
+        if self.isbool:
+            img_array = self.array_as("uint8")  # convert to uint8 for opencv
+        else:
+            img_array = self._A
+
         self._opencv_type_check(
-            self._A, "multiple-channel", "CV_8U", "CV_16U", "CV_16S", "CV_32F", "CV_64F"
+            img_array,
+            "multiple-channel",
+            "CV_8U",
+            "CV_16U",
+            "CV_16S",
+            "CV_32F",
+            "CV_64F",
         )
         out = cv.erode(
-            src=self._A,
+            src=img_array,
             kernel=self._getse(se),
             iterations=n,
             borderType=self._bordertype_cv(border, exclude=("wrap")),
@@ -205,11 +216,22 @@ class ImageMorphMixin(_ImageBase):
         if n <= 0:
             raise ValueError(n, "n must be greater than 0")
 
+        if self.isbool:
+            img_array = self.array_as("uint8")  # convert to uint8 for opencv
+        else:
+            img_array = self._A
+
         self._opencv_type_check(
-            self._A, "multiple-channel", "CV_8U", "CV_16U", "CV_16S", "CV_32F", "CV_64F"
+            img_array,
+            "multiple-channel",
+            "CV_8U",
+            "CV_16U",
+            "CV_16S",
+            "CV_32F",
+            "CV_64F",
         )
         out = cv.dilate(
-            src=self._A,
+            src=img_array,
             kernel=self._getse(se),
             iterations=n,
             borderType=self._bordertype_cv(border, exclude=("wrap")),
@@ -290,17 +312,23 @@ class ImageMorphMixin(_ImageBase):
             raise ValueError(n, "n must be greater than 0")
 
         if self.isbool:
-            image = self.array_as("uint8")
+            img_array = self.array_as("uint8")  # convert to uint8 for opencv
         else:
-            image = self._A
+            img_array = self._A
 
         self._opencv_type_check(
-            image, "multiple-channel", "CV_8U", "CV_16U", "CV_16S", "CV_32F", "CV_64F"
+            img_array,
+            "multiple-channel",
+            "CV_8U",
+            "CV_16U",
+            "CV_16S",
+            "CV_32F",
+            "CV_64F",
         )
 
         if op == "min":
             out = cv.morphologyEx(
-                src=image,
+                src=img_array,
                 op=cv.MORPH_ERODE,
                 kernel=self._getse(se),
                 iterations=n,
@@ -310,7 +338,7 @@ class ImageMorphMixin(_ImageBase):
             )
         elif op == "max":
             out = cv.morphologyEx(
-                src=image,
+                src=img_array,
                 op=cv.MORPH_DILATE,
                 kernel=self._getse(se),
                 iterations=n,
@@ -320,7 +348,7 @@ class ImageMorphMixin(_ImageBase):
             )
         elif op == "diff":
             out = cv.morphologyEx(
-                src=image,
+                src=img_array,
                 op=cv.MORPH_GRADIENT,
                 kernel=self._getse(se),
                 iterations=n,
@@ -398,11 +426,22 @@ class ImageMorphMixin(_ImageBase):
         # out = [self.erode(se, **kwargs).dilate(se, **kwargs) for im in self]
         # return self.__class__(out)
 
+        if self.isbool:
+            img_array = self.array_as("uint8")  # convert to uint8 for opencv
+        else:
+            img_array = self._A
+
         self._opencv_type_check(
-            self._A, "multiple-channel", "CV_8U", "CV_16U", "CV_16S", "CV_32F", "CV_64F"
+            img_array,
+            "multiple-channel",
+            "CV_8U",
+            "CV_16U",
+            "CV_16S",
+            "CV_32F",
+            "CV_64F",
         )
         out = cv.morphologyEx(
-            src=self._A,
+            src=img_array,
             op=cv.MORPH_OPEN,
             kernel=self._getse(se),
             iterations=n,
@@ -472,11 +511,22 @@ class ImageMorphMixin(_ImageBase):
 
         :seealso: :meth:`open` :meth:`morph` :meth:`erode` :meth:`dilate` `opencv.morphologyEx <https://docs.opencv.org/4.x/d4/d86/group__imgproc__filter.html#ga67493776e3ad1a3df63883829375201f>`_
         """
+        if self.isbool:
+            img_array = self.array_as("uint8")  # convert to uint8 for opencv
+        else:
+            img_array = self._A
+
         self._opencv_type_check(
-            self._A, "multiple-channel", "CV_8U", "CV_16U", "CV_16S", "CV_32F", "CV_64F"
+            img_array,
+            "multiple-channel",
+            "CV_8U",
+            "CV_16U",
+            "CV_16S",
+            "CV_32F",
+            "CV_64F",
         )
         out = cv.morphologyEx(
-            src=self._A,
+            src=img_array,
             op=cv.MORPH_CLOSE,
             kernel=self._getse(se),
             iterations=n,
@@ -550,8 +600,13 @@ class ImageMorphMixin(_ImageBase):
         if s2 is not None:
             s1 = s1 - s2
 
-        self._opencv_type_check(self._A, "single-channel", "CV_8U", "CV_16S")
-        out = cv.morphologyEx(src=self._A, op=cv.MORPH_HITMISS, kernel=s1)
+        if self.isbool:
+            img_array = self.array_as("uint8")  # convert to uint8 for opencv
+        else:
+            img_array = self._A
+
+        self._opencv_type_check(img_array, "single-channel", "CV_8U", "CV_16S")
+        out = cv.morphologyEx(src=img_array, op=cv.MORPH_HITMISS, kernel=s1)
         return self.__class__(out, dtype=self.dtype)
 
     def thin(self, **kwargs) -> Self:

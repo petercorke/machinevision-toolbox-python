@@ -323,6 +323,150 @@ class TestImageProcessingMorph(unittest.TestCase):
         self.assertEqual(dist.shape, img.shape)
         self.assertGreater(dist.array[0, 0], 0)
 
+    def test_erode_bool(self):
+        # bool image: erode should shrink the True region
+        im = np.array(
+            [
+                [0, 0, 0, 0, 0],
+                [0, 1, 1, 1, 0],
+                [0, 1, 1, 1, 0],
+                [0, 1, 1, 1, 0],
+                [0, 0, 0, 0, 0],
+            ],
+            dtype=bool,
+        )
+        out = np.array(
+            [
+                [0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0],
+                [0, 0, 1, 0, 0],
+                [0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0],
+            ],
+            dtype=np.uint8,
+        )
+        result = Image(im).erode(np.ones((3, 3)))
+        nt.assert_array_equal(result.array, out)
+
+    def test_dilate_bool(self):
+        # bool image: dilate should grow the True region
+        im = np.array(
+            [
+                [0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0],
+                [0, 0, 1, 0, 0],
+                [0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0],
+            ],
+            dtype=bool,
+        )
+        out = np.array(
+            [
+                [0, 0, 0, 0, 0],
+                [0, 1, 1, 1, 0],
+                [0, 1, 1, 1, 0],
+                [0, 1, 1, 1, 0],
+                [0, 0, 0, 0, 0],
+            ],
+            dtype=np.uint8,
+        )
+        result = Image(im).dilate(np.ones((3, 3)))
+        nt.assert_array_equal(result.array, out)
+
+    def test_morph_bool(self):
+        # bool image: min == erosion, max == dilation
+        im = np.array(
+            [
+                [0, 0, 0, 0, 0],
+                [0, 1, 1, 1, 0],
+                [0, 1, 1, 1, 0],
+                [0, 1, 1, 1, 0],
+                [0, 0, 0, 0, 0],
+            ],
+            dtype=bool,
+        )
+        eroded = np.array(
+            [
+                [0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0],
+                [0, 0, 1, 0, 0],
+                [0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0],
+            ],
+            dtype=np.uint8,
+        )
+        dilated = np.array(
+            [
+                [1, 1, 1, 1, 1],
+                [1, 1, 1, 1, 1],
+                [1, 1, 1, 1, 1],
+                [1, 1, 1, 1, 1],
+                [1, 1, 1, 1, 1],
+            ],
+            dtype=np.uint8,
+        )
+        img = Image(im)
+        nt.assert_array_equal(img.morph(np.ones((3, 3)), op="min").array, eroded)
+        nt.assert_array_equal(img.morph(np.ones((3, 3)), op="max").array, dilated)
+
+    def test_open_bool(self):
+        # bool image with a small isolated True pixel: opening should remove it
+        im = np.array(
+            [
+                [0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 1, 0, 0, 0],
+                [0, 1, 1, 1, 0, 0, 0],
+                [0, 1, 1, 1, 0, 0, 0],
+                [0, 1, 1, 1, 0, 0, 0],
+                [0, 0, 0, 1, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0],
+            ],
+            dtype=bool,
+        )
+        out = np.array(
+            [
+                [0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0],
+                [0, 1, 1, 1, 0, 0, 0],
+                [0, 1, 1, 1, 0, 0, 0],
+                [0, 1, 1, 1, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0],
+            ],
+            dtype=np.uint8,
+        )
+        result = Image(im).open(np.ones((3, 3)))
+        nt.assert_array_equal(result.array, out)
+
+    def test_close_bool(self):
+        # bool image with a gap: closing should fill it
+        im = np.array(
+            [
+                [0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0],
+                [0, 1, 0, 1, 0, 0, 0],
+                [0, 1, 0, 1, 0, 0, 0],
+                [0, 1, 1, 1, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0],
+            ],
+            dtype=bool,
+        )
+        out = np.array(
+            [
+                [0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0],
+                [1, 1, 1, 1, 0, 0, 0],
+                [1, 1, 1, 1, 0, 0, 0],
+                [1, 1, 1, 1, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0],
+            ],
+            dtype=np.uint8,
+        )
+        result = Image(im).close(np.ones((3, 3)))
+        nt.assert_array_equal(result.array, out)
+
     # TODO
     # getse?
     # label
