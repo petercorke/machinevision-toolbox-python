@@ -5,6 +5,7 @@ Video, camera, image-collection, and ZIP-archive sources for streaming images.
 from __future__ import annotations
 
 import fnmatch
+import json
 import threading
 from dataclasses import dataclass
 from http import client
@@ -26,6 +27,7 @@ from abc import ABC, abstractmethod
 import cv2 as cv
 import numpy as np
 from ansitable import ANSITable, Column
+from spatialmath import Polygon2
 
 from machinevisiontoolbox import Image, PointCloud
 from machinevisiontoolbox.base import convert, iread, mvtb_path_to_datafile
@@ -2634,6 +2636,124 @@ class PointCloudSequence:
         t = threading.Thread(target=run, daemon=True)
         t.start()
         app.run()
+
+
+class TensorStack(ImageSource):
+    """
+    Lazy image source from a PyTorch batch tensor.
+
+    Each frame is a zero-copy view into the batch tensor, providing
+    memory-efficient iteration over model outputs or other batch-processed tensors.
+
+    :param tensor: tensor of shape ``(B, C, H, W)`` or ``(B, H, W)``
+    :type tensor: torch.Tensor
+    :param colororder: colour plane order for multi-channel tensors,
+        e.g. ``"RGB"`` or ``"BGR"``, defaults to None
+    :type colororder: str, optional
+    :param logits: if True, take argmax over the channel dimension to
+        convert per-class logits to a class label image, defaults to False
+    :type logits: bool, optional
+    :param dtype: data type for output image arrays, e.g. ``np.uint8`` or
+        ``np.float32``; if None, dtype is inferred from the tensor data,
+        defaults to None
+    :type dtype: numpy dtype or None, optional
+
+    Example::
+
+        >>> from machinevisiontoolbox import TensorStack
+        >>> import torch
+        >>> batch = torch.randn(10, 3, 64, 64)  # 10 RGB images
+        >>> source = TensorStack(batch, colororder="RGB")
+        >>> len(source)
+        10
+        >>> img = source[7]  # Returns Image wrapping tensor[7] (zero-copy view)
+        >>> for img in source:
+        ...     features = extract(img)  # Process each image lazily
+
+    :seealso: :meth:`Image.Tensor`
+    """
+
+    def __init__(
+        self,
+        tensor: "torch.Tensor",
+        colororder: str | None = None,
+        logits: bool = False,
+        dtype: "DTypeLike | None" = None,
+    ):
+        """
+        Initialize TensorStack from a batch tensor.
+
+        :param tensor: batch tensor of shape ``(B, C, H, W)`` or ``(B, H, W)``
+        :param colororder: colour plane order for display/export
+        :param logits: if True, argmax the channel dimension for segmentation masks
+        :param dtype: output array dtype passed to Image constructor
+        """
+        try:
+            import torch
+        except ImportError:
+            raise ImportError(
+                "PyTorch is required for TensorStack. "
+                "Install it with: pip install torch "
+                "or pip install machinevision-toolbox-python[torch]"
+            )
+
+        if not isinstance(tensor, torch.Tensor):
+            raise TypeError(f"Expected torch.Tensor, got {type(tensor)}")
+
+        if tensor.ndim not in (4, 3):
+            raise ValueError(
+                f"Expected tensor of shape (B, C, H, W) or (B, H, W), got {tensor.shape}"
+            )
+
+        # Convert to CPU numpy view (keeps shared memory)
+        self._tensor = tensor.detach().cpu()
+        self._array = self._tensor.numpy()
+        self._colororder = colororder
+        self._logits = logits
+        self._dtype = dtype
+        self._batch_size = self._array.shape[0]
+
+    def __len__(self) -> int:
+        """Return number of images in the batch."""
+        return self._batch_size
+
+    def __iter__(self):
+        """Iterate over images as views into the batch."""
+        for i in range(self._batch_size):
+            yield self[i]
+
+    def __getitem__(self, index: int) -> Image:
+        """
+        Get image at index as a zero-copy view.
+
+        :param index: image index in range [0, batch_size)
+        :return: Image wrapping frame at index
+        :rtype: Image
+        """
+        if not isinstance(index, int) or index < 0 or index >= self._batch_size:
+            raise IndexError(f"Index {index} out of range [0, {self._batch_size})")
+
+        # Extract slice as view (B, C, H, W) → (C, H, W) or (B, H, W) → (H, W)
+        frame = self._array[index]
+
+        if self._logits:
+            # Argmax over channel dimension for segmentation masks
+            if frame.ndim == 3:
+                frame = np.argmax(frame, axis=0)
+        else:
+            # Permute (C, H, W) → (H, W, C) for color images
+            if frame.ndim == 3:
+                frame = np.transpose(frame, (1, 2, 0))
+
+        return Image(frame, colororder=self._colororder, dtype=self._dtype)
+
+    def __repr__(self) -> str:
+        """Return string representation."""
+        shape = self._array.shape
+        dtype = self._array.dtype
+        return (
+            f"TensorStack({self._batch_size} frames, shape {shape[1:]}, dtype {dtype})"
+        )
 
 
 if __name__ == "__main__":

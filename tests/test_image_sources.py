@@ -93,6 +93,175 @@ class TestImageSources(unittest.TestCase):
             count += 1
         self.assertEqual(count, 350)
 
+    @pytest.mark.skipif(not _torch_available, reason="PyTorch not installed")
+    def test_imagesource_tensor_dtype_option(self):
+        """ImageSource.tensor(dtype=...) returns requested tensor dtype."""
+        images = ImageCollection("campus/*.png")
+        t = images.tensor(normalize=None, dtype=torch.float32)
+        self.assertEqual(t.dtype, torch.float32)
+
+
+@unittest.skipUnless(_torch_available, "PyTorch not installed")
+class TestTensorStack(unittest.TestCase):
+
+    def test_tensorstack_init_4d_rgb(self):
+        """TensorStack initializes with (B, C, H, W) tensor."""
+        batch = torch.randn(5, 3, 64, 64)
+        from machinevisiontoolbox import TensorStack
+
+        ts = TensorStack(batch, colororder="RGB")
+        self.assertEqual(len(ts), 5)
+
+    def test_tensorstack_init_3d_mono(self):
+        """TensorStack initializes with (B, H, W) mono tensor."""
+        batch = torch.randn(10, 128, 128)
+        from machinevisiontoolbox import TensorStack
+
+        ts = TensorStack(batch)
+        self.assertEqual(len(ts), 10)
+
+    def test_tensorstack_invalid_tensor_type(self):
+        """TensorStack rejects non-tensor input."""
+        from machinevisiontoolbox import TensorStack
+
+        with self.assertRaises(TypeError):
+            TensorStack(np.random.randn(5, 3, 64, 64))
+
+    def test_tensorstack_invalid_shape(self):
+        """TensorStack rejects wrong tensor shapes."""
+        from machinevisiontoolbox import TensorStack
+
+        with self.assertRaises(ValueError):
+            TensorStack(torch.randn(5))  # 1D
+
+        with self.assertRaises(ValueError):
+            TensorStack(torch.randn(5, 3))  # 2D
+
+        with self.assertRaises(ValueError):
+            TensorStack(torch.randn(5, 3, 64, 64, 2))  # 5D
+
+    def test_tensorstack_indexing_rgb(self):
+        """Indexing returns Image with correct shape."""
+        batch = torch.randn(3, 3, 64, 64)
+        from machinevisiontoolbox import TensorStack
+
+        ts = TensorStack(batch, colororder="RGB")
+        img = ts[0]
+
+        self.assertIsInstance(img, Image)
+        self.assertEqual(img.shape, (64, 64, 3))  # (H, W, C) after permute
+
+    def test_tensorstack_indexing_mono(self):
+        """Indexing mono tensor returns (H, W) Image."""
+        batch = torch.randn(5, 128, 256)
+        from machinevisiontoolbox import TensorStack
+
+        ts = TensorStack(batch)
+        img = ts[2]
+
+        self.assertIsInstance(img, Image)
+        self.assertEqual(img.shape, (128, 256))
+
+    def test_tensorstack_zero_copy(self):
+        """Images are views into the original tensor (zero-copy)."""
+        batch = torch.ones(2, 3, 32, 32) * 5
+        from machinevisiontoolbox import TensorStack
+
+        ts = TensorStack(batch, colororder="RGB")
+        img = ts[0]
+
+        # Verify image data matches tensor slice
+        nt.assert_array_equal(img.A, batch[0].permute(1, 2, 0).numpy())
+
+    def test_tensorstack_iteration(self):
+        """Iteration yields all images in batch."""
+        batch = torch.randn(4, 3, 32, 32)
+        from machinevisiontoolbox import TensorStack
+
+        ts = TensorStack(batch, colororder="RGB")
+        images = list(ts)
+
+        self.assertEqual(len(images), 4)
+        for img in images:
+            self.assertIsInstance(img, Image)
+            self.assertEqual(img.shape, (32, 32, 3))
+
+    def test_tensorstack_mask_2d(self):
+        """logits=True with 3D tensor does argmax on channel dim."""
+        # Create logits: (B, C, H, W) where C is number of classes
+        logits = torch.tensor(
+            [[[[1.0, 2.0], [3.0, 1.0]], [[0.0, 5.0], [1.0, 2.0]]]],
+            dtype=torch.float32,
+        )  # (1, 2, 2, 2) - 1 batch, 2 classes, 2x2 image
+        from machinevisiontoolbox import TensorStack
+
+        ts = TensorStack(logits, logits=True)
+        mask = ts[0]
+
+        # Expected argmax: pixel (0,0): class 0, (0,1): class 1, (1,0): class 0, (1,1): class 1
+        expected = np.array([[0, 1], [0, 1]], dtype=np.int64)
+        nt.assert_array_equal(mask.A, expected)
+
+    def test_tensorstack_dtype_option(self):
+        """dtype option is passed to output Image arrays."""
+        batch = torch.randn(2, 3, 16, 16)
+        from machinevisiontoolbox import TensorStack
+
+        ts = TensorStack(batch, dtype=np.float32)
+        img = ts[0]
+
+        self.assertEqual(img.A.dtype, np.float32)
+
+    def test_tensorstack_index_out_of_bounds(self):
+        """Indexing out of bounds raises IndexError."""
+        batch = torch.randn(3, 3, 32, 32)
+        from machinevisiontoolbox import TensorStack
+
+        ts = TensorStack(batch)
+
+        with self.assertRaises(IndexError):
+            ts[3]  # Valid indices: 0, 1, 2
+
+        with self.assertRaises(IndexError):
+            ts[-1]
+
+    def test_tensorstack_colororder_preserved(self):
+        """Colororder is passed to Image constructor."""
+        batch = torch.randn(2, 3, 32, 32)
+        from machinevisiontoolbox import TensorStack
+
+        ts = TensorStack(batch, colororder="BGR")
+        img = ts[0]
+
+        self.assertEqual(img.colororder_str, "B:G:R")
+
+    def test_tensorstack_repr(self):
+        """__repr__ returns informative string."""
+        batch = torch.randn(10, 3, 64, 64).float()
+        from machinevisiontoolbox import TensorStack
+
+        ts = TensorStack(batch)
+        repr_str = repr(ts)
+
+        self.assertIn("TensorStack", repr_str)
+        self.assertIn("10", repr_str)
+        self.assertIn("64", repr_str)
+
+    def test_tensorstack_cuda_tensor(self):
+        """TensorStack handles CUDA tensors correctly."""
+        if not torch.cuda.is_available():
+            self.skipTest("CUDA not available")
+
+        batch = torch.randn(2, 3, 32, 32).cuda()
+        from machinevisiontoolbox import TensorStack
+
+        ts = TensorStack(batch, colororder="RGB")
+        img = ts[0]
+
+        # Should be on CPU as numpy array
+        self.assertIsInstance(img.A, np.ndarray)
+        self.assertEqual(img.shape, (32, 32, 3))
+
 
 if __name__ == "__main__":
     unittest.main()

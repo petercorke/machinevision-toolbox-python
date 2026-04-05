@@ -9,6 +9,8 @@ from machinevisiontoolbox.Sources import (
     EarthView,
     WebCam,
     RosBag,
+    TensorStack,
+    LabelMe,
 )
 from machinevisiontoolbox.ImageReshape import *
 from machinevisiontoolbox.ImageIO import *
