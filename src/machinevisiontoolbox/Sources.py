@@ -2299,15 +2299,17 @@ class RosBag(ImageSource):
 
     def __del__(self) -> None:
         self._close_reader()
-        if self._tmpfile is not None:
+        tmpfile = getattr(self, "_tmpfile", None)
+        if tmpfile is not None:
             from pathlib import Path as _Path
 
-            _Path(self._tmpfile).unlink(missing_ok=True)
+            _Path(tmpfile).unlink(missing_ok=True)
             self._tmpfile = None
 
     def _close_reader(self) -> None:
-        if self.reader is not None:
-            self.reader.close()
+        reader = getattr(self, "reader", None)
+        if reader is not None:
+            reader.close()
             self.reader = None
 
     def _open_reader(self):
@@ -3047,6 +3049,8 @@ class LabelMe:
         >>> from machinevisiontoolbox import LabelMe
         >>> image, polygons, flags = LabelMe("scene.json").read()
         >>> len(polygons)
+
+    :seealso: :meth:`pixels_mask` :class:`Image.Polygons` :class:`Image`, :class:`Polygon2`
     """
 
     filename: str

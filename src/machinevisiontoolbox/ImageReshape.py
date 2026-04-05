@@ -285,7 +285,7 @@ class ImageReshapeMixin:
                 bgcolor = [
                     0,
                 ] * len(colororder)
-        canvas = cls.Constant(width, height, bgcolor, dtype=images[0].dtype)
+        canvas = cls.Constant(bgcolor, size=(width, height), dtype=images[0].dtype)
         # if colororder is not None:
         #     canvas = canvas.colorize(colororder=colororder)
 
@@ -371,7 +371,7 @@ class ImageReshapeMixin:
                 bgcolor = [
                     0,
                 ] * len(colororder)
-        canvas = cls.Constant(width, height, bgcolor, dtype=images[0].dtype)
+        canvas = cls.Constant(bgcolor, size=(width, height), dtype=images[0].dtype)
         # if colororder is not None:
         #     canvas = canvas.colorize(colororder=colororder)
 
@@ -466,9 +466,11 @@ class ImageReshapeMixin:
                     0,
                 ] * tiles[0].nplanes
         canvas = cls.Constant(
-            columns * shape[1] + (columns - 1) * sep,
-            nrows * shape[0] + (nrows - 1) * sep,
             bgcolor,
+            size=(
+                columns * shape[1] + (columns - 1) * sep,
+                nrows * shape[0] + (nrows - 1) * sep,
+            ),
             dtype=tiles[0].dtype,
             colororder=colororder,
         )
@@ -1105,8 +1107,8 @@ class ImageReshapeMixin:
             >>> img = Image.Read('monalisa.png')
             >>> out = Image.Constant(0, size=(1000, 200))
             >>> for i in range(10):
-            >>>     M = SE2(90 * (i + 1), 100) * SE2(i * np.pi * 2 / 15) * np.diag([0.1, 0.1, 1])  # scale, rotate, translate
-            >>>     img.warp_affine(M, dst=out)
+            ...     M = SE2(90 * (i + 1), 100) * SE2(i * np.pi * 2 / 15) * np.diag([0.1, 0.1, 1])  # scale, rotate, translate
+            ...     img.warp_affine(M, dst=out)
             >>> out.disp()
 
         :seealso: :meth:`warp` `opencv.warpAffine <https://docs.opencv.org/4.x/da/d54/group__imgproc__transform.html#ga0203d9ee5fcd28d40dbc4a1ea4451983>`_

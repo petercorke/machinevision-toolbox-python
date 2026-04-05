@@ -76,7 +76,7 @@ class TestImageSources(unittest.TestCase):
             count += 1
         self.assertEqual(count, 253)
 
-        zf = ZipArchive("bridge-l.zip", filter="*.png")
+        zf = ZipArchive("bridge-l.zip", filter="*.pgm")
         self.assertEqual(len(zf), 251)
         im = zf[0]
         self.assertIsInstance(im, Image)

@@ -410,7 +410,7 @@ class ImageColorMixin(_ImageBase):
             raise ValueError("images must be greyscale")
         h = max(im1.height, im2.height)
         w = max(im1.width, im2.width)
-        overlay = cls.Constant(w, h, [0, 0, 0], colororder="RGB")
+        overlay = cls.Constant([0, 0, 0], size=(w, h), colororder="RGB")
         im1 = im1.colorize(colors[0])
         im2 = im2.colorize(colors[1])
         overlay.paste(im1, (0, 0), "add", copy=False)

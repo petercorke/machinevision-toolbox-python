@@ -87,7 +87,7 @@ class ImageMorphMixin(_ImageBase):
 
             >>> from machinevisiontoolbox import Image
             >>> import numpy as np
-            >>> img = Image.Squares(1,7)
+            >>> img = Image.Squares(1, size=7)
             >>> img.print()
             >>> img.erode(np.ones((3,3))).print()
 

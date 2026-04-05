@@ -523,9 +523,9 @@ class Image(
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> img = Image.Squares(1, 10).rprint()
+            >>> img = Image.Squares(1, size=10).rprint()
             >>> print(img)
-            >>> img = Image.Squares(1, 10, dtype='float').rprint(precision=1, header=True)
+            >>> img = Image.Squares(1, size=10, dtype='float').rprint(precision=1, header=True)
             >>> print(img)
 
         The function returns the image, which is why we see the image ``repr`` value
@@ -582,9 +582,9 @@ class Image(
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> img = Image.Squares(1, 10)
+            >>> img = Image.Squares(1, size=10)
             >>> img.print()
-            >>> img = Image.Squares(1, 10, dtype='float')
+            >>> img = Image.Squares(1, size=10, dtype='float')
             >>> img.print(precision=1, header=True)
 
         .. note::
@@ -2630,7 +2630,9 @@ class Image(
             mask_array = mask.array
         else:
             # its a Polygon2 or list of Polygon2, we create a mask image from it
-            mask_array = Image.Polygons(self.size, mask, color=1, dtype="uint8").array
+            mask_array = Image.Polygons(
+                mask, size=self.size, color=1, dtype="uint8"
+            ).array
 
         v, u = np.where(mask_array > 0)
         # Access the pixel values in the original image
@@ -3246,7 +3248,7 @@ class Image(
         :seealso: :meth:`Pstack`
         """
         if smb.isscalar(other):
-            other = Image.Constant(self.size, value=other, dtype=str(self._A.dtype))
+            other = Image.Constant(other, size=self.size, dtype=str(self._A.dtype))
         return self.Pstack((self, other))
 
     def __imod__(self, other) -> "Image":
@@ -3262,7 +3264,7 @@ class Image(
         :seealso: :meth:`__mod__`
         """
         if smb.isscalar(other):
-            other = Image.Constant(self.size, value=other, dtype=str(self._A.dtype))
+            other = Image.Constant(other, size=self.size, dtype=str(self._A.dtype))
         self._A = self.Pstack((self, other))._A
         return self
 

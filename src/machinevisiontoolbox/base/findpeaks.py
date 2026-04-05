@@ -164,9 +164,14 @@ def findpeaks2d(
     :param positive: peak must be > 0, defaults to False
     :type positive: bool, optional
     :return: peak positions and magnitudes, one per row
-    :rtype: ndarray(P,3)
+    :rtype: ndarray(P,3), ndarray(P,4) if ``interp`` is True
 
-    Find the maximum of a 2D signal, typically a greyscale image.
+    Find the maximum of a 2D signal, typically a greyscale image.  The peaks are
+    returned in descending order of magnitude, one row.  For the case ``interp`` is
+    ``False``, each row contains the x and y coordinates of the peak and its value.  For
+    the case ``interp`` is True, each row contains the x and y coordinates of the peak,
+    its value and an estimate of the "peakiness" of the peak (the second order
+    coefficient of the interpolating polynomial).
 
     Example:
 
@@ -231,6 +236,7 @@ def findpeaks2d(
 
     # interpolate peaks if required
     if interp:
+        z = z.astype("float32")
         refined = []
         for xk, yk in zip(x, y):
             # now try to interpolate the peak over a 3x3 window

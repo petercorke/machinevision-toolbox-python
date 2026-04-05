@@ -841,10 +841,12 @@ class ImageSpatialMixin:
         for plane in self.planes():
             out.append(
                 sp.ndimage.rank_filter(
-                    self._A, r, footprint=footprint, mode=self._bordertype_sp(border)
+                    plane._A, r, footprint=footprint, mode=self._bordertype_sp(border)
                 )
             )
-        return self.__class__(np.dstack(out), colororder=self.colororder)
+        if self.iscolor:
+            return self.__class__(np.dstack(out), colororder=self.colororder)
+        return self.__class__(out[0], colororder=self.colororder)
 
     def medianfilter(self, h=1, **kwargs):
         r"""
@@ -907,7 +909,7 @@ class ImageSpatialMixin:
 
             >>> from machinevisiontoolbox import Image
             >>> import numpy as np
-            >>> pixels = np.zeros((5,5))
+            >>> pixels = np.zeros((5,5), dtype=np.uint8)
             >>> pixels[2, 1:3] = 1
             >>> img = Image(pixels)
             >>> img.distance_transform().print(precision=3)
@@ -975,7 +977,7 @@ class ImageSpatialMixin:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> img = Image.Squares(2, 15)
+            >>> img = Image.Squares(2, size=15)
             >>> img.print()
             >>> labels, N = img.labels_binary()
             >>> N
@@ -1044,7 +1046,7 @@ class ImageSpatialMixin:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> img = Image.Squares(2, 15)
+            >>> img = Image.Squares(2, size=15)
             >>> img.print()
             >>> labels, N = img.labels_MSER()
             >>> N

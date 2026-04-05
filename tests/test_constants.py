@@ -51,25 +51,25 @@ class TestImageConstants(unittest.TestCase):
         self.assertEqual(im.colororder_str, "A:B:C:D")
 
     def test_constant(self):
-        im = Image.Constant(5, 9, value=42)
+        im = Image.Constant(42, size=(5, 9))
         self.assertEqual(im.size, (5, 9))
         self.assertEqual(im.dtype, np.uint8)
         self.assertFalse(im.iscolor)
         self.assertTrue(np.all(im._A == 42))
 
-        im = Image.Constant(5, value=42)
+        im = Image.Constant(42, size=5)
         self.assertEqual(im.size, (5, 5))
         self.assertEqual(im.dtype, np.uint8)
         self.assertFalse(im.iscolor)
         self.assertTrue(np.all(im._A == 42))
 
-        im = Image.Constant((5, 9), value=42)
+        im = Image.Constant(42, size=(5, 9))
         self.assertEqual(im.size, (5, 9))
         self.assertEqual(im.dtype, np.uint8)
         self.assertFalse(im.iscolor)
         self.assertTrue(np.all(im._A == 42))
 
-        im = Image.Constant((5, 9), value="red")
+        im = Image.Constant("red", size=(5, 9))
         self.assertEqual(im.size, (5, 9))
         self.assertEqual(im.dtype, np.uint8)
         self.assertTrue(im.iscolor)
@@ -79,7 +79,7 @@ class TestImageConstants(unittest.TestCase):
         self.assertTrue(np.all(im._A[:, :, 1] == 0))
         self.assertTrue(np.all(im._A[:, :, 2] == 0))
 
-        im = Image.Constant((5, 9), value="red", colororder="XYZ")
+        im = Image.Constant("red", size=(5, 9), colororder="XYZ")
         self.assertEqual(im.size, (5, 9))
         self.assertEqual(im.dtype, np.uint8)
         self.assertTrue(im.iscolor)
@@ -89,7 +89,7 @@ class TestImageConstants(unittest.TestCase):
         self.assertTrue(np.all(im._A[:, :, 1] == 0))
         self.assertTrue(np.all(im._A[:, :, 2] == 0))
 
-        im = Image.Constant((5, 9), value=(40, 41, 42, 43), colororder="ABCD")
+        im = Image.Constant((40, 41, 42, 43), size=(5, 9), colororder="ABCD")
         self.assertEqual(im.size, (5, 9))
         self.assertEqual(im.dtype, np.uint8)
         self.assertTrue(im.iscolor)
@@ -101,7 +101,7 @@ class TestImageConstants(unittest.TestCase):
         self.assertTrue(np.all(im._A[:, :, 3] == 43))
 
         im = Image.Constant(
-            (5, 9), dtype="float32", value=(0.40, 0.41, 0.42, 0.43), colororder="ABCD"
+            (0.40, 0.41, 0.42, 0.43), size=(5, 9), dtype="float32", colororder="ABCD"
         )
         self.assertEqual(im.size, (5, 9))
         self.assertEqual(im.dtype, np.float32)
@@ -113,15 +113,13 @@ class TestImageConstants(unittest.TestCase):
         self.assertTrue(np.all(im._A[:, :, 2] == 0.42))
         self.assertTrue(np.all(im._A[:, :, 3] == 0.43))
 
-        im = Image.Constant((5, 9), value=0.74, dtype="float32")
+        im = Image.Constant(0.74, size=(5, 9), dtype="float32")
         self.assertEqual(im.size, (5, 9))
         self.assertEqual(im.dtype, np.float32)
         self.assertTrue(np.all(im._A == 0.74))
 
         with self.assertRaises(ValueError) as context:
-            im = Image.Constant(5, 9, value=(40, 41, 42), colororder="ABCD")
-        with self.assertRaises(ValueError) as context:
-            im = Image.Constant((5, 9), value=(40, 41, 42), colororder="ABCD")
+            im = Image.Constant((40, 41, 42), size=(5, 9), colororder="ABCD")
 
     def test_constant_new_style(self):
         im = Image.Constant(42, size=(5, 9))

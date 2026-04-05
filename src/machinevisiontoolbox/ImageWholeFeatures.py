@@ -149,7 +149,7 @@ class ImageWholeFeaturesMixin(_ImageBase):
         """
         return np.nanmean(self._A, *args, **kwargs)
 
-    def std(self, *args, **kwargs) -> float:
+    def std(self, *args, **kwargs) -> float | np.ndarray:
         """
         Standard deviation of all pixels
 
@@ -176,9 +176,12 @@ class ImageWholeFeaturesMixin(_ImageBase):
 
         :seealso: :meth:`stats` :meth:`hist` :meth:`mean` :meth:`var` :func:`numpy.nanstd` :meth:`numnan`
         """
-        return float(np.nanstd(self._A, *args, **kwargs))
+        result = np.nanstd(self._A, *args, **kwargs)
+        if np.ndim(result) == 0:
+            return float(result)
+        return result
 
-    def var(self, *args, **kwargs) -> float:
+    def var(self, *args, **kwargs) -> float | np.ndarray:
         """
         Variance of all pixels
 
@@ -205,7 +208,10 @@ class ImageWholeFeaturesMixin(_ImageBase):
 
         :seealso: :meth:`stats` :meth:`hist` :meth:`std` :func:`numpy.nanvar` :meth:`numnan`
         """
-        return float(np.nanvar(self._A, *args, **kwargs))
+        result = np.nanvar(self._A, *args, **kwargs)
+        if np.ndim(result) == 0:
+            return float(result)
+        return result
 
     def median(self, *args, **kwargs) -> int | float:
         """
@@ -376,7 +382,7 @@ class ImageWholeFeaturesMixin(_ImageBase):
         .. important:: Uses OpenCV function ``cv2.calcHist`` which accepts single-channel, CV_8U or CV_32F images (float64 images are automatically converted to float32).
 
         :seealso:
-            :meth:`stats` 
+            :meth:`stats`
             :class:`~machinevisiontoolbox.ImageWholeFeatures.Histogram`
             `opencv.calcHist <https://docs.opencv.org/4.x/d6/dc7/group__imgproc__hist.html#ga4b2b5fd75503ff9e6844cc4dcdaed35d>`_
         """
@@ -694,7 +700,9 @@ class ImageWholeFeaturesMixin(_ImageBase):
 
         # TODO check for binary image
 
-        self._opencv_type_check(self._A, "single-channel", "CV_8U", "CV_16U", "CV_16S", "CV_32F", "CV_64F")
+        self._opencv_type_check(
+            self._A, "single-channel", "CV_8U", "CV_16U", "CV_16S", "CV_32F", "CV_64F"
+        )
         moments = cv.moments(array=self._A)
         hu = cv.HuMoments(m=moments)
         return hu.flatten()
