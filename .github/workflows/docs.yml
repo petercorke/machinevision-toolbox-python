@@ -5,20 +5,16 @@ on:
     branches: [main]
     paths:
       - docs/**
-      - notebooks/**
-      - lite/**
       - src/**
-      - mvtb-data/**
+      - packages/mvtb-data/**
       - pyproject.toml
       - .github/workflows/docs.yml
   pull_request:
     branches: [main]
     paths:
       - docs/**
-      - notebooks/**
-      - lite/**
       - src/**
-      - mvtb-data/**
+      - packages/mvtb-data/**
       - pyproject.toml
       - .github/workflows/docs.yml
   workflow_dispatch:
@@ -52,7 +48,7 @@ jobs:
           pip install --upgrade pip
           pip install git+https://github.com/petercorke/sphinx-autorun.git
           pip install .[docs]
-          cd mvtb-data && pip install .
+          cd packages/mvtb-data && pip install .
 
       - name: Build docs
         run: sphinx-build -b html docs/source docs/build/html
@@ -60,17 +56,17 @@ jobs:
       - name: Build wheel for JupyterLite
         run: |
           pip install build
-          python -m build --wheel --outdir lite/pypi
+          python -m build --wheel --outdir docs/lite/pypi
 
       - name: Sync notebooks into JupyterLite content
         run: |
-          mkdir -p lite/files
+          mkdir -p docs/lite/files
           rsync -av --delete \
             --include='*/' \
             --include='*.ipynb' \
             --exclude='old/***' \
             --exclude='*' \
-            notebooks/ lite/files/
+            docs/notebooks/ docs/lite/files/
 
       - name: Adapt staged notebooks for JupyterLite
         run: |
@@ -78,7 +74,7 @@ jobs:
           import json
           from pathlib import Path
 
-          root = Path("lite/files")
+          root = Path("docs/lite/files")
           for nb_path in root.rglob("*.ipynb"):
               with nb_path.open("r", encoding="utf-8") as f:
                   nb = json.load(f)
@@ -126,12 +122,12 @@ jobs:
       - name: Build JupyterLite site
         run: |
           pip install jupyterlite-core jupyterlite-pyodide-kernel jupyter-server
-          cd lite && jupyter lite build --output-dir ../docs/build/html/lite
+          cd docs/lite && jupyter lite build --output-dir ../build/html/lite
 
       - name: Package notebooks zip
         run: |
           rm -f docs/build/html/mvtb_notebooks.zip
-          zip -r docs/build/html/mvtb_notebooks.zip notebooks
+          zip -r docs/build/html/mvtb_notebooks.zip docs/notebooks
 
       - name: Upload notebooks zip artifact
         uses: actions/upload-artifact@v4

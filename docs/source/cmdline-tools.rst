@@ -111,7 +111,7 @@ the specified image.  For example::
 	$ tagtool lab-scene.png
 	tag IDs: 0, 1, 2, 3, 4, 5
 
-.. image:: https://github.com/petercorke/machinevision-toolbox-python/raw/main/figs/tagtool.png
+.. image:: https://github.com/petercorke/machinevision-toolbox-python/raw/main/docs/figs/tagtool.png
 	:alt: Binary image showing bounding boxes and centroids
 
 .. command-output:: tagtool --help

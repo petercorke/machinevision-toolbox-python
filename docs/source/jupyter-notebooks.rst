@@ -1,7 +1,7 @@
 Jupyter notebooks
 =================
 
-The Toolbox folder ``notebooks`` includes a number of Jupyter notebooks that demonstrate the use of the
+The Toolbox folder ``docs/notebooks`` includes a number of Jupyter notebooks that demonstrate the use of the
 use of the Toolbox for specific applications.  There are a number of different ways to
 execute a Jupyter notebook.
 
@@ -32,7 +32,7 @@ pip install ipywidgets  # interactive controls for Jupyter notebooks
 pip install ipympl  # enables matplotlib interactive features in Jupyter notebooks
 ```
 
-<site>/lite/lab/index.html?path=files/notebooks/<notebook>.ipynb
+<site>/lite/lab/index.html?path=files/<notebook>.ipynb
 
 https://petercorke.github.io/machinevision-toolbox-python/mvtb_notebooks.zip
 

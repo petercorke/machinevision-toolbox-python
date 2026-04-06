@@ -227,7 +227,7 @@ which will display::
 	f.plot_centroid(fig, 'x', color='y')
 	plt.show(block=True)  # display the result
 
-.. image:: https://github.com/petercorke/machinevision-toolbox-python/raw/main/figs/shark2+boxes.png
+.. image:: https://github.com/petercorke/machinevision-toolbox-python/raw/main/docs/figs/shark2+boxes.png
 	:alt: Binary image showing bounding boxes and centroids
 
 Binary blob hierarchy
@@ -240,7 +240,7 @@ We load a binary image with nested objects
 	im = mvtb.Image("multiblobs.png")
 	im.disp()
 
-.. image:: https://github.com/petercorke/machinevision-toolbox-python/raw/main/figs/multi.png
+.. image:: https://github.com/petercorke/machinevision-toolbox-python/raw/main/docs/figs/multi.png
 	:alt: Binary image showing bounding boxes and centroids
 
 .. code-block:: python
@@ -277,7 +277,7 @@ belongs to
 and request the blob label image which we then display
 
 
-.. image:: https://github.com/petercorke/machinevision-toolbox-python/raw/main/figs/multi_labelled.png
+.. image:: https://github.com/petercorke/machinevision-toolbox-python/raw/main/docs/figs/multi_labelled.png
 	:alt: Binary image showing bounding boxes and centroids
 
 Camera modelling
@@ -333,7 +333,7 @@ We can define an edge-based cube model and project it into the camera's image pl
 	>>> X, Y, Z = mkcube(0.2, pose=SE3(0, 0, 1), edge=True)
 	>>> cam.mesh(X, Y, Z)
 
-.. image:: https://github.com/petercorke/machinevision-toolbox-python/raw/main/figs/cube.png
+.. image:: https://github.com/petercorke/machinevision-toolbox-python/raw/main/docs/figs/cube.png
 	:alt: Perspective camera view
 
 
@@ -346,7 +346,7 @@ Plot the CIE chromaticity space
 
 	>>> showcolorspace("xy")
 
-.. image:: https://github.com/petercorke/machinevision-toolbox-python/raw/main/figs/colorspace.png
+.. image:: https://github.com/petercorke/machinevision-toolbox-python/raw/main/docs/figs/colorspace.png
 	:alt: CIE chromaticity space
 
 Load the spectrum of sunlight at the Earth's surface and compute the CIE xy chromaticity coordinates

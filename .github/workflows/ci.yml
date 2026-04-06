@@ -49,7 +49,7 @@ jobs:
       - name: Install package
         run: |
           micromamba run -n myenv pip install .[dev] --no-deps --no-build-isolation
-          cd mvtb-data && micromamba run -n myenv pip install . --no-deps --no-build-isolation
+          cd packages/mvtb-data && micromamba run -n myenv pip install . --no-deps --no-build-isolation
 
       - name: Run tests
         env:
@@ -92,13 +92,13 @@ jobs:
       - name: Install package
         run: |
           micromamba run -n myenv pip install .[dev] --no-deps --no-build-isolation
-          cd mvtb-data && micromamba run -n myenv pip install . --no-deps --no-build-isolation
+          cd packages/mvtb-data && micromamba run -n myenv pip install . --no-deps --no-build-isolation
 
       - name: Run coverage
         env:
           MPLBACKEND: Agg
         run: |
-          micromamba run -n myenv coverage run --source=machinevisiontoolbox -m pytest --timeout=50
+          micromamba run -n myenv coverage run --source=machinevisiontoolbox --omit="src/machinevisiontoolbox/blocks/*,src/machinevision/blocks/*" -m pytest --timeout=50
           micromamba run -n myenv coverage xml
 
       - name: Upload to Codecov

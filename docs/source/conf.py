@@ -15,15 +15,18 @@ import sys
 from pathlib import Path
 from importlib.metadata import version as _pkg_version
 
-sys.path.append(os.path.abspath("exts"))
-print(os.path.abspath("exts"))
+# -- Local extension path ----------------------------------------------------
+# Keep custom Sphinx extensions in docs/source/exts importable.
+_EXTS_DIR = os.path.abspath("exts")
+if _EXTS_DIR not in sys.path:
+    sys.path.insert(0, _EXTS_DIR)
 
 
 # -- Project information -----------------------------------------------------
 
 project = "Machine Vision Toolbox"
 copyright = "2020-, Peter Corke"
-author = "Peter Corke and Dorian Tsai"
+author = "Peter Corke"
 
 # The full version, including alpha/beta/rc tags
 try:
@@ -54,12 +57,14 @@ extensions = [
     "sphinx_favicon",
     "sphinx_copybutton",
     "sphinxcontrib.programoutput",
+    "sphinx_codeautolink",
     "blockname",
 ]
 
 # autoclass_content = 'both' # use __init__ or class docstring
 add_function_parentheses = False
 
+# -- sphinx-autorun setup ----------------------------------------------------
 # options for spinx_autorun, used for inline examples
 #  choose UTF-8 encoding to allow for Unicode characters, eg. ansitable
 #  Python session setup, turn off color printing for SE3, set NumPy precision
@@ -88,12 +93,19 @@ rst_epilog = """
 .. |RVC3| replace:: `P. Corke, Robotics, Vision & Control for Python, Springer, 2023 <https://link.springer.com/book/10.1007/978-3-031-06469-2>`__
 """
 
+
+# -- Cross-project links -----------------------------------------------------
 intersphinx_mapping = {
-    "python": ("https://docs.python.org/3", None),
-    "numpy": ("https://numpy.org/doc/stable", None),
-    "scipy": ("https://docs.scipy.org/doc/scipy", None),
-    "matplotlib": ("https://matplotlib.org/stable", None),
+    "numpy": ("https://numpy.org/doc/stable/", None),
+    "scipy": ("https://docs.scipy.org/doc/scipy/", None),
+    "matplotlib": ("https://matplotlib.org/stable/", None),
+    "open3d": ("https://www.open3d.org/docs/release/", None),
+    "smtb": ("https://bdaiinstitute.github.io/spatialmath-python/", None),
+    "pgraph": ("https://petercorke.github.io/pgraph-python/", None),
+    "torch": ("https://pytorch.org/docs/stable/", None),
 }
+# maybe issues with cv2 https://stackoverflow.com/questions/30939867/how-to-properly-write-cross-references-to-external-documentation-with-intersphin
+
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -112,8 +124,8 @@ html_theme_options = {
     "analytics": {"google_analytics_id": "G-9CWBLVEKRS"},
     "show_prev_next": True,
     "logo": {
-        "image_light": "../../figs/VisionToolboxLogo_CircBlack.png",
-        "image_dark": "../../figs/VisionToolboxLogo_CircBlack.png",
+        "image_light": "../figs/VisionToolboxLogo_CircBlack.png",
+        "image_dark": "../figs/VisionToolboxLogo_CircBlack.png",
     },
     "footer_start": ["copyright"],
     "footer_end": ["github-link.html"],
@@ -127,6 +139,7 @@ html_show_sourcelink = True
 html_last_updated_fmt = "%d-%b-%Y"
 
 # see https://stackoverflow.com/questions/9728292/creating-latex-math-macros-within-sphinx
+# -- MathJax macro aliases used in docs -------------------------------------
 mathjax3_config = {
     "tex": {
         "macros": {
@@ -164,18 +177,18 @@ mathjax3_config = {
     }
 }
 
-intersphinx_mapping = {
-    "numpy": ("https://numpy.org/doc/stable/", None),
-    "scipy": ("https://docs.scipy.org/doc/scipy/", None),
-    "matplotlib": ("https://matplotlib.org/stable/", None),
-    "open3d": ("https://www.open3d.org/docs/release/", None),
-    "smtb": ("https://bdaiinstitute.github.io/spatialmath-python/", None),
-    "pgraph": ("https://petercorke.github.io/pgraph-python/", None),
-}
-# maybe issues with cv2 https://stackoverflow.com/questions/30939867/how-to-properly-write-cross-references-to-external-documentation-with-intersphin
 
 html_static_path = ["_static"]
+
+
+# -- Code autolink UI behaviour ---------------------------------------------
+
+
+# Ensure pycon (Python Console) is included in the search
+codeautolink_search_css_classes = ["highlight-python", "highlight-pycon"]
+
 # create favicons online using https://favicon.io/favicon-converter/
+# -- Favicons ----------------------------------------------------------------
 favicons = [
     {
         "rel": "icon",
@@ -198,18 +211,19 @@ favicons = [
     {
         "rel": "android-chrome",
         "sizes": "192x192",
-        "static-file": "android-chrome-192x192.png ",
+        "static-file": "android-chrome-192x192.png",
         "type": "image/png",
     },
     {
         "rel": "android-chrome",
         "sizes": "512x512",
-        "static-file": "android-chrome-512x512.png ",
+        "static-file": "android-chrome-512x512.png",
         "type": "image/png",
     },
 ]
 
 
+# -- Dynamic toctree generation ---------------------------------------------
 def _generate_image_sidebar_toctree(app):
     """Generate a canonical Image sidebar toctree with case-insensitive sorting."""
     source_dir = Path(__file__).parent
@@ -258,5 +272,10 @@ def _sort_members_ci(self, documenters, order):
 Documenter.sort_members = _sort_members_ci
 
 
+# -- Sphinx application hooks ------------------------------------------------
 def setup(app):
+    # Custom stylesheet for docs/site-level overrides.
+    app.add_css_file("custom.css")
+
+    # Generate a stable sidebar include for Image method pages.
     app.connect("builder-inited", _generate_image_sidebar_toctree)

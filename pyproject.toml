@@ -100,7 +100,7 @@ all = [
 ]
 
 [tool.pytest.ini_options]
-pythonpath = ["src", "mvtb-data", "mvtb-data/mvtbdata"]
+pythonpath = ["src", "packages/mvtb-data", "packages/mvtb-data/mvtbdata"]
 testpaths = ["tests"]
 addopts = "--tb=short"
 
@@ -136,7 +136,7 @@ allow-direct-references = true
 packages = ["src/machinevisiontoolbox"]
 
 [tool.hatch.build.targets.sdist]
-exclude = ["/mvtb-data", "/docs", "/tests", "/.git", "/.github", "/figs"]
+exclude = ["/packages", "/docs", "/tests", "/.git", "/.github"]
 
 [tool.codespell]
 # nd, enew = local variable names; nin, inports = BDSIM block identifiers
@@ -149,4 +149,4 @@ target-version = ['py310', 'py311', 'py312', 'py313']
 exclude = "camera_derivatives.py"
 
 [tool.coverage.run]
-omit = []
+omit = ["src/machinevisiontoolbox/blocks/*", "src/machinevision/blocks/*"]

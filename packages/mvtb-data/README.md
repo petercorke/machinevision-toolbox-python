@@ -1,13 +1,13 @@
 # Machine Vision Toolbox for Python - data package
 
-[![A Python Robotics Package](https://raw.githubusercontent.com/petercorke/robotics-toolbox-python/master/.github/svg/py_collection.min.svg)](https://github.com/petercorke/machine-vision-toolbox-python)
+[![A Python Robotics Package](https://raw.githubusercontent.com/petercorke/robotics-toolbox-python/main/.github/svg/py_collection.min.svg)](https://github.com/petercorke/machine-vision-toolbox-python)
 [![PyPI version](https://badge.fury.io/py/mvtb-data.svg)](https://badge.fury.io/py/mvtb-data)
 [![Anaconda version](https://anaconda.org/conda-forge/mvtb-data/badges/version.svg)](https://anaconda.org/conda-forge/mvtb-data)
 
 <table style="border:0px">
 <tr style="border:0px">
 <td style="border:0px">
-<img src="https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/MVTBDataLogo.png" width="250"></td>
+<img src="https://github.com/petercorke/machinevision-toolbox-python/raw/main/docs/figs/MVTBDataLogo.png" width="250"></td>
 <td style="border:0px">
 This package includes large data files associated with the <a href="https://pypi.org/project/machinevision-toolbox-python">Machine Vision Toolbox for Python (MVTB-P)</a>.
 </td>

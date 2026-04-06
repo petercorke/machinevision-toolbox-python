@@ -1,7 +1,7 @@
 # Machine Vision Toolbox for Python
 
 <div align="center">
-  <img src="https://github.com/petercorke/machinevision-toolbox-python/raw/main/figs/VisionToolboxLogo_NoBackgnd@2x.png" width="350">
+  <img src="https://github.com/petercorke/machinevision-toolbox-python/raw/main/docs/figs/VisionToolboxLogo_NoBackgnd@2x.png" width="350">
   <br>
   <strong>A high-productivity framework for computer vision research and education.</strong>
   <br><br>
@@ -62,7 +62,7 @@ The Machine Vision Toolbox (MVTB) brings professional-grade vision algorithms to
 
 
 > [!IMPORTANT]
-> **v2.0 Release:** This version introduces breaking changes to the `Image` class APIs. See the [Migration Guide](link) for details.
+> **v2.0 Release:** This version introduces breaking changes to the `Image` class APIs. See the [Migration Guide](./MIGRATION.md) for details.
 
 # Getting going
 
@@ -94,7 +94,7 @@ mona = Image.Read("monalisa.png")
 mona.disp()
 ```
 
-![Mona Lisa image](https://github.com/petercorke/machinevision-toolbox-python/raw/main/figs/mona.png)
+![Mona Lisa image](https://github.com/petercorke/machinevision-toolbox-python/raw/main/docs/figs/mona.png)
 
 Images can also be returned by iterators that operate over folders, zip files, local cameras, web cameras and video files.
 
@@ -106,7 +106,7 @@ The toolbox supports many operations on images such as 2D filtering, edge detect
 mona.smooth(sigma=5).disp()
 ```
 
-![Mona Lisa image with smoothing](https://github.com/petercorke/machinevision-toolbox-python/raw/main/figs/mona_smooth.png)
+![Mona Lisa image with smoothing](https://github.com/petercorke/machinevision-toolbox-python/raw/main/docs/figs/mona_smooth.png)
 
 There are also many functions that operate on pairs of image. All the arithmetic operators are overloaded, and there are methods to combine images in more complex ways. Multiple images can be stacked horizontal, vertically or tiled in a 2D grid. For example, we could display the original and smoothed images side by side
 
@@ -117,7 +117,7 @@ Image.Hstack([mona, mona.smooth(sigma=5)]).disp()
 where `Hstack` is a class method that creates a new image by stacking the
 images from its argument, an image sequence, horizontally.
 
-![Mona Lisa image with smoothing](https://github.com/petercorke/machinevision-toolbox-python/raw/main/figs/mona+smooth.png)
+![Mona Lisa image with smoothing](https://github.com/petercorke/machinevision-toolbox-python/raw/main/docs/figs/mona+smooth.png)
 
 ### Binary blobs
 
@@ -145,7 +145,7 @@ blobs.plot_centroid(label=True)  # put a circle+cross on the centroid of each bl
 plt.show(block=True)  # display the result
 ```
 
-![Binary image showing bounding boxes and centroids](https://github.com/petercorke/machinevision-toolbox-python/raw/main/figs/shark2+boxes.png)
+![Binary image showing bounding boxes and centroids](https://github.com/petercorke/machinevision-toolbox-python/raw/main/docs/figs/shark2+boxes.png)
 
 #### Binary blob hierarchy
 
@@ -156,7 +156,7 @@ im = Image.Read("multiblobs.png")
 im.disp()
 ```
 
-![Binary image with nested blobs](https://github.com/petercorke/machinevision-toolbox-python/raw/main/figs/multi.png)
+![Binary image with nested blobs](https://github.com/petercorke/machinevision-toolbox-python/raw/main/docs/figs/multi.png)
 
 and we see that some blobs are contained within other blobs. The results in tabular form
 
@@ -187,7 +187,7 @@ labels = blobs.label_image()
 labels.disp(colormap="viridis", ncolors=len(blobs), colorbar=dict(shrink=0.8, aspect=20*0.8))
 ```
 
-![False color label image](https://github.com/petercorke/machinevision-toolbox-python/raw/main/figs/multi_labelled.png)
+![False color label image](https://github.com/petercorke/machinevision-toolbox-python/raw/main/docs/figs/multi_labelled.png)
 
 We can also think of the blobs forming a hiearchy and that relationship is reflected in the `parent` and `children` attributes of the blobs.
 We can also express it as a directed graph
@@ -196,7 +196,7 @@ We can also express it as a directed graph
 blobs.dotfile(show=True)
 ```
 
-![Blob hierarchy as a graph](https://github.com/petercorke/machinevision-toolbox-python/raw/main/figs/blobs_graph.png)
+![Blob hierarchy as a graph](https://github.com/petercorke/machinevision-toolbox-python/raw/main/docs/figs/blobs_graph.png)
 
 ### Camera modelling
 
@@ -251,7 +251,7 @@ X, Y, Z = mkcube(0.2, pose=SE3(0, 0, 1), edge=True)
 cam.plot_wireframe(X, Y, Z)
 ```
 
-![Perspective camera view of cube](https://github.com/petercorke/machinevision-toolbox-python/raw/main/figs/cube.png)
+![Perspective camera view of cube](https://github.com/petercorke/machinevision-toolbox-python/raw/main/docs/figs/cube.png)
 
 <!---or with a fisheye camera
 
@@ -263,7 +263,7 @@ cam.plot_wireframe(X, Y, Z)
 >> [X,Y,Z] = mkcube(0.2, 'centre', [0.2, 0, 0.3], 'edge');
 >> cam.mesh(X, Y, Z);
 ```
-![Fisheye lens camera view](figs/cube_fisheye.png)
+![Fisheye lens camera view](docs/figs/cube_fisheye.png)
 
 
 ### Bundle adjustment
@@ -278,7 +278,7 @@ plot_chromaticity_diagram("xy");
 plot_spectral_locus("xy")
 ```
 
-![CIE chromaticity space](https://github.com/petercorke/machinevision-toolbox-python/raw/main/figs/colorspace.png)
+![CIE chromaticity space](https://github.com/petercorke/machinevision-toolbox-python/raw/main/docs/figs/colorspace.png)
 
 Load the spectrum of sunlight at the Earth's surface and compute the CIE xy chromaticity coordinates
 
@@ -305,7 +305,7 @@ im.disp(darken=True)
 h.plot_lines(lines, "r--")
 ```
 
-![Hough transform](https://github.com/petercorke/machinevision-toolbox-python/raw/main/figs/hough.png)
+![Hough transform](https://github.com/petercorke/machinevision-toolbox-python/raw/main/docs/figs/hough.png)
 
 ### SURF features
 
@@ -345,7 +345,7 @@ matches.subset(100).plot("w")
 
 in this case, a subset of 100/813 of the correspondences.
 
-![Feature matching](https://github.com/petercorke/machinevision-toolbox-python/raw/main/figs/matching.png)
+![Feature matching](https://github.com/petercorke/machinevision-toolbox-python/raw/main/docs/figs/matching.png)
 
 Clearly there are some bad matches here, but we we can use RANSAC and the epipolar constraint implied by the fundamental matrix to estimate the fundamental matrix and classify correspondences as inliers or outliers
 
@@ -365,7 +365,7 @@ matches.outliers.subset(100).plot("r", ax=plt.gca())
 
 where green lines show correct correspondences (inliers) and red lines show bad correspondences (outliers)
 
-![Feature matching after RANSAC](https://github.com/petercorke/machinevision-toolbox-python/raw/main/figs/matching_ransac.png)
+![Feature matching after RANSAC](https://github.com/petercorke/machinevision-toolbox-python/raw/main/docs/figs/matching_ransac.png)
 
 # History
 

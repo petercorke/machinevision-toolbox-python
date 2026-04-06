@@ -1,0 +1,20 @@
+/* Target the specific class shown in your inspector, override PyData theme */
+a.sphinx-codeautolink-a {
+    text-decoration: none !important;
+    border-bottom: 2px dotted #2980b9 !important;
+    /* Thicker dots for better visibility */
+    padding-bottom: 1px;
+    color: inherit !important;
+}
+
+/* Hover state for clear feedback */
+a.sphinx-codeautolink-a:hover {
+    border-bottom: 2px solid #2980b9 !important;
+    background-color: rgba(41, 128, 185, 0.1) !important;
+    cursor: pointer !important;
+}
+
+/* Ensure the span inside (the actual text) doesn't have its own underline */
+a.sphinx-codeautolink-a span {
+    text-decoration: none !important;
+}
