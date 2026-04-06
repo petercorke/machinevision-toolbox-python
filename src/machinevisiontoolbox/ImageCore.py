@@ -40,7 +40,7 @@ from machinevisiontoolbox.ImageLineFeatures import ImageLineFeaturesMixin
 from machinevisiontoolbox.ImageMorph import ImageMorphMixin
 from machinevisiontoolbox.ImageMultiview import ImageMultiviewMixin
 from machinevisiontoolbox.ImagePointFeatures import ImagePointFeaturesMixin
-from machinevisiontoolbox.ImageTorch import ImageTorchMixin
+from machinevisiontoolbox.ImageTensor import ImageTensorMixin
 from machinevisiontoolbox.ImageProcessing import ImageProcessingMixin
 from machinevisiontoolbox.ImageRegionFeatures import ImageRegionFeaturesMixin
 from machinevisiontoolbox.ImageReshape import ImageReshapeMixin
@@ -73,7 +73,7 @@ class Image(
     ImageLineFeaturesMixin,
     ImagePointFeaturesMixin,
     ImageMultiviewMixin,
-    ImageTorchMixin,
+    ImageTensorMixin,
 ):
     def __init__(
         self,
@@ -3298,6 +3298,50 @@ class Image(
         """
         return self._binop(self, other, lambda x, y: x == y)
 
+    def sameas(self, other, colororder: bool = True) -> bool:
+        """
+        Compare two images for exact equality and return a scalar bool.
+
+        :param other: image to compare against
+        :type other: :class:`Image`
+        :param colororder: compare ``colororder_str`` values if ``True``, defaults to ``True``
+        :type colororder: bool, optional
+        :return: exact image equality test
+        :rtype: bool
+
+        Unlike ``==``, which returns an element-wise boolean Image,
+        this method returns ``True`` only if:
+
+            * ``other`` is an :class:`Image`
+            * image shape is identical
+            * image dtype is identical
+            * color order is identical (if ``colororder`` is ``True``)
+            * all pixel values are identical
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> a = Image([[1, 2], [3, 4]])
+            >>> b = Image([[1, 2], [3, 4]])
+            >>> a.sameas(b)
+            True
+        """
+        if not isinstance(other, Image):
+            return False
+
+        if self.shape != other.shape:
+            return False
+
+        if self.dtype != other.dtype:
+            return False
+
+        if colororder and self.colororder_str != other.colororder_str:
+            return False
+
+        return bool(np.all((self == other).A))
+
     def __ne__(self, other) -> "Image":
         """
         Overloaded ``!=`` operator
@@ -3557,13 +3601,15 @@ class Image(
         :type end: array_like(2)
         :param kwargs: parameters passed to :func:`~machinevisiontoolbox.base.graphics.draw_line`
 
-        Example, "burn" a line into the Mona Lisa image::
+        Example, "burn" a line into the Mona Lisa image:
 
+            .. code-block:: python
 
-            >>> from machinevisiontoolbox import Image
-            >>> img = Image.Read("monalisa.png")
-            >>> img.draw_line((20,30), (500,600), thickness=5, color="orange")
-            >>> img.disp()
+                from machinevisiontoolbox import Image
+                img = Image.Read("monalisa.png")
+                img.draw_line((20,30), (500,600), thickness=5, color="orange")
+                img.disp()
+
 
         .. plot::
 
@@ -3597,7 +3643,9 @@ class Image(
         :type radius: int
         :param kwargs: parameters passed to :func:`~machinevisiontoolbox.base.graphics.draw_circle`
 
-        Example, "burn" some circles (confetti) into the Mona Lisa::
+        Example, "burn" some circles (confetti) into the Mona Lisa:
+
+            .. code-block:: pycon
 
             >>> from machinevisiontoolbox import Image
             >>> import matplotlib as mpl
@@ -3609,6 +3657,7 @@ class Image(
                     r = np.random.randint(10, 50)
                     img.draw_circle((u, v), r, thickness=-1, color=[255*c for c in color])
             >>> img.disp(img)
+
 
         .. plot::
 
@@ -3641,13 +3690,16 @@ class Image(
 
         There are myriad ways to specify the corners of the box.
 
-        Example, draw boxes over the eyes of the Mona Lisa::
+        Example, draw boxes over the eyes of the Mona Lisa:
 
-            >>> from machinevisiontoolbox import Image
-            >>> img = Image.Read("monalisa.png")
-            >>> img.draw_box(lb=(245,170), rt=(290, 210), color="yellow", thickness=5)
-            >>> img.draw_box(lb=(315, 175), rt=(370,205), color="blue", thickness=-1)
-            >>> img.disp()
+            .. code-block:: python
+
+                from machinevisiontoolbox import Image
+                img = Image.Read("monalisa.png")
+                img.draw_box(lb=(245,170), rt=(290, 210), color="yellow", thickness=5)
+                img.draw_box(lb=(315, 175), rt=(370,205), color="blue", thickness=-1)
+                img.disp()
+
 
         .. plot::
 
@@ -3677,12 +3729,15 @@ class Image(
 
         The box position is specified by the parameters accepted by :func:`~machinevisiontoolbox.base.graphics.draw_box`
 
-        Example::
+        Example:
 
-            >>> from machinevisiontoolbox import Image
-            >>> img = Image.Read("monalisa.png")
-            >>> img.draw_labelbox("Face", lb=(243,111), rt=(394,329), color="yellow", fontheight=20)
-            >>> img.disp()
+            .. code-block:: python
+
+                from machinevisiontoolbox import Image
+                img = Image.Read("monalisa.png")
+                img.draw_labelbox("Face", lb=(243,111), rt=(394,329), color="yellow", fontheight=20)
+                img.disp()
+
 
         .. plot::
 
@@ -3711,12 +3766,15 @@ class Image(
         :type text: str
         :param kwargs: parameters passed to :func:`~machinevisiontoolbox.base.graphics.draw_text`
 
-        Example::
+        Example:
 
-            >>> from machinevisiontoolbox import Image
-            >>> img = Image.Read("monalisa.png")
-            >>> img.draw_text((340,290), "Smile!", fontheight=40, color="yellow")
-            >>> img.disp()
+            .. code-block:: python
+
+                from machinevisiontoolbox import Image
+                img = Image.Read("monalisa.png")
+                img.draw_text((340,290), "Smile!", fontheight=40, color="yellow")
+                img.disp()
+
 
         .. plot::
 
@@ -3959,5 +4017,8 @@ if __name__ == "__main__":
     import pytest
 
     pytest.main(
-        [str(Path(__file__).parent.parent.parent / "tests" / "test_core.py"), "-v"]
+        [
+            str(Path(__file__).parent.parent.parent / "tests" / "test_image_core.py"),
+            "-v",
+        ]
     )

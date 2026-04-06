@@ -437,10 +437,13 @@ if pgraph_installed:
             Example:
 
             To solve the 7-point bundle adjustment problem distributed with
-            SBA 1.6::
+            SBA 1.6:
 
-                >>> ba = Bundle.load_SBA('7cams.txt', '7pts.txt', 'calib.txt')
-                >>> X = ba.optimize()
+                .. code-block:: python
+
+                    ba = Bundle.load_SBA('7cams.txt', '7pts.txt', 'calib.txt')
+                    X = ba.optimize()
+
 
             :reference:
                 - Sparse Bundle Adjustment package by Manolis Lourakis,

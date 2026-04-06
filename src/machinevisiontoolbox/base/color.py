@@ -1103,10 +1103,13 @@ def plot_chromaticity_diagram(
     locus, and internal pixels are an approximation of their true color (at the
     specified ``brightness``).
 
-    Example::
+    Example:
 
-        >>> from machinevisiontoolbox import plot_chromaticity_diagram
-        >>> plot_chromaticity_diagram()  # show filled chromaticity diagram
+        .. code-block:: python
+
+            from machinevisiontoolbox import plot_chromaticity_diagram
+            plot_chromaticity_diagram()  # show filled chromaticity diagram
+
 
     .. plot::
 
@@ -1170,10 +1173,13 @@ def plot_spectral_locus(
     Typically, would be used in conjunction with :func:`plot_chromaticity_diagram`
     to plot chromaticity diagram with labelled boundary.
 
-    Example::
+    Example:
 
-        >>> from machinevisiontoolbox import plot_spectral_locus
-        >>> plot_spectral_locus()  # add the border
+        .. code-block:: python
+
+            from machinevisiontoolbox import plot_spectral_locus
+            plot_spectral_locus()  # add the border
+
 
     .. plot::
 
@@ -1799,7 +1805,7 @@ if __name__ == "__main__":  # pragma: no cover
 
     exec(
         open(
-            os.path.join(pathlib.Path(__file__).parent.absolute(), "test_color.py")
+            os.path.join(pathlib.Path(__file__).parent.absolute(), "test_image_color.py")
         ).read()
     )
 

@@ -324,14 +324,17 @@ class ImageWholeFeaturesMixin(_ImageBase):
         Returns an object that summarizes the distribution of
         pixel values in each color plane.
 
-        Example::
+        Example:
 
-            >>> from machinevisiontoolbox import Image
-            >>> img = Image.Read('street.png')
-            >>> type(hist)
-            >>> hist = img.hist()
-            >>> hist
-            >>> hist.plot()
+            .. code-block:: python
+
+                from machinevisiontoolbox import Image
+                img = Image.Read('street.png')
+                type(hist)
+                hist = img.hist()
+                hist
+                hist.plot()
+
 
         .. plot::
 
@@ -339,13 +342,16 @@ class ImageWholeFeaturesMixin(_ImageBase):
             img = Image.Read('street.png')
             img.hist().plot()
 
-        Example::
+        Example:
 
-            >>> from machinevisiontoolbox import Image
-            >>> img = Image.Read('flowers1.png')
-            >>> hist = img.hist()
-            >>> hist
-            >>> hist.plot(style='stack')
+            .. code-block:: python
+
+                from machinevisiontoolbox import Image
+                img = Image.Read('flowers1.png')
+                hist = img.hist()
+                hist
+                hist.plot(style='stack')
+
 
         .. plot::
 
@@ -353,13 +359,16 @@ class ImageWholeFeaturesMixin(_ImageBase):
             img = Image.Read('flowers1.png')
             img.hist().plot(style='stack')
 
-        Example::
+        Example:
 
-            >>> from machinevisiontoolbox import Image
-            >>> img = Image.Read('flowers1.png')
-            >>> hist = img.hist()
-            >>> hist
-            >>> hist.plot(style='overlay')
+            .. code-block:: python
+
+                from machinevisiontoolbox import Image
+                img = Image.Read('flowers1.png')
+                hist = img.hist()
+                hist
+                hist.plot(style='overlay')
+
 
         .. plot::
 
@@ -1237,7 +1246,7 @@ if __name__ == "__main__":
 
     pytest.main(
         [
-            str(Path(__file__).parent.parent.parent / "tests" / "test_wholefeature.py"),
+            str(Path(__file__).parent.parent.parent / "tests" / "test_image_whole_features.py"),
             "-v",
         ]
     )

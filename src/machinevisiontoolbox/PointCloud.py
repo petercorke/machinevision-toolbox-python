@@ -141,11 +141,14 @@ class PointCloud:
 
         If ``P`` is a :class:`PointCloud` then ``P.name`` invokes
         method ``name`` of the underlying :obj:`open3d.geometry.PointCloud`
-        object.  For example::
+        object.  For example:
 
-            >>> pcfiltered, ind = pc.remove_radius_outlier(radius=0.2, nb_points=100)
-            >>> pc.is_empty()  # invoke is_empty predicate method
-            >>> pc.colors   # get colors attribute
+            .. code-block:: python
+
+                pcfiltered, ind = pc.remove_radius_outlier(radius=0.2, nb_points=100)
+                pc.is_empty()  # invoke is_empty predicate method
+                pc.colors   # get colors attribute
+
 
         .. note::
             - This is a convenience method to avoid having to explicitly all
@@ -592,9 +595,12 @@ class PointCloud:
 
         If ``ind`` is a callable function then it is applied to each column of the
         3xN array of points and the point is included if the function returns True.
-        For example::
+        For example:
 
-            >>> pcd.select(lambda p: p[2] < 2)
+            .. code-block:: python
+
+                pcd.select(lambda p: p[2] < 2)
+
 
         will select all points with a z-coordinate less than 2.
 

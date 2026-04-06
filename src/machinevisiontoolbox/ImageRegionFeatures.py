@@ -509,7 +509,7 @@ if __name__ == "__main__":
             str(
                 Path(__file__).parent.parent.parent
                 / "tests"
-                / "test_region_features.py"
+                / "test_image_region_features.py"
             ),
             "-v",
         ]

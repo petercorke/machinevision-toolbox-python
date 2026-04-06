@@ -98,12 +98,15 @@ class ImageSource(ABC):
         This is particularly useful for :class:`VideoFile` and
         :class:`ZipArchive`.
 
-        Example::
+        Example:
+
+            .. code-block:: pycon
 
             >>> from machinevisiontoolbox import VideoFile
             >>> t = VideoFile("traffic_sequence.mpg").tensor(normalize=None)
             >>> t.shape
             torch.Size([N, 3, H, W])
+
         """
         try:
             import torch as _torch
@@ -378,19 +381,25 @@ class VideoFile(ImageSource):
     in the ``images`` folder of the ``mvtb-data`` package, installed as a
     Toolbox dependency.
 
-    Example::
+    Example:
 
-        >>> from machinevisiontoolbox import VideoFile
-        >>> video = VideoFile("traffic_sequence.mpg")
-        >>> len(video)
-        >>> for im in video:
-        >>>   # process image
+        .. code-block:: python
 
-    or using a context manager to ensure the file handle is always released::
+            from machinevisiontoolbox import VideoFile
+            video = VideoFile("traffic_sequence.mpg")
+            len(video)
+            for im in video:
+              # process image
 
-        >>> with VideoFile("traffic_sequence.mpg") as video:
-        ...     for im in video:
-        ...         # process image
+
+    or using a context manager to ensure the file handle is always released:
+
+        .. code-block:: python
+
+            with VideoFile("traffic_sequence.mpg") as video:
+                for im in video:
+                    # process image
+
 
     :references:
         - |RVC3|, Section 11.1.4.
@@ -476,22 +485,31 @@ class VideoCamera(ImageSource):
     The resulting object is an iterator over the frames from the video
     camera. The iterator returns :class:`Image` objects.
 
-    Example::
+    Example:
 
-        >>> from machinevisiontoolbox import VideoCamera
-        >>> video = VideoCamera(0)
-        >>> for im in video:
-        >>>   # process image
+        .. code-block:: python
 
-    alternatively::
+            from machinevisiontoolbox import VideoCamera
+            video = VideoCamera(0)
+            for im in video:
+              # process image
 
-        >>> img = next(video)
 
-    or using a context manager to ensure the camera is released::
+    alternatively:
 
-        >>> with VideoCamera(0) as camera:
-        ...     for im in camera:
-        ...         # process image
+        .. code-block:: python
+
+            img = next(video)
+
+
+    or using a context manager to ensure the camera is released:
+
+        .. code-block:: python
+
+            with VideoCamera(0) as camera:
+                for im in camera:
+                    # process image
+
 
     .. note:: The value of ``id`` is system specific but generally 0 is the
         first attached video camera.  On a Mac running 13.0 (Ventura) or later and an iPhone with
@@ -744,23 +762,32 @@ class ImageCollection(ImageSource):
     in the ``images`` folder of the ``mvtb-data`` package, installed as a
     Toolbox dependency.
 
-    Example::
+    Example:
 
-        >>> from machinevisiontoolbox import FileColletion
-        >>> images = FileCollection('campus/*.png')
-        >>> len(images)
-        >>> for image in images:  # iterate over images
-        >>>   # process image
+        .. code-block:: python
 
-    alternatively::
+            from machinevisiontoolbox import FileColletion
+            images = FileCollection('campus/*.png')
+            len(images)
+            for image in images:  # iterate over images
+              # process image
 
-        >>> img = files[i]  # load i'th file from the collection
 
-    or using a context manager::
+    alternatively:
 
-        >>> with ImageCollection('campus/*.png') as images:
-        ...     for image in images:
-        ...         # process image
+        .. code-block:: python
+
+            img = files[i]  # load i'th file from the collection
+
+
+    or using a context manager:
+
+        .. code-block:: python
+
+            with ImageCollection('campus/*.png') as images:
+                for image in images:
+                    # process image
+
 
     :references:
         - |RVC3|, Section 11.1.2.
@@ -850,13 +877,16 @@ class ImageSequence(ImageSource):
     nanosecond epoch) and ``topic`` attribute are used for the display overlay
     when present.
 
-    Example::
+    Example:
 
-        >>> from machinevisiontoolbox import RosBag, ImageSequence
-        >>> bag = RosBag("mybag.bag", msgfilter="Image")
-        >>> seq = ImageSequence(bag)
-        >>> seq.disp()                        # step through one frame at a time
-        >>> seq.disp(animate=True, fps=5)     # timed playback
+        .. code-block:: python
+
+            from machinevisiontoolbox import RosBag, ImageSequence
+            bag = RosBag("mybag.bag", msgfilter="Image")
+            seq = ImageSequence(bag)
+            seq.disp()                        # step through one frame at a time
+            seq.disp(animate=True, fps=5)     # timed playback
+
 
     :seealso: :class:`PointCloudSequence`
     """
@@ -920,23 +950,32 @@ class ZipArchive(ImageSource):
     ``"*.png"`` or ``"*.pgm"``.  Note that ``filter`` is a Unix shell style wildcard
     expression, not a Python regexp.
 
-    Example::
+    Example:
 
-        >>> from machinevisiontoolbox import ZipArchive
-        >>> images = ZipArchive('bridge-l.zip')
-        >>> len(images)
-        >>> for image in images:  # iterate over files
-        >>>   # process image
+        .. code-block:: python
 
-    alternatively::
+            from machinevisiontoolbox import ZipArchive
+            images = ZipArchive('bridge-l.zip')
+            len(images)
+            for image in images:  # iterate over files
+              # process image
 
-        >>> image = images[i]  # load i'th file from the archive
 
-    or using a context manager to ensure the archive is closed::
+    alternatively:
 
-        >>> with ZipArchive('bridge-l.zip') as images:
-        ...     for image in images:
-        ...         # process image
+        .. code-block:: python
+
+            image = images[i]  # load i'th file from the archive
+
+
+    or using a context manager to ensure the archive is closed:
+
+        .. code-block:: python
+
+            with ZipArchive('bridge-l.zip') as images:
+                for image in images:
+                    # process image
+
 
     :references:
         - |RVC3|, Section 11.1.2.
@@ -1060,22 +1099,31 @@ class WebCam(ImageSource):
     The resulting object is an iterator over the frames returned from the
     remote camera. The iterator returns :class:`Image` objects.
 
-    Example::
+    Example:
 
-        >>> from machinevisiontoolbox import WebCam
-        >>> webcam = WebCam('https://webcam.dartmouth.edu/webcam/image.jpg')
-        >>> for image in webcam:  # iterate over frames
-        >>>   # process image
+        .. code-block:: python
 
-    alternatively::
+            from machinevisiontoolbox import WebCam
+            webcam = WebCam('https://webcam.dartmouth.edu/webcam/image.jpg')
+            for image in webcam:  # iterate over frames
+              # process image
 
-        >>> img = next(webcam)  # get next frame
 
-    or using a context manager to ensure the connection is released::
+    alternatively:
 
-        >>> with WebCam('https://webcam.dartmouth.edu/webcam/image.jpg') as webcam:
-        ...     for image in webcam:
-        ...         # process image
+        .. code-block:: python
+
+            img = next(webcam)  # get next frame
+
+
+    or using a context manager to ensure the connection is released:
+
+        .. code-block:: python
+
+            with WebCam('https://webcam.dartmouth.edu/webcam/image.jpg') as webcam:
+                for image in webcam:
+                    # process image
+
 
     .. note:: Manu webcameras accept a query string in the URL to specify
         image resolution, image format, codec and other parameters. There
@@ -1182,12 +1230,15 @@ class EarthView(ImageSource):
     ``"roads"``      a binary image which is an occupancy grid, roads are free space
     ===============  ========================================================================
 
-    Example::
+    Example:
 
-        >>> from machinevisiontoolbox import EarthView
-        >>> earth = EarthView()  # create an Earth viewer
-        >>> image = earth(-27.475722, 153.0285, zoom=17 # make a view
-        >>> # process image
+        .. code-block:: python
+
+            from machinevisiontoolbox import EarthView
+            earth = EarthView()  # create an Earth viewer
+            image = earth(-27.475722, 153.0285, zoom=17 # make a view
+            # process image
+
 
     .. warning:: You must have a Google account and a valid key, backed
         by a credit card, to access this service.
@@ -1428,23 +1479,32 @@ class RosTopic(ImageSource):
     In subscribe mode, the object is an iterator that yields :class:`Image`
     instances (``output="image"``) or :class:`RosMessage` instances
     (``output="message"``) as they arrive from the topic.  Use it as a context
-    manager to ensure the connection is always closed::
+    manager to ensure the connection is always closed:
 
-        >>> with RosTopic("/camera/image/compressed", host="192.168.1.10") as stream:
-        ...     for img in stream:
-        ...         img.disp()
+        .. code-block:: python
 
-    alternatively fetch a single frame with :func:`next`::
+            with RosTopic("/camera/image/compressed", host="192.168.1.10") as stream:
+                for img in stream:
+                    img.disp()
 
-        >>> stream = RosTopic("/camera/image/compressed")
-        >>> img = next(stream)
-        >>> stream.release()
 
-    For publish-only use, disable subscription setup and call :meth:`publish`::
+    alternatively fetch a single frame with :func:`next`:
 
-        >>> pub = RosTopic("/cmd_topic", message="std_msgs/String", subscribe=False)
-        >>> pub.publish({"data": "hello"})
-        >>> pub.release()
+        .. code-block:: python
+
+            stream = RosTopic("/camera/image/compressed")
+            img = next(stream)
+            stream.release()
+
+
+    For publish-only use, disable subscription setup and call :meth:`publish`:
+
+        .. code-block:: python
+
+            pub = RosTopic("/cmd_topic", message="std_msgs/String", subscribe=False)
+            pub.publish({"data": "hello"})
+            pub.release()
+
 
     **Message timing**
 
@@ -1846,37 +1906,49 @@ class RosTopic(ImageSource):
         ``sensor_msgs/PointCloud2`` with ``x``, ``y``, ``z`` fields and an
         ``rgb`` field when colour data is present.
 
-        Example publishing a ``std_msgs/String`` message::
+        Example publishing a ``std_msgs/String`` message:
 
-            >>> pub = RosTopic("/cmd_text", message="std_msgs/String", subscribe=False)
-            >>> pub.publish({"data": "hello"})
-            >>> pub.release()
+            .. code-block:: python
 
-        Example publishing a ``geometry_msgs/Twist`` message::
+                pub = RosTopic("/cmd_text", message="std_msgs/String", subscribe=False)
+                pub.publish({"data": "hello"})
+                pub.release()
 
-            >>> pub = RosTopic("/cmd_vel", message="geometry_msgs/Twist", subscribe=False)
-            >>> pub.publish(
-            ...     {
-            ...         "linear": {"x": 0.2, "y": 0.0, "z": 0.0},
-            ...         "angular": {"x": 0.0, "y": 0.0, "z": 0.5},
-            ...     }
-            ... )
-            >>> pub.release()
 
-        Example publishing an :class:`Image` with an explicit timestamp::
+        Example publishing a ``geometry_msgs/Twist`` message:
 
-            >>> img = Image(np.zeros((240, 320, 3), dtype=np.uint8), colororder="RGB")
-            >>> pub = RosTopic("/camera/image_raw", message="sensor_msgs/Image", subscribe=False)
-            >>> pub.publish(img, timestamp_ns=1_700_000_000_123_456_789)
-            >>> pub.release()
+            .. code-block:: python
 
-        Example publishing a :class:`PointCloud` with an explicit timestamp::
+                pub = RosTopic("/cmd_vel", message="geometry_msgs/Twist", subscribe=False)
+                pub.publish(
+                    {
+                        "linear": {"x": 0.2, "y": 0.0, "z": 0.0},
+                        "angular": {"x": 0.0, "y": 0.0, "z": 0.5},
+                    }
+                )
+                pub.release()
 
-            >>> points = np.array([[0.0, 1.0], [0.0, 0.2], [1.0, 1.2]], dtype=np.float32)
-            >>> pc = PointCloud(points)
-            >>> pub = RosTopic("/cloud", message="sensor_msgs/PointCloud2", subscribe=False)
-            >>> pub.publish(pc, timestamp_ns=1_700_000_000_223_456_789)
-            >>> pub.release()
+
+        Example publishing an :class:`Image` with an explicit timestamp:
+
+            .. code-block:: python
+
+                img = Image(np.zeros((240, 320, 3), dtype=np.uint8), colororder="RGB")
+                pub = RosTopic("/camera/image_raw", message="sensor_msgs/Image", subscribe=False)
+                pub.publish(img, timestamp_ns=1_700_000_000_123_456_789)
+                pub.release()
+
+
+        Example publishing a :class:`PointCloud` with an explicit timestamp:
+
+            .. code-block:: python
+
+                points = np.array([[0.0, 1.0], [0.0, 0.2], [1.0, 1.2]], dtype=np.float32)
+                pc = PointCloud(points)
+                pub = RosTopic("/cloud", message="sensor_msgs/PointCloud2", subscribe=False)
+                pub.publish(pc, timestamp_ns=1_700_000_000_223_456_789)
+                pub.release()
+
 
         The topic is advertised lazily on first publish.
         """
@@ -2011,14 +2083,17 @@ class SyncRosStreams:
     ``tolerance`` they are emitted together.  Otherwise it discards the single
     oldest frame and continues.
 
-    Example::
+    Example:
 
-        >>> rgb = RosTopic("/camera/color/image_raw/compressed")
-        >>> depth = RosTopic("/camera/depth/image_rect_raw/compressed")
-        >>> with SyncRosStreams([rgb, depth], tolerance=0.03) as sync:
-        ...     for rgb_im, depth_im in sync:
-        ...         # process aligned pair
-        ...         pass
+        .. code-block:: python
+
+            rgb = RosTopic("/camera/color/image_raw/compressed")
+            depth = RosTopic("/camera/depth/image_rect_raw/compressed")
+            with SyncRosStreams([rgb, depth], tolerance=0.03) as sync:
+                for rgb_im, depth_im in sync:
+                    # process aligned pair
+                    pass
+
 
     **Interaction with ``RosTopic`` blocking mode**
 
@@ -2144,22 +2219,28 @@ class RosBag(ImageSource):
     **Usage modes**
 
     *Implicit* — iterating directly over the object opens and closes the bag
-    file automatically around the loop::
+    file automatically around the loop:
 
-        >>> from machinevisiontoolbox import RosBag
-        >>> for img in RosBag("mybag.bag", release="noetic"):
-        ...     img.disp()
+        .. code-block:: python
+
+            from machinevisiontoolbox import RosBag
+            for img in RosBag("mybag.bag", release="noetic"):
+                img.disp()
+
 
     *Explicit context manager* — use a ``with`` statement when you need to
     make multiple passes over the bag, call helper methods such as
     :meth:`topics` or :meth:`print`, or simply want a guaranteed close even
-    if an exception is raised::
+    if an exception is raised:
 
-        >>> bag = RosBag("mybag.bag", release="noetic", msgfilter=None)
-        >>> with bag:
-        ...     bag.print()                     # inspect topics
-        ...     for msg in bag:                 # iterate messages
-        ...         print(msg.topic, msg.timestamp)
+        .. code-block:: python
+
+            bag = RosBag("mybag.bag", release="noetic", msgfilter=None)
+            with bag:
+                bag.print()                     # inspect topics
+                for msg in bag:                 # iterate messages
+                    print(msg.topic, msg.timestamp)
+
 
     .. note::
         ``filename`` may be an ``http://`` or ``https://`` URL, in which case
@@ -2701,13 +2782,16 @@ class PointCloudSequence:
 
     Requires the ``open3d`` package.
 
-    Example::
+    Example:
 
-        >>> from machinevisiontoolbox import RosBag, PointCloudSequence
-        >>> bag = RosBag("mybag.bag", msgfilter="PointCloud2")
-        >>> seq = PointCloudSequence(bag)
-        >>> seq.disp()                       # step through one cloud at a time
-        >>> seq.disp(animate=True, fps=10)   # timed playback
+        .. code-block:: python
+
+            from machinevisiontoolbox import RosBag, PointCloudSequence
+            bag = RosBag("mybag.bag", msgfilter="PointCloud2")
+            seq = PointCloudSequence(bag)
+            seq.disp()                       # step through one cloud at a time
+            seq.disp(animate=True, fps=10)   # timed playback
+
 
     :seealso: :class:`ImageSequence`
     """
@@ -2968,7 +3052,9 @@ class TensorStack(ImageSource):
         defaults to None
     :type dtype: numpy dtype or None, optional
 
-    Example::
+    Example:
+
+        .. code-block:: pycon
 
         >>> from machinevisiontoolbox import TensorStack
         >>> import torch
@@ -2979,6 +3065,7 @@ class TensorStack(ImageSource):
         >>> img = source[7]  # Returns Image wrapping tensor[7] (zero-copy view)
         >>> for img in source:
         ...     features = extract(img)  # Process each image lazily
+
 
     :seealso: :meth:`Image.Tensor`
     """
@@ -3094,11 +3181,14 @@ class LabelMe:
 
     Rectangle shapes are converted to 4-corner polygons.
 
-    Example::
+    Example:
 
-        >>> from machinevisiontoolbox import LabelMe
-        >>> image, polygons, flags = LabelMe("scene.json").read()
-        >>> len(polygons)
+        .. code-block:: python
+
+            from machinevisiontoolbox import LabelMe
+            image, polygons, flags = LabelMe("scene.json").read()
+            len(polygons)
+
 
     :seealso: :meth:`pixels_mask` :class:`Image.Polygons` :class:`Image`, :class:`Polygon2`
     """

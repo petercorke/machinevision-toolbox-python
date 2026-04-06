@@ -606,10 +606,13 @@ class ImageSpatialMixin:
         consecutive smoothings is the difference of Gaussian which is an
         approximation to the Laplacian of Gaussian.
 
-        Examples::
+        Examples:
 
-            >>> mona = Image.Read("monalisa.png", dtype="float");
-            >>> G, L, scales = mona.scalespace(8, sigma=8);
+            .. code-block:: python
+
+                mona = Image.Read("monalisa.png", dtype="float");
+                G, L, scales = mona.scalespace(8, sigma=8);
+
 
         .. note:: The two image sequences have the same length, the original image is
             not included in the list of smoothed images.
@@ -1554,5 +1557,5 @@ if __name__ == "__main__":
     import pytest
 
     pytest.main(
-        [str(Path(__file__).parent.parent.parent / "tests" / "test_spatial.py"), "-v"]
+        [str(Path(__file__).parent.parent.parent / "tests" / "test_image_spatial.py"), "-v"]
     )

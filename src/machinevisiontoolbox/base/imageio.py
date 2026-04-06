@@ -232,11 +232,14 @@ def idisp(
     be displayed, but the ``draw_xxx()`` functions can be used to draw on the image
     prior to display.
 
-    Example::
+    Example:
 
-        >>> from machinevisiontoolbox import iread, idisp
-        >>> im, file = iread("monalisa.png", matplotlib=False)
-        >>> idisp(im)
+        .. code-block:: python
+
+            from machinevisiontoolbox import iread, idisp
+            im, file = iread("monalisa.png", matplotlib=False)
+            idisp(im)
+
 
     Most of the options apply to the Matplotlib case.
 
@@ -246,11 +249,14 @@ def idisp(
     Other graphics can be superimposed on the image using the Matplotlib plotting
     functions ``plot_xxx()``.
 
-    Example::
+    Example:
 
-        >>> from machinevisiontoolbox import iread, idisp
-        >>> im, file = iread("monalisa.png")
-        >>> idisp(im)
+        .. code-block:: python
+
+            from machinevisiontoolbox import iread, idisp
+            im, file = iread("monalisa.png")
+            idisp(im)
+
 
     .. plot::
 
@@ -1130,12 +1136,15 @@ def iwrite(
     keyword arguments as options.  The file type is taken from the extension in
     ``filename``.
 
-    Example::
+    Example:
 
-        >>> from machinevisiontoolbox import iwrite
-        >>> import numpy as np
-        >>> image = np.zeros((20,20))  # 20x20 black image
-        >>> iwrite(image, "black.png")
+        .. code-block:: python
+
+            from machinevisiontoolbox import iwrite
+            import numpy as np
+            image = np.zeros((20,20))  # 20x20 black image
+            iwrite(image, "black.png")
+
 
     .. note::
         - supports 8-bit greyscale and color images

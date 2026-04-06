@@ -851,14 +851,17 @@ class CameraBase(ABC):
         plotted on the camera's virtual image plane.
         Points are organized as columns of the arrays.
 
-        Example::
+        Example:
 
-            >>> from machinevisiontoolbox import CentralCamera
-            >>> from spatialmath import SE3
-            >>> camera = CentralCamera.Default()
-            >>> camera.plot_point([0.2, 0.3, 2])
-            >>> camera.plot_point([0.2, 0.3, 2], 'r*')
-            >>> camera.plot_point([0.2, 0.3, 2], pose=SE3(0.1, 0, 0))
+            .. code-block:: python
+
+                from machinevisiontoolbox import CentralCamera
+                from spatialmath import SE3
+                camera = CentralCamera.Default()
+                camera.plot_point([0.2, 0.3, 2])
+                camera.plot_point([0.2, 0.3, 2], 'r*')
+                camera.plot_point([0.2, 0.3, 2], pose=SE3(0.1, 0, 0))
+
 
         .. plot::
 
@@ -1016,13 +1019,16 @@ class CameraBase(ABC):
         wire link in the wireframe is approximated by ``nsteps`` points, each of
         which is projected, allowing straight edges to appear curved.
 
-        Example::
+        Example:
 
-            >>> from machinevisiontoolbox import CentralCamera, mkcube
-            >>> from spatialmath import SE3
-            >>> camera = CentralCamera.Default()
-            >>> X, Y, Z = mkcube(0.2, pose=SE3(0, 0, 1), edge=True)
-            >>> camera.plot_wireframe(X, Y, Z, 'k--')
+            .. code-block:: python
+
+                from machinevisiontoolbox import CentralCamera, mkcube
+                from spatialmath import SE3
+                camera = CentralCamera.Default()
+                X, Y, Z = mkcube(0.2, pose=SE3(0, 0, 1), edge=True)
+                camera.plot_wireframe(X, Y, Z, 'k--')
+
 
         .. plot::
 

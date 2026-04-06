@@ -643,5 +643,5 @@ if __name__ == "__main__":
     import pytest
 
     pytest.main(
-        [str(Path(__file__).parent.parent.parent / "tests" / "test_fiducials.py"), "-v"]
+        [str(Path(__file__).parent.parent.parent / "tests" / "test_image_fiducials.py"), "-v"]
     )

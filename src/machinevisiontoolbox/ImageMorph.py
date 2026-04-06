@@ -830,7 +830,7 @@ if __name__ == "__main__":
             str(
                 Path(__file__).parent.parent.parent
                 / "tests"
-                / "test_imageprocessing_morph.py"
+                / "test_image_morph.py"
             ),
             "-v",
         ]

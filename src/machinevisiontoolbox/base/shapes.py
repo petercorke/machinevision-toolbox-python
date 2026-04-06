@@ -173,10 +173,13 @@ def mkcube(
         >>> ax = fig.gca(projection='3d')
         >>> ax.plot_wireframe(*S)
 
-    We can also use MATLAB-like syntax::
+    We can also use MATLAB-like syntax:
 
-        >>> X, Y, Z = mkcube(edge=True)
-        >>> ax.plot_wireframe(X, Y, Z)
+        .. code-block:: python
+
+            X, Y, Z = mkcube(edge=True)
+            ax.plot_wireframe(X, Y, Z)
+
 
     :seealso: :func:`mksphere`, :func:`mkcylinder`
     """
@@ -253,19 +256,25 @@ def mksphere(
     sphere is drawn about the origin but its position can be changed using
     the ``centre`` option.
 
-    Example::
+    Example:
 
-        >>> from machinevisiontoolbox import mksphere
-        >>> import matplotlib.pyplot as plt
-        >>> S = mksphere()
-        >>> fig = plt.figure()
-        >>> ax = fig.gca(projection='3d')
-        >>> ax.plot_wireframe(*S)
+        .. code-block:: python
 
-    We can also use MATLAB-like syntax::
+            from machinevisiontoolbox import mksphere
+            import matplotlib.pyplot as plt
+            S = mksphere()
+            fig = plt.figure()
+            ax = fig.gca(projection='3d')
+            ax.plot_wireframe(*S)
 
-        >>> X, Y, Z = mksphere()
-        >>> ax.plot_wireframe(X, Y, Z)
+
+    We can also use MATLAB-like syntax:
+
+        .. code-block:: python
+
+            X, Y, Z = mksphere()
+            ax.plot_wireframe(X, Y, Z)
+
 
     :seealso: :func:`mkcube`, :func:`mkcylinder`
     """
@@ -323,22 +332,28 @@ def mkcylinder(
     If len(r)>2 then it allows the creation of a more complex shape with radius
     as a function of z.
 
-    Example::
+    Example:
 
-        >>> from machinevisiontoolbox import mkcylinder
-        >>> import matplotlib.pyplot as plt
-        >>> # draw a horizontal diablo shape
-        >>> r = np.linspace(0, 2*pi, 50)
-        >>> S = mkcylinder(r=np.cos(r) + 1.5, symmetric=True, pose=SE3.Rx(pi/2))
-        >>> fig = plt.figure()
-        >>> ax = fig.gca(projection='3d')
-        >>> ax.plot_wireframe(*S)
-        >>> plt.show()
+        .. code-block:: python
 
-    .. note:: We can also use MATLAB-like syntax::
+            from machinevisiontoolbox import mkcylinder
+            import matplotlib.pyplot as plt
+            # draw a horizontal diablo shape
+            r = np.linspace(0, 2*pi, 50)
+            S = mkcylinder(r=np.cos(r) + 1.5, symmetric=True, pose=SE3.Rx(pi/2))
+            fig = plt.figure()
+            ax = fig.gca(projection='3d')
+            ax.plot_wireframe(*S)
+            plt.show()
 
-        >>> X, Y, Z = mkcylinder()
-        >>> ax.plot_wireframe(X, Y, Z)
+
+    .. note:: We can also use MATLAB-like syntax:
+
+        .. code-block:: python
+
+            X, Y, Z = mkcylinder()
+            ax.plot_wireframe(X, Y, Z)
+
 
     :seealso: :func:`mkcube`, :func:`mksphere`
     """

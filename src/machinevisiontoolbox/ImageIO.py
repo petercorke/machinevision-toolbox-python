@@ -544,12 +544,15 @@ class ImageIOMixin(_ImageBase):
         image.  Clicking the corresponding point in the right-hand image
         will display the disparity at the top of the right-hand image.
 
-        Example::
+        Example:
 
-            >>> from machinevisiontoolbox import Image
-            >>> left = Image.Read("rocks2-l.png", reduce=2)
-            >>> right = Image.Read("rocks2-r.png", reduce=2)
-            >>> left.stdisp(right)
+            .. code-block:: python
+
+                from machinevisiontoolbox import Image
+                left = Image.Read("rocks2-l.png", reduce=2)
+                right = Image.Read("rocks2-r.png", reduce=2)
+                left.stdisp(right)
+
 
         .. plot::
 

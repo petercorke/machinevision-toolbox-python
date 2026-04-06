@@ -1242,8 +1242,8 @@ if __name__ == "__main__":
     tests = Path(__file__).parent.parent.parent / "tests"
     pytest.main(
         [
-            str(tests / "test_processing.py"),
-            str(tests / "test_imageprocessing_kernel.py"),
+            str(tests / "test_image_processing.py"),
+            str(tests / "test_image_processing_kernel.py"),
             "-v",
         ]
     )

@@ -185,9 +185,12 @@ class Kernel:
             >>> K = Kernel.Gauss(sigma=2)
             >>> K.shape
 
-        Example::
+        Example:
 
-            >>> Kernel.Gauss(5, 15).disp3d()
+            .. code-block:: python
+
+                Kernel.Gauss(5, 15).disp3d()
+
 
         .. plot::
 
@@ -344,9 +347,12 @@ class Kernel:
             >>> K
             >>> K.print()
 
-        Example::
+        Example:
 
-            >>> Kernel.DoG(5, 15).disp3d()
+            .. code-block:: python
+
+                Kernel.DoG(5, 15).disp3d()
+
 
         .. plot::
 
@@ -416,9 +422,12 @@ class Kernel:
             >>> K
             >>> K.print()
 
-        Example::
+        Example:
 
-            >>> Kernel.LoG(5, 15).disp3d()
+            .. code-block:: python
+
+                Kernel.LoG(5, 15).disp3d()
+
 
         .. plot::
 
@@ -485,9 +494,12 @@ class Kernel:
             >>> K
             >>> K.print()
 
-        Example::
+        Example:
 
-            >>> Kernel.DGauss(5, 15).disp3d()
+            .. code-block:: python
+
+                Kernel.DGauss(5, 15).disp3d()
+
 
         .. plot::
 
@@ -561,12 +573,15 @@ class Kernel:
             >>> Hxx
             >>> Hxx.print()
 
-        Example::
+        Example:
 
-            >>> Hxx, Hyy, Hxy = Kernel.HGauss(5, 15)
-            >>> Hxx.disp3d()
-            >>> Hyy.disp3d()
-            >>> Hxy.disp3d()
+            .. code-block:: python
+
+                Hxx, Hyy, Hxy = Kernel.HGauss(5, 15)
+                Hxx.disp3d()
+                Hyy.disp3d()
+                Hxy.disp3d()
+
 
         .. plot::
 

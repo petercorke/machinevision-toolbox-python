@@ -126,23 +126,35 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> blobs.area
 
         The list can be indexed, sliced or used as an iterator in a for loop
-        or comprehension, for example::
+        or comprehension, for example:
 
-            >>> for blob in blobs:
-            >>>   # do a thing
-            >>> areas = [blob.area for blob in blobs]
+            .. code-block:: python
 
-        However the last line can also be written as::
+                for blob in blobs:
+                  # do a thing
+                areas = [blob.area for blob in blobs]
 
-            >>> areas = blobs.area
 
-        since all methods return a scalar if applied to a single blob::
+        However the last line can also be written as:
 
-            >>> blobs[1].area
+            .. code-block:: python
 
-        or a list if applied to multiple blobs::
+                areas = blobs.area
 
-            >>> blobs.area
+
+        since all methods return a scalar if applied to a single blob:
+
+            .. code-block:: python
+
+                blobs[1].area
+
+
+        or a list if applied to multiple blobs:
+
+            .. code-block:: python
+
+                blobs.area
+
 
         A blob has many attributes:
 
@@ -2165,5 +2177,5 @@ if __name__ == "__main__":
     import pytest
 
     pytest.main(
-        [str(Path(__file__).parent.parent.parent / "tests" / "test_blobs.py"), "-v"]
+        [str(Path(__file__).parent.parent.parent / "tests" / "test_image_blobs.py"), "-v"]
     )

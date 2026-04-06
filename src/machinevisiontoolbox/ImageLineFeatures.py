@@ -283,7 +283,7 @@ if __name__ == "__main__":
     pytest.main(
         [
             str(
-                Path(__file__).parent.parent.parent / "tests" / "test_line_features.py"
+                Path(__file__).parent.parent.parent / "tests" / "test_image_line_features.py"
             ),
             "-v",
         ]

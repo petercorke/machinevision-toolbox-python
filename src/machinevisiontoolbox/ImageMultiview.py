@@ -54,11 +54,14 @@ class ImageMultiviewMixin(_ImageBase):
           number of disparities.  Each fibre DSI[v,u,:] is window similarity
           versus disparity.
 
-        Example::
+        Example:
 
-            >>> rocks_l = Image.Read("rocks2-l.png", reduce=2)
-            >>> rocks_r = Image.Read("rocks2-r.png", reduce=2)
-            >>> disparity, similarity, DSI = rocks_l.stereo_simple(rocks_r, hw=3, drange=[40, 90])
+            .. code-block:: python
+
+                rocks_l = Image.Read("rocks2-l.png", reduce=2)
+                rocks_r = Image.Read("rocks2-r.png", reduce=2)
+                disparity, similarity, DSI = rocks_l.stereo_simple(rocks_r, hw=3, drange=[40, 90])
+
 
         .. note:: The images are assumed to be epipolar aligned.
 
@@ -182,12 +185,15 @@ class ImageMultiviewMixin(_ImageBase):
         Performs subpixel interpolation on the peaks in the DSI to provide disparity
         estimates to a fraction of a pixel.
 
-        Example::
+        Example:
 
-            >>> rocks_l = Image.Read("rocks2-l.png", reduce=2)
-            >>> rocks_r = Image.Read("rocks2-r.png", reduce=2)
-            >>> disparity, similarity, DSI = rocks_l.stereo_simple(rocks_r, hw=3, drange=[40, 90])
-            >>> disparity = Image.DSI_refine(DSI)
+            .. code-block:: python
+
+                rocks_l = Image.Read("rocks2-l.png", reduce=2)
+                rocks_r = Image.Read("rocks2-r.png", reduce=2)
+                disparity, similarity, DSI = rocks_l.stereo_simple(rocks_r, hw=3, drange=[40, 90])
+                disparity = Image.DSI_refine(DSI)
+
 
         :references:
             - |RVC3|, Section 14.4.1.
@@ -256,11 +262,14 @@ class ImageMultiviewMixin(_ImageBase):
         filter parameters are (A, V).  The disparity values within a detected
         speckle are set to that of its enclosing region.
 
-        Example::
+        Example:
 
-            >>> rocks_l = Image.Read("rocks2-l.png", reduce=2)
-            >>> rocks_r = Image.Read("rocks2-r.png", reduce=2)
-            >>> disparity = rocks_l.stereo_BM(rocks_r, hw=3, drange=[40, 90], speckle=(200, 2))
+            .. code-block:: python
+
+                rocks_l = Image.Read("rocks2-l.png", reduce=2)
+                rocks_r = Image.Read("rocks2-r.png", reduce=2)
+                disparity = rocks_l.stereo_BM(rocks_r, hw=3, drange=[40, 90], speckle=(200, 2))
+
 
         .. note:: The images are assumed to be epipolar aligned.
 
@@ -333,11 +342,14 @@ class ImageMultiviewMixin(_ImageBase):
         filter parameters are (A, V).  The disparity values within a detected
         speckle are set to that of its enclosing region.
 
-        Example::
+        Example:
 
-            >>> rocks_l = Image.Read("rocks2-l.png", reduce=2)
-            >>> rocks_r = Image.Read("rocks2-r.png", reduce=2)
-            >>> disparity = rocks_l.stereo_SGBM(rocks_r, hw=3, drange=[40, 90], speckle=(200, 2))
+            .. code-block:: python
+
+                rocks_l = Image.Read("rocks2-l.png", reduce=2)
+                rocks_r = Image.Read("rocks2-r.png", reduce=2)
+                disparity = rocks_l.stereo_SGBM(rocks_r, hw=3, drange=[40, 90], speckle=(200, 2))
+
 
         .. note:: The images are assumed to be epipolar aligned.
 
@@ -403,17 +415,20 @@ class ImageMultiviewMixin(_ImageBase):
         homographies that can be used to rectify the images so that they are
         epipolar aligned.
 
-        Examples::
+        Examples:
 
-            >>> walls_l = Image.Read('walls-l.png', reduce=2)
-            >>> walls_r = Image.Read('walls-r.png', reduce=2)
-            >>> sf_l = walls_l.SIFT()
-            >>> sf_r = walls_r.SIFT()
-            >>> matches = sf_l.match(sf_r);
-            >>> F, resid = matches.estimate(CentralCamera.points2F, method="ransac", confidence=0.95);
-            >>> H_l, H_r = walls_l.rectify_homographies(matches, F)
-            >>> walls_l_rect = walls_l.warp_perspective(H_l)
-            >>> walls_r_rect = walls_r.warp_perspective(H_r)
+            .. code-block:: python
+
+                walls_l = Image.Read('walls-l.png', reduce=2)
+                walls_r = Image.Read('walls-r.png', reduce=2)
+                sf_l = walls_l.SIFT()
+                sf_r = walls_r.SIFT()
+                matches = sf_l.match(sf_r);
+                F, resid = matches.estimate(CentralCamera.points2F, method="ransac", confidence=0.95);
+                H_l, H_r = walls_l.rectify_homographies(matches, F)
+                walls_l_rect = walls_l.warp_perspective(H_l)
+                walls_r_rect = walls_r.warp_perspective(H_r)
+
 
         :references:
             - |RVC3|, Section 14.4.3.
