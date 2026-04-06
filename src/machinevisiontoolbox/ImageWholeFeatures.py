@@ -1013,16 +1013,6 @@ class Histogram:
         :raises ValueError: cannot use overlay style for 1-channel histogram
         """
 
-        # if type == 'histogram':
-        #     plot_histogram(self.xs.flatten(), self.hs.flatten(), block=block,
-        #     xlabel='pixel value', ylabel='number of pixels', **kwargs)
-        # elif type == 'cumulative':
-        #     plot_histogram(self.xs.flatten(), self.cs.flatten(), block=block,
-        #     xlabel='pixel value', ylabel='cumulative number of pixels', **kwargs)
-        # elif type == 'normalized':
-        #     plot_histogram(self.xs.flatten(), self.ns.flatten(), block=block,
-        #     xlabel='pixel value', ylabel='normalized cumulative number of pixels', **kwargs)
-        # fig = plt.figure()
         x = self._x[:]
 
         if type == "frequency":
@@ -1063,8 +1053,9 @@ class Histogram:
                 raise ValueError("cannot use overlay style for monochrome image")
 
         if style == "stack":
-            for i in range(n):
-                ax = plt.subplot(n, 1, i + 1)
+            _, axes = plt.subplots(n, 1)
+            axes = np.atleast_1d(axes)
+            for i, ax in enumerate(axes):
                 if False:
                     # ax.bar(x, y[:, i], width=x[1] - x[0], bottom=0, **kwargs)
                     ax.bar(x, y[:, i])
@@ -1081,11 +1072,11 @@ class Histogram:
                 ax.yaxis.set_major_formatter(
                     ScalarFormatter(useOffset=False, useMathText=True)
                 )
-            ax.set_xlabel("pixel value")
+            axes[-1].set_xlabel("pixel value")
 
         elif style == "overlay":
             x = np.r_[0, x, 255]
-            ax = plt.subplot(1, 1, 1)
+            _, ax = plt.subplots(1, 1)
 
             patchcolor = []
             goodcolors = [c for c in "rgbykcm"]
@@ -1246,7 +1237,11 @@ if __name__ == "__main__":
 
     pytest.main(
         [
-            str(Path(__file__).parent.parent.parent / "tests" / "test_image_whole_features.py"),
+            str(
+                Path(__file__).parent.parent.parent
+                / "tests"
+                / "test_image_whole_features.py"
+            ),
             "-v",
         ]
     )
