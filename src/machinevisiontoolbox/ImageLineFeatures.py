@@ -4,6 +4,8 @@ Detection and description of line features (Hough, LSD) in images.
 
 from __future__ import annotations
 
+from typing import Any
+
 import cv2 as cv
 import matplotlib.pyplot as plt
 import numpy as np
@@ -19,7 +21,7 @@ class ImageLineFeaturesMixin(_ImageBase):
 
     """
 
-    def Hough(self, **kwargs) -> HoughFeature:
+    def Hough(self, **kwargs: Any) -> HoughFeature:
         """
         Find Hough line features
 
@@ -156,7 +158,7 @@ class HoughFeature:
         else:
             return lines[:, 0, :]
 
-    def plot_lines(self, lines: np.ndarray, *args, **kwargs) -> None:
+    def plot_lines(self, lines: np.ndarray, *args: Any, **kwargs: Any) -> None:
         r"""
         Plot Hough lines
 
@@ -242,7 +244,7 @@ class HoughFeature:
         self.A = np.histogram2d(theta, rho, bins=(theta_bins, rho_bins))[0].T
         self.votes = votes
 
-    def plot_accumulator(self, **kwargs) -> None:
+    def plot_accumulator(self, **kwargs: Any) -> None:
         r"""
         Plot the Hough accumulator array
 

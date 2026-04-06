@@ -3,6 +3,7 @@ Visual Bag of Words model for image classification and retrieval.
 """
 
 from collections import Counter
+from typing import Any
 
 import cv2 as cv
 import numpy as np
@@ -13,7 +14,14 @@ from machinevisiontoolbox import Image
 
 # TODO: remove top N% and bottom M% of words by frequency
 class BagOfWords:
-    def __init__(self, images, k=2_000, nstopwords=0, attempts=1, seed=None):
+    def __init__(
+        self,
+        images,
+        k: int = 2_000,
+        nstopwords: int = 0,
+        attempts: int = 1,
+        seed: int | None = None,
+    ) -> None:
         r"""
         Bag of words class
 
@@ -151,7 +159,7 @@ class BagOfWords:
         self._word_freq_vectors = np.column_stack(M)
         self._idf = idf
 
-    def wwfv(self, i=None):
+    def wwfv(self, i: int | None = None) -> np.ndarray:
         """
         Weighted word frequency vector for image
 
@@ -177,7 +185,7 @@ class BagOfWords:
             return self._word_freq_vectors
 
     @property
-    def nimages(self):
+    def nimages(self) -> int:
         """
         Number of images associated in the bag
 
@@ -187,7 +195,7 @@ class BagOfWords:
         return self._nimages
 
     @property
-    def images(self):
+    def images(self) -> Any:
         """
         Images associated with this bag
 
@@ -199,7 +207,7 @@ class BagOfWords:
         return self._images
 
     @property
-    def k(self):
+    def k(self) -> int:
         """
         Number of words in the visual vocabulary
 
@@ -211,7 +219,7 @@ class BagOfWords:
         return self._k
 
     @property
-    def words(self):
+    def words(self) -> np.ndarray:
         """
         Word labels for every feature
 
@@ -227,7 +235,7 @@ class BagOfWords:
 
     # TODO better name for above
 
-    def word(self, f):
+    def word(self, f: int) -> int:
         """
         Word labels for original feature
 
@@ -239,7 +247,7 @@ class BagOfWords:
         return self._labels[f]
 
     @property
-    def nwords(self):
+    def nwords(self) -> int:
         """
         Number of usable words
 
@@ -253,7 +261,7 @@ class BagOfWords:
         return self._k - self._nstopwords
 
     @property
-    def nstopwords(self):
+    def nstopwords(self) -> int:
         """
         Number of stop words
 
@@ -265,7 +273,7 @@ class BagOfWords:
         return self._nstopwords
 
     @property
-    def firststop(self):
+    def firststop(self) -> int:
         """
         First stop word
 
@@ -275,7 +283,7 @@ class BagOfWords:
         return self.k - self._nstopwords
 
     @property
-    def centroids(self):
+    def centroids(self) -> np.ndarray:
         """
         Word feature centroids
 
@@ -295,15 +303,15 @@ class BagOfWords:
         """
         return self._centroids
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self)
 
-    def __str__(self):
+    def __str__(self) -> str:
         s = f"BagOfWords: {len(self.words)} features from {self.nimages} images"
         s += f", {self.nwords} words, {self.nstopwords} stop words"
         return s
 
-    def _remove_stopwords(self, verbose=True):
+    def _remove_stopwords(self, verbose: bool = True) -> None:
         # BagOfWords.remove_stop Remove stop words
         #
         # B.remove_stop(N) removes the N most frequent words (the stop words)
@@ -352,7 +360,7 @@ class BagOfWords:
         # rearrange the cluster centroids
         self._centroids = self._centroids[map]
 
-    def similarity(self, query):
+    def similarity(self, query) -> np.ndarray:
         """
         Compute similarity between bag of words and query
 
@@ -430,13 +438,13 @@ class BagOfWords:
             sim = sim[0, :]
         return sim
 
-    def retrieve(self, images):
+    def retrieve(self, images) -> tuple[int, float]:
 
         S = self.similarity(images).ravel()
         k = np.argmax(S)
         return k, S[k]
 
-    def features(self, word):
+    def features(self, word: int) -> BaseFeature2D:
         """
         Get features corresponding to word
 
@@ -451,7 +459,7 @@ class BagOfWords:
         """
         return self._features[self.words == word]
 
-    def occurrence(self, word):
+    def occurrence(self, word: int) -> int:
         """
         Number of occurrences of specified word
 
@@ -463,7 +471,7 @@ class BagOfWords:
         return np.sum(self.words == word)
 
     @staticmethod
-    def _word_freq_vector(words, maxwords):
+    def _word_freq_vector(words, maxwords: int) -> np.ndarray:
         # create columns of the W
         unique, unique_counts = np.unique(words, return_counts=True)
         # [w,f] = count_unique(words)
@@ -471,7 +479,7 @@ class BagOfWords:
         v[unique] = unique_counts
         return v
 
-    def wordfreq(self):
+    def wordfreq(self) -> tuple[np.ndarray, np.ndarray]:
         """
         Get visual word frequency
 
@@ -488,7 +496,7 @@ class BagOfWords:
         # elements of N are the number of occurrences of that word.
         return np.unique(self.words, return_counts=True)
 
-    def closest(self, S, i):
+    def closest(self, S: np.ndarray, i: int) -> tuple[np.ndarray, np.ndarray]:
         """
         Find closest image
 
@@ -506,7 +514,7 @@ class BagOfWords:
 
         return index, s[index]
 
-    def contains(self, word):
+    def contains(self, word: int) -> np.ndarray:
         """
         Images that contain specified word
 
@@ -520,7 +528,14 @@ class BagOfWords:
         return np.unique(self._image_id[self.words == word])
 
     def exemplars(
-        self, word, images=None, maxperimage=2, columns=10, max=None, width=50, **kwargs
+        self,
+        word: int,
+        images=None,
+        maxperimage: int = 2,
+        columns: int = 10,
+        max: int | None = None,
+        width: int = 50,
+        **kwargs,
     ):
         """
         Composite image containing exemplars of specified word

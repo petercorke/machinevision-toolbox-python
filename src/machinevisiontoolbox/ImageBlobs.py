@@ -8,6 +8,7 @@ import sys
 import tempfile
 import webbrowser
 from collections import UserList, namedtuple
+from typing import Any
 
 import cv2 as cv
 import matplotlib.pyplot as plt
@@ -49,7 +50,7 @@ class Blob:
     vc = None
     level = None
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Constructor for Blob class
 
         A :class:`Blob` instance is a simple container for the parameters
@@ -60,7 +61,7 @@ class Blob:
         """
         return
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Create a compact string representation of the Blob object
 
         :return: compact string representation
@@ -68,10 +69,10 @@ class Blob:
         """
         return f"Blob[{self.id}](area={self.moments.m00:.2g}, color={self.color}, parent={self.parent.id if self.parent else None}"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self)
 
-    def print(self):
+    def print(self) -> str:
         """Create a detailed string representation of the Blob object
 
         :return: detailed string representation
@@ -86,7 +87,13 @@ class Blob:
 class Blobs(UserList):  # lgtm[py/missing-equals]
     _image = []  # keep image saved for each Blobs object
 
-    def __init__(self, image=None, kulpa=True, binaryImage=False, **kwargs):
+    def __init__(
+        self,
+        image: Any = None,
+        kulpa: bool = True,
+        binaryImage: bool = False,
+        **kwargs: Any,
+    ) -> None:
         """
         Find blobs and compute their attributes
 
@@ -433,7 +440,14 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         return
 
-    def filter(self, area=None, circularity=None, color=None, touch=None, aspect=None):
+    def filter(
+        self,
+        area: Any = None,
+        circularity: Any = None,
+        color: bool | None = None,
+        touch: bool | None = None,
+        aspect: Any = None,
+    ) -> "Blobs":
         """
         Filter blobs
 
@@ -524,7 +538,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         return self[m]
 
-    def sort(self, by="area", reverse=False):
+    def sort(self, by: str = "area", reverse: bool = False) -> "Blobs":
         """
         Sort blobs
 
@@ -578,7 +592,9 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         return self[k]
 
-    def __getitem__(self, i):
+    def __getitem__(
+        self, i: int | slice | list[int] | tuple[int, ...] | np.ndarray
+    ) -> "Blobs":
         new = Blobs()
         new._image = self._image
 
@@ -599,7 +615,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
                 new.data = [self.data[k] for k in range(len(i)) if i[k]]
         return new
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         # s = "" for i, blob in enumerate(self): s += f"{i}:
         # area={blob.area:.1f} @ ({blob.uc:.1f}, {blob.vc:.1f}),
         # touch={blob.touch}, orient={blob.orientation * 180 / np.pi:.1f}°,
@@ -637,7 +653,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
     @property
     @scalar_result
-    def area(self):
+    def area(self) -> Any:
         """
         Area of the blob
 
@@ -658,7 +674,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
     @property
     @scalar_result
-    def u(self):
+    def u(self) -> Any:
         """
         u-coordinate of the blob centroid
 
@@ -681,7 +697,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
     @property
     @scalar_result
-    def v(self):
+    def v(self) -> Any:
         """
         v-coordinate of the blob centroid
 
@@ -704,7 +720,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
     @property
     @array_result
-    def centroid(self):
+    def centroid(self) -> Any:
         """
         Centroid of blob
 
@@ -727,7 +743,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
     @property
     @array_result
-    def p(self):
+    def p(self) -> Any:
         """
         Centroid point of blob
 
@@ -750,7 +766,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
     @property
     @array_result
-    def bbox(self):
+    def bbox(self) -> Any:
         """
         Bounding box
 
@@ -778,7 +794,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
     @property
     @scalar_result
-    def umin(self):
+    def umin(self) -> Any:
         """
         Minimum u-axis extent
 
@@ -803,7 +819,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
     @property
     @scalar_result
-    def umax(self):
+    def umax(self) -> Any:
         """
         Maximum u-axis extent
 
@@ -828,7 +844,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
     @property
     @scalar_result
-    def vmin(self):
+    def vmin(self) -> Any:
         """
         Maximum v-axis extent
 
@@ -853,7 +869,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
     @property
     @scalar_result
-    def vmax(self):
+    def vmax(self) -> Any:
         """
         Minimum v-axis extent
 
@@ -878,7 +894,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
     @property
     @scalar_result
-    def bboxarea(self):
+    def bboxarea(self) -> Any:
         """
         Area of the bounding box
 
@@ -907,7 +923,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
     @property
     @scalar_result
-    def fillfactor(self):
+    def fillfactor(self) -> Any:
         r"""
         Fill factor, ratio of area to bounding box area
 
@@ -937,7 +953,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
     @property
     @scalar_result
-    def a(self):
+    def a(self) -> Any:
         """
         Radius of equivalent ellipse
 
@@ -963,7 +979,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
     @property
     @scalar_result
-    def b(self):
+    def b(self) -> Any:
         """
         Radius of equivalent ellipse
 
@@ -989,7 +1005,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
     @property
     @scalar_result
-    def aspect(self):
+    def aspect(self) -> Any:
         r"""
         Blob aspect ratio
 
@@ -1015,7 +1031,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
     @property
     @scalar_result
-    def orientation(self):
+    def orientation(self) -> Any:
         """
         Blob orientation
 
@@ -1039,7 +1055,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
     @property
     @scalar_result
-    def touch(self):
+    def touch(self) -> Any:
         """
         Blob edge touch status
 
@@ -1062,7 +1078,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
     @property
     @scalar_result
-    def level(self):
+    def level(self) -> Any:
         """
         Blob level in hierarchy
 
@@ -1085,7 +1101,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
     @property
     @scalar_result
-    def color(self):
+    def color(self) -> Any:
         """
         Blob color
 
@@ -1112,7 +1128,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
     @property
     @scalar_result
-    def parent(self):
+    def parent(self) -> Any:
         """
         Parent blob
 
@@ -1138,7 +1154,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
     @property
     @scalar_result
-    def id(self):
+    def id(self) -> Any:
         """
         Blob id number
 
@@ -1163,7 +1179,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
     @property
     @array_result
-    def children(self):
+    def children(self) -> Any:
         """
         Child blobs
 
@@ -1184,7 +1200,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
     @property
     @array_result
-    def moments(self):
+    def moments(self) -> Any:
         """
         Moments of blobs
 
@@ -1217,7 +1233,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         return [b.moments for b in self.data]
 
     @array_result
-    def humoments(self):
+    def humoments(self) -> Any:
         """
         Hu image moment invariants of blobs
 
@@ -1241,7 +1257,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         :seealso: :meth:`moments`
         """
 
-        def hu(b):
+        def hu(b: Any) -> np.ndarray:
             m = b.moments
             phi = np.empty((7,))
             phi[0] = m.nu20 + m.nu02
@@ -1267,7 +1283,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
     @property
     @scalar_result
-    def perimeter_length(self):
+    def perimeter_length(self) -> Any:
         """
         Perimeter length of the blob
 
@@ -1297,7 +1313,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
     @property
     @scalar_result
-    def circularity(self):
+    def circularity(self) -> Any:
         r"""
         Blob circularity
 
@@ -1335,7 +1351,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
     @property
     @array_result
-    def perimeter(self):
+    def perimeter(self) -> Any:
         """
         Perimeter of the blob
 
@@ -1375,7 +1391,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         return [b.perimeter for b in self.data]
 
     @array_result
-    def perimeter_approx(self, epsilon=None):
+    def perimeter_approx(self, epsilon: int | None = None) -> Any:
         """
         Approximate perimeter of blob
 
@@ -1443,7 +1459,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         return perimeters
 
     @array_result
-    def perimeter_hull(self, clockwise=True):
+    def perimeter_hull(self, clockwise: bool = True) -> Any:
         """
         Convex hull of blob's perimeter
 
@@ -1505,7 +1521,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         return perimeters
 
     @array_result
-    def polar(self, N=400):
+    def polar(self, N: int = 400) -> Any:
         r"""
         Boundary in polar coordinate form
 
@@ -1535,7 +1551,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         :seealso: :meth:`polarmatch` :meth:`perimeter`
         """
 
-        def polarfunc(b):
+        def polarfunc(b: Any) -> tuple[np.ndarray, np.ndarray]:
             contour = np.array(b.perimeter) - np.c_[b.p].T
 
             r = np.sqrt(np.sum(contour**2, axis=0))
@@ -1551,7 +1567,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         return [polarfunc(b) for b in self]
 
-    def polarmatch(self, target):
+    def polarmatch(self, target: int) -> tuple[list[float], np.ndarray]:
         r"""
         Compare polar profiles
 
@@ -1611,7 +1627,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         idx = np.argmax(out, axis=1)
         return [out[k, idx[k]] for k in range(len(self))], idx / n
 
-    def plot_box(self, **kwargs):
+    def plot_box(self, **kwargs: Any) -> None:
         """
         Plot a bounding box for the blob using Matplotlib
 
@@ -1643,7 +1659,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         for blob in self:
             plot_box(lrbt=blob.bbox, **kwargs)
 
-    def plot_labelbox(self, label=None, **kwargs):
+    def plot_labelbox(self, label: str | None = None, **kwargs: Any) -> None:
         """
         Plot a labelled bounding box of blobs using Matplotlib
 
@@ -1683,7 +1699,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
                 text = label
             plot_labelbox(text=text, lrbt=blob.bbox, **kwargs)
 
-    def plot_centroid(self, label=False, **kwargs):
+    def plot_centroid(self, label: bool = False, **kwargs: Any) -> None:
         """
         Plot the centroid of blobs using Matplotlib
 
@@ -1728,8 +1744,12 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             plot_point(pos=blob.centroid, text=text.format(i), **kwargs)
 
     def plot_perimeter(
-        self, show: str = "full", epsilon=None, clockwise=True, **kwargs
-    ):
+        self,
+        show: str = "full",
+        epsilon: int | None = None,
+        clockwise: bool = True,
+        **kwargs: Any,
+    ) -> None:
         """
         Plot the perimeter of blobs using Matplotlib
 
@@ -1777,7 +1797,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         for perim in perims:
             plt.plot(perim[0], perim[1], **kwargs)
 
-    def plot_ellipse(self, **kwargs):
+    def plot_ellipse(self, **kwargs: Any) -> None:
         """
         Plot the equivalent ellipses of blobs using Matplotlib
 
@@ -1817,7 +1837,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
                 4 * J / m.m00, centre=blob.centroid, inverted=True, **kwargs
             )
 
-    def blob_frame(self):
+    def blob_frame(self) -> SE2:
         """
         Transformation from blob coordinate frame to image frame
 
@@ -1844,7 +1864,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             frames.append(SE2(*blob.centroid, blob.orientation))
         return frames
 
-    def plot_axes(self, **kwargs):
+    def plot_axes(self, **kwargs: Any) -> None:
         """
         Plot equivalent ellipse axes of blobs using Matplotlib
 
@@ -1897,7 +1917,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             plt.plot(p[0, :], p[1, :], **kwargs)
 
     @array_result
-    def aligned_box(self):
+    def aligned_box(self) -> Any:
         """
         Compute rectangle aligned with ellipse axes for blobs
 
@@ -1951,7 +1971,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         return boxes
 
-    def plot_aligned_box(self, **kwargs):
+    def plot_aligned_box(self, **kwargs: Any) -> None:
         """
         Plot aligned rectangles of blobs using Matplotlib
 
@@ -1988,7 +2008,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         for box in boxes:
             base.plot_polygon(box[2], close=True, **kwargs)
 
-    def label_image(self, image=None):
+    def label_image(self, image: Any = None) -> Any:
         """
         Create label image from blobs
 
@@ -2045,7 +2065,9 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         return image.__class__(labels)
 
-    def dotfile(self, filename=None, direction=None, show=False):
+    def dotfile(
+        self, filename: Any = None, direction: str | None = None, show: bool = False
+    ) -> None:
         """
         Create a GraphViz dot file
 
@@ -2105,7 +2127,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
 
 class ImageBlobsMixin:
-    def blobs(self, **kwargs):
+    def blobs(self, **kwargs) -> Blobs:
         """
         Find and describe blobs in image
 

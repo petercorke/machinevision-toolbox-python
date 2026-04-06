@@ -42,7 +42,7 @@ _MISSING = object()
 
 def _getshape(
     cls,
-    w: int | None,
+    w: int | Sequence[int] | None,
     h: int | None,
     colororder: str | None,
     size: Sequence[int] | None,
@@ -61,7 +61,7 @@ def _getshape(
         if isinstance(w, (tuple, list)):
             h = w[1]
             w = w[0]
-        else:
+        elif isinstance(w, int):
             h = w
 
     if w is None or h is None:
@@ -318,7 +318,12 @@ class ImageConstantsMixin:
             return cls(np.full(shape, value, dtype=dtype))
 
     @classmethod
-    def String(cls, *planes, colororder=None, **kwargs):
+    def String(
+        cls,
+        *planes: str,
+        colororder: str | None = None,
+        **kwargs: Any,
+    ) -> Self:
         """
         Create a small image from text string
 
@@ -435,7 +440,13 @@ class ImageConstantsMixin:
         return cls(pixels, colororder=colororder, **kwargs)
 
     @classmethod
-    def Random(cls, size, colororder=None, dtype: Dtype = "uint8", maxval=None):
+    def Random(
+        cls,
+        size: int | Sequence[int],
+        colororder: str | None = None,
+        dtype: Dtype = "uint8",
+        maxval: int | float | None = None,
+    ):
         """
         Create image with random pixel values
 
@@ -920,7 +931,7 @@ class ImageConstantsMixin:
     @classmethod
     def Polygons(
         cls,
-        polygons,
+        polygons: Polygon2 | list[Polygon2] | tuple[Polygon2, ...],
         *,
         size: int | Sequence[int] | None = None,
         color: Any = 1,

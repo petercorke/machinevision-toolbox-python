@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import sys
 import time
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import cv2 as cv
 import numpy as np
@@ -57,7 +57,7 @@ class ImageMorphMixin(_ImageBase):
         n: int = 1,
         border: str = "replicate",
         bordervalue: float = 0,
-        **kwargs,
+        **kwargs: Any,
     ) -> Self:
         """
         Morphological erosion
@@ -154,7 +154,7 @@ class ImageMorphMixin(_ImageBase):
         n: int = 1,
         border: str = "replicate",
         bordervalue: float = 0,
-        **kwargs,
+        **kwargs: Any,
     ) -> Self:
         """
         Morphological dilation
@@ -248,7 +248,7 @@ class ImageMorphMixin(_ImageBase):
         n: int = 1,
         border: str = "replicate",
         bordervalue: float = 0,
-        **kwargs,
+        **kwargs: Any,
     ) -> Self:
         """
         Morphological neighbourhood processing
@@ -367,7 +367,7 @@ class ImageMorphMixin(_ImageBase):
         n: int = 1,
         border: str = "replicate",
         bordervalue: float = 0,
-        **kwargs,
+        **kwargs: Any,
     ) -> Self:
         """
         Morphological opening
@@ -457,7 +457,7 @@ class ImageMorphMixin(_ImageBase):
         n: int = 1,
         border: str = "replicate",
         bordervalue: float = 0,
-        **kwargs,
+        **kwargs: Any,
     ) -> Self:
         """
         Morphological closing
@@ -542,7 +542,7 @@ class ImageMorphMixin(_ImageBase):
         s2: np.ndarray | None = None,
         border: str = "replicate",
         bordervalue: float = 0,
-        **kwargs,
+        **kwargs: Any,
     ) -> Self:
         r"""
         Hit or miss transform
@@ -609,7 +609,7 @@ class ImageMorphMixin(_ImageBase):
         out = cv.morphologyEx(src=img_array, op=cv.MORPH_HITMISS, kernel=s1)
         return self.__class__(out, dtype=self.dtype)
 
-    def thin(self, **kwargs) -> Self:
+    def thin(self, **kwargs: Any) -> Self:
         """
         Morphological skeletonization
 
@@ -662,7 +662,7 @@ class ImageMorphMixin(_ImageBase):
 
         return self.__class__(o, dtype=self.dtype)
 
-    def thin_animate(self, delay: float = 0.5, **kwargs) -> Self:
+    def thin_animate(self, delay: float = 0.5, **kwargs: Any) -> Self:
         """
         Morphological skeletonization with animation
 
@@ -721,7 +721,7 @@ class ImageMorphMixin(_ImageBase):
 
         return self.__class__(o, dtype=self.dtype)
 
-    def endpoint(self, **kwargs) -> Self:
+    def endpoint(self, **kwargs: Any) -> Self:
         """
         Find end points on a binary skeleton image
 
@@ -766,7 +766,7 @@ class ImageMorphMixin(_ImageBase):
 
         return self.__class__(out, dtype=self.dtype)
 
-    def triplepoint(self, **kwargs) -> Self:
+    def triplepoint(self, **kwargs: Any) -> Self:
         """
         Find triple points
 

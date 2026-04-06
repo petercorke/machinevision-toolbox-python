@@ -109,6 +109,22 @@ class TestImageSources(unittest.TestCase):
             count += 1
         self.assertEqual(count, 350)
 
+    def test_videofile_next_cold_start(self):
+        """VideoFile supports next() without explicit iter()."""
+        v = VideoFile("traffic_sequence.mp4")
+        im = next(v)
+        self.assertIsInstance(im, Image)
+
+    def test_imagesequence_next(self):
+        """ImageSequence supports next() directly and via iteration."""
+        from machinevisiontoolbox import ImageSequence
+
+        images = ImageCollection("campus/*.png")
+        seq = ImageSequence(images[:3])
+        first = next(seq)
+        self.assertIsInstance(first, Image)
+        self.assertEqual(len(list(seq)), 3)
+
     @pytest.mark.skipif(not _torch_available, reason="PyTorch not installed")
     def test_imagesource_tensor_dtype_option(self):
         """ImageSource.tensor(dtype=...) returns requested tensor dtype."""
@@ -201,6 +217,16 @@ class TestTensorStack(unittest.TestCase):
         for img in images:
             self.assertIsInstance(img, Image)
             self.assertEqual(img.shape, (32, 32, 3))
+
+    def test_tensorstack_next(self):
+        """TensorStack supports next() directly."""
+        batch = torch.randn(2, 3, 16, 16)
+        from machinevisiontoolbox import TensorStack
+
+        ts = TensorStack(batch, colororder="RGB")
+        img = next(ts)
+        self.assertIsInstance(img, Image)
+        self.assertEqual(img.shape, (16, 16, 3))
 
     def test_tensorstack_mask_2d(self):
         """logits=True with 3D tensor does argmax on channel dim."""

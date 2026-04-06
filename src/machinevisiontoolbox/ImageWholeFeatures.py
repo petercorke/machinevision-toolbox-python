@@ -23,7 +23,7 @@ class ImageWholeFeaturesMixin(_ImageBase):
 
     # ------------------ scalar statistics ----------------------------- #
 
-    def sum(self, *args, **kwargs) -> int | float:
+    def sum(self, *args: Any, **kwargs: Any) -> int | float:
         r"""
         Sum of all pixels
 
@@ -62,7 +62,7 @@ class ImageWholeFeaturesMixin(_ImageBase):
         """
         return np.nansum(self._A, *args, **kwargs)
 
-    def min(self, *args, **kwargs) -> int | float:
+    def min(self, *args: Any, **kwargs: Any) -> int | float:
         """
         Minimum value of all pixels
 
@@ -91,7 +91,7 @@ class ImageWholeFeaturesMixin(_ImageBase):
         """
         return np.nanmin(self._A, *args, **kwargs)
 
-    def max(self, *args, **kwargs) -> int | float:
+    def max(self, *args: Any, **kwargs: Any) -> int | float:
         """
         Maximum value of all pixels
 
@@ -120,7 +120,7 @@ class ImageWholeFeaturesMixin(_ImageBase):
         """
         return np.nanmax(self._A, *args, **kwargs)
 
-    def mean(self, *args, **kwargs) -> float:
+    def mean(self, *args: Any, **kwargs: Any) -> float:
         """
         Mean value of all pixels
 
@@ -149,7 +149,7 @@ class ImageWholeFeaturesMixin(_ImageBase):
         """
         return np.nanmean(self._A, *args, **kwargs)
 
-    def std(self, *args, **kwargs) -> float | np.ndarray:
+    def std(self, *args: Any, **kwargs: Any) -> float | np.ndarray:
         """
         Standard deviation of all pixels
 
@@ -181,7 +181,7 @@ class ImageWholeFeaturesMixin(_ImageBase):
             return float(result)
         return result
 
-    def var(self, *args, **kwargs) -> float | np.ndarray:
+    def var(self, *args: Any, **kwargs: Any) -> float | np.ndarray:
         """
         Variance of all pixels
 
@@ -213,7 +213,7 @@ class ImageWholeFeaturesMixin(_ImageBase):
             return float(result)
         return result
 
-    def median(self, *args, **kwargs) -> int | float:
+    def median(self, *args: Any, **kwargs: Any) -> int | float:
         """
         Median value of all pixels
 
@@ -268,7 +268,7 @@ class ImageWholeFeaturesMixin(_ImageBase):
         :seealso: :meth:`hist` :meth:`min` :meth:`max` :meth:`mean` :meth:`std` :meth:`median`
         """
 
-        def plane_stats(plane):
+        def plane_stats(plane: np.ndarray) -> dict[str, float | int]:
             return {
                 "min": float(np.nanmin(plane)),
                 "max": float(np.nanmax(plane)),
@@ -279,7 +279,7 @@ class ImageWholeFeaturesMixin(_ImageBase):
                 "inf": int(np.sum(np.isinf(plane))),
             }
 
-        def printstats(plane):
+        def printstats(plane: np.ndarray) -> None:
             stats = plane_stats(plane)
             s = (
                 f"range={stats['min']:g} - {stats['max']:g}; "
@@ -477,7 +477,7 @@ class ImageWholeFeaturesMixin(_ImageBase):
         """
         return self.hist().ncdf
 
-    def peaks(self, **kwargs) -> np.ndarray | list[np.ndarray]:
+    def peaks(self, **kwargs: Any) -> np.ndarray | list[np.ndarray]:
         """
         Histogram peaks
 
@@ -709,7 +709,7 @@ class ImageWholeFeaturesMixin(_ImageBase):
 
     # ------------------ pixel values --------------------------------- #
 
-    def nonzero(self):
+    def nonzero(self) -> np.ndarray:
         """
         Find non-zero pixel values as 2D coordinates
 
@@ -736,7 +736,7 @@ class ImageWholeFeaturesMixin(_ImageBase):
         v, u = np.nonzero(self._A)
         return np.vstack((u, v))
 
-    def flatnonzero(self):
+    def flatnonzero(self) -> np.ndarray:
         """
         Find non-zero pixel values as 1D indices
 
@@ -761,7 +761,13 @@ class ImageWholeFeaturesMixin(_ImageBase):
         """
         return np.flatnonzero(self._A)
 
-    def peak2d(self, npeaks=2, scale=1, interp=False, positive=True):
+    def peak2d(
+        self,
+        npeaks: int = 2,
+        scale: int = 1,
+        interp: bool = False,
+        positive: bool = True,
+    ) -> tuple[np.ndarray, np.ndarray]:
         r"""
         Find local maxima in image
 
@@ -805,7 +811,7 @@ class ImageWholeFeaturesMixin(_ImageBase):
 
 
 class Histogram:
-    def __init__(self, h, x, isfloat=False):
+    def __init__(self, h: np.ndarray, x: np.ndarray, isfloat: bool = False) -> None:
         """
         Create histogram instance
 
@@ -832,7 +838,7 @@ class Histogram:
         self.colordict: dict[str, int] | None = None
         # 'hist', 'h cdf normcdf x')
 
-    def __str__(self):
+    def __str__(self) -> str:
         """
         Histogram summary as a string
 
@@ -854,7 +860,7 @@ class Histogram:
         s += f": xrange {self.x[0]} - {self.x[-1]}, yrange {np.min(self._h)} - {np.max(self.h)}"
         return s
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """
         Print histogram summary
 
@@ -873,7 +879,7 @@ class Histogram:
         return str(self)
 
     @property
-    def x(self):
+    def x(self) -> np.ndarray:
         """
         Histogram bin values
 
@@ -895,7 +901,7 @@ class Histogram:
         return self._x
 
     @property
-    def h(self):
+    def h(self) -> np.ndarray:
         """
         Histogram count values
 
@@ -918,7 +924,7 @@ class Histogram:
         return self._h
 
     @property
-    def cdf(self):
+    def cdf(self) -> np.ndarray:
         """
         Cumulative histogram values
 
@@ -941,7 +947,7 @@ class Histogram:
         return np.cumsum(self._h, axis=0)
 
     @property
-    def ncdf(self):
+    def ncdf(self) -> np.ndarray:
         """
         Normalized cumulative histogram values
 
@@ -1105,7 +1111,7 @@ class Histogram:
             set_window_title(title)
         plt.show(block=block)
 
-    def peaks(self, **kwargs):
+    def peaks(self, **kwargs: Any) -> np.ndarray | list[np.ndarray]:
         """
         Histogram peaks
 

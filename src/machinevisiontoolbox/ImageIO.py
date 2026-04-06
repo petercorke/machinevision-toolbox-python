@@ -5,9 +5,16 @@ Image file and URL reading/writing, and image-sequence iteration.
 import fnmatch
 import os
 import os.path
+import sys
 import zipfile
 from collections import namedtuple
 from pathlib import Path
+from typing import Any
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
 
 import PIL.Image
 from PIL.ExifTags import TAGS
@@ -39,7 +46,13 @@ class ImageIOMixin(_ImageBase):
     # ======================= image i/io ================================== #
 
     @classmethod
-    def Read(cls, filename, alpha=False, rgb=True, **kwargs):
+    def Read(
+        cls,
+        filename: str | Path,
+        alpha: bool = False,
+        rgb: bool = True,
+        **kwargs: Any,
+    ) -> Self:
         """
         Read image from file
 
@@ -99,7 +112,9 @@ class ImageIOMixin(_ImageBase):
         elif isinstance(data, list):
             raise ValueError("wildcard read not support, use FileCollection instead")
 
-    def disp(self, title=None, **kwargs):
+        raise TypeError("unexpected result type from iread")
+
+    def disp(self, title: str | bool | None = None, **kwargs: Any) -> Any:
         """
         Display image
 
@@ -144,7 +159,9 @@ class ImageIOMixin(_ImageBase):
             self._A, title=title, colororder="RGB" if self.isrgb else "BGR", **kwargs
         )
 
-    def write(self, filename, dtype: Dtype = "uint8", **kwargs):
+    def write(
+        self, filename: str | Path, dtype: Dtype = "uint8", **kwargs: Any
+    ) -> bool:
         """
         Write image to file
 
@@ -178,7 +195,7 @@ class ImageIOMixin(_ImageBase):
 
         return ret
 
-    def metadata(self, key=None):
+    def metadata(self, key: str | None = None) -> Any:
         """
         Get image EXIF metadata
 
@@ -244,13 +261,13 @@ class ImageIOMixin(_ImageBase):
 
     def showpixels(
         self,
-        textcolors=["yellow", "blue"],
-        fmt=None,
-        ax=None,
-        windowsize=0,
-        maxval=None,
-        **kwargs,
-    ):
+        textcolors: str | list[str] | tuple[str, str] = ["yellow", "blue"],
+        fmt: str | None = None,
+        ax: Any = None,
+        windowsize: int = 0,
+        maxval: float | None = None,
+        **kwargs: Any,
+    ) -> Any:
         """
         Display image with pixel values
 
@@ -398,7 +415,13 @@ class ImageIOMixin(_ImageBase):
                 ax.add_patch(patch)
                 self.patch = patch
 
-            def move(self, u, v, color=None, alpha=0.5):
+            def move(
+                self,
+                u: int | float,
+                v: int | float,
+                color: Any = None,
+                alpha: float = 0.5,
+            ) -> None:
                 if color is not None:
                     self.color = color
                     self.patch.set_color(color)
@@ -416,7 +439,7 @@ class ImageIOMixin(_ImageBase):
         if windowsize > 0:
             return Window(self, h=windowsize, ax=ax, **kwargs)
 
-    def anaglyph(self, right, colors="rc", disp=0):
+    def anaglyph(self, right: Self, colors: str = "rc", disp: int = 0) -> Self:
         """
         Convert stereo images to an anaglyph image
 
@@ -505,7 +528,7 @@ class ImageIOMixin(_ImageBase):
             colordict[colors[1]]
         )
 
-    def stdisp(self, right, interactive=True):
+    def stdisp(self, right: Self, interactive: bool = True) -> None:
         """
         Interactive display of stereo image pair
 
@@ -564,7 +587,7 @@ class ImageIOMixin(_ImageBase):
                     0.05, 0.95, "", transform=ax2.transAxes, backgroundcolor="w"
                 )
 
-            def set_cross_hair_visible(self, visible):
+            def set_cross_hair_visible(self, visible: bool) -> bool:
                 need_redraw = self.horizontal_line.get_visible() != visible
                 self.horizontal_line.set_visible(visible)
                 self.horizontal_line2.set_visible(visible)
@@ -576,7 +599,7 @@ class ImageIOMixin(_ImageBase):
                 self.text.set_visible(visible)
                 return need_redraw
 
-            def on_mouse_move(self, event):
+            def on_mouse_move(self, event: Any) -> None:
                 if event.inaxes == self.ax2 and self.leftclicked:
                     x, y = event.xdata, event.ydata
                     # update the line positions
@@ -596,7 +619,7 @@ class ImageIOMixin(_ImageBase):
                 #     # self.text.set_text('x=%1.2f, y=%1.2f' % (x, y))
                 #     self.ax.figure.canvas.draw()
 
-            def on_click(self, event):
+            def on_click(self, event: Any) -> None:
                 # if not event.inaxes:
                 #     need_redraw = self.set_cross_hair_visible(False)
                 #     if need_redraw:

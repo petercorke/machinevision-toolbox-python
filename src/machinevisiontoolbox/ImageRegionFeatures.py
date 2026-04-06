@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from ansitable import ANSITable, Column
 from spatialmath import SE3
+from typing import Any
 
 from machinevisiontoolbox.decorators import array_result
 from machinevisiontoolbox.base import plot_labelbox
@@ -23,7 +24,7 @@ except ImportError:
 
 
 class ImageRegionFeaturesMixin:
-    def MSER(self, **kwargs):
+    def MSER(self, **kwargs: Any) -> "MSERFeature":
         """
         Find MSER features in image
 
@@ -54,7 +55,9 @@ class ImageRegionFeaturesMixin:
 
         return MSERFeature(self, **kwargs)
 
-    def ocr(self, minconf=50, plot=False, return_bbox=False):
+    def ocr(
+        self, minconf: int = 50, plot: bool = False, return_bbox: bool = False
+    ) -> list["OCRWord"]:
         """
         Optical character recognition
 
@@ -121,7 +124,7 @@ class ImageRegionFeaturesMixin:
 
 
 class MSERFeature:
-    def __init__(self, image=None, **kwargs):
+    def __init__(self, image: Any = None, **kwargs: Any) -> None:
         """
         Find MSERs
 
@@ -170,7 +173,7 @@ class MSERFeature:
             bboxes[:, 2:] = bboxes[:, 0:2] + bboxes[:, 2:]  # convert to lrtb
             self._bboxes = bboxes
 
-    def __len__(self):
+    def __len__(self) -> int:
         """
         Number of MSER features
 
@@ -190,7 +193,7 @@ class MSERFeature:
         """
         return len(self._points)
 
-    def __getitem__(self, i):
+    def __getitem__(self, i: int | slice | np.ndarray | list | tuple) -> "MSERFeature":
         """
         Get MSERs from MSER feature object
 
@@ -280,7 +283,7 @@ class MSERFeature:
 
     @property
     @array_result
-    def points(self):
+    def points(self) -> np.ndarray | list:
         """
         Points belonging to MSERs
 
@@ -308,7 +311,7 @@ class MSERFeature:
 
     @property
     @array_result
-    def bbox(self):
+    def bbox(self) -> np.ndarray:
         """
         Bounding boxes of MSERs
 
@@ -335,7 +338,7 @@ class MSERFeature:
 
 
 class OCRWord:
-    def __init__(self, ocr, i):
+    def __init__(self, ocr: dict, i: int) -> None:
         """
         OCR word and metadata
 
@@ -380,7 +383,7 @@ class OCRWord:
         return str(self)
 
     @property
-    def l(self):
+    def l(self) -> int:
         """
         Left side of word bounding box
 
@@ -392,7 +395,7 @@ class OCRWord:
         return self.dict["left"]
 
     @property
-    def t(self):
+    def t(self) -> int:
         """
         Top side of word bounding box
 
@@ -404,7 +407,7 @@ class OCRWord:
         return self.dict["top"]
 
     @property
-    def w(self):
+    def w(self) -> int:
         """
         Width of word bounding box
 
@@ -416,7 +419,7 @@ class OCRWord:
         return self.dict["width"]
 
     @property
-    def h(self):
+    def h(self) -> int:
         """
         Height of word bounding box
 
@@ -428,7 +431,7 @@ class OCRWord:
         return self.dict["height"]
 
     @property
-    def ltrb(self):
+    def ltrb(self) -> list[int]:
         """
         Word bounding box
 
@@ -445,7 +448,7 @@ class OCRWord:
         ]
 
     @property
-    def conf(self):
+    def conf(self) -> int:
         """
         Word confidence
 
@@ -457,7 +460,7 @@ class OCRWord:
         return self.dict["conf"]
 
     @property
-    def text(self):
+    def text(self) -> str:
         """
         Word as a string
 
@@ -468,7 +471,7 @@ class OCRWord:
         """
         return self.dict["text"]
 
-    def plot(self):
+    def plot(self) -> None:
         """
         Plot word and bounding box
 

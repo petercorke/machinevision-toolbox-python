@@ -8,7 +8,7 @@ import copy
 from abc import ABC, abstractmethod
 from collections import namedtuple
 from math import cos, pi, sin, sqrt, tan
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING, Any, Callable
 
 import cv2 as cv
 import matplotlib.pyplot as plt
@@ -198,13 +198,13 @@ class CameraBase(ABC):
         return str(self)
 
     @abstractmethod
-    def project_point(self, P, **kwargs) -> np.ndarray:
+    def project_point(self, P, **kwargs: Any) -> np.ndarray:
         pass
 
-    def project_line(self, *args, **kwargs) -> np.ndarray:
+    def project_line(self, *args: Any, **kwargs: Any) -> np.ndarray:
         raise NotImplementedError("not implemented for this camera model")
 
-    def project_conic(self, *args, **kwargs) -> np.ndarray:
+    def project_conic(self, *args: Any, **kwargs: Any) -> np.ndarray:
         raise NotImplementedError("not implemented for this camera model")
 
     @property
@@ -907,7 +907,7 @@ class CameraBase(ABC):
         else:
             return p
 
-    def plot_line2(self, l: ArrayLike, *args, **kwargs) -> None:
+    def plot_line2(self, l: ArrayLike, *args: Any, **kwargs: Any) -> None:
         r"""
         Plot 2D line on virtual image plane (base method)
 
@@ -989,11 +989,11 @@ class CameraBase(ABC):
         X: np.ndarray,
         Y: np.ndarray,
         Z: np.ndarray,
-        *fmt,
+        *fmt: Any,
         objpose: SE3 | None = None,
         pose: SE3 | None = None,
         nsteps: int = 21,
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
         """
         Plot 3D wireframe in virtual image plane (base method)
@@ -1102,7 +1102,7 @@ class CameraBase(ABC):
 
         plt.draw()
 
-    def disp(self, im: Image, **kwargs) -> None:
+    def disp(self, im: Image, **kwargs: Any) -> None:
         """
         Display image on virtual image plane (base method)
 
@@ -1340,7 +1340,7 @@ class CentralCamera(CameraBase):
         self._distortion = distortion
 
     @classmethod
-    def Default(cls, **kwargs) -> CentralCamera:
+    def Default(cls, **kwargs: Any) -> CentralCamera:
         r"""
         Set default central camera parameters
 
@@ -1660,7 +1660,9 @@ class CentralCamera(CameraBase):
         # p is 3 x N, result is 3 x N
         return self.F(camera2) @ smb.e2h(p)
 
-    def plot_epiline(self, F: np.ndarray, p: np.ndarray, *fmt, **kwargs) -> None:
+    def plot_epiline(
+        self, F: np.ndarray, p: np.ndarray, *fmt: Any, **kwargs: Any
+    ) -> None:
         r"""
         Plot epipolar line
 
@@ -1702,7 +1704,7 @@ class CentralCamera(CameraBase):
         # p is 3 x N, result is 3 x N
         self.plot_line2(F @ smb.e2h(p), *fmt, **kwargs)
 
-    def plot_line3(self, L: Line3, **kwargs) -> None:
+    def plot_line3(self, L: Line3, **kwargs: Any) -> None:
         """
         Plot 3D line on virtual image plane (base method)
 
@@ -3762,7 +3764,7 @@ class SphericalCamera(CameraBase):
         :class:`FishEyeCamera`
     """
 
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, **kwargs: Any) -> None:
         # invoke the superclass constructor
         super().__init__(
             camtype="spherical",
@@ -3892,7 +3894,7 @@ class SphericalCamera(CameraBase):
             J.append(Jk)
         return np.vstack(J)
 
-    def plot(self, frame: bool = False, **kwargs) -> None:
+    def plot(self, frame: bool = False, **kwargs: Any) -> None:
         smb.plot_sphere(
             radius=1,
             filled=True,

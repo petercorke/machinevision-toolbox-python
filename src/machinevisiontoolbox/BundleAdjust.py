@@ -3,6 +3,7 @@ Bundle adjustment for multi-view camera pose and 3D point refinement using spars
 """
 
 import time
+from typing import Any
 
 import numpy as np
 from scipy import sparse
@@ -29,7 +30,7 @@ if pgraph_installed:
 
     class _Common:
         @property
-        def index(self):
+        def index(self) -> int:
             """
             Index into the state vector (base method)
 
@@ -39,7 +40,7 @@ if pgraph_installed:
             return self._index
 
         @property
-        def index2(self):
+        def index2(self) -> int:
             """
             Index into the variable state vector (base method)
 
@@ -49,7 +50,7 @@ if pgraph_installed:
             return self._index2
 
         @property
-        def isfixed(self):
+        def isfixed(self) -> bool:
             """
             Value is fixed (base method)
 
@@ -61,7 +62,9 @@ if pgraph_installed:
             return self._fixed
 
     class ViewPoint(pgraph.UVertex, _Common):
-        def __init__(self, x, fixed=False, color=None):
+        def __init__(
+            self, x: np.ndarray, fixed: bool = False, color: str | None = None
+        ) -> None:
             """
             Create new camera viewpoint
 
@@ -85,7 +88,7 @@ if pgraph_installed:
             self._color = color
 
         @property
-        def pose(self):
+        def pose(self) -> SE3:
             """
             Get pose of camera
 
@@ -98,7 +101,7 @@ if pgraph_installed:
             return SE3(t) * UnitQuaternion.Vec3(qv).SE3()
 
     class Landmark(pgraph.UVertex, _Common):
-        def __init__(self, P, fixed=False):
+        def __init__(self, P: np.ndarray, fixed: bool = False) -> None:
             """
             Create new landmark point
 
@@ -117,7 +120,7 @@ if pgraph_installed:
             self._fixed = fixed
 
         @property
-        def P(self):
+        def P(self) -> np.ndarray:
             """
             Get landmark position
 
@@ -127,7 +130,9 @@ if pgraph_installed:
             return self._P
 
     class Observation(pgraph.Edge):
-        def __init__(self, camera, landmark, uv):
+        def __init__(
+            self, camera: ViewPoint, landmark: Landmark, uv: np.ndarray
+        ) -> None:
             """
             Create new landmark observation
 
@@ -147,7 +152,7 @@ if pgraph_installed:
             self._p = uv
 
         @property
-        def p(self):
+        def p(self) -> np.ndarray:
             """
             Get image plane projection
 
@@ -158,7 +163,7 @@ if pgraph_installed:
             return self._p
 
     class BundleAdjust:
-        def __init__(self, camera):
+        def __init__(self, camera: CentralCamera) -> None:
             r"""
             Create a bundle adjustment problem
 
@@ -213,7 +218,7 @@ if pgraph_installed:
 
             self.index_valid = False
 
-        def update_index(self):
+        def update_index(self) -> None:
             if self.index_valid:
                 return
 
@@ -236,7 +241,7 @@ if pgraph_installed:
                     index2 += 3
 
         @property
-        def nviews(self):
+        def nviews(self) -> int:
             """
             Number of camera views
 
@@ -248,7 +253,7 @@ if pgraph_installed:
             return self._nviews
 
         @property
-        def nlandmarks(self):
+        def nlandmarks(self) -> int:
             """
             Number of landmarks
 
@@ -260,7 +265,7 @@ if pgraph_installed:
             return self._nlandmarks
 
         @property
-        def nstates(self):
+        def nstates(self) -> int:
             """
             Length of state vector
 
@@ -275,7 +280,7 @@ if pgraph_installed:
             return 6 * self.nviews + 3 * self.nlandmarks
 
         @property
-        def nvarstates(self):
+        def nvarstates(self) -> int:
             """
             Length of variable state vector
 
@@ -292,7 +297,9 @@ if pgraph_installed:
                 self.nlandmarks - len(self.fixedlandmarks)
             )
 
-        def add_view(self, pose, fixed=False, color="black"):
+        def add_view(
+            self, pose: SE3 | np.ndarray, fixed: bool = False, color: str = "black"
+        ) -> ViewPoint:
             """
             Add camera view to bundle adjustment problem
 
@@ -339,7 +346,7 @@ if pgraph_installed:
             self.index_valid = False
             return v
 
-        def add_landmark(self, P, fixed=False):
+        def add_landmark(self, P: np.ndarray, fixed: bool = False) -> Landmark:
             """
             Add 3D landmark point to bundle adjustment problem
 
@@ -376,7 +383,9 @@ if pgraph_installed:
             self.index_valid = False
             return l
 
-        def add_projection(self, viewpoint, landmark, uv):
+        def add_projection(
+            self, viewpoint: ViewPoint, landmark: Landmark, uv: np.ndarray
+        ) -> None:
             """
             Add camera observation to bundle adjustment problem
 
@@ -402,7 +411,13 @@ if pgraph_installed:
             e.name = viewpoint.name + "--" + landmark.name
 
         @classmethod
-        def load_SBA(cls, cameraFile, pointFile, calibFile, imagesize=None):
+        def load_SBA(
+            cls,
+            cameraFile: str,
+            pointFile: str,
+            calibFile: str,
+            imagesize: np.ndarray | None = None,
+        ) -> "BundleAdjust":
             """
             Load bundle adjustment data files
 
@@ -513,15 +528,15 @@ if pgraph_installed:
 
         def optimize(
             self,
-            x=None,
-            animate=False,
-            lmbda=0.1,
-            lmbdamin=1e-8,
-            dxmin=1e-4,
-            tol=0.5,
-            iterations=1000,
-            verbose=False,
-        ):
+            x: np.ndarray | None = None,
+            animate: bool = False,
+            lmbda: float = 0.1,
+            lmbdamin: float = 1e-8,
+            dxmin: float = 1e-4,
+            tol: float = 0.5,
+            iterations: int = 1000,
+            verbose: bool = False,
+        ) -> tuple[np.ndarray, float]:
             """
             Perform the bundle adjustment
 
@@ -614,7 +629,7 @@ if pgraph_installed:
 
             return x_new, err
 
-        def solve(self, x, lmbda=0.0):
+        def solve(self, x: np.ndarray, lmbda: float = 0.0) -> tuple[np.ndarray, Any]:
             r"""
             Solve for state update
 
@@ -660,7 +675,7 @@ if pgraph_installed:
             return deltax, e
 
         # build the Hessian and measurement vector
-        def build_linear_system(self, x):
+        def build_linear_system(self, x: np.ndarray) -> tuple[Any, Any, Any]:
             r"""
             Build the linear system
 
@@ -745,7 +760,7 @@ if pgraph_installed:
 
             return H, b, etotal
 
-        def spyH(self, x, block=False):
+        def spyH(self, x: np.ndarray, block: bool = False) -> None:
             """
             Display sparsity of Hessian
 
@@ -761,7 +776,7 @@ if pgraph_installed:
             plt.spy(H)
             plt.show(block=True)
 
-        def getstate(self):
+        def getstate(self) -> np.ndarray:
             """
             Get the state vector
 
@@ -785,7 +800,7 @@ if pgraph_installed:
 
             return np.array(x)
 
-        def setstate(self, x):
+        def setstate(self, x: np.ndarray) -> None:
             """
             Update camera and landmark state
 
@@ -811,7 +826,7 @@ if pgraph_installed:
                 if not landmark.isfixed:
                     landmark.coord = X
 
-        def updatestate(self, x, dx):
+        def updatestate(self, x: np.ndarray, dx: np.ndarray) -> np.ndarray:
             """
             Update the state vector
 
@@ -867,7 +882,7 @@ if pgraph_installed:
             return xnew
 
         # Compute total squared reprojection error
-        def errors(self, x=None):
+        def errors(self, x: np.ndarray | None = None) -> Any:
             """
             Total reprojection error
 
@@ -888,7 +903,7 @@ if pgraph_installed:
 
             return np.sum(r)
 
-        def getresidual(self, x=None):
+        def getresidual(self, x: np.ndarray | None = None) -> np.ndarray:
             r"""
             Get error residuals
 
@@ -935,7 +950,7 @@ if pgraph_installed:
             return residual
 
         @property
-        def graph(self):
+        def graph(self) -> Any:
             """
             Get the scene graph
 
@@ -950,7 +965,13 @@ if pgraph_installed:
             """
             return self.g
 
-        def plot(self, camera={}, block=None, ax=None, **kwargs):
+        def plot(
+            self,
+            camera: dict[str, Any] = {},
+            block: bool | None = None,
+            ax: Any = None,
+            **kwargs,
+        ) -> None:
             """
             Plot the scene graph
 
@@ -987,7 +1008,7 @@ if pgraph_installed:
             if block is not None:
                 plt.show(block=block)
 
-        def __repr__(self):
+        def __repr__(self) -> str:
             """
             String representation
 
@@ -996,7 +1017,7 @@ if pgraph_installed:
             """
             return str(self)
 
-        def __str__(self):
+        def __str__(self) -> str:
             """
             String representation
 

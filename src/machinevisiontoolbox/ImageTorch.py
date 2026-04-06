@@ -4,7 +4,7 @@ PyTorch tensor conversion and integration for Image objects.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from machinevisiontoolbox.ImageCore import Image
@@ -32,7 +32,12 @@ class ImageTorchMixin:
     Each method raises :exc:`ImportError` at call time if PyTorch is not available.
     """
 
-    def tensor(self, device="cpu", normalize=None, dtype=None) -> "torch.Tensor":
+    def tensor(
+        self,
+        device: str = "cpu",
+        normalize: str | tuple[Any, Any] | None = None,
+        dtype: Any = None,
+    ) -> "torch.Tensor":
         """Convert image to a PyTorch tensor.
 
         The returned tensor has shape ``(1, C, H, W)`` for multi-plane images
@@ -118,11 +123,11 @@ class ImageTorchMixin:
     @classmethod
     def Tensor(
         cls,
-        data,
+        data: Any,
         logits: bool = False,
         colororder: str | None = None,
-        dtype=None,
-    ):
+        dtype: Any = None,
+    ) -> "Image":
         """Create an Image from a PyTorch tensor.
 
         :param data: tensor input, either a ``torch.Tensor`` of shape
@@ -169,12 +174,14 @@ class ImageTorchMixin:
             >>> img = Image.Tensor(tensor)
             >>> print(img)
 
-        The modern "Machine Vision Toolbox" workflow::
+        The modern "Machine Vision Toolbox" workflow:
 
-            >>> from machinevisiontoolbox import Image
-            >>> img = Image.Read("monalisa.png")
-            >>> outputs = model(img.tensor(normalize="imagenet")) # Pass tensor to model
-            >>> out = Image.Tensor(outputs, logits=True).disp()
+        .. code-block:: python
+
+            from machinevisiontoolbox import Image
+            img = Image.Read("monalisa.png")
+            outputs = model(img.tensor(normalize="imagenet"))  # pass tensor to model
+            out = Image.Tensor(outputs, logits=True).disp()
 
         :seealso: :meth:`tensor` :class:`TensorStack`
         """

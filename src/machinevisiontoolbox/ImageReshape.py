@@ -6,6 +6,11 @@ import math
 from collections.abc import Callable
 from typing import Any
 
+try:
+    from typing import Self
+except ImportError:
+    from typing_extensions import Self
+
 import cv2 as cv
 import matplotlib.pyplot as plt
 import numpy as np
@@ -41,7 +46,9 @@ class classinstancemethod:
 
 
 class ImageReshapeMixin:
-    def trim(self, left=0, right=0, top=0, bottom=0):
+    def trim(
+        self, left: int = 0, right: int = 0, top: int = 0, bottom: int = 0
+    ) -> Self:
         """
         Trim pixels from the edges of the image
 
@@ -83,7 +90,14 @@ class ImageReshapeMixin:
 
         return self.__class__(image, colororder=self.colororder)
 
-    def pad(self, left=0, right=0, top=0, bottom=0, value=0):
+    def pad(
+        self,
+        left: int = 0,
+        right: int = 0,
+        top: int = 0,
+        bottom: int = 0,
+        value: Any = 0,
+    ) -> Self:
         """
         Pad the edges of the image
 
@@ -140,7 +154,12 @@ class ImageReshapeMixin:
             out = np.pad(self._A, pw, constant_values=(value, value))
             return self.__class__(out, colororder=self.colororder)
 
-    def dice(self, grid=None, shape=None, overlap=0):
+    def dice(
+        self,
+        grid: int | tuple[int, int] | None = None,
+        shape: int | tuple[int, int] | None = None,
+        overlap: int | tuple[int, int] = 0,
+    ) -> list[Self]:
         """
         Dice an image into a grid of subimages
 
@@ -217,7 +236,13 @@ class ImageReshapeMixin:
         return subimages
 
     @classmethod
-    def Hstack(cls, images, sep=1, bgcolor=None, return_offsets=False):
+    def Hstack(
+        cls,
+        images: list[Any] | tuple[Any, ...],
+        sep: int = 1,
+        bgcolor: Any = None,
+        return_offsets: bool = False,
+    ) -> Any:
         """
         Horizontal concatenation of images
 
@@ -304,7 +329,13 @@ class ImageReshapeMixin:
             return cls(canvas, colororder=colororder)
 
     @classmethod
-    def Vstack(cls, images, sep=1, bgcolor=None, return_offsets=False):
+    def Vstack(
+        cls,
+        images: list[Any] | tuple[Any, ...],
+        sep: int = 1,
+        bgcolor: Any = None,
+        return_offsets: bool = False,
+    ) -> Any:
         """
         Vertical concatenation of images
 
@@ -390,7 +421,13 @@ class ImageReshapeMixin:
             return cls(canvas, colororder=colororder)
 
     @classmethod
-    def Tile(cls, tiles, columns=0, sep=2, bgcolor=None):
+    def Tile(
+        cls,
+        tiles: list[Any] | tuple[Any, ...],
+        columns: int = 0,
+        sep: int = 2,
+        bgcolor: Any = None,
+    ) -> Self:
         """
         Tile images into a grid
 
@@ -492,7 +529,7 @@ class ImageReshapeMixin:
 
         return canvas
 
-    def decimate(self, m=2, sigma=None):
+    def decimate(self, m: int = 2, sigma: float | None = None) -> Self:
         """
         Decimate an image
 
@@ -548,7 +585,7 @@ class ImageReshapeMixin:
 
         return self.__class__(ims._A[0::m, 0::m, ...], colororder=self.colororder)
 
-    def replicate(self, n=1):
+    def replicate(self, n: int = 1) -> Self:
         r"""
         Replicate image pixels
 
@@ -603,7 +640,7 @@ class ImageReshapeMixin:
 
         return self.__class__(rowcolrep, colororder=self.colororder)
 
-    def roi(self, bbox=None):
+    def roi(self, bbox: Any = None) -> Any:
         r"""
         Extract region of interest
 
@@ -634,7 +671,9 @@ class ImageReshapeMixin:
         if bbox is None:
             # use Rectangle widget to allow user to draw it
 
-            def line_select_callback(eclick, erelease, roi):
+            def line_select_callback(
+                eclick: Any, erelease: Any, roi: list[float]
+            ) -> None:
                 # called on rectangle release
                 roi.extend([eclick.xdata, erelease.xdata, eclick.ydata, erelease.ydata])
                 plt.gcf().canvas.stop_event_loop()  # unblock
@@ -678,7 +717,7 @@ class ImageReshapeMixin:
         else:
             return self.__class__(roi, colororder=self.colororder)
 
-    def samesize(self, image2, bias=0.5):
+    def samesize(self, image2: Any, bias: float = 0.5) -> Self:
         """
         Automatic image trimming
 
@@ -758,7 +797,12 @@ class ImageReshapeMixin:
 
         return self.__class__(o, colororder=self.colororder)
 
-    def scale(self, sfactor, sigma=None, interpolation=None):
+    def scale(
+        self,
+        sfactor: float,
+        sigma: float | None = None,
+        interpolation: str | None = None,
+    ) -> Self:
         """
         Scale an image
 
@@ -837,7 +881,7 @@ class ImageReshapeMixin:
 
         return self.__class__(out, colororder=self.colororder)
 
-    def rotate(self, angle, centre=None, center=None):
+    def rotate(self, angle: float, centre=None, center=None) -> Self:
         """
         Rotate an image
 
@@ -890,7 +934,7 @@ class ImageReshapeMixin:
         out = cv.warpAffine(src=self._A, M=M, dsize=shape)
         return self.__class__(out, colororder=self.colororder)
 
-    def rotate_spherical(self, R):
+    def rotate_spherical(self, R: Any) -> Self:
         r"""
         Rotate a spherical image
 
@@ -970,7 +1014,9 @@ class ImageReshapeMixin:
 
         return mvb.meshgrid(self.width, self.height)  # type: ignore[attr-defined]
 
-    def warp(self, U, V, interp=None, domain=None):
+    def warp(
+        self, U: np.ndarray, V: np.ndarray, interp: str | None = None, domain=None
+    ) -> Self:
         r"""
         Image warping
 
@@ -1015,7 +1061,14 @@ class ImageReshapeMixin:
         )
         return self.__class__(img, colororder=self.colororder, domain=domain)
 
-    def interp2d(self, U, V, Ud=None, Vd=None, **kwargs):
+    def interp2d(
+        self,
+        U: np.ndarray,
+        V: np.ndarray,
+        Ud: np.ndarray | None = None,
+        Vd: np.ndarray | None = None,
+        **kwargs: Any,
+    ) -> Self:
         r"""
         Image warping
 
@@ -1057,7 +1110,14 @@ class ImageReshapeMixin:
 
         return self.__class__(Zi.reshape(U.shape), **kwargs)
 
-    def warp_affine(self, M, inverse=False, size=None, bgcolor=None, dst=None):
+    def warp_affine(
+        self,
+        M: Any,
+        inverse: bool = False,
+        size: tuple[int, int] | None = None,
+        bgcolor: Any = None,
+        dst: Any = None,
+    ) -> Self:
         r"""
         Affine warp of image
 
@@ -1152,8 +1212,14 @@ class ImageReshapeMixin:
         return self.__class__(out, colororder=self.colororder)
 
     def warp_perspective(
-        self, H, method="linear", inverse=False, tile=False, size=None, background=None
-    ):
+        self,
+        H: Any,
+        method: str = "linear",
+        inverse: bool = False,
+        tile: bool = False,
+        size: tuple[int, int] | None = None,
+        background: Any = None,
+    ) -> Self:
         r"""
         Perspective warp
 
@@ -1228,7 +1294,7 @@ class ImageReshapeMixin:
         else:
             return self.__class__(out)
 
-    def undistort(self, K, dist):
+    def undistort(self, K: np.ndarray, dist: np.ndarray) -> Self:
         r"""
         Undistort image
 
@@ -1264,10 +1330,10 @@ class ImageReshapeMixin:
 
     # ------------------------- operators ------------------------------ #
 
-    def column(self):
+    def column(self) -> np.ndarray:
         raise DeprecationWarning("please use view1d")
 
-    def view1d(self):
+    def view1d(self) -> np.ndarray:
         """
         Convert image to a column view
 

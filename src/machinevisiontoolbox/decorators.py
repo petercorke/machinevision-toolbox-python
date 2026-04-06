@@ -26,7 +26,7 @@ def scalar_result(func: Callable[..., Any]) -> Callable[..., Any]:
 
     """
 
-    def innerfunc(*args, **kwargs):
+    def innerfunc(*args: Any, **kwargs: Any) -> Any:
         out = func(*args, **kwargs)
         if len(out) == 1:
             return out[0]
@@ -56,7 +56,7 @@ def array_result(func: Callable[..., Any]) -> Callable[..., Any]:
 
     """
 
-    def innerfunc(*args, **kwargs):
+    def innerfunc(*args: Any, **kwargs: Any) -> Any:
         out = func(*args, **kwargs)
         if len(out) == 1:
             return out[0]
@@ -78,7 +78,7 @@ def array_result2(func: Callable[..., Any]) -> Callable[..., Any]:
 
     """
 
-    def innerfunc(*args, **kwargs):
+    def innerfunc(*args: Any, **kwargs: Any) -> Any:
         out = func(*args, **kwargs)
         if len(out) == 1:
             return out[0].flatten()

@@ -7,11 +7,11 @@ import numpy as np
 import spatialmath.base.argcheck as argcheck
 from matplotlib import cm
 
-from machinevisiontoolbox.mvtb_types import Dtype
+from machinevisiontoolbox.mvtb_types import ArrayLike, Dtype
 
 
 class Kernel:
-    def __init__(self, K, name=None):
+    def __init__(self, K: np.ndarray, name: str | None = None) -> None:
         """
         Convolution kernel object
 
@@ -76,7 +76,7 @@ class Kernel:
         """
         return str(self)
 
-    def disp3d(self, block=False, **kwargs):
+    def disp3d(self, block: bool = False, **kwargs) -> None:
         """Show kernel as a 3D surface plot
 
         :param block: block until plot is dismissed, defaults to False
@@ -108,14 +108,16 @@ class Kernel:
         ax.set_ylabel("v")
 
     @property
-    def T(self):
+    def T(self) -> "Kernel":
         return Kernel(self.K.T)
 
     @property
-    def shape(self):
+    def shape(self) -> tuple[int, int]:
         return self.K.shape
 
-    def print(self, fmt=None, separator: str = " ", precision: int = 2) -> None:
+    def print(
+        self, fmt: str | None = None, separator: str = " ", precision: int = 2
+    ) -> None:
         """
         Print kernel weights in compact format
 
@@ -149,7 +151,7 @@ class Kernel:
             print(row)
 
     @classmethod
-    def Gauss(cls, sigma, h=None):
+    def Gauss(cls, sigma: float, h: int | None = None) -> "Kernel":
         r"""
         Gaussian kernel
 
@@ -218,7 +220,7 @@ class Kernel:
         return cls(m / np.sum(m), name=f"Gaussian σ={sigma}")
 
     @classmethod
-    def Laplace(cls):
+    def Laplace(cls) -> "Kernel":
         r"""
         Laplacian kernel
 
@@ -260,7 +262,7 @@ class Kernel:
         return cls(K, name="Laplacian")
 
     @classmethod
-    def Sobel(cls):
+    def Sobel(cls) -> "Kernel":
         r"""
         Sobel edge detector
 
@@ -303,7 +305,9 @@ class Kernel:
         return cls(K, name="Sobel")
 
     @classmethod
-    def DoG(cls, sigma1, sigma2=None, h=None):
+    def DoG(
+        cls, sigma1: float, sigma2: float | None = None, h: int | None = None
+    ) -> "Kernel":
         r"""
         Difference of Gaussians kernel
 
@@ -380,7 +384,7 @@ class Kernel:
         return cls(m2.K - m1.K, name=f"DoG σ1={sigma1}, σ2={sigma2}")
 
     @classmethod
-    def LoG(cls, sigma, h=None):
+    def LoG(cls, sigma: float, h: int | None = None) -> "Kernel":
         r"""
         Laplacian of Gaussian kernel
 
@@ -449,7 +453,7 @@ class Kernel:
         return cls(log, name=f"LoG σ={sigma}")
 
     @classmethod
-    def DGauss(cls, sigma, h=None):
+    def DGauss(cls, sigma: float, h: int | None = None) -> "Kernel":
         r"""
         Derivative of Gaussian kernel
 
@@ -511,7 +515,9 @@ class Kernel:
         return cls(K, name=f"DGauss σ={sigma}")
 
     @classmethod
-    def HGauss(cls, sigma, h=None):
+    def HGauss(
+        cls, sigma: float, h: int | None = None
+    ) -> tuple["Kernel", "Kernel", "Kernel"]:
         r"""
         Hessian of Gaussian kernel
 
@@ -600,7 +606,13 @@ class Kernel:
         )
 
     @classmethod
-    def Circle(cls, radius, h=None, normalize=False, dtype: Dtype = "uint8"):
+    def Circle(
+        cls,
+        radius: ArrayLike,
+        h: int | None = None,
+        normalize: bool = False,
+        dtype: Dtype = "uint8",
+    ) -> "Kernel":
         r"""
         Circular structuring element
 
@@ -677,7 +689,7 @@ class Kernel:
         return cls(s, name=f"Circle r={radius}")
 
     @classmethod
-    def Box(cls, h, normalize=True):
+    def Box(cls, h: int, normalize: bool = True) -> "Kernel":
         r"""
         Square structuring element
 

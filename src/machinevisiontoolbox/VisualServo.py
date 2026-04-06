@@ -3,6 +3,7 @@ Image-based and position-based visual servoing simulations.
 """
 
 from abc import ABC
+from typing import Any
 
 import matplotlib.pyplot as plt
 
@@ -21,21 +22,21 @@ class VisualServo(ABC):
 
     def __init__(
         self,
-        camera,
-        niter=100,
-        graphics=True,
-        fps=5,
-        pose_g=None,
-        pose_0=None,
-        pose_d=None,
-        P=None,
-        p_d=None,
-        title=None,
-        plotvol=None,
-        movie=None,
-        type=None,
-        verbose=False,
-    ):
+        camera: Any,
+        niter: int = 100,
+        graphics: bool = True,
+        fps: float = 5,
+        pose_g: SE3 | None = None,
+        pose_0: SE3 | None = None,
+        pose_d: SE3 | None = None,
+        P: np.ndarray | None = None,
+        p_d: np.ndarray | None = None,
+        title: str | None = None,
+        plotvol: Any = None,
+        movie: Any = None,
+        type: str | None = None,
+        verbose: bool = False,
+    ) -> None:
         """
         Visual servo abstract superclass
 
@@ -127,7 +128,7 @@ class VisualServo(ABC):
             if title is not None:
                 self.fig.canvas.manager.set_window_title(title)
 
-    def init(self):
+    def init(self) -> None:
         """
         Initialize visual servo simulation.
 
@@ -167,7 +168,7 @@ class VisualServo(ABC):
         # clear the history
         self.history = []
 
-    def run(self, niter=None):
+    def run(self, niter: int | None = None) -> None:
         """
         Run visual servo simulation
 
@@ -219,7 +220,7 @@ class VisualServo(ABC):
         if self.movie is not None:
             self.anim.close()
 
-    def plot_p(self):
+    def plot_p(self) -> None:
         """
         Plot feature trajectory from simulation
 
@@ -286,7 +287,7 @@ class VisualServo(ABC):
         ax.set_aspect("equal")
         ax.set_facecolor("lightyellow")
 
-    def plot_vel(self):
+    def plot_vel(self) -> None:
         """
         Plot camera velocity from simulation
 
@@ -309,7 +310,7 @@ class VisualServo(ABC):
             loc="upper right",
         )
 
-    def plot_pose(self):
+    def plot_pose(self) -> None:
         """
         Plot camera trajectory from simulation
 
@@ -340,7 +341,7 @@ class VisualServo(ABC):
         plt.xlim(0, len(self.history) - 1)
         plt.legend([r"$\alpha$", r"$\beta$", r"$\gamma$"])
 
-    def plot_jcond(self):
+    def plot_jcond(self) -> None:
         """
         Plot image Jacobian condition from simulation.
 
@@ -361,7 +362,7 @@ class VisualServo(ABC):
         plt.xlabel("Time step")
         plt.xlim(0, len(self.history) - 1)
 
-    def plot_z(self):
+    def plot_z(self) -> None:
         """
         Plot feature depth from simulation
 
@@ -387,7 +388,7 @@ class VisualServo(ABC):
         plt.xlim(0, len(self.history) - 1)
         plt.legend()
 
-    def plot_error(self):
+    def plot_error(self) -> np.ndarray | None:
         """
         Plot feature error from simulation
 
@@ -417,7 +418,7 @@ class VisualServo(ABC):
 
         return e
 
-    def plot_all(self):
+    def plot_all(self) -> None:
         """
         Plot all data from simulation
 
@@ -448,7 +449,7 @@ class VisualServo(ABC):
             plt.figure()
             self.plot_jcond()
 
-    def __str__(self):
+    def __str__(self) -> str:
         """
         String representation of visual servo object
 
@@ -464,23 +465,29 @@ class VisualServo(ABC):
             s += "\n" + self.pose_d.strline(label="cdTg", orient="camera")
         return s
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self)
 
-    def plot_point(self, *args, **kwargs):
+    def plot_point(self, *args: Any, **kwargs: Any) -> Any:
         return self.camera.plot_point(*args, **kwargs)
 
-    def plot(self, *args, **kwargs):
+    def plot(self, *args: Any, **kwargs: Any) -> Any:
         return self.camera.plot(*args, ax=self.ax_3dview, **kwargs)
 
-    def clear_3dview(self):
+    def clear_3dview(self) -> None:
         for child in self.ax_3dview.get_children():  # ax.lines:
             if __class__.__name__ == "Line3DCollection":
                 child.remove()
 
 
 class PBVS(VisualServo):
-    def __init__(self, camera, eterm=0, lmbda=0.05, **kwargs):
+    def __init__(
+        self,
+        camera: CentralCamera,
+        eterm: float = 0,
+        lmbda: float = 0.05,
+        **kwargs: Any,
+    ) -> None:
         """
         Position-based visual servo class
 
@@ -526,7 +533,7 @@ class PBVS(VisualServo):
             self.pose_d = SE3(0, 0, 1)
             print("setting Tf to default")
 
-    def step(self, t):
+    def step(self, t: float) -> int:
         """
         Compute one timestep of PBVS simulation.
 
@@ -578,15 +585,15 @@ class PBVS(VisualServo):
 class IBVS(VisualServo):
     def __init__(
         self,
-        camera,
-        eterm=0.5,
-        lmbda=0.08,
-        depth=None,
-        depthest=False,
-        vmax=None,
-        smoothstart=None,
-        **kwargs,
-    ):
+        camera: CentralCamera,
+        eterm: float = 0.5,
+        lmbda: float = 0.08,
+        depth: Any = None,
+        depthest: bool = False,
+        vmax: float | None = None,
+        smoothstart: float | None = None,
+        **kwargs: Any,
+    ) -> None:
         r"""
         Image-based visual servo class
 
@@ -650,7 +657,7 @@ class IBVS(VisualServo):
         self.smoothstart = smoothstart
 
     @classmethod
-    def Example(cls, camera):
+    def Example(cls, camera: CentralCamera | None):
         print("Canned example: point-based IBVS with four feature points")
         if camera is None:
             camera = CentralCamera.Default(name="")
@@ -662,7 +669,7 @@ class IBVS(VisualServo):
 
         return self
 
-    def init(self):
+    def init(self) -> None:
         """
         Initialize IBVS simulation.
 
@@ -677,7 +684,7 @@ class IBVS(VisualServo):
         self.uv_prev = None
         self.e0 = None
 
-    def step(self, t):
+    def step(self, t: float) -> int:
         """
         Compute one timestep of IBVS simulation.
 
@@ -787,7 +794,7 @@ class IBVS(VisualServo):
 
         return status
 
-    def depth_estimator(self, uv):
+    def depth_estimator(self, uv: np.ndarray) -> tuple[Any, np.ndarray]:
         """
         Estimate depth of points.
 
@@ -846,7 +853,14 @@ class IBVS(VisualServo):
 
 
 class IBVS_l(VisualServo):
-    def __init__(self, camera, eterm=0.01, plane=None, lmbda=0.08, **kwargs):
+    def __init__(
+        self,
+        camera: CentralCamera,
+        eterm: float = 0.01,
+        plane: Any = None,
+        lmbda: float = 0.08,
+        **kwargs: Any,
+    ) -> None:
         r"""
         Image-based visual servo for line features class
 
@@ -910,7 +924,7 @@ class IBVS_l(VisualServo):
         self.lmbda = lmbda
 
     @classmethod
-    def Example(cls, camera):
+    def Example(cls, camera: CentralCamera | None):
         # setup for a canned example
         print("Canned example: line-based IBVS with three lines")
         if camera is None:
@@ -925,7 +939,7 @@ class IBVS_l(VisualServo):
 
         return self
 
-    def init(self, pose_d=None):
+    def init(self, pose_d: SE3 | None = None) -> None:
         """
         Initialize IBVS line simulation.
 
@@ -942,7 +956,7 @@ class IBVS_l(VisualServo):
         )  # in retinal coordinates
         self.f_star = self.getlines(self.pose_d)  # in image coordinates
 
-    def step(self, t):
+    def step(self, t: float) -> int:
         """
         Compute one timestep of IBVS line simulation.
 
@@ -1011,7 +1025,7 @@ class IBVS_l(VisualServo):
 
         return status
 
-    def getlines(self, pose, scale=None):
+    def getlines(self, pose: SE3, scale: np.ndarray | None = None) -> np.ndarray:
         """
         Compute image plane lines
 
@@ -1046,7 +1060,7 @@ class IBVS_l(VisualServo):
         return np.array(lines).T
 
     @staticmethod
-    def plot_line_tr(camera, lines, **kwargs):
+    def plot_line_tr(camera: CentralCamera, lines: np.ndarray, **kwargs: Any) -> None:
         # %CentralCamera.plot_line_tr  Plot line in theta-rho format
         # %
         # % CentralCamera.plot_line_tr(L) plots lines on the camera's image plane that
@@ -1071,7 +1085,14 @@ class IBVS_l(VisualServo):
 
 
 class IBVS_e(VisualServo):
-    def __init__(self, camera, eterm=0.08, plane=None, lmbda=0.04, **kwargs):
+    def __init__(
+        self,
+        camera: CentralCamera,
+        eterm: float = 0.08,
+        plane: Any = None,
+        lmbda: float = 0.04,
+        **kwargs: Any,
+    ) -> None:
         r"""
         Image-based visual servo for ellipse features class
 
@@ -1136,7 +1157,7 @@ class IBVS_e(VisualServo):
         self.lmbda = lmbda
 
     @classmethod
-    def Example(cls, camera=None, **kwargs):
+    def Example(cls, camera: CentralCamera | None = None, **kwargs: Any) -> "IBVS_e":
         # run a canned example
         print("canned example, ellipse + point-based IBVS")
         if camera is None:
@@ -1153,7 +1174,7 @@ class IBVS_e(VisualServo):
 
         return self
 
-    def init(self):
+    def init(self) -> None:
         """
         Initialize IBVS ellipse simulation.
 
@@ -1174,7 +1195,7 @@ class IBVS_e(VisualServo):
         self.ellipse_star = self.camera.project_point(self.P, pose=self.pose_d)
         # self.ellipse_star = self.camera.project([self.P self.P(:,1)], pose=self.pose_d)
 
-    def get_ellipse_parameters(self, pose):
+    def get_ellipse_parameters(self, pose: SE3) -> np.ndarray:
         p = self.camera.project_point(self.P, pose=pose)  # , retinal=True)
 
         # # convert to normalized image-plane coordinates
@@ -1188,7 +1209,7 @@ class IBVS_e(VisualServo):
         theta, resid, *_ = np.linalg.lstsq(A, b, rcond=None)  # least squares solution
         return theta
 
-    def step(self, t):
+    def step(self, t: float) -> int:
         """
         Compute one timestep of IBVS line simulation.
 
@@ -1251,7 +1272,14 @@ class IBVS_e(VisualServo):
 
 
 class IBVS_sph(VisualServo):
-    def __init__(self, camera, eterm=0.001, lmbda=0.1, depth=None, **kwargs):
+    def __init__(
+        self,
+        camera: Any,
+        eterm: float = 0.001,
+        lmbda: float = 0.1,
+        depth: Any = None,
+        **kwargs: Any,
+    ) -> None:
         r"""
         Image-based visual servo for ellipse features class
 
@@ -1326,7 +1354,7 @@ class IBVS_sph(VisualServo):
         self.pose_0 = SE3(0.3, 0.3, -2) * SE3.Rz(0.2)
         # self.T0 = transl(-1,-0.1,-3);%*trotx(0.2)
 
-    def init(self):
+    def init(self) -> None:
 
         super().init()
 
@@ -1334,7 +1362,7 @@ class IBVS_sph(VisualServo):
         #   convert to image coords
         self.p_star = self.camera.project_point(self.P, pose=self.pose_d)
 
-    def step(self, t):
+    def step(self, t: float) -> int:
         """
         Compute one timestep of IBVS line simulation.
 
@@ -1408,7 +1436,7 @@ class IBVS_sph(VisualServo):
             status = 1
         return status
 
-    def plot_p(self):
+    def plot_p(self) -> None:
         # result is a vector with row per time step, each row is u1, v1, u2, v2 ...
         for i in range(self.npoints):
             u = [h.p[0, i] for h in self.history]  # get data for i'th point
@@ -1486,7 +1514,14 @@ class IBVS_sph(VisualServo):
 
 
 class IBVS_polar(VisualServo):
-    def __init__(self, camera, eterm=0.01, lmbda=0.02, depth=None, **kwargs):
+    def __init__(
+        self,
+        camera: CentralCamera,
+        eterm: float = 0.01,
+        lmbda: float = 0.02,
+        depth: Any = None,
+        **kwargs: Any,
+    ) -> None:
         r"""
         Image-based visual servo for ellipse features class
 
@@ -1555,7 +1590,7 @@ class IBVS_polar(VisualServo):
         self.eterm = eterm
         self.depth = depth
 
-    def init(self):
+    def init(self) -> None:
 
         # initialize the vservo variables
         super().init()
@@ -1608,7 +1643,7 @@ class IBVS_polar(VisualServo):
 
         self.history = []
 
-    def step(self, t):
+    def step(self, t: float) -> int:
         status = 0
         Zest = []
 
@@ -1668,7 +1703,7 @@ class IBVS_polar(VisualServo):
 
         return status
 
-    def plot_p(self):
+    def plot_p(self) -> None:
         # result is a vector with row per time step, each row is u1, v1, u2, v2 ...
         for i in range(self.npoints):
             u = [h.p[0, i] for h in self.history]  # get data for i'th point
@@ -1709,7 +1744,9 @@ class IBVS_polar(VisualServo):
         ax.set_facecolor("lightyellow")
 
     @staticmethod
-    def _project_polar(self, P, pose=None, objpose=None):
+    def _project_polar(
+        self, P: np.ndarray, pose: SE3 | None = None, objpose: SE3 | None = None
+    ) -> np.ndarray:
         # bound to project_point()
 
         # overloaded projection method, projects to polar coordinates
@@ -1728,7 +1765,7 @@ class IBVS_polar(VisualServo):
         return th_r
 
     @staticmethod
-    def _init_imageplane(self, fig=None, ax=None):
+    def _init_imageplane(self, fig: Any = None, ax: Any = None) -> Any:
         if self._new_imageplane(fig, ax):
             return
 

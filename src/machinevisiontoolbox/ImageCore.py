@@ -597,7 +597,7 @@ class Image(
         :seealso: :meth:`rprint` :meth:`Image.strhcat` :meth:`Image.showpixels`
         """
 
-        def format_plane(plane, fmt, indent="  "):
+        def format_plane(plane: Image, fmt: str, indent: str = "  ") -> list[str]:
             rows = []
             for v in plane.vspan():
                 row = indent
@@ -1148,7 +1148,7 @@ class Image(
         return np.issubdtype(self.dtype, bool)
 
     @property
-    def dtype(self):
+    def dtype(self) -> np.dtype:
         """
         Datatype of image
 
@@ -2133,7 +2133,7 @@ class Image(
                 return self.cast(value / maxint)
 
     @property
-    def minval(self):
+    def minval(self) -> int | float:
         """
         Minimum value of image datatype
 
@@ -2160,7 +2160,7 @@ class Image(
             return np.finfo(self.dtype).min
 
     @property
-    def maxval(self):
+    def maxval(self) -> int | float:
         """
         Maximum value of image datatype
 
@@ -2443,7 +2443,9 @@ class Image(
         :seealso: :meth:`red` :meth:`green` :meth:`blue` :meth:`plane` :meth:`roi` :meth:`pixel`
         """
 
-        def fixdims(out, shape, keys):
+        def fixdims(
+            out: np.ndarray, shape: tuple[int, ...], keys: tuple[Any, ...]
+        ) -> np.ndarray:
             # deal with the fact that some of the keys may have reduced the
             # dimensionality of the array, eg. a slice of span 0 or 1, or an integer
             # key.
@@ -2451,7 +2453,7 @@ class Image(
             # shape: (nrows, ncols, nplanes)  in NumPy order
             # key: (rowspec, colspec, planespec) in NumPy order
 
-            def lenkey(key, max):
+            def lenkey(key: int | slice, max: int) -> int:
                 # compute the span of a particular key
                 if isinstance(key, int):
                     # int key has a span on 1
@@ -3778,7 +3780,9 @@ class Image(
         draw_point(self._A, pos, marker, text, **kwargs)
 
     @classmethod
-    def Pstack(cls, images, colororder=None):
+    def Pstack(
+        cls, images: Sequence[Image], colororder: str | dict[str, int] | None = None
+    ) -> Image:
         """
         Concatenation of image planes
 
@@ -3879,7 +3883,12 @@ class Image(
         """
         return self.__class__(np.flipud(self._A), colororder=self.colororder)
 
-    def fixbad(self, nan=0.0, posinf=None, neginf=None):
+    def fixbad(
+        self,
+        nan: int | float | Sequence[int | float] = 0.0,
+        posinf: int | float | Sequence[int | float] | None = None,
+        neginf: int | float | Sequence[int | float] | None = None,
+    ) -> Image:
         """
         Fix bad values in image
 

@@ -7,7 +7,7 @@ from __future__ import annotations
 import os.path
 from collections import namedtuple
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Callable
 from warnings import warn
 
 import cv2 as cv
@@ -37,7 +37,7 @@ if TYPE_CHECKING:
 class ImageProcessingMixin(_ImageBase):
     # ======================= image processing ============================= #
 
-    def LUT(self, lut, colororder=None):
+    def LUT(self, lut: Any, colororder: str | dict[str, Any] | None = None) -> "Image":
         """
         Apply lookup table
 
@@ -92,7 +92,9 @@ class ImageProcessingMixin(_ImageBase):
 
         return self.__class__(self.like(out), colororder=colororder)  # type: ignore[attr-defined]
 
-    def apply(self, func, vectorize=False, **kwargs):
+    def apply(
+        self, func: Callable[..., Any], vectorize: bool = False, **kwargs
+    ) -> "Image":
         """
         Apply a function to an image
 
@@ -151,7 +153,13 @@ class ImageProcessingMixin(_ImageBase):
             func = np.vectorize(func, **kwargs)
         return self.__class__(func(self._A, **kwargs), colororder=self.colororder)  # type: ignore[attr-defined]
 
-    def apply2(self, other, func, vectorize=False, **kwargs):
+    def apply2(
+        self,
+        other: "Image",
+        func: Callable[..., Any],
+        vectorize: bool = False,
+        **kwargs,
+    ) -> "Image":
         """
         Apply a function to two images
 
@@ -212,7 +220,7 @@ class ImageProcessingMixin(_ImageBase):
             func = np.vectorize(func)
         return self.__class__(func(self._A, other._A), colororder=self.colororder)
 
-    def clip(self, min, max):
+    def clip(self, min: int | float, max: int | float) -> "Image":
         """
         Clip pixel values
 
@@ -275,7 +283,7 @@ class ImageProcessingMixin(_ImageBase):
 
         return self.__class__(np.roll(self._A, (ru, rv), (1, 0)))
 
-    def normhist(self):
+    def normhist(self) -> "Image":
         """
         Histogram normalisaton
 
@@ -309,7 +317,9 @@ class ImageProcessingMixin(_ImageBase):
         out = cv.equalizeHist(src=self.array_as("uint8"))
         return self.__class__(self.like(out))
 
-    def stretch(self, max=1, range=None, clip=True):
+    def stretch(
+        self, max: int | float = 1, range: Any = None, clip: bool = True
+    ) -> "Image":
         """
         Image normalisation
 
@@ -362,7 +372,7 @@ class ImageProcessingMixin(_ImageBase):
             zs = np.maximum(0, np.minimum(max, zs))
         return self.__class__(zs)
 
-    def thresh(self, *args, **kwargs):
+    def thresh(self, *args: Any, **kwargs: Any) -> Any:
         """
         Image threshold
 
@@ -372,7 +382,7 @@ class ImageProcessingMixin(_ImageBase):
         warn("Deprecated, please use threshold", DeprecationWarning, stacklevel=2)
         return self.threshold(*args, **kwargs)
 
-    def threshold(self, t=None, opt="binary"):
+    def threshold(self, t: Any = None, opt: str = "binary") -> Any:
         r"""
         Image threshold
 
@@ -508,7 +518,7 @@ class ImageProcessingMixin(_ImageBase):
         else:
             raise ValueError(t, "t must be a string or scalar")
 
-    def ithresh(self, threshold: float | None = None, opt: str = "binary"):
+    def ithresh(self, threshold: float | None = None, opt: str = "binary") -> Any:
         """
         Interactive thresholding
 
@@ -525,7 +535,7 @@ class ImageProcessingMixin(_ImageBase):
         )
         return self.threshold_interactive()
 
-    def threshold_interactive(self, title=None):
+    def threshold_interactive(self, title: str | None = None) -> Any:
         r"""
         Interactive thresholding
 
@@ -709,7 +719,7 @@ class ImageProcessingMixin(_ImageBase):
         )
         return self.__class__(self.like(out))
 
-    def otsu(self):
+    def otsu(self) -> Any:
         """
         Otsu threshold selection
 
@@ -854,7 +864,7 @@ class ImageProcessingMixin(_ImageBase):
         )
         return self.__class__(out, colororder=self.colororder)
 
-    def choose(self, image2, mask):
+    def choose(self, image2: Any, mask: Any) -> "Image":
         r"""
         Pixel-wise image merge
 
@@ -968,8 +978,14 @@ class ImageProcessingMixin(_ImageBase):
         return self.__class__(out, colororder=self.colororder)
 
     def paste(
-        self, pattern, pt, method="set", position="topleft", copy=False, zero=True
-    ):
+        self,
+        pattern: Any,
+        pt: Any,
+        method: str = "set",
+        position: str = "topleft",
+        copy: bool = False,
+        zero: bool = True,
+    ) -> "Image":
         """
         Paste an image into an image
 

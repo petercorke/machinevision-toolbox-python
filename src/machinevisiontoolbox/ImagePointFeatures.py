@@ -43,7 +43,7 @@ class BaseFeature2D:
         scale: bool = False,
         orient: bool = False,
         image: np.ndarray | None = None,
-    ):
+    ) -> None:
         """
         Create set of 2D point features
 
@@ -83,7 +83,7 @@ class BaseFeature2D:
             self._kp = list(kp)
         self._descriptor: np.ndarray | None = des
 
-    def __len__(self):
+    def __len__(self) -> int:
         """
         Number of features (base method)
 
@@ -101,9 +101,9 @@ class BaseFeature2D:
 
         :seealso: :meth:`.__getitem__`
         """
-        return len(self._kp)
+        return len(self._kp)  # Number of features (base method)
 
-    def __getitem__(self, i):
+    def __getitem__(self, i) -> "BaseFeature2D":
         """
         Get item from point feature object (base method)
 
@@ -127,7 +127,7 @@ class BaseFeature2D:
 
         :seealso: :meth:`.__len__`
         """
-        new = self.__class__()
+        new = self.__class__()  # Get item from point feature object (base method)
         new._has_scale = self._has_scale
         new._has_orient = self._has_orient
         # compute canonical integer index list for both _kp and descriptor
@@ -157,7 +157,7 @@ class BaseFeature2D:
             new._descriptor = None
         return new
 
-    def __str__(self):
+    def __str__(self) -> str:
         """
         String representation of feature (base method)
 
@@ -178,7 +178,7 @@ class BaseFeature2D:
             >>> orb
             >>> orb[0]  # feature 0
         """
-        if len(self) > 1:
+        if len(self) > 1:  # String representation of feature (base method)
             return f"{self.__class__.__name__} features, {len(self)} points"
         else:
             s = (
@@ -192,7 +192,7 @@ class BaseFeature2D:
             s += f", id={self.id}"
             return s
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """
         Display features in readable form
 
@@ -201,13 +201,13 @@ class BaseFeature2D:
 
         :seealso: :meth:`str`
         """
-        return str(self)
+        return str(self)  # Display features in readable form
 
     def __iter__(self) -> "Iterator[BaseFeature2D]":
         for i in range(len(self)):
             yield self[i]
 
-    def list(self):
+    def list(self) -> None:
         """
         List matches
 
@@ -215,7 +215,7 @@ class BaseFeature2D:
 
         :seealso: :meth:`table`
         """
-        for i, f in enumerate(self):
+        for i, f in enumerate(self):  # List matches
             s = (
                 f"{self._feature_type} feature {i}: ({f.u:.1f}, {f.v:.1f}),"
                 f" strength={f.strength:.2f}"
@@ -227,7 +227,7 @@ class BaseFeature2D:
             s += f", id={f.id}"
             print(s)
 
-    def table(self):
+    def table(self) -> None:
         """
         Print features in tabular form
 
@@ -236,7 +236,11 @@ class BaseFeature2D:
 
         :seealso: :meth:`str`
         """
-        columns = [Column("#"), Column("centroid"), Column("strength", fmt="{:.3g}")]
+        columns = [
+            Column("#"),
+            Column("centroid"),
+            Column("strength", fmt="{:.3g}"),
+        ]  # Print features in tabular form
         if self._has_scale:
             columns.append(Column("scale", fmt="{:.3g}"))
         if self._has_orient:
@@ -253,7 +257,7 @@ class BaseFeature2D:
             table.row(i, f"{f.u:.1f}, {f.v:.1f}", *values, f.id)
         table.print()
 
-    def gridify(self, nbins, nfeat):
+    def gridify(self, nbins: int | tuple[int, int], nfeat: int) -> "BaseFeature2D":
         """
         Sort features into grid
 
@@ -273,7 +277,7 @@ class BaseFeature2D:
         :seealso: :meth:`sort`
         """
 
-        try:
+        try:  # Sort features into grid
             nw, nh = nbins
         except:
             nw = nbins
@@ -328,7 +332,9 @@ class BaseFeature2D:
 
         :seealso: :meth:`__radd__`
         """
-        if other is None or (isinstance(other, list) and len(other) == 0):
+        if other is None or (
+            isinstance(other, list) and len(other) == 0
+        ):  # Add feature sets
             return self
         assert isinstance(
             other, BaseFeature2D
@@ -346,7 +352,7 @@ class BaseFeature2D:
             new._descriptor = np.vstack((self._descriptor, other._descriptor))
         return new
 
-    def __radd__(self, other):
+    def __radd__(self, other) -> "BaseFeature2D":
         """
         Add feature sets
 
@@ -376,14 +382,14 @@ class BaseFeature2D:
 
         :seealso: :meth:`__add__`
         """
-        if isinstance(other, list) and len(other) == 0:
+        if isinstance(other, list) and len(other) == 0:  # Add feature sets
             return self
         else:
             raise ValueError("bad")
 
     @property
     @scalar_result
-    def u(self):
+    def u(self) -> "list[float]":  # Horizontal coordinate of feature point
         """
         Horizontal coordinate of feature point
 
@@ -405,7 +411,7 @@ class BaseFeature2D:
 
     @property
     @scalar_result
-    def v(self):
+    def v(self) -> "list[float]":  # Vertical coordinate of feature point
         """
         Vertical coordinate of feature point
 
@@ -426,7 +432,7 @@ class BaseFeature2D:
 
     @property
     @scalar_result
-    def id(self):
+    def id(self) -> "list[int]":  # Image id for feature point
         """
         Image id for feature point
 
@@ -450,7 +456,7 @@ class BaseFeature2D:
 
     @property
     @scalar_result
-    def orientation(self):
+    def orientation(self) -> "list[float]":  # Orientation of feature
         """
         Orientation of feature
 
@@ -472,7 +478,7 @@ class BaseFeature2D:
 
     @property
     @scalar_result
-    def scale(self):
+    def scale(self) -> "list[float]":  # Scale of feature
         """
         Scale of feature
 
@@ -493,7 +499,7 @@ class BaseFeature2D:
 
     @property
     @scalar_result
-    def strength(self):
+    def strength(self) -> "list[float]":  # Strength of feature
         """
         Strength of feature
 
@@ -514,7 +520,7 @@ class BaseFeature2D:
 
     @property
     @scalar_result
-    def octave(self):
+    def octave(self) -> "list[int]":  # Octave of feature
         """
         Octave of feature
 
@@ -535,7 +541,7 @@ class BaseFeature2D:
 
     @property
     @array_result
-    def descriptor(self):
+    def descriptor(self) -> np.ndarray | None:  # Descriptor of feature
         """
         Descriptor of feature
 
@@ -559,7 +565,7 @@ class BaseFeature2D:
 
     @property
     @array_result
-    def p(self):
+    def p(self) -> np.ndarray:  # Feature coordinates
         """
         Feature coordinates
 
@@ -592,7 +598,7 @@ class BaseFeature2D:
     # TODO descriptor similarity
     # TODO display/print/char function?
 
-    def distance(self, other, metric="L2"):
+    def distance(self, other: "BaseFeature2D", metric: str = "L2") -> np.ndarray:
         """
         Distance between feature sets
 
@@ -629,7 +635,7 @@ class BaseFeature2D:
 
         :seealso: :meth:`match`
         """
-        metric_dict = {"L1": 1, "L2": 2}
+        metric_dict = {"L1": 1, "L2": 2}  # Distance between feature sets
 
         if self._descriptor is None or other._descriptor is None:
             raise ValueError("features have no descriptors")
@@ -657,14 +663,14 @@ class BaseFeature2D:
 
     def match(
         self,
-        other,
-        ratio=0.75,
-        crosscheck=False,
-        metric="L2",
-        sort=True,
-        top=None,
-        thresh=None,
-    ):
+        other: "BaseFeature2D",
+        ratio: float = 0.75,
+        crosscheck: bool = False,
+        metric: str = "L2",
+        sort: bool = True,
+        top: int | None = None,
+        thresh: float | None = None,
+    ) -> "FeatureMatch":
         """
         Match point features
 
@@ -698,7 +704,7 @@ class BaseFeature2D:
         :seealso: :class:`FeatureMatch` :meth:`distance`
         """
 
-        # TODO: implement thresh
+        # TODO: implement thresh  # Match point features
 
         # m = []
 
@@ -768,7 +774,7 @@ class BaseFeature2D:
             [(m.queryIdx, m.trainIdx, m.distance) for m in good], self, other
         )
 
-    def subset(self, N=100):
+    def subset(self, N: int = 100) -> "BaseFeature2D":
         """
         Select subset of features
 
@@ -790,14 +796,16 @@ class BaseFeature2D:
             >>> orb2 = orb.subset(50)
             >>> len(orb2)
         """
-        step = max(1, len(self) // N)
+        step = max(1, len(self) // N)  # Select subset of features
         k = list(range(0, len(self), step))
         k = k[:N]
         new = self[k]
         new._feature_type = self._feature_type
         return new
 
-    def sort(self, by="strength", descending=True, inplace=False):
+    def sort(
+        self, by: str = "strength", descending: bool = True, inplace: bool = False
+    ) -> "BaseFeature2D | None":
         """
         Sort features
 
@@ -823,7 +831,7 @@ class BaseFeature2D:
         #     s = sorted(self, key=lambda f: f.scale, reverse=descending)
         # else:
         #     raise ValueError('bad sort method', by)
-        if by == "strength":
+        if by == "strength":  # Sort features
             key = self.strength
         elif by == "scale":
             key = self.scale
@@ -848,7 +856,7 @@ class BaseFeature2D:
             new._feature_type = self._feature_type
             return new
 
-    def support(self, images, N=50):
+    def support(self, images: Any, N: int = 50) -> Any:
         """
         Find support region
 
@@ -879,7 +887,7 @@ class BaseFeature2D:
 
         from machinevisiontoolbox import Image
 
-        if len(self) > 1:
+        if len(self) > 1:  # Find support region
             raise ValueError("can only compute support region for single feature")
 
         if isinstance(images, Image):
@@ -903,7 +911,7 @@ class BaseFeature2D:
         out = cv.warpAffine(src=image, M=M[:2, :], dsize=(N, N), flags=cv.INTER_LINEAR)
         return Image(out)
 
-    def filter(self, **kwargs):
+    def filter(self, **kwargs: Any) -> "BaseFeature2D":
         """
         Filter features
 
@@ -939,7 +947,7 @@ class BaseFeature2D:
             can be used as values.
         """
 
-        features = self
+        features = self  # Filter features
 
         for filter, limits in kwargs.items():
             if filter == "scale":
@@ -970,13 +978,13 @@ class BaseFeature2D:
 
     def drawKeypoints(
         self,
-        image,
-        drawing=None,
-        isift=None,
-        color=(0, 255, 0),
-        flags=cv.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS,
-        **kwargs,
-    ):
+        image: Any,
+        drawing: np.ndarray | None = None,
+        isift: Any = None,
+        color: tuple[int, int, int] = (0, 255, 0),
+        flags: int = cv.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS,
+        **kwargs: Any,
+    ) -> Any:
         """
         Render keypoints into image
 
@@ -1012,7 +1020,7 @@ class BaseFeature2D:
 
         # TODO check flags, setup dictionary or string for plot options
 
-        if drawing is None:
+        if drawing is None:  # Render keypoints into image
             drawing = np.zeros((image.shape[0], image.shape[1], 3), dtype=np.uint8)
 
         kp = self._kp
@@ -1035,7 +1043,15 @@ class BaseFeature2D:
 
         return image.__class__(drawing)
 
-    def drawMatches(self, im1, sift1, im2, sift2, matches, **kwargs):
+    def drawMatches(
+        self,
+        im1: Any,
+        sift1: "BaseFeature2D",
+        im2: Any,
+        sift2: "BaseFeature2D",
+        matches: Any,
+        **kwargs: Any,
+    ) -> Any:
         # TODO should I just have input two SIFT objects,
         # or in this case just another SIFT object?
 
@@ -1044,7 +1060,7 @@ class BaseFeature2D:
         #                   matchesMask=matches,
         #                   flags=0)
 
-        h = max(im1._A.shape[0], im2._A.shape[0])
+        h = max(im1._A.shape[0], im2._A.shape[0])  # Draw matches
         w = im1._A.shape[1] + im2._A.shape[1]
         nplanes = im1._A.shape[2] if im1._A.ndim == 3 else 1
         blank = np.zeros((h, w, max(nplanes, 3)), dtype=np.uint8)
@@ -1061,17 +1077,17 @@ class BaseFeature2D:
 
     def plot(
         self,
-        *args,
-        ax=None,
-        filled=False,
-        color="blue",
-        alpha=1,
-        hand=False,
-        handcolor="blue",
-        handthickness=1,
-        handalpha=1,
-        **kwargs,
-    ):
+        *args: Any,
+        ax: Any = None,
+        filled: bool = False,
+        color: Any = "blue",
+        alpha: float = 1,
+        hand: bool = False,
+        handcolor: Any = "blue",
+        handthickness: int = 1,
+        handalpha: float = 1,
+        **kwargs: Any,
+    ) -> None:
         """
         Plot features using Matplotlib
 
@@ -1096,7 +1112,7 @@ class BaseFeature2D:
         to the circumference, like a clock hand.
 
         """
-        ax = smb.axes_logic(ax, 2)
+        ax = smb.axes_logic(ax, 2)  # Plot features using Matplotlib
 
         if filled:
             for kp in self:
@@ -1133,18 +1149,18 @@ class BaseFeature2D:
 
     def draw(
         self,
-        image,
-        *args,
-        ax=None,
-        filled=False,
-        color="blue",
-        alpha=1,
-        hand=False,
-        handcolor="blue",
-        handthickness=1,
-        handalpha=1,
-        **kwargs,
-    ):
+        image: Any,
+        *args: Any,
+        ax: Any = None,
+        filled: bool = False,
+        color: Any = "blue",
+        alpha: float = 1,
+        hand: bool = False,
+        handcolor: Any = "blue",
+        handthickness: int = 1,
+        handalpha: float = 1,
+        **kwargs: Any,
+    ) -> Any:
         """
         Draw features into image
 
@@ -1169,7 +1185,7 @@ class BaseFeature2D:
         to the circumference, like a clock hand.
 
         """
-        img = image._A
+        img = image._A  # Draw features into image
         if filled:
             for kp in self:
                 centre = kp.p.flatten()
@@ -1200,8 +1216,8 @@ class BaseFeature2D:
                 kwargs = dict(marker="+y")
             draw_point(img, self.p, *args, fontsize=0.6, **kwargs)
 
-    def draw2(self, image, color="y", type="point"):
-        img = image._A
+    def draw2(self, image: Any, color: Any = "y", type: str = "point") -> Any:
+        img = image._A  # Draw features into image
         if isinstance(color, str):
             color_ndarray: np.ndarray = name2color(
                 color, dtype=image.dtype, colororder=image.colororder
@@ -1248,7 +1264,7 @@ class BaseFeature2D:
 
 
 class FeatureMatch:
-    def __init__(self, m, fv1, fv2, inliers=None):
+    def __init__(self, m, fv1: BaseFeature2D, fv2: BaseFeature2D, inliers=None) -> None:
         """
         Create feature match object
 
@@ -1285,7 +1301,7 @@ class FeatureMatch:
         self._inverse_dict1 = None
         self._inverse_dict2 = None
 
-    def __getitem__(self, i):
+    def __getitem__(self, i) -> "FeatureMatch":
         """
         Get matches from feature match object
 
@@ -1334,7 +1350,7 @@ class FeatureMatch:
             raise ValueError("bad index")
         return FeatureMatch(matches, self._kp1, self._kp2, inliers)
 
-    def __len__(self):
+    def __len__(self) -> int:
         """
         Number of matches
 
@@ -1355,7 +1371,7 @@ class FeatureMatch:
         """
         return len(self._matches)
 
-    def correspondence(self):
+    def correspondence(self) -> np.ndarray:
         """
         Feature correspondences
 
@@ -1377,7 +1393,7 @@ class FeatureMatch:
         """
         return np.array([m[:2] for m in self._matches]).T
 
-    def by_id1(self, id):
+    def by_id1(self, id: int) -> "FeatureMatch | None":
         """
         Find match by feature id in first set
 
@@ -1415,7 +1431,7 @@ class FeatureMatch:
             except KeyError:
                 return None
 
-    def by_id2(self, i):
+    def by_id2(self, i: int) -> "FeatureMatch | None":
         """
         Find match by feature id in second set
 
@@ -1453,7 +1469,7 @@ class FeatureMatch:
             except KeyError:
                 return None
 
-    def __str__(self):
+    def __str__(self) -> str:
         """
         String representation of matches
 
@@ -1488,7 +1504,7 @@ class FeatureMatch:
                 s += f", with {ninlier} ({ninlier/len(self)*100:.1f}%) inliers"
             return s
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """
         String representation of matches
 
@@ -1514,7 +1530,7 @@ class FeatureMatch:
 
     @property
     @scalar_result
-    def status(self):
+    def status(self) -> str:
         """
         Inlier status of matches
 
@@ -1526,7 +1542,7 @@ class FeatureMatch:
         else:
             return ""
 
-    def list(self):
+    def list(self) -> None:
         """
         List matches
 
@@ -1548,7 +1564,7 @@ class FeatureMatch:
             )
             print(s)
 
-    def table(self):
+    def table(self) -> None:
         """
         Print matches in tabular form
 
@@ -1584,7 +1600,7 @@ class FeatureMatch:
         table.print()
 
     @property
-    def inliers(self):
+    def inliers(self) -> "FeatureMatch":
         """
         Extract inlier matches
 
@@ -1602,7 +1618,7 @@ class FeatureMatch:
         return self[self._inliers]
 
     @property
-    def outliers(self):
+    def outliers(self) -> "FeatureMatch":
         """
         Extract outlier matches
 
@@ -1619,7 +1635,7 @@ class FeatureMatch:
             raise ValueError("inlier status has not been set")
         return self[~self._inliers]
 
-    def subset(self, N=100):
+    def subset(self, N: int = 100) -> "FeatureMatch":
         """
         Select subset of features
 
@@ -1639,7 +1655,15 @@ class FeatureMatch:
             k = np.round(np.linspace(0, len(self) - 1, N)).astype(int)
             return self[k]
 
-    def plot(self, *pos, darken=False, ax=None, width=None, block=False, **kwargs):
+    def plot(
+        self,
+        *pos: Any,
+        darken: bool = False,
+        ax: Any = None,
+        width: Any = None,
+        block: bool = False,
+        **kwargs: Any,
+    ) -> None:
         """
         Plot matches
 
@@ -1673,10 +1697,11 @@ class FeatureMatch:
         p1 = self.p1
         p2 = self.p2
         plt.plot((p1[0, :], p2[0, :] + u[1]), (p1[1, :], p2[1, :]), *pos, **kwargs)
-        if plt.isinteractive():
-            plt.show(block=block)
+        plt.show(block=block)
 
-    def plot_correspondence(self, *arg, offset=(0, 0), **kwargs):
+    def plot_correspondence(
+        self, *arg: Any, offset: tuple[int | float, int | float] = (0, 0), **kwargs: Any
+    ) -> None:
         p1 = self.p1
         p2 = self.p2
         plt.plot(
@@ -1687,7 +1712,9 @@ class FeatureMatch:
         )
         plt.draw()
 
-    def estimate(self, func, method="ransac", **args):
+    def estimate(
+        self, func: Any, method: str = "ransac", **args: Any
+    ) -> tuple[Any, ...]:
         solution = func(self.p1, self.p2, method=method, **args)
         self._inliers = solution[-1]
 
@@ -1695,7 +1722,7 @@ class FeatureMatch:
 
     @property
     @scalar_result
-    def distance(self):
+    def distance(self) -> "list[float]":
         """
         Distance between corresponding features
 
@@ -1717,7 +1744,7 @@ class FeatureMatch:
 
     @property
     @array_result2
-    def p1(self):
+    def p1(self) -> "list[np.ndarray]":
         """
         Feature coordinate in first image
 
@@ -1739,7 +1766,7 @@ class FeatureMatch:
 
     @property
     @array_result2
-    def p2(self):
+    def p2(self) -> "list[np.ndarray]":
         """
         Feature coordinate in second image
 
@@ -1761,7 +1788,7 @@ class FeatureMatch:
 
     @property
     @array_result
-    def descriptor1(self):
+    def descriptor1(self) -> "list[np.ndarray]":
         """
         Feature descriptor in first image
 
@@ -1783,7 +1810,7 @@ class FeatureMatch:
 
     @property
     @array_result
-    def descriptor2(self):
+    def descriptor2(self) -> "list[np.ndarray]":
         """
         Feature descriptor in second image
 
@@ -1805,7 +1832,7 @@ class FeatureMatch:
 
     @property
     @scalar_result
-    def id1(self):
+    def id1(self) -> "list[int]":
         """
         Feature id in first image
 
@@ -1827,7 +1854,7 @@ class FeatureMatch:
 
     @property
     @scalar_result
-    def id2(self):
+    def id2(self) -> "list[int]":
         """
         Feature id in second image
 
@@ -1992,7 +2019,7 @@ class ImagePointFeaturesMixin(_ImageBase):
         scale=False,
         orient=False,
         **kwargs,
-    ):
+    ) -> BaseFeature2D:
         # https://datascience.stackexchange.com/questions/43213/freak-feature-extraction-opencv
         algorithms: dict[str, Any] = {
             "SIFT": getattr(cv, "SIFT_create"),
@@ -2049,7 +2076,7 @@ class ImagePointFeaturesMixin(_ImageBase):
 
         return features
 
-    def SIFT(self, **kwargs):
+    def SIFT(self, **kwargs: Any) -> "SIFTFeature":
         """
         Find SIFT features in image
 
@@ -2086,7 +2113,7 @@ class ImagePointFeaturesMixin(_ImageBase):
 
         return self._image2feature(SIFTFeature, scale=True, orient=True, **kwargs)
 
-    def ORB(self, scoreType="harris", **kwargs):
+    def ORB(self, scoreType: str = "harris", **kwargs: Any) -> "ORBFeature":
         """
         Find ORB features in image
 
@@ -2119,7 +2146,7 @@ class ImagePointFeaturesMixin(_ImageBase):
             ORBFeature, scoreType=scoreoptions[scoreType], **kwargs
         )
 
-    def BRISK(self, **kwargs):
+    def BRISK(self, **kwargs: Any) -> "BRISKFeature":
         """
         Find BRISK features in image
 
@@ -2154,7 +2181,7 @@ class ImagePointFeaturesMixin(_ImageBase):
         """
         return self._image2feature(BRISKFeature, **kwargs)
 
-    def AKAZE(self, **kwargs):
+    def AKAZE(self, **kwargs: Any) -> "AKAZEFeature":
         """
         Find AKAZE features in image
 
@@ -2190,7 +2217,7 @@ class ImagePointFeaturesMixin(_ImageBase):
         """
         return self._image2feature(AKAZEFeature, **kwargs)
 
-    def Harris(self, **kwargs):
+    def Harris(self, **kwargs: Any) -> "HarrisFeature":
         r"""
         Find Harris features in image
 
@@ -2243,7 +2270,13 @@ class ImagePointFeaturesMixin(_ImageBase):
         """
         return self._image2feature(HarrisFeature, **kwargs)
 
-    def ComboFeature(self, detector, descriptor, det_opts, des_opts):
+    def ComboFeature(
+        self,
+        detector: Any,
+        descriptor: Any,
+        det_opts: dict[str, Any],
+        des_opts: dict[str, Any],
+    ) -> BaseFeature2D:
         """
         Combination feature detector and descriptor
 
@@ -2294,7 +2327,14 @@ class ImagePointFeaturesMixin(_ImageBase):
 
 
 class _Harris_create:
-    def __init__(self, nfeat=250, k=0.04, scale=7, hw=2, patch=5):
+    def __init__(
+        self,
+        nfeat: int = 250,
+        k: float = 0.04,
+        scale: int = 7,
+        hw: int = 2,
+        patch: int = 5,
+    ) -> None:
         self.nfeat = nfeat
         self.k = k
         self.hw = hw
@@ -2302,7 +2342,9 @@ class _Harris_create:
         self.patch = patch
         self.scale = None
 
-    def detectAndCompute(self, image, mask=None):
+    def detectAndCompute(
+        self, image: np.ndarray, mask: np.ndarray | None = None
+    ) -> tuple[list[cv.KeyPoint], np.ndarray]:
         # features are peaks in the Harris corner strength image
         dst = cv.cornerHarris(src=image, blockSize=2, ksize=2 * self.hw + 1, k=self.k)
         peaks = findpeaks2d(dst, npeaks=None, scale=self.peakscale, positive=True)

@@ -14,11 +14,13 @@ import os
 import tempfile
 import time
 import urllib.request
+import warnings
 import zipfile
 from collections import Counter, deque
+from collections.abc import Iterator
 from tqdm import tqdm
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, IO, Any, Literal
 
 if TYPE_CHECKING:
     import torch
@@ -62,7 +64,7 @@ except ImportError:
 
 class ImageSource(ABC):
     @abstractmethod
-    def __init__():
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         pass
 
     def tensor(
@@ -429,6 +431,8 @@ class VideoFile(ImageSource):
         return self
 
     def __next__(self) -> Image:
+        if self.cap is None:
+            self.__iter__()
         assert self.cap is not None
         ret, frame = self.cap.read()
         if ret is False:
@@ -481,7 +485,7 @@ class VideoCamera(ImageSource):
 
     alternatively::
 
-        >>> img = video.grab()
+        >>> img = next(video)
 
     or using a context manager to ensure the camera is released::
 
@@ -547,8 +551,14 @@ class VideoCamera(ImageSource):
         :return: next frame from the camera
         :rtype: :class:`Image`
 
-        This is an alternative interface to the class iterator.
+        .. deprecated:: 0.11.4
+            Use :func:`next` on the iterator instead, for example ``next(camera)``.
         """
+        warnings.warn(
+            "VideoCamera.grab() is deprecated; use next(camera) instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         return next(self)
 
     def release(self) -> None:
@@ -852,20 +862,30 @@ class ImageSequence(ImageSource):
     """
 
     _frames: list
+    _i: int
 
-    def __init__(self, images) -> None:
+    def __init__(self, images: Any) -> None:
         self._frames = list(images)
+        self._i = 0
 
     def __len__(self) -> int:
         return len(self._frames)
 
-    def __getitem__(self, i: int) -> Image:
+    def __getitem__(self, i: int | slice) -> Image | list[Image]:
         return self._frames[i]
 
-    def __iter__(self):
-        return iter(self._frames)
+    def __iter__(self) -> ImageSequence:
+        self._i = 0
+        return self
 
-    def __enter__(self):
+    def __next__(self) -> Image:
+        if self._i >= len(self._frames):
+            raise StopIteration
+        frame = self._frames[self._i]
+        self._i += 1
+        return frame
+
+    def __enter__(self) -> ImageSequence:
         return self
 
     def __exit__(self, *_):
@@ -950,7 +970,7 @@ class ZipArchive(ImageSource):
         self.loop = loop
         self.i = 0
 
-    def open(self, name: str):
+    def open(self, name: str) -> IO[bytes]:
         """
         Open a file from the archive
 
@@ -1049,7 +1069,7 @@ class WebCam(ImageSource):
 
     alternatively::
 
-        >>> img = webcam.grab()  # grab next frame
+        >>> img = next(webcam)  # get next frame
 
     or using a context manager to ensure the connection is released::
 
@@ -1086,6 +1106,8 @@ class WebCam(ImageSource):
         return self
 
     def __next__(self) -> Image:
+        if self.cap is None:
+            self.cap = cv.VideoCapture(self.url)
         assert self.cap is not None
         ret, frame = self.cap.read()
         if ret is False:
@@ -1105,10 +1127,14 @@ class WebCam(ImageSource):
         :return: next frame from the web camera
         :rtype: :class:`Image`
 
-        This is an alternative interface to the class iterator.
+        .. deprecated:: 0.11.4
+            Use :func:`next` on the iterator instead, for example ``next(webcam)``.
         """
-        if self.cap is None:
-            self.cap = cv.VideoCapture(self.url)
+        warnings.warn(
+            "WebCam.grab() is deprecated; use next(webcam) instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         return next(self)
 
     def __enter__(self) -> WebCam:
@@ -1408,10 +1434,10 @@ class RosTopic(ImageSource):
         ...     for img in stream:
         ...         img.disp()
 
-    alternatively grab a single frame::
+    alternatively fetch a single frame with :func:`next`::
 
         >>> stream = RosTopic("/camera/image/compressed")
-        >>> img = stream.grab()
+        >>> img = next(stream)
         >>> stream.release()
 
     For publish-only use, disable subscription setup and call :meth:`publish`::
@@ -1895,10 +1921,16 @@ class RosTopic(ImageSource):
         :return: next frame from the topic
         :rtype: :class:`Image` or :class:`RosMessage`
 
-        This is an alternative to using the iterator interface.
+        .. deprecated:: 0.11.4
+            Use :func:`next` on the iterator instead, for example ``next(stream)``.
         """
         if not self._subscribe:
             raise TypeError("RosTopic is publish-only (subscribe=False)")
+        warnings.warn(
+            "RosTopic.grab() is deprecated; use next(stream) instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         return next(self)
 
     def __enter__(self) -> RosTopic:
@@ -2681,18 +2713,28 @@ class PointCloudSequence:
     """
 
     _clouds: list
+    _i: int
 
-    def __init__(self, clouds) -> None:
+    def __init__(self, clouds: Any) -> None:
         self._clouds = list(clouds)
+        self._i = 0
 
     def __len__(self) -> int:
         return len(self._clouds)
 
-    def __getitem__(self, i: int) -> PointCloud:
+    def __getitem__(self, i: int | slice) -> PointCloud | list[PointCloud]:
         return self._clouds[i]
 
-    def __iter__(self):
-        return iter(self._clouds)
+    def __iter__(self) -> PointCloudSequence:
+        self._i = 0
+        return self
+
+    def __next__(self) -> PointCloud:
+        if self._i >= len(self._clouds):
+            raise StopIteration
+        cloud = self._clouds[self._i]
+        self._i += 1
+        return cloud
 
     def __repr__(self) -> str:
         return f"PointCloudSequence({len(self._clouds)} clouds)"
@@ -2947,7 +2989,7 @@ class TensorStack(ImageSource):
         colororder: str | None = None,
         logits: bool = False,
         dtype: "DTypeLike | None" = None,
-    ):
+    ) -> None:
         """
         Initialize TensorStack from a batch tensor.
 
@@ -2980,15 +3022,23 @@ class TensorStack(ImageSource):
         self._logits = logits
         self._dtype = dtype
         self._batch_size = self._array.shape[0]
+        self._i = 0
 
     def __len__(self) -> int:
         """Return number of images in the batch."""
         return self._batch_size
 
-    def __iter__(self):
+    def __iter__(self) -> TensorStack:
         """Iterate over images as views into the batch."""
-        for i in range(self._batch_size):
-            yield self[i]
+        self._i = 0
+        return self
+
+    def __next__(self) -> Image:
+        if self._i >= self._batch_size:
+            raise StopIteration
+        image = self[self._i]
+        self._i += 1
+        return image
 
     def __getitem__(self, index: int) -> Image:
         """

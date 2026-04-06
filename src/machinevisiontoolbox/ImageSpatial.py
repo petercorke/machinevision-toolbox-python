@@ -6,13 +6,14 @@ import cv2 as cv
 import numpy as np
 import scipy as sp
 import spatialmath.base.argcheck as argcheck
+from typing import Any, Callable
 
 from machinevisiontoolbox.Kernel import Kernel
 
 
 class ImageSpatialMixin:
     @classmethod
-    def Gauss(cls, sigma: float, h=None) -> Kernel:
+    def Gauss(cls, sigma: float, h: int | None = None) -> Kernel:
         return Kernel.Gauss(sigma=sigma, h=h)
 
     @classmethod
@@ -30,19 +31,23 @@ class ImageSpatialMixin:
         return Kernel.Laplace()
 
     @classmethod
-    def DoG(cls, sigma1: float, sigma2: float | None = None, h=None) -> Kernel:
+    def DoG(
+        cls, sigma1: float, sigma2: float | None = None, h: int | None = None
+    ) -> Kernel:
         return Kernel.DoG(sigma1=sigma1, sigma2=sigma2, h=h)
 
     @classmethod
-    def LoG(cls, sigma: float, h=None) -> Kernel:
+    def LoG(cls, sigma: float, h: int | None = None) -> Kernel:
         return Kernel.LoG(sigma=sigma, h=h)
 
     @classmethod
-    def DGauss(cls, sigma: float, h=None) -> Kernel:
+    def DGauss(cls, sigma: float, h: int | None = None) -> Kernel:
         return Kernel.DGauss(sigma=sigma, h=h)
 
     @staticmethod
-    def _bordertype_cv(border, exclude=None):
+    def _bordertype_cv(
+        border: str, exclude: list[str] | tuple[str, ...] | None = None
+    ) -> int:
         """
         Border handling options for OpenCV
 
@@ -90,7 +95,12 @@ class ImageSpatialMixin:
     }
 
     @staticmethod
-    def _border_args_cv(border, morpho=False, allow=None, disallow=None):
+    def _border_args_cv(
+        border: str | int | float,
+        morpho: bool = False,
+        allow: list[str] | tuple[str, ...] | None = None,
+        disallow: list[str] | tuple[str, ...] | None = None,
+    ) -> dict[str, Any]:
         if disallow is not None and border in disallow:
             raise ValueError(f"border option {border} not supported")
         if allow is not None and border not in allow:
@@ -107,7 +117,9 @@ class ImageSpatialMixin:
             return dict(bordertype=_border_opt["pad"], borderValu=border_value)
 
     @staticmethod
-    def _bordertype_sp(border, exclude=None):
+    def _bordertype_sp(
+        border: str, exclude: list[str] | tuple[str, ...] | None = None
+    ) -> str:
         """
         Border handling options for SciPy
 
@@ -139,7 +151,14 @@ class ImageSpatialMixin:
         except KeyError:
             raise ValueError(border, "border is not a valid option")
 
-    def smooth(self, sigma, h=None, mode="same", border="reflect", bordervalue=0):
+    def smooth(
+        self,
+        sigma: float,
+        h: int | None = None,
+        mode: str = "same",
+        border: str = "reflect",
+        bordervalue: int | float = 0,
+    ) -> Any:
         r"""
         Smooth image
 
@@ -188,7 +207,13 @@ class ImageSpatialMixin:
 
         return self.convolve(K, mode=mode, border=border, bordervalue=bordervalue)
 
-    def convolve(self, K, mode="same", border="reflect", bordervalue=0):
+    def convolve(
+        self,
+        K: Kernel | np.ndarray | Any,
+        mode: str = "same",
+        border: str = "reflect",
+        bordervalue: int | float = 0,
+    ) -> Any:
         """
         Image convolution
 
@@ -334,7 +359,13 @@ class ImageSpatialMixin:
     #     Iv = self.convolve(kernel.T)
     #     return Iu, Iv
 
-    def gradients(self, K=None, mode="same", border="reflect", bordervalue=0):
+    def gradients(
+        self,
+        K: Kernel | np.ndarray | None = None,
+        mode: str = "same",
+        border: str = "reflect",
+        bordervalue: int | float = 0,
+    ) -> tuple[Any, Any]:
         """
         Compute horizontal and vertical gradients
 
@@ -372,8 +403,8 @@ class ImageSpatialMixin:
         return Iu, Iv
 
     def direction(
-        horizontal, vertical
-    ):  # lgtm[py/not-named-self] pylint: disable=no-self-argument
+        horizontal: Any, vertical: Any
+    ) -> Any:  # lgtm[py/not-named-self] pylint: disable=no-self-argument
         r"""
         Gradient direction
 
@@ -407,7 +438,7 @@ class ImageSpatialMixin:
             raise ValueError("images must the same shape")
         return horizontal.__class__(np.arctan2(vertical._A, horizontal._A))
 
-    def Harris_corner_strength(self, k=0.04, h=2):
+    def Harris_corner_strength(self, k: float = 0.04, h: int = 2) -> Any:
         """
         Harris corner strength image
 
@@ -438,7 +469,15 @@ class ImageSpatialMixin:
         dst = cv.cornerHarris(src=self.mono()._A, blockSize=2, ksize=2 * h + 1, k=k)
         return self.__class__(dst)
 
-    def window(self, func, h=None, se=None, border="reflect", bordervalue=0, **kwargs):
+    def window(
+        self,
+        func: Callable[..., Any],
+        h: int | None = None,
+        se: np.ndarray | None = None,
+        border: str = "reflect",
+        bordervalue: int | float = 0,
+        **kwargs: Any,
+    ) -> Any:
         r"""
         Generalized spatial operator
 
@@ -511,7 +550,7 @@ class ImageSpatialMixin:
         )
         return self.__class__(out)
 
-    def zerocross(self):
+    def zerocross(self) -> Any:
         """
         Compute zero crossing
 
@@ -549,7 +588,9 @@ class ImageSpatialMixin:
         )
         return self.__class__(zeroCross)
 
-    def scalespace(self, n, sigma=1):
+    def scalespace(
+        self, n: int, sigma: int | float = 1
+    ) -> tuple[list[Any], list[Any], list[float]]:
         """
         Compute image scalespace sequence
 
@@ -598,7 +639,13 @@ class ImageSpatialMixin:
 
         return g, lap, scales
 
-    def pyramid(self, sigma=1, N=None, border="replicate", bordervalue=0):
+    def pyramid(
+        self,
+        sigma: int | float = 1,
+        N: int | None = None,
+        border: str = "replicate",
+        bordervalue: int | float = 0,
+    ) -> list[Any]:
         """
         Pyramidal image decomposition
 
@@ -684,7 +731,12 @@ class ImageSpatialMixin:
         pyrimlist = [self.__class__(p) for p in pyr]
         return pyrimlist
 
-    def canny(self, sigma=1, th0=None, th1=None):
+    def canny(
+        self,
+        sigma: int | float = 1,
+        th0: float | int | None = None,
+        th1: float | int | None = None,
+    ) -> Any:
         """
         Canny edge detection
 
@@ -764,7 +816,14 @@ class ImageSpatialMixin:
 
         return self.__class__(out)
 
-    def rank(self, footprint=None, h=None, rank=-1, border="replicate", bordervalue=0):
+    def rank(
+        self,
+        footprint: np.ndarray | None = None,
+        h: int | None = None,
+        rank: int | str = -1,
+        border: str = "replicate",
+        bordervalue: int | float = 0,
+    ) -> Any:
         r"""
         Rank filter
 
@@ -848,7 +907,7 @@ class ImageSpatialMixin:
             return self.__class__(np.dstack(out), colororder=self.colororder)
         return self.__class__(out[0], colororder=self.colororder)
 
-    def medianfilter(self, h=1, **kwargs):
+    def medianfilter(self, h: int = 1, **kwargs: Any) -> Any:
         r"""
         Median filter
 
@@ -887,7 +946,9 @@ class ImageSpatialMixin:
         r = int((w**2 - 1) / 2)
         return self.rank(h=h, rank=r, **kwargs)
 
-    def distance_transform(self, invert=False, norm="L2", h=1):
+    def distance_transform(
+        self, invert: bool = False, norm: str = "L2", h: int = 1
+    ) -> Any:
         """
         Distance transform
 
@@ -953,7 +1014,9 @@ class ImageSpatialMixin:
 
     # ======================= labels ============================= #
 
-    def labels_binary(self, connectivity=4, ltype="int32"):
+    def labels_binary(
+        self, connectivity: int = 4, ltype: str = "int32"
+    ) -> tuple[Any, int]:
         """
         Blob labelling
 
@@ -1024,7 +1087,7 @@ class ImageSpatialMixin:
         )
         return self.__class__(labels), retval
 
-    def labels_MSER(self, **kwargs):
+    def labels_MSER(self, **kwargs: Any) -> tuple[Any, int]:
         """
         Blob labelling using MSER
 
@@ -1081,7 +1144,9 @@ class ImageSpatialMixin:
 
         return self.__class__(out, dtype=dtype), len(regions)
 
-    def labels_graphseg(self, sigma=0.5, k=2000, minsize=100):
+    def labels_graphseg(
+        self, sigma: float = 0.5, k: int = 2000, minsize: int = 100
+    ) -> tuple[Any, int]:
         """
         Blob labelling using graph-based segmentation
 
@@ -1120,7 +1185,9 @@ class ImageSpatialMixin:
 
     # -------------------- similarity operations -------------------------- #
 
-    def sad(image1, image2):  # lgtm[py/not-named-self] pylint: disable=no-self-argument
+    def sad(
+        image1: Any, image2: Any
+    ) -> float:  # lgtm[py/not-named-self] pylint: disable=no-self-argument
         """
         Sum of absolute differences
 
@@ -1168,7 +1235,9 @@ class ImageSpatialMixin:
         out = np.sum(m)
         return out
 
-    def ssd(image1, image2):  # lgtm[py/not-named-self] pylint: disable=no-self-argument
+    def ssd(
+        image1: Any, image2: Any
+    ) -> float:  # lgtm[py/not-named-self] pylint: disable=no-self-argument
         """
         Sum of squared differences
 
@@ -1210,7 +1279,9 @@ class ImageSpatialMixin:
         m = np.power((image1._A - image2._A), 2)
         return np.sum(m)
 
-    def ncc(image1, image2):  # lgtm[py/not-named-self] pylint: disable=no-self-argument
+    def ncc(
+        image1: Any, image2: Any
+    ) -> float:  # lgtm[py/not-named-self] pylint: disable=no-self-argument
         """
         Normalised cross correlation
 
@@ -1259,8 +1330,8 @@ class ImageSpatialMixin:
             return np.sum(image1._A * image2._A) / denom
 
     def zsad(
-        image1, image2
-    ):  # lgtm[py/not-named-self] pylint: disable=no-self-argument
+        image1: Any, image2: Any
+    ) -> float:  # lgtm[py/not-named-self] pylint: disable=no-self-argument
         """
         Zero-mean sum of absolute differences
 
@@ -1308,8 +1379,8 @@ class ImageSpatialMixin:
         return np.sum(m)
 
     def zssd(
-        image1, image2
-    ):  # lgtm[py/not-named-self] pylint: disable=no-self-argument
+        image1: Any, image2: Any
+    ) -> float:  # lgtm[py/not-named-self] pylint: disable=no-self-argument
         """
         Zero-mean sum of squared differences
 
@@ -1357,8 +1428,8 @@ class ImageSpatialMixin:
         return np.sum(m)
 
     def zncc(
-        image1, image2
-    ):  # lgtm[py/not-named-self] pylint: disable=no-self-argument
+        image1: Any, image2: Any
+    ) -> float:  # lgtm[py/not-named-self] pylint: disable=no-self-argument
         """
         Zero-mean normalized cross correlation
 
@@ -1409,7 +1480,7 @@ class ImageSpatialMixin:
         else:
             return np.sum(image1 * image2) / denom
 
-    def similarity(self, T, metric="zncc"):
+    def similarity(self, T: Any, metric: str = "zncc") -> Any:
         """
         Locate template in image
 

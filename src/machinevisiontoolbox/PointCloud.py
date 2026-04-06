@@ -3,6 +3,7 @@ Thin wrapper around Open3D point-cloud objects with MVTB look and feel.
 """
 
 from warnings import warn
+from typing import Any, Callable
 
 import numpy as np
 import spatialmath.base as smb
@@ -17,7 +18,7 @@ except ImportError:
 
 
 class PointCloud:
-    def __init__(self, arg, depth_scale=1.0, **kwargs):
+    def __init__(self, arg: Any, depth_scale: float = 1.0, **kwargs) -> None:
         """
         Create new point cloud object
 
@@ -83,7 +84,7 @@ class PointCloud:
         self._pcd = pcd
 
     @staticmethod
-    def _intrinsics(camera):
+    def _intrinsics(camera: Any) -> Any:
         """Return an Open3D style camera intrinsic object
 
         :param camera: camera model
@@ -96,7 +97,7 @@ class PointCloud:
         )
 
     @staticmethod
-    def _image(image):
+    def _image(image: Any) -> Any:
         """Return an Open3D style image object
 
         :param image: MVTB image
@@ -109,7 +110,7 @@ class PointCloud:
             img = img.copy()  # make contiguous
         return o3d.geometry.Image(img)
 
-    def copy(self):
+    def copy(self) -> "PointCloud":
         """
         Copy point cloud
 
@@ -121,7 +122,7 @@ class PointCloud:
         """
         return self.__class__(o3d.geometry.PointCloud(self._pcd))
 
-    def __len__(self):
+    def __len__(self) -> int:
         """
         Number of points
 
@@ -131,7 +132,7 @@ class PointCloud:
         return np.asarray(self._pcd.points).shape[0]
 
     # allow methods of o3d.geometry.PointCloud to be invoked indirectly
-    def __getattr__(self, name):
+    def __getattr__(self, name: str) -> Any:
         """
         Access Open3D PointCloud methods and attributes
 
@@ -153,7 +154,7 @@ class PointCloud:
               Toolbox :class:`PointCloud` instance.
         """
 
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             meth = getattr(self._pcd, name)
             retval = meth(*args, **kwargs)
             if isinstance(retval, tuple):
@@ -172,7 +173,7 @@ class PointCloud:
         else:
             raise ValueError(f"object has no attribute '{name}'")
 
-    def __str__(self):
+    def __str__(self) -> str:
         """
         Concise string representation of point cloud parameters
 
@@ -181,15 +182,15 @@ class PointCloud:
         """
         return str(self._pcd)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self)
 
     @property
-    def pcd(self):
+    def pcd(self) -> Any:
         return self._pcd
 
     @property
-    def points(self):
+    def points(self) -> np.ndarray:
         """
         Get points as array
 
@@ -204,7 +205,7 @@ class PointCloud:
         return np.asarray(self._pcd.points).T
 
     @property
-    def colors(self):
+    def colors(self) -> np.ndarray:
         """
         Get point color data as array
 
@@ -219,11 +220,11 @@ class PointCloud:
         return np.asarray(self._pcd.colors).T
 
     @property
-    def iscolor(self):
+    def iscolor(self) -> bool:
         return self._pcd.has_colors()
 
     @classmethod
-    def Read(cls, filename, *args, **kwargs):
+    def Read(cls, filename: str, *args: Any, **kwargs: Any) -> "PointCloud":
         """
         Create point cloud from file
 
@@ -249,7 +250,14 @@ class PointCloud:
         return cls(pcd)
 
     @classmethod
-    def DepthImage(cls, depth, camera, rgb=None, depth_scale=1.0, **kwargs):
+    def DepthImage(
+        cls,
+        depth: Any,
+        camera: Any,
+        rgb: Any = None,
+        depth_scale: float = 1.0,
+        **kwargs: Any,
+    ) -> "PointCloud":
         """Create point cloud from depth image
 
         Creates a colored or uncolored point cloud.
@@ -311,7 +319,7 @@ class PointCloud:
 
         return cls(pcd)
 
-    def write(self, filename):
+    def write(self, filename: str) -> bool:
         """
         Write point cloud to file
 
@@ -324,7 +332,7 @@ class PointCloud:
         """
         return o3d.io.write_point_cloud(filename, self._pcd)
 
-    def disp(self, block=False, file=None, **kwargs):
+    def disp(self, block: bool = False, file: str | None = None, **kwargs: Any) -> None:
         """
         Display point cloud using Open3D
 
@@ -376,7 +384,7 @@ class PointCloud:
             if file is not None:
                 vis.capture_screen_image(str(file), do_render=False)
 
-    def __rmul__(self, T):
+    def __rmul__(self, T: SE3) -> "PointCloud":
         """
         Overloaded * operator to transform points
 
@@ -395,7 +403,7 @@ class PointCloud:
         else:
             return NotImplemented
 
-    def __imul__(self, T):
+    def __imul__(self, T: SE3) -> "PointCloud":
         """
         Overloaded ``*=`` operator to transform points
 
@@ -415,7 +423,7 @@ class PointCloud:
         else:
             return NotImplemented
 
-    def transform(self, T, inplace=True):
+    def transform(self, T: SE3, inplace: bool = True) -> "PointCloud":
         """
         Transform point cloud
 
@@ -439,7 +447,7 @@ class PointCloud:
             new._pcd.transform(T.A)
             return new
 
-    def __add__(self, other):
+    def __add__(self, other: "PointCloud") -> "PointCloud":
         """
         Overloaded the + operator to concatenate point clouds
 
@@ -455,7 +463,7 @@ class PointCloud:
         pcd.colors.extend(other.colors.T)
         return self.__class__(pcd)
 
-    def downsample_voxel(self, voxel_size):
+    def downsample_voxel(self, voxel_size: float) -> "PointCloud":
         """
         Downsample point cloud by voxelization
 
@@ -472,7 +480,9 @@ class PointCloud:
         return self.__class__(self._pcd.voxel_down_sample(voxel_size))
 
     # random downsample
-    def downsample_random(self, fraction, seed=None):
+    def downsample_random(
+        self, fraction: float, seed: int | None = None
+    ) -> "PointCloud":
         """
         Downsample point cloud by random selection
 
@@ -497,7 +507,7 @@ class PointCloud:
         ind = np.random.choice(n, int(fraction * n), replace=False)
         return self.__class__(self._pcd.select_by_index(ind))
 
-    def estimate_normals(self, **kwargs):
+    def estimate_normals(self, **kwargs: Any) -> None:
         """
         Estimate point normals
 
@@ -515,7 +525,7 @@ class PointCloud:
         )
 
     @property
-    def normals(self):
+    def normals(self) -> np.ndarray:
         """
         Get point normal data as array
 
@@ -529,7 +539,7 @@ class PointCloud:
         """
         return np.asarray(self._pcd.normals).T
 
-    def remove_outlier(self, **kwargs):
+    def remove_outlier(self, **kwargs: Any) -> "PointCloud":
         """
         Remove point cloud outliers
 
@@ -550,7 +560,7 @@ class PointCloud:
         pcd, ind = self._pcd.remove_radius_outlier(**kwargs)
         return self.__class__(pcd)
 
-    def segment_plane(self, **kwargs):
+    def segment_plane(self, **kwargs: Any) -> tuple[Any, "PointCloud", "PointCloud"]:
         # distance_threshold=0.05,
         # ransac_n=3,
         # num_iterations=1000
@@ -563,7 +573,9 @@ class PointCloud:
         outlier_cloud = self._pcd.select_by_index(inliers, invert=True)
         return plane_model, self.__class__(inlier_cloud), self.__class__(outlier_cloud)
 
-    def select(self, ind, invert=False):
+    def select(
+        self, ind: np.ndarray | Callable[..., bool], invert: bool = False
+    ) -> "PointCloud":
         """
         Select points by index
 
@@ -593,7 +605,7 @@ class PointCloud:
             ind = np.array(ind)
         return self.__class__(self._pcd.select_by_index(ind, invert=invert))
 
-    def paint(self, color):
+    def paint(self, color: Any) -> "PointCloud":
         """
         Colorize point cloud
 
@@ -607,7 +619,13 @@ class PointCloud:
         self._pcd.paint_uniform_color(color)
         return self
 
-    def ICP(self, data, T0=None, max_correspondence_distance=1, **kwargs):
+    def ICP(
+        self,
+        data: "PointCloud",
+        T0: SE3 | None = None,
+        max_correspondence_distance: float = 1,
+        **kwargs: Any,
+    ) -> tuple[SE3, Any]:
         """
         Register point cloud using ICP
 
@@ -641,7 +659,7 @@ class PointCloud:
 
         return T, status
 
-    def voxel_grid(self, voxel_size):
+    def voxel_grid(self, voxel_size: float) -> "VoxelGrid":
         """
         Voxelize point cloud
 
@@ -654,12 +672,12 @@ class PointCloud:
 
 
 class VoxelGrid:
-    def __init__(self, pcd, voxel_size):
+    def __init__(self, pcd: PointCloud, voxel_size: float) -> None:
         self._voxels = o3d.geometry.VoxelGrid.create_from_point_cloud(
             pcd._pcd, voxel_size=voxel_size
         )
 
-    def write(self, filename):
+    def write(self, filename: str) -> None:
         """
         Write voxel grid to file
 
@@ -670,7 +688,7 @@ class VoxelGrid:
         """
         o3d.io.write_voxel_grid(filename, self._voxels)
 
-    def disp(self, block=True, file=None, **kwargs):
+    def disp(self, block: bool = True, file: str | None = None, **kwargs: Any) -> None:
         """
         Display voxel grid
 
