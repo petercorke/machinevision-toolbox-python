@@ -994,6 +994,7 @@ class Histogram:
         cursor=False,
         alpha=0.5,
         title=None,
+        log=False,
         **kwargs,
     ):
         """
@@ -1008,13 +1009,35 @@ class Histogram:
         :type bar: bool, optional
         :param style: Style for multiple plots, one of: 'stack' [default], 'overlay'
         :type style: str, optional
-        :param cursor: enable interactive data cursor for stacked line plots,
-            defaults to False.  Cursor is ignored for ``overlay`` style.
+        :param cursor: enable interactive data cursor for stacked line plots, defaults
+            to False.  Cursor is ignored for ``overlay`` style.
         :type cursor: bool, optional
         :param alpha: transparency for overlay plot, defaults to 0.5
         :type alpha: float, optional
+        :param title: plot title, defaults to None
+        :type title: str, optional
+        :param log: use logarithmic y-axis, defaults to False
+        :type log: bool, optional
         :raises ValueError: invalid histogram type
         :raises ValueError: cannot use overlay style for 1-channel histogram
+
+        Plots the histogram using Matplotlib.  For a color image, the histograms of each
+        plane are plotted separately.  The ``type`` option selects the type of histogram
+        to plot: ``frequency``, ``cdf`` or ``ncdf`` (normalized cumulative in the range 0 to 1).
+
+        The ``style`` option selects the style for plotting multiple planes:
+
+        - ``stack``: plot each plane in a separate subplot. The ``cursor`` option
+          enables an interactive data cursor which displays the histogram values at the
+          cursor position.  The ``bar`` option selects whether to use a bar plot or line
+          plot.
+        - ``overlay``: plot all planes in the same axes with different colors. The
+          ``alpha`` option controls the transparency of the bars in the ''overlay''
+          style.
+
+        The ``log`` option uses a logarithmic scale for the y-axis, which can be useful
+        for visualizing histograms with a large dynamic range, zero values are ignored in log plots.
+
         """
 
         x = self._x[:]
@@ -1060,9 +1083,9 @@ class Histogram:
             fig, axes = plt.subplots(n, 1)
             axes = np.atleast_1d(axes)
             for i, ax in enumerate(axes):
-                if False:
-                    # ax.bar(x, y[:, i], width=x[1] - x[0], bottom=0, **kwargs)
-                    ax.bar(x, y[:, i])
+                if bar:
+                    ax.bar(x, y[:, i], width=x[1] - x[0], bottom=0, **kwargs)
+                    # ax.bar(x, y[:, i])
 
                 else:
                     ax.plot(x, y[:, i], **kwargs)
@@ -1071,11 +1094,13 @@ class Histogram:
                     ax.set_ylabel(ylabel1)
                 else:
                     ax.set_ylabel(ylabel1 + " (" + colors[i] + ")")
-                # ax.set_xlim(*xrange)
-                # ax.set_ylim(0, maxy)
+                ax.set_xlim(*xrange)
+                ax.set_ylim(0, maxy)
                 ax.yaxis.set_major_formatter(
                     ScalarFormatter(useOffset=False, useMathText=True)
                 )
+                if log:
+                    ax.set_yscale("log")
             axes[-1].set_xlabel("pixel value")
 
             if cursor:
@@ -1175,9 +1200,15 @@ class Histogram:
 
             ax.set_xlabel("pixel value")
             ax.set_ylabel(ylabel2)
+            if log:
+                ax.set_yscale("log")
 
             ax.grid(True)
             plt.legend(colors)
+
+        else:
+            raise ValueError("unknown style")
+
         if title is not None:
             set_window_title(title)
         plt.show(block=block)
@@ -1304,15 +1335,21 @@ class Histogram:
 if __name__ == "__main__":
     from pathlib import Path
 
-    import pytest
+    # import pytest
 
-    pytest.main(
-        [
-            str(
-                Path(__file__).parent.parent.parent
-                / "tests"
-                / "test_image_whole_features.py"
-            ),
-            "-v",
-        ]
-    )
+    # pytest.main(
+    #     [
+    #         str(
+    #             Path(__file__).parent.parent.parent
+    #             / "tests"
+    #             / "test_image_whole_features.py"
+    #         ),
+    #         "-v",
+    #     ]
+    # )
+
+    from machinevisiontoolbox import Image
+
+    m = Image.Read("monalisa.png", grey=True)
+    h = m.hist()
+    h.plot(overlay)
