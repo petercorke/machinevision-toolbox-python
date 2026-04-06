@@ -1086,6 +1086,23 @@ class TestImage(unittest.TestCase):
         im_copy.array[0, 0] = 255
         self.assertNotEqual(im[0, 0], im_copy[0, 0])
 
+    def test_sameas(self):
+        a = Image([[1, 2], [3, 4]], dtype="uint8")
+        b = Image([[1, 2], [3, 4]], dtype="uint8")
+        c = Image([[1, 2], [3, 5]], dtype="uint8")
+        d = Image([[1, 2, 3], [4, 5, 6]], dtype="uint8")
+        e = Image([[1, 2], [3, 4]], dtype="float32")
+        rgb = Image(np.ones((2, 2, 3), dtype=np.uint8), colororder="RGB")
+        bgr = Image(np.ones((2, 2, 3), dtype=np.uint8), colororder="BGR")
+
+        self.assertTrue(a.sameas(b))
+        self.assertFalse(a.sameas(c))
+        self.assertFalse(a.sameas(d))
+        self.assertFalse(a.sameas(e))
+        self.assertFalse(a.sameas(3))
+        self.assertFalse(rgb.sameas(bgr))
+        self.assertTrue(rgb.sameas(bgr, colororder=False))
+
     # new test
     def test_contains(self):
         im = Image.Zeros(size=(10, 10))

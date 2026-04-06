@@ -22,7 +22,7 @@ except ImportError:
 # TODO need a resizing option for the torch() method, to allow scaling to a fixed size for model input
 
 
-class ImageTorchMixin:
+class ImageTensorMixin:
     """
     PyTorch integration methods for the Image class.
 
@@ -235,7 +235,7 @@ if __name__ == "__main__":
 
     pytest.main(
         [
-            str(Path(__file__).parent.parent.parent / "tests" / "test_image_torch.py"),
+            str(Path(__file__).parent.parent.parent / "tests" / "test_image_tensor.py"),
             "-v",
         ]
     )
