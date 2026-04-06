@@ -1,5 +1,7 @@
 import unittest
+from unittest.mock import patch
 
+import matplotlib.pyplot as plt
 import numpy as np
 import numpy.testing as nt
 
@@ -221,6 +223,25 @@ class TestImageWholeFeatures(unittest.TestCase):
         # TODO: Test histogram plotting (may require mock)
         # im.plot()
         pass
+
+    def test_plot_cursor_stack(self):
+        """Test stack histogram cursor artist and callback setup"""
+        im = Image(np.random.randint(0, 255, (20, 20, 3), dtype=np.uint8))
+        hist = im.hist()
+
+        with patch("matplotlib.pyplot.show"):
+            hist.plot(style="stack", cursor=True, block=False)
+
+        fig = plt.gcf()
+        self.assertEqual(len(fig.axes), 3)
+
+        for ax in fig.axes:
+            self.assertGreaterEqual(len(ax.lines), 3)
+            self.assertGreaterEqual(len(ax.texts), 1)
+
+        callbacks = fig.canvas.callbacks.callbacks.get("motion_notify_event", {})
+        self.assertGreater(len(callbacks), 0)
+        plt.close(fig)
 
     # new test
     def test_cdf_property(self):

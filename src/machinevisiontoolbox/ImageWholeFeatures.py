@@ -991,6 +991,7 @@ class Histogram:
         block=False,
         bar=None,
         style="stack",
+        cursor=False,
         alpha=0.5,
         title=None,
         **kwargs,
@@ -1007,6 +1008,9 @@ class Histogram:
         :type bar: bool, optional
         :param style: Style for multiple plots, one of: 'stack' [default], 'overlay'
         :type style: str, optional
+        :param cursor: enable interactive data cursor for stacked line plots,
+            defaults to False.  Cursor is ignored for ``overlay`` style.
+        :type cursor: bool, optional
         :param alpha: transparency for overlay plot, defaults to 0.5
         :type alpha: float, optional
         :raises ValueError: invalid histogram type
@@ -1053,7 +1057,7 @@ class Histogram:
                 raise ValueError("cannot use overlay style for monochrome image")
 
         if style == "stack":
-            _, axes = plt.subplots(n, 1)
+            fig, axes = plt.subplots(n, 1)
             axes = np.atleast_1d(axes)
             for i, ax in enumerate(axes):
                 if False:
@@ -1073,6 +1077,73 @@ class Histogram:
                     ScalarFormatter(useOffset=False, useMathText=True)
                 )
             axes[-1].set_xlabel("pixel value")
+
+            if cursor:
+                x_interp = np.asarray(x, dtype=float)
+                xpad = 0.01 * (x_interp[-1] - x_interp[0])
+
+                cursor_lines = []
+                cursor_markers = []
+                cursor_labels = []
+
+                for i, ax in enumerate(axes):
+                    y0 = float(y[0, i])
+                    vline = ax.axvline(
+                        x_interp[0],
+                        color="k",
+                        linestyle="--",
+                        linewidth=0.8,
+                        alpha=0.8,
+                        visible=False,
+                    )
+                    marker = ax.plot(
+                        [x_interp[0]],
+                        [y0],
+                        marker="o",
+                        markersize=4,
+                        color="k",
+                        linestyle="None",
+                        visible=False,
+                    )[0]
+                    label = ax.text(
+                        x_interp[0],
+                        y0,
+                        "",
+                        fontsize="small",
+                        visible=False,
+                        bbox={"facecolor": "white", "alpha": 0.7, "edgecolor": "none"},
+                    )
+                    cursor_lines.append(vline)
+                    cursor_markers.append(marker)
+                    cursor_labels.append(label)
+
+                def on_move(event):
+                    if event.xdata is None or event.inaxes not in axes:
+                        for vline, marker, label in zip(
+                            cursor_lines, cursor_markers, cursor_labels
+                        ):
+                            vline.set_visible(False)
+                            marker.set_visible(False)
+                            label.set_visible(False)
+                        fig.canvas.draw_idle()
+                        return
+
+                    xv = float(np.clip(event.xdata, x_interp[0], x_interp[-1]))
+                    for i, (vline, marker, label) in enumerate(
+                        zip(cursor_lines, cursor_markers, cursor_labels)
+                    ):
+                        yv = float(np.interp(xv, x_interp, y[:, i]))
+                        vline.set_xdata([xv, xv])
+                        marker.set_data([xv], [yv])
+                        label.set_position((xv + xpad, yv))
+                        label.set_text(f"{yv:.3g}")
+                        vline.set_visible(True)
+                        marker.set_visible(True)
+                        label.set_visible(True)
+
+                    fig.canvas.draw_idle()
+
+                fig.canvas.mpl_connect("motion_notify_event", on_move)
 
         elif style == "overlay":
             x = np.r_[0, x, 255]
