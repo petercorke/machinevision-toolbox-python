@@ -47,6 +47,7 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install git+https://github.com/petercorke/sphinx-autorun.git
+          pip install sphinx-codeautolink
           pip install .[docs]
           cd packages/mvtb-data && pip install .
 
