@@ -17,7 +17,8 @@ extraction.
    package
    cmdline-tools
    jupyter-notebooks
-   ros-pytorch
+   ros
+   tensor
    base
    blocks
 
