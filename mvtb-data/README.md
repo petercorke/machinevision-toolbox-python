@@ -75,10 +75,10 @@ since it is a dependency.
 There are two very large zip files containing image sequences which are used in
 Sec. 14.8.3 Visual Odometry, each is 116M and exceeds the total PyPI quota. They
 are not included in the `mvtbdata` package, but you can download them into your
-*local* `mvtbdata` package by running
+*local* `mvtbdata` package by
 
 ```
-import mvtbdata.mvtb_load_image_data
+python -m mvtbdata.mvtb_load_image_data
 ```
 
-from inside a Python session.  You only need to do this once.
+You only need to do this once.

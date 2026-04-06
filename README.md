@@ -3,10 +3,10 @@
 <div align="center">
   <img src="https://github.com/petercorke/machinevision-toolbox-python/raw/main/figs/VisionToolboxLogo_NoBackgnd@2x.png" width="350">
   <br>
-  <strong>A modern Python toolbox for machine/computer vision.</strong>
+  <strong>A high-productivity framework for computer vision research and education.</strong>
   <br><br>
   
-  [![JupyterLite](https://img.shields.io/badge/Try_it_Now-JupyterLite-orange?style=for-the-badge&logo=jupyter)](https://petercorke.github.io/machinevision-toolbox-python/lite/lab/index.html?path=intro.ipynb)
+  [![JupyterLite](https://img.shields.io/badge/Try_it_Now-JupyterLite-orange?style=for-the-badge&logo=jupyter)](https://petercorke.github.io/machinevision-toolbox-python/lite/lab/index.ipynb)
   [![PyPI version](https://img.shields.io/pypi/v/machinevision-toolbox-python?style=for-the-badge&color=blue)](https://pypi.org/project/machinevision-toolbox-python/)
   [![Documentation](https://img.shields.io/badge/Docs-View_Online-blue?style=for-the-badge)](https://petercorke.github.io/machinevision-toolbox-python/)
 
@@ -37,25 +37,28 @@
 
 ## Synopsis
 
-The Machine Vision Toolbox for Python (MVTB-P) provides a consistent, Pythonic and powerful API for machine/computer vision.
-It is built on mature and efficient foundations such as NumPy, SciPy, Matplotlib, OpenCV, and Open3D and plays nicely with PyTorch and ROS.
-The main components are:
+The Machine Vision Toolbox (MVTB) brings professional-grade vision algorithms to your fingertips with a Pythonic API. Built on a "best-of-breed" foundation—NumPy, SciPy, OpenCV, and Open3D—it bridges the gap between raw pixel manipulation and high-level spatial reasoning and robotics.
 
-- An `Image` object with nearly 200 methods and properties that wrap functions
-  from [NumPy](https://numpy.org), [OpenCV](https://opencv.org), [SciPy](https://scipy.org), and [Open3D](https://www.open3d.org). Methods support monadic, dyadic, filtering, edge detection,
-  mathematical morphology and feature extraction (blobs, lines and point/corner features), as well as operator overloading. Images are stored as encapsulated [NumPy](https://numpy.org) arrays
-  along with image metadata.
-- An object-oriented wrapper of [Open3D](https://www.open3d.org) functions that supports a subset of operations, but allows operator overloading and is compatible with the [Spatial Math Toolbox](https://github.com/petercorke/spatialmath-python).
-- A collection of camera projection classes for central (normal perspective), fisheye, catadioptric and spherical cameras.
-- Some advanced algorithms such as:
-  - multiview geometry: camera calibration, stereo vision, bundle adjustment
-  - bag of words
+### 🚀 Key components
 
-Advantages of this Python Toolbox include:
+* The `Image` power-Object: A single class wrapping 200+ methods. It handles everything from monadic/dyadic ops and edge detection to advanced feature extraction (blobs, lines, and point features) with full operator overloading.
 
-- use of mature, efficient and portable functions which provide a comprehensive and mature collection of functions for image processing and feature extraction;
-- support for method chaining to describe pipelines like `Image.Read("monalisa.png").convolve(Kernel.Gauss(4)).disp()`
-- the OpenCV functions are wrapped in a consistent way, hiding some of the gnarly details of OpenCV like conversion to/from float32 and the BGR color order.
+* Advanced Camera Modeling: Comprehensive support for Central (perspective), Fisheye, Catadioptric, and Spherical camera geometries.
+
+* Spatial AI Integration: Native compatibility with the Spatial Math Toolbox and seamless "play" with PyTorch and ROS.
+
+* High-Level 3D Vision: Sophisticated wrappers for Open3D, including multiview geometry, camera calibration, stereo vision, and bundle adjustment.
+
+### 🛠 Why MVTB?
+
+* Expressive Method Chaining: Build complex pipelines in a single, readable line:
+`Image.Read("monalisa.png").convolve(Kernel.Gauss(4)).disp()`
+
+* "Sanity-Preserving" OpenCV Wrappers: We handle the "gnarly" bits of OpenCV for you—automatically managing BGR-to-RGB conversions and float32 scaling so you can focus on the vision, not the boilerplate.
+
+* NumPy-Native: Every image is an encapsulated NumPy array, meaning you have zero-overhead access to the entire Python scientific stack.
+
+* 2026 Ready: Optimized for modern workflows, including JupyterLite for zero-install browser demos and VS Code integration.
 
 
 > [!IMPORTANT]

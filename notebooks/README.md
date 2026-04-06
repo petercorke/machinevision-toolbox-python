@@ -1,96 +1,11 @@
-# Robotic Vision (A) stream (Peter Corke)
+# Jupyter Notebooks
 
-There are three lectures in this stream.  The first (A1), is a general maths-free introduction to the topic of robotic vision.  
-
-The next two lectures (A2, A3) will introduce you to important foundational concepts in computer vision.  These are "classical" topics
-but nevertheless topics that we strongly believe are important to understand, even in the modern deep-learning era.
-
-There are four sets of learning resources for both A2 and A3, and these are described in more detail below.
-
-I teach general principles but to put the ideas into practice I think it's really useful to write code.  There are myriad choices of language
-and library/package/toolbox to choose from.  In the past I've done a lot in MATLAB but now I'm working with Python, and Python is
-what we will we will be using.
-
-
-Peter,
-January 2025
-
-## Lectures
-
-* Lecture A1: Introduction to Robotic Vision (7:30pm Monday, 30 minutes)
-* Lecture A2:  Cameras and Image Formation (8:30am Tuesday, 60 minutes)
-* Lecture A3: Image Processing (9:45am Tuesday, 60 minutes)
-* optional Tutorial session (4:00pm Tuesday, 90 minutes), chat about concepts from lectures, work through notebook examples
-
-The PDFs of lectures A2 and A3 are provided in advance.  Feel free to load them into your tablet to annotate as we go along.
-
-## Book
-
-The material that I present is covered in more detail in my book Robotic, Vision & Control, 3rd edition 2023.  There are two versions of this book:
-
-* [Robotic, Vision & Control: Fundamental algorithms in **Python**](https://link.springer.com/book/10.1007/978-3-031-06469-2)
-* [Robotic, Vision & Control: Fundamental algorithms in **MATLAB**](https://link.springer.com/book/10.1007/978-3-031-07262-8)
-
-The books are very similar in chapter structure and content, the first is based on Python code and open-source packages, the second is based on MATLAB and proprietrary toolboxes that you need to licence from MathWorks (most universities will provide you the required licences).  It's just a matter of personal preference.
-
-If you are studying at a university it is highly likely that you can download - **for free** - the chapters of these books from the links above.  Go to your library's website, search for the book, click on the e-book link.
-For this course, just grab chapters 11-14
-
-<img src="readme-pix/download1.png" alt="download vision chapters" width="400" />
-<img src="readme-pix/download2.png" alt="download visual motion chapters" width="400" />
-
-
-Feel free to grab any other chapters that might take your fancy.  Chapter 2 is a good (I think) introduction to representing position
-and orientation in 3D space (which is covered in the first Visual SLAM lecture), Appendix B is a concise refresher on linear algebra, geometry, linearization, and solving sets of non-linear equations.
-
-
-## Videos
-
-There are a set of free online video resources (the QUT Robot Academy) that might be useful as a refresher.  
-
-* [Homogeneous coordinates](https://robotacademy.net.au/lesson/homogeneous-coordinates-recap/) (5 mins)
-* [Position, orientation & pose in 3D space](https://robotacademy.net.au/masterclass/3d-geometry/) (multiple lessons, 60 mins total)
-
-Code examples in these videos are done with MATLAB, but underneath each video is a code tab, and below that is a tab that allows you to select a 
-"translation" of the code used in the video to different languages and toolboxes.
-
-<img src="readme-pix/academy.png" alt="language options for Robot Academy videos" width="400" />
-
-I will mention other, lecture-specific, Robot Academy videos below.
-
-
-## Jupyter Notebooks
-
-I provide a selection of Jupyter/Python notebooks that will help to embed the knowledge from each lecture.
-
-Alternatively, you can run them locally on your laptop, and that requires that you first install the [Machine Vision Toolbox for Python](https://github.com/petercorke/machinevision-toolbox-python)
+First install the [Machine Vision Toolbox for Python](https://github.com/petercorke/machinevision-toolbox-python)
 ```
-pip install machinevisiontoolbox
+pip install machinevisiontoolbox[jupyter]
 ```
-This will install all the required dependencies (including OpenCV) as well as example images for the exercises.
+This will install all the required dependencies (including OpenCV), example images, and Jupyter with interactive notebook graphics.
 
-If you are installing into an existing local Python environment then you must have Numpy 1.x.  OpenCV is a critical dependency which  does not yet work with Numpy 2.x.  Python 3.9 or newer is recommended.  
-
-I would highly recommend that you use [Miniconda](https://docs.conda.io/projects/miniconda/en/latest) and create an environment for your RVSS code.
-```
-conda create -n RVSS python=3.10
-conda activate RVSS
-pip install machinevision-toolbox-python
-```
-
-If you run into any issues with Conda or local install talk to me, Tobi or Don.
-
-To render images nicely within the provided notebooks you will also need to install
-```
-pip install ipywidgets  # interactive controls for Jupyter notebooks
-pip install ipympl  # enables matplotlib interactive features in Jupyter notebooks
-```
-
-When viewing images inside Jupyter, you may get a stack of messages from a `KeyError` within `...site-packages/matplotlib/backends/backend_webagg_core.py`.
-This is due to a really annoying bug in matplotlib 3.10.0 and you need to change `buttons` to `button` on line 295
-```
-295:    if event['buttons'] & mask  # State *after* press/release.
-```
 
 You can run Jupyter notebooks a few different ways as discussed below.
 
@@ -119,20 +34,51 @@ Colab will pull the notebook from GitHub, and allow you to interact with it in a
 
 
 * Jupyter/Python Notebooks
+Welcome to the interactive companion for the **Machine Vision Toolbox for Python**. These notebooks run entirely in your browser via **JupyterLite**—no installation, no configuration, just code.
 
-  * [`camera_animation.ipynb`](camera_animation.ipynb), interactive animation of point projection for central projection model <a href="https://colab.research.google.com/github/rvss-australia/RVSS/blob/main/Robotic_Vision/camera_animation.ipynb" target="_blank"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
-  * [`camera.ipynb`](camera.ipynb), introducing the Toolbox `CentralCamera` object <a href="https://colab.research.google.com/github/rvss-australia/RVSS/blob/main/Robotic_Vision/camera.ipynb" target="_blank"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
-   * [`homogeneous-coords.ipynb`](homogeneous-coords.ipynb), refresher on homogeneous coordinates including an interactive animation<a href="https://colab.research.google.com/github/rvss-australia/RVSS/blob/main/Robotic_Vision/homogeneous-coords.ipynb" target="_blank"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
-  * [`homography.ipynb`](homographies.ipynb),  extension: computing an homography <a href="https://colab.research.google.com/github/rvss-australia/RVSS/blob/main/Robotic_Vision/homography.ipynb" target="_blank"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
+---
 
+## Quick Introduction
 
+* [**Introduction**](https://colab.research.google.com/github/petercorke/machinevision-toolbox-python/blob/main/notebooksintro.ipynb) - A quick introduction.<img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
+---
 
+## 🖼️ Image Fundamentals
+Learn how to manipulate pixels, colorspaces, and basic filters using the high-level `Image` class.
 
-* Jupyter/Python Notebooks
+* [**Exploring Images**](https://colab.research.google.com/github/petercorke/machinevision-toolbox-python/blob/main/notebooksexploring-images.ipynb) — The basics of images, pixels, and bit-depth.<img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
+* [**Grey scale images**](https://colab.research.google.com/github/petercorke/machinevision-toolbox-python/blob/main/notebooksgreyscale-images.ipynb) - The basics of grey scale images.<img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
+* [**Color images**](https://colab.research.google.com/github/petercorke/machinevision-toolbox-python/blob/main/notebookscolor-images.ipynb) - The basics of color images.<img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
+* [**Image Processing**](https://colab.research.google.com/github/petercorke/machinevision-toolbox-python/blob/main/notebooksimage-processing.ipynb) — Fundamentals of filtering, convolution kernels, and spatial operations.<img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
+* [**Understanding gamma**](https://colab.research.google.com/github/petercorke/machinevision-toolbox-python/blob/main/notebooksgamma.ipynb) - The most misunderstood image transform that is everywhere in image processing.<img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
 
-  * [`exploring-images.ipynb`](exploring-images.ipynb), explore the basics of images and pixels using the Toolbox <a href="https://colab.research.google.com/github/rvss-australia/RVSS/blob/main/Robotic_Vision/exploring-images.ipynb" target="_blank"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
-  * [`image-processing.ipynb`](image-processing.ipynb), fundamentals of image processing as discussed in the lecture <a href="https://colab.research.google.com/github/rvss-australia/RVSS/blob/main/Robotic_Vision/image-processing.ipynb" target="_blank"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
-  * [`image-features.ipynb`](image-features.ipynb), fundamentals of corner features as discussed in the lecture <a href="https://colab.research.google.com/github/rvss-australia/RVSS/blob/main/Robotic_Vision/image-features.ipynb" target="_blank"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
-  * [`finding-blobs.ipynb`](finding-blobs.ipynb), extension to blob finding and blob parameters <a href="https://colab.research.google.com/github/rvss-australia/RVSS/blob/main/Robotic_Vision/finding-blobs.ipynb" target="_blank"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
-  * [`fiducials.ipynb`](fiducials.ipynb), extension to finding ArUco markers (QR-like codes) in an image <a href="https://colab.research.google.com/github/rvss-australia/RVSS/blob/main/Robotic_Vision/fiducials.ipynb" target="_blank"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
+---
+
+## 📷 Camera Geometry & Projection
+Explore how the 3D world is mapped onto 2D sensors using comprehensive camera models.
+
+* [**Camera Animation**](https://colab.research.google.com/github/petercorke/machinevision-toolbox-python/blob/main/notebookscamera_animation.ipynb) — **Interactive:** Visualize how points project onto a central perspective sensor.<img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
+* [**The Central Camera**](https://colab.research.google.com/github/petercorke/machinevision-toolbox-python/blob/main/notebookscamera.ipynb) — Introduction to the Toolbox `CentralCamera` object and its properties.<img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
+* [**Homogeneous Coordinates**](https://colab.research.google.com/github/petercorke/machinevision-toolbox-python/blob/main/notebookshomogeneous-coords.ipynb) — A refresher on the math behind spatial transforms with an interactive animation.<img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
+* [**Homography**](https://colab.research.google.com/github/petercorke/machinevision-toolbox-python/blob/main/notebookshomographies.ipynb) — Computing planar projections, image warping, and homography estimation.<img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
+* [**Camera calibration**](https://colab.research.google.com/github/petercorke/machinevision-toolbox-python/blob/main/notebookscalibration.ipynb) - Calibrating a camera from a set of images.<img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
+
+---
+
+## 🔍 Advanced Vision Features
+Moving beyond pixels to robust features and 3D reasoning.
+
+* [**Finding Blobs**](https://colab.research.google.com/github/petercorke/machinevision-toolbox-python/blob/main/notebooksfinding-blobs.ipynb) — Region segmentation, binary shape analysis, and blob parameters.<img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
+* [**Image convolution**](https://colab.research.google.com/github/petercorke/machinevision-toolbox-python/blob/main/notebooksimage-convolution.ipynb) - The basis of smoothing, edge detection and point features.<img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
+* [**Image Features**](https://colab.research.google.com/github/petercorke/machinevision-toolbox-python/blob/main/notebooksimage-features.ipynb) — Fundamentals of point and corner detection (SIFT, ORB, etc.) as discussed in the lectures.<img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
+* [**Fiducial Markers**](https://colab.research.google.com/github/petercorke/machinevision-toolbox-python/blob/main/notebooksfiducials.ipynb) — Detecting ArUco markers and QR-like codes in real-world scenes.<img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
+* [**Image Motion**](https://colab.research.google.com/github/petercorke/machinevision-toolbox-python/blob/main/notebooksimage-motion.ipynb) - The relationship between camera motion (3D) and image plane motion (2D).
+* [**Visual Servoing**](https://colab.research.google.com/github/petercorke/machinevision-toolbox-python/blob/main/notebooksIBVS.ipynb) - Image-Based Visual Servoing.<img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
+---
+<p align="center">
+  <img src="https://github.com/petercorke/machinevision-toolbox-python/raw/main/figs/VisionToolboxLogo_NoBackgnd@2x.png" width="200">
+  <br>
+  <font size="2">Created by Peter Corke | QUT Centre for Robotics</font>
+</p>
+
 
