@@ -380,52 +380,95 @@ class ImageProcessingMixin(_ImageBase):
             Use :meth:`threshold` instead
         """
         warn("Deprecated, please use threshold", DeprecationWarning, stacklevel=2)
+        if "t" in kwargs and "threshold" not in kwargs:
+            kwargs["threshold"] = kwargs.pop("t")
+        if "opt" in kwargs and "method" not in kwargs:
+            kwargs["method"] = kwargs.pop("opt")
         return self.threshold(*args, **kwargs)
 
-    def threshold(self, t: Any = None, opt: str = "binary") -> Any:
+    def threshold(
+        self,
+        threshold: int | float | str | None = None,
+        opt: str | None = None,
+        *,
+        method: str = "binary",
+        nbins: int = 256,
+        p: float = 50.0,
+        as_bool: bool = False,
+        t: int | float | str | None = None,
+    ) -> Any:
         r"""
         Image threshold
 
-        :param t: threshold value
-        :type t: scalar, str
-        :param option: threshold option, defaults to 'binary'
-        :type option: str, optional
+        :param threshold: threshold value, or automatic selector name (``'otsu'``,
+            ``'triangle'`` or ``'percentile'``)
+        :type threshold: scalar or str
+        :param method: thresholding method for scalar threshold values, defaults to
+            ``'binary'``
+        :type method: str, optional
+        :param nbins: number of bins for histogram-based automatic methods, defaults to
+            256
+        :type nbins: int, optional
+        :param p: percentile used when ``threshold='percentile'``, defaults to 50
+        :type p: float, optional
+        :param as_bool: return binary outputs as ``bool`` if ``True``, otherwise
+            ``uint8`` with values 0/255, defaults to ``False``
+        :type as_bool: bool, optional
         :return: thresholded image
         :rtype: :class:`Image`
 
-        Apply a threshold ``t`` to the image.  The threshold condition is for the value
-        **greater than** ``t``. Various thresholding options are
-        supported:
+        Apply a threshold ``threshold`` to the image.  The threshold condition is for
+        the value **greater than** ``threshold``. Various thresholding options are
+        supported where :math:`t` is the threshold value:
 
-        ================  =====================================================================================================================
-        Option             Function
-        ================  =====================================================================================================================
-        ``'binary'``      :math:`Y_{u,v} = \left\{ \begin{array}{l} m \mbox{, if } X_{u,v} > t \\ 0 \mbox{, otherwise} \end{array} \right.`
-        ``'binary_inv'``  :math:`Y_{u,v} = \left\{ \begin{array}{l} 0 \mbox{, if } X_{u,v} > t \\ m \mbox{, otherwise} \end{array} \right.`
-        ``'truncate'``    :math:`Y_{u,v} = \left\{ \begin{array}{l} t \mbox{, if } X_{u,v} > t \\ X_{u,v} \mbox{, otherwise} \end{array} \right.`
-        ``'tozero'``      :math:`Y_{u,v} = \left\{ \begin{array}{l} X_{u,v} \mbox{, if } X_{u,v} > t \\ 0 \mbox{, otherwise} \end{array} \right.`
-        ``'tozero_inv'``  :math:`Y_{u,v} = \left\{ \begin{array}{l} 0 \mbox{, if } X_{u,v} > t \\ X_{u,v} \mbox{, otherwise} \end{array} \right.`
-        ================  =====================================================================================================================
+        .. list-table::
+            :header-rows: 1
 
-        where :math:`m` is the maximum value of the image datatype.
+            * - ``method``
+              - Function
+              - Return data type
+            * - ``'binary'``
+              - :math:`Y_{u,v} = \left\{ \begin{array}{l} T \mbox{,if } X_{u,v} > t \\ F \mbox{, otherwise} \end{array} \right.`
+              - ``uint8`` or ``bool``
+            * - ``'binary_inv'``
+              - :math:`Y_{u,v} = \left\{ \begin{array}{l} F \mbox{, if } X_{u,v} > t \\ T \mbox{, otherwise} \end{array}\right.`
+              - ``uint8`` or ``bool``
+            * - ``'truncate'``
+              - :math:`Y_{u,v} = \left\{ \begin{array}{l} t \mbox{,if } X_{u,v} > t \\ X_{u,v} \mbox{, otherwise} \end{array} \right.`
+              - same as :math:`X`
+            * - ``'tozero'``
+              - :math:`Y_{u,v} = \left\{ \begin{array}{l} X_{u,v} \mbox{, if } X_{u,v} > t \\ 0 \mbox{, otherwise} \end{array}\right.`
+              - same as :math:`X`
+            * - ``'tozero_inv'``
+              - :math:`Y_{u,v} = \left\{ \begin{array}{l} 0 \mbox{, if } X_{u,v} > t \\ X_{u,v} \mbox{, otherwise} \end{array}\right.`
+              - same as :math:`X`
 
-        If threshold ``t`` is a string then the threshold is determined
-        automatically:
+        For the case where the return data type is ``uint8`` the return pixel values are
+        either :math:`F=0` or :math:`T=255`. For the case where ``as_bool`` is ``True``
+        then the return data type is ``bool`` and the pixel values are either
+        :math:`F=False` or :math:`T=True`.
 
-        +---------------+-----------------------------------------------------+
-        |threshold      | algorithm                                           |
-        +===============+=====================================================+
-        |``'otsu'``     | Otsu's method finds the threshold that minimizes    |
-        |               | the within-class variance. This technique is        |
-        |               | effective for a bimodal greyscale histogram.        |
-        +---------------+-----------------------------------------------------+
-        |``'triangle'`` | The triangle method constructs a line between the   |
-        |               | histogram peak and the farthest end of the          |
-        |               | histogram. The threshold is the point of maximum    |
-        |               | distance between the line and the histogram. This   |
-        |               | technique is effective when the object pixels       |
-        |               | produce a weak peak in the histogram.               |
-        +---------------+-----------------------------------------------------+
+        If ``threshold`` is a string then the threshold is determined automaticly
+        prior to executing the logic above.  The following automatic threshold selection
+        methods are supported:
+
+        +-----------------+-----------------------------------------------------+
+        |threshold        | algorithm                                           |
+        +=================+=====================================================+
+        |``'otsu'``       | Otsu's method finds the threshold that minimizes    |
+        |                 | the within-class variance. This technique is        |
+        |                 | effective for a bimodal greyscale histogram.        |
+        +-----------------+-----------------------------------------------------+
+        |``'triangle'``   | The triangle method constructs a line between the   |
+        |                 | histogram peak and the farthest end of the          |
+        |                 | histogram. The threshold is the point of maximum    |
+        |                 | distance between the line and the histogram. This   |
+        |                 | technique is effective when the object pixels       |
+        |                 | produce a weak peak in the histogram.               |
+        +-----------------+-----------------------------------------------------+
+        |``'percentile'`` | Select threshold from the image percentile given    |
+        |                 | by ``p`` (0 to 100).                                |
+        +-----------------+-----------------------------------------------------+
 
         Example:
 
@@ -434,89 +477,110 @@ class ImageProcessingMixin(_ImageBase):
             >>> from machinevisiontoolbox import Image
             >>> img = Image([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
             >>> img.threshold(5).print()
+            >>> img.threshold('otsu')
+            >>> img.threshold('percentile', p=90)
 
 
         :references:
-            - A Threshold Selection Method from Gray-Level Histograms, N. Otsu.
-              IEEE Trans. Systems, Man and Cybernetics Vol SMC-9(1), Jan 1979,
-              pp 62-66.
-            - Automatic measurement of sister chromatid exchange frequency"
-              Zack (Zack GW, Rogers WE, Latt SA (1977),
-              J. Histochem. Cytochem. 25 (7): 741–53.
+            - A Threshold Selection Method from Gray-Level Histograms, N. Otsu. IEEE
+              Trans. Systems, Man and Cybernetics Vol SMC-9(1), Jan 1979, pp 62-66.
+            - Automatic measurement of sister chromatid exchange frequency" Zack (Zack
+              GW, Rogers WE, Latt SA (1977), J. Histochem. Cytochem. 25 (7): 741–53.
             - |RVC3|, Section 12.1.1.
 
-        .. important:: Uses OpenCV function ``cv2.threshold`` for explicit and triangle thresholds.
+        .. note:: Uses NumPy thresholding and toolbox-native Otsu and triangle
+            threshold selection, not OpenCV functions, to support a wider range of datatypes and automatic threshold selection methods.
 
         :seealso:
-            :meth:`threshold_interactive`
-            :meth:`threshold_adaptive_`
-            :meth:`otsu`
-            `opencv.threshold <https://docs.opencv.org/4.x/d7/d1b/group__imgproc__misc.html#gae8a4a146d1ca78c626a53577199e9c57>`_
+            :meth:`threshold_interactive` :meth:`threshold_adaptive_` :meth:`otsu`
+            :meth:`triangle`
         """
-        # dictionary of threshold options from OpenCV
-        options_dict = {
-            "binary": cv.THRESH_BINARY,
-            "binary_inv": cv.THRESH_BINARY_INV,
-            "truncate": cv.THRESH_TRUNC,
-            "tozero": cv.THRESH_TOZERO,
-            "tozero_inv": cv.THRESH_TOZERO_INV,
-        }
-        threshold_dict = {"otsu": cv.THRESH_OTSU, "triangle": cv.THRESH_TRIANGLE}
+        if t is not None:
+            warn(
+                "threshold(..., t=...) is deprecated, pass threshold as the first argument",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            if threshold is not None:
+                raise ValueError("specify either threshold or t, not both")
+            threshold = t
 
-        flag = options_dict[opt]
-        if isinstance(t, str):
-            if t == "otsu":
+        if threshold is None:
+            raise ValueError("threshold must be specified")
+
+        if opt is not None:
+            warn(
+                "threshold(..., opt=...) is deprecated, use method=...",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            if method != "binary":
+                raise ValueError("specify either method or opt, not both")
+            method = opt
+
+        mode = method.lower()
+        arr = self._A
+        autothresh = None
+
+        if as_bool:
+            false_value: bool | int = False
+            true_value: bool | int = True
+            binary_dtype = np.bool_
+        else:
+            false_value = 0
+            true_value = 255
+            binary_dtype = np.uint8
+
+        if isinstance(threshold, str):
+            auto = threshold.lower()
+            if auto == "otsu":
                 if self.iscolor:
                     raise ValueError(
                         "otsu thresholding only works for grayscale images"
                     )
+                autothresh = self.otsu(nbins=nbins)
 
-                threshvalue = self.otsu()
-                _, imt = cv.threshold(
-                    src=self._A,
-                    thresh=float(threshvalue),
-                    maxval=self.maxval,
-                    type=flag,
-                )
-                return self.__class__(self.like(imt)), self.like(threshvalue)
+            elif auto == "triangle":
+                if self.iscolor:
+                    raise ValueError(
+                        "triangle thresholding only works for grayscale images"
+                    )
+                autothresh = self.triangle(nbins=nbins)
+            elif auto == "percentile":
+                autothresh = np.percentile(arr, p)
+            else:
+                raise ValueError(auto, "unknown automatic threshold method")
 
-            self._opencv_type_check(
-                self._A,
-                "multiple-channel",
-                "CV_8U",
-                "CV_16U",
-                "CV_16S",
-                "CV_32F",
-                "CV_64F",
+            threshold = autothresh
+
+        if not argcheck.isscalar(threshold):
+            raise ValueError(threshold, "threshold must be a scalar")
+
+        if mode == "binary":
+            imt = np.where(arr > threshold, true_value, false_value).astype(
+                binary_dtype
             )
-
-            # auto threshold requested
-            flag |= threshold_dict[t]
-
-            threshvalue, imt = cv.threshold(
-                src=self._A, thresh=0.0, maxval=self.maxval, type=flag
+        elif mode in ("/binary", "binary_inv"):
+            imt = np.where(arr > threshold, false_value, true_value).astype(
+                binary_dtype
             )
-            return self.__class__(self.like(imt)), self.like(
-                int(threshvalue), maxint=255
-            )
-
-        elif argcheck.isscalar(t):
-            self._opencv_type_check(
-                self._A,
-                "multiple-channel",
-                "CV_8U",
-                "CV_16U",
-                "CV_16S",
-                "CV_32F",
-                "CV_64F",
-            )
-
-            # threshold is given
-            _, imt = cv.threshold(src=self._A, thresh=t, maxval=self.maxval, type=flag)
-            return self.__class__(imt)
-
+        elif mode == "truncate":
+            imt = np.minimum(arr, threshold)
+        elif mode == "tozero":
+            imt = np.where(arr > threshold, arr, 0)
+        elif mode in ("/tozero", "tozero_inv"):
+            imt = np.where(arr <= threshold, arr, 0)
         else:
-            raise ValueError(t, "t must be a string or scalar")
+            raise ValueError(mode, "unknown threshold method")
+
+        if mode in ("binary", "binary_inv"):
+            out = self.__class__(imt)
+        else:
+            out = self.__class__(self.like(imt))
+
+        if autothresh is not None:
+            return out, self.cast(autothresh)
+        return out
 
     def ithresh(self, threshold: float | None = None, opt: str = "binary") -> Any:
         """
@@ -526,7 +590,7 @@ class ImageProcessingMixin(_ImageBase):
             Use :meth:`threshold_interactive` instead
         """
         if threshold is not None:
-            return self.threshold(t=threshold, opt=opt)
+            return self.threshold(threshold=threshold, method=opt)
 
         warn(
             "Deprecated, please use threshold_interactive",
@@ -535,20 +599,36 @@ class ImageProcessingMixin(_ImageBase):
         )
         return self.threshold_interactive()
 
-    def threshold_interactive(self, title: str | None = None) -> Any:
+    def threshold_interactive(
+        self, title: str | None = None, mode: str = "binary", block: bool = False
+    ) -> Any:
         r"""
         Interactive thresholding
 
+        :param title: title for the window, defaults to ``None``
+        :type title: str, optional
+        :param mode: threshold display mode, one of ``'binary'`` or ``'tozero'``,
+            defaults to ``'binary'``
+        :type mode: str, optional
+        :param block: block execution while the interactive window is open,
+            defaults to ``False``
+        :type block: bool, optional
+        :raises ValueError: called for a color image
+        :raises ValueError: unknown mode
         :return: selected threshold value
         :rtype: scalar
 
-        The image is displayed with a binary threshold displayed in a simple
-        Matplotlib GUI along with the histogram and a slider for threshold
-        value.  Adjusting the slider changes the thresholded image view.
+        The image is displayed in a simple Matplotlib GUI along with the histogram
+        and a slider for threshold value.  Adjusting the slider changes the
+        thresholded image view.
 
-        The displayed image is
+        If ``mode='binary'`` the displayed image is:
 
-        .. math:: Y_{u,v} = \left\{ \begin{array}{l} m \mbox{, if } X_{u,v} > t \\ 0 \mbox{, otherwise} \end{array} \right.
+        .. math:: Y_{u,v} = \left\{ \begin{array}{l} 1 \mbox{, if } X_{u,v} > t \\ 0 \mbox{, otherwise} \end{array} \right.
+
+        If ``mode='tozero'`` the displayed image is:
+
+        .. math:: Y_{u,v} = \left\{ \begin{array}{l} X_{u,v} \mbox{, if } X_{u,v} > t \\ 0 \mbox{, otherwise} \end{array} \right.
 
         :references:
             - |RVC3|, Section 12.1.1.1.
@@ -559,53 +639,70 @@ class ImageProcessingMixin(_ImageBase):
         # ACKNOWLEDGEMENT: https://matplotlib.org/devdocs/gallery/widgets/range_slider.html
         import matplotlib.pyplot as plt
         import numpy as np
-        from matplotlib import colors
         from matplotlib.widgets import Slider
 
-        # N = 128
-        Ncolors = 256
-        img = self._A
-        t = int((img.max() + img.min()) / 2)
+        if self.iscolor:
+            raise ValueError("interactive thresholding only works for grayscale images")
 
-        x = np.linspace(self.min(), self.max(), Ncolors)
+        mode = mode.lower()
+        if mode not in ("binary", "tozero"):
+            raise ValueError(mode, "unknown threshold mode")
+
+        img = self._A
+        img_min = float(np.min(img))
+        img_max = float(np.max(img))
+
+        if img_min == img_max:
+            return self.cast(img_min)
+
+        t = 0.5 * (img_max + img_min)
+
+        def apply_mode(threshold):
+            if mode == "binary":
+                return (img > threshold).astype(np.uint8)
+            return np.where(img > threshold, img, 0)
 
         fig, axs = plt.subplots(1, 2, figsize=(10, 5))
         plt.subplots_adjust(bottom=0.25)
         try:
             if title is not None and fig.canvas.manager is not None:
                 fig.canvas.manager.set_window_title(title)  # for 3.4 onward
-        except:
+        except Exception:
             pass
 
-        def colormap(t):
-            X = np.tile(x > t, (3, 1)).T  # N x 3 colormap
-            X = np.hstack([X, np.ones((Ncolors, 1))])  # N x 4
-            return colors.LinearSegmentedColormap.from_list("threshold_colormap", X)
+        im = axs[0].imshow(apply_mode(t), cmap="gray")
+        if mode == "binary":
+            im.set_clim(0, 1)
+        else:
+            im.set_clim(img_min, img_max)
 
-        im = axs[0].imshow(img, cmap="gray")
-        im.set_cmap(colormap(t))
-        axs[1].hist(img.flatten(), bins="auto")
+        counts, edges = np.histogram(img.flatten(), bins=256, range=(img_min, img_max))
+        axs[1].stairs(
+            counts,
+            edges,
+            fill=True,
+            linewidth=0,
+            antialiased=False,
+        )
+        axs[1].set_xlim(img_min, img_max)
         axs[1].set_title("Histogram of pixel intensities")
+        axs[1].grid(True)
 
         # Create the Slider
         slider_ax = plt.axes((0.20, 0.1, 0.60, 0.03))
-        slider = Slider(slider_ax, "Threshold", img.min(), img.max(), valinit=t)
+        slider = Slider(slider_ax, "Threshold", img_min, img_max, valinit=t)
 
         # Create the Vertical lines on the histogram
-        lower_limit_line = axs[1].axvline(slider.val, color="k")
+        lower_limit_line = axs[1].axvline(slider.val, color="k", linestyle="--")
 
         thresh = t
 
         def update(val):
             # The val passed to a callback by the Slider
 
-            # Update the image's colormap
-            # im.norm.vmin = val
-            # im.norm.vmax = val
-
             nonlocal thresh
 
-            im.set_cmap(colormap(val))
+            im.set_data(apply_mode(val))
 
             # Update the position of the vertical line
             lower_limit_line.set_xdata([val, val])
@@ -615,51 +712,8 @@ class ImageProcessingMixin(_ImageBase):
             thresh = val
 
         slider.on_changed(update)
-        plt.show(block=True)
-        return thresh
-
-    # def ithresh2(self):
-
-    #     # ACKNOWLEDGEMENT: https://matplotlib.org/devdocs/gallery/widgets/range_slider.html
-    #     import numpy as np
-    #     import matplotlib.pyplot as plt
-    #     from matplotlib.widgets import RangeSlider
-
-    #     #N = 128
-    #     img = self.image
-
-    #     fig, axs = plt.subplots(1, 2, figsize=(10, 5))
-    #     plt.subplots_adjust(bottom=0.25)
-
-    #     im = axs[0].imshow(img)
-    #     axs[1].hist(img.flatten(), bins='auto')
-    #     axs[1].set_title('Histogram of pixel intensities')
-
-    #     # Create the RangeSlider
-    #     slider_ax = plt.axes([0.20, 0.1, 0.60, 0.03])
-    #     slider = RangeSlider(slider_ax, "Threshold", img.min(), img.max())
-
-    #     # Create the Vertical lines on the histogram
-    #     lower_limit_line = axs[1].axvline(slider.val[0], color='k')
-    #     upper_limit_line = axs[1].axvline(slider.val[1], color='k')
-
-    #     def update(val):
-    #         # The val passed to a callback by the RangeSlider will
-    #         # be a tuple of (min, max)
-
-    #         # Update the image's colormap
-    #         im.norm.vmin = val[0]
-    #         im.norm.vmax = val[1]
-
-    #         # Update the position of the vertical lines
-    #         lower_limit_line.set_xdata([val[0], val[0]])
-    #         upper_limit_line.set_xdata([val[1], val[1]])
-
-    #         # Redraw the figure to ensure it updates
-    #         fig.canvas.draw_idle()
-
-    #     slider.on_changed(update)
-    #     plt.show(block=True)
+        plt.show(block=block)
+        return self.cast(thresh)
 
     def threshold_adaptive(
         self,
@@ -719,9 +773,26 @@ class ImageProcessingMixin(_ImageBase):
         )
         return self.__class__(self.like(out))
 
-    def otsu(self) -> Any:
+    def adaptive_threshold(self, *args: Any, **kwargs: Any) -> Any:
+        """
+        Adaptive threshold
+
+        .. deprecated::
+            Use :meth:`threshold_adaptive` instead.  Mentioned on page 484 of |RVC3| as adaptive_threshold but implemented as threshold_adaptive for consistency with other method names.
+        """
+        warn(
+            "Deprecated, please use threshold_adaptive",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.threshold_adaptive(*args, **kwargs)
+
+    def otsu(self, nbins: int = 256) -> Any:
         """
         Otsu threshold selection
+
+        :param nbins: number of bins for histogram computation, defaults to 256
+        :type nbins: int, optional
 
         :return: Otsu's threshold
         :rtype: scalar
@@ -754,16 +825,24 @@ class ImageProcessingMixin(_ImageBase):
               Assocn. Annual Summit and Conf (APSIPA). 2013. pp1-4
             - |RVC3|, Section 12.1.1.
 
-        :seealso: :meth:`threshold` :meth:`threshold_interactive` :meth:`threshold_adaptive`  `opencv.threshold <https://docs.opencv.org/4.x/d7/d1b/group__imgproc__misc.html#gae8a4a146d1ca78c626a53577199e9c57>`_
+        :seealso: :meth:`triangle` :meth:`threshold` :meth:`threshold_interactive` :meth:`threshold_adaptive`
         """
         image = self.mono() if self.iscolor else self
 
-        values, counts = np.unique(image._A.reshape(-1), return_counts=True)
+        pixels = image._A.reshape(-1)
 
-        if values.size == 0:
+        if pixels.size == 0:
             raise ValueError("cannot compute Otsu threshold for an empty image")
-        if values.size == 1:
-            return values[0]
+        if nbins < 2:
+            raise ValueError("nbins must be >= 2")
+
+        pmin = float(np.min(pixels))
+        pmax = float(np.max(pixels))
+        if pmin == pmax:
+            return pixels[0]
+
+        counts, edges = np.histogram(pixels, bins=nbins, range=(pmin, pmax))
+        values = (edges[:-1] + edges[1:]) / 2.0
 
         probabilities = counts.astype(np.float64) / counts.sum()
         cumulative_probabilities = np.cumsum(probabilities)
@@ -784,6 +863,75 @@ class ImageProcessingMixin(_ImageBase):
         between_class_variance[valid] = numerator / denominator
 
         return values[np.argmax(between_class_variance)]
+
+    def triangle(self, nbins: int = 256) -> Any:
+        """
+        Triangle threshold selection.
+
+        :param nbins: number of bins for histogram computation, defaults to 256
+        :type nbins: int, optional
+
+        :return: triangle threshold
+        :rtype: scalar
+
+        Compute an automatic threshold using the triangle algorithm from the
+        image histogram.  Works for greyscale integer and floating-point images.
+
+        :seealso: :meth:`threshold` :meth:`otsu`
+        """
+        image = self.mono() if self.iscolor else self
+
+        pixels = image._A.reshape(-1)
+
+        if pixels.size == 0:
+            raise ValueError("cannot compute triangle threshold for an empty image")
+        if nbins < 2:
+            raise ValueError("nbins must be >= 2")
+
+        pmin = float(np.min(pixels))
+        pmax = float(np.max(pixels))
+        if pmin == pmax:
+            return pixels[0]
+
+        counts, edges = np.histogram(pixels, bins=nbins, range=(pmin, pmax))
+        values = (edges[:-1] + edges[1:]) / 2.0
+
+        hist = counts.astype(np.float64)
+        peak = int(np.argmax(hist))
+        nonzero = np.flatnonzero(hist)
+        left = int(nonzero[0])
+        right = int(nonzero[-1])
+
+        if peak == left and peak == right:
+            return values[peak]
+
+        if (peak - left) >= (right - peak):
+            end = left
+        else:
+            end = right
+
+        lo = min(peak, end)
+        hi = max(peak, end)
+        if hi == lo:
+            return values[peak]
+
+        x = np.arange(lo, hi + 1, dtype=np.float64)
+        y = hist[lo : hi + 1]
+
+        x1 = float(peak)
+        y1 = float(hist[peak])
+        x2 = float(end)
+        y2 = float(hist[end])
+
+        dx = x2 - x1
+        dy = y2 - y1
+        den = np.hypot(dx, dy)
+        if den == 0:
+            return values[peak]
+
+        distances = np.abs(dy * x - dx * y + x2 * y1 - y2 * x1) / den
+        k = int(np.argmax(distances))
+        return values[lo + k]
 
     def blend(
         self,
@@ -1237,13 +1385,19 @@ class ImageProcessingMixin(_ImageBase):
 if __name__ == "__main__":
     from pathlib import Path
 
-    import pytest
+    from machinevisiontoolbox import Image
 
-    tests = Path(__file__).parent.parent.parent / "tests"
-    pytest.main(
-        [
-            str(tests / "test_image_processing.py"),
-            str(tests / "test_image_processing_kernel.py"),
-            "-v",
-        ]
-    )
+    a = Image([[1, 2], [3, 4]], dtype="float")
+    print(a)
+    a.threshold(2).print()
+
+    # import pytest
+
+    # tests = Path(__file__).parent.parent.parent / "tests"
+    # pytest.main(
+    #     [
+    #         str(tests / "test_image_processing.py"),
+    #         str(tests / "test_image_processing_kernel.py"),
+    #         "-v",
+    #     ]
+    # )
