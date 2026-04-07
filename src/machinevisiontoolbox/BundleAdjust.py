@@ -1018,7 +1018,7 @@ if pgraph_installed:
             :return: multiline string describing key parameters of bundle adjustment problem
             :rtype: str
             """
-            return str(self)
+            return f"BundleAdjust(camera={repr(self.camera)}, views={self.nviews}, landmarks={self.nlandmarks}, states={self.nstates}, projections={self.g.ne})"
 
         def __str__(self) -> str:
             """

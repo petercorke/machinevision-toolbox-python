@@ -466,7 +466,7 @@ class VisualServo(ABC):
         return s
 
     def __repr__(self) -> str:
-        return str(self)
+        return f"VisualServo.{self.__class__.__name__}(camera={repr(self.camera)}, history={len(self.history)})"
 
     def plot_point(self, *args: Any, **kwargs: Any) -> Any:
         return self.camera.plot_point(*args, **kwargs)

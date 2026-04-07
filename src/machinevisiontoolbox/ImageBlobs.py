@@ -628,6 +628,9 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         return new
 
     def __repr__(self) -> str:
+        return f"Blobs(nblobs={len(self.data)})"
+
+    def __str__(self) -> str:
         # s = "" for i, blob in enumerate(self): s += f"{i}:
         # area={blob.area:.1f} @ ({blob.uc:.1f}, {blob.vc:.1f}),
         # touch={blob.touch}, orient={blob.orientation * 180 / np.pi:.1f}°,

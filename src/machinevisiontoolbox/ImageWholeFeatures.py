@@ -866,7 +866,7 @@ class Histogram:
         s = f"histogram with {len(self.x)} bins"
         if self.nplanes > 1:
             s += f" x {self._h.shape[1]} planes"
-        s += f": xrange {self.x[0]} - {self.x[-1]}, yrange {np.min(self._h)} - {np.max(self.h)}"
+        s += f": xrange {self.x[0]} - {self.x[-1]}, yrange {int(np.min(self._h))} - {int(np.max(self._h))}"
         return s
 
     def __repr__(self) -> str:
@@ -885,7 +885,7 @@ class Histogram:
             >>> h = im.hist(100)
             >>> h
         """
-        return str(self)
+        return f"Histogram(nbins={len(self.x)}, nplanes={self.nplanes}, xrange=({self.x[0]}, {self.x[-1]}), yrange=({int(np.min(self._h))}, {int(np.max(self._h))}))"
 
     @property
     def x(self) -> np.ndarray:

@@ -498,6 +498,48 @@ class Image(
             s += ")"
 
         return s
+    
+    def __repr__(self) -> str:
+        """
+        Readable representation of image parameters
+
+        :return: summary of image enclosed in angle brackets
+        :rtype: str
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read('flowers1.png')
+            >>> img
+        """
+        # Image(shape=(480, 640, 3), dtype=uint8, colororder='RGB', id=..., name=...)
+
+        s = f"Image(size=({self.width}, {self.height}), dtype={self.dtype}"
+        if self.nplanes > 1:
+            s += f", nplanes={self.nplanes}"
+
+        if self.colororder is not None:
+            co = self.colororder_str or ""
+            s += f", colororder={co}" + co
+
+        if self.id is not None:
+            s += f", id={self.id}"
+        if self.name is not None:
+            name = self.name
+            # if it's a long name, take from rightmost / and add ellipsis
+            if len(name) > 20:
+                k = [i for i, c in enumerate(name) if c == "/"]
+                if len(k) >= 2:
+                    name = name[k[-2] :]
+                else:
+                    name = name[-20:]
+                name = "..." + name
+            s += f"name='{name}'"
+        if self.domain is not None:
+            s += f", u=({self.domain[0][0]:.3g},{self.domain[0][-1]:.3g}), v=({self.domain[1][0]:.3g},{self.domain[1][-1]:.3g})"
+        return s + ")"
 
     def rprint(self, **kwargs) -> "Image":
         """
@@ -744,22 +786,7 @@ class Image(
 
         return s
 
-    def __repr__(self) -> str:
-        """
-        Readable representation of image parameters
 
-        :return: summary of image enclosed in angle brackets
-        :rtype: str
-
-        Example:
-
-        .. runblock:: pycon
-
-            >>> from machinevisiontoolbox import Image
-            >>> img = Image.Read('flowers1.png')
-            >>> img
-        """
-        return f"<{str(self)}>"
 
     def copy(self, copy: bool = True) -> "Image":
         """

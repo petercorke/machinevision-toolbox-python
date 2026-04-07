@@ -186,7 +186,7 @@ class PointCloud:
         return str(self._pcd)
 
     def __repr__(self) -> str:
-        return str(self)
+        return f"PointCloud(npoints={len(self)}, colored={self.iscolor})"
 
     @property
     def pcd(self) -> Any:

@@ -459,8 +459,11 @@ class VideoFile(ImageSource):
     def __len__(self) -> int:
         return self.nframes
 
-    def __repr__(self) -> str:
+    def __str__(self) -> str:
         return f"VideoFile({os.path.basename(self.filename)}) {self.shape[1]} x {self.shape[0]}, {self.nframes} frames @ {self.fps}fps"
+
+    def __repr__(self) -> str:
+        return f"VideoFile(file={os.path.basename(self.filename)}, size=({self.shape[1]}, {self.shape[0]}), nframes={self.nframes}, fps={self.fps})"
 
     def __enter__(self) -> VideoFile:
         return self
@@ -588,9 +591,13 @@ class VideoCamera(ImageSource):
         """
         self.cap.release()
 
-    def __repr__(self) -> str:
+    def __str__(self) -> str:
         backend = self.cap.getBackendName()
         return f"VideoCamera({self.id}) {self.width} x {self.height} @ {self.framerate}fps using {backend}"
+
+    def __repr__(self) -> str:
+        backend = self.cap.getBackendName()
+        return f"VideoCamera(id={self.id}, size=({self.width}, {self.height}), fps={self.framerate}, backend={backend})"
 
     # see https://docs.opencv.org/4.x/d4/d15/group__videoio__flags__base.html#gaeb8dd9c89c10a5c63c139bf7c4f5704d
     properties: dict[str, int] = {
@@ -838,7 +845,7 @@ class ImageCollection(ImageSource):
         return "\n".join([str(f) for f in self.names])
 
     def __repr__(self) -> str:
-        return str(self)
+        return f"ImageCollection(nimages={len(self.images)})"
 
     def __next__(self) -> Image:
         if self.i >= len(self.names):
@@ -922,7 +929,7 @@ class ImageSequence(ImageSource):
         pass
 
     def __repr__(self) -> str:
-        return f"ImageSequence({len(self._frames)} frames)"
+        return f"ImageSequence(nimages={len(self._frames)})"
 
 
 class ZipArchive(ImageSource):
@@ -1048,8 +1055,11 @@ class ZipArchive(ImageSource):
         self.i = 0
         return self
 
+    def __str__(self) -> str:
+        return "ZipArchive(\n  " + "\n  ".join(self.files) + "\n)"
+
     def __repr__(self) -> str:
-        return "\n".join(self.files)
+        return f"ZipArchive(nfiles={len(self.files)})"
 
     def __next__(self) -> Image | bytes:
         if self.i >= len(self.files):
@@ -1192,6 +1202,9 @@ class WebCam(ImageSource):
         if self.cap is not None:
             self.cap.release()
             self.cap = None
+
+    def __repr__(self) -> str:
+        return f"WebCam({self.url})"
 
 
 # dartmouth = WebCam('https://webcam.dartmouth.edu/webcam/image.jpg')
@@ -1378,6 +1391,9 @@ class EarthView(ImageSource):
             colororder = None
         im = convert(data[0], **self.args)
         return Image(im, colororder=colororder)
+
+    def __repr__(self) -> str:
+        return f"EarthView(type={self.type}, zoom={self.zoom}, scale={self.scale}, shape={tuple(self.shape)})"
 
 
 # ROS PointCloud2 field datatype constants → (numpy dtype, byte size)
@@ -3152,12 +3168,20 @@ class TensorStack(ImageSource):
 
         return Image(frame, colororder=self._colororder, dtype=self._dtype)
 
-    def __repr__(self) -> str:
+    def __str__(self) -> str:
         """Return string representation."""
         shape = self._array.shape
         dtype = self._array.dtype
         return (
             f"TensorStack({self._batch_size} frames, shape {shape[1:]}, dtype {dtype})"
+        )
+
+    def __repr__(self) -> str:
+        """Return string representation."""
+        shape = self._array.shape
+        dtype = self._array.dtype
+        return (
+            f"TensorStack(nframes={self._batch_size}, shape={shape[1:]}, dtype={dtype})"
         )
 
 
@@ -3194,24 +3218,27 @@ class LabelMe:
     """
 
     filename: str
+    _nshapes: int | None
 
     def __init__(self, filename: str) -> None:
         self.filename = filename
+        self._nshapes = self._count_shapes_from_json()
 
-    def __repr__(self) -> str:
-        """Return a concise summary with filename and number of shapes."""
+    def _count_shapes_from_json(self) -> int | None:
+        """Read shape count from LabelMe JSON, returning ``None`` on failure."""
         try:
             with open(self.filename, "r", encoding="utf-8") as f:
                 data = json.load(f)
             shapes = data.get("shapes", [])
-            if not isinstance(shapes, list):
-                nshapes = 0
-            else:
-                nshapes = len(shapes)
-            count = str(nshapes)
+            if isinstance(shapes, list):
+                return len(shapes)
+            return 0
         except (OSError, json.JSONDecodeError, TypeError):
-            count = "?"
+            return None
 
+    def __repr__(self) -> str:
+        """Return a concise summary with filename and number of shapes."""
+        count = "?" if self._nshapes is None else str(self._nshapes)
         return f"LabelMe(filename={self.filename!r}, nshapes={count})"
 
     @staticmethod
