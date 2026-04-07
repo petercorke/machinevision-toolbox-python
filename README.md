@@ -6,7 +6,7 @@
   <strong>A high-productivity framework for computer vision research and education.</strong>
   <br><br>
   
-	[![JupyterLite](https://img.shields.io/badge/Try_it_Now-JupyterLite-orange?style=for-the-badge&logo=jupyter)](https://petercorke.github.io/machinevision-toolbox-python/lite/index.ipynb)
+[![JupyterLite](https://img.shields.io/badge/Try_it_Now-JupyterLite-orange?style=for-the-badge&logo=jupyter)](https://petercorke.github.io/machinevision-toolbox-python/lite/index.ipynb)
   [![PyPI version](https://img.shields.io/pypi/v/machinevision-toolbox-python?style=for-the-badge&color=blue)](https://pypi.org/project/machinevision-toolbox-python/)
   [![Documentation](https://img.shields.io/badge/Docs-View_Online-blue?style=for-the-badge)](https://petercorke.github.io/machinevision-toolbox-python/)
 
@@ -60,9 +60,6 @@ The Machine Vision Toolbox (MVTB) brings professional-grade vision algorithms to
 
 * 2026 Ready: Optimized for modern workflows, including JupyterLite for zero-install browser demos and VS Code integration.
 
-
-> [!IMPORTANT]
-> **v2.0 Release:** This version introduces breaking changes to the `Image` class APIs. See the [Migration Guide](./MIGRATION.md) for details.
 
 # Getting going
 
