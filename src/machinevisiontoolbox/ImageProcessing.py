@@ -639,7 +639,6 @@ class ImageProcessingMixin(_ImageBase):
         # ACKNOWLEDGEMENT: https://matplotlib.org/devdocs/gallery/widgets/range_slider.html
         import matplotlib.pyplot as plt
         import numpy as np
-        from matplotlib.widgets import Slider
 
         if self.iscolor:
             raise ValueError("interactive thresholding only works for grayscale images")
@@ -662,8 +661,22 @@ class ImageProcessingMixin(_ImageBase):
                 return (img > threshold).astype(np.uint8)
             return np.where(img > threshold, img, 0)
 
+        # With the ipympl widget backend every draw_idle() encodes the full
+        # canvas as PNG and sends it over the WebSocket.  Rapid slider events
+        # flood the queue and the slider freezes.  Use an ipywidgets
+        # FloatSlider (continuous_update=False) instead so updates only fire
+        # on mouse-release, not during the drag.
+        _backend = plt.get_backend().lower()
+        _use_ipywidgets = "widget" in _backend or "ipympl" in _backend
+        if _use_ipywidgets:
+            try:
+                import ipywidgets as widgets
+                from IPython.display import display
+            except ImportError:
+                _use_ipywidgets = False
+
         fig, axs = plt.subplots(1, 2, figsize=(10, 5))
-        plt.subplots_adjust(bottom=0.25)
+        plt.subplots_adjust(bottom=0.1 if _use_ipywidgets else 0.25)
         try:
             if title is not None and fig.canvas.manager is not None:
                 fig.canvas.manager.set_window_title(title)  # for 3.4 onward
@@ -688,12 +701,39 @@ class ImageProcessingMixin(_ImageBase):
         axs[1].set_title("Histogram of pixel intensities")
         axs[1].grid(True)
 
-        # Create the Slider
+        # Create the vertical line on the histogram
+        lower_limit_line = axs[1].axvline(t, color="k", linestyle="--")
+
+        if _use_ipywidgets:
+            thresh_holder = [t]
+
+            slider = widgets.FloatSlider(
+                value=t,
+                min=img_min,
+                max=img_max,
+                step=(img_max - img_min) / 256,
+                description="Threshold",
+                continuous_update=False,
+                layout=widgets.Layout(width="80%"),
+            )
+
+            def update(change):
+                val = change["new"]
+                im.set_data(apply_mode(val))
+                lower_limit_line.set_xdata([val, val])
+                fig.canvas.draw_idle()
+                thresh_holder[0] = val
+
+            slider.observe(update, names="value")
+            plt.show()
+            display(slider)
+            return self.cast(thresh_holder[0])
+
+        # Native backend: use a matplotlib Slider
+        from matplotlib.widgets import Slider
+
         slider_ax = plt.axes((0.20, 0.1, 0.60, 0.03))
         slider = Slider(slider_ax, "Threshold", img_min, img_max, valinit=t)
-
-        # Create the Vertical lines on the histogram
-        lower_limit_line = axs[1].axvline(slider.val, color="k", linestyle="--")
 
         thresh = t
 
@@ -1385,13 +1425,7 @@ class ImageProcessingMixin(_ImageBase):
 if __name__ == "__main__":
     from pathlib import Path
 
-    from machinevisiontoolbox import Image
-
-    a = Image([[1, 2], [3, 4]], dtype="float")
-    print(a)
-    a.threshold(2).print()
-
-    # import pytest
+    import pytest
 
     # tests = Path(__file__).parent.parent.parent / "tests"
     # pytest.main(
