@@ -14,10 +14,12 @@ dist: .FORCE
 	python -m build --wheel
 	ls -lh dist/*
 
-upload: .FORCE
-	twine upload dist/*
+pypi: .FORCE
+	python -m build
+	$(eval VERSION := $(shell grep '^version' pyproject.toml | sed 's/version = "\(.*\)"/\1/'))
+	@echo "Uploading version $(VERSION) to PyPI"
+	twine upload --verbose dist/*
 
 clean: .FORCE
 	-rm -r *.egg-info
 	-rm -r dist
-

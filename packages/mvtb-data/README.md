@@ -1,6 +1,6 @@
 # Machine Vision Toolbox for Python - data package
 
-[![A Python Robotics Package](https://raw.githubusercontent.com/petercorke/robotics-toolbox-python/main/.github/svg/py_collection.min.svg)](https://github.com/petercorke/machine-vision-toolbox-python)
+[![A Python Robotics Package](https://raw.githubusercontent.com/petercorke/robotics-toolbox-python/master/.github/svg/py_collection.min.svg)](https://github.com/petercorke/machine-vision-toolbox-python)
 [![PyPI version](https://badge.fury.io/py/mvtb-data.svg)](https://badge.fury.io/py/mvtb-data)
 [![Anaconda version](https://anaconda.org/conda-forge/mvtb-data/badges/version.svg)](https://anaconda.org/conda-forge/mvtb-data)
 

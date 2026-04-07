@@ -1,6 +1,6 @@
 [project]
-name = "mvtbdata"
-version = "1.6"
+name = "mvtb-data"
+version = "1.6.1"
 authors = [{ name = "Peter Corke", email = "rvc@petercorke.com" }]
 description = "Image and data files for the Machine Vision Toolbox for Python"
 readme = "README.md"
