@@ -209,7 +209,7 @@ class ImageSource(ABC):
 
         .. note:: Jump keys and ``loop`` are only available for finite sources
             that implement ``__len__``.  For live streams such as
-            :class:`VideoCamera` or :class:`RosTopic` those controls are
+            :class:`VideoCamera` or :class:`ROSTopic` those controls are
             disabled automatically.
 
         :seealso: :class:`ImageSequence`
@@ -881,8 +881,8 @@ class ImageSequence(ImageSource):
 
         .. code-block:: python
 
-            from machinevisiontoolbox import RosBag, ImageSequence
-            bag = RosBag("mybag.bag", msgfilter="Image")
+            from machinevisiontoolbox import ROSBag, ImageSequence
+            bag = ROSBag("mybag.bag", msgfilter="Image")
             seq = ImageSequence(bag)
             seq.disp()                        # step through one frame at a time
             seq.disp(animate=True, fps=5)     # timed playback
@@ -1428,7 +1428,7 @@ def _resolve_typestore(release: str):
 
 
 @dataclass(slots=True, frozen=True)
-class RosMessage:
+class ROSMessage:
     """
     Normalised ROS message sample.
 
@@ -1448,7 +1448,7 @@ class RosMessage:
     data: Any
 
 
-class RosTopic(ImageSource):
+class ROSTopic(ImageSource):
     """
     Iterate images from a live ROS topic via a rosbridge WebSocket.
 
@@ -1466,7 +1466,7 @@ class RosTopic(ImageSource):
         set ``False`` for publish-only use
     :type subscribe: bool, optional
     :param output: output mode, ``"image"`` yields :class:`Image` and
-        ``"message"`` yields :class:`RosMessage`, defaults to ``"image"``
+        ``"message"`` yields :class:`ROSMessage`, defaults to ``"image"``
     :type output: str, optional
     :param blocking: if ``True`` (default) :meth:`__next__` blocks until a new
         frame arrives; if ``False`` it returns the most recently received frame
@@ -1477,13 +1477,13 @@ class RosTopic(ImageSource):
     :raises ImportError: if the ``roslibpy`` package is not installed
 
     In subscribe mode, the object is an iterator that yields :class:`Image`
-    instances (``output="image"``) or :class:`RosMessage` instances
+    instances (``output="image"``) or :class:`ROSMessage` instances
     (``output="message"``) as they arrive from the topic.  Use it as a context
     manager to ensure the connection is always closed:
 
         .. code-block:: python
 
-            with RosTopic("/camera/image/compressed", host="192.168.1.10") as stream:
+            with ROSTopic("/camera/image/compressed", host="192.168.1.10") as stream:
                 for img in stream:
                     img.disp()
 
@@ -1492,7 +1492,7 @@ class RosTopic(ImageSource):
 
         .. code-block:: python
 
-            stream = RosTopic("/camera/image/compressed")
+            stream = ROSTopic("/camera/image/compressed")
             img = next(stream)
             stream.release()
 
@@ -1501,7 +1501,7 @@ class RosTopic(ImageSource):
 
         .. code-block:: python
 
-            pub = RosTopic("/cmd_topic", message="std_msgs/String", subscribe=False)
+            pub = ROSTopic("/cmd_topic", message="std_msgs/String", subscribe=False)
             pub.publish({"data": "hello"})
             pub.release()
 
@@ -1566,7 +1566,7 @@ class RosTopic(ImageSource):
                 "sensor_msgs/CompressedImage"
             )
         self._latest_frame: np.ndarray | None = None
-        self._latest_message: RosMessage | None = None
+        self._latest_message: ROSMessage | None = None
         self._latest_timestamp: int | None = None
         self._frame_event = threading.Event() if subscribe else None
         self._advertised = False
@@ -1785,7 +1785,7 @@ class RosTopic(ImageSource):
 
         if self._output == "message":
             self.i += 1
-            self._latest_message = RosMessage(
+            self._latest_message = ROSMessage(
                 topic=self.topic,
                 msgtype=self.message,
                 timestamp=timestamp,
@@ -1838,15 +1838,15 @@ class RosTopic(ImageSource):
         if self._frame_event is not None:
             self._frame_event.set()
 
-    def __iter__(self) -> RosTopic:
+    def __iter__(self) -> ROSTopic:
         if not self._subscribe:
-            raise TypeError("RosTopic is publish-only (subscribe=False)")
+            raise TypeError("ROSTopic is publish-only (subscribe=False)")
         self.i = 0
         return self
 
-    def __next__(self) -> Image | RosMessage:
+    def __next__(self) -> Image | ROSMessage:
         if not self._subscribe or self._frame_event is None:
-            raise TypeError("RosTopic is publish-only (subscribe=False)")
+            raise TypeError("ROSTopic is publish-only (subscribe=False)")
         if self._blocking:
             # wait for a *new* frame to arrive, then clear for the next call
             self._frame_event.wait()
@@ -1910,7 +1910,7 @@ class RosTopic(ImageSource):
 
             .. code-block:: python
 
-                pub = RosTopic("/cmd_text", message="std_msgs/String", subscribe=False)
+                pub = ROSTopic("/cmd_text", message="std_msgs/String", subscribe=False)
                 pub.publish({"data": "hello"})
                 pub.release()
 
@@ -1919,7 +1919,7 @@ class RosTopic(ImageSource):
 
             .. code-block:: python
 
-                pub = RosTopic("/cmd_vel", message="geometry_msgs/Twist", subscribe=False)
+                pub = ROSTopic("/cmd_vel", message="geometry_msgs/Twist", subscribe=False)
                 pub.publish(
                     {
                         "linear": {"x": 0.2, "y": 0.0, "z": 0.0},
@@ -1934,7 +1934,7 @@ class RosTopic(ImageSource):
             .. code-block:: python
 
                 img = Image(np.zeros((240, 320, 3), dtype=np.uint8), colororder="RGB")
-                pub = RosTopic("/camera/image_raw", message="sensor_msgs/Image", subscribe=False)
+                pub = ROSTopic("/camera/image_raw", message="sensor_msgs/Image", subscribe=False)
                 pub.publish(img, timestamp_ns=1_700_000_000_123_456_789)
                 pub.release()
 
@@ -1945,7 +1945,7 @@ class RosTopic(ImageSource):
 
                 points = np.array([[0.0, 1.0], [0.0, 0.2], [1.0, 1.2]], dtype=np.float32)
                 pc = PointCloud(points)
-                pub = RosTopic("/cloud", message="sensor_msgs/PointCloud2", subscribe=False)
+                pub = ROSTopic("/cloud", message="sensor_msgs/PointCloud2", subscribe=False)
                 pub.publish(pc, timestamp_ns=1_700_000_000_223_456_789)
                 pub.release()
 
@@ -1986,26 +1986,26 @@ class RosTopic(ImageSource):
             self._advertised = False
         self.client.terminate()
 
-    def grab(self) -> Image | RosMessage:
+    def grab(self) -> Image | ROSMessage:
         """
         Grab a single frame from the ROS topic.
 
         :return: next frame from the topic
-        :rtype: :class:`Image` or :class:`RosMessage`
+        :rtype: :class:`Image` or :class:`ROSMessage`
 
         .. deprecated:: 0.11.4
             Use :func:`next` on the iterator instead, for example ``next(stream)``.
         """
         if not self._subscribe:
-            raise TypeError("RosTopic is publish-only (subscribe=False)")
+            raise TypeError("ROSTopic is publish-only (subscribe=False)")
         warnings.warn(
-            "RosTopic.grab() is deprecated; use next(stream) instead.",
+            "ROSTopic.grab() is deprecated; use next(stream) instead.",
             DeprecationWarning,
             stacklevel=2,
         )
         return next(self)
 
-    def __enter__(self) -> RosTopic:
+    def __enter__(self) -> ROSTopic:
         return self
 
     def __exit__(self, exc_type, exc, tb) -> None:
@@ -2016,7 +2016,7 @@ class RosTopic(ImageSource):
             mode = "blocking" if self._blocking else "latest"
         else:
             mode = "publish"
-        return f"RosTopic({self.topic!r}, host={self.host!r}, port={self.port}, {mode})"
+        return f"ROSTopic({self.topic!r}, host={self.host!r}, port={self.port}, {mode})"
 
     @property
     def width(self) -> int | None:
@@ -2062,12 +2062,12 @@ class RosTopic(ImageSource):
         return self._latest_frame.shape[:2]  # (height, width)
 
 
-class SyncRosStreams:
+class SyncROSStreams:
     """
-    Synchronise multiple :class:`RosTopic` objects by timestamp.
+    Synchronise multiple :class:`ROSTopic` objects by timestamp.
 
     :param streams: two or more ROS streams to synchronise
-    :type streams: list of :class:`RosTopic`
+    :type streams: list of :class:`ROSTopic`
     :param tolerance: maximum timestamp mismatch in seconds for a matched set,
         defaults to 0.02
     :type tolerance: float, optional
@@ -2087,15 +2087,15 @@ class SyncRosStreams:
 
         .. code-block:: python
 
-            rgb = RosTopic("/camera/color/image_raw/compressed")
-            depth = RosTopic("/camera/depth/image_rect_raw/compressed")
-            with SyncRosStreams([rgb, depth], tolerance=0.03) as sync:
+            rgb = ROSTopic("/camera/color/image_raw/compressed")
+            depth = ROSTopic("/camera/depth/image_rect_raw/compressed")
+            with SyncROSStreams([rgb, depth], tolerance=0.03) as sync:
                 for rgb_im, depth_im in sync:
                     # process aligned pair
                     pass
 
 
-    **Interaction with ``RosTopic`` blocking mode**
+    **Interaction with ``ROSTopic`` blocking mode**
 
     For time-step synchronisation, set each input stream to ``blocking=True``.
     This gives one newly arrived frame per stream pull and avoids repeated
@@ -2108,13 +2108,13 @@ class SyncRosStreams:
     strict frame-by-frame synchronisation.
     """
 
-    streams: list[RosTopic]
+    streams: list[ROSTopic]
     tolerance: float
     _tol_ns: int
 
-    def __init__(self, streams: list[RosTopic], tolerance: float = 0.02) -> None:
+    def __init__(self, streams: list[ROSTopic], tolerance: float = 0.02) -> None:
         if len(streams) < 2:
-            raise ValueError("SyncRosStreams requires at least two streams")
+            raise ValueError("SyncROSStreams requires at least two streams")
         if tolerance <= 0:
             raise ValueError("tolerance must be > 0")
         if not all(stream._subscribe for stream in streams):
@@ -2134,7 +2134,7 @@ class SyncRosStreams:
             raise TypeError("Stream item has no timestamp attribute")
         return int(ts)
 
-    def __iter__(self) -> SyncRosStreams:
+    def __iter__(self) -> SyncROSStreams:
         self._iters = [iter(stream) for stream in self.streams]
         self._buffers = [deque() for _ in self.streams]
         return self
@@ -2163,7 +2163,7 @@ class SyncRosStreams:
             oldest_index = times.index(t_min)
             self._buffers[oldest_index].popleft()
 
-    def __enter__(self) -> SyncRosStreams:
+    def __enter__(self) -> SyncROSStreams:
         for stream in self.streams:
             stream.__enter__()
         return self
@@ -2176,16 +2176,16 @@ class SyncRosStreams:
         topics = ", ".join(
             getattr(stream, "topic", "<unknown>") for stream in self.streams
         )
-        return f"SyncRosStreams([{topics}])"
+        return f"SyncROSStreams([{topics}])"
 
     def __repr__(self) -> str:
         return (
-            f"SyncRosStreams(nstreams={len(self.streams)}, "
+            f"SyncROSStreams(nstreams={len(self.streams)}, "
             f"tolerance={self.tolerance:.6f}s)"
         )
 
 
-class RosBag(ImageSource):
+class ROSBag(ImageSource):
     """
     Iterate images and point clouds from a ROS 1 bag file.
 
@@ -2223,8 +2223,8 @@ class RosBag(ImageSource):
 
         .. code-block:: python
 
-            from machinevisiontoolbox import RosBag
-            for img in RosBag("mybag.bag", release="noetic"):
+            from machinevisiontoolbox import ROSBag
+            for img in ROSBag("mybag.bag", release="noetic"):
                 img.disp()
 
 
@@ -2235,7 +2235,7 @@ class RosBag(ImageSource):
 
         .. code-block:: python
 
-            bag = RosBag("mybag.bag", release="noetic", msgfilter=None)
+            bag = ROSBag("mybag.bag", release="noetic", msgfilter=None)
             with bag:
                 bag.print()                     # inspect topics
                 for msg in bag:                 # iterate messages
@@ -2245,7 +2245,7 @@ class RosBag(ImageSource):
     .. note::
         ``filename`` may be an ``http://`` or ``https://`` URL, in which case
         the bag file is downloaded to a temporary file on first use and that
-        file is reused for the lifetime of the ``RosBag`` object.  The
+        file is reused for the lifetime of the ``ROSBag`` object.  The
         temporary file is deleted automatically when the object is garbage
         collected or when the script exits.
 
@@ -2253,7 +2253,7 @@ class RosBag(ImageSource):
         If ``filename`` is a relative path that does not exist in the current
         working directory, it is looked up in the ``mvtb-data`` companion
         package automatically.  Bag files placed there can therefore be
-        referenced by their bare name, e.g. ``RosBag("forest.bag")``.
+        referenced by their bare name, e.g. ``ROSBag("forest.bag")``.
 
     .. note::
         The ``release`` argument controls the ROS message definitions used to
@@ -2302,12 +2302,12 @@ class RosBag(ImageSource):
 
     def __repr__(self) -> str:
         return (
-            f"RosBag({str(self.filename)!r}, release={self.release!r}, "
+            f"ROSBag({str(self.filename)!r}, release={self.release!r}, "
             f"topicfilter={self._topic_filter!r}, msgfilter={self._msgfilter!r})"
         )
 
     def __str__(self) -> str:
-        return f"RosBag({str(self.filename)!r})"
+        return f"ROSBag({str(self.filename)!r})"
 
     @staticmethod
     def format_duration(duration_ns: int) -> str:
@@ -2532,7 +2532,7 @@ class RosBag(ImageSource):
             )
         print(table, file=file)
 
-    def __enter__(self) -> RosBag:
+    def __enter__(self) -> ROSBag:
         self._open_reader()
         return self
 
@@ -2584,7 +2584,7 @@ class RosBag(ImageSource):
         "bayer_grbg16": (np.uint16, 1, None),
     }
 
-    def __iter__(self) -> RosBag:
+    def __iter__(self) -> ROSBag:
         self._open_reader()
         try:
             for connection, timestamp, rawdata in self.reader.messages(
@@ -2786,8 +2786,8 @@ class PointCloudSequence:
 
         .. code-block:: python
 
-            from machinevisiontoolbox import RosBag, PointCloudSequence
-            bag = RosBag("mybag.bag", msgfilter="PointCloud2")
+            from machinevisiontoolbox import ROSBag, PointCloudSequence
+            bag = ROSBag("mybag.bag", msgfilter="PointCloud2")
             seq = PointCloudSequence(bag)
             seq.disp()                       # step through one cloud at a time
             seq.disp(animate=True, fps=10)   # timed playback

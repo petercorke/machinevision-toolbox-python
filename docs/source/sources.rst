@@ -97,8 +97,8 @@ tensor.  For example, to read a video file and display each frame::
     ~VideoCamera
     ~WebCam
     ~EarthView
-    ~RosBag
-    ~RosTopic
+    ~ROSBag
+    ~ROSTopic
     ~TensorStack
     ~LabelMe
 
@@ -114,6 +114,6 @@ tensor.  For example, to read a video file and display each frame::
    :template: mvtbtemplate.rst
 
     ~PointCloudSequence
-    ~RosBag
-    ~RosTopic
+    ~ROSBag
+    ~ROSTopic
 

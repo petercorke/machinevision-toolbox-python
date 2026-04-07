@@ -22,7 +22,7 @@ from colored import Fore, Style
 from machinevisiontoolbox import (
     Image,
     PointCloud,
-    RosBag,
+    ROSBag,
     ImageSequence,
     PointCloudSequence,
 )
@@ -193,7 +193,7 @@ def main():
 
     if not args.view and not args.animate and not args.list:
         for filename in args.files:
-            bag = RosBag(filename, topicfilter=args.topic)
+            bag = ROSBag(filename, topicfilter=args.topic)
             print(f"{Fore.CYAN}{Style.BOLD}{bag}{Style.RESET}")
             bag.print(progress=not args.no_progress)
         return
@@ -207,7 +207,7 @@ def main():
         else:
             msgfilter = args.message
 
-        bag = RosBag(
+        bag = ROSBag(
             filename,
             topicfilter=args.topic,
             msgfilter=msgfilter,
@@ -250,7 +250,7 @@ def main():
         if args.list:
             for frame in frames:
                 ts = getattr(frame, "timestamp", None)
-                prefix = RosBag.format_local_time(ts) if ts is not None else ""
+                prefix = ROSBag.format_local_time(ts) if ts is not None else ""
                 print(f"{prefix}  {frame}")
         elif args.pointcloud or (not args.image and not isinstance(first, Image)):
             PointCloudSequence(frames).disp(
