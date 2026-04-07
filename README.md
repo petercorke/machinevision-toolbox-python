@@ -61,9 +61,7 @@ The Machine Vision Toolbox (MVTB) brings professional-grade vision algorithms to
 * 2026 Ready: Optimized for modern workflows, including JupyterLite for zero-install browser demos and VS Code integration.
 
 
-# Getting going
-
-## Using pip
+# Quick start
 
 Install a snapshot from PyPI
 
@@ -71,15 +69,9 @@ Install a snapshot from PyPI
 % pip install machinevision-toolbox-python
 ```
 
-## From GitHub
+Install locally with help from the [detailed installation guide](https://petercorke.github.io/machinevision-toolbox-python/installation.html#installing-the-toolbox).
 
-Install the current code base from GitHub and pip install a link to that cloned copy
-
-```
-% git clone https://github.com/petercorke/machinevision-toolbox-python.git
-% cd machinevision-toolbox-python
-% pip install -e .
-```
+Or skip setup and run the [browser-based JupyterLite examples](https://petercorke.github.io/machinevision-toolbox-python/lite/intro.ipynb).
 
 # Examples
 
@@ -364,6 +356,12 @@ where green lines show correct correspondences (inliers) and red lines show bad 
 
 ![Feature matching after RANSAC](https://github.com/petercorke/machinevision-toolbox-python/raw/main/docs/figs/matching_ransac.png)
 
+# Ecosystem
+
+The Toolbox plays nicely with other parts of the robotics and machinevision ecosystem.
+
+![Feature matching after RANSAC](https://github.com/petercorke/machinevision-toolbox-python/raw/main/docs/figs/package-connections.svg)
+
 # History
 
 This package can be considered as a Python version of the [Machine Vision
@@ -383,6 +381,6 @@ and allows the easy expression of sequential operations using "dot chaining".
 
 # Acknowledgement
 
-The first version was created by Dorian Tsai during 2020, and based on the
+The first version was built by Dorian Tsai during 2020-21, and based on the
 MATLAB version.  That work was funded by an Australian University Teacher of
 the year award (2017) to Peter Corke.
