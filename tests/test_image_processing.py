@@ -66,12 +66,25 @@ class TestImageProcessingBase(unittest.TestCase):
         img_data[:10] = 20
         img_data[10:] = 220
         img = Image(img_data)
-        result, t = img.threshold(t="otsu")
+        result, t = img.threshold("otsu")
         # threshold is applied as pixels > t, so 20-valued pixels → 0, 220-valued → 255
         self.assertGreaterEqual(t, 20)
         self.assertLess(t, 220)
         nt.assert_array_equal(result.A[:10], 0)  # low-valued half should be zero
         nt.assert_array_equal(result.A[10:], 255)  # high-valued half should be maxval
+
+    def test_otsu_threshold_nbins(self):
+        """Test threshold() passes nbins through to Otsu"""
+        img_data = np.zeros((20, 10), dtype=np.float32)
+        img_data[:10] = 0.2
+        img_data[10:] = 0.8
+        img = Image(img_data)
+        result, t = img.threshold("otsu", nbins=64)
+
+        self.assertGreaterEqual(t, 0.2)
+        self.assertLess(t, 0.8)
+        nt.assert_array_equal(result.A[:10], 0.0)
+        nt.assert_array_equal(result.A[10:], 255)
 
     def test_otsu(self):
         """Test otsu() returns a scalar threshold that separates the two pixel classes"""
@@ -89,12 +102,25 @@ class TestImageProcessingBase(unittest.TestCase):
         img_data[:10] = 0.2
         img_data[10:] = 0.8
         img = Image(img_data)
-        result, t = img.threshold(t="otsu")
+        result, t = img.threshold("otsu")
 
         self.assertGreaterEqual(t, 0.2)
         self.assertLess(t, 0.8)
         nt.assert_array_equal(result.A[:10], 0.0)
-        nt.assert_array_equal(result.A[10:], img.maxval)
+        nt.assert_array_equal(result.A[10:], 255)
+
+    def test_otsu_tozero_threshold(self):
+        """Test automatic Otsu threshold can be used with tozero mode"""
+        img_data = np.zeros((20, 10), dtype=np.uint8)
+        img_data[:10] = 20
+        img_data[10:] = 220
+        img = Image(img_data)
+        result, t = img.threshold("otsu", method="tozero")
+
+        self.assertGreaterEqual(t, 20)
+        self.assertLess(t, 220)
+        nt.assert_array_equal(result.A[:10], 0)
+        nt.assert_array_equal(result.A[10:], 220)
 
     def test_otsu_float(self):
         """Test otsu() returns a scalar threshold for floating-point images"""
@@ -106,6 +132,77 @@ class TestImageProcessingBase(unittest.TestCase):
 
         self.assertGreaterEqual(t, 0.2)
         self.assertLess(t, 0.8)
+
+    def test_otsu_nbins(self):
+        """Test otsu() with explicit histogram bin count"""
+        img_data = np.zeros((20, 10), dtype=np.float32)
+        img_data[:10] = 0.2
+        img_data[10:] = 0.8
+        img = Image(img_data)
+        t = img.otsu(nbins=64)
+
+        self.assertGreaterEqual(t, 0.2)
+        self.assertLess(t, 0.8)
+
+    def test_triangle(self):
+        """Test triangle() returns a scalar threshold for bimodal images"""
+        img_data = np.zeros((20, 10), dtype=np.float32)
+        img_data[:10] = 0.2
+        img_data[10:] = 0.8
+        img = Image(img_data)
+        t = img.triangle()
+
+        self.assertGreaterEqual(t, 0.2)
+        self.assertLess(t, 0.8)
+
+    def test_triangle_nbins(self):
+        """Test triangle() with explicit histogram bin count"""
+        img_data = np.zeros((20, 10), dtype=np.float32)
+        img_data[:10] = 0.2
+        img_data[10:] = 0.8
+        img = Image(img_data)
+        t = img.triangle(nbins=64)
+
+        self.assertGreaterEqual(t, 0.2)
+        self.assertLess(t, 0.8)
+
+    def test_triangle_threshold_nbins(self):
+        """Test threshold() passes nbins through to triangle"""
+        img_data = np.zeros((20, 10), dtype=np.float32)
+        img_data[:10] = 0.2
+        img_data[10:] = 0.8
+        img = Image(img_data)
+        result, t = img.threshold("triangle", nbins=64)
+
+        self.assertGreaterEqual(t, 0.2)
+        self.assertLess(t, 0.8)
+        nt.assert_array_equal(result.A[:10], 0.0)
+        nt.assert_array_equal(result.A[10:], 255)
+
+    def test_percentile_threshold(self):
+        """Test threshold() with percentile selector in binary mode"""
+        img_data = np.array([[10, 20], [30, 40]], dtype=np.uint8)
+        img = Image(img_data)
+        result, t = img.threshold("percentile", p=50)
+
+        self.assertAlmostEqual(float(t), 25.0, places=6)
+        nt.assert_array_equal(result.A, np.array([[0, 0], [255, 255]], dtype=np.uint8))
+
+    def test_percentile_tozero_threshold(self):
+        """Test percentile selector can be combined with tozero mode"""
+        img_data = np.array([[10, 20], [30, 40]], dtype=np.uint8)
+        img = Image(img_data)
+        result, t = img.threshold("percentile", p=50, method="tozero")
+
+        self.assertAlmostEqual(float(t), 25.0, places=6)
+        nt.assert_array_equal(result.A, np.array([[0, 0], [30, 40]], dtype=np.uint8))
+
+    def test_threshold_binary_as_bool(self):
+        """Test threshold() supports bool output for binary mode"""
+        img = Image(np.array([[50, 100], [150, 200]], dtype="uint8"))
+        result = img.threshold(125, as_bool=True)
+        self.assertEqual(result.dtype, np.bool_)
+        nt.assert_array_equal(result.A, np.array([[False, False], [True, True]]))
 
     def test_read(self):
 

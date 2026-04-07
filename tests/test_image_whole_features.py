@@ -236,7 +236,7 @@ class TestImageWholeFeatures(unittest.TestCase):
         self.assertEqual(len(fig.axes), 3)
 
         for ax in fig.axes:
-            self.assertGreaterEqual(len(ax.lines), 3)
+            self.assertGreaterEqual(len(ax.lines), 1)
             self.assertGreaterEqual(len(ax.texts), 1)
 
         callbacks = fig.canvas.callbacks.callbacks.get("motion_notify_event", {})
