@@ -275,8 +275,8 @@ class ImageWholeFeaturesMixin(_ImageBase):
                 "mean": float(np.nanmean(plane)),
                 "sdev": float(np.nanstd(plane)),
                 "median": float(np.nanmedian(plane)),
-                "nan": int(np.sum(np.isnan(plane))),
-                "inf": int(np.sum(np.isinf(plane))),
+                "nnan": int(np.sum(np.isnan(plane))),
+                "ninf": int(np.sum(np.isinf(plane))),
             }
 
         def printstats(plane: np.ndarray) -> None:
@@ -287,8 +287,8 @@ class ImageWholeFeaturesMixin(_ImageBase):
                 f"𝜎={stats['sdev']:g}; "
                 f"median={stats['median']:g}"
             )
-            nnan = stats["nan"]
-            ninf = stats["inf"]
+            nnan = stats["nnan"]
+            ninf = stats["ninf"]
             if nnan + ninf > 0:
                 s += " (contains "
                 if nnan > 0:
