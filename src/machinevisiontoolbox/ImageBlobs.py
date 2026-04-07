@@ -16,7 +16,7 @@ import numpy as np
 import scipy as sp
 from ansitable import ANSITable, Column
 from spatialmath import SE2, base
-from spatialmath.base import isscalar, plot_box, plot_point
+from spatialmath.base import isscalar, plot_box, plot_point, plot_polygon
 
 from machinevisiontoolbox.base import plot_labelbox
 from machinevisiontoolbox.decorators import array_result, scalar_result
@@ -67,7 +67,7 @@ class Blob:
         :return: compact string representation
         :rtype: str
         """
-        return f"Blob[{self.id}](area={self.moments.m00:.2g}, color={self.color}, parent={self.parent.id if self.parent else None}"
+        return f"Blob(id={self.id}, area={self.moments.m00:.2g}, color={self.color}, parent={self.parent.id if self.parent else None})"
 
     def __repr__(self) -> str:
         return str(self)
@@ -788,7 +788,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         :return: bounding
         :rtype: ndarray(4)
 
-        The bounding box is a 1D array [umin, umax, vmin, vmax].
+        The axis-aligned bounding box is a 1D array [umin, umax, vmin, vmax].
 
         Example:
 
@@ -1535,6 +1535,83 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             perimeters.append(np.squeeze(perimeter).T)
         return perimeters
 
+    @property
+    @array_result
+    def MEC(self) -> Any:
+        """
+        Minimum enclosing circle of blob
+
+        :return: Parameters of the minimum enclosing circle
+        :rtype: ndarray(3) or list of ndarray(3)
+
+        The minimum enclosing circle is the smallest circle that can fully contain the blob.
+        It touches the blob at at least three points. Each circle is specified by a
+        3-tuple (uc, vc, r).
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read('shark2.png')
+            >>> blobs = im.blobs()
+            >>> blobs.MEC
+
+        .. plot::
+
+            from machinevisiontoolbox import Image
+
+            im = Image.Read("shark2.png")
+            im.disp(darken=True)
+            blobs = im.blobs()
+            blobs.plot_MEC('y')
+
+        :seealso: :meth:`plot_MEC` :meth:`MER` `cv2.minEnclosingCircle <https://docs.opencv.org/4.x/d3/dc0/group__imgproc__shape.html#ga8ce13c24081bbc7151e9326f412190f1>`_
+        """
+        mecs = []
+        for b in self.data:
+            uv, r = cv.minEnclosingCircle(b.perimeter.T)
+            mecs.append(np.array([*uv, r]))
+        return mecs
+
+    @property
+    @array_result
+    def MER(self) -> Any:
+        """
+        Minimum enclosing rectangle of blob
+
+        :return: Parameters of the minimum enclosing rectangle
+        :rtype: ndarray(5) or list of ndarray(5)
+
+        The minimum enclosing rectangle is the smallest rectangle that can fully contain the blob.
+        It is specified by a 5-tuple (uc, vc, w, h, theta) where (uc, vc) is the center, (w, h) is the width and height, and theta is the orientation.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read('shark2.png')
+            >>> blobs = im.blobs()
+            >>> blobs.MER
+
+        .. plot::
+
+            from machinevisiontoolbox import Image
+
+            im = Image.Read("shark2.png")
+            im.disp(darken=True)
+            blobs = im.blobs()
+            blobs.plot_MER('y')
+
+        :seealso: :meth:`plot_MER` :meth:`MEC`  `cv2.minAreaRect <https://docs.opencv.org/4.x/d3/dc0/group__imgproc__shape.html#ga3d476a3417130ae5154aea421ca7ead9>`_
+        """
+        mers = []
+        for b in self.data:
+            uv, wh, theta = cv.minAreaRect(b.perimeter.T)
+            mers.append(np.array([*uv, *wh, theta]))
+        return mers
+
     @array_result
     def polar(self, N: int = 400) -> Any:
         r"""
@@ -2015,13 +2092,89 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             blobs[:3].plot_aligned_box(color="red")
             blobs[3].plot_aligned_box(color="yellow", linestyle="--", linewidth=3)
 
-        :seealso: :meth:`plot_box` :meth:`plot_centroid`
+        :seealso: :meth:`plot_box` :meth:`plot_MER`:meth:`plot_centroid`
         """
         boxes = self.aligned_box()
         if not isinstance(boxes, list):
             boxes = [boxes]
         for box in boxes:
             base.plot_polygon(box[2], close=True, **kwargs)
+
+    def plot_MEC(self, **kwargs: Any) -> None:
+        """
+        Plot minimum enclosing circles of blobs using Matplotlib
+
+        :param kwargs: line style parameters passed to ``plot``
+
+        Plots the minimum enclosing circles of blob or blobs on the current
+        Matplotlib axes.
+
+        Example:
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read("sharks.png")
+            >>> blobs = im.blobs()
+            >>> blobs[:3].plot_MEC(color="cyan")
+            >>> blobs[3].plot_MEC(color="magenta", linestyle="--", linewidth=3)
+
+        .. plot::
+
+            from machinevisiontoolbox import Image
+
+            im = Image.Read("sharks.png")
+            im.disp()
+            blobs = im.blobs()
+            blobs[:3].plot_MEC(color="cyan")
+            blobs[3].plot_MEC(color="magenta", linestyle="--", linewidth=3)
+
+        :seealso: :meth:`MEC` :meth:`plot_MER` :meth:`plot_box` :meth:`plot_centroid`
+        """
+        mecs = self.MEC
+        if not isinstance(mecs, list):
+            mecs = [mecs]
+        for mec in mecs:
+            base.plot_circle(mec[2], mec[:2], **kwargs)
+
+    def plot_MER(self, **kwargs: Any) -> None:
+        """
+        Plot minimum enclosing rectangles of blobs using Matplotlib
+
+        :param kwargs: line style parameters passed to ``plot``
+
+        Plots the minimum enclosing rectangles of blob or blobs on the current
+        Matplotlib axes.
+
+        Example:
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read("sharks.png")
+            >>> blobs = im.blobs()
+            >>> blobs[:3].plot_MER(color="cyan")
+            >>> blobs[3].plot_MER(color="magenta", linestyle="--", linewidth=3)
+
+        .. plot::
+
+            from machinevisiontoolbox import Image
+
+            im = Image.Read("sharks.png")
+            im.disp()
+            blobs = im.blobs()
+            blobs[:3].plot_MER(color="cyan")
+            blobs[3].plot_MER(color="magenta", linestyle="--", linewidth=3)
+
+        :seealso: :meth:`MER` :meth:`MEC` :meth:`plot_box` :meth:`plot_aligned_box` :meth:`plot_centroid`
+        """
+
+        mers = self.MER
+        if not isinstance(mers, list):
+            mers = [mers]
+        for mer in mers:
+            w, h = mer[2:4]
+            # define box, clockwise from top right
+            box = np.array([[w, h], [w, -h], [-w, -h], [-w, h], [w, h]]).T / 2.0
+            T = SE2(*mer[:2], np.radians(mer[4]))
+            box = T * box
+            base.plot_polygon(box[:2, :], **kwargs)
 
     def label_image(self, image: Any = None) -> Any:
         """
@@ -2177,8 +2330,19 @@ class ImageBlobsMixin:
 if __name__ == "__main__":
     from pathlib import Path
 
-    import pytest
+    # import pytest
 
-    pytest.main(
-        [str(Path(__file__).parent.parent.parent / "tests" / "test_image_blobs.py"), "-v"]
-    )
+    # pytest.main(
+    #     [
+    #         str(Path(__file__).parent.parent.parent / "tests" / "test_image_blobs.py"),
+    #         "-v",
+    #     ]
+    # )
+
+    from machinevisiontoolbox import Image
+
+    im = Image.Read("shark2.png")
+    blobs = im.blobs()
+    print(blobs)
+    blobs.plot_MEC()
+    pass
