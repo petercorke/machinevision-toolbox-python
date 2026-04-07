@@ -8,6 +8,7 @@ Usage::
 """
 
 import argparse
+import json
 
 import matplotlib.pyplot as plt
 from colored import Fore, Style
@@ -33,22 +34,7 @@ def getargs():
         nargs="+",
         help="list of image files to view, files can also include those distributed with machinevision toolbox, eg. 'lab-scene.png'",
     )
-    parser.add_argument(
-        "-b",
-        "--block",
-        action="store_true",
-        default=False,
-        help="block after each image",
-    )
 
-    # -g show grid
-    parser.add_argument(
-        "-g", "--grid", help="Overlay grid on images", action="store_true"
-    )
-    # -v verbose show image details
-    parser.add_argument(
-        "-v", "--verbose", help="Show image details", action="store_true"
-    )
     parser.add_argument(
         "-d",
         "--dict",
@@ -59,7 +45,7 @@ def getargs():
     parser.add_argument(
         "-s",
         "--side",
-        type=int,
+        type=float,
         default=25,
         help="Tag side length, default is %(default)s",
     )
@@ -68,27 +54,149 @@ def getargs():
         "--focallength",
         type=str,
         default=None,
-        help="Focal length in units of pixels: f | fu,fv",
+        help="Focal length in units of pixels or metres if rho is specified: f | fu,fv. Required for tag pose estimation",
     )
     parser.add_argument(
         "-p",
         "--principalpoint",
         type=str,
         default=None,
-        help="Principal point coordinate in units of pixels: pu,pv. If not specified use image centre",
+        help="Principal point coordinate in units of pixels: pu,pv. Required for tag pose estimation. If not specified use image centre",
     )
     parser.add_argument(
-        "-a",
-        "--axes",
-        help="Show axes on the image",
+        "-r",
+        "--rho",
+        help="Pixel pitch in units of m/pixel, required for tag pose estimation if focal length is specified in metres",
+        type=float,
+        default=None,
+    )
+    parser.add_argument(
+        "-b",
+        "--block",
         action="store_true",
         default=False,
+        help="block after each image",
     )
-
+    # -a show coordinate frames
+    parser.add_argument(
+        "-a", "--axes", help="Show coordinate frames", action="store_true"
+    )
+    # -j, --json output tag data to JSON file
+    parser.add_argument(
+        "-j",
+        "--json",
+        type=str,
+        default=None,
+        metavar="FILE",
+        help="Output tag data to JSON file",
+    )
+    # --no-display do not display images, just output JSON data
+    parser.add_argument(
+        "--no-display",
+        help="Do not display images, just output JSON data",
+        action="store_true",
+    )
+    # --no-table do not display table of tag data
+    parser.add_argument(
+        "--no-table",
+        help="Do not display table of tag data",
+        action="store_true",
+    )
+    # --rmax=threshold for highlighting tags with large reprojection error
+    parser.add_argument(
+        "--rmax",
+        type=float,
+        default=0,
+        help="Threshold for highlighting tags with large reprojection error (in pixels) in red, 0 for no highlighting",
+    )
+    # -g show grid
+    parser.add_argument(
+        "-g", "--grid", help="Overlay grid on images", action="store_true"
+    )
+    # -v verbose show image details
+    parser.add_argument(
+        "-v", "--verbose", help="Show image details", action="store_true"
+    )
     return parser.parse_args()
 
 
-def visualize_image(image, args, block):
+def make_plot(tags, args, camera, image):
+    # display the coordinate frames
+    length = max(image.size) / 50
+    if args.axes:
+        for tag in tags:
+            tag.draw(image, length=length, thick=20)
+
+    # highlight the tags in the image
+    image.disp()
+
+    for tag in tags:
+        if camera is not None and args.rmax > 0 and tag.rmax >= args.rmax:
+            outline_color = "red"
+        else:
+            outline_color = "blue"
+        # create an outline around the tag
+        polygon = Polygon2(tag.corners)
+        polygon.plot(facecolor="white", alpha=0.5, edgecolor=outline_color, linewidth=2)
+        plot_text(
+            polygon.centroid(),
+            str(tag.id),
+            color=outline_color,
+            fontsize=12,
+            horizontalalignment="center",
+        )
+        # mark the top left corner
+        plot_point(tag.corners[:, 0], color=outline_color, marker="o", markersize=5)
+
+
+def make_table(tags, args):
+    table = ANSITable(
+        Column("id", headalign="^", colalign=">"),
+        Column("RMSE (pix)", headalign="^", colalign=">", fmt="{:.2f}"),
+        Column("Rmax (pix)", headalign="^", colalign=">", fmt="{:.2f}"),
+        Column("pose", headalign="^", colalign="<"),
+        border="thin",
+    )
+    for tag in tags:
+        # add row to table
+        if args.rmax > 0 and tag.rmax >= args.rmax:
+            bg = "red"
+        else:
+            bg = None
+        table.row(
+            tag.id,
+            tag.rmse,
+            tag.rmax,
+            tag.pose.strline(),
+            bgcolor=bg,
+        )
+    print(table)
+
+
+def make_json(tags, args, camera):
+    data = []
+    for tag in tags:
+        item = {
+            "id": int(tag.id),
+            "corners": [
+                tuple(float(v) for v in col) for col in np.asarray(tag.corners).T
+            ],
+        }
+        if camera is not None and getattr(tag, "pose", None) is not None:
+            item["pose"] = np.asarray(tag.pose.A).tolist()
+            item["rmse"] = tag.rmse
+            item["rmax"] = tag.rmax
+        data.append(item)
+    # write to JSON file if specified
+    # corners are a list of 2-tuples representing the (x, y) coordinates of each corner
+    # in the image, and pose if present is a 4x4 list representing the homogeneous transformation
+    # matrix of the tag's pose in the camera frame
+    if args.json is not None:
+        with open(args.json, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2)
+
+
+def process_image(image, args, block):
     if args.verbose:
         print(image)
 
@@ -109,7 +217,9 @@ def visualize_image(image, args, block):
         else:
             pp = [image.width / 2, image.height / 2]
 
-        camera = CentralCamera(f=f, pp=pp)
+        camera = CentralCamera(
+            f=f, pp=pp, rho=args.rho if args.rho is not None else 1.0
+        )
         if args.verbose:
             print(camera)
     else:
@@ -122,76 +232,37 @@ def visualize_image(image, args, block):
         tags = image.fiducial(dict=args.dict, K=camera.K, side=args.side)
     tags.sort(key=lambda x: x.id)
 
-    # display the coordinate frames
-    if args.axes:
-        for tag in tags:
-            tag.draw(image, length=10, thick=20)
-        image.disp()
-
-    # highlight the tags in the image
-    image.disp()
-
     if camera is not None:
-        table = ANSITable(
-            Column("id", headalign="^", colalign=">"),
-            Column("RMSE (pix)", headalign="^", colalign=">", fmt="{:.2f}"),
-            Column("Rmax (pix)", headalign="^", colalign=">", fmt="{:.2f}"),
-            Column("pose", headalign="^", colalign="<"),
-            border="thin",
-        )
-
-    for i, tag in enumerate(tags):
-        if camera is not None:
+        for tag in tags:
             # compute residuals
             p3d = tag.p3d.squeeze().T
             p2d = camera.project_point(p3d, objpose=tag.pose)
             resid = p2d - tag.corners
-            print(tag.corners)
             rmse = np.sqrt(np.mean(resid**2))
             rmax = np.max(np.abs(resid))
+            tag.rmse = rmse
+            tag.rmax = rmax
 
-            # add row to table
-            table.row(
-                tag.id,
-                rmse,
-                rmax,
-                tag.pose.strline(),
-                bgcolor="red" if rmax >= 1 else None,
-            )
-            outline_color = "red" if rmax >= 1 else "blue"
-
-        else:
+    if camera is None:
+        for i, tag in enumerate(tags):
             if i == 0:
                 print("tag IDs:", tag.id, end="")
             else:
                 print(f", {tag.id}", end="")
-            outline_color = "blue"
-
-        # create an outline around the tag
-        polygon = Polygon2(tag.corners)
-        polygon.plot(facecolor="white", alpha=0.8, edgecolor=outline_color, linewidth=2)
-        plot_text(
-            polygon.centroid(),
-            str(tag.id),
-            color=outline_color,
-            fontsize=12,
-            horizontalalignment="center",
-        )
-        # mark the top left corner
-        plot_point(tag.corners[:, 0], color=outline_color, marker="o", markersize=5)
-
-    if camera is not None:
-        table.print()
-    else:
         print()
+    elif not args.no_table:
+        make_table(tags, args)
 
-    print()
+    if not args.no_display:
+        make_plot(tags, args, camera, image)
 
-    plt.show(block=block)
+    if args.json is not None:
+        make_json(tags, args, camera)
 
 
 def main():
     args = getargs()
+    json_data = []
 
     if len(args.files) > 10:
         args.block = True
@@ -201,6 +272,7 @@ def main():
             img = Image.Read(file, rgb=False)
         except ValueError:
             print(f"File {file} not found")
+            continue
 
         if i == len(args.files) - 1:
             # last one
@@ -208,7 +280,10 @@ def main():
         else:
             block = args.block
 
-        visualize_image(img, args, block)
+        process_image(img, args, block)
+
+        if not args.no_display:
+            plt.show(block=block)
 
 
 if __name__ == "__main__":
