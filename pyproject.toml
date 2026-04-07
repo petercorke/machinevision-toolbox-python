@@ -74,6 +74,7 @@ ros = ["rosbags", "roslibpy", "websockets"]
 docs = [
     "sphinx",
     "pydata-sphinx-theme",
+    "sphinx-codeautolink",
     "sphinx-favicon",
     "sphinx-copybutton",
     "sphinxcontrib-programoutput",
