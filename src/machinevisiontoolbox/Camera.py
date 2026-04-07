@@ -187,15 +187,23 @@ class CameraBase(ABC):
 
     def __repr__(self) -> str:
         """
-        Readable representatio of camera parameters (base method)
+        Readable representation of camera parameters (base method)
 
         :return: string representation
         :rtype: str
 
-        Multi-line string representation of camera intrinsic and extrinsic
-        parameters.
+        Single-line string representation including camera name and pixel size.
         """
-        return str(self)
+
+        def fmt(x: tuple[float, float], spec: str = ".3g") -> str:
+            return f"({x[0]:{spec}}, {x[1]:{spec}})"
+
+        s = f"{self.__class__.__name__}(name='{self.name}'"
+        s += f", pixel_size={fmt(self.rho)}"
+        if self.imagesize is not None:
+            s += f", image_size={fmt(self._imagesize, spec='d')}"
+        s += f", pose=[{self.pose.strline()}]"
+        return s + ")"
 
     @abstractmethod
     def project_point(self, P, **kwargs: Any) -> np.ndarray:

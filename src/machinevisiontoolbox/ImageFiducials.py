@@ -207,7 +207,10 @@ class Fiducial:
         return s
 
     def __repr__(self) -> str:
-        return str(self)
+        s = f"Fiducial(id={self.id}"
+        if self.pose is not None:
+            s += f", pose=[{self.pose.strline()}]"
+        return s + ")"
 
     # def plot(self, ax=None):
     #     ax = _axes_logic(ax, 2)
@@ -512,6 +515,12 @@ class FiducialCollection:
             thickness=thick,
         )
 
+    def __repr__(self) -> str:
+        s = f"{self.__class__.__name__}(dict={self._dict}, ntags={self._ntags}"
+        if self._name is not None:
+            s += f", name={self._name}"
+        return s + ")"
+
 
 class ArUcoBoard(FiducialCollection):
     def __init__(
@@ -643,5 +652,12 @@ if __name__ == "__main__":
     import pytest
 
     pytest.main(
-        [str(Path(__file__).parent.parent.parent / "tests" / "test_image_fiducials.py"), "-v"]
+        [
+            str(
+                Path(__file__).parent.parent.parent
+                / "tests"
+                / "test_image_fiducials.py"
+            ),
+            "-v",
+        ]
     )

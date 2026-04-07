@@ -67,7 +67,7 @@ class Blob:
         :return: compact string representation
         :rtype: str
         """
-        return f"Blob[{self.id}](area={self.moments.m00:.2g}, color={self.color}, parent={self.parent.id if self.parent else None}"
+        return f"Blob(id={self.id}, area={self.moments.m00:.2g}, color={self.color}, parent={self.parent.id if self.parent else None})"
 
     def __repr__(self) -> str:
         return str(self)
