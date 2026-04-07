@@ -132,6 +132,13 @@ html_theme_options = {
 }
 html_show_sourcelink = True
 
+# -- sphinx-copybutton setup -------------------------------------------------
+# Strip interactive prompts (Python and shell) when users copy code snippets.
+copybutton_prompt_text = r">>> |\.\.\. |\$ "
+copybutton_prompt_is_regexp = True
+copybutton_only_copy_prompt_lines = False
+copybutton_remove_prompts = True
+
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
