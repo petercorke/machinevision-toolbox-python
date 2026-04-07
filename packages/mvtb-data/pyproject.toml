@@ -2,7 +2,7 @@
 name = "mvtbdata"
 version = "1.6"
 authors = [{ name = "Peter Corke", email = "rvc@petercorke.com" }]
-description = "Data files for the Machine Vision Toolbox for Python"
+description = "Image and data files for the Machine Vision Toolbox for Python"
 readme = "README.md"
 requires-python = ">=3.7"
 classifiers = [
@@ -13,7 +13,7 @@ classifiers = [
 keywords = ["python machine vision", "images", "image sequences"]
 
 [project.urls]
-"Homepage" = "https://github.com/petercorke/machinevision-toolbox-python/mvtb-data"
+"Homepage" = "https://github.com/petercorke/machinevision-toolbox-python/tree/main/packages/mvtb-data"
 "Bug Tracker" = "https://github.com/petercorke/machinevision-toolbox-python/issues"
 
 [tool.setuptools.packages.find]

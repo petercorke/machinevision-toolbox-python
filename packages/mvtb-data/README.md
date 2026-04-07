@@ -9,7 +9,7 @@
 <td style="border:0px">
 <img src="https://github.com/petercorke/machinevision-toolbox-python/raw/main/docs/figs/MVTBDataLogo.png" width="250"></td>
 <td style="border:0px">
-This package includes large data files associated with the <a href="https://pypi.org/project/machinevision-toolbox-python">Machine Vision Toolbox for Python (MVTB-P)</a>.
+This package includes the images and data files used for examples with the <a href="https://pypi.org/project/machinevision-toolbox-python">Machine Vision Toolbox for Python (MVTB-P)</a>.
 </td>
 </tr>
 </table>
@@ -70,7 +70,7 @@ pip install machinevisiontoolbox-python
 ```
 since it is a dependency.
 
-## Install big image files
+## Install really big image files
 
 There are two very large zip files containing image sequences which are used in
 Sec. 14.8.3 Visual Odometry, each is 116M and exceeds the total PyPI quota. They
