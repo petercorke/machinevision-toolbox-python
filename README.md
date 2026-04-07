@@ -6,7 +6,7 @@
   <strong>A high-productivity framework for computer vision research and education.</strong>
   <br><br>
   
-[![JupyterLite](https://img.shields.io/badge/Try_it_Now-JupyterLite-orange?style=for-the-badge&logo=jupyter)](https://petercorke.github.io/machinevision-toolbox-python/lite/lab/tree/index.ipynb)
+[![JupyterLite](https://img.shields.io/badge/Try_it_Now-JupyterLite-orange?style=for-the-badge&logo=jupyter)](https://petercorke.github.io/machinevision-toolbox-python/lite/lab/index.html?path=index.ipynb)
   [![PyPI version](https://img.shields.io/pypi/v/machinevision-toolbox-python?style=for-the-badge&color=blue)](https://pypi.org/project/machinevision-toolbox-python/)
   [![Documentation](https://img.shields.io/badge/Docs-View_Online-blue?style=for-the-badge)](https://petercorke.github.io/machinevision-toolbox-python/)
 

@@ -111,6 +111,19 @@ the specified image.  For example::
 	$ tagtool lab-scene.png
 	tag IDs: 0, 1, 2, 3, 4, 5
 
+The tool printed the tag IDs and their poses to the terminal, and displays the image with the tags highlighted.
+
+If we know the camera intrinsics we can also estimate the pose of the tags and display the coordinate frames of the tags in the image.  For example::
+
+	$ tagtool -f=3045 -p=2016,1512 -s=0.067 --axes lab-scene.png --camera=lab-camera.json
+
+where the tag side length is 67mm, the camera focal length is 3045 pixels, and the principal point is at (2016, 1512)
+pixels. If the focal length is known in metres, then the --rho option must be used to specify the pixel pitch in metres per pixel, for example::
+
+	$ tagtool -f=0.004 -p=2016,1512 --rho=0.000001 -s=0.067 --axes lab-scene.png
+
+So long as you are consistent about units you can have focal length in mm and pixel pitch in mm/pixel.
+
 .. image:: https://github.com/petercorke/machinevision-toolbox-python/raw/main/docs/figs/tagtool.png
 	:alt: Binary image showing bounding boxes and centroids
 
@@ -143,7 +156,7 @@ the bag file, the message type of each topic, the number of messages on each top
 whether the topic is allowed to be displayed. For example::
 
 	$ rosbagtool race_1.bag
-	RosBag('bags/race_1.bag')
+	ROSBag('bags/race_1.bag')
 	┌────────────────────────────┬───────────────────────┬───────┬─────────┐
 	│           topic            │        msgtype        │ count │ allowed │
 	├────────────────────────────┼───────────────────────┼───────┼─────────┤
