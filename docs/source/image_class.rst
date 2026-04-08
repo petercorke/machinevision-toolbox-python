@@ -45,6 +45,7 @@ Describe the attributes of an :class:`~machinevisiontoolbox.ImageCore.Image`.
    ~npixels
    ~size
    ~width
+   ~nplanes
 
 Predicates
 ^^^^^^^^^^
@@ -60,6 +61,30 @@ Test attributes of an ``Image``.
    ~isfloat
    ~isint
    ~isrgb
+
+Color planes and channels
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Return information about the color planes of an ``Image`` instance.
+
+.. autosummary::
+   :nosignatures:
+   :show-private:
+
+   ~nplanes
+   ~iscolor
+   ~__mod__
+   ~Pstack
+   ~blue
+   ~green
+   ~plane
+   ~red
+   ~colordict
+   ~colordict2list
+   ~colordict2str
+   ~colororder
+   ~colororder2dict
+   ~colororder_str
 
 Image coordinates
 ^^^^^^^^^^^^^^^^^
@@ -94,7 +119,7 @@ Return ``Image`` pixel data as a NumPy array.
    ~to_int
    ~view1d
 
-Getting and setting pixels
+Getting pixels
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Access individual pixels or groups of pixels.
@@ -144,22 +169,6 @@ Extract sub-images or planes from an ``Image`` instance.
    ~plane
    ~red
    ~roi
-
-Color info
-^^^^^^^^^^
-
-Return information about the color planes of an ``Image`` instance.
-
-.. autosummary::
-   :nosignatures:
-
-   ~colordict
-   ~colordict2list
-   ~colordict2str
-   ~colororder
-   ~colororder2dict
-   ~colororder_str
-   ~nplanes
 
 Color space and gamma
 ^^^^^^^^^^^^^^^^^^^^^

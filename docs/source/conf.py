@@ -12,6 +12,8 @@
 #
 import os
 import sys
+import inspect
+import importlib
 from pathlib import Path
 from importlib.metadata import version as _pkg_version
 
@@ -44,6 +46,7 @@ except Exception:
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
+    "sphinx.ext.linkcode",
     "sphinx.ext.todo",
     "sphinx.ext.viewcode",
     "sphinx.ext.mathjax",
@@ -61,7 +64,7 @@ extensions = [
     "blockname",
 ]
 
-# autoclass_content = 'both' # use __init__ or class docstring
+autoclass_content = "both"  # use __init__ or class docstring
 add_function_parentheses = False
 
 # -- sphinx-autorun setup ----------------------------------------------------
@@ -131,6 +134,60 @@ html_theme_options = {
     "footer_end": ["github-link.html"],
 }
 html_show_sourcelink = True
+
+
+# -- Source code links -------------------------------------------------------
+_REPO_ROOT = Path(__file__).resolve().parents[2]
+
+
+def linkcode_resolve(domain, info):
+    """Return GitHub source links for Python API objects."""
+    if domain != "py":
+        return None
+
+    module_name = info.get("module")
+    fullname = info.get("fullname")
+    if not module_name or not fullname:
+        return None
+
+    try:
+        module = importlib.import_module(module_name)
+    except Exception:
+        return None
+
+    obj = module
+    for part in fullname.split("."):
+        try:
+            obj = getattr(obj, part)
+        except Exception:
+            return None
+
+    # Use underlying function for decorated descriptors.
+    if isinstance(obj, property):
+        obj = obj.fget
+
+    try:
+        obj = inspect.unwrap(obj)
+    except Exception:
+        pass
+
+    try:
+        source_file = Path(inspect.getsourcefile(obj)).resolve()
+        source_lines, start_line = inspect.getsourcelines(obj)
+    except Exception:
+        return None
+
+    try:
+        rel_path = source_file.relative_to(_REPO_ROOT).as_posix()
+    except ValueError:
+        return None
+
+    end_line = start_line + len(source_lines) - 1
+    return (
+        "https://github.com/petercorke/machinevision-toolbox-python/"
+        f"blob/main/{rel_path}#L{start_line}-L{end_line}"
+    )
+
 
 # -- sphinx-copybutton setup -------------------------------------------------
 # Strip interactive prompts (Python and shell) when users copy code snippets.

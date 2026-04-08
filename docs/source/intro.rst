@@ -5,20 +5,18 @@ Introduction
 Rationale
 =========
 
-The goal of this package is to simplify the expression of computer vision algorithms in
-Python.  Images can be represented as 2D or 3D arrays which are the domain of `NumPy
-<https://numpy.org>`_ but many powerful image and point cloud specific operations are
-provided by other popular packages such as `OpenCV <https://opencv.org>`_, `Pillow <https://pillow.readthedocs.io/en/stable/>`_,
-`SciPy <https://scipy.org>`_, `scikit-image <https://scikit-image.org>`_, and `Open3D <open3d.org>`_.
-OpenCV does an adequate job of displaying images but is nowhere nearly as powerful
-`matplotlib <https://matplotlib.org>`_ which can display a wide range of 2D graphics,
-but for 3D graphics Open3D is the go-to.
+The Machine Vision Toolbox (MVTB) brings professional-grade vision algorithms to your
+fingertips with a Pythonic API. Built on a "best-of-breed" foundation—NumPy, SciPy,
+OpenCV, and Open3D —- it bridges the gap between raw pixel manipulation and high-level
+spatial reasoning.
 
-In practice, using these various packages together, to exploit their individual strengths,
-is complex -- each have their own way of working, similar options are accessed
-differently and some function require image pixels to have particular types. None of
-them consider the image as an object with a set of useful image and vision processing
-methods and operators.  
+While the Python ecosystem offers powerful individual tools, using them in concert is
+often complex. Libraries like OpenCV, scikit-image and Open3D provide excellent algorithms, but
+they frequently differ in API style, coordinate conventions, and expected data types.
+MVTB unifies these capabilities into a consistent, object-oriented framework. By
+treating images and cameras as first-class objects rather than just raw arrays, the
+Toolbox allows you to focus on the geometry and logic of your vision system rather than
+the boilerplate of library integration.
 
 For example, to read an image using OpenCV, smooth it, and display it is::
 
@@ -271,7 +269,7 @@ belongs to
 .. code-block:: python
 
 	out = f.labelImage(im)
-	out.stats()
+	out.stats
 	out.disp(block=True, colormap="jet", cbar=True, vrange=[0,len(f)-1])
 
 and request the blob label image which we then display

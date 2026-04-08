@@ -17,7 +17,7 @@
 
    {% block attributes %}
    {% if attributes %}
-   .. rubric:: {{ _('Attributes') }}
+   .. rubric:: {{ _('Properties') }}
 
    .. autosummary::
    {% for item in attributes | sort(case_sensitive=False) %}

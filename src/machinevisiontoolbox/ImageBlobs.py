@@ -128,51 +128,90 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         The list can be indexed, sliced or used as an iterator in a for loop
         or comprehension, for example:
 
-            .. code-block:: python
+        .. code-block:: python
 
-                for blob in blobs:
-                  # do a thing
-                areas = [blob.area for blob in blobs]
+            for blob in blobs:
+                # do a thing
+
+            areas = [blob.area for blob in blobs]
 
 
         However the last line can also be written as:
 
-            .. code-block:: python
+        .. code-block:: python
 
-                areas = blobs.area
+            areas = blobs.area
 
 
         since all methods return a scalar if applied to a single blob:
 
-            .. code-block:: python
+        .. code-block:: python
 
-                blobs[1].area
+            blobs[1].area
 
 
         or a list if applied to multiple blobs:
 
-            .. code-block:: python
+        .. code-block:: python
 
-                blobs.area
+            blobs.area
 
 
         A blob has many attributes:
 
+        Geometric attributes
+
         .. list-table::
            :header-rows: 1
+           :widths: 30 70
 
-           * - Attribute
+           * - Property
              - Description
            * - :meth:`area`
              - The area of the blob.
-           * - :meth:`u`, :meth:`v`
-             - The centroid (center of mass) of the blob.
            * - :meth:`bbox`
              - The bounding box of the blob.
-           * - :meth:`color`
-             - The value of pixels within the blob.
+           * - :meth:`umin`, :meth:`umax`
+             - The horizontal extent of the bounding box.
+           * - :meth:`vmin`, :meth:`vmax`
+             - The vertical extent of the bounding box.
            * - :meth:`touch`
-             - True if the blob touches the border.
+             - True if the blob touches the border of the image.
+           * - :meth:`fillfactor`
+             - Ratio of blob area to bounding box area.
+           * - :meth:`bboxarea`
+             - Area of the bounding box.
+
+
+        Moment attributes
+
+        .. list-table::
+           :header-rows: 1
+           :widths: 30 70
+
+           * - Property
+             - Description
+           * - :meth:`u`, :meth:`v`
+             - The centroid (center of mass) of the blob.
+           * - :meth:`orientation`
+             - Orientation of the equivalent ellipse.
+           * - :meth:`a, b`
+             - The equivalent ellipse radii.
+           * - :meth:`aligned_box`
+             - A rotated bounding box with sides parallel to the axes of the equivalent ellipse.
+           * - :meth:`moments`
+             - The moments of the blob including central and normalised values up to 3rd order.
+           * - :meth:`humoments`
+             - Seven Hu moment invariants (invariant to position, orientation and scale).
+
+        Boundary and shape attributes
+
+        .. list-table::
+           :header-rows: 1
+           :widths: 30 70
+
+           * - Property
+             - Description
            * - :meth:`contour_point`
              - A point on the contour of the blob.
            * - :meth:`perimeter`
@@ -181,18 +220,34 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
              - The perimeter length of the blob.
            * - :meth:`circularity`
              - The circularity of the blob.
-           * - :meth:`moments`
-             - The moments of the blob including central, normalized upto 3rd order.
-           * - :meth:`orientation`
-             - Orientation of the equivalent ellipse.
-           * - :meth:`a, b`
-             - The equivalent ellipse radii.
+           * - :meth:`perimeter_approx`
+             - A polygonal approximation to the perimeter.
+           * - :meth:`perimeter_hull`
+             - The convex hull of the perimeter.
+           * - :meth:`MEC`
+             - The minimum enclosing circle.
+           * - :meth:`MER`
+             - The minimum enclosing rectangle.
+
+
+        Hierarchy and region attributes
+
+        .. list-table::
+           :header-rows: 1
+           :widths: 30 70
+
+           * - Property
+             - Description
+           * - :meth:`color`
+             - The value of pixels within the blob.
            * - :meth:`children`
              - A list of references to child :class:`Blob` instances.
            * - :meth:`parent`
              - A reference to the parent :class:`Blob` instance, or None if no parent.
            * - :meth:`level`
              - The depth of the blob in the region tree.
+           * - :meth:`dotfile`
+             - Write a GraphViz dot file representing the blob hierarchy.
 
         .. note:: ``findContours`` can give surprising results for small images:
 
@@ -2319,6 +2374,8 @@ class ImageBlobsMixin:
 
         :references:
             - |RVC3|, Section 12.1.2.1.
+
+        :seealso: :class:`Blobs` :class:`Blob`
         """
 
         # TODO do the feature extraction here
