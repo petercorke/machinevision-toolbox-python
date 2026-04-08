@@ -450,9 +450,9 @@ class Image(
 
     def __str__(self) -> str:
         """
-        Single line summary of image parameters
+        Summary of image parameters
 
-        :return: single line summary of image
+        :return: summary of image
         :rtype: str
 
         Example:
@@ -460,8 +460,16 @@ class Image(
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read('street.png')
+            >>> print(img)
             >>> img = Image.Read('flowers1.png')
             >>> str(img)
+
+        The ``repr`` method provides a more compact summary of the image parameters,
+        whereas the ``str`` method provides a more detailed summary, including
+        statistics about the pixel values.
+
+        :seealso: :meth:`stats` :meth:`__repr__`
         """
         s = f"Image: {self.width} x {self.height} ({self.dtype})"
 
@@ -497,8 +505,17 @@ class Image(
                 s += f" {ninf}xInf{'s' if ninf > 1 else ''}"
             s += ")"
 
+        # Add statistics summary on subsequent line(s).
+        stats = self.stats
+        if self.iscolor and self.colororder is not None:
+            colororder = self.colororder
+            for k in sorted(stats.keys(), key=lambda x: colororder[x]):
+                s += f"\n  {k:s}: {self._format_stats(stats[k])}"
+        else:
+            s += f"\n  {self._format_stats(stats)}"
+
         return s
-    
+
     def __repr__(self) -> str:
         """
         Readable representation of image parameters
@@ -650,14 +667,14 @@ class Image(
 
         if fmt is None:
             if self.isint:
-                width = max(len(str(self.max())), len(str(self.min())))
+                width = max(len(str(self.max)), len(str(self.min)))
                 fmt = f"{separator}{{:{width}d}}"
             elif self.isbool:
                 width = 1
                 fmt = f"{separator}{{:{width}d}}"
             elif self.isfloat:
                 ff = f"{{:.{precision}f}}"
-                width = max(len(ff.format(self.max())), len(ff.format(self.min())))
+                width = max(len(ff.format(self.max)), len(ff.format(self.min)))
                 fmt = f"{separator}{{:{width}.{precision}f}}"
 
         if header:
@@ -785,8 +802,6 @@ class Image(
             s += "\n"
 
         return s
-
-
 
     def copy(self, copy: bool = True) -> "Image":
         """

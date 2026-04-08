@@ -126,7 +126,7 @@ class TestImage(unittest.TestCase):
             img.print(header=True)
         self.assertEqual(
             f.getvalue(),
-            "Image: 5 x 3 (uint8), 1 anonymous plane\n   0 1 2 3 4\n   5 6 7 8 9\n   8 7 6 5 4\n",
+            "Image: 5 x 3 (uint8), 1 anonymous plane\n  span=[0, 9]; mean=5, 𝜎=2.58199; median=5\n   0 1 2 3 4\n   5 6 7 8 9\n   8 7 6 5 4\n",
         )
 
     def test_im_to_string(self):

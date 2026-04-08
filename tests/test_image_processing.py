@@ -461,7 +461,7 @@ class TestImageProcessingBase(unittest.TestCase):
     def test_stats(self):
         """Test image statistics"""
         img = Image(np.random.rand(10, 10))
-        stats = img.stats()
+        stats = img.stats
         self.assertIsNotNone(stats)
 
     # @skip

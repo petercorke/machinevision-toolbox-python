@@ -4,7 +4,7 @@ Whole-image feature computation: moments, Hu invariants, histograms, and entropy
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal
 
 import cv2 as cv
 import matplotlib.pyplot as plt
@@ -23,12 +23,11 @@ class ImageWholeFeaturesMixin(_ImageBase):
 
     # ------------------ scalar statistics ----------------------------- #
 
-    def sum(self, *args: Any, **kwargs: Any) -> int | float:
+    @property
+    def sum(self) -> int | float:
         r"""
         Sum of all pixels
 
-        :param args: additional positional arguments to :func:`numpy.sum`
-        :param kwargs: additional keyword arguments to :func:`numpy.sum`
         :return: sum
 
         Computes the sum of pixels in the image:
@@ -43,31 +42,25 @@ class ImageWholeFeaturesMixin(_ImageBase):
 
             >>> from machinevisiontoolbox import Image
             >>> img = Image.Read('flowers1.png')
-            >>> img.sum()  # R+G+B
-            >>> img.sum(axis=(0,1)) # sum(R), sum(G), sum(B)
-            >>> img = Image.Read('flowers1.png', dtype='float32')
-            >>> img.sum(axis=2)
+            >>> img.sum  # R+G+B
 
 
         .. note::
             - The return value type is the same as the image type.
-            - By default the result is a scalar computed over all pixels,
-              if the ``axis`` option is given the results is a 1D or 2D NumPy
-              array.
             - NaN values are ignored in the sum
+            - For axis-specific sums use :func:`numpy.nansum` on ``A`` directly.
 
         :seealso: :func:`numpy.sum` :meth:`numnan` :meth:`~~machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.mpq`
             :meth:`~machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.npq`
             :meth:`~machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.upq`
         """
-        return np.nansum(self._A, *args, **kwargs)
+        return np.nansum(self._A)
 
-    def min(self, *args: Any, **kwargs: Any) -> int | float:
+    @property
+    def min(self) -> int | float:
         """
         Minimum value of all pixels
 
-        :param args: additional positional arguments to :func:`numpy.nanmin`
-        :param kwargs: additional keyword arguments to :func:`numpy.nanmin`
         :return: minimum value
 
         Example:
@@ -76,27 +69,22 @@ class ImageWholeFeaturesMixin(_ImageBase):
 
             >>> from machinevisiontoolbox import Image
             >>> img = Image.Read('flowers1.png')
-            >>> img.min()
-            >>> img = Image.Read('flowers1.png', dtype='float32')
-            >>> img.min(axis=(0,1)) # minimum over each plane
+            >>> img.min
 
         .. note::
             - The return value type is the same as the image type.
-            - By default the result is a scalar computed over all pixels,
-              if the ``axis`` option is given the results is a 1D or 2D NumPy
-              array.
             - NaN values are ignored
+            - For axis-specific minima use :func:`numpy.nanmin` on ``A`` directly.
 
         :seealso: :meth:`stats` :meth:`hist` :meth:`Hough` :meth:`max` :func:`numpy.nanmin` :meth:`numnan`
         """
-        return np.nanmin(self._A, *args, **kwargs)
+        return np.nanmin(self._A)
 
-    def max(self, *args: Any, **kwargs: Any) -> int | float:
+    @property
+    def max(self) -> int | float:
         """
         Maximum value of all pixels
 
-        :param args: additional positional arguments to :func:`numpy.nanmax`
-        :param kwargs: additional keyword arguments to :func:`numpy.nanmax`
         :return: maximum value
 
         Example:
@@ -105,27 +93,22 @@ class ImageWholeFeaturesMixin(_ImageBase):
 
             >>> from machinevisiontoolbox import Image
             >>> img = Image.Read('flowers1.png')
-            >>> img.max()
-            >>> img = Image.Read('flowers1.png', dtype='float32')
-            >>> img.max(axis=(0,1)) # maximum over each plane
+            >>> img.max
 
         .. note::
             - The return value type is the same as the image type.
-            - By default the result is a scalar computed over all pixels,
-              if the ``axis`` option is given the results is a 1D or 2D NumPy
-              array.
             - NaN values are ignored
+            - For axis-specific maxima use :func:`numpy.nanmax` on ``A`` directly.
 
         :seealso: :meth:`stats` :meth:`hist` :meth:`min` :func:`numpy.nanmax` :meth:`numnan`
         """
-        return np.nanmax(self._A, *args, **kwargs)
+        return np.nanmax(self._A)
 
-    def mean(self, *args: Any, **kwargs: Any) -> float:
+    @property
+    def mean(self) -> float:
         """
         Mean value of all pixels
 
-        :param args: additional positional arguments to :func:`numpy.nanmean`
-        :param kwargs: additional keyword arguments to :func:`numpy.nanmean`
         :return: mean value
 
         Example:
@@ -134,27 +117,22 @@ class ImageWholeFeaturesMixin(_ImageBase):
 
             >>> from machinevisiontoolbox import Image
             >>> img = Image.Read('flowers1.png')
-            >>> img.mean()
-            >>> img = Image.Read('flowers1.png', dtype='float32')
-            >>> img.mean(axis=(0,1)) # mean over each plane
+            >>> img.mean
 
         .. note::
             - The return value type is the same as the image type.
-            - By default the result is a scalar computed over all pixels,
-              if the ``axis`` option is given the results is a 1D or 2D NumPy
-              array.
             - NaN values are ignored
+            - For axis-specific means use :func:`numpy.nanmean` on ``A`` directly.
 
         :seealso: :meth:`stats` :meth:`hist` :meth:`Hough` :meth:`std` :meth:`median` :func:`numpy.nanmean` :meth:`numnan`
         """
-        return np.nanmean(self._A, *args, **kwargs)
+        return float(np.nanmean(self._A))
 
-    def std(self, *args: Any, **kwargs: Any) -> float | np.ndarray:
+    @property
+    def std(self) -> float:
         """
         Standard deviation of all pixels
 
-        :param args: additional positional arguments to :func:`numpy.nanstd`
-        :param kwargs: additional keyword arguments to :func:`numpy.nanstd`
         :return: standard deviation value
 
         Example:
@@ -163,30 +141,23 @@ class ImageWholeFeaturesMixin(_ImageBase):
 
             >>> from machinevisiontoolbox import Image
             >>> img = Image.Read('flowers1.png')
-            >>> img.std()
-            >>> img = Image.Read('flowers1.png', dtype='float32')
-            >>> img.std(axis=(0,1)) # std over each plane
+            >>> img.std
 
         .. note::
             - The return value type is the same as the image type.
-            - By default the result is a scalar computed over all pixels,
-              if the ``axis`` option is given the results is a 1D or 2D NumPy
-              array.
             - NaN values are ignored
+            - For axis-specific standard deviations use :func:`numpy.nanstd`
+              on ``A`` directly.
 
         :seealso: :meth:`stats` :meth:`hist` :meth:`mean` :meth:`var` :func:`numpy.nanstd` :meth:`numnan`
         """
-        result = np.nanstd(self._A, *args, **kwargs)
-        if np.ndim(result) == 0:
-            return float(result)
-        return result
+        return float(np.nanstd(self._A))
 
-    def var(self, *args: Any, **kwargs: Any) -> float | np.ndarray:
+    @property
+    def var(self) -> float:
         """
         Variance of all pixels
 
-        :param args: additional positional arguments to :func:`numpy.nanvar`
-        :param kwargs: additional keyword arguments to :func:`numpy.nanvar`
         :return: variance value
 
         Example:
@@ -195,30 +166,23 @@ class ImageWholeFeaturesMixin(_ImageBase):
 
             >>> from machinevisiontoolbox import Image
             >>> img = Image.Read('flowers1.png')
-            >>> img.var()
-            >>> img = Image.Read('flowers1.png', dtype='float32')
-            >>> img.var(axis=(0,1)) # variance over each plane
+            >>> img.var
 
         .. note::
             - The return value type is the same as the image type.
-            - By default the result is a scalar computed over all pixels,
-              if the ``axis`` option is given the results is a 1D or 2D NumPy
-              array.
             - NaN values are ignored
+            - For axis-specific variances use :func:`numpy.nanvar` on ``A``
+              directly.
 
         :seealso: :meth:`stats` :meth:`hist` :meth:`std` :func:`numpy.nanvar` :meth:`numnan`
         """
-        result = np.nanvar(self._A, *args, **kwargs)
-        if np.ndim(result) == 0:
-            return float(result)
-        return result
+        return float(np.nanvar(self._A))
 
-    def median(self, *args: Any, **kwargs: Any) -> int | float:
+    @property
+    def median(self) -> int | float:
         """
         Median value of all pixels
 
-        :param args: additional positional arguments to :func:`numpy.nanmedian`
-        :param kwargs: additional keyword arguments to :func:`numpy.nanmedian`
         :return: median value
 
         Example:
@@ -227,27 +191,56 @@ class ImageWholeFeaturesMixin(_ImageBase):
 
             >>> from machinevisiontoolbox import Image
             >>> img = Image.Read('flowers1.png')
-            >>> img.median()
-            >>> img = Image.Read('flowers1.png', dtype='float32')
-            >>> img.median(axis=(0,1)) # median over each plane
+            >>> img.median
 
         .. note::
             - The return value type is the same as the image type.
-            - By default the result is a scalar computed over all pixels,
-              if the ``axis`` option is given the results is a 1D or 2D NumPy
-              array.
             - NaN values are ignored
+                        - For axis-specific medians use :func:`numpy.nanmedian` on ``A``
+                            directly.
 
         :seealso: :meth:`stats` :meth:`hist` :meth:`mean` :meth:`std` :func:`numpy.nanmedian` :meth:`numnan`
         """
-        return np.nanmedian(self._A, *args, **kwargs)
+        return np.nanmedian(self._A)
 
+    @staticmethod
+    def _plane_stats(plane: np.ndarray) -> dict[str, float | int]:
+        return {
+            "min": float(np.nanmin(plane)),
+            "max": float(np.nanmax(plane)),
+            "mean": float(np.nanmean(plane)),
+            "sdev": float(np.nanstd(plane)),
+            "median": float(np.nanmedian(plane)),
+            "nnan": int(np.sum(np.isnan(plane))),
+            "ninf": int(np.sum(np.isinf(plane))),
+        }
+
+    @staticmethod
+    def _format_stats(stats: dict[str, float | int]) -> str:
+        s = (
+            f"span=[{stats['min']:g}, {stats['max']:g}]; "
+            f"mean={stats['mean']:g}, "
+            f"𝜎={stats['sdev']:g}; "
+            f"median={stats['median']:g}"
+        )
+        nnan = stats["nnan"]
+        ninf = stats["ninf"]
+        if nnan + ninf > 0:
+            s += " (contains "
+            if nnan > 0:
+                s += f"{nnan}xNaN{'s' if nnan > 1 else ''}"
+            if ninf > 0:
+                s += f" {ninf}xInf{'s' if ninf > 1 else ''}"
+            s += ")"
+        return s
+
+    @property
     def stats(self) -> dict[str, Any]:
         """
-        Display pixel value statistics
+        Pixel value statistics
 
         :return: statistics dictionary; for greyscale keys are ``min``, ``max``,
-            ``mean``, ``sdev``, ``median``, ``nan``, ``inf``; for color images
+            ``mean``, ``sdev``, ``median``, ``nnan``, ``ninf``; for color images
             returns a dictionary mapping plane name to that same dictionary
         :rtype: dict
 
@@ -256,68 +249,71 @@ class ImageWholeFeaturesMixin(_ImageBase):
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read('street.png')
+            >>> img.stats
             >>> img = Image.Read('flowers1.png')
-            >>> img.stats()
+            >>> img.stats
 
         .. note::
 
-            - Statistics are printed to standard output and also returned as a
-              dictionary.
-            - NaN values are ignored, but their number is displayed as part of the statistics if non zero.
+            - Returns statistics as a dictionary and does not print.
+            - NaN values are ignored for scalar statistics and reported via
+              ``nnan`` and ``ninf`` counts.
 
-        :seealso: :meth:`hist` :meth:`min` :meth:`max` :meth:`mean` :meth:`std` :meth:`median`
+        :seealso: :meth:`printstats` :meth:`hist` :meth:`min` :meth:`max` :meth:`mean` :meth:`std` :meth:`median`
         """
-
-        def plane_stats(plane: np.ndarray) -> dict[str, float | int]:
-            return {
-                "min": float(np.nanmin(plane)),
-                "max": float(np.nanmax(plane)),
-                "mean": float(np.nanmean(plane)),
-                "sdev": float(np.nanstd(plane)),
-                "median": float(np.nanmedian(plane)),
-                "nnan": int(np.sum(np.isnan(plane))),
-                "ninf": int(np.sum(np.isinf(plane))),
-            }
-
-        def printstats(plane: np.ndarray) -> None:
-            stats = plane_stats(plane)
-            s = (
-                f"range={stats['min']:g} - {stats['max']:g}; "
-                f"mean={stats['mean']:g}, "
-                f"𝜎={stats['sdev']:g}; "
-                f"median={stats['median']:g}"
-            )
-            nnan = stats["nnan"]
-            ninf = stats["ninf"]
-            if nnan + ninf > 0:
-                s += " (contains "
-                if nnan > 0:
-                    s += f"{nnan}xNaN{'s' if nnan > 1 else ''}"
-                if ninf > 0:
-                    s += f" {ninf}xInf{'s' if ninf > 1 else ''}"
-                s += ")"
-            print(s)
 
         if self.iscolor and self.colororder is not None:
             all_stats = {}
             for k, v in sorted(self.colororder.items(), key=lambda x: x[1]):
-                print(f"{k:s}: ", end="")
-                printstats(self._A[..., v])
-                all_stats[k] = plane_stats(self._A[..., v])
+                all_stats[k] = self._plane_stats(self._A[..., v])
             return all_stats
         else:
-            printstats(self._A)
-            return plane_stats(self._A)
+            return self._plane_stats(self._A)
+
+    def printstats(self) -> None:
+        """
+        Print pixel value statistics
+
+        Prints a concise summary of image statistics.
+
+        :seealso: :meth:`stats`
+        """
+
+        stats = self.stats
+        if self.iscolor and self.colororder is not None:
+            colororder = self.colororder
+            for k in sorted(stats.keys(), key=lambda x: colororder[x]):
+                print(f"{k:s}: {self._format_stats(stats[k])}")
+        else:
+            print(self._format_stats(stats))
 
     # ------------------ histogram ------------------------------------- #
-    def hist(self, nbins: int = 256, opt: str | None = None) -> "Histogram":
+    def hist(
+        self,
+        nbins: int = 256,
+        sorted: bool | str = False,
+        span: Literal["dtype"] | tuple[float, float] | None = "dtype",
+        clip: bool = False,
+        opt: str | None = None,
+    ) -> "Histogram":
         """
         Image histogram
 
         :param nbins: number of histogram bins, defaults to 256
         :type nbins: int, optional
-        :param opt: histogram option, defaults to None; options are 'sorted' to sort the histogram by count rather than bin value
-        :type opt: str
+        :param sorted: sort bins by count rather than value, defaults to False
+        :type sorted: bool
+        :param span: histogram span definition, defaults to ``'dtype'``;
+            ``'dtype'`` means full span of image dtype if integer or [0,1] for float, ``None`` means finite data
+            min/max, ``(a,b)`` means explicit range
+        :type span: str, tuple(float, float), None
+        :param clip: clip out-of-span values to span endpoints before binning,
+            defaults to False. If False, out-of-span values are ignored.
+        :type clip: bool, optional
+        :param opt: deprecated histogram option string, use ``sorted`` instead;
+            supported legacy value is ``'sorted'``
+        :type opt: str, optional
         :return: histogram of image
         :rtype: :class:`~machinevisiontoolbox.ImageWholeFeatures.Histogram`
 
@@ -377,74 +373,34 @@ class ImageWholeFeaturesMixin(_ImageBase):
             img.hist().plot(style='overlay')
 
         .. note::
-            - For a `uint8` image the bins spans the greylevel range 0-255.
-            - For a floating point image the histogram spans the greylevel range
-              0.0 to 1.0 with 256 bins.
-            - For floating point images all NaN and Inf values are first
-              removed.
-            - Computed using OpenCV `calcHist`. Only works on floats up to 32 bit,
-              float64 images are automatically converted to float32.
+                        - Histogram range is controlled by ``span``.
+                        - ``span='dtype'`` uses full datatype span (for example uint8: 0-255,
+                            float: 0.0-1.0).
+                        - ``span=None`` uses the finite min/max of image data.
+                        - Values outside ``span`` are ignored unless ``clip=True``,
+                            in which case they are clipped to the span endpoints.
+                        - For floating point images all NaN and Inf values are removed before
+                            computing the histogram.
 
         :references:
             - |RVC3|, Section 14.4.3.
 
-        .. important:: Uses OpenCV function ``cv2.calcHist`` which accepts single-channel, CV_8U or CV_32F images (float64 images are automatically converted to float32).
+        .. important:: Histogram is computed using ``numpy.histogram`` independently for each plane.
 
         :seealso:
             :meth:`stats`
             :class:`~machinevisiontoolbox.ImageWholeFeatures.Histogram`
-            `opencv.calcHist <https://docs.opencv.org/4.x/d6/dc7/group__imgproc__hist.html#ga4b2b5fd75503ff9e6844cc4dcdaed35d>`_
+            :func:`numpy.histogram`
         """
 
-        # check inputs
-        optHist = ["sorted"]
-        if opt is not None and opt not in optHist:
-            raise ValueError(opt, "opt is not a valid option")
-
-        if self.isint:
-            xrange = [0, np.iinfo(self.dtype).max]
-        else:
-            # float image
-            xrange = [0.0, 1.0]
-
-        xc = []
-        hc = []
-        hcdf = []
-        hnormcdf = []
-
-        # ensure that float image is converted to float32
-        if self._A.dtype == np.dtype("float64"):
-            implanes = cv.split(m=self._A.astype("float32"))
-        else:
-            implanes = cv.split(m=self._A)
-
-        for i in range(self.nplanes):
-            # bin coordinates
-            x = np.linspace(xrange[0], xrange[1], nbins, endpoint=True).T
-            # h = cv.calcHist(implanes, [i], None, [nbins], [0, maxrange + 1])
-            h = cv.calcHist(
-                images=implanes,
-                channels=[i],
-                mask=None,
-                histSize=[nbins],
-                ranges=xrange,
-            )
-            if i == 0:
-                xc.append(x)
-            hc.append(h)
-
-        # stack into arrays
-        xs = np.vstack(xc).T
-        hs = np.hstack(hc)
-
-        # TODO this seems too complex, why do we stack stuff as well
-        # as have an array of hist tuples??
-        # xs, xc are the same, and same for all plots
-
-        hhhx = Histogram(hs, xs, self.isfloat)
-        hhhx.colordict = self.colororder
-
-        return hhhx
+        return Histogram(
+            self,
+            nbins=nbins,
+            sorted=sorted,
+            span=span,
+            clip=clip,
+            opt=opt,
+        )
 
     @property
     def x(self) -> np.ndarray:
@@ -820,31 +776,133 @@ class ImageWholeFeaturesMixin(_ImageBase):
 
 
 class Histogram:
-    def __init__(self, h: np.ndarray, x: np.ndarray, isfloat: bool = False) -> None:
+    def __init__(
+        self,
+        image: ImageWholeFeaturesMixin,
+        nbins: int = 256,
+        sorted: bool | str = False,
+        span: Literal["dtype"] | tuple[float, float] | None = "dtype",
+        clip: bool = False,
+        opt: str | None = None,
+    ) -> None:
         """
         Create histogram instance
 
-        :param h: image histogram
-        :type h: ndarray(N), ndarray(N,P)
-        :param x: image values
-        :type x: ndarray(N)
-        :param isfloat: pixel values are floats, defaults to False
-        :type isfloat: bool, optional
+        :param image: image to histogram
+        :type image: Image
+        :param nbins: number of histogram bins, defaults to 256
+        :type nbins: int, optional
+        :param sorted: sort bins by count rather than value, defaults to False
+        :type sorted: bool
+        :param span: histogram span definition, defaults to ``'dtype'``;
+            ``'dtype'`` means full span of image type, ``None`` means finite data
+            min/max, ``(a,b)`` means explicit range
+        :type span: str, tuple(float, float), None
+        :param clip: clip out-of-span values to span endpoints before binning,
+            defaults to False. If False, out-of-span values are ignored.
+        :type clip: bool, optional
+        :param opt: deprecated histogram option string, use ``sorted`` instead;
+            supported legacy value is ``'sorted'``
+        :type opt: str, optional
 
-        Create :class:`Histogram` instance from histogram data provided
-        as Numpy arrays.
+        Create :class:`Histogram` instance by computing the histogram over each image plane.
 
         :seealso: :meth:`~machinevisiontoolbox.ImageFeatures.ImageFeaturesMixin.hist`
         """
-        self.nplanes = h.shape[1]
+        if nbins <= 0:
+            raise ValueError("nbins must be > 0")
+
+        import warnings
+
+        if isinstance(sorted, str):
+            if sorted == "sorted":
+                warnings.warn(
+                    "hist(sorted='sorted') is deprecated, use hist(sorted=True)",
+                    DeprecationWarning,
+                    stacklevel=2,
+                )
+                sorted = True
+            else:
+                raise ValueError("sorted string value must be 'sorted'")
+
+        if opt is not None:
+            if opt != "sorted":
+                raise ValueError("opt value must be 'sorted'")
+            warnings.warn(
+                "hist(opt='sorted') is deprecated, use hist(sorted=True)",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            sorted = True
+
+        if not isinstance(sorted, bool):
+            raise TypeError("sorted must be bool")
+        if not isinstance(clip, bool):
+            raise TypeError("clip must be bool")
+
+        if span == "dtype":
+            if np.issubdtype(image.dtype, np.bool_):
+                xrange = (0.0, 1.0)
+            elif np.issubdtype(image.dtype, np.integer):
+                dtype_info = np.iinfo(image.dtype)
+                xrange = (float(dtype_info.min), float(dtype_info.max))
+            else:
+                xrange = (0.0, 1.0)
+        elif span is None:
+            values = image.A.reshape(-1)
+            if np.issubdtype(values.dtype, np.floating):
+                values = values[np.isfinite(values)]
+            if values.size == 0:
+                raise ValueError("cannot determine span from empty finite image data")
+            xrange = (float(np.min(values)), float(np.max(values)))
+        elif isinstance(span, tuple) and len(span) == 2:
+            xrange = (float(span[0]), float(span[1]))
+        else:
+            raise ValueError("span must be 'dtype', None or a 2-tuple")
+
+        if not np.isfinite(xrange[0]) or not np.isfinite(xrange[1]):
+            raise ValueError("span limits must be finite")
+        if xrange[1] <= xrange[0]:
+            raise ValueError("span max must be greater than span min")
+
+        x = np.linspace(xrange[0], xrange[1], nbins, endpoint=True)
+
+        hc = []
+        for i in range(image.nplanes):
+            if image.nplanes == 1:
+                plane = image.A
+            else:
+                plane = image.A[..., i]
+
+            values = plane.reshape(-1)
+            if np.issubdtype(values.dtype, np.floating):
+                values = values[np.isfinite(values)]
+            if clip:
+                values = np.clip(values, xrange[0], xrange[1])
+
+            h, _ = np.histogram(values, bins=nbins, range=xrange)
+            hc.append(h.astype(np.int64))
+
+        hs = np.column_stack(hc)
+
+        self.nplanes = hs.shape[1]
+        self._sorted = sorted
+        if self._sorted:
+            if self.nplanes != 1:
+                raise ValueError("sorted histogram is only supported for mono images")
+            order = np.argsort(hs[:, 0])[::-1]
+            hs = hs[order, :]
+            x = np.arange(nbins, dtype=float)
 
         if self.nplanes == 1:
-            h = h[:, 0]
+            self._h = hs[:, 0]
+        else:
+            self._h = hs
 
-        self._h = h  # histogram
-        self._x = x.flatten()  # x value
-        self.isfloat = isfloat
-        self.colordict: dict[str, int] | None = None
+        self._x = x.flatten()
+        self._xrange = xrange
+        self.isfloat = image.isfloat
+        self.colordict = image.colororder
         # 'hist', 'h cdf normcdf x')
 
     def __str__(self) -> str:
@@ -989,12 +1047,14 @@ class Histogram:
         self,
         type="frequency",
         block=False,
-        bar=None,
+        solid=None,
+        stats=True,
         style="stack",
         cursor=False,
         alpha=0.5,
         title=None,
         log=False,
+        bar=None,
         **kwargs,
     ):
         """
@@ -1004,9 +1064,11 @@ class Histogram:
         :type type: str, optional
         :param block: hold plot, defaults to False
         :type block: bool, optional
-        :param bar: histogram bar plot, defaults to True for frequency plot, False for
+        :param solid: use a filled stairs plot, defaults to True for frequency plot, False for
             other plots
-        :type bar: bool, optional
+        :type solid: bool, optional
+        :param stats: draw vertical lines for mean (solid) and median (dashed), defaults to True
+        :type stats: bool, optional
         :param style: Style for multiple plots, one of: 'stack' [default], 'overlay'
         :type style: str, optional
         :param cursor: enable interactive data cursor for stacked line plots, defaults
@@ -1018,6 +1080,7 @@ class Histogram:
         :type title: str, optional
         :param log: use logarithmic y-axis, defaults to False
         :type log: bool, optional
+        :param kwargs: additional keyword arguments passed to Matplotlib plotting functions, ``plt.stairs`` for ``solid=True`` and ``plt.plot`` for ``solid=False``, and ``plt.Polygon`` for ``style='overlay'``
         :raises ValueError: invalid histogram type
         :raises ValueError: cannot use overlay style for 1-channel histogram
 
@@ -1029,8 +1092,8 @@ class Histogram:
 
         - ``stack``: plot each plane in a separate subplot. The ``cursor`` option
           enables an interactive data cursor which displays the histogram values at the
-          cursor position.  The ``bar`` option selects whether to use a bar plot or line
-          plot.
+          cursor position.  The ``solid`` option selects whether to use a filled stairs plot or
+          a line plot.
         - ``overlay``: plot all planes in the same axes with different colors. The
           ``alpha`` option controls the transparency of the bars in the ''overlay''
           style.
@@ -1042,13 +1105,24 @@ class Histogram:
 
         x = self._x[:]
 
+        import warnings
+
+        if bar is not None:
+            warnings.warn(
+                "bar is deprecated, use solid instead",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            if solid is None:
+                solid = bar
+
         if type == "frequency":
             y = self.h
             maxy = np.max(y)
             ylabel1 = "frequency"
             ylabel2 = "frequency"
-            if bar is not False:
-                bar = True
+            if solid is None:
+                solid = True
         elif type in ("cdf", "cumulative"):
             y = self.cdf
             maxy = np.max(y[-1, :])
@@ -1065,10 +1139,27 @@ class Histogram:
         if self.nplanes == 1:
             y = y[..., np.newaxis]
 
-        if self.isfloat:
-            xrange = (0.0, 1.0)
+        hist_counts = self.h
+        if self.nplanes == 1:
+            hist_counts = hist_counts[..., np.newaxis]
+
+        def plane_stats(counts: np.ndarray) -> tuple[float | None, float | None]:
+            total = float(np.sum(counts))
+            if total <= 0:
+                return None, None
+
+            mean = float(np.sum(self.x * counts) / total)
+            cdf = np.cumsum(counts)
+            median_idx = int(np.searchsorted(cdf, 0.5 * total, side="left"))
+            median = float(self.x[min(median_idx, len(self.x) - 1)])
+            return mean, median
+
+        if self._sorted:
+            xrange = (self.x[0], self.x[-1])
+            xlabel = "bin rank"
         else:
-            xrange = (0, 255)
+            xrange = (self._xrange[0], self._xrange[1])
+            xlabel = "pixel value"
 
         if self.colordict is not None:
             colors = list(self.colordict.keys())
@@ -1079,14 +1170,18 @@ class Histogram:
             if style == "overlay":
                 raise ValueError("cannot use overlay style for monochrome image")
 
+        if self._sorted and style == "overlay":
+            raise ValueError("cannot use overlay style for sorted histogram")
+
         if style == "stack":
             fig, axes = plt.subplots(n, 1)
             axes = np.atleast_1d(axes)
             for i, ax in enumerate(axes):
-                if bar:
-                    ax.bar(x, y[:, i], width=x[1] - x[0], bottom=0, **kwargs)
-                    # ax.bar(x, y[:, i])
-
+                if solid:
+                    bin_width = x[1] - x[0]
+                    ax.stairs(
+                        y[:, i], np.append(x, x[-1] + bin_width), fill=True, **kwargs
+                    )
                 else:
                     ax.plot(x, y[:, i], **kwargs)
                 ax.grid()
@@ -1099,9 +1194,27 @@ class Histogram:
                 ax.yaxis.set_major_formatter(
                     ScalarFormatter(useOffset=False, useMathText=True)
                 )
+                if stats:
+                    mean, median = plane_stats(hist_counts[:, i])
+                    if mean is not None and median is not None:
+                        ax.axvline(
+                            mean,
+                            color="k",
+                            linestyle="-",
+                            linewidth=1.0,
+                            label="mean",
+                        )
+                        ax.axvline(
+                            median,
+                            color="k",
+                            linestyle="--",
+                            linewidth=1.0,
+                            label="median",
+                        )
+                        ax.legend(loc="best")
                 if log:
                     ax.set_yscale("log")
-            axes[-1].set_xlabel("pixel value")
+            axes[-1].set_xlabel(xlabel)
 
             if cursor:
                 x_interp = np.asarray(x, dtype=float)
@@ -1171,7 +1284,7 @@ class Histogram:
                 fig.canvas.mpl_connect("motion_notify_event", on_move)
 
         elif style == "overlay":
-            x = np.r_[0, x, 255]
+            x = np.r_[xrange[0], x, xrange[1]]
             _, ax = plt.subplots(1, 1)
 
             patchcolor = []
@@ -1189,22 +1302,45 @@ class Histogram:
                 yi = np.r_[0, y[:, i], 0]
                 p1 = np.array([x, yi]).T
                 poly1 = Polygon(
-                    p1, closed=True, facecolor=patchcolor[i], alpha=alpha, **kwargs
+                    p1,
+                    closed=True,
+                    facecolor=patchcolor[i],
+                    alpha=alpha,
+                    label=colors[i],
+                    **kwargs,
                 )
                 ax.add_patch(poly1)
+
+            if stats:
+                mean, median = plane_stats(np.sum(hist_counts, axis=1))
+                if mean is not None and median is not None:
+                    ax.axvline(
+                        mean,
+                        color="k",
+                        linestyle="-",
+                        linewidth=1.0,
+                        label="mean",
+                    )
+                    ax.axvline(
+                        median,
+                        color="k",
+                        linestyle="--",
+                        linewidth=1.0,
+                        label="median",
+                    )
             ax.set_xlim(*xrange)
             ax.set_ylim(0, maxy)
             ax.yaxis.set_major_formatter(
                 ScalarFormatter(useOffset=False, useMathText=True)
             )
 
-            ax.set_xlabel("pixel value")
+            ax.set_xlabel(xlabel)
             ax.set_ylabel(ylabel2)
             if log:
                 ax.set_yscale("log")
 
             ax.grid(True)
-            plt.legend(colors)
+            ax.legend(loc="best")
 
         else:
             raise ValueError("unknown style")
@@ -1335,21 +1471,15 @@ class Histogram:
 if __name__ == "__main__":
     from pathlib import Path
 
-    # import pytest
+    import pytest
 
-    # pytest.main(
-    #     [
-    #         str(
-    #             Path(__file__).parent.parent.parent
-    #             / "tests"
-    #             / "test_image_whole_features.py"
-    #         ),
-    #         "-v",
-    #     ]
-    # )
-
-    from machinevisiontoolbox import Image
-
-    m = Image.Read("monalisa.png", grey=True)
-    h = m.hist()
-    h.plot(overlay)
+    pytest.main(
+        [
+            str(
+                Path(__file__).parent.parent.parent
+                / "tests"
+                / "test_image_whole_features.py"
+            ),
+            "-v",
+        ]
+    )

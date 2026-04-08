@@ -55,6 +55,75 @@ class TestImageWholeFeatures(unittest.TestCase):
 
         self.assertEqual(y.sum(), 6 * 9)
 
+    def test_hist_span_none(self):
+        im = Image(np.array([[10, 11], [12, 13]], dtype=np.uint8))
+        h = im.hist(nbins=4, span=None)
+
+        x = h.x
+        self.assertEqual(len(x), 4)
+        self.assertEqual(x[0], 10)
+        self.assertEqual(x[-1], 13)
+        self.assertEqual(h.h.sum(), 4)
+
+    def test_hist_span_tuple(self):
+        im = Image(np.array([[10, 11], [12, 13]], dtype=np.uint8))
+        h = im.hist(nbins=4, span=(0, 20))
+
+        x = h.x
+        self.assertEqual(len(x), 4)
+        self.assertEqual(x[0], 0)
+        self.assertEqual(x[-1], 20)
+        self.assertEqual(h.h.sum(), 4)
+
+    def test_hist_span_outside_ignored_by_default(self):
+        im = Image(np.array([[0.0, 5.0, 10.0]], dtype=np.float32))
+        h = im.hist(nbins=5, span=(2.0, 8.0))
+        self.assertEqual(int(np.sum(h.h)), 1)
+
+    def test_hist_span_outside_clipped(self):
+        im = Image(np.array([[0.0, 5.0, 10.0]], dtype=np.float32))
+        h = im.hist(nbins=5, span=(2.0, 8.0), clip=True)
+        self.assertEqual(int(np.sum(h.h)), 3)
+
+    def test_hist_clip_type(self):
+        im = Image(np.array([[0.0, 5.0, 10.0]], dtype=np.float32))
+        with self.assertRaises(TypeError):
+            im.hist(span=(2.0, 8.0), clip="yes")
+
+    def test_hist_sorted_mono(self):
+        im = Image.String("000011112222")
+        h = im.hist(sorted=True)
+
+        self.assertEqual(h.nplanes, 1)
+        self.assertTrue(np.all(np.diff(h.h) <= 0))
+        self.assertEqual(h.x[0], 0)
+
+    def test_hist_sorted_multiplane_raises(self):
+        im = Image(np.random.randint(0, 255, (10, 10, 3), dtype=np.uint8))
+        with self.assertRaises(ValueError):
+            im.hist(sorted=True)
+
+    def test_hist_sorted_overlay_raises(self):
+        im = Image.String("000011112222")
+        h = im.hist(sorted=True)
+
+        with self.assertRaises(ValueError):
+            h.plot(style="overlay", block=False)
+
+    def test_hist_opt_sorted_deprecated(self):
+        im = Image.String("000011112222")
+        with self.assertWarns(DeprecationWarning):
+            h = im.hist(opt="sorted")
+
+        self.assertTrue(np.all(np.diff(h.h) <= 0))
+
+    def test_hist_sorted_string_deprecated(self):
+        im = Image.String("000011112222")
+        with self.assertWarns(DeprecationWarning):
+            h = im.hist(sorted="sorted")
+
+        self.assertTrue(np.all(np.diff(h.h) <= 0))
+
     # moments
     def test_mpq(self):
         im = Image.String("00000|00000|00070|00000")
@@ -123,29 +192,29 @@ class TestImageWholeFeatures(unittest.TestCase):
 
     def test_mean(self):
         im = Image.String("123|456|789")
-        self.assertEqual(im.mean(), 5)
+        self.assertEqual(im.mean, 5)
 
     def test_std(self):
         im = Image.String("123|456|789")
 
-        self.assertEqual(im.std(), np.sqrt(20.0 / 3))
+        self.assertEqual(im.std, np.sqrt(20.0 / 3))
 
     def test_var(self):
         im = Image.String("123|456|789")
-        self.assertEqual(im.var(), 20.0 / 3)
+        self.assertEqual(im.var, 20.0 / 3)
 
     def test_min(self):
         im = Image.String("123|456|789")
 
-        self.assertEqual(im.min(), 1)
+        self.assertEqual(im.min, 1)
 
     def test_max(self):
         im = Image.String("123|456|789")
-        self.assertEqual(im.max(), 9)
+        self.assertEqual(im.max, 9)
 
     def test_median(self):
         im = Image.String("123|456|789")
-        self.assertEqual(im.median(), 5)
+        self.assertEqual(im.median, 5)
 
     # pixel values
 
@@ -202,7 +271,7 @@ class TestImageWholeFeatures(unittest.TestCase):
     def test_stats(self):
         """Test image statistics"""
         im = Image.Random(size=(50, 50), dtype="uint8")
-        stats = im.stats()
+        stats = im.stats
         self.assertIsNotNone(stats)
         # Check stats contains expected keys
         # self.assertIn('mean', stats)
@@ -241,6 +310,29 @@ class TestImageWholeFeatures(unittest.TestCase):
 
         callbacks = fig.canvas.callbacks.callbacks.get("motion_notify_event", {})
         self.assertGreater(len(callbacks), 0)
+        plt.close(fig)
+
+    def test_plot_stats_lines_default(self):
+        """Test default mean/median stat lines and legend"""
+        im = Image.String("000011112222")
+        hist = im.hist()
+
+        with patch("matplotlib.pyplot.show"):
+            hist.plot(style="stack", block=False)
+
+        fig = plt.gcf()
+        ax = fig.axes[0]
+        legend = ax.get_legend()
+
+        self.assertIsNotNone(legend)
+        labels = [text.get_text() for text in legend.get_texts()]
+        self.assertIn("mean", labels)
+        self.assertIn("median", labels)
+
+        self.assertGreaterEqual(len(ax.lines), 2)
+        linestyles = [line.get_linestyle() for line in ax.lines]
+        self.assertIn("-", linestyles)
+        self.assertIn("--", linestyles)
         plt.close(fig)
 
     # new test
