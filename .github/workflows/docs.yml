@@ -66,6 +66,7 @@ jobs:
             --include='*/' \
             --include='*.ipynb' \
             --exclude='old/***' \
+            --exclude='index.ipynb' \
             --exclude='*' \
             docs/notebooks/ docs/lite/files/
 

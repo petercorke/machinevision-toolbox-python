@@ -37,11 +37,11 @@
 
 ## Synopsis
 
-The Machine Vision Toolbox (MVTB) brings professional-grade vision algorithms to your fingertips with a Pythonic API. Built on a "best-of-breed" foundation—NumPy, SciPy, OpenCV, and Open3D—it bridges the gap between raw pixel manipulation and high-level spatial reasoning and robotics.
+A unified, object-oriented Python API that bridges the gap between raw pixels and high-level spatial reasoning by harmonizing a 'best-of-breed' foundation of NumPy, OpenCV, and Open3D. It bridges the gap between raw pixel manipulation and high-level spatial reasoning and robotics.
 
 ### 🚀 Key components
 
-* The `Image` power-Object: A single class wrapping 200+ methods. It handles everything from monadic/dyadic ops and edge detection to advanced feature extraction (blobs, lines, and point features) with full operator overloading.
+* The  _power_ object: `Image` is a single class wrapping 200+ methods. It handles everything from monadic/dyadic ops and edge detection to advanced feature extraction (blobs, lines, and point features) with full operator overloading.
 
 * Advanced Camera Modeling: Comprehensive support for Central (perspective), Fisheye, Catadioptric, and Spherical camera geometries.
 
@@ -71,7 +71,7 @@ Install a snapshot from PyPI
 
 Install locally with help from the [detailed installation guide](https://petercorke.github.io/machinevision-toolbox-python/installation.html#installing-the-toolbox).
 
-Or skip setup and run the [browser-based JupyterLite examples](https://petercorke.github.io/machinevision-toolbox-python/lite/lab/index.html?path=intro.ipynb).
+Or skip setup and run the [browser-based JupyterLite examples](https://petercorke.github.io/machinevision-toolbox-python/lite/lab/index.html?path=files/index.ipynb).
 
 # Examples
 
