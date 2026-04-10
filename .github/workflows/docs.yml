@@ -62,13 +62,16 @@ jobs:
       - name: Sync notebooks into JupyterLite content
         run: |
           mkdir -p docs/lite/files
-          rsync -av --delete \
-            --include='*/' \
-            --include='*.ipynb' \
-            --exclude='old/***' \
-            --exclude='index.ipynb' \
-            --exclude='*' \
-            docs/notebooks/ docs/lite/files/
+          find docs/notebooks \
+            -type f \
+            -name '*.ipynb' \
+            ! -path '*/.ipynb_checkpoints/*' \
+            ! -path '*/old/*' \
+            -print0 | while IFS= read -r -d '' nb; do
+              rel="${nb#docs/notebooks/}"
+              mkdir -p "docs/lite/files/$(dirname "$rel")"
+                cp -p "$nb" "docs/lite/files/$rel"
+            done
 
       - name: Adapt staged notebooks for JupyterLite
         run: |
