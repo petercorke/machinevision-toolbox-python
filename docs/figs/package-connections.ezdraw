@@ -6022,7 +6022,7 @@
 	igAooooAKKKKACiiigAooooAKKKKAP/Z
 	</data>
 	<key>DKDChangeTimeStamp</key>
-	<string>2026-04-07 13:16:39 +0600</string>
+	<string>2026-04-09 04:07:22 +0600</string>
 	<key>DKDCreateTimeStamp</key>
 	<string>2026-04-02 09:44:46 +0600</string>
 	<key>DKDDisplayGraphicDetails</key>
@@ -7029,7 +7029,7 @@
 		<string>NO</string>
 	</dict>
 	<key>DKDSaveTimeStamp</key>
-	<string>2026-04-08 03:10:52 +0600</string>
+	<string>2026-04-09 04:07:27 +0600</string>
 	<key>DKDTablet</key>
 	<dict>
 		<key>BrushDynamic</key>
@@ -7201,7 +7201,7 @@
 		<key>OutlineDrawing</key>
 		<string>NO</string>
 		<key>WindowLocation</key>
-		<string>905 417 1721 1083 0 0 3840 1590 </string>
+		<string>1031 425 1721 1083 0 0 3840 1590 </string>
 		<key>ZoomPercent</key>
 		<string>168.750000</string>
 	</dict>

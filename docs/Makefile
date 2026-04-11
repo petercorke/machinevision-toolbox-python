@@ -3,7 +3,7 @@
 
 # You can set these variables from the command line, and also
 # from the environment for the first two.
-SPHINXOPTS    ?= -j 5
+SPHINXOPTS    ?= 
 SPHINXBUILD   ?= sphinx-build
 SOURCEDIR     = source
 BUILDDIR      = build
@@ -20,9 +20,12 @@ help:
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 open:
-	open build/html/index.html
+	open -a Safari build/html/index.html
+
+autobuild:
+	@$(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) -E -a -j auto $(O)
 
 # Build HTML and capture all warnings/errors to warnings.txt
 warned:
 	@$(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) -w warnings.txt $(O)
-	@echo "Warnings written to warnings.txt"
+	@echo "Warnings --> warnings.txt"
