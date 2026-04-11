@@ -306,11 +306,11 @@ class TestTensorStack(unittest.TestCase):
 
 
 @unittest.skipUnless(_labelme_available, "labelme not installed")
-class TestLabelMe(unittest.TestCase):
+class TestLabelMeReader(unittest.TestCase):
 
     def test_labelme_read(self):
         """LabelMe returns image, polygons with attrs, and file flags."""
-        from machinevisiontoolbox import LabelMe
+        from machinevisiontoolbox import LabelMeReader
 
         with tempfile.TemporaryDirectory() as tmp:
             image_path = os.path.join(tmp, "im.png")
@@ -322,7 +322,14 @@ class TestLabelMe(unittest.TestCase):
 
             import cv2 as cv
 
-            cv.imwrite(image_path, image_data)
+            assert cv.imwrite(
+                image_path, image_data
+            ), f"cv.imwrite failed: {image_path}"
+
+            import base64
+
+            with open(image_path, "rb") as fh:
+                image_data_b64 = base64.b64encode(fh.read()).decode("ascii")
 
             payload = {
                 "version": "5.0.0",
@@ -344,7 +351,7 @@ class TestLabelMe(unittest.TestCase):
                     },
                 ],
                 "imagePath": "im.png",
-                "imageData": None,
+                "imageData": image_data_b64,
                 "imageHeight": 20,
                 "imageWidth": 30,
             }
@@ -352,23 +359,23 @@ class TestLabelMe(unittest.TestCase):
             with open(json_path, "w", encoding="utf-8") as f:
                 json.dump(payload, f)
 
-            reader = LabelMe(json_path)
+            reader = LabelMeReader(json_path)
             repr_str = repr(reader)
             self.assertIn("ann.json", repr_str)
             self.assertIn("nshapes=2", repr_str)
 
-            image, polygons, flags = reader.read()
+            img = reader.image
+            self.assertIsInstance(img, Image)
+            self.assertEqual(img.shape, (20, 30, 3))
+            self.assertEqual(reader.flags, {"scene": "test"})
 
-            self.assertIsInstance(image, Image)
-            self.assertEqual(image.shape, (20, 30, 3))
-            self.assertEqual(len(polygons), 2)
-            self.assertEqual(flags, {"scene": "test"})
+            shapes = reader.shapes
+            self.assertEqual(len(shapes), 2)
+            self.assertEqual(shapes[0].group_id, 7)
+            self.assertEqual(shapes[0].flags, {"occluded": True})
 
-            self.assertEqual(polygons[0].group_id, 7)
-            self.assertEqual(polygons[0].flags, {"occluded": True})
-
-            self.assertEqual(polygons[1].group_id, 3)
-            self.assertEqual(polygons[1].flags, {"hard": False})
+            self.assertEqual(shapes[1].group_id, 3)
+            self.assertEqual(shapes[1].flags, {"hard": False})
 
 
 if __name__ == "__main__":

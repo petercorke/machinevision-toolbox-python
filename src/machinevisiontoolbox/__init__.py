@@ -16,7 +16,7 @@ from machinevisiontoolbox.Sources import (
     ROSBag,
     PointCloudSequence,
     TensorStack,
-    LabelMe,
+    LabelMeReader,
 )
 from machinevisiontoolbox.ImageReshape import *
 from machinevisiontoolbox.ImageIO import *

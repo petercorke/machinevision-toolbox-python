@@ -65,7 +65,6 @@ dependencies = [
 #  open3d - open3d support (open3d generally won't work with latest Python)
 #  all - all runtime optional features below
 #  ocr - OCR support via pytesseract
-#  labelme - LabelMe JSON annotation reader support
 
 dev = ["pytest", "coverage", "ruff", "nbmake"]
 
@@ -89,16 +88,7 @@ torch = ["torch"]
 
 ocr = ["pytesseract"]
 
-labelme = ["labelme"]
-
-all = [
-    "ipywidgets",
-    "ipympl",
-    "open3d-python",
-    "torch",
-    "pytesseract",
-    "labelme",
-]
+all = ["ipywidgets", "ipympl", "open3d-python", "torch", "pytesseract"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src", "packages/mvtb-data", "packages/mvtb-data/mvtbdata"]

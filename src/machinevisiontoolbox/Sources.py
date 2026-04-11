@@ -18,6 +18,7 @@ import warnings
 import zipfile
 from collections import Counter, deque
 from collections.abc import Iterator
+from numpy.char import array
 from tqdm import tqdm
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, IO, Any, Literal
@@ -3185,34 +3186,50 @@ class TensorStack(ImageSource):
         )
 
 
-class LabelMe:
+class LabelMeReader:
     """
     Read annotations from a LabelMe JSON file.
 
-    :param filename: path to LabelMe JSON file
+    :param filename: path to LabelMe JSON file, or an ``http(s)://`` URL
     :type filename: str
 
-    The reader returns three values:
+    LabelMe is a popular annotation tool that saves annotations in a JSON format.  This
+    class reads the JSON file and extracts the image, polygonal shapes, and associated
+    flags. Other popular tools like CVAT and LabelStudio can export to LabelMe format,
+    so this class can be used as a lightweight reader for those formats as well, albeit
+    with some limitations (e.g. only polygonal shapes are supported).
 
-    - an :class:`Image`
+    Methods of this class return:
+
     - a list of :class:`Polygon2` instances for all shapes
     - file-level ``flags`` as a dictionary
+    - the labeled image as a :class:`Image` instance
 
     For each returned polygon, additional attributes are attached:
 
-    - ``group_id`` from the shape entry
-    - ``flags`` from the shape entry as a dictionary
+    - ``group_id: int | None`` from the shape entry
+    - ``flags: dict`` from the shape entry as a dictionary
 
-    Rectangle shapes are converted to 4-corner polygons.
+    Rectangle shapes are converted to 4-vertex polygons.
 
     Example:
 
         .. code-block:: python
 
-            from machinevisiontoolbox import LabelMe
-            image, polygons, flags = LabelMe("scene.json").read()
-            len(polygons)
+            from machinevisiontoolbox import LabelMeReader
+            lme = LabelMeReader("https://github.com/wkentaro/labelme/raw/main/examples/tutorial/apc2016_obj3.json")
+            len(lme.shapes)  # number of annotated shapes
+            flags = lme.flags  # file-level flags
+            image = lme.image  # labeled image (if available)
+            for polygon in lme.shapes:
+                print(polygon.points)  # polygon vertices
+                print(polygon.group_id)  # group ID (if any)
+                print(polygon.flags)  # shape-level flags
 
+    .. note:: The ``labelme`` package provides a more comprehensive interface to
+        LabelMe annotations, including support for all shape types and attributes, but
+        it is quite bloated with many package dependencies. This class is a lightweight
+        alternative focused on polygonal shapes and basic flags.
 
     :seealso: :meth:`pixels_mask` :class:`Image.Polygons` :class:`Image`, :class:`Polygon2`
     """
@@ -3222,24 +3239,24 @@ class LabelMe:
 
     def __init__(self, filename: str) -> None:
         self.filename = filename
-        self._nshapes = self._count_shapes_from_json()
 
-    def _count_shapes_from_json(self) -> int | None:
-        """Read shape count from LabelMe JSON, returning ``None`` on failure."""
         try:
-            with open(self.filename, "r", encoding="utf-8") as f:
-                data = json.load(f)
-            shapes = data.get("shapes", [])
-            if isinstance(shapes, list):
-                return len(shapes)
-            return 0
-        except (OSError, json.JSONDecodeError, TypeError):
+            if str(filename).startswith(("http://", "https://")):
+                import urllib.request
+
+                with urllib.request.urlopen(filename) as response:  # noqa: S310
+                    self.data = json.loads(response.read().decode("utf-8"))
+            else:
+                with open(self.filename, "r", encoding="utf-8") as f:
+                    self.data = json.load(f)
+        except (OSError, json.JSONDecodeError, TypeError, ValueError):
             return None
+        self._nshapes = len(self.data.get("shapes", []))
+        self._version = self.data.get("version")
 
     def __repr__(self) -> str:
         """Return a concise summary with filename and number of shapes."""
-        count = "?" if self._nshapes is None else str(self._nshapes)
-        return f"LabelMe(filename={self.filename!r}, nshapes={count})"
+        return f"LabelMeReader(filename={self.filename!r}, version={self._version}, nshapes={self._nshapes})"
 
     @staticmethod
     def _rectangle_points(points: list[list[float]]) -> list[tuple[float, float]]:
@@ -3250,39 +3267,61 @@ class LabelMe:
         (x1, y1), (x2, y2) = points
         return [(x1, y1), (x2, y1), (x2, y2), (x1, y2)]
 
-    def read(self) -> tuple[Image, list[Polygon2], dict]:
-        """
-        Read LabelMe JSON and return image, polygons and file flags.
+    @property
+    def image(self) -> Image | None:
+        """Return the image from the LabelMe JSON, or None if not available."""
+        import base64
+        import binascii
+        from io import BytesIO
+        from PIL import Image as PILImage, UnidentifiedImageError
 
-        :raises ImportError: if the ``labelme`` package is not installed
-        :raises ValueError: if required LabelMe image metadata is missing
-        :return: ``(image, polygons, flags)``
-        :rtype: tuple
-        """
-        try:
-            from labelme import utils as _labelme_utils
-            from labelme.label_file import LabelFile
-        except ImportError:
-            raise ImportError(
-                "labelme is required for LabelMe support. "
-                "Install it with: pip install labelme"
-            )
+        imdata = self.data.get("imageData")
+        array = None
+        if imdata is not None:
+            try:
+                # Convert from base64-encoded string to image bytes.
+                imbytes = base64.b64decode(imdata)
+                imfile = BytesIO(imbytes)
 
-        label = LabelFile(filename=self.filename)
+                # Force decode now so image-corruption errors are caught here.
+                with PILImage.open(imfile) as pil_image:
+                    pil_image.load()
+                    array = np.array(pil_image)
+            except (binascii.Error, OSError, TypeError, UnidentifiedImageError):
+                return None
 
-        if label.imageData is not None:
-            array = _labelme_utils.img_data_to_arr(label.imageData)
+        if array is not None and array.ndim == 3:
+            if array.shape[2] == 3:
+                colororder = "RGB"
+            elif array.shape[2] == 4:
+                colororder = "RGBA"
+            else:
+                colororder = None
         else:
-            if label.imagePath is None:
-                raise ValueError("LabelMe JSON must include imageData or imagePath")
-            image_path = os.path.join(os.path.dirname(self.filename), label.imagePath)
-            image_data = LabelFile.load_image_file(image_path)
-            array = _labelme_utils.img_data_to_arr(image_data)
+            colororder = None
 
-        image = Image(array, colororder="RGB")
+        return Image(array, colororder=colororder)
 
+    @property
+    def flags(self) -> dict:
+        """Return file-level flags from the LabelMe JSON as a dictionary."""
+        return dict(self.data.get("flags", {}) or {})
+
+    @property
+    def shapes(self) -> tuple[list[Polygon2], dict]:
+        """
+        Return list of shape polygons .
+
+        :return: list of :class:`Polygon2` instances for all shapes
+        :rtype: list[Polygon2]
+
+        The polygons in the list have additional attributes:
+        - ``group_id`` from the shape entry
+        - ``flags`` from the shape entry as a dictionary
+
+        """
         polygons: list[Polygon2] = []
-        for shape in label.shapes:
+        for shape in self.data.get("shapes", []):
             points = shape.get("points", [])
             shape_type = shape.get("shape_type", "polygon")
 
@@ -3298,8 +3337,7 @@ class LabelMe:
             polygon.flags = dict(shape.get("flags", {}))
             polygons.append(polygon)
 
-        flags = dict(getattr(label, "flags", {}) or {})
-        return image, polygons, flags
+        return polygons
 
 
 if __name__ == "__main__":
