@@ -22,7 +22,7 @@ class VisualServo(ABC):
 
     def __init__(
         self,
-        camera: Any,
+        camera: CentralCamera,
         niter: int = 100,
         graphics: bool = True,
         fps: float = 5,
@@ -504,16 +504,18 @@ class PBVS(VisualServo):
         :param pose_0: initial camera pose, overrides pose of camera object, defaults to None
         :type pose_0: SE3 instance, optional
 
-        Example::
+        For example:
 
-            cam = CentralCamera('default');
-            Tc0 = transl(1,1,-3)*trotz(0.6);
-            TcStar_t = transl(0, 0, 1);
-            pbvs = PBVS(cam, 'T0', Tc0, 'Tf', TcStar_t);
-            pbself.plot_p
+        .. code-block:: python
+
+            camera = CentralCamera.Default(pose=SE3.Trans(1, 1, -2)) # create camera at initial pose
+            P = mkgrid(2, 0.5) # create marker points in world frame
+            T_Cd_G = SE3.Tz(1) # desired pose of goal frame {G} with respect to camera
+            pbvs = PBVS(camera, P=P, pose_g=SE3.Trans(-1, -1, 2), pose_d=T_Cd_G, plotvol=[-1, 2, -1, 2, -3, 2.5]) # create PBVS object
+            pbvs.run(200) # simulate it for 200 iterations
 
         References::
-        - |RVC3|, Chap 15.
+        - |RVC3|, Sec. 15.1.
 
         .. note:: The history attribute is a vector of structures each of which is a snapshot at
             each simulation step of information about the image plane, camera pose, error,
@@ -618,21 +620,21 @@ class IBVS(VisualServo):
         :param smoothstart: enable smooth start with this value as :math:`\mu`, defaults to None
         :type smoothstart: float, optional
 
-        Example::
+        For example:
 
-                camera = CentralCamera.Default()
-                Tc = trnorm( Tc * delta2tr(v) )
-                Tc0 = transl(1,1,-3)*trotz(0.6)
-                p_f = bsxfun(@plus, 200*[-1 -1 1 1 -1 1 1 -1], cam.pp')
-                ibvs = IBVS(cam, 'T0', Tc0, 'p_f', p_f)
-                self.run[]
-                self.plot_p[]
+        .. code-block:: python
+
+            camera = CentralCamera.Default(pose=SE3.Trans(1, 1, -3) * SE3.Rz(0.6)) # create camera at initial pose
+            P = mkgrid(2, side=0.5, pose=SE3.Tz(3)); # marker points in world frame
+            pd = 200 * np.array([[-1, -1, 1, 1], [-1, 1, 1, -1]]) + np.c_[camera.pp] # desired coordinates in image plane
+            ibvs = IBVS(camera, P=P, p_d=pd) # create IBVS object
+            ibvs.run(25) # simulate it for 25 iterations
 
         If point depth is a scalar, it applies to all points.  If an array, the
         elements are the depth for the corresponding world points.
 
         References::
-            - |RVC3|, Chap 15.
+            - |RVC3|, Sec. 15.2.2
 
         .. note::
             - The history property is a vector of structures each of which is a
