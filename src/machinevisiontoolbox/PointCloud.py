@@ -242,7 +242,7 @@ class PointCloud:
         If the path is not absolute it is first searched for relative
         to the current directory, and if not found, it is searched for in
         the ``data`` folder of the
-        `mvtb_data package <https://github.com/petercorke/machinevision-toolbox-python/tree/master/mvtb-data>`_.
+        `mvtb_data package <https://github.com/petercorke/machinevision-toolbox-python/tree/master/packages/mvtb-data>`_.
 
         """
 
