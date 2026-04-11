@@ -471,9 +471,12 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
                 kfactor = kulpa
             else:
                 kfactor = 1.0
-            blob.circularity = (4.0 * np.pi * M["m00"]) / (
-                blob.perimeter_length * kfactor
-            ) ** 2
+            if blob.perimeter_length > 0:
+                blob.circularity = (4.0 * np.pi * M["m00"]) / (
+                    blob.perimeter_length * kfactor
+                ) ** 2
+            else:
+                blob.circularity = None
 
         for blob in allblobs:
             M = blob.moments
@@ -1392,7 +1395,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         Circularity, computed as :math:`\rho = \frac{A}{4 \pi p^2} \le 1`.
         Circularity is one for a circular blob and < 1 for all other shapes,
-        approaching zero for a line.
+        approaching zero for a line.  For a single pixel blob, with zero ``perimeter_length`` it is ``None``.
 
         Example:
 
@@ -2387,19 +2390,11 @@ class ImageBlobsMixin:
 if __name__ == "__main__":
     from pathlib import Path
 
-    # import pytest
+    import pytest
 
-    # pytest.main(
-    #     [
-    #         str(Path(__file__).parent.parent.parent / "tests" / "test_image_blobs.py"),
-    #         "-v",
-    #     ]
-    # )
-
-    from machinevisiontoolbox import Image
-
-    im = Image.Read("shark2.png")
-    blobs = im.blobs()
-    print(blobs)
-    blobs.plot_MEC()
-    pass
+    pytest.main(
+        [
+            str(Path(__file__).parent.parent.parent / "tests" / "test_image_blobs.py"),
+            "-v",
+        ]
+    )
