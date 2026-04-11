@@ -9,7 +9,7 @@ morph_op = np.min
 pause = 0.5
 
 a = Image.Random(10)  # random input image
-b = Image.Constant(10, value=np.nan, dtype="float")  # "empty" output image
+b = Image.Constant(np.nan, size=10, dtype="float")  # "empty" output image
 
 # create two adjacent subplots, and display the input image on the left
 fig, (input, output) = plt.subplots(1, 2, figsize=(10, 5))

@@ -18,7 +18,7 @@ grey.disp(title="grey scale version of flowers1.png")
 f = im.to("float")
 f.disp(title="float version of flowers1.png")
 
-im.stats()
+im.stats
 
 hist = im.hist()
 plt.figure()
