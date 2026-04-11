@@ -857,7 +857,7 @@ def iread(
     If the path is not absolute it is first searched for relative
     to the current directory, and if not found, it is searched for in
     the ``images`` folder of the
-    `mvtb-data package <https://github.com/petercorke/machinevision-toolbox-python/tree/master/mvtb-data>`_.
+    `mvtb-data package <https://github.com/petercorke/machinevision-toolbox-python/tree/master/packages/mvtb-data>`_.
 
     If ``file`` is a list or contains a wildcard, the result will be a list of
     ``(image, path)`` tuples.  They will be sorted by path.
