@@ -1047,7 +1047,7 @@ class Histogram:
         self,
         type="frequency",
         block=False,
-        solid=None,
+        filled=None,
         stats=True,
         style="stack",
         cursor=False,
@@ -1064,9 +1064,9 @@ class Histogram:
         :type type: str, optional
         :param block: hold plot, defaults to False
         :type block: bool, optional
-        :param solid: use a filled stairs plot, defaults to True for frequency plot, False for
+        :param filled: use a filled stairs plot, defaults to True for frequency plot, False for
             other plots
-        :type solid: bool, optional
+        :type filled: bool, optional
         :param stats: draw vertical lines for mean (solid) and median (dashed), defaults to True
         :type stats: bool, optional
         :param style: Style for multiple plots, one of: 'stack' [default], 'overlay'
@@ -1092,8 +1092,7 @@ class Histogram:
 
         - ``stack``: plot each plane in a separate subplot. The ``cursor`` option
           enables an interactive data cursor which displays the histogram values at the
-          cursor position.  The ``solid`` option selects whether to use a filled stairs plot or
-          a line plot.
+          cursor position.  The ``filled`` option selects whether to use a filled stairs plot.
         - ``overlay``: plot all planes in the same axes with different colors. The
           ``alpha`` option controls the transparency of the bars in the ''overlay''
           style.
@@ -1113,16 +1112,16 @@ class Histogram:
                 DeprecationWarning,
                 stacklevel=2,
             )
-            if solid is None:
-                solid = bar
+            if filled is None:
+                filled = bar
 
         if type == "frequency":
             y = self.h
             maxy = np.max(y)
             ylabel1 = "frequency"
             ylabel2 = "frequency"
-            if solid is None:
-                solid = True
+            if filled is None:
+                filled = True
         elif type in ("cdf", "cumulative"):
             y = self.cdf
             maxy = np.max(y[-1, :])
@@ -1177,13 +1176,10 @@ class Histogram:
             fig, axes = plt.subplots(n, 1)
             axes = np.atleast_1d(axes)
             for i, ax in enumerate(axes):
-                if solid:
-                    bin_width = x[1] - x[0]
-                    ax.stairs(
-                        y[:, i], np.append(x, x[-1] + bin_width), fill=True, **kwargs
-                    )
-                else:
-                    ax.plot(x, y[:, i], **kwargs)
+                bin_width = x[1] - x[0]
+                ax.stairs(
+                    y[:, i], np.append(x, x[-1] + bin_width), fill=filled, **kwargs
+                )
                 ax.grid()
                 if n == 1:
                     ax.set_ylabel(ylabel1)
