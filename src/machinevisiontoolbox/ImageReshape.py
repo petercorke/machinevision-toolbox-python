@@ -20,6 +20,10 @@ from spatialmath import SE2
 from spatialmath import base as smb
 
 import machinevisiontoolbox.base as mvb
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from machinevisiontoolbox._image_typing import _ImageBase
 
 _interp_dict = {
     "nearest": cv.INTER_NEAREST,  # nearest neighbor interpolation
@@ -45,7 +49,7 @@ class classinstancemethod:
         return _bound
 
 
-class ImageReshapeMixin:
+class ImageReshapeMixin(_ImageBase if TYPE_CHECKING else object):
     def trim(
         self, left: int = 0, right: int = 0, top: int = 0, bottom: int = 0
     ) -> Self:
@@ -1371,5 +1375,10 @@ if __name__ == "__main__":
     import pytest
 
     pytest.main(
-        [str(Path(__file__).parent.parent.parent / "tests" / "test_image_reshape.py"), "-v"]
+        [
+            str(
+                Path(__file__).parent.parent.parent / "tests" / "test_image_reshape.py"
+            ),
+            "-v",
+        ]
     )

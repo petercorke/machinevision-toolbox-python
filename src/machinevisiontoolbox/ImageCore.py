@@ -1760,7 +1760,7 @@ class Image(
     # ---- NumPy array access ---- #
 
     @property
-    def image(self) -> Array2d | Array3d:
+    def image(self) -> np.ndarray:
         """
         Image as NumPy array
 
@@ -1793,7 +1793,7 @@ class Image(
             DeprecationWarning,
             stacklevel=2,
         )
-        return self._A  # type: ignore[return-value]
+        return self._A
 
     @property
     def array(self) -> np.ndarray:
@@ -1828,7 +1828,7 @@ class Image(
         return self._A
 
     @property
-    def A(self) -> Array2d | Array3d:
+    def A(self) -> np.ndarray:
         """
         Set/get the NumPy array containing pixel values
 
@@ -1863,7 +1863,7 @@ class Image(
 
         :seealso: :meth:`array` :meth:`image`
         """
-        return self._A  # type: ignore[return-value]
+        return self._A
 
     @A.setter
     def A(self, A: Array2d | Array3d) -> None:
@@ -1875,7 +1875,7 @@ class Image(
         self._A = A
 
     @property
-    def rgb(self) -> np.ndarray:  # type: ignore[return-value]
+    def rgb(self) -> np.ndarray:
         """
         Image as NumPy array in RGB color order
 
@@ -1893,9 +1893,10 @@ class Image(
             return self._A
         elif self.isbgr:
             return self._A[:, :, ::-1]
+        raise ValueError(f"cannot convert colororder '{self.colororder_str}' to RGB")
 
     @property
-    def bgr(self) -> np.ndarray:  # type: ignore[return-value]
+    def bgr(self) -> np.ndarray:
         """
         Image as NumPy array in BGR color order
 
@@ -1913,6 +1914,7 @@ class Image(
             return self._A
         elif self.isrgb:
             return self._A[:, :, ::-1]
+        raise ValueError(f"cannot convert colororder '{self.colororder_str}' to BGR")
 
     # ------------------------- datatype operations ----------------------- #
 

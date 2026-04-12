@@ -4,7 +4,7 @@ Detection and description of line features (Hough, LSD) in images.
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import cv2 as cv
 import matplotlib.pyplot as plt
@@ -12,10 +12,11 @@ import numpy as np
 import scipy as sp
 from spatialmath import base
 
-from machinevisiontoolbox._image_typing import _ImageBase
+if TYPE_CHECKING:
+    from machinevisiontoolbox._image_typing import _ImageBase
 
 
-class ImageLineFeaturesMixin(_ImageBase):
+class ImageLineFeaturesMixin(_ImageBase if TYPE_CHECKING else object):
     """
     Line features are common in in many human-built environments.
 
@@ -283,7 +284,9 @@ if __name__ == "__main__":
     pytest.main(
         [
             str(
-                Path(__file__).parent.parent.parent / "tests" / "test_image_line_features.py"
+                Path(__file__).parent.parent.parent
+                / "tests"
+                / "test_image_line_features.py"
             ),
             "-v",
         ]

@@ -1,20 +1,20 @@
 """
-Stub base class for Image mixin classes.
+Protocol for Image mixin classes.
 
-Every ``Image*Mixin`` inherits from ``_ImageBase``, giving static-analysis
-tools (Pylance, mypy) a single authoritative declaration of the attributes and
-methods that are provided by the concrete ``Image`` class at composition time.
-This removes the need for duplicated ``if TYPE_CHECKING:`` attribute stubs
-inside every mixin.
+Every ``Image*Mixin`` inherits from ``_ImageBase`` at type-check time only,
+giving static-analysis tools (Pylance, mypy) a single authoritative declaration
+of the attributes and methods that are provided by the concrete ``Image`` class
+at composition time.  This removes the need for duplicated ``if TYPE_CHECKING:``
+attribute stubs inside every mixin.
 
-At runtime ``_ImageBase`` is a plain class whose body contains only
-annotations (no actual attribute values), so there is zero behavioural impact.
+At runtime the mixins inherit from plain ``object`` — the Protocol is never
+instantiated and adds nothing to the MRO.
 """
 
 from __future__ import annotations
 
 import sys
-from typing import Any
+from typing import Any, Protocol
 
 if sys.version_info >= (3, 11):
     from typing import Self
@@ -25,62 +25,107 @@ import numpy as np
 from machinevisiontoolbox.mvtb_types import Array2d, Array3d, Dtype
 
 
-class _ImageBase:
+class _ImageBase(Protocol):
     """
-    Stub base class whose annotations describe the full ``Image`` interface.
+    Protocol describing the full ``Image`` interface.
 
-    Mixin classes inherit from this so that accesses such as ``self.A``,
-    ``self.iscolor`` and ``self.to_int()`` are visible to the type checker
-    without repeating the declarations in every mixin file.
+    Mixin classes inherit from this *at type-check time only* (via
+    ``TYPE_CHECKING`` guards) so that attribute accesses such as ``self._A``,
+    ``self.iscolor`` and ``self.to_int()`` resolve correctly without any
+    runtime overhead.
     """
-
-    def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
     # ---- pixel data --------------------------------------------------
     _A: np.ndarray
-    A: np.ndarray
-    image: np.ndarray  # deprecated
-    array: np.ndarray
+
+    @property
+    def A(self) -> np.ndarray: ...
+
+    @property
+    def image(self) -> np.ndarray: ...  # deprecated
+
+    @property
+    def array(self) -> np.ndarray: ...
+
+    @property
+    def rgb(self) -> np.ndarray: ...
+
+    @property
+    def bgr(self) -> np.ndarray: ...
 
     # ---- type flags --------------------------------------------------
-    iscolor: bool
-    isint: bool
-    isfloat: bool
-    isbool: bool
-    isrgb: bool
-    isbgr: bool
+    @property
+    def iscolor(self) -> bool: ...
+    @property
+    def isint(self) -> bool: ...
+    @property
+    def isfloat(self) -> bool: ...
+    @property
+    def isbool(self) -> bool: ...
+    @property
+    def isrgb(self) -> bool: ...
+    @property
+    def isbgr(self) -> bool: ...
 
     # ---- pixel metadata ----------------------------------------------
-    dtype: np.dtype
-    colororder: dict[str, int] | None
-    colororder_str: str | None
-    name: str | None
+    @property
+    def dtype(self) -> np.dtype: ...
+    @property
+    def colororder(self) -> dict[str, int] | None: ...
+    @property
+    def colororder_str(self) -> str | None: ...
+    @property
+    def name(self) -> str | None: ...
+
+    # plain instance attributes
     id: int | None
     domain: Any
 
     # ---- shape / geometry --------------------------------------------
-    nplanes: int
-    shape: tuple[int, int] | tuple[int, int, int]
-    ndim: int
-    width: int
-    height: int
-    umax: int
-    vmax: int
-    size: tuple[int, int]
-    npixels: int
-    numnan: int
-    numinf: int
+    @property
+    def nplanes(self) -> int: ...
+    @property
+    def shape(self) -> tuple[int, int] | tuple[int, int, int]: ...
+    @property
+    def ndim(self) -> int: ...
+    @property
+    def width(self) -> int: ...
+    @property
+    def height(self) -> int: ...
+    @property
+    def umax(self) -> int: ...
+    @property
+    def vmax(self) -> int: ...
+    @property
+    def size(self) -> tuple[int, int]: ...
+    @property
+    def npixels(self) -> int: ...
+    @property
+    def numnan(self) -> int: ...
+    @property
+    def numinf(self) -> int: ...
+    @property
+    def centre(self) -> tuple[float, float]: ...
+    @property
+    def center(self) -> tuple[float, float]: ...
+    @property
+    def centre_int(self) -> tuple[int, int]: ...
+    @property
+    def center_int(self) -> tuple[int, int]: ...
 
     # ---- pixel value constants ---------------------------------------
-    minval: float
-    maxval: float
-    true: int | float
-    false: int | float
+    @property
+    def minval(self) -> int | float: ...
+    @property
+    def maxval(self) -> int | float: ...
+    @property
+    def true(self) -> int | float: ...
+    @property
+    def false(self) -> int | float: ...
 
     # ---- type / value conversion -------------------------------------
     def to(self, dtype: Dtype) -> Self: ...
     def astype(self, dtype: Dtype) -> Self: ...
-    def array(self) -> np.ndarray: ...
     def array_as(self, dtype: Dtype = ...) -> np.ndarray: ...
     def cast(self, value: int | float | np.ndarray) -> Any: ...
     def like(self, value: int | float, maxint: int | None = ...) -> Any: ...
@@ -107,6 +152,8 @@ class _ImageBase:
     def _bordertype_cv(border: str, exclude: Any = None) -> int: ...
     @staticmethod
     def _bordertype_sp(border: str, exclude: Any = None) -> str: ...
+    @staticmethod
+    def _opencv_type_check(array: np.ndarray, *accepted_types: str) -> None: ...
 
     # ---- other image methods -----------------------------------------
     def smooth(self, *args: Any, **kwargs: Any) -> Self: ...
@@ -123,9 +170,20 @@ class _ImageBase:
     # ---- whole-image statistics -------------------------------------
     @property
     def min(self) -> int | float: ...
-
     @property
     def max(self) -> int | float: ...
+    @property
+    def sum(self) -> int | float: ...
+    @property
+    def mean(self) -> float: ...
+    @property
+    def std(self) -> float: ...
+    @property
+    def var(self) -> float: ...
+    @property
+    def median(self) -> int | float: ...
+    @property
+    def stats(self) -> dict[str, Any]: ...
     def __iter__(self) -> Any: ...
 
     # ---- arithmetic operators ----------------------------------------

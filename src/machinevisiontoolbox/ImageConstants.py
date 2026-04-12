@@ -15,6 +15,7 @@ from typing import TYPE_CHECKING, Any, Sequence
 
 if TYPE_CHECKING:
     from typing import Self
+    from machinevisiontoolbox._image_typing import _ImageBase
 
 import cv2 as cv
 import numpy as np
@@ -143,7 +144,7 @@ def _pattern_image(cls, image: np.ndarray, colororder: str | None):
     return cls(image, colororder=colororder)
 
 
-class ImageConstantsMixin:
+class ImageConstantsMixin(_ImageBase if TYPE_CHECKING else object):
     # ======================= patterns ================================== #
 
     @classmethod
@@ -1039,5 +1040,12 @@ if __name__ == "__main__":
     import pytest
 
     pytest.main(
-        [str(Path(__file__).parent.parent.parent / "tests" / "test_image_constants.py"), "-v"]
+        [
+            str(
+                Path(__file__).parent.parent.parent
+                / "tests"
+                / "test_image_constants.py"
+            ),
+            "-v",
+        ]
     )

@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from machinevisiontoolbox.ImageCore import Image
+    from machinevisiontoolbox._image_typing import _ImageBase
 
 import numpy as np
 
@@ -22,7 +23,7 @@ except ImportError:
 # TODO need a resizing option for the torch() method, to allow scaling to a fixed size for model input
 
 
-class ImageTensorMixin:
+class ImageTensorMixin(_ImageBase if TYPE_CHECKING else object):
     """
     PyTorch integration methods for the Image class.
 

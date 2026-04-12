@@ -18,11 +18,10 @@ else:
 
 if TYPE_CHECKING:
     from machinevisiontoolbox.ImageCore import Image
+    from machinevisiontoolbox._image_typing import _ImageBase
 
-from machinevisiontoolbox._image_typing import _ImageBase
 
-
-class ImageMultiviewMixin(_ImageBase):
+class ImageMultiviewMixin(_ImageBase if TYPE_CHECKING else object):
     # ======================= stereo ================================== #
 
     def stereo_simple(

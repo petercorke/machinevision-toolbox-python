@@ -22,11 +22,10 @@ from machinevisiontoolbox.base import color, imageio, name2color
 
 if TYPE_CHECKING:
     from machinevisiontoolbox.ImageCore import Image
+    from machinevisiontoolbox._image_typing import _ImageBase
 
-from machinevisiontoolbox._image_typing import _ImageBase
 
-
-class ImageColorMixin(_ImageBase):
+class ImageColorMixin(_ImageBase if TYPE_CHECKING else object):
     """
     Image processing color operations on the Image class
     """
@@ -513,5 +512,8 @@ if __name__ == "__main__":
     import pytest
 
     pytest.main(
-        [str(Path(__file__).parent.parent.parent / "tests" / "test_image_color.py"), "-v"]
+        [
+            str(Path(__file__).parent.parent.parent / "tests" / "test_image_color.py"),
+            "-v",
+        ]
     )

@@ -4,7 +4,7 @@ Whole-image feature computation: moments, Hu invariants, histograms, and entropy
 
 from __future__ import annotations
 
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 import cv2 as cv
 import matplotlib.pyplot as plt
@@ -14,12 +14,14 @@ from matplotlib.patches import Polygon
 from matplotlib.ticker import ScalarFormatter
 from spatialmath import SE3, base
 
-from machinevisiontoolbox._image_typing import _ImageBase
+if TYPE_CHECKING:
+    from machinevisiontoolbox._image_typing import _ImageBase
+
 from machinevisiontoolbox.base import findpeaks, findpeaks2d, set_window_title
 from machinevisiontoolbox.mvtb_types import *
 
 
-class ImageWholeFeaturesMixin(_ImageBase):
+class ImageWholeFeaturesMixin(_ImageBase if TYPE_CHECKING else object):
 
     # ------------------ scalar statistics ----------------------------- #
 

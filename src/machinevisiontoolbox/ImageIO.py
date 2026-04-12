@@ -9,7 +9,7 @@ import sys
 import zipfile
 from collections import namedtuple
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 if sys.version_info >= (3, 11):
     from typing import Self
@@ -26,7 +26,9 @@ import scipy as sp
 from scipy import interpolate
 from spatialmath.base import argcheck, getvector
 
-from machinevisiontoolbox._image_typing import _ImageBase
+if TYPE_CHECKING:
+    from machinevisiontoolbox._image_typing import _ImageBase
+
 from machinevisiontoolbox.base import (
     colorname,
     convert,
@@ -42,7 +44,7 @@ from machinevisiontoolbox.mvtb_types import Dtype
 # from numpy.lib.arraysetops import isin
 
 
-class ImageIOMixin(_ImageBase):
+class ImageIOMixin(_ImageBase if TYPE_CHECKING else object):
     # ======================= image i/io ================================== #
 
     @classmethod

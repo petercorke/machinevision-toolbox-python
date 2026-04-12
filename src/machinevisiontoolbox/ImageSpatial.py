@@ -6,12 +6,15 @@ import cv2 as cv
 import numpy as np
 import scipy as sp
 import spatialmath.base.argcheck as argcheck
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any, Callable
 
 from machinevisiontoolbox.Kernel import Kernel
 
+if TYPE_CHECKING:
+    from machinevisiontoolbox._image_typing import _ImageBase
 
-class ImageSpatialMixin:
+
+class ImageSpatialMixin(_ImageBase if TYPE_CHECKING else object):
     @classmethod
     def Gauss(cls, sigma: float, h: int | None = None) -> Kernel:
         return Kernel.Gauss(sigma=sigma, h=h)
@@ -1557,5 +1560,10 @@ if __name__ == "__main__":
     import pytest
 
     pytest.main(
-        [str(Path(__file__).parent.parent.parent / "tests" / "test_image_spatial.py"), "-v"]
+        [
+            str(
+                Path(__file__).parent.parent.parent / "tests" / "test_image_spatial.py"
+            ),
+            "-v",
+        ]
     )

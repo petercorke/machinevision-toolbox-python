@@ -22,8 +22,7 @@ from machinevisiontoolbox.ImagePointFeatures import BaseFeature2D
 
 if TYPE_CHECKING:
     from machinevisiontoolbox.ImageCore import Image
-
-from machinevisiontoolbox._image_typing import _ImageBase
+    from machinevisiontoolbox._image_typing import _ImageBase
 
 
 def _fiducial_dict(dict="4x4_1000"):
@@ -56,7 +55,7 @@ def _fiducial_dict(dict="4x4_1000"):
         return dict
 
 
-class ImageFiducialsMixin(_ImageBase):
+class ImageFiducialsMixin(_ImageBase if TYPE_CHECKING else object):
     def fiducial(
         self,
         dict: str = "4x4_1000",

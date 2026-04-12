@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING, Any
 import cv2 as cv
 import numpy as np
 import scipy as sp
+from machinevisiontoolbox.Kernel import Kernel
 
 if sys.version_info >= (3, 11):
     from typing import Self
@@ -19,12 +20,10 @@ else:
 
 if TYPE_CHECKING:
     from machinevisiontoolbox.ImageCore import Image
-
-from machinevisiontoolbox._image_typing import _ImageBase
-from machinevisiontoolbox.Kernel import Kernel
+    from machinevisiontoolbox._image_typing import _ImageBase
 
 
-class ImageMorphMixin(_ImageBase):
+class ImageMorphMixin(_ImageBase if TYPE_CHECKING else object):
     """
     Image processing morphological operations on the Image class
     """
@@ -827,11 +826,7 @@ if __name__ == "__main__":
 
     pytest.main(
         [
-            str(
-                Path(__file__).parent.parent.parent
-                / "tests"
-                / "test_image_morph.py"
-            ),
+            str(Path(__file__).parent.parent.parent / "tests" / "test_image_morph.py"),
             "-v",
         ]
     )

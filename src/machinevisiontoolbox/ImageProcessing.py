@@ -19,7 +19,6 @@ import scipy as sp
 from scipy import interpolate
 from spatialmath.base import argcheck, e2h, getvector, h2e, transl2
 
-from machinevisiontoolbox._image_typing import _ImageBase
 from machinevisiontoolbox.base import (
     colorname,
     float_image,
@@ -32,9 +31,10 @@ from machinevisiontoolbox.base import (
 
 if TYPE_CHECKING:
     from machinevisiontoolbox.ImageCore import Image
+    from machinevisiontoolbox._image_typing import _ImageBase
 
 
-class ImageProcessingMixin(_ImageBase):
+class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
     # ======================= image processing ============================= #
 
     def LUT(self, lut: Any, colororder: str | dict[str, Any] | None = None) -> "Image":
