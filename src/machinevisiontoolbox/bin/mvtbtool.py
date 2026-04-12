@@ -129,6 +129,13 @@ def parse_arguments():
         help="enable autoreload of any imported modules, same as IPython's builtin %%autoreload 2",
     )
     parser.add_argument(
+        "-b",
+        "--base",
+        default=False,
+        action="store_true",
+        help="'from machinevisiontoolbox.base import *', otherwise it is an alias 'mvb'.",
+    )
+    parser.add_argument(
         "--torch",
         default=False,
         action="store_true",
@@ -233,18 +240,20 @@ for Python
 
     banner += w
 
-    banner += r"""
-
-from machinevisiontoolbox import *
+    banner += "\n\nfrom machinevisiontoolbox import *\n"
+    if args.base:
+        banner += "from machinevisiontoolbox.base import *\n"
+    else:
+        # this line not strictly true, but it is what the import * line does
+        banner += "import machinevisiontoolbox.base as mvb\n"
+    banner += """
 from spatialmath import *
 
 matplotlib interactive mode on
 
 func/object?       - show brief help
 help(func/object)  - show detailed help
-func/object??      - show source code
-
-    """
+func/object??      - show source code"""
     if _colored:
         print(Fore.yellow + banner + Style.reset)
     else:
@@ -305,10 +314,12 @@ def main():
         c.InteractiveShell.ast_node_interactivity = "last_expr_or_assign"
 
     code = [
-        "import matplotlib.pyplot as plt",
         f"%matplotlib{' '+args.backend if args.backend is not None else ''}",
+        "import matplotlib.pyplot as plt",
         "_precision = %precision %.3g;",
     ]
+    if args.base:
+        code.append("from machinevisiontoolbox.base import *")
     if args.reload:
         code.append("%load_ext autoreload")
         code.append("%autoreload 2")
