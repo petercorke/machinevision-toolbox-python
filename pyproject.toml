@@ -88,7 +88,13 @@ torch = ["torch"]
 
 ocr = ["pytesseract"]
 
-all = ["ipywidgets", "ipympl", "open3d-python", "torch", "pytesseract"]
+all = [
+    "ipywidgets", "ipympl",
+    "open3d-python",
+    "torch",
+    "pytesseract",
+    "rosbags", "roslibpy", "websockets",
+]
 
 [tool.pytest.ini_options]
 pythonpath = ["src", "packages/mvtb-data", "packages/mvtb-data/mvtbdata"]
