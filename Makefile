@@ -8,6 +8,7 @@ help:
 	@echo " make test-log - run all unit tests and write log to pytest.log"
 	@echo " make test-nb - run nbmake tests on RVC3 vision chapter notebooks"
 	@echo " make coverage - run unit tests and coverage report"
+	@echo " make typehints - run mypy type-hint coverage report and open HTML"
 	@echo " make docs - build Sphinx documentation"
 	@echo " make view - open Sphinx doco build (uses open for MacOS)"
 	@echo " make dist - preview dist build"
@@ -34,6 +35,10 @@ coverage:
 	coverage report
 	coverage html
 	open -a Safari htmlcov/index.html
+
+typehints:
+	-mypy src/machinevisiontoolbox --ignore-missing-imports --html-report /tmp/mypy-typehints
+	open -a Safari /tmp/mypy-typehints/index.html
 
 docs: .FORCE
 	(cd docs; make html O="-w warnings.txt")
