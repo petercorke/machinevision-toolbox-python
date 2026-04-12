@@ -8,6 +8,7 @@ import sys
 import tempfile
 import webbrowser
 from collections import UserList, namedtuple
+from dataclasses import dataclass
 from typing import Any
 
 import cv2
@@ -35,31 +36,34 @@ Defines two key classes:
 """
 
 
+@dataclass
 class Blob:
-    id = None
-    bbox = None
-    moments = None
-    touch = None
-    perimeter = None
-    a = None
-    b = None
-    orientation = None
-    children = None
-    parent = None
-    uc = None
-    vc = None
-    level = None
+    """Container for the parameters of a single blob.
 
-    def __init__(self) -> None:
-        """Constructor for Blob class
+    A :class:`Blob` instance holds geometric, moment, and hierarchy data
+    for a single blob region.
 
-        A :class:`Blob` instance is a simple container for the parameters
-        of a single blob.
+    A set of blobs is represented by a :class:`Blobs` instance which acts
+    like a list of :class:`Blob` instances.
+    """
 
-        A set of blobs is represented by a :class:`Blobs` instance which acts
-        like a list of :class:`Blob` instance.
-        """
-        return
+    id: int
+    bbox: np.ndarray
+    moments: Any
+    touch: bool
+    perimeter: np.ndarray
+    a: float
+    b: float
+    orientation: float
+    children: list[Any]
+    parent: Any
+    uc: float
+    vc: float
+    level: int
+    color: Any
+    perimeter_length: float
+    contourpoint: np.ndarray
+    circularity: float | None = None
 
     def __str__(self) -> str:
         """Create a compact string representation of the Blob object
@@ -306,50 +310,40 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         hierarchy = hierarchy[0, :, :]  # drop the first singleton dimension
         parents = hierarchy[:, 3]
 
-        ## first pass: moments, children, bbox
+        ## Collect blob data in first pass, then instantiate with all fields
 
         runts = 0
-        allblobs = []
+        blob_params_list = []  # List of dicts, will be used to instantiate Blobs
+
         for i, (contour, hier) in enumerate(zip(contours, hierarchy)):
-            blob = Blob()
-            blob.id = i
+            ## First pass: compute basic geometry and moments
+            blob_id = i
 
             ## bounding box: umin, vmin, width, height
             u1, v1, w, h = cv2.boundingRect(array=contour)
             u2 = u1 + w - 1
             v2 = v1 + h - 1
-            blob.bbox = np.r_[u1, u2, v1, v2]
+            bbox = np.r_[u1, u2, v1, v2]
 
-            blob.touch = u1 == 0 or v1 == 0 or u2 == image.umax or v2 == image.vmax
+            touch = u1 == 0 or v1 == 0 or u2 == image.umax or v2 == image.vmax
 
-            ## children
-
-            # gets list of children for each contour based on hierarchy
-            # follows similar for loop logic from _hierarchicalmoments, so
-            # TODO use _getchildren to cut redundant code in _hierarchicalmoments
-
-            blob.parent = hier[3]
-
+            ## children: gets list of children for each contour based on hierarchy
+            parent_idx = hier[3]
             children = []
             child = hier[2]
             while child != -1:
                 children.append(child)
                 child = hierarchy[child, 0]
-            blob.children = children
 
             pp = contour[0, :]
-            blob.color = image._A[pp[1], pp[0]]
+            color = image._A[pp[1], pp[0]]
 
             ## perimeter, the contour is not closed
+            perimeter = contour.T
+            perimeter_length = cv2.arcLength(curve=contour, closed=False)
+            contourpoint = contour.T[:, 0]
 
-            blob.perimeter = contour.T
-            blob.perimeter_length = cv2.arcLength(curve=contour, closed=False)
-
-            blob.contourpoint = blob.perimeter[:, 0]
-
-            ## moments
-
-            # get moments as a dictionary for each contour
+            ## moments: get moments as a dictionary for each contour
             moments = cv2.moments(array=contour, binaryImage=binaryImage)
 
             ## For a single set pixel OpenCV returns all moments as zero, let's fix it
@@ -417,82 +411,108 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
                 moments["nu21"] = moments["mu21"] / (moments["m00"] ** (1 + (3 / 2)))
                 moments["nu12"] = moments["mu12"] / (moments["m00"] ** (1 + (3 / 2)))
 
-            blob.moments = moments
-            allblobs.append(blob)  # append to the list of all blobs
+            # Initialize with basic geometry; derived fields will be added in later passes
+            blob_params = {
+                "id": blob_id,
+                "bbox": bbox,
+                "touch": touch,
+                "perimeter": perimeter,
+                "perimeter_length": perimeter_length,
+                "contourpoint": contourpoint,
+                "color": color,
+                "moments": moments,
+                "parent": parent_idx,  # Keep as index; will convert to Blob reference later
+                "children": children,  # Keep as indices; will convert to Blob references later
+            }
+            blob_params_list.append(blob_params)
 
         ## second pass: equivalent ellipse
 
-        for blob, contour in zip(allblobs, contours):
-            ## moment hierarchy
-
-            # for moments in a hierarchy, for any pq moment of a blob ignoring its
-            # children you simply subtract the pq moment of each of its children.
-            # That gives you the “proper” pq moment for the blob, which you then
-            # use to compute area, centroid etc. for each contour
-
-            # TODO: this should recurse all the way down
-            M = blob.moments
-            for child in blob.children:
+        for blob_params, child_indices in zip(
+            blob_params_list, [bp["children"] for bp in blob_params_list]
+        ):
+            ## Moment hierarchy: subtract moments of children from parent
+            M = blob_params["moments"]
+            for child_idx in child_indices:
                 # subtract moments of the child
-                M = {key: M[key] - allblobs[child].moments[key] for key in M}
-            blob.moments = M
+                M = {
+                    key: M[key] - blob_params_list[child_idx]["moments"][key]
+                    for key in M
+                }
+            blob_params["moments"] = M
 
-            ## centroid
+            ## Centroid
             if M["m00"] == 0:
-                continue
-
-            blob.uc = M["m10"] / M["m00"]
-            blob.vc = M["m01"] / M["m00"]
-            ## equivalent ellipse
-            J = np.array([[M["mu20"], M["mu11"]], [M["mu11"], M["mu02"]]])
-            e, X = np.linalg.eig(J)
-
-            blob.a = 2.0 * np.sqrt(e.max() / M["m00"])
-            blob.b = 2.0 * np.sqrt(e.min() / M["m00"])
-
-            # find eigenvector for largest eigenvalue
-            k = np.argmax(e)
-            x = X[:, k]
-            blob.orientation = np.arctan2(x[1], x[0])
-
-            ## circularity
-
-            # apply Kulpa's correction factor when computing circularity
-            # should have max 1 circularity for circle, < 1 for non-circles
-            # * Area and perimeter measurement of blobs in discrete binary pictures.
-            #   Z.Kulpa. Comput. Graph. Image Process., 6:434-451, 1977.
-            # * Methods to Estimate Areas and Perimeters of Blob-like Objects: a
-            #   Comparison. Proc. IAPR Workshop on Machine Vision Applications.,
-            #   December 13-15, 1994, Kawasaki, Japan
-            #   L. Yang, F. Albregtsen, T. Loennestad, P. Groettum
-            if kulpa is True:
-                kfactor = np.pi / 8.0 * (1.0 + np.sqrt(2.0))
-            elif isinstance(kulpa, (int, float)):
-                kfactor = kulpa
+                blob_params["uc"] = 0.0
+                blob_params["vc"] = 0.0
+                blob_params["a"] = 0.0
+                blob_params["b"] = 0.0
+                blob_params["orientation"] = 0.0
+                blob_params["circularity"] = None
             else:
-                kfactor = 1.0
-            if blob.perimeter_length > 0:
-                blob.circularity = (4.0 * np.pi * M["m00"]) / (
-                    blob.perimeter_length * kfactor
-                ) ** 2
-            else:
-                blob.circularity = None
+                blob_params["uc"] = M["m10"] / M["m00"]
+                blob_params["vc"] = M["m01"] / M["m00"]
 
-        for blob in allblobs:
-            M = blob.moments
-            # convert moments dict to named tuple, easier to access using dot notation
-            blob.moments = namedtuple("moment_tuple", M.keys())(*M.values())
+                ## Equivalent ellipse
+                J = np.array([[M["mu20"], M["mu11"]], [M["mu11"], M["mu02"]]])
+                e, X = np.linalg.eig(J)
+                blob_params["a"] = 2.0 * np.sqrt(e.max() / M["m00"])
+                blob_params["b"] = 2.0 * np.sqrt(e.min() / M["m00"])
 
-        ## third pass, region tree coloring to determine vertex depth
+                # Find eigenvector for largest eigenvalue
+                k = np.argmax(e)
+                x = X[:, k]
+                blob_params["orientation"] = np.arctan2(x[1], x[0])
+
+                ## Circularity: apply Kulpa's correction factor
+
+                # apply Kulpa's correction factor when computing circularity
+                # should have max 1 circularity for circle, < 1 for non-circles
+                # * Area and perimeter measurement of blobs in discrete binary pictures.
+                #   Z.Kulpa. Comput. Graph. Image Process., 6:434-451, 1977.
+                # * Methods to Estimate Areas and Perimeters of Blob-like Objects: a
+                #   Comparison. Proc. IAPR Workshop on Machine Vision Applications.,
+                #   December 13-15, 1994, Kawasaki, Japan
+                #   L. Yang, F. Albregtsen, T. Loennestad, P. Groettum
+                if kulpa is True:
+                    kfactor = np.pi / 8.0 * (1.0 + np.sqrt(2.0))
+                elif isinstance(kulpa, (int, float)):
+                    kfactor = kulpa
+                else:
+                    kfactor = 1.0
+
+                if blob_params["perimeter_length"] > 0:
+                    blob_params["circularity"] = (
+                        4.0
+                        * np.pi
+                        * M["m00"]
+                        / (blob_params["perimeter_length"] * kfactor) ** 2
+                    )
+                else:
+                    blob_params["circularity"] = None
+
+            # Convert moments dict to named tuple for easier access
+            M = blob_params["moments"]
+            blob_params["moments"] = namedtuple("moment_tuple", M.keys())(*M.values())
+
+        ## third pass, region tree coloring and creating Blob objects
         # level 0 is a parent, level > 0 is a child
-        while any([b.level is None for b in allblobs]):  # while some uncolored
-            for blob in allblobs:
-                if blob.level is None:
-                    if blob.parent == -1:
-                        blob.level = 0  # root level
-                    elif allblobs[blob.parent].level is not None:  ##
+        levels = [None] * len(blob_params_list)
+        while any([level is None for level in levels]):  # while some uncolored
+            for idx, blob_params in enumerate(blob_params_list):
+                if levels[idx] is None:
+                    if blob_params["parent"] == -1:
+                        levels[idx] = 0  # root level
+                    elif levels[blob_params["parent"]] is not None:
                         # one higher than parent's depth
-                        blob.level = allblobs[blob.parent].level + 1  ##
+                        levels[idx] = levels[blob_params["parent"]] + 1
+
+        # Create Blob objects from blob_params_list
+        allblobs = []
+        for idx, blob_params in enumerate(blob_params_list):
+            blob_params["level"] = levels[idx]
+            blob = Blob(**blob_params)
+            allblobs.append(blob)
 
         self.filter(**kwargs)
 
@@ -606,9 +626,9 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         m = np.array(mask).all(axis=0)
 
-        return self[m]
+        return self[m]  # type: ignore[arg-type]
 
-    def sort(self, by: str = "area", reverse: bool = False) -> "Blobs":
+    def sort(self, by: str = "area", reverse: bool = False) -> "Blobs":  # type: ignore[override]
         """
         Sort blobs
 
@@ -646,6 +666,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         :seealso: :meth:`filter`
         """
+        k: np.ndarray
         if by == "area":
             k = np.argsort(self.area)
         elif by == "circularity":
@@ -656,13 +677,15 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             k = np.argsort(self.aspect)
         elif by == "touch":
             k = np.argsort(self.touch)
+        else:
+            raise ValueError(f"unknown sort key: {by!r}")
 
         if reverse:
             k = k[::-1]
 
         return self[k]
 
-    def __getitem__(
+    def __getitem__(  # type: ignore[override]
         self, i: int | slice | list[int] | tuple[int, ...] | np.ndarray
     ) -> "Blobs":
         new = Blobs()
