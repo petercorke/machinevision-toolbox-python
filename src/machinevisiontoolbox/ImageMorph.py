@@ -8,7 +8,7 @@ import sys
 import time
 from typing import TYPE_CHECKING, Any
 
-import cv2 as cv
+import cv2
 import numpy as np
 import scipy as sp
 from machinevisiontoolbox.Kernel import Kernel
@@ -114,8 +114,8 @@ class ImageMorphMixin(_ImageBase if TYPE_CHECKING else object):
 
         # check if valid input:
         # TODO check if se is valid (odd number and less than im.shape)
-        # consider cv.getStructuringElement?
-        # eg, se = cv.getStructuringElement(cv.MORPH_RECT, (3,3))
+        # consider cv2.getStructuringElement?
+        # eg, se = cv2.getStructuringElement(cv2.MORPH_RECT, (3,3))
 
         if not isinstance(n, int):
             n = int(n)
@@ -136,7 +136,7 @@ class ImageMorphMixin(_ImageBase if TYPE_CHECKING else object):
             "CV_32F",
             "CV_64F",
         )
-        out = cv.erode(
+        out = cv2.erode(
             src=img_array,
             kernel=self._getse(se),
             iterations=n,
@@ -229,7 +229,7 @@ class ImageMorphMixin(_ImageBase if TYPE_CHECKING else object):
             "CV_32F",
             "CV_64F",
         )
-        out = cv.dilate(
+        out = cv2.dilate(
             src=img_array,
             kernel=self._getse(se),
             iterations=n,
@@ -298,7 +298,7 @@ class ImageMorphMixin(_ImageBase if TYPE_CHECKING else object):
         """
 
         # check if valid input:
-        # se = cv.getStructuringElement(cv.MORPH_RECT, (3,3))
+        # se = cv2.getStructuringElement(cv2.MORPH_RECT, (3,3))
         # TODO check if se is valid (odd number and less than im.shape),
         # can also be a scalar
 
@@ -326,9 +326,9 @@ class ImageMorphMixin(_ImageBase if TYPE_CHECKING else object):
         )
 
         if op == "min":
-            out = cv.morphologyEx(
+            out = cv2.morphologyEx(
                 src=img_array,
-                op=cv.MORPH_ERODE,
+                op=cv2.MORPH_ERODE,
                 kernel=self._getse(se),
                 iterations=n,
                 borderType=self._bordertype_cv(border),
@@ -336,9 +336,9 @@ class ImageMorphMixin(_ImageBase if TYPE_CHECKING else object):
                 **kwargs,
             )
         elif op == "max":
-            out = cv.morphologyEx(
+            out = cv2.morphologyEx(
                 src=img_array,
-                op=cv.MORPH_DILATE,
+                op=cv2.MORPH_DILATE,
                 kernel=self._getse(se),
                 iterations=n,
                 borderType=self._bordertype_cv(border),
@@ -346,9 +346,9 @@ class ImageMorphMixin(_ImageBase if TYPE_CHECKING else object):
                 **kwargs,
             )
         elif op == "diff":
-            out = cv.morphologyEx(
+            out = cv2.morphologyEx(
                 src=img_array,
-                op=cv.MORPH_GRADIENT,
+                op=cv2.MORPH_GRADIENT,
                 kernel=self._getse(se),
                 iterations=n,
                 borderType=self._bordertype_cv(border),
@@ -439,9 +439,9 @@ class ImageMorphMixin(_ImageBase if TYPE_CHECKING else object):
             "CV_32F",
             "CV_64F",
         )
-        out = cv.morphologyEx(
+        out = cv2.morphologyEx(
             src=img_array,
-            op=cv.MORPH_OPEN,
+            op=cv2.MORPH_OPEN,
             kernel=self._getse(se),
             iterations=n,
             borderType=self._bordertype_cv(border),
@@ -524,9 +524,9 @@ class ImageMorphMixin(_ImageBase if TYPE_CHECKING else object):
             "CV_32F",
             "CV_64F",
         )
-        out = cv.morphologyEx(
+        out = cv2.morphologyEx(
             src=img_array,
-            op=cv.MORPH_CLOSE,
+            op=cv2.MORPH_CLOSE,
             kernel=self._getse(se),
             iterations=n,
             borderType=self._bordertype_cv(border),
@@ -605,7 +605,7 @@ class ImageMorphMixin(_ImageBase if TYPE_CHECKING else object):
             img_array = self._A
 
         self._opencv_type_check(img_array, "single-channel", "CV_8U", "CV_16S")
-        out = cv.morphologyEx(src=img_array, op=cv.MORPH_HITMISS, kernel=s1)
+        out = cv2.morphologyEx(src=img_array, op=cv2.MORPH_HITMISS, kernel=s1)
         return self.__class__(out, dtype=self.dtype)
 
     def thin(self, **kwargs: Any) -> Self:

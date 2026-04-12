@@ -9,7 +9,7 @@ from typing import Any
 from typing import Iterable as TypingIterable
 
 # pyright: reportMissingImports=false
-import cv2 as cv
+import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 import spatialmath.base as smb
@@ -261,13 +261,13 @@ def draw_box(
     color = _color(image, color)
 
     if antialias:
-        linetype = cv.LINE_AA
+        linetype = cv2.LINE_AA
     else:
-        linetype = cv.LINE_8
+        linetype = cv2.LINE_8
 
     # Ensure l, r, b, t are integers
     assert l is not None and r is not None and b is not None and t is not None
-    cv.rectangle(image, lb := (int(l), int(b)), rt := (int(r), int(t)), color, thickness, linetype)  # type: ignore
+    cv2.rectangle(image, lb := (int(l), int(b)), rt := (int(r), int(t)), color, thickness, linetype)  # type: ignore
 
     return lb, rt
 
@@ -362,15 +362,15 @@ def plot_labelbox(
 
 
 _fontdict = {
-    "simplex": cv.FONT_HERSHEY_SIMPLEX,
-    "plain": cv.FONT_HERSHEY_PLAIN,
-    "duplex": cv.FONT_HERSHEY_DUPLEX,
-    "complex": cv.FONT_HERSHEY_COMPLEX,
-    "triplex": cv.FONT_HERSHEY_TRIPLEX,
-    "complex-small": cv.FONT_HERSHEY_COMPLEX_SMALL,
-    "script-simplex": cv.FONT_HERSHEY_SCRIPT_SIMPLEX,
-    "script-complex": cv.FONT_HERSHEY_SCRIPT_COMPLEX,
-    "italic": cv.FONT_ITALIC,
+    "simplex": cv2.FONT_HERSHEY_SIMPLEX,
+    "plain": cv2.FONT_HERSHEY_PLAIN,
+    "duplex": cv2.FONT_HERSHEY_DUPLEX,
+    "complex": cv2.FONT_HERSHEY_COMPLEX,
+    "triplex": cv2.FONT_HERSHEY_TRIPLEX,
+    "complex-small": cv2.FONT_HERSHEY_COMPLEX_SMALL,
+    "script-simplex": cv2.FONT_HERSHEY_SCRIPT_SIMPLEX,
+    "script-complex": cv2.FONT_HERSHEY_SCRIPT_COMPLEX,
+    "italic": cv2.FONT_ITALIC,
 }
 
 
@@ -399,7 +399,7 @@ def draw_labelbox(
     :type labelcolor: str, array_like(3), optional
     :param position: place to draw the label: 'topleft' (default), 'topright, 'bottomleft' or 'bottomright'
     :type above: str, optional
-    :param font: OpenCV font, defaults to cv.FONT_HERSHEY_SIMPLEX
+    :param font: OpenCV font, defaults to cv2.FONT_HERSHEY_SIMPLEX
     :type font: str, optional
     :param fontsize: OpenCV font scale, defaults to 0.3
     :type fontsize: float, optional
@@ -448,10 +448,10 @@ def draw_labelbox(
     """
 
     if fontheight is not None:
-        fontsize = cv.getFontScaleFromHeight(_fontdict[font], fontheight, fontthickness)
+        fontsize = cv2.getFontScaleFromHeight(_fontdict[font], fontheight, fontthickness)
 
     # get size of text:  ((w,h), baseline)
-    w, h = cv.getTextSize(text, _fontdict[font], fontsize, fontthickness)[0]
+    w, h = cv2.getTextSize(text, _fontdict[font], fontsize, fontthickness)[0]
 
     # draw the box
     lb, rt = draw_box(image, **boxargs)  # type: ignore
@@ -578,15 +578,15 @@ def draw_text(
     :seealso: :func:`~spatialmath.base.graphics.plot_text` `opencv.putText <https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga5126f47f883d730f633d74f07456c576>`_
     """
     if fontheight is not None:
-        fontsize = cv.getFontScaleFromHeight(_fontdict[font], fontheight, fontthickness)
+        fontsize = cv2.getFontScaleFromHeight(_fontdict[font], fontheight, fontthickness)
 
     color = _color(image, color)
 
     if antialias:
-        lt = cv.LINE_AA
+        lt = cv2.LINE_AA
     else:
-        lt = cv.LINE_8
-    cv.putText(
+        lt = cv2.LINE_8
+    cv2.putText(
         image, text, _roundvec(pos), _fontdict[font], fontsize, color, fontthickness, lt  # type: ignore
     )
     return image
@@ -616,7 +616,7 @@ def draw_point(
     :type text: str, optional
     :param color: text color, defaults to None
     :type color: str or array_like(3), optional
-    :param font: OpenCV font, defaults to cv.FONT_HERSHEY_SIMPLEX
+    :param font: OpenCV font, defaults to cv2.FONT_HERSHEY_SIMPLEX
     :type font: str, optional
     :param fontheight: height of font in pixels, defaults to None
     :type fontheight: int, optional
@@ -702,7 +702,7 @@ def draw_point(
     """
 
     if fontheight is not None:
-        fontsize = cv.getFontScaleFromHeight(_fontdict[font], fontheight, fontthickness)
+        fontsize = cv2.getFontScaleFromHeight(_fontdict[font], fontheight, fontthickness)
 
     if isinstance(pos, np.ndarray) and pos.shape[0] == 2:
         x = pos[0, :]
@@ -724,11 +724,11 @@ def draw_point(
             newmarker += m
     marker = newmarker
 
-    # get the centre of the marker, cv.getTextSize is a very loose bounding box
+    # get the centre of the marker, cv2.getTextSize is a very loose bounding box
     #  the code below is a bit expensive but the only way to precisely position
     #  the marker
     tmp = np.zeros((200, 200), dtype="uint8")
-    cv.putText(tmp, marker, (0, 150), _fontdict[font], fontsize, 1, fontthickness)  # type: ignore
+    cv2.putText(tmp, marker, (0, 150), _fontdict[font], fontsize, 1, fontthickness)  # type: ignore
     v, u = np.argwhere(tmp > 0).T
     uc = u.mean()
     vc = v.mean() - 150
@@ -748,7 +748,7 @@ def draw_point(
 
         x = round(xy[0] - uc)
         y = round(xy[1] - vc)
-        cv.putText(
+        cv2.putText(
             image,
             label,
             (x, y),
@@ -819,11 +819,11 @@ def draw_line(
     color = _color(image, color)
 
     if antialias:
-        lt = cv.LINE_AA
+        lt = cv2.LINE_AA
     else:
-        lt = cv.LINE_8
+        lt = cv2.LINE_8
 
-    cv.line(image, _roundvec(start), _roundvec(end), color, thickness, lt)  # type: ignore
+    cv2.line(image, _roundvec(start), _roundvec(end), color, thickness, lt)  # type: ignore
     return image
 
 
@@ -891,10 +891,10 @@ def draw_circle(
     color = _color(image, color)
 
     if antialias:
-        lt = cv.LINE_AA
+        lt = cv2.LINE_AA
     else:
-        lt = cv.LINE_8
-    cv.circle(image, _roundvec(centre), round(radius), color, thickness, lt)
+        lt = cv2.LINE_8
+    cv2.circle(image, _roundvec(centre), round(radius), color, thickness, lt)
     return image
 
 

@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-import cv2 as cv
+import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy as sp
@@ -108,7 +108,7 @@ class HoughFeature:
 
         :seealso: :meth:`plot_lines` :meth:`lines_p` `opencv.HoughLines <https://docs.opencv.org/4.x/dd/d1a/group__imgproc__feature.html#ga46b4e588934f6c8dfd509cc6e0e4545a>`_
         """
-        lines = cv.HoughLines(
+        lines = cv2.HoughLines(
             image=self.image, rho=self.drho, theta=self.dtheta, threshold=minvotes
         )
         if lines is None:
@@ -144,9 +144,9 @@ class HoughFeature:
         :seealso: :meth:`plot_lines` :meth:`lines` `opencv.HoughLinesP <https://docs.opencv.org/4.x/dd/d1a/group__imgproc__feature.html#ga8618180a5948286384e3b7ca02f6feeb>`_
         """
         if seed is not None:
-            cv.setRNGSeed(seed)
+            cv2.setRNGSeed(seed)
 
-        lines = cv.HoughLinesP(
+        lines = cv2.HoughLinesP(
             image=self.image,
             rho=self.drho,
             theta=self.dtheta,
@@ -217,7 +217,7 @@ class HoughFeature:
         rho = np.empty((0,))
         votes = []
         while True:
-            lines = cv.HoughLines(
+            lines = cv2.HoughLines(
                 image=self.image, rho=self.drho, theta=self.dtheta, threshold=t
             )
 

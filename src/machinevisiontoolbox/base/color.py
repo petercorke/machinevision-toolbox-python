@@ -11,7 +11,7 @@ from collections import namedtuple
 from pathlib import Path
 from typing import Any, Callable, Iterable, Literal
 
-import cv2 as cv
+import cv2
 import matplotlib.colors as colors
 import matplotlib.path as mpath
 import matplotlib.pyplot as plt
@@ -1305,12 +1305,12 @@ def colorspace_convert(image: ArrayLike, src: str, dst: str) -> np.ndarray:
 
     if isinstance(image, np.ndarray) and image.ndim == 3:
         # its a color image
-        return cv.cvtColor(image, code=operation)
+        return cv2.cvtColor(image, code=operation)
     else:
         # not an image, see if it's Nx3
         image = smb.getmatrix(image, (None, 3), dtype=np.float32)  # type: ignore
         image = image.reshape((-1, 1, 3))
-        converted = cv.cvtColor(image, code=operation)
+        converted = cv2.cvtColor(image, code=operation)
         if converted.shape[0] == 1:
             return converted.flatten().astype(np.float64)
         else:
@@ -1323,72 +1323,72 @@ def _convertflag(src: str, dst: str) -> int:
 
     if src == "rgb":
         if dst in ("grey", "gray"):
-            return cv.COLOR_RGB2GRAY
+            return cv2.COLOR_RGB2GRAY
         elif dst in ("xyz", "xyz_709"):
-            return cv.COLOR_RGB2XYZ
+            return cv2.COLOR_RGB2XYZ
         elif dst == "ycrcb":
-            return cv.COLOR_RGB2YCrCb
+            return cv2.COLOR_RGB2YCrCb
         elif dst == "hsv":
-            return cv.COLOR_RGB2HSV
+            return cv2.COLOR_RGB2HSV
         elif dst == "hls":
-            return cv.COLOR_RGB2HLS
+            return cv2.COLOR_RGB2HLS
         elif dst in ("lab", "l*a*b*"):
-            return cv.COLOR_RGB2Lab
+            return cv2.COLOR_RGB2Lab
         elif dst in ("luv", "l*u*v*"):
-            return cv.COLOR_RGB2Luv
+            return cv2.COLOR_RGB2Luv
         else:
             raise ValueError(f"destination colorspace {dst} not known")
     elif src == "bgr":
         if dst in ("grey", "gray"):
-            return cv.COLOR_BGR2GRAY
+            return cv2.COLOR_BGR2GRAY
         elif dst in ("xyz", "xyz_709"):
-            return cv.COLOR_BGR2XYZ
+            return cv2.COLOR_BGR2XYZ
         elif dst == "ycrcb":
-            return cv.COLOR_BGR2YCrCb
+            return cv2.COLOR_BGR2YCrCb
         elif dst == "hsv":
-            return cv.COLOR_BGR2HSV
+            return cv2.COLOR_BGR2HSV
         elif dst == "hls":
-            return cv.COLOR_BGR2HLS
+            return cv2.COLOR_BGR2HLS
         elif dst in ("lab", "l*a*b*"):
-            return cv.COLOR_BGR2Lab
+            return cv2.COLOR_BGR2Lab
         elif dst in ("luv", "l*u*v*"):
-            return cv.COLOR_BGR2Luv
+            return cv2.COLOR_BGR2Luv
 
     elif src in ("xyz", "xyz_709"):
         if dst == "rgb":
-            return cv.COLOR_XYZ2RGB
+            return cv2.COLOR_XYZ2RGB
         elif dst == "bgr":
-            return cv.COLOR_XYZ2BGR
+            return cv2.COLOR_XYZ2BGR
 
     elif src == "ycrcb":
         if dst == "rgb":
-            return cv.COLOR_YCrCb2RGB
+            return cv2.COLOR_YCrCb2RGB
         elif dst == "bgr":
-            return cv.COLOR_YCrCb2BGR  # type: ignore
+            return cv2.COLOR_YCrCb2BGR  # type: ignore
 
     elif src == "hsv":
         if dst == "rgb":
-            return cv.COLOR_HSV2RGB  # type: ignore
+            return cv2.COLOR_HSV2RGB  # type: ignore
         elif dst == "bgr":
-            return cv.COLOR_HSV2BGR
+            return cv2.COLOR_HSV2BGR
 
     elif src == "hls":
         if dst == "rgb":
-            return cv.COLOR_HLS2RGB
+            return cv2.COLOR_HLS2RGB
         elif dst == "bgr":
-            return cv.COLOR_HLS2BGR
+            return cv2.COLOR_HLS2BGR
 
     elif src in ("lab", "l*a*b*"):
         if dst == "rgb":
-            return cv.COLOR_Lab2RGB
+            return cv2.COLOR_Lab2RGB
         elif dst == "bgr":
-            return cv.COLOR_Lab2BGR
+            return cv2.COLOR_Lab2BGR
 
     elif src in ("luv", "l*u*v*"):
         if dst == "rgb":
-            return cv.COLOR_Luv2RGB
+            return cv2.COLOR_Luv2RGB
         elif dst == "bgr":
-            return cv.COLOR_Luv2BGR
+            return cv2.COLOR_Luv2BGR
 
     raise ValueError(f"unknown conversion {src} -> {dst}")
 
@@ -1823,8 +1823,8 @@ if __name__ == "__main__":  # pragma: no cover
     # print(colorname('red'))
     # img = np.float32(np.r_[0.5, 0.2, 0.1]).reshape((1,1,3))
     # print(img.shape)
-    # # print(cv.cvtColor(img, cv.COLOR_RGB2HSV))
-    # print(cv.cvtColor(img, _convertflag('rgb', 'hsv')))
+    # # print(cv2.cvtColor(img, cv2.COLOR_RGB2HSV))
+    # print(cv2.cvtColor(img, _convertflag('rgb', 'hsv')))
     # print(colorname([0.5,0.2, 0.5]))
     # print(colorname([0.5,0.2], 'xy'))
 

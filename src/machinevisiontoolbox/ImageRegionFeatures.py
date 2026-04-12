@@ -4,7 +4,7 @@ Detection and description of region-based features (Harris corners, FAST, etc.) 
 
 # https://docs.opencv.org/4.4.0/d7/d60/classcv_1_1SIFT.html
 
-import cv2 as cv
+import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 from ansitable import ANSITable, Column
@@ -158,7 +158,7 @@ class MSERFeature:
         """
 
         if image is not None:
-            detector = cv.MSER_create(**kwargs)
+            detector = cv2.MSER_create(**kwargs)
             msers, bboxes = detector.detectRegions(image._A)
 
             # msers is a tuple of ndarray(M,2), each row is (u,v)

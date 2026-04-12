@@ -5,7 +5,7 @@ Detection and matching of keypoint and descriptor features (SIFT, ORB, etc.) in 
 import math
 from typing import Any, Iterator
 
-import cv2 as cv
+import cv2
 import matplotlib.lines as mlines
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
@@ -78,7 +78,7 @@ class BaseFeature2D:
         self._image: Any = image
         self._feature_type: str | None = None
         if kp is None:
-            self._kp: list[cv.KeyPoint] = []
+            self._kp: list[cv2.KeyPoint] = []
         else:
             self._kp = list(kp)
         self._descriptor: np.ndarray | None = des
@@ -718,17 +718,17 @@ class BaseFeature2D:
         # return
 
         metricdict = {
-            "L1": cv.NORM_L1,
-            "L2": cv.NORM_L2,
-            "hamming": cv.NORM_HAMMING,
-            "hamming2": cv.NORM_HAMMING2,
+            "L1": cv2.NORM_L1,
+            "L2": cv2.NORM_L2,
+            "hamming": cv2.NORM_HAMMING,
+            "hamming2": cv2.NORM_HAMMING2,
         }
         if metric not in metricdict:
             raise ValueError("bad metric name")
 
         # create BFMatcher (brute force matcher) object
-        # bf = cv.BFMatcher(cv.NORM_HAMMING, crossCheck=True)
-        bf = cv.BFMatcher(normType=metricdict[metric], crossCheck=crosscheck)
+        # bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
+        bf = cv2.BFMatcher(normType=metricdict[metric], crossCheck=crosscheck)
 
         # Match descriptors.
         # matches0 = bf.match(d1, d2)
@@ -908,7 +908,7 @@ class BaseFeature2D:
         # translate to centre of window
         M = smb.transl2(N / 2, N / 2) @ M
 
-        out = cv.warpAffine(src=image, M=M[:2, :], dsize=(N, N), flags=cv.INTER_LINEAR)
+        out = cv2.warpAffine(src=image, M=M[:2, :], dsize=(N, N), flags=cv2.INTER_LINEAR)
         return Image(out)
 
     def filter(self, **kwargs: Any) -> "BaseFeature2D":
@@ -982,7 +982,7 @@ class BaseFeature2D:
         drawing: np.ndarray | None = None,
         isift: Any = None,
         color: tuple[int, int, int] = (0, 255, 0),
-        flags: int = cv.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS,
+        flags: int = cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS,
         **kwargs: Any,
     ) -> Any:
         """
@@ -994,7 +994,7 @@ class BaseFeature2D:
         :type drawing: _type_, optional
         :param isift: _description_, defaults to None
         :type isift: _type_, optional
-        :param flags: _description_, defaults to cv.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS
+        :param flags: _description_, defaults to cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS
         :type flags: _type_, optional
         :return: image with rendered keypoints
         :rtype: :class:`Image` instance
@@ -1012,7 +1012,7 @@ class BaseFeature2D:
             >>> orb[:5].p
 
         """
-        # draw sift features on image using cv.drawKeypoints
+        # draw sift features on image using cv2.drawKeypoints
 
         # check valid imagesource
         # TODO if max(self._u) or max(self._v) are greater than image width,
@@ -1032,7 +1032,7 @@ class BaseFeature2D:
 
         # TODO should check that isift is consistent with kp (min value is 0,
         # max value is <= len(kp))
-        cv.drawKeypoints(
+        cv2.drawKeypoints(
             image=image._A,  # image, source image
             # kp[isift],
             keypoints=kp,
@@ -1064,7 +1064,7 @@ class BaseFeature2D:
         w = im1._A.shape[1] + im2._A.shape[1]
         nplanes = im1._A.shape[2] if im1._A.ndim == 3 else 1
         blank = np.zeros((h, w, max(nplanes, 3)), dtype=np.uint8)
-        out = cv.drawMatchesKnn(
+        out = cv2.drawMatchesKnn(
             img1=im1._A,
             keypoints1=sift1._kp,
             img2=im2._A,
@@ -1247,17 +1247,17 @@ class BaseFeature2D:
             color_scalar = (0.0, 255.0, 0.0, 0.0)
 
         options = {
-            "rich": cv.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS,
-            "point": cv.DRAW_MATCHES_FLAGS_DEFAULT,
-            "not": cv.DRAW_MATCHES_FLAGS_NOT_DRAW_SINGLE_POINTS,
+            "rich": cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS,
+            "point": cv2.DRAW_MATCHES_FLAGS_DEFAULT,
+            "not": cv2.DRAW_MATCHES_FLAGS_NOT_DRAW_SINGLE_POINTS,
         }
 
-        cv.drawKeypoints(
+        cv2.drawKeypoints(
             image=img,  # image, source image
             keypoints=self._kp,
             outImage=img,  # outimage
             color=color_scalar,
-            flags=options[type] + cv.DRAW_MATCHES_FLAGS_DRAW_OVER_OUTIMG,
+            flags=options[type] + cv2.DRAW_MATCHES_FLAGS_DRAW_OVER_OUTIMG,
         )
 
         return image.__class__(img)
@@ -2022,13 +2022,13 @@ class ImagePointFeaturesMixin(_ImageBase):
     ) -> BaseFeature2D:
         # https://datascience.stackexchange.com/questions/43213/freak-feature-extraction-opencv
         algorithms: dict[str, Any] = {
-            "SIFT": getattr(cv, "SIFT_create"),
-            "ORB": getattr(cv, "ORB_create"),
+            "SIFT": getattr(cv2, "SIFT_create"),
+            "ORB": getattr(cv2, "ORB_create"),
             "Harris": _Harris_create,
-            "BRISK": getattr(cv, "BRISK_create"),
-            "AKAZE": getattr(cv, "AKAZE_create"),
-            # 'FREAK': (cv.FREAK_create, FREAKFeature),
-            # 'DAISY': (cv.DAISY_create, DAISYFeature),
+            "BRISK": getattr(cv2, "BRISK_create"),
+            "AKAZE": getattr(cv2, "AKAZE_create"),
+            # 'FREAK': (cv2.FREAK_create, FREAKFeature),
+            # 'DAISY': (cv2.DAISY_create, DAISYFeature),
         }
 
         # check if image is valid
@@ -2141,7 +2141,7 @@ class ImagePointFeaturesMixin(_ImageBase):
         :seealso: :class:ORBFeature`, `cv2.ORB_create <https://docs.opencv.org/4.5.2/db/d95/classcv_1_1ORB.html>`_
         """
 
-        scoreoptions = {"harris": cv.ORB_HARRIS_SCORE, "fast": cv.ORB_FAST_SCORE}
+        scoreoptions = {"harris": cv2.ORB_HARRIS_SCORE, "fast": cv2.ORB_FAST_SCORE}
         return self._image2feature(
             ORBFeature, scoreType=scoreoptions[scoreType], **kwargs
         )
@@ -2302,18 +2302,18 @@ class ImagePointFeaturesMixin(_ImageBase):
         # WORK IN PROGRESS
 
         detectors: dict[str, Any] = {
-            "AGAST": getattr(cv, "AgastFeatureDetector_create"),
-            "FAST": getattr(cv, "FastFeatureDetector_create"),
-            "GoodFeaturesToTrack": getattr(cv, "GFTTDetector_create"),
+            "AGAST": getattr(cv2, "AgastFeatureDetector_create"),
+            "FAST": getattr(cv2, "FastFeatureDetector_create"),
+            "GoodFeaturesToTrack": getattr(cv2, "GFTTDetector_create"),
         }
 
         descriptors = {
-            "BOOST": (cv.xfeatures2d.BoostDesc_create, BOOSTFeature),
-            "BRIEF": (cv.xfeatures2d.BriefDescriptorExtractor_create, BRIEFFeature),
-            "DAISY": (cv.xfeatures2d.BriefDescriptorExtractor_create, DAISYFeature),
-            "FREAK": (cv.xfeatures2d.BriefDescriptorExtractor_create, FREAKFeature),
-            "LATCH": (cv.xfeatures2d.BriefDescriptorExtractor_create, LATCHFeature),
-            "LUCID": (cv.xfeatures2d.BriefDescriptorExtractor_create, LUCIDFeature),
+            "BOOST": (cv2.xfeatures2d.BoostDesc_create, BOOSTFeature),
+            "BRIEF": (cv2.xfeatures2d.BriefDescriptorExtractor_create, BRIEFFeature),
+            "DAISY": (cv2.xfeatures2d.BriefDescriptorExtractor_create, DAISYFeature),
+            "FREAK": (cv2.xfeatures2d.BriefDescriptorExtractor_create, FREAKFeature),
+            "LATCH": (cv2.xfeatures2d.BriefDescriptorExtractor_create, LATCHFeature),
+            "LUCID": (cv2.xfeatures2d.BriefDescriptorExtractor_create, LUCIDFeature),
         }
         # eg. Feature2D('FAST', 'FREAK')
         if detector in detectors:
@@ -2344,9 +2344,9 @@ class _Harris_create:
 
     def detectAndCompute(
         self, image: np.ndarray, mask: np.ndarray | None = None
-    ) -> tuple[list[cv.KeyPoint], np.ndarray]:
+    ) -> tuple[list[cv2.KeyPoint], np.ndarray]:
         # features are peaks in the Harris corner strength image
-        dst = cv.cornerHarris(src=image, blockSize=2, ksize=2 * self.hw + 1, k=self.k)
+        dst = cv2.cornerHarris(src=image, blockSize=2, ksize=2 * self.hw + 1, k=self.k)
         peaks = findpeaks2d(dst, npeaks=None, scale=self.peakscale, positive=True)
         kp = []
         des = []
@@ -2367,7 +2367,7 @@ class _Harris_create:
                         continue
 
                     des.append(smb.unitvec(v))
-                    kp.append(cv.KeyPoint(x, y, 0, 0, peak[2]))
+                    kp.append(cv2.KeyPoint(x, y, 0, 0, peak[2]))
             except IndexError:
                 # handle the case where the descriptor window falls off the edge
                 pass

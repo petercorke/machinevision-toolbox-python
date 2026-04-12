@@ -210,7 +210,7 @@ def findpeaks2d(
     # compute the neighbourhood maximum
     # znh = self.window(self.float(z), M, 'max', 'wrap')
     # image = self.asint()
-    # nh_max = cv.morphologyEx(image, cv.MORPH_DILATE, M)
+    # nh_max = cv2.morphologyEx(image, cv2.MORPH_DILATE, M)
     nhood_max = sp.ndimage.maximum_filter(z, footprint=M)
 
     # find all pixels greater than their neighbourhood

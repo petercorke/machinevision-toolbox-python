@@ -2,7 +2,7 @@
 Spatial operations: distance transforms, connected components, labelling, and histograms.
 """
 
-import cv2 as cv
+import cv2
 import numpy as np
 import scipy as sp
 import spatialmath.base.argcheck as argcheck
@@ -69,14 +69,14 @@ class ImageSpatialMixin(_ImageBase if TYPE_CHECKING else object):
 
         # border options:
         border_opt = {
-            "constant": cv.BORDER_CONSTANT,
-            "replicate": cv.BORDER_REPLICATE,
-            "reflect": cv.BORDER_REFLECT,
-            "mirror": cv.BORDER_REFLECT_101,
-            "reflect_101": cv.BORDER_REFLECT_101,
-            "wrap": cv.BORDER_WRAP,
-            "pad": cv.BORDER_CONSTANT,
-            "none": cv.BORDER_ISOLATED,
+            "constant": cv2.BORDER_CONSTANT,
+            "replicate": cv2.BORDER_REPLICATE,
+            "reflect": cv2.BORDER_REFLECT,
+            "mirror": cv2.BORDER_REFLECT_101,
+            "reflect_101": cv2.BORDER_REFLECT_101,
+            "wrap": cv2.BORDER_WRAP,
+            "pad": cv2.BORDER_CONSTANT,
+            "none": cv2.BORDER_ISOLATED,
         }
         if exclude is not None and border in exclude:
             raise ValueError("border option not supported")
@@ -88,13 +88,13 @@ class ImageSpatialMixin(_ImageBase if TYPE_CHECKING else object):
 
     # border options:
     _border_opt = {
-        "constant": cv.BORDER_CONSTANT,
-        "replicate": cv.BORDER_REPLICATE,
-        "reflect": cv.BORDER_REFLECT,
-        "mirror": cv.BORDER_REFLECT_101,
-        "wrap": cv.BORDER_WRAP,
-        "pad": cv.BORDER_CONSTANT,
-        "none": cv.BORDER_ISOLATED,
+        "constant": cv2.BORDER_CONSTANT,
+        "replicate": cv2.BORDER_REPLICATE,
+        "reflect": cv2.BORDER_REFLECT,
+        "mirror": cv2.BORDER_REFLECT_101,
+        "wrap": cv2.BORDER_WRAP,
+        "pad": cv2.BORDER_CONSTANT,
+        "none": cv2.BORDER_ISOLATED,
     }
 
     @staticmethod
@@ -323,17 +323,17 @@ class ImageSpatialMixin(_ImageBase if TYPE_CHECKING else object):
         )
         img = self._A
         if border == "pad" and value != 0:
-            img = cv.copyMakeBorder(
+            img = cv2.copyMakeBorder(
                 src=a,
                 top=kv,
                 bottom=kv,
                 left=kh,
                 right=kh,
-                borderType=cv.BORDER_CONSTANT,
+                borderType=cv2.BORDER_CONSTANT,
                 value=bordervalue,
             )
         elif mode == "full":
-            img = cv.copyMakeBorder(
+            img = cv2.copyMakeBorder(
                 src=a,
                 top=kv,
                 bottom=kv,
@@ -343,7 +343,7 @@ class ImageSpatialMixin(_ImageBase if TYPE_CHECKING else object):
                 value=bordervalue,
             )
 
-        out = cv.filter2D(
+        out = cv2.filter2D(
             src=img, ddepth=-1, kernel=K, borderType=self._bordertype_cv(border)
         )
 
@@ -469,7 +469,7 @@ class ImageSpatialMixin(_ImageBase if TYPE_CHECKING else object):
         self._opencv_type_check(
             self._A, "multiple-channel", "CV_8U", "CV_32F", "CV_64F"
         )
-        dst = cv.cornerHarris(src=self.mono()._A, blockSize=2, ksize=2 * h + 1, k=k)
+        dst = cv2.cornerHarris(src=self.mono()._A, blockSize=2, ksize=2 * h + 1, k=k)
         return self.__class__(dst)
 
     def window(
@@ -583,8 +583,8 @@ class ImageSpatialMixin(_ImageBase if TYPE_CHECKING else object):
             :meth:`Laplace`
             :meth:`LoG`
         """
-        min = cv.morphologyEx(self._A, cv.MORPH_ERODE, np.ones((3, 3)))
-        max = cv.morphologyEx(self._A, cv.MORPH_DILATE, np.ones((3, 3)))
+        min = cv2.morphologyEx(self._A, cv2.MORPH_ERODE, np.ones((3, 3)))
+        max = cv2.morphologyEx(self._A, cv2.MORPH_DILATE, np.ones((3, 3)))
         zeroCross = np.logical_or(
             np.logical_and(min < 0, self._A > 0),
             np.logical_and(max > 0, self._A < 0),
@@ -717,18 +717,18 @@ class ImageSpatialMixin(_ImageBase if TYPE_CHECKING else object):
         # TODO options to accept different border types,
         # note that the Matlab implementation is hard-coded to 'same'
 
-        # return cv.buildPyramid(im, N, borderType=cv.BORDER_REPLICATE)
+        # return cv2.buildPyramid(im, N, borderType=cv2.BORDER_REPLICATE)
         # Python version does not seem to be implemented
 
         # list comprehension approach
-        # TODO pyr = [cv.pyrdown(inputs(i)) for i in range(N) if conditional]
+        # TODO pyr = [cv2.pyrdown(inputs(i)) for i in range(N) if conditional]
 
         impyr = im._A
         pyr = [impyr]
         for i in range(N):
             if impyr.shape[0] == 1 or impyr.shape[1] == 1:
                 break
-            impyr = cv.pyrDown(
+            impyr = cv2.pyrDown(
                 src=impyr, borderType=self._bordertype_cv(border, exclude="constant")
             )
             pyr.append(impyr)
@@ -813,7 +813,7 @@ class ImageSpatialMixin(_ImageBase if TYPE_CHECKING else object):
         lower = max(0, (1.0 - sigma) * v)
         upper = min(1, (1.0 + sigma) * v)
 
-        out = cv.Canny(
+        out = cv2.Canny(
             image=self.array_as("uint8"),
             threshold1=lower,
             threshold2=upper,
@@ -1009,11 +1009,11 @@ class ImageSpatialMixin(_ImageBase if TYPE_CHECKING else object):
             im = self.invert().array_as("uint8")
 
         normdict = {
-            "L1": cv.DIST_L1,
-            "L2": cv.DIST_L2,
+            "L1": cv2.DIST_L1,
+            "L2": cv2.DIST_L2,
         }
 
-        out = cv.distanceTransform(
+        out = cv2.distanceTransform(
             src=im, distanceType=normdict[norm], maskSize=2 * h + 1
         )
         return self.__class__(out)
@@ -1078,17 +1078,17 @@ class ImageSpatialMixin(_ImageBase if TYPE_CHECKING else object):
 
         self._opencv_type_check(self._A, "single-channel", "CV_8U")
         # make labels uint32s, unique and never recycled?
-        # set ltype to default to cv.CV_32S
+        # set ltype to default to cv2.CV_32S
         if ltype == "int32":
-            ltype = cv.CV_32S
+            ltype = cv2.CV_32S
             dtype = np.int32
         elif ltype == "uint16":
-            ltype = cv.CV_16U
+            ltype = cv2.CV_16U
             dtype = np.uint16
         else:
             raise TypeError(ltype, "ltype must be either int32 or uint16")
 
-        retval, labels = cv.connectedComponents(
+        retval, labels = cv2.connectedComponents(
             image=self.array_as("uint8"), connectivity=connectivity, ltype=ltype
         )
         return self.__class__(labels), retval
@@ -1134,7 +1134,7 @@ class ImageSpatialMixin(_ImageBase if TYPE_CHECKING else object):
             `opencv.MSER_create <https://docs.opencv.org/4.x/d3/d28/classcv_1_1MSER.html>`_
         """
 
-        mser = cv.MSER_create(**kwargs)
+        mser = cv2.MSER_create(**kwargs)
         regions, _ = mser.detectRegions(self.array_as("uint8"))
 
         if len(regions) < 256:
@@ -1182,7 +1182,7 @@ class ImageSpatialMixin(_ImageBase if TYPE_CHECKING else object):
             `opencv.createGraphSegmentation <https://docs.opencv.org/4.x/d5/df0/group__ximgproc__segmentation.html#ga5e3e721c5f16e34d3ad52b9eeb6d2860>`_
         """
         # P. Felzenszwalb, D. Huttenlocher: "Graph-Based Image Segmentation
-        segmenter = cv.ximgproc.segmentation.createGraphSegmentation(
+        segmenter = cv2.ximgproc.segmentation.createGraphSegmentation(
             sigma=0.5, k=2000, min_size=100
         )
         out = segmenter.processImage(self.array_as("uint8"))
@@ -1535,10 +1535,10 @@ class ImageSpatialMixin(_ImageBase if TYPE_CHECKING else object):
 
         self._opencv_type_check(self._A, "multiple-channel", "CV_8U", "CV_32F")
         metricdict = {
-            "ssd": cv.TM_SQDIFF,
-            "zssd": cv.TM_SQDIFF,
-            "ncc": cv.TM_CCOEFF_NORMED,
-            "zncc": cv.TM_CCOEFF_NORMED,
+            "ssd": cv2.TM_SQDIFF,
+            "zssd": cv2.TM_SQDIFF,
+            "ncc": cv2.TM_CCOEFF_NORMED,
+            "zncc": cv2.TM_CCOEFF_NORMED,
         }
 
         im = self._A
@@ -1548,7 +1548,7 @@ class ImageSpatialMixin(_ImageBase if TYPE_CHECKING else object):
             im = im - np.mean(im)  # remove offset from image
 
         try:
-            out = cv.matchTemplate(image=im, templ=T_im, method=metricdict[metric])
+            out = cv2.matchTemplate(image=im, templ=T_im, method=metricdict[metric])
         except KeyError:
             raise ValueError("bad metric specified")
         return self.__class__(out)

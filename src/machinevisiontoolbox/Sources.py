@@ -33,7 +33,7 @@ if TYPE_CHECKING:
 # from numpy.lib.arraysetops import isin
 from abc import ABC, abstractmethod
 
-import cv2 as cv
+import cv2
 import numpy as np
 from ansitable import ANSITable, Column
 from spatialmath import Polygon2
@@ -417,7 +417,7 @@ class VideoFile(ImageSource):
     shape: tuple
     fps: int
     args: dict
-    cap: cv.VideoCapture | None
+    cap: cv2.VideoCapture | None
     i: int
 
     def __init__(self, filename: str, **kwargs: Any) -> None:
@@ -426,11 +426,11 @@ class VideoFile(ImageSource):
 
         # get the number of frames in the video
         #  not sure it's always correct
-        cap = cv.VideoCapture(self.filename)
+        cap = cv2.VideoCapture(self.filename)
         ret, frame = cap.read()
-        self.nframes = int(cap.get(cv.CAP_PROP_FRAME_COUNT))
+        self.nframes = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         self.shape = frame.shape
-        self.fps = int(cap.get(cv.CAP_PROP_FPS))
+        self.fps = int(cap.get(cv2.CAP_PROP_FPS))
         self.args = kwargs
         cap.release()
         self.cap = None
@@ -440,7 +440,7 @@ class VideoFile(ImageSource):
         self.i = 0
         if self.cap is not None:
             self.cap.release()
-        self.cap = cv.VideoCapture(self.filename)
+        self.cap = cv2.VideoCapture(self.filename)
         return self
 
     def __next__(self) -> Image:
@@ -539,7 +539,7 @@ class VideoCamera(ImageSource):
     """
 
     id: int
-    cap: cv.VideoCapture
+    cap: cv2.VideoCapture
     args: dict
     rgb: bool
     i: int
@@ -547,7 +547,7 @@ class VideoCamera(ImageSource):
     def __init__(self, id: int = 0, rgb: bool = True, **kwargs: Any) -> None:
 
         self.id = id
-        self.cap = cv.VideoCapture(id)
+        self.cap = cv2.VideoCapture(id)
         self.args = kwargs
         self.rgb = rgb
         self.i = 0
@@ -555,7 +555,7 @@ class VideoCamera(ImageSource):
     def __iter__(self) -> VideoCamera:
         self.i = 0
         self.cap.release()
-        self.cap = cv.VideoCapture(self.id)
+        self.cap = cv2.VideoCapture(self.id)
         return self
 
     def __next__(self) -> Image:
@@ -612,19 +612,19 @@ class VideoCamera(ImageSource):
 
     # see https://docs.opencv.org/4.x/d4/d15/group__videoio__flags__base.html#gaeb8dd9c89c10a5c63c139bf7c4f5704d
     properties: dict[str, int] = {
-        "brightness": cv.CAP_PROP_BRIGHTNESS,
-        "contrast": cv.CAP_PROP_CONTRAST,
-        "saturation": cv.CAP_PROP_SATURATION,
-        "hue": cv.CAP_PROP_HUE,
-        "gain": cv.CAP_PROP_GAIN,
-        "exposure": cv.CAP_PROP_EXPOSURE,
-        "auto-exposure": cv.CAP_PROP_AUTO_EXPOSURE,
-        "gamma": cv.CAP_PROP_GAMMA,
-        "temperature": cv.CAP_PROP_TEMPERATURE,
-        "auto-whitebalance": cv.CAP_PROP_AUTO_WB,
-        "whitebalance-temperature": cv.CAP_PROP_WB_TEMPERATURE,
-        "ios:exposure": cv.CAP_PROP_IOS_DEVICE_EXPOSURE,
-        "ios:whitebalance": cv.CAP_PROP_IOS_DEVICE_WHITEBALANCE,
+        "brightness": cv2.CAP_PROP_BRIGHTNESS,
+        "contrast": cv2.CAP_PROP_CONTRAST,
+        "saturation": cv2.CAP_PROP_SATURATION,
+        "hue": cv2.CAP_PROP_HUE,
+        "gain": cv2.CAP_PROP_GAIN,
+        "exposure": cv2.CAP_PROP_EXPOSURE,
+        "auto-exposure": cv2.CAP_PROP_AUTO_EXPOSURE,
+        "gamma": cv2.CAP_PROP_GAMMA,
+        "temperature": cv2.CAP_PROP_TEMPERATURE,
+        "auto-whitebalance": cv2.CAP_PROP_AUTO_WB,
+        "whitebalance-temperature": cv2.CAP_PROP_WB_TEMPERATURE,
+        "ios:exposure": cv2.CAP_PROP_IOS_DEVICE_EXPOSURE,
+        "ios:whitebalance": cv2.CAP_PROP_IOS_DEVICE_WHITEBALANCE,
     }
 
     def get(self, property: str | None = None) -> float | dict[str, float]:
@@ -712,7 +712,7 @@ class VideoCamera(ImageSource):
 
         :seealso: :meth:`height` :meth:`shape`
         """
-        return int(self.cap.get(cv.CAP_PROP_FRAME_WIDTH))
+        return int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
 
     @property
     def height(self) -> int:
@@ -724,7 +724,7 @@ class VideoCamera(ImageSource):
 
         :seealso: :meth:`width` :meth:`shape`
         """
-        return int(self.cap.get(cv.CAP_PROP_FRAME_HEIGHT))
+        return int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
     @property
     def framerate(self) -> int:
@@ -737,7 +737,7 @@ class VideoCamera(ImageSource):
         .. note:: If frame rate cannot be determined return -1
         """
         try:
-            fps = int(self.cap.get(cv.CAP_PROP_FPS))
+            fps = int(self.cap.get(cv2.CAP_PROP_FPS))
         except ValueError:
             fps = -1
         return fps
@@ -832,13 +832,13 @@ class VideoCamera(ImageSource):
             # will be None for those cameras.
             names = _query_macos()
             for idx, name in enumerate(names):
-                cap = cv.VideoCapture(idx)
+                cap = cv2.VideoCapture(idx)
                 if cap.isOpened():
                     entry = {
                         "id": idx,
-                        "width": int(cap.get(cv.CAP_PROP_FRAME_WIDTH)),
-                        "height": int(cap.get(cv.CAP_PROP_FRAME_HEIGHT)),
-                        "fps": int(cap.get(cv.CAP_PROP_FPS)),
+                        "width": int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)),
+                        "height": int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)),
+                        "fps": int(cap.get(cv2.CAP_PROP_FPS)),
                         "name": name,
                     }
                     cap.release()
@@ -855,15 +855,15 @@ class VideoCamera(ImageSource):
         else:
             name_map = _names_linux() if platform.startswith("linux") else {}
             for idx in range(32):  # practical upper bound
-                cap = cv.VideoCapture(idx)
+                cap = cv2.VideoCapture(idx)
                 if not cap.isOpened():
                     cap.release()
                     break
                 entry = {
                     "id": idx,
-                    "width": int(cap.get(cv.CAP_PROP_FRAME_WIDTH)),
-                    "height": int(cap.get(cv.CAP_PROP_FRAME_HEIGHT)),
-                    "fps": int(cap.get(cv.CAP_PROP_FPS)),
+                    "width": int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)),
+                    "height": int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)),
+                    "fps": int(cap.get(cv2.CAP_PROP_FPS)),
                     "name": name_map.get(idx),
                 }
                 cap.release()
@@ -1210,8 +1210,8 @@ class ZipArchive(ImageSource):
 
     def _read(self, i: int) -> np.ndarray | bytes:
         data = self.zipfile.read(self.files[i])
-        img = cv.imdecode(
-            np.frombuffer(data, np.uint8), cv.IMREAD_ANYDEPTH | cv.IMREAD_UNCHANGED
+        img = cv2.imdecode(
+            np.frombuffer(data, np.uint8), cv2.IMREAD_ANYDEPTH | cv2.IMREAD_UNCHANGED
         )
         if img is None:
             # not an image file, just return the contents
@@ -1277,7 +1277,7 @@ class WebCam(ImageSource):
 
     url: str
     args: dict
-    cap: cv.VideoCapture | None
+    cap: cv2.VideoCapture | None
 
     def __init__(self, url: str, **kwargs: Any) -> None:
 
@@ -1288,12 +1288,12 @@ class WebCam(ImageSource):
     def __iter__(self) -> WebCam:
         if self.cap is not None:
             self.cap.release()
-        self.cap = cv.VideoCapture(self.url)
+        self.cap = cv2.VideoCapture(self.url)
         return self
 
     def __next__(self) -> Image:
         if self.cap is None:
-            self.cap = cv.VideoCapture(self.url)
+            self.cap = cv2.VideoCapture(self.url)
         assert self.cap is not None
         ret, frame = self.cap.read()
         if ret is False:
@@ -1779,23 +1779,23 @@ class ROSTopic(ImageSource):
 
         if self._compressed:
             if arr.ndim == 2:
-                bgr = cv.cvtColor(arr, cv.COLOR_GRAY2BGR)
+                bgr = cv2.cvtColor(arr, cv2.COLOR_GRAY2BGR)
                 encoding = "mono8" if arr.dtype == np.uint8 else "mono16"
             elif arr.shape[2] == 4:
                 if order == "rgba":
-                    bgr = cv.cvtColor(arr, cv.COLOR_RGBA2BGR)
+                    bgr = cv2.cvtColor(arr, cv2.COLOR_RGBA2BGR)
                     encoding = "rgba8"
                 else:
-                    bgr = cv.cvtColor(arr, cv.COLOR_BGRA2BGR)
+                    bgr = cv2.cvtColor(arr, cv2.COLOR_BGRA2BGR)
                     encoding = "bgra8"
             elif order == "rgb":
-                bgr = cv.cvtColor(arr, cv.COLOR_RGB2BGR)
+                bgr = cv2.cvtColor(arr, cv2.COLOR_RGB2BGR)
                 encoding = "rgb8"
             else:
                 bgr = arr
                 encoding = "bgr8"
 
-            ok, enc = cv.imencode(".jpg", bgr)
+            ok, enc = cv2.imencode(".jpg", bgr)
             if not ok:
                 raise ValueError("Failed to JPEG-compress Image for ROS publish")
 
@@ -1963,18 +1963,18 @@ class ROSTopic(ImageSource):
             )
             # Normalise to BGR uint8 for consistency with the compressed path
             if encoding in ("rgb8", "rgba8"):
-                frame = cv.cvtColor(
-                    frame, cv.COLOR_RGB2BGR if channels == 3 else cv.COLOR_RGBA2BGR
+                frame = cv2.cvtColor(
+                    frame, cv2.COLOR_RGB2BGR if channels == 3 else cv2.COLOR_RGBA2BGR
                 )
             elif encoding == "mono8":
-                frame = cv.cvtColor(frame, cv.COLOR_GRAY2BGR)
+                frame = cv2.cvtColor(frame, cv2.COLOR_GRAY2BGR)
             elif encoding == "mono16":
                 # Preserve full 16-bit depth precision.
-                frame = cv.cvtColor(frame, cv.COLOR_GRAY2BGR)
+                frame = cv2.cvtColor(frame, cv2.COLOR_GRAY2BGR)
         else:
             # Compressed sensor_msgs/CompressedImage: JPEG or PNG bytes
             np_arr = np.frombuffer(img_data, np.uint8)
-            frame = cv.imdecode(np_arr, cv.IMREAD_COLOR)  # BGR ndarray
+            frame = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)  # BGR ndarray
         if frame is None:
             return
         self.i += 1
@@ -2756,7 +2756,7 @@ class ROSBag(ImageSource):
                 if connection.msgtype.endswith("CompressedImage"):
                     # Compressed sensor_msgs/CompressedImage: JPEG or PNG bytes
                     np_arr = np.frombuffer(msg.data, np.uint8)
-                    img_array = cv.imdecode(np_arr, cv.IMREAD_UNCHANGED)
+                    img_array = cv2.imdecode(np_arr, cv2.IMREAD_UNCHANGED)
                     if img_array is None:
                         raise RuntimeError("Failed to decode compressed image")
 

@@ -11,7 +11,7 @@ import warnings
 from pathlib import Path
 from typing import Any, Callable
 
-import cv2 as cv
+import cv2
 import matplotlib as mpl
 import matplotlib.cm as cm
 
@@ -345,7 +345,7 @@ def idisp(
 
     # if we are running in a Jupyter notebook, print to matplotlib,
     # otherwise print to opencv imshow/new window. This is done because
-    # cv.imshow does not play nicely with .ipynb
+    # cv2.imshow does not play nicely with .ipynb
     if matplotlib:  # _isnotebook() and
         ## display using matplotlib
         plt = _plt()
@@ -770,21 +770,21 @@ def idisp(
 
         # At this point title is guaranteed to be a string
         assert title is not None
-        cv.namedWindow(title, cv.WINDOW_AUTOSIZE)
-        cv.imshow(title, im)  # make sure BGR format image
-        cv.waitKey(1)
+        cv2.namedWindow(title, cv2.WINDOW_AUTOSIZE)
+        cv2.imshow(title, im)  # make sure BGR format image
+        cv2.waitKey(1)
 
         if fps is not None:
             # wait one frame time
-            cv.waitKey(round(1000.0 / fps))
+            cv2.waitKey(round(1000.0 / fps))
 
         if block is True:
             while True:
-                k = cv.waitKey(delay=0)  # wait forever for keystroke
+                k = cv2.waitKey(delay=0)  # wait forever for keystroke
                 if k == ord("q"):
                     assert title is not None
-                    cv.destroyWindow(title)
-                    cv.waitKey(1)
+                    cv2.destroyWindow(title)
+                    cv2.waitKey(1)
                     break
 
         # TODO fig, ax equivalent for OpenCV? how to print/plot to the same
@@ -800,16 +800,16 @@ def set_window_title(title: str) -> None:
 
 def cv_destroy_window(title: str | None = None, block: bool = True) -> None:
     if title == "all":
-        cv.destroyAllWindows()
+        cv2.destroyAllWindows()
     else:
         if block:
             while True:
-                k = cv.waitKey(delay=0)  # wait forever for keystroke
+                k = cv2.waitKey(delay=0)  # wait forever for keystroke
                 if k == ord("q"):
                     break
         if title is not None:
-            cv.destroyWindow(title)
-    cv.waitKey(1)  # run the event loop
+            cv2.destroyWindow(title)
+    cv2.waitKey(1)  # run the event loop
 
 
 def _isnotebook() -> bool:
@@ -916,7 +916,7 @@ def iread(
         if resp.status != 200:
             raise ValueError(f"HTTP {resp.status} fetching {filename}")
         array = np.asarray(bytearray(resp.read()), dtype="uint8")
-        image = cv.imdecode(array, -1)
+        image = cv2.imdecode(array, -1)
         if image is not None:
             image = convert(image, **kwargs)
             return (image, filename)
@@ -955,10 +955,10 @@ def iread(
             images = []
             pathlist.sort()
             for p in pathlist:
-                image = cv.imdecode(
-                    np.fromfile(Path(p).as_posix(), dtype=np.uint8), cv.IMREAD_UNCHANGED
+                image = cv2.imdecode(
+                    np.fromfile(Path(p).as_posix(), dtype=np.uint8), cv2.IMREAD_UNCHANGED
                 )
-                # image = cv.imread(p, -1)  # default read-in as BGR
+                # image = cv2.imread(p, -1)  # default read-in as BGR
                 if image is None:
                     raise ValueError(f"Could not decode image: {p}")
                 images.append(convert(image, **kwargs))
@@ -970,10 +970,10 @@ def iread(
 
             # read the image
             # TODO not sure the following will work on Windows
-            image = cv.imdecode(
-                np.fromfile(path.as_posix(), dtype=np.uint8), cv.IMREAD_UNCHANGED  # type: ignore
+            image = cv2.imdecode(
+                np.fromfile(path.as_posix(), dtype=np.uint8), cv2.IMREAD_UNCHANGED  # type: ignore
             )
-            image = cv.imread(path.as_posix(), -1)  # type: ignore  # default read-in as BGR
+            image = cv2.imread(path.as_posix(), -1)  # type: ignore  # default read-in as BGR
             if image is None:
                 # TODO check ValueError
                 raise ValueError(f"Could not read {filename}")
@@ -1132,7 +1132,7 @@ def iwrite(
     :return: successful write
     :rtype: bool
 
-    Writes the image ``im`` to ``filename`` using cv.imwrite(), passing any
+    Writes the image ``im`` to ``filename`` using cv2.imwrite(), passing any
     keyword arguments as options.  The file type is taken from the extension in
     ``filename``.
 
@@ -1156,9 +1156,9 @@ def iwrite(
     """
     if im.ndim > 2 and colororder == "RGB":
         # put image into OpenCV BGR order for writing
-        return cv.imwrite(filename, im[:, :, ::-1], **kwargs)
+        return cv2.imwrite(filename, im[:, :, ::-1], **kwargs)
     else:
-        return cv.imwrite(filename, im, **kwargs)
+        return cv2.imwrite(filename, im, **kwargs)
 
 
 def pickpoints(
@@ -1194,15 +1194,15 @@ def pickpoints(
 
         def click_event(event: Any, x: int, y: int, flags: Any, params: Any) -> None:
             # checking for left mouse clicks
-            if event == cv.EVENT_LBUTTONDOWN:  # type: ignore
+            if event == cv2.EVENT_LBUTTONDOWN:  # type: ignore
                 # displaying the coordinates
                 # on the Shell
                 print(x, " ", y)
 
-        cv.setMouseCallback("image", click_event)
+        cv2.setMouseCallback("image", click_event)
 
         # wait for a key to be pressed to exit
-        cv.waitKey(0)
+        cv2.waitKey(0)
 
 
 if __name__ == "__main__":  # type: ignore

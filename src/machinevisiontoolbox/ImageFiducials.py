@@ -9,7 +9,7 @@ from abc import abstractmethod
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
-import cv2 as cv
+import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 from ansitable import ANSITable, Column
@@ -27,30 +27,30 @@ if TYPE_CHECKING:
 
 def _fiducial_dict(dict="4x4_1000"):
     tag_dict = {
-        "4x4_50": cv.aruco.DICT_4X4_50,
-        "4x4_100": cv.aruco.DICT_4X4_100,
-        "4x4_250": cv.aruco.DICT_4X4_250,
-        "4x4_1000": cv.aruco.DICT_4X4_1000,
-        "5x5_50": cv.aruco.DICT_5X5_50,
-        "5x5_100": cv.aruco.DICT_5X5_100,
-        "5x5_250": cv.aruco.DICT_5X5_250,
-        "5x5_1000": cv.aruco.DICT_5X5_1000,
-        "6x6_50": cv.aruco.DICT_6X6_50,
-        "6x6_100": cv.aruco.DICT_6X6_100,
-        "6x6_250": cv.aruco.DICT_6X6_250,
-        "6x6_1000": cv.aruco.DICT_6X6_1000,
-        "7x7_50": cv.aruco.DICT_7X7_50,
-        "7x7_100": cv.aruco.DICT_7X7_100,
-        "7x7_250": cv.aruco.DICT_7X7_250,
-        "7x7_1000": cv.aruco.DICT_7X7_1000,
-        "original": cv.aruco.DICT_ARUCO_ORIGINAL,
-        "16h5": cv.aruco.DICT_APRILTAG_16h5,
-        "25h9": cv.aruco.DICT_APRILTAG_25h9,
-        "36h10": cv.aruco.DICT_APRILTAG_36h10,
-        "36h11": cv.aruco.DICT_APRILTAG_36h11,
+        "4x4_50": cv2.aruco.DICT_4X4_50,
+        "4x4_100": cv2.aruco.DICT_4X4_100,
+        "4x4_250": cv2.aruco.DICT_4X4_250,
+        "4x4_1000": cv2.aruco.DICT_4X4_1000,
+        "5x5_50": cv2.aruco.DICT_5X5_50,
+        "5x5_100": cv2.aruco.DICT_5X5_100,
+        "5x5_250": cv2.aruco.DICT_5X5_250,
+        "5x5_1000": cv2.aruco.DICT_5X5_1000,
+        "6x6_50": cv2.aruco.DICT_6X6_50,
+        "6x6_100": cv2.aruco.DICT_6X6_100,
+        "6x6_250": cv2.aruco.DICT_6X6_250,
+        "6x6_1000": cv2.aruco.DICT_6X6_1000,
+        "7x7_50": cv2.aruco.DICT_7X7_50,
+        "7x7_100": cv2.aruco.DICT_7X7_100,
+        "7x7_250": cv2.aruco.DICT_7X7_250,
+        "7x7_1000": cv2.aruco.DICT_7X7_1000,
+        "original": cv2.aruco.DICT_ARUCO_ORIGINAL,
+        "16h5": cv2.aruco.DICT_APRILTAG_16h5,
+        "25h9": cv2.aruco.DICT_APRILTAG_25h9,
+        "36h10": cv2.aruco.DICT_APRILTAG_36h10,
+        "36h11": cv2.aruco.DICT_APRILTAG_36h11,
     }
     if isinstance(dict, str):
-        return cv.aruco.getPredefinedDictionary(dict=tag_dict[dict])
+        return cv2.aruco.getPredefinedDictionary(dict=tag_dict[dict])
     else:
         return dict
 
@@ -127,7 +127,7 @@ class ImageFiducialsMixin(_ImageBase if TYPE_CHECKING else object):
         """
 
         dictionary = _fiducial_dict(dict)
-        cornerss, ids, _ = cv.aruco.detectMarkers(
+        cornerss, ids, _ = cv2.aruco.detectMarkers(
             image=self.mono()._A, dictionary=dictionary
         )
 
@@ -140,7 +140,7 @@ class ImageFiducialsMixin(_ImageBase if TYPE_CHECKING else object):
         if ids is None or len(ids) == 0:
             return fiducials  # no markers found
         if K is not None and side is not None:
-            rvecs, tvecs, p3d = cv.aruco.estimatePoseSingleMarkers(
+            rvecs, tvecs, p3d = cv2.aruco.estimatePoseSingleMarkers(
                 corners=cornerss, markerLength=side, cameraMatrix=K, distCoeffs=None
             )
             for id, rvec, tvec, corners in zip(ids, rvecs, tvecs, cornerss):
@@ -260,7 +260,7 @@ class Fiducial:
         """
         if not image.isbgr:
             raise ValueError("image must have BGR color order")
-        cv.drawFrameAxes(
+        cv2.drawFrameAxes(
             image=image._A,
             cameraMatrix=self.K,
             distCoeffs=np.array([]),
@@ -292,7 +292,7 @@ class Fiducial:
         """
         from machinevisiontoolbox import Image
 
-        img = cv.aruco.generateImageMarker(
+        img = cv2.aruco.generateImageMarker(
             dictionary=_fiducial_dict(dict), id=id, sidePixels=sidelength
         )
         return Image(img)
@@ -369,12 +369,12 @@ class FiducialCollection:
         # find the markers in the image
         #  cornnerss is a list of (1,4,2) shaped arrays, each holding the corners of a marker
         #  ids is an (N,1) shaped array of marker ID
-        arucoParams = cv.aruco.DetectorParameters()
+        arucoParams = cv2.aruco.DetectorParameters()
         refine_dict = {
-            "none": cv.aruco.CORNER_REFINE_NONE,
-            "subpix": cv.aruco.CORNER_REFINE_SUBPIX,
-            "contour": cv.aruco.CORNER_REFINE_CONTOUR,
-            "apriltag": cv.aruco.CORNER_REFINE_APRILTAG,
+            "none": cv2.aruco.CORNER_REFINE_NONE,
+            "subpix": cv2.aruco.CORNER_REFINE_SUBPIX,
+            "contour": cv2.aruco.CORNER_REFINE_CONTOUR,
+            "apriltag": cv2.aruco.CORNER_REFINE_APRILTAG,
         }
         if params is not None:
             for key, item in params.items():
@@ -383,7 +383,7 @@ class FiducialCollection:
                         item = refine_dict[item]
                     setattr(arucoParams, key, item)
 
-        cornerss, ids, rejected = cv.aruco.detectMarkers(
+        cornerss, ids, rejected = cv2.aruco.detectMarkers(
             image=image.mono()._A, dictionary=self._dict, parameters=arucoParams
         )
 
@@ -409,12 +409,12 @@ class FiducialCollection:
         # where N is the total number of corners found
 
         # solve for camera pose
-        retval, rvec, tvec = cv.solvePnP(
+        retval, rvec, tvec = cv2.solvePnP(
             objectPoints=objPoints,
             imagePoints=imgPoints,
             cameraMatrix=camera.K,
             distCoeffs=camera.distortion,
-            flags=cv.SOLVEPNP_ITERATIVE,
+            flags=cv2.SOLVEPNP_ITERATIVE,
         )
 
         if not retval:
@@ -431,7 +431,7 @@ class FiducialCollection:
             residuals: np.ndarray
 
         # compute the reprojection error
-        reprojection, _ = cv.projectPoints(
+        reprojection, _ = cv2.projectPoints(
             objectPoints=objPoints,
             rvec=rvec,
             tvec=tvec,
@@ -504,7 +504,7 @@ class FiducialCollection:
         """
         if not image.isbgr:
             raise ValueError("image must have BGR color order")
-        cv.drawFrameAxes(
+        cv2.drawFrameAxes(
             image=image._A,
             cameraMatrix=camera.K,
             distCoeffs=camera.distortion,
@@ -569,7 +569,7 @@ class ArUcoBoard(FiducialCollection):
         self._sidelength = sidelength
         self._separation = separation
 
-        self._board = cv.aruco.GridBoard(
+        self._board = cv2.aruco.GridBoard(
             size=layout,
             markerLength=sidelength,
             markerSeparation=separation,

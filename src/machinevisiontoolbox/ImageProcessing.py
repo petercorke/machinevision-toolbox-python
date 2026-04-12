@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Callable
 from warnings import warn
 
-import cv2 as cv
+import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -86,7 +86,7 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
             if self.nplanes == 1:  # type: ignore[attr-defined]
                 image = np.dstack((image,) * lut.shape[2])
 
-        out = cv.LUT(src=image, lut=lut)
+        out = cv2.LUT(src=image, lut=lut)
         if colororder is None:
             colororder = self.colororder  # type: ignore[attr-defined]
 
@@ -314,7 +314,7 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
         :seealso: `cv2.equalizeHist <https://docs.opencv.org/4.x/d6/dc7/group__imgproc__hist.html#ga7e54091f0c937d49bf84152a16f76d6e>`_
         """
         self._opencv_type_check(self._A, "single-channel", "CV_8U")
-        out = cv.equalizeHist(src=self.array_as("uint8"))
+        out = cv2.equalizeHist(src=self.array_as("uint8"))
         return self.__class__(self.like(out))
 
     def stretch(
@@ -798,16 +798,16 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
             h = (blocksize - 1) // 2
 
         method_dict = {
-            "mean": cv.ADAPTIVE_THRESH_MEAN_C,
-            "gaussian": cv.ADAPTIVE_THRESH_GAUSSIAN_C,
+            "mean": cv2.ADAPTIVE_THRESH_MEAN_C,
+            "gaussian": cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
         }
         adaptive_method = method_dict[method.lower()]
 
-        out = cv.adaptiveThreshold(
+        out = cv2.adaptiveThreshold(
             src=im,
             maxValue=255,
             adaptiveMethod=adaptive_method,
-            thresholdType=cv.THRESH_BINARY,
+            thresholdType=cv2.THRESH_BINARY,
             blockSize=h * 2 + 1,
             C=C,
         )
@@ -1031,9 +1031,9 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
         if dtype is None:
             dtype = -1
         elif dtype in ("float", "float32"):
-            dtype = cv.CV_32F
+            dtype = cv2.CV_32F
         elif dtype in ("double", "float64"):
-            dtype = cv.CV_64F
+            dtype = cv2.CV_64F
         else:
             raise ValueError("dtype must be 'float', 'double', 'float32', or 'float64'")
 
@@ -1042,7 +1042,7 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
         self._opencv_type_check(
             self._A, "multiple-channel", "CV_8U", "CV_16U", "CV_16S", "CV_32F", "CV_64F"
         )
-        out = cv.addWeighted(
+        out = cv2.addWeighted(
             src1=self._A,
             alpha=alpha,
             src2=image2._A,
@@ -1156,10 +1156,10 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
                 im1 = np.repeat(np.atleast_3d(im1), im2.shape[2], axis=2)
 
         ones = np.ones_like(mask, dtype=np.uint8)
-        m = cv.bitwise_and(src1=mask, src2=ones)
-        m_not = cv.bitwise_xor(src1=mask, src2=ones)
+        m = cv2.bitwise_and(src1=mask, src2=ones)
+        m_not = cv2.bitwise_xor(src1=mask, src2=ones)
 
-        out = cv.bitwise_and(src1=im1, src2=im1, mask=m_not) + cv.bitwise_and(
+        out = cv2.bitwise_and(src1=im1, src2=im1, mask=m_not) + cv2.bitwise_and(
             src1=im2, src2=im2, mask=mask
         )
 
@@ -1333,23 +1333,23 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
             bg_set = (bg > 0).astype(np.uint8)
 
             # blend is valid
-            blend_mask = cv.bitwise_and(src1=fg_set, src2=bg_set)
+            blend_mask = cv2.bitwise_and(src1=fg_set, src2=bg_set)
 
             # only fg is valid
-            fg_mask = cv.bitwise_and(
-                src1=fg_set, src2=cv.bitwise_xor(src1=bg_set, src2=1)
+            fg_mask = cv2.bitwise_and(
+                src1=fg_set, src2=cv2.bitwise_xor(src1=bg_set, src2=1)
             )
 
             # only bg is valid
-            bg_mask = cv.bitwise_and(
-                src1=cv.bitwise_xor(src1=fg_set, src2=1), src2=bg_set
+            bg_mask = cv2.bitwise_and(
+                src1=cv2.bitwise_xor(src1=fg_set, src2=1), src2=bg_set
             )
 
             # merge them
             out = (
-                cv.bitwise_and(src1=blend, src2=blend, mask=blend_mask)
-                + cv.bitwise_and(src1=bg, src2=bg, mask=bg_mask)
-                + cv.bitwise_and(src1=fg, src2=fg, mask=fg_mask)
+                cv2.bitwise_and(src1=blend, src2=blend, mask=blend_mask)
+                + cv2.bitwise_and(src1=bg, src2=bg, mask=bg_mask)
+                + cv2.bitwise_and(src1=fg, src2=fg, mask=fg_mask)
             )
             o[top : top + ph, left : left + pw] = out
 

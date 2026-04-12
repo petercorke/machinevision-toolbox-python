@@ -10,7 +10,7 @@ import webbrowser
 from collections import UserList, namedtuple
 from typing import Any
 
-import cv2 as cv
+import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy as sp
@@ -279,10 +279,10 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         image = image.mono()
 
         # get all the contours
-        contours, hierarchy = cv.findContours(
+        contours, hierarchy = cv2.findContours(
             image=(image._A > 0).astype(np.uint8),
-            mode=cv.RETR_TREE,
-            method=cv.CHAIN_APPROX_NONE,
+            mode=cv2.RETR_TREE,
+            method=cv2.CHAIN_APPROX_NONE,
         )
 
         if len(contours) == 0:
@@ -315,7 +315,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             blob.id = i
 
             ## bounding box: umin, vmin, width, height
-            u1, v1, w, h = cv.boundingRect(array=contour)
+            u1, v1, w, h = cv2.boundingRect(array=contour)
             u2 = u1 + w - 1
             v2 = v1 + h - 1
             blob.bbox = np.r_[u1, u2, v1, v2]
@@ -343,14 +343,14 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             ## perimeter, the contour is not closed
 
             blob.perimeter = contour.T
-            blob.perimeter_length = cv.arcLength(curve=contour, closed=False)
+            blob.perimeter_length = cv2.arcLength(curve=contour, closed=False)
 
             blob.contourpoint = blob.perimeter[:, 0]
 
             ## moments
 
             # get moments as a dictionary for each contour
-            moments = cv.moments(array=contour, binaryImage=binaryImage)
+            moments = cv2.moments(array=contour, binaryImage=binaryImage)
 
             ## For a single set pixel OpenCV returns all moments as zero, let's fix it
             if moments["m00"] == 0:
@@ -1523,7 +1523,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         """
         perimeters = []
         for b in self.data:
-            perimeter = cv.approxPolyDP(
+            perimeter = cv2.approxPolyDP(
                 curve=b.perimeter.T, epsilon=epsilon, closed=False
             )
             # result is Nx1x2
@@ -1587,7 +1587,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         """
         perimeters = []
         for b in self.data:
-            perimeter = cv.convexHull(
+            perimeter = cv2.convexHull(
                 points=self.perimeter.T, returnPoints=True, clockwise=clockwise
             )
             perimeters.append(np.squeeze(perimeter).T)
@@ -1628,7 +1628,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         """
         mecs = []
         for b in self.data:
-            uv, r = cv.minEnclosingCircle(b.perimeter.T)
+            uv, r = cv2.minEnclosingCircle(b.perimeter.T)
             mecs.append(np.array([*uv, r]))
         return mecs
 
@@ -1666,7 +1666,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         """
         mers = []
         for b in self.data:
-            uv, wh, theta = cv.minAreaRect(b.perimeter.T)
+            uv, wh, theta = cv2.minAreaRect(b.perimeter.T)
             mers.append(np.array([*uv, *wh, theta]))
         return mers
 
@@ -2280,7 +2280,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         labels = np.zeros(image.shape[:2], dtype=np.uint8)
         for i in range(len(self)):
             # TODO figure out how to draw alpha/transparencies?
-            cv.drawContours(
+            cv2.drawContours(
                 image=labels,
                 contours=self._contours_raw,
                 contourIdx=i,

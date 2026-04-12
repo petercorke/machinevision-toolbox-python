@@ -11,7 +11,7 @@ try:
 except ImportError:
     from typing_extensions import Self
 
-import cv2 as cv
+import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy as sp
@@ -26,12 +26,12 @@ if TYPE_CHECKING:
     from machinevisiontoolbox._image_typing import _ImageBase
 
 _interp_dict = {
-    "nearest": cv.INTER_NEAREST,  # nearest neighbor interpolation
-    "linear": cv.INTER_LINEAR,  # bilinear interpolation
-    "cubic": cv.INTER_CUBIC,  # bicubic interpolation
-    "area": cv.INTER_AREA,  # esampling using pixel area relation. It may be a preferred method for image decimation, as it gives moire'-free results. But when the image is zoomed, it is similar to the INTER_NEAREST method.
-    "Lanczos": cv.INTER_LANCZOS4,  # Lanczos interpolation over 8x8 neighborhood
-    "linear exact": cv.INTER_LINEAR_EXACT,  # Bit exact bilinear interpolation
+    "nearest": cv2.INTER_NEAREST,  # nearest neighbor interpolation
+    "linear": cv2.INTER_LINEAR,  # bilinear interpolation
+    "cubic": cv2.INTER_CUBIC,  # bicubic interpolation
+    "area": cv2.INTER_AREA,  # esampling using pixel area relation. It may be a preferred method for image decimation, as it gives moire'-free results. But when the image is zoomed, it is similar to the INTER_NEAREST method.
+    "Lanczos": cv2.INTER_LANCZOS4,  # Lanczos interpolation over 8x8 neighborhood
+    "linear exact": cv2.INTER_LINEAR_EXACT,  # Bit exact bilinear interpolation
 }
 
 
@@ -853,16 +853,16 @@ class ImageReshapeMixin(_ImageBase if TYPE_CHECKING else object):
 
         if interpolation is None:
             if sfactor > 1:
-                interpolation = cv.INTER_CUBIC
+                interpolation = cv2.INTER_CUBIC
             else:
-                interpolation = cv.INTER_CUBIC
+                interpolation = cv2.INTER_CUBIC
         elif isinstance(interpolation, str):
             if interpolation == "cubic":
-                interpolation = cv.INTER_CUBIC
+                interpolation = cv2.INTER_CUBIC
             elif interpolation == "linear":
-                interpolation = cv.INTER_LINEAR
+                interpolation = cv2.INTER_LINEAR
             elif interpolation == "area":
-                interpolation = cv.INTER_AREA
+                interpolation = cv2.INTER_AREA
             else:
                 raise ValueError("bad interpolation string")
         else:
@@ -875,7 +875,7 @@ class ImageReshapeMixin(_ImageBase if TYPE_CHECKING else object):
             if sigma > 0:
                 im = self.smooth(sigma)
 
-        out = cv.resize(
+        out = cv2.resize(
             src=im._A,
             dsize=None,
             fx=sfactor,
@@ -916,7 +916,7 @@ class ImageReshapeMixin(_ImageBase if TYPE_CHECKING else object):
               undefined.
 
         """
-        # TODO note that there is cv.getRotationMatrix2D and cv.warpAffine
+        # TODO note that there is cv2.getRotationMatrix2D and cv2.warpAffine
         # https://appdividend.com/2020/09/24/how-to-rotate-an-image-in-python-
         # using-opencv/
 
@@ -933,9 +933,9 @@ class ImageReshapeMixin(_ImageBase if TYPE_CHECKING else object):
 
         shape = (self.width, self.height)
 
-        M = cv.getRotationMatrix2D(center=centre, angle=np.degrees(angle), scale=1.0)
+        M = cv2.getRotationMatrix2D(center=centre, angle=np.degrees(angle), scale=1.0)
 
-        out = cv.warpAffine(src=self._A, M=M, dsize=shape)
+        out = cv2.warpAffine(src=self._A, M=M, dsize=shape)
         return self.__class__(out, colororder=self.colororder)
 
     def rotate_spherical(self, R: Any) -> Self:
@@ -1057,11 +1057,11 @@ class ImageReshapeMixin(_ImageBase if TYPE_CHECKING else object):
             U = (U - umin) / (umax - umin) * self._A.shape[1]
             V = (V - vmin) / (vmax - vmin) * self._A.shape[0]
 
-        img = cv.remap(
+        img = cv2.remap(
             src=self._A,
             map1=U.astype("float32"),
             map2=V.astype("float32"),
-            interpolation=cv.INTER_LINEAR,
+            interpolation=cv2.INTER_LINEAR,
         )
         return self.__class__(img, colororder=self.colororder, domain=domain)
 
@@ -1177,9 +1177,9 @@ class ImageReshapeMixin(_ImageBase if TYPE_CHECKING else object):
 
         :seealso: :meth:`warp` `opencv.warpAffine <https://docs.opencv.org/4.x/da/d54/group__imgproc__transform.html#ga0203d9ee5fcd28d40dbc4a1ea4451983>`_
         """
-        flags = cv.INTER_CUBIC
+        flags = cv2.INTER_CUBIC
         if inverse:
-            flags |= cv.WARP_INVERSE_MAP
+            flags |= cv2.WARP_INVERSE_MAP
 
         # TODO interpolation flags
 
@@ -1187,7 +1187,7 @@ class ImageReshapeMixin(_ImageBase if TYPE_CHECKING else object):
             size = self.size
 
         if bgcolor is not None:
-            bordermode = cv.BORDER_CONSTANT
+            bordermode = cv2.BORDER_CONSTANT
             bordervalue = [
                 bgcolor,
             ] * self.nplanes
@@ -1196,14 +1196,14 @@ class ImageReshapeMixin(_ImageBase if TYPE_CHECKING else object):
             bordervalue = None
 
         if bgcolor is None and dst is not None:
-            bordermode = cv.BORDER_TRANSPARENT
+            bordermode = cv2.BORDER_TRANSPARENT
             size = dst.size
             dst = dst._A
 
         if isinstance(M, SE2):
             M = M.A
 
-        out = cv.warpAffine(
+        out = cv2.warpAffine(
             src=self._A,
             M=M[:2, :],
             dsize=size,
@@ -1280,16 +1280,16 @@ class ImageReshapeMixin(_ImageBase if TYPE_CHECKING else object):
             size = br - tl
             H = smb.transl2(-tl) @ H
 
-        warp_dict = {"linear": cv.INTER_LINEAR, "nearest": cv.INTER_NEAREST}
+        warp_dict = {"linear": cv2.INTER_LINEAR, "nearest": cv2.INTER_NEAREST}
         flags = warp_dict[method]
         if inverse:
-            flags |= cv.WARP_INVERSE_MAP
+            flags |= cv2.WARP_INVERSE_MAP
 
         if background is None:
             border = {}
         else:
-            border = {"borderMode": cv.BORDER_CONSTANT, "borderValue": background}
-        out = cv.warpPerspective(
+            border = {"borderMode": cv2.BORDER_CONSTANT, "borderValue": background}
+        out = cv2.warpPerspective(
             src=self._A, M=H, dsize=tuple(size), flags=flags, **border
         )
 
@@ -1329,7 +1329,7 @@ class ImageReshapeMixin(_ImageBase if TYPE_CHECKING else object):
 
         :seealso: :meth:`~machinevisiontoolbox.CentralCamera.images2C` `opencv.undistort <https://docs.opencv.org/4.x/da/d54/group__imgproc__transform.html#ga69f2545a8b62a6b0fc2ee060dc30559d>`_
         """
-        undistorted = cv.undistort(src=self._A, cameraMatrix=K, distCoeffs=dist)
+        undistorted = cv2.undistort(src=self._A, cameraMatrix=K, distCoeffs=dist)
         return self.__class__(undistorted, colororder=self.colororder)
 
     # ------------------------- operators ------------------------------ #

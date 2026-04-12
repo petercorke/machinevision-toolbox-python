@@ -10,7 +10,7 @@ from collections import namedtuple
 from math import cos, pi, sin, sqrt, tan
 from typing import TYPE_CHECKING, Any, Callable
 
-import cv2 as cv
+import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy
@@ -2183,7 +2183,7 @@ class CentralCamera(CameraBase):
         :seealso: :meth:`C` :meth:`points2C` :meth:`decomposeC` :class:`~spatialmath..pose3d.SE3`
         """
 
-        criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 30, 0.001)
+        criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
         # create set of feature points, like (0,0,0), (1,0,0), (2,0,0) ....,(6,5,0)
         # these all have Z=0 since they are relative to the calibration target frame
         objp = np.zeros((gridshape[0] * gridshape[1], 3), np.float32)
@@ -2200,13 +2200,13 @@ class CentralCamera(CameraBase):
         for i, image in enumerate(images):
             gray = image.mono()._A
             # Find the chess board corners
-            ret, corners = cv.findChessboardCorners(
+            ret, corners = cv2.findChessboardCorners(
                 image=gray, patternSize=gridshape, corners=None
             )
             # If found, add object points, image points (after refining them)
             if ret:
                 objpoints.append(objp)
-                corners2 = cv.cornerSubPix(
+                corners2 = cv2.cornerSubPix(
                     image=gray,
                     corners=corners,
                     winSize=(11, 11),
@@ -2219,7 +2219,7 @@ class CentralCamera(CameraBase):
                 if not image.iscolor:
                     image = image.colorize()
                 corner_images.append(
-                    cv.drawChessboardCorners(
+                    cv2.drawChessboardCorners(
                         image=image._A,
                         patternSize=gridshape,
                         corners=corners2,
@@ -2228,7 +2228,7 @@ class CentralCamera(CameraBase):
                 )
                 valid.append(i)
 
-        ret, C, distortion, rvecs, tvecs = cv.calibrateCamera(  # type: ignore[call-overload]
+        ret, C, distortion, rvecs, tvecs = cv2.calibrateCamera(  # type: ignore[call-overload]
             objectPoints=objpoints,
             imagePoints=imgpoints,
             imageSize=gray.shape[::-1],
@@ -2459,14 +2459,14 @@ class CentralCamera(CameraBase):
 
         points2H_dict = {
             "leastsquares": 0,
-            "ransac": cv.RANSAC,
-            "lmeds": cv.LMEDS,
-            "prosac": cv.RHO,
+            "ransac": cv2.RANSAC,
+            "lmeds": cv2.LMEDS,
+            "prosac": cv2.RHO,
         }
         if seed is not None:
-            cv.setRNGSeed(seed)
+            cv2.setRNGSeed(seed)
 
-        H, mask = cv.findHomography(
+        H, mask = cv2.findHomography(
             srcPoints=p1.T, dstPoints=p2.T, method=points2H_dict[method], **kwargs
         )
 
@@ -2521,7 +2521,7 @@ class CentralCamera(CameraBase):
             `opencv.decomposeHomographyMat <https://docs.opencv.org/4.x/d9/d0c/group__calib3d.html#ga7f60bdff78833d1e3fd6d9d0fd538d92>`_
         """
 
-        retval, rotations, translations, normals = cv.decomposeHomographyMat(
+        retval, rotations, translations, normals = cv2.decomposeHomographyMat(
             H=H, K=self.K
         )
 
@@ -2672,16 +2672,16 @@ class CentralCamera(CameraBase):
         """
 
         points2F_dict = {
-            "7p": cv.FM_7POINT,
-            "8p": cv.FM_8POINT,
-            "ransac": cv.FM_RANSAC,
-            "lmeds": cv.FM_LMEDS,
+            "7p": cv2.FM_7POINT,
+            "8p": cv2.FM_8POINT,
+            "ransac": cv2.FM_RANSAC,
+            "lmeds": cv2.FM_LMEDS,
         }
 
         if seed is not None:
-            cv.setRNGSeed(seed)
+            cv2.setRNGSeed(seed)
 
-        F, mask = cv.findFundamentalMat(
+        F, mask = cv2.findFundamentalMat(
             points1=p1.T, points2=p2.T, method=points2F_dict[method], **kwargs
         )
 
@@ -2838,13 +2838,13 @@ class CentralCamera(CameraBase):
         if K is None:
             K = self.K
 
-        _points2E_dict = {"ransac": cv.RANSAC, "lmeds": cv.LMEDS}
+        _points2E_dict = {"ransac": cv2.RANSAC, "lmeds": cv2.LMEDS}
         if method is not None:
             method_int = _points2E_dict[method]
         else:
             method_int = None
 
-        E, mask = cv.findEssentialMat(
+        E, mask = cv2.findEssentialMat(
             points1=p1.T, points2=p2.T, cameraMatrix=K, method=method_int, **kwargs  # type: ignore[arg-type]
         )
         if mask is not None:
@@ -2884,7 +2884,7 @@ class CentralCamera(CameraBase):
             # passed a Match object
             match = P
 
-            retval, R, t, mask = cv.recoverPose(
+            retval, R, t, mask = cv2.recoverPose(
                 E=E,
                 points1=match.p1.T,
                 points2=match.p2.T,
@@ -2896,7 +2896,7 @@ class CentralCamera(CameraBase):
             return SE3.Rt(R, t).inv()
 
         else:
-            R1, R2, t = cv.decomposeEssentialMat(E=E)
+            R1, R2, t = cv2.decomposeEssentialMat(E=E)
             # not explicitly stated, but seems that this returns (R, t) from
             # camera to world
 
@@ -3396,12 +3396,12 @@ class CentralCamera(CameraBase):
         """
 
         method_dict = {
-            "iterative": cv.SOLVEPNP_ITERATIVE,
-            "epnp": cv.SOLVEPNP_EPNP,
-            "p3p": cv.SOLVEPNP_P3P,
-            "ap3p": cv.SOLVEPNP_AP3P,
-            "ippe": cv.SOLVEPNP_IPPE,
-            "ippe-square": cv.SOLVEPNP_IPPE_SQUARE,
+            "iterative": cv2.SOLVEPNP_ITERATIVE,
+            "epnp": cv2.SOLVEPNP_EPNP,
+            "p3p": cv2.SOLVEPNP_P3P,
+            "ap3p": cv2.SOLVEPNP_AP3P,
+            "ippe": cv2.SOLVEPNP_IPPE,
+            "ippe-square": cv2.SOLVEPNP_IPPE_SQUARE,
         }
 
         # as per the Note on solvePnP page
@@ -3410,7 +3410,7 @@ class CentralCamera(CameraBase):
         p = np.ascontiguousarray(p[:2, :].T).reshape((n, 1, 2))
 
         # do the pose estimation
-        sol = cv.solvePnP(
+        sol = cv2.solvePnP(
             objectPoints=P.T,
             imagePoints=p,
             cameraMatrix=self.K,

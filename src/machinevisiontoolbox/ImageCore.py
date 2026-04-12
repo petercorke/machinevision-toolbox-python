@@ -13,7 +13,7 @@ from collections.abc import Iterator, Sequence
 from math import nan
 from pathlib import Path
 
-import cv2 as cv
+import cv2
 import numpy as np
 import spatialmath.base as smb
 from spatialmath import Polygon2

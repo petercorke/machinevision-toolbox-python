@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from typing import Self
     from machinevisiontoolbox._image_typing import _ImageBase
 
-import cv2 as cv
+import cv2
 import numpy as np
 from spatialmath import Polygon2
 from spatialmath import base as smb
@@ -998,7 +998,7 @@ class ImageConstantsMixin(_ImageBase if TYPE_CHECKING else object):
             >>> img = Image.Polygons([p1, p2], size=50)
             >>> img
 
-        :seealso: :meth:`sm.Polygon2` :meth:`cv.fillPoly`
+        :seealso: :meth:`sm.Polygon2` :meth:`cv2.fillPoly`
         """
         if isinstance(polygons, Polygon2):
             polygons = [polygons]
@@ -1029,7 +1029,7 @@ class ImageConstantsMixin(_ImageBase if TYPE_CHECKING else object):
             vertices = (
                 np.round(polygon.vertices()).astype("int32").T.reshape(-1, 1, 2)
             )  # Nx1x2
-            cv.fillPoly(img=im, pts=[vertices], color=color, shift=shift)
+            cv2.fillPoly(img=im, pts=[vertices], color=color, shift=shift)
 
         return _pattern_image(cls, im, colororder)
 

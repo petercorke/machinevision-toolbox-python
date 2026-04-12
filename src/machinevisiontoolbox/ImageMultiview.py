@@ -7,7 +7,7 @@ from __future__ import annotations
 import sys
 from typing import TYPE_CHECKING, Any
 
-import cv2 as cv
+import cv2
 import numpy as np
 from spatialmath.base import argcheck, e2h, getvector, h2e, transl2
 
@@ -290,7 +290,7 @@ class ImageMultiviewMixin(_ImageBase if TYPE_CHECKING else object):
         ndisparities = int(np.ceil(ndisparities // 16) * 16)
 
         # create the stereo matcher
-        stereo = cv.StereoBM_create(numDisparities=ndisparities, blockSize=2 * hw + 1)  # type: ignore[attr-defined]
+        stereo = cv2.StereoBM_create(numDisparities=ndisparities, blockSize=2 * hw + 1)  # type: ignore[attr-defined]
         stereo.setMinDisparity(drange[0])
 
         left_arr = self.mono()._A.astype(np.uint8)
@@ -374,7 +374,7 @@ class ImageMultiviewMixin(_ImageBase if TYPE_CHECKING else object):
         ndisparities = int(np.ceil(ndisparities // 16) * 16)
 
         # create the stereo matcher
-        stereo = cv.StereoSGBM_create(  # type: ignore[attr-defined]
+        stereo = cv2.StereoSGBM_create(  # type: ignore[attr-defined]
             minDisparity=drange[0], numDisparities=ndisparities, blockSize=2 * hw + 1
         )
 
@@ -394,7 +394,7 @@ class ImageMultiviewMixin(_ImageBase if TYPE_CHECKING else object):
 
     # def line(self, start, end, color):
     # should be draw_line
-    #     return self.__class__(cv.line(self.image, start, end, color))
+    #     return self.__class__(cv2.line(self.image, start, end, color))
 
     def rectify_homographies(
         self, m: Any, F: np.ndarray
@@ -434,7 +434,7 @@ class ImageMultiviewMixin(_ImageBase if TYPE_CHECKING else object):
 
         :seealso: :meth:`warp_perspective` :class:`Match` `opencv.stereoRectifyUncalibrated <https://docs.opencv.org/4.x/d9/d0c/group__calib3d.html#gaadc5b14471ddc004939471339294f052>`_
         """
-        retval, H1, H2 = cv.stereoRectifyUncalibrated(
+        retval, H1, H2 = cv2.stereoRectifyUncalibrated(
             points1=m.inliers.p1.T, points2=m.inliers.p2.T, F=F, imgSize=self.size
         )
         return H1, H2

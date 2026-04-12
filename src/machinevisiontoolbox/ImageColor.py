@@ -7,7 +7,7 @@ from __future__ import annotations
 import sys
 from typing import TYPE_CHECKING
 
-import cv2 as cv
+import cv2
 import numpy as np
 import spatialmath.base.argcheck as argcheck
 
@@ -265,20 +265,20 @@ class ImageColorMixin(_ImageBase if TYPE_CHECKING else object):
         # colorspace can be RGB, rg, Lab, ab
 
         if seed is not None:
-            cv.setRNGSeed(seed)
+            cv2.setRNGSeed(seed)
 
         data = self.array_as("float32").reshape((-1, self.nplanes))
-        criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 10, 1.0)
+        criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
 
         if k is not None:
             # perform clustering
-            ret, label, centres = cv.kmeans(  # type: ignore[call-overload]
+            ret, label, centres = cv2.kmeans(  # type: ignore[call-overload]
                 data=data,
                 K=k,
                 bestLabels=None,  # type: ignore[arg-type]
                 criteria=criteria,
                 attempts=10,
-                flags=cv.KMEANS_RANDOM_CENTERS,
+                flags=cv2.KMEANS_RANDOM_CENTERS,
             )
             return self.__class__(label.reshape(self.shape[:2])), centres.T, ret
 
@@ -346,7 +346,7 @@ class ImageColorMixin(_ImageBase if TYPE_CHECKING else object):
 
         # TODO conv string parsing
 
-        # ensure floats? unsure if cv.cvtColor operates on ints
+        # ensure floats? unsure if cv2.cvtColor operates on ints
         # imf = self.to_float()
 
         if src is None:

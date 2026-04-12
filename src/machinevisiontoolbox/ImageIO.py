@@ -18,7 +18,7 @@ else:
 
 import PIL.Image
 from PIL.ExifTags import TAGS
-import cv2 as cv
+import cv2
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import numpy as np
@@ -187,7 +187,7 @@ class ImageIOMixin(_ImageBase if TYPE_CHECKING else object):
         :seealso: :func:`~machinevisiontoolbox.base.iwrite` `cv2.imwrite <https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html#gabbc7ef1aa2edfaa87772f1202d67e0ce>`_
         """
 
-        # cv.imwrite can only save 8-bit single channel or 3-channel BGR images
+        # cv2.imwrite can only save 8-bit single channel or 3-channel BGR images
         # with several specific exceptions
         # https://docs.opencv.org/4.4.0/d4/da8/group__imgcodecs.html
         # #gabbc7ef1aa2edfaa87772f1202d67e0ce

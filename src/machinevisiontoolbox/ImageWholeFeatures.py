@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Literal
 
-import cv2 as cv
+import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy as sp
@@ -630,7 +630,7 @@ class ImageWholeFeaturesMixin(_ImageBase if TYPE_CHECKING else object):
 
         :seealso: :meth:`mpq` :meth:`npq` :meth:`upq` `opencv.moments <https://docs.opencv.org/4.x/d8/d23/classcv_1_1Moments.html>`_
         """
-        return cv.moments(array=self.mono().to_int(), binaryImage=binary)
+        return cv2.moments(array=self.mono().to_int(), binaryImage=binary)
 
     def humoments(self) -> np.ndarray:
         """
@@ -670,8 +670,8 @@ class ImageWholeFeaturesMixin(_ImageBase if TYPE_CHECKING else object):
         self._opencv_type_check(
             self._A, "single-channel", "CV_8U", "CV_16U", "CV_16S", "CV_32F", "CV_64F"
         )
-        moments = cv.moments(array=self._A)
-        hu = cv.HuMoments(m=moments)
+        moments = cv2.moments(array=self._A)
+        hu = cv2.HuMoments(m=moments)
         return hu.flatten()
 
     # ------------------ pixel values --------------------------------- #

@@ -187,7 +187,7 @@ def make_banner(args, optional_modules=None):
     versions.append(f"NumPy=={version('numpy')}")
     versions.append(f"SciPy=={version('scipy')}")
     versions.append(f"Matplotlib=={version('matplotlib')}")
-    versions.append(f"OpenCV=={cv.__version__}")
+    versions.append(f"OpenCV=={cv2.__version__}")
     try:
         versions.append(f"Open3D=={version('open3d')}")
     except PackageNotFoundError:

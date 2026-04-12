@@ -5,7 +5,7 @@ Visual Bag of Words model for image classification and retrieval.
 from collections import Counter
 from typing import Any
 
-import cv2 as cv
+import cv2
 import numpy as np
 
 from machinevisiontoolbox.ImagePointFeatures import BaseFeature2D
@@ -94,18 +94,18 @@ class BagOfWords:
         # do the clustering
         # NO IDEA WHAT EPSILON ACTUALLY MEANS, NORM OF THE SHIFT IN CENTROIDS?
         # NO IDEA HOW TO TELL WHAT CRITERIA IT TERMINATES ON
-        criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 10, 1.0)
+        criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
 
         if seed is not None:
-            cv.setRNGSeed(seed)
+            cv2.setRNGSeed(seed)
 
-        ret, labels, centroids = cv.kmeans(
+        ret, labels, centroids = cv2.kmeans(
             data=features._descriptor,
             K=k,
             bestLabels=None,
             criteria=criteria,
             attempts=attempts,
-            flags=cv.KMEANS_RANDOM_CENTERS,
+            flags=cv2.KMEANS_RANDOM_CENTERS,
         )
 
         self._k = k
@@ -408,7 +408,7 @@ class BagOfWords:
                 # the elements of matches are:
                 #  queryIdx: new feature index
                 #  trainingIdx: cluster centre index
-                bfm = cv.BFMatcher(normType=cv.NORM_L2, crossCheck=False)
+                bfm = cv2.BFMatcher(normType=cv2.NORM_L2, crossCheck=False)
                 matches = bfm.match(features._descriptor, self._centroids)
                 words = np.array([m.trainIdx for m in matches])
 
