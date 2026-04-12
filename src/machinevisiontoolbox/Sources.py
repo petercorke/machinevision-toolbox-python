@@ -2357,6 +2357,14 @@ class ROSTopic(ImageSource):
         self.i = 0
         return self
 
+    def __len__(self) -> int:
+        """Return length of stream.
+
+        Live ROS topics are unbounded streams, so they do not have a finite
+        length.
+        """
+        raise TypeError("ROSTopic is a live stream and has no finite length")
+
     def __next__(self) -> Image | ROSMessage:
         if not self._subscribe or self._frame_event is None:
             raise TypeError("ROSTopic is publish-only (subscribe=False)")
@@ -3309,6 +3317,25 @@ class ROSBag(ImageSource):
                     yield msg
         finally:
             self._close_reader()
+
+    def __len__(self) -> int:
+        """Return number of messages that pass current filters.
+
+        If no topic or message-type filter is set, this returns the bag's
+        total message count. Otherwise, it counts messages on the filtered
+        connections.
+        """
+        was_open = self.reader is not None
+        reader = self._open_reader()
+
+        if self._topic_filter is None and self._msgfilter is None:
+            n = reader.message_count
+        else:
+            n = sum(1 for _ in reader.messages(connections=self.connections))
+
+        if not was_open:
+            self._close_reader()
+        return n
 
 
 class PointCloudSequence:

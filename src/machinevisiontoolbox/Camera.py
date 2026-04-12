@@ -1197,98 +1197,117 @@ class CameraBase(ABC):
         if pose is None:
             pose = self.pose
 
-        # draw camera-like object:
-        if shape == "frustum":
-            # TODO make this kwargs or optional inputs
-            # side colors:
-            #  +x red
-            #  -y red
-            #  +y green
-            #  -y yellow
-            length = scale
-            widthb = scale / 10
-            widtht = scale
-            widthb /= 2
-            widtht /= 2
-            b0 = np.array([-widthb, -widthb, 0, 1])
-            b1 = np.array([-widthb, widthb, 0, 1])
-            b2 = np.array([widthb, widthb, 0, 1])
-            b3 = np.array([widthb, -widthb, 0, 1])
-            t0 = np.array([-widtht, -widtht, length, 1])
-            t1 = np.array([-widtht, widtht, length, 1])
-            t2 = np.array([widtht, widtht, length, 1])
-            t3 = np.array([widtht, -widtht, length, 1])
+        # Matplotlib >=3.10 can raise while autoscaling ragged 3D line
+        # collections (eg. from cuboid/cylinder helper primitives). Disable
+        # autoscale only for these collection additions.
+        _orig_add_collection3d = ax.add_collection3d
 
-            # bottom/narrow end
-            T = pose.A
-            b0 = (T @ b0)[:-1]
-            b1 = (T @ b1)[:-1]
-            b2 = (T @ b2)[:-1]
-            b3 = (T @ b3)[:-1]
+        def _add_collection3d_compat(collection, *args, **kwargs):
+            kwargs.setdefault("autolim", False)
+            try:
+                return _orig_add_collection3d(collection, *args, **kwargs)
+            except TypeError:
+                # Older Matplotlib versions may not accept autolim.
+                kwargs.pop("autolim", None)
+                return _orig_add_collection3d(collection, *args, **kwargs)
 
-            # wide/top end
-            t0 = (T @ t0)[:-1]
-            t1 = (T @ t1)[:-1]
-            t2 = (T @ t2)[:-1]
-            t3 = (T @ t3)[:-1]
+        ax.add_collection3d = _add_collection3d_compat
 
-            # Each set of four points is a single side of the Frustum
-            # points = np.array([[b0, b1, t1, t0], [b1, b2, t2, t1], [
-            #                   b2, b3, t3, t2], [b3, b0, t0, t3]])
-            points = [
-                np.array([b0, b1, t1, t0]),  # -x face
-                np.array([b1, b2, t2, t1]),  # +y face
-                np.array([b2, b3, t3, t2]),  # +x face
-                np.array([b3, b0, t0, t3]),  # -y face
-            ]
-            poly = Poly3DCollection(
-                points, facecolors=["r", "g", "r", "y"], alpha=alpha
-            )
-            ax.add_collection3d(poly)
+        try:
+            # draw camera-like object:
+            if shape == "frustum":
+                # TODO make this kwargs or optional inputs
+                # side colors:
+                #  +x red
+                #  -y red
+                #  +y green
+                #  -y yellow
+                length = scale
+                widthb = scale / 10
+                widtht = scale
+                widthb /= 2
+                widtht /= 2
+                b0 = np.array([-widthb, -widthb, 0, 1])
+                b1 = np.array([-widthb, widthb, 0, 1])
+                b2 = np.array([widthb, widthb, 0, 1])
+                b3 = np.array([widthb, -widthb, 0, 1])
+                t0 = np.array([-widtht, -widtht, length, 1])
+                t1 = np.array([-widtht, widtht, length, 1])
+                t2 = np.array([widtht, widtht, length, 1])
+                t3 = np.array([widtht, -widtht, length, 1])
 
-        elif shape == "camera":
-            # the box is centred at the origin and its centerline parallel to the
-            # z-axis.  Its z-extent is -bh/2 to bh/2.
-            W = 0.5  # width & height of the box
-            L = 1.2  # length of the box
-            cr = 0.2  # cylinder radius
-            ch = 0.4  # cylinder height
-            cn = 12  # number of facets of cylinder
-            a = 3  # length of axis line segments
+                # bottom/narrow end
+                T = pose.A
+                b0 = (T @ b0)[:-1]
+                b1 = (T @ b1)[:-1]
+                b2 = (T @ b2)[:-1]
+                b3 = (T @ b3)[:-1]
 
-            # draw the box part of the camera
-            smb.plot_cuboid(
-                sides=np.r_[W, W, L] * scale,
-                pose=pose,  # type: ignore[arg-type]
-                filled=solid,
-                color=color,
-                alpha=0.5 * alpha if solid else alpha,
-                ax=ax,
-            )
+                # wide/top end
+                t0 = (T @ t0)[:-1]
+                t1 = (T @ t1)[:-1]
+                t2 = (T @ t2)[:-1]
+                t3 = (T @ t3)[:-1]
 
-            # draw the lens
-            smb.plot_cylinder(
-                radius=cr * scale,
-                height=np.r_[L / 2, L / 2 + ch] * scale,
-                resolution=cn,
-                pose=pose,  # type: ignore[arg-type]
-                filled=solid,
-                color=color,
-                alpha=0.5 * alpha,
-                ax=ax,
-            )
+                points = [
+                    np.array([b0, b1, t1, t0]),  # -x face
+                    np.array([b1, b2, t2, t1]),  # +y face
+                    np.array([b2, b3, t3, t2]),  # +x face
+                    np.array([b3, b0, t0, t3]),  # -y face
+                ]
+                poly = Poly3DCollection(
+                    points, facecolors=["r", "g", "r", "y"], alpha=alpha
+                )
+                ax.add_collection3d(poly)
 
-            if label:
-                ax.set_xlabel("X")
-                ax.set_ylabel("Y")
-                ax.set_zlabel("Z")
+            elif shape == "camera":
+                # the box is centred at the origin and its centerline parallel to the
+                # z-axis.  Its z-extent is -bh/2 to bh/2.
+                W = 0.5  # width & height of the box
+                L = 1.2  # length of the box
+                cr = 0.2  # cylinder radius
+                ch = 0.4  # cylinder height
+                cn = 12  # number of facets of cylinder
+                a = 3  # length of axis line segments
 
-        if frame is True:
-            self.pose.plot(
-                length=scale * 1.5, style="line", color=color, flo=(0.07, 0, -0.01)
-            )
-        elif frame is not False:
-            self.pose.plot(**frame)
+                # draw the box part of the camera
+                smb.plot_cuboid(
+                    sides=np.r_[W, W, L] * scale,
+                    pose=pose,  # type: ignore[arg-type]
+                    filled=solid,
+                    color=color,
+                    alpha=0.5 * alpha if solid else alpha,
+                    ax=ax,
+                )
+
+                # draw the lens
+                smb.plot_cylinder(
+                    radius=cr * scale,
+                    height=np.r_[L / 2, L / 2 + ch] * scale,
+                    resolution=cn,
+                    pose=pose,  # type: ignore[arg-type]
+                    filled=solid,
+                    color=color,
+                    alpha=0.5 * alpha,
+                    ax=ax,
+                )
+
+                if label:
+                    ax.set_xlabel("X")
+                    ax.set_ylabel("Y")
+                    ax.set_zlabel("Z")
+
+            if frame is True:
+                self.pose.plot(
+                    length=scale * 1.5,
+                    style="line",
+                    color=color,
+                    flo=(0.07, 0, -0.01),
+                )
+            elif frame is not False:
+                self.pose.plot(**frame)
+        finally:
+            ax.add_collection3d = _orig_add_collection3d
 
         return ax
 
