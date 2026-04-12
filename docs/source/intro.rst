@@ -163,7 +163,7 @@ or a video file, a web camera, image files in a folder or zip file.
 Rather than build this capability into the `Image` object we provide a number of
 iterator objects::
 	
-	for img in ZipArchive("holidaypix.zip"):
+	for img in FileArchive("holidaypix.zip"):
 		# process the image
 		
 

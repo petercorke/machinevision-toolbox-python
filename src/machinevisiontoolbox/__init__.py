@@ -5,8 +5,10 @@ from machinevisiontoolbox.PointCloud import PointCloud
 from machinevisiontoolbox.Sources import (
     VideoFile,
     VideoCamera,
+    FileCollection,
     ImageCollection,
     ImageSequence,
+    FileArchive,
     ZipArchive,
     EarthView,
     WebCam,
@@ -122,8 +124,10 @@ __all__ = [
     # image sources
     "VideoFile",
     "VideoCamera",
+    "FileCollection",
     "ImageCollection",
     "ImageSequence",
+    "FileArchive",
     "ZipArchive",
     "EarthView",
     "WebCam",

@@ -6,10 +6,14 @@ import contextlib
 import io
 import json
 import os
+import subprocess
+import tarfile
 import tempfile
 import unittest
+import zipfile
 from collections.abc import Iterable
 from pathlib import Path
+from unittest.mock import patch
 
 import numpy as np
 import numpy.testing as nt
@@ -29,8 +33,23 @@ try:
 except ImportError:
     _labelme_available = False
 
+try:
+    import py7zr
+
+    _py7zr_available = True
+except ImportError:
+    _py7zr_available = False
+
 # import machinevisiontoolbox as mvt
-from machinevisiontoolbox import Image, ImageCollection, ZipArchive, VideoFile
+import machinevisiontoolbox.Sources as sources
+from machinevisiontoolbox import (
+    FileArchive,
+    FileCollection,
+    Image,
+    ImageCollection,
+    VideoFile,
+    ZipArchive,
+)
 from machinevisiontoolbox.base import iread, mvtb_path_to_datafile
 
 
@@ -47,7 +66,7 @@ class TestImageSources(unittest.TestCase):
     def test_filecollection(self):
         # single str with wild card for folder of images
         # print('test_wildcardstr')
-        images = ImageCollection("campus/*.png")
+        images = FileCollection("campus/*.png")
 
         self.assertEqual(len(images), 20)
         self.assertIsInstance(images, Iterable)
@@ -61,7 +80,7 @@ class TestImageSources(unittest.TestCase):
     )
     def test_ziparchive(self):
         # zip archive with filter
-        zf = ZipArchive("bridge-l.zip")
+        zf = FileArchive("bridge-l.zip")
 
         # files are README, camera-2.dat, image, image...
         self.assertEqual(len(zf), 253)
@@ -76,7 +95,7 @@ class TestImageSources(unittest.TestCase):
             count += 1
         self.assertEqual(count, 253)
 
-        zf = ZipArchive("bridge-l.zip", filter="*.pgm")
+        zf = FileArchive("bridge-l.zip", filter="*.pgm")
         self.assertEqual(len(zf), 251)
         im = zf[0]
         self.assertIsInstance(im, Image)
@@ -119,7 +138,7 @@ class TestImageSources(unittest.TestCase):
         """ImageSequence supports next() directly and via iteration."""
         from machinevisiontoolbox import ImageSequence
 
-        images = ImageCollection("campus/*.png")
+        images = FileCollection("campus/*.png")
         seq = ImageSequence(images[:3])
         first = next(seq)
         self.assertIsInstance(first, Image)
@@ -128,9 +147,146 @@ class TestImageSources(unittest.TestCase):
     @pytest.mark.skipif(not _torch_available, reason="PyTorch not installed")
     def test_imagesource_tensor_dtype_option(self):
         """ImageSource.tensor(dtype=...) returns requested tensor dtype."""
-        images = ImageCollection("campus/*.png")
+        images = FileCollection("campus/*.png")
         t = images.tensor(normalize=None, dtype=torch.float32)
         self.assertEqual(t.dtype, torch.float32)
+
+    def test_deprecated_imagecollection_warns(self):
+        """ImageCollection alias emits FutureWarning and still works."""
+        with pytest.warns(FutureWarning, match="ImageCollection is deprecated"):
+            images = ImageCollection("campus/*.png")
+        self.assertEqual(len(images), 20)
+
+    @pytest.mark.skipif(
+        not _has_file("images", "bridge-l.zip"), reason="bridge-l.zip not available"
+    )
+    def test_deprecated_ziparchive_warns(self):
+        """ZipArchive alias emits FutureWarning and still works."""
+        with pytest.warns(FutureWarning, match="ZipArchive is deprecated"):
+            zf = ZipArchive("bridge-l.zip")
+        self.assertEqual(len(zf), 253)
+
+
+class TestZipArchiveFormats(unittest.TestCase):
+
+    @staticmethod
+    def _sample_members(tmpdir: Path) -> dict[str, bytes]:
+        pgm = b"P5\n2 2\n255\n" + bytes([0, 255, 255, 0])
+        txt = b"hello from archive\n"
+
+        (tmpdir / "frame.pgm").write_bytes(pgm)
+        (tmpdir / "README.txt").write_bytes(txt)
+
+        return {"frame.pgm": pgm, "README.txt": txt}
+
+    @staticmethod
+    def _write_zip(path: Path, members: dict[str, bytes]) -> None:
+        with zipfile.ZipFile(path, "w") as zf:
+            for name, data in members.items():
+                zf.writestr(name, data)
+
+    @staticmethod
+    def _write_tar(path: Path, mode: str, members: dict[str, bytes]) -> None:
+        with tarfile.open(path, mode) as tf:
+            for name in members:
+                tf.add(path.parent / name, arcname=name)
+
+    def _assert_archive(self, archive_path: Path) -> None:
+        zf = FileArchive(str(archive_path))
+        self.assertIn("README.txt", zf.files)
+        self.assertIn("frame.pgm", zf.files)
+
+        txt = zf[zf.files.index("README.txt")]
+        self.assertIsInstance(txt, bytes)
+        self.assertEqual(txt, b"hello from archive\n")
+
+        img = zf[zf.files.index("frame.pgm")]
+        self.assertIsInstance(img, Image)
+        self.assertEqual(img.shape, (2, 2))
+        self.assertEqual(img.dtype, "uint8")
+
+        zf_img = FileArchive(str(archive_path), filter="*.pgm")
+        self.assertEqual(len(zf_img), 1)
+        self.assertEqual(zf_img.files[0], "frame.pgm")
+        self.assertIsInstance(zf_img[0], Image)
+
+    def test_ziparchive_tar_and_zip_formats(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmpdir = Path(tmp)
+            members = self._sample_members(tmpdir)
+
+            archives: list[tuple[str, callable]] = [
+                ("sample.zip", lambda p: self._write_zip(p, members)),
+                ("sample.tar", lambda p: self._write_tar(p, "w", members)),
+                ("sample.tgz", lambda p: self._write_tar(p, "w:gz", members)),
+                ("sample.tar.bz2", lambda p: self._write_tar(p, "w:bz2", members)),
+                ("sample.tar.xz", lambda p: self._write_tar(p, "w:xz", members)),
+            ]
+
+            for name, writer in archives:
+                path = tmpdir / name
+                writer(path)
+                with self.subTest(name=name):
+                    self._assert_archive(path)
+
+    @pytest.mark.skipif(not _py7zr_available, reason="py7zr not installed")
+    def test_ziparchive_7z_format(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmpdir = Path(tmp)
+            members = self._sample_members(tmpdir)
+            archive = tmpdir / "sample.7z"
+
+            with py7zr.SevenZipFile(archive, "w") as a:
+                for name in members:
+                    a.write(tmpdir / name, arcname=name)
+
+            self._assert_archive(archive)
+
+    def test_ziparchive_rar_shellout_path(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmpdir = Path(tmp)
+            members = self._sample_members(tmpdir)
+            rar_path = tmpdir / "sample.rar"
+            rar_path.write_bytes(b"not-a-real-rar")
+
+            def _fake_which(name: str) -> str | None:
+                if name in ("unar", "lsar"):
+                    return f"/usr/bin/{name}"
+                return None
+
+            def _fake_run(cmd, **kwargs):
+                exe = Path(cmd[0]).name
+                if exe == "lsar":
+                    payload = {
+                        "lsarContents": [
+                            {"XADFileName": "README.txt", "XADIsDirectory": False},
+                            {"XADFileName": "frame.pgm", "XADIsDirectory": False},
+                        ]
+                    }
+                    return subprocess.CompletedProcess(
+                        cmd,
+                        0,
+                        stdout=json.dumps(payload),
+                        stderr="",
+                    )
+
+                if exe == "unar":
+                    outdir = Path(cmd[cmd.index("-o") + 1])
+                    name = cmd[-1]
+                    target = outdir / name
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    target.write_bytes(members[name])
+                    return subprocess.CompletedProcess(cmd, 0, stdout=b"", stderr=b"")
+
+                raise AssertionError(f"Unexpected executable {exe!r}")
+
+            with patch.object(sources, "_unar_available", True):
+                with patch.object(sources.shutil, "which", side_effect=_fake_which):
+                    with patch.object(sources.subprocess, "run", side_effect=_fake_run):
+                        zf = FileArchive(str(rar_path))
+                        self.assertEqual(zf.files, ["README.txt", "frame.pgm"])
+                        self.assertIsInstance(zf[0], bytes)
+                        self.assertIsInstance(zf[1], Image)
 
 
 @unittest.skipUnless(_torch_available, "PyTorch not installed")

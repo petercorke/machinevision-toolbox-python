@@ -462,14 +462,14 @@ class ImageReshapeMixin(_ImageBase if TYPE_CHECKING else object):
 
         .. runblock:: pycon
 
-            >>> from machinevisiontoolbox import Image, ImageCollection
-            >>> images = ImageCollection('campus/*.png')  # image iterator
+            >>> from machinevisiontoolbox import Image, FileCollection
+            >>> images = FileCollection('campus/*.png')  # image iterator
             >>> Image.Tile(images)
 
         .. plot::
 
-            from machinevisiontoolbox import Image, ImageCollection
-            images = ImageCollection('campus/*.png')  # image iterator
+            from machinevisiontoolbox import Image, FileCollection
+            images = FileCollection('campus/*.png')  # image iterator
             Image.Tile(images).disp()
 
         .. note:: All tiles must have the same size, datatype and colororder.
@@ -1321,7 +1321,7 @@ class ImageReshapeMixin(_ImageBase if TYPE_CHECKING else object):
 
             >>> from machinevisiontoolbox import Image, ImageCollection
             >>> import numpy as np
-            >>> images = ImageCollection("calibration/*.jpg")
+            >>> images = FileCollection("calibration/*.jpg")
             >>> K = np.array([[ 534.1, 0, 341.5], [ 0, 534.1, 232.9], [ 0, 0, 1]])
             >>> distortion = np.array([ -0.293, 0.1077, 0.00131, -3.109e-05, 0.04348])
             >>> out = images[12].undistort(K, distortion)

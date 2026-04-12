@@ -1254,7 +1254,7 @@ if __name__ == "__main__":  # type: ignore
     from machinevisiontoolbox import *  # type: ignore
     from machinevisiontoolbox.base import *  # type: ignore
 
-    images = ImageCollection("seq/*.png")  # type: ignore
+    images = FileCollection("seq/*.png")  # type: ignore
 
     im, file = iread("street.png", dtype="float")
     idisp(im, matplotlib=False)  # type: ignore

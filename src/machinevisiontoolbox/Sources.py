@@ -5,11 +5,14 @@ Video, camera, image-collection, and ZIP-archive sources for streaming images.
 from __future__ import annotations
 
 import fnmatch
+import io
 import json
 import base64
 import pathlib
+import shutil
 import subprocess
 import sys
+import tarfile
 import threading
 from dataclasses import dataclass
 from http import client
@@ -65,10 +68,40 @@ try:
 except ImportError:
     _open3d_available = False
 
+try:
+    import py7zr as _py7zr
+
+    _py7zr_available = True
+except ImportError:
+    _py7zr = None
+    _py7zr_available = False
+
+try:
+    import rarfile as _rarfile
+
+    _rarfile_available = True
+except ImportError:
+    _rarfile = None
+    _rarfile_available = False
+
+_unar_available: bool = (
+    shutil.which("unar") is not None and shutil.which("lsar") is not None
+)
+
+
+def _wants_mono(kwargs: dict[str, Any]) -> bool:
+    """Return True if convert kwargs request a single-plane output image."""
+    return bool(kwargs.get("mono") or kwargs.get("grey") or kwargs.get("gray"))
+
 
 class ImageSource(ABC):
     @abstractmethod
     def __init__(self, *args: Any, **kwargs: Any) -> None:
+        """Base constructor for image sources.
+
+        :param kwargs: source-specific keyword arguments
+        :type kwargs: Any
+        """
         pass
 
     def tensor(
@@ -100,7 +133,7 @@ class ImageSource(ABC):
         pre-allocated tensor, so peak memory is one decoded frame plus the
         output tensor — the full source need not reside in memory at once.
         This is particularly useful for :class:`VideoFile` and
-        :class:`ZipArchive`.
+        :class:`FileArchive`.
 
         Example:
 
@@ -393,7 +426,7 @@ class VideoFile(ImageSource):
             video = VideoFile("traffic_sequence.mpg")
             len(video)
             for im in video:
-              # process image
+                                pass
 
 
     or using a context manager to ensure the file handle is always released:
@@ -452,11 +485,14 @@ class VideoFile(ImageSource):
             self.cap.release()
             raise StopIteration
         else:
-            im = convert(frame, **self.args)
-            if im.ndim == 3:
-                im = Image(im, id=self.i, name=self.filename, colororder="RGB")
+            opts: dict[str, Any] = {"rgb": True}
+            opts.update(self.args)
+            if frame.ndim == 3 and not _wants_mono(opts):
+                im = Image(
+                    frame, id=self.i, name=self.filename, colororder="RGB", **opts
+                )
             else:
-                im = Image(im, id=self.i, name=self.filename)
+                im = Image(frame, id=self.i, name=self.filename, **opts)
             self.i += 1
             return im
 
@@ -499,7 +535,7 @@ class VideoCamera(ImageSource):
             from machinevisiontoolbox import VideoCamera
             video = VideoCamera(0)
             for im in video:
-              # process image
+                                pass
 
 
     alternatively:
@@ -564,14 +600,18 @@ class VideoCamera(ImageSource):
             self.cap.release()
             raise StopIteration
         else:
+            opts: dict[str, Any] = {"rgb": self.rgb, "copy": True}
+            opts.update(self.args)
             if self.rgb:
-                # RGB required, invert the planes
-                im = convert(frame, rgb=True, copy=True, **self.args)
-                img = Image(im, id=self.i, colororder="RGB")
+                if frame.ndim == 3 and not _wants_mono(opts):
+                    img = Image(frame, id=self.i, colororder="RGB", **opts)
+                else:
+                    img = Image(frame, id=self.i, **opts)
             else:
-                # BGR required
-                im = convert(frame, rgb=False, colororder="BGR", copy=True, **self.args)
-                img = Image(im, id=self.i, colororder="BGR")
+                if frame.ndim == 3 and not _wants_mono(opts):
+                    img = Image(frame, id=self.i, colororder="BGR", **opts)
+                else:
+                    img = Image(frame, id=self.i, **opts)
 
             self.i += 1
             return img
@@ -878,7 +918,7 @@ class VideoCamera(ImageSource):
         self.release()
 
 
-class ImageCollection(ImageSource):
+class FileCollection(ImageSource):
     """
     Iterate images from a collection of files
 
@@ -901,11 +941,11 @@ class ImageCollection(ImageSource):
 
         .. code-block:: python
 
-            from machinevisiontoolbox import FileColletion
+            from machinevisiontoolbox import FileCollection
             images = FileCollection('campus/*.png')
             len(images)
             for image in images:  # iterate over images
-              # process image
+                                pass
 
 
     alternatively:
@@ -919,7 +959,7 @@ class ImageCollection(ImageSource):
 
         .. code-block:: python
 
-            with ImageCollection('campus/*.png') as images:
+            with FileCollection('campus/*.png') as images:
                 for image in images:
                     # process image
 
@@ -947,10 +987,10 @@ class ImageCollection(ImageSource):
         self.loop = loop
         self.i = 0
 
-    def __getitem__(self, i: int | slice) -> ImageCollection | Image:
+    def __getitem__(self, i: int | slice) -> FileCollection | Image:
 
         if isinstance(i, slice):
-            # slice of a collection -> ImageCollection
+            # slice of a collection -> FileCollection
             new = self.__class__()
             new.images = self.images[i]
             new.names = self.names[i]
@@ -959,13 +999,14 @@ class ImageCollection(ImageSource):
         else:
             # element of a collection -> Image
             data = self.images[i]
-            im = convert(data, **self.args)
-            if im.ndim == 3:
-                return Image(im, name=self.names[i], id=i, colororder="RGB")
+            if data.ndim == 3 and not _wants_mono(self.args):
+                return Image(
+                    data, name=self.names[i], id=i, colororder="RGB", **self.args
+                )
             else:
-                return Image(im, id=i, name=self.names[i])
+                return Image(data, id=i, name=self.names[i], **self.args)
 
-    def __iter__(self) -> ImageCollection:
+    def __iter__(self) -> FileCollection:
         self.i = 0
         return self
 
@@ -973,7 +1014,7 @@ class ImageCollection(ImageSource):
         return "\n".join([str(f) for f in self.names])
 
     def __repr__(self) -> str:
-        return f"ImageCollection(nimages={len(self.images)})"
+        return f"FileCollection(nimages={len(self.images)})"
 
     def __next__(self) -> Image:
         if self.i >= len(self.names):
@@ -982,18 +1023,19 @@ class ImageCollection(ImageSource):
             else:
                 raise StopIteration
         data = self.images[self.i]
-        im = convert(data, **self.args)
-        if im.ndim == 3:
-            im = Image(im, id=self.i, name=self.names[self.i], colororder="RGB")
+        if data.ndim == 3 and not _wants_mono(self.args):
+            im = Image(
+                data, id=self.i, name=self.names[self.i], colororder="RGB", **self.args
+            )
         else:
-            im = Image(im, id=self.i, name=self.names[self.i])
+            im = Image(data, id=self.i, name=self.names[self.i], **self.args)
         self.i += 1
         return im
 
     def __len__(self) -> int:
         return len(self.images)
 
-    def __enter__(self) -> ImageCollection:
+    def __enter__(self) -> FileCollection:
         return self
 
     def __exit__(self, exc_type, exc, tb) -> None:
@@ -1060,40 +1102,228 @@ class ImageSequence(ImageSource):
         return f"ImageSequence(nimages={len(self._frames)})"
 
 
-class ZipArchive(ImageSource):
-    """
-    Iterate images from a zip archive
+class _ZipAdapter:
+    """Zip archive backend for :class:`FileArchive`."""
 
-    :param filename: path to zipfile
+    def __init__(self, filename: pathlib.Path) -> None:
+        self._zf = zipfile.ZipFile(filename, "r")
+
+    def namelist(self) -> list[str]:
+        return self._zf.namelist()
+
+    def read(self, name: str) -> bytes:
+        return self._zf.read(name)
+
+    def open(self, name: str) -> IO[bytes]:
+        return self._zf.open(name)
+
+    def close(self) -> None:
+        self._zf.close()
+
+
+class _TarAdapter:
+    """Tar archive backend (plain, .gz, .bz2, .xz) for :class:`FileArchive`."""
+
+    def __init__(self, filename: pathlib.Path) -> None:
+        self._tf = tarfile.open(str(filename), "r:*")
+
+    def namelist(self) -> list[str]:
+        return [m.name for m in self._tf.getmembers() if m.isfile()]
+
+    def read(self, name: str) -> bytes:
+        f = self._tf.extractfile(name)
+        if f is None:
+            return b""
+        return f.read()
+
+    def open(self, name: str) -> IO[bytes]:
+        f = self._tf.extractfile(name)
+        if f is None:
+            raise KeyError(f"{name!r} is not a regular file in this archive")
+        return f
+
+    def close(self) -> None:
+        self._tf.close()
+
+
+class _SevenZAdapter:
+    """7-Zip archive backend for :class:`FileArchive` (requires ``py7zr``)."""
+
+    def __init__(self, filename: pathlib.Path) -> None:
+        if not _py7zr_available:
+            raise ImportError(
+                "py7zr is required to read 7-Zip archives. "
+                "Install it with: pip install py7zr"
+            )
+        self._filename = str(filename)
+        with _py7zr.SevenZipFile(self._filename, mode="r") as a:
+            self._names = [f.filename for f in a.list() if not f.is_directory]
+
+    def namelist(self) -> list[str]:
+        return self._names
+
+    def read(self, name: str) -> bytes:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            with _py7zr.SevenZipFile(self._filename, mode="r") as a:
+                a.extract(path=tmpdir, targets=[name])
+
+            target = pathlib.Path(tmpdir) / name
+            if target.exists():
+                return target.read_bytes()
+
+            # Some archives may store member names with different separators.
+            matches = list(pathlib.Path(tmpdir).rglob(pathlib.Path(name).name))
+            return matches[0].read_bytes() if matches else b""
+
+    def open(self, name: str) -> IO[bytes]:
+        return io.BytesIO(self.read(name))
+
+    def close(self) -> None:
+        pass  # no persistent handle
+
+
+class _UnarAdapter:
+    """Shell-out adapter using ``unar``/``lsar`` (The Unarchiver) for :class:`FileArchive`.
+
+    Does not require the ``rarfile`` Python package; needs only the ``unar`` and
+    ``lsar`` command-line tools in PATH (``brew install unar`` on macOS).
+    """
+
+    def __init__(self, filename: pathlib.Path) -> None:
+        unar = shutil.which("unar")
+        lsar = shutil.which("lsar")
+        if unar is None or lsar is None:
+            raise ImportError(
+                "unar and lsar are required to read this archive but were not found.\n"
+                "Install with: brew install unar  (macOS)\n"
+                "          or: sudo apt install unar  (Debian/Ubuntu)"
+            )
+        self._unar = unar
+        self._lsar = lsar
+        self._filename = str(filename)
+        result = subprocess.run(
+            [self._lsar, "-j", self._filename],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        data = json.loads(result.stdout)
+        self._names = [
+            e["XADFileName"]
+            for e in data.get("lsarContents", [])
+            if not e.get("XADIsDirectory", False) and not e["XADFileName"].endswith("/")
+        ]
+
+    def namelist(self) -> list[str]:
+        return self._names
+
+    def read(self, name: str) -> bytes:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            subprocess.run(
+                [self._unar, "-q", "-f", "-o", tmpdir, self._filename, name],
+                check=True,
+                capture_output=True,
+            )
+            # unar recreates the internal directory structure inside tmpdir
+            target = pathlib.Path(tmpdir) / name
+            if target.exists():
+                return target.read_bytes()
+            # fall back: search by basename (handles path separator differences)
+            matches = list(pathlib.Path(tmpdir).rglob(pathlib.Path(name).name))
+            return matches[0].read_bytes() if matches else b""
+
+    def open(self, name: str) -> IO[bytes]:
+        return io.BytesIO(self.read(name))
+
+    def close(self) -> None:
+        pass  # stateless shell-out; nothing to close
+
+
+class _RarAdapter:
+    """RAR archive backend for :class:`FileArchive` (requires ``rarfile`` + ``unrar``/``unar``)."""
+
+    def __init__(self, filename: pathlib.Path) -> None:
+        if not _rarfile_available:
+            raise ImportError(
+                "rarfile is required to read RAR archives. "
+                "Install it with: pip install rarfile"
+            )
+        # auto-detect available extraction tool (unrar, unar, bsdtar, 7z)
+        _rarfile.tool_setup()
+        try:
+            self._rf = _rarfile.RarFile(str(filename), "r")
+        except _rarfile.RarCannotExec:
+            raise ImportError(
+                "No RAR extraction tool found. Install one of:\n"
+                "  macOS:         brew install unar\n"
+                "  Debian/Ubuntu: sudo apt install unar\n"
+                "  (or)           pip install rarfile  +  brew install rar"
+            )
+
+    def namelist(self) -> list[str]:
+        return [info.filename for info in self._rf.infolist() if not info.is_dir()]
+
+    def read(self, name: str) -> bytes:
+        return self._rf.read(name)
+
+    def open(self, name: str) -> IO[bytes]:
+        return self._rf.open(name)
+
+    def close(self) -> None:
+        self._rf.close()
+
+
+class FileArchive(ImageSource):
+    """
+    Iterate images from a compressed archive
+
+    :param filename: path to archive file
     :type filename: str
-    :param filter: a Unix shell-style wildcard that specified which files
+    :param filter: a Unix shell-style wildcard that specifies which files
         to include when iterating over the archive
-    :type filter: str
+    :type filter: str, optional
+    :param loop: endlessly loop over the files, defaults to False
+    :type loop: bool, optional
     :param kwargs: options applied to image frames, see :func:`~machinevisiontoolbox.base.imageio.convert`
 
-    The resulting object is an iterator over the files within the zip  archive. The
-    iterator returns the file as a :class:`Image` instance if it is an image (and the
-    name of the file, within the archive, is given by its ``name`` attribute), else a
-    bytes object containing the file contents.
+    The resulting object is an iterator over the files within the archive.
+    The iterator returns the file as a :class:`Image` instance if it is an
+    image (the ``name`` attribute is the filename within the archive), or a
+    :class:`bytes` object for non-image files.
 
-    If the path is not absolute, the zip file is first searched for
-    relative to the current directory, and if not found, it is searched for
-    in the ``images`` folder of the ``mvtb-data`` package, installed as a
+    The following archive formats are supported:
+
+    ==================  ===================================================
+    Extension           Notes
+    ==================  ===================================================
+    ``.zip``            stdlib, always available
+    ``.tar``            stdlib, always available
+    ``.tar.gz`` / ``.tgz``  stdlib, always available
+    ``.tar.bz2``        stdlib, always available
+    ``.tar.xz``         stdlib, always available
+    ``.7z``             requires ``pip install py7zr``
+    ``.rar``            requires ``brew install unar`` (macOS) or ``apt install unar``;
+                        alternatively ``pip install rarfile`` with ``unrar``/``unar`` in PATH
+    ==================  ===================================================
+
+    If the path is not absolute it is first searched for relative to the
+    current directory, and if not found, it is searched for in the
+    ``images`` folder of the ``mvtb-data`` package, installed as a
     Toolbox dependency.
 
     To read just the image files within the archive, use a ``filter`` such as
-    ``"*.png"`` or ``"*.pgm"``.  Note that ``filter`` is a Unix shell style wildcard
-    expression, not a Python regexp.
+    ``"*.png"`` or ``"*.pgm"``.  Note that ``filter`` is a Unix shell style
+    wildcard expression, not a Python regexp.
 
     Example:
 
         .. code-block:: python
 
-            from machinevisiontoolbox import ZipArchive
-            images = ZipArchive('bridge-l.zip')
+                        from machinevisiontoolbox import FileArchive
+                        images = FileArchive('bridge-l.zip')
             len(images)
             for image in images:  # iterate over files
-              # process image
+                                pass
 
 
     alternatively:
@@ -1107,7 +1337,7 @@ class ZipArchive(ImageSource):
 
         .. code-block:: python
 
-            with ZipArchive('bridge-l.zip') as images:
+            with FileArchive('bridge-l.zip') as images:
                 for image in images:
                     # process image
 
@@ -1119,7 +1349,6 @@ class ZipArchive(ImageSource):
         `cv2.imread <https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56>`_
     """
 
-    zipfile: zipfile.ZipFile
     files: list[str]
     args: dict
     loop: bool
@@ -1133,12 +1362,42 @@ class ZipArchive(ImageSource):
         **kwargs: Any,
     ) -> None:
 
-        filename = mvtb_path_to_datafile("images", filename)
-        self.zipfile = zipfile.ZipFile(filename, "r")
-        if filter is None:
-            files = [f for f in self.zipfile.namelist() if not f.endswith("/")]
+        path = pathlib.Path(mvtb_path_to_datafile("images", filename))
+        suffixes = path.suffixes
+        suffix = path.suffix.lower()
+
+        if suffix == ".zip":
+            self._archive: (
+                _ZipAdapter | _TarAdapter | _SevenZAdapter | _UnarAdapter | _RarAdapter
+            ) = _ZipAdapter(path)
+        elif ".tar" in [s.lower() for s in suffixes] or suffix == ".tgz":
+            self._archive = _TarAdapter(path)
+        elif suffix == ".7z":
+            self._archive = _SevenZAdapter(path)
+        elif suffix == ".rar":
+            # prefer unar (shell-out, no extra pip dep); fall back to rarfile
+            if _unar_available:
+                self._archive = _UnarAdapter(path)
+            else:
+                self._archive = _RarAdapter(path)
         else:
-            files = fnmatch.filter(self.zipfile.namelist(), filter)
+            # unknown extension — probe zip then tar
+            try:
+                self._archive = _ZipAdapter(path)
+            except zipfile.BadZipFile:
+                try:
+                    self._archive = _TarAdapter(path)
+                except tarfile.TarError:
+                    raise ValueError(
+                        f"Unrecognised archive format for {pathlib.Path(path).name!r}. "
+                        "Supported: .zip, .tar, .tar.gz, .tgz, .tar.bz2, .tar.xz, "
+                        ".7z (requires py7zr), .rar (requires unar/lsar or rarfile + extractor)"
+                    )
+
+        if filter is None:
+            files = [f for f in self._archive.namelist() if not f.endswith("/")]
+        else:
+            files = fnmatch.filter(self._archive.namelist(), filter)
         self.files = sorted(files)
         self.args = kwargs
         self.loop = loop
@@ -1154,40 +1413,42 @@ class ZipArchive(ImageSource):
         :rtype: file object
 
         Opens the specified file within the archive.  Typically the
-        ``ZipArchive`` instance is used as an iterator over the image files
+        ``FileArchive`` instance is used as an iterator over the image files
         within, but this method can be used to access non-image data such as
         camera calibration data etc. that might also be contained within the
         archive and is excluded by the ``filter``.
         """
-        return self.zipfile.open(name)
+        return self._archive.open(name)
 
     def ls(self) -> None:
         """
         List all files within the archive to stdout.
         """
-        for name in self.zipfile.namelist():
+        for name in self._archive.namelist():
             print(name)
 
     def __getitem__(self, i: int) -> Image | bytes:
         im = self._read(i)
         if isinstance(im, np.ndarray):
-            if im.ndim == 3:
-                return Image(im, name=self.files[i], id=i, colororder="BGR")
+            if im.ndim == 3 and not _wants_mono(self.args):
+                return Image(
+                    im, name=self.files[i], id=i, colororder="BGR", **self.args
+                )
             else:
-                return Image(im, id=i, name=self.files[i])
+                return Image(im, id=i, name=self.files[i], **self.args)
         else:
             # not an image file, just return the contents
             return im
 
-    def __iter__(self) -> ZipArchive:
+    def __iter__(self) -> FileArchive:
         self.i = 0
         return self
 
     def __str__(self) -> str:
-        return "ZipArchive(\n  " + "\n  ".join(self.files) + "\n)"
+        return "FileArchive(\n  " + "\n  ".join(self.files) + "\n)"
 
     def __repr__(self) -> str:
-        return f"ZipArchive(nfiles={len(self.files)})"
+        return f"FileArchive(nfiles={len(self.files)})"
 
     def __next__(self) -> Image | bytes:
         if self.i >= len(self.files):
@@ -1198,10 +1459,16 @@ class ZipArchive(ImageSource):
 
         im = self._read(self.i)
         if isinstance(im, np.ndarray):
-            if im.ndim == 3:
-                im = Image(im, id=self.i, name=self.files[self.i], colororder="BGR")
+            if im.ndim == 3 and not _wants_mono(self.args):
+                im = Image(
+                    im,
+                    id=self.i,
+                    name=self.files[self.i],
+                    colororder="BGR",
+                    **self.args,
+                )
             else:
-                im = Image(im, id=self.i, name=self.files[self.i])
+                im = Image(im, id=self.i, name=self.files[self.i], **self.args)
         self.i += 1
         return im
 
@@ -1209,7 +1476,7 @@ class ZipArchive(ImageSource):
         return len(self.files)
 
     def _read(self, i: int) -> np.ndarray | bytes:
-        data = self.zipfile.read(self.files[i])
+        data = self._archive.read(self.files[i])
         img = cv2.imdecode(
             np.frombuffer(data, np.uint8), cv2.IMREAD_ANYDEPTH | cv2.IMREAD_UNCHANGED
         )
@@ -1217,13 +1484,59 @@ class ZipArchive(ImageSource):
             # not an image file, just return the contents
             return data
         else:
-            return convert(img, **self.args)
+            return img
 
-    def __enter__(self) -> ZipArchive:
+    def __enter__(self) -> FileArchive:
         return self
 
     def __exit__(self, exc_type, exc, tb) -> None:
-        self.zipfile.close()
+        self._archive.close()
+
+
+class ImageCollection(FileCollection):
+    """Deprecated alias for :class:`FileCollection`.
+
+    :param kwargs: forwarded to :class:`FileCollection`
+    :type kwargs: Any
+
+    .. deprecated:: 1.0.3
+        Use :class:`FileCollection` instead.
+    """
+
+    def __init__(
+        self, filename: str | None = None, loop: bool = False, **kwargs: Any
+    ) -> None:
+        warnings.warn(
+            "ImageCollection is deprecated; use FileCollection instead.",
+            FutureWarning,
+            stacklevel=2,
+        )
+        super().__init__(filename=filename, loop=loop, **kwargs)
+
+
+class ZipArchive(FileArchive):
+    """Deprecated alias for :class:`FileArchive`.
+
+    :param kwargs: forwarded to :class:`FileArchive`
+    :type kwargs: Any
+
+    .. deprecated:: 1.0.3
+        Use :class:`FileArchive` instead.
+    """
+
+    def __init__(
+        self,
+        filename: str,
+        filter: str | None = None,
+        loop: bool = False,
+        **kwargs: Any,
+    ) -> None:
+        warnings.warn(
+            "ZipArchive is deprecated; use FileArchive instead.",
+            FutureWarning,
+            stacklevel=2,
+        )
+        super().__init__(filename=filename, filter=filter, loop=loop, **kwargs)
 
 
 class WebCam(ImageSource):
@@ -1244,7 +1557,7 @@ class WebCam(ImageSource):
             from machinevisiontoolbox import WebCam
             webcam = WebCam('https://webcam.dartmouth.edu/webcam/image.jpg')
             for image in webcam:  # iterate over frames
-              # process image
+                                pass
 
 
     alternatively:
@@ -1300,11 +1613,12 @@ class WebCam(ImageSource):
             self.cap.release()
             raise StopIteration
         else:
-            im = convert(frame, **self.args)
-            if im.ndim == 3:
-                return Image(im, colororder="RGB")
+            opts: dict[str, Any] = {"rgb": True}
+            opts.update(self.args)
+            if frame.ndim == 3 and not _wants_mono(opts):
+                return Image(frame, colororder="RGB", **opts)
             else:
-                return Image(im)
+                return Image(frame, **opts)
 
     def grab(self) -> Image:
         """
@@ -1377,8 +1691,7 @@ class EarthView(ImageSource):
 
             from machinevisiontoolbox import EarthView
             earth = EarthView()  # create an Earth viewer
-            image = earth(-27.475722, 153.0285, zoom=17 # make a view
-            # process image
+            image = earth.grab(-27.475722, 153.0285, zoom=17)
 
 
     .. warning:: You must have a Google account and a valid key, backed
@@ -1517,8 +1830,9 @@ class EarthView(ImageSource):
             colororder = "RGB"
         else:
             colororder = None
-        im = convert(data[0], **self.args)
-        return Image(im, colororder=colororder)
+        if colororder is not None and not _wants_mono(self.args):
+            return Image(data[0], colororder=colororder, **self.args)
+        return Image(data[0], **self.args)
 
     def __repr__(self) -> str:
         return f"EarthView(type={self.type}, zoom={self.zoom}, scale={self.scale}, shape={tuple(self.shape)})"
@@ -1618,6 +1932,8 @@ class ROSTopic(ImageSource):
     :type blocking: bool, optional
     :param rgb: if ``True`` (default) return RGB images; if ``False`` return BGR
     :type rgb: bool, optional
+    :param kwargs: options applied to image frames, see
+        :func:`~machinevisiontoolbox.base.imageio.convert`
     :raises ImportError: if the ``roslibpy`` package is not installed
 
     In subscribe mode, the object is an iterator that yields :class:`Image`
@@ -1673,6 +1989,7 @@ class ROSTopic(ImageSource):
     topic: str
     message: str
     port: int
+    args: dict
 
     def __init__(
         self,
@@ -1684,6 +2001,7 @@ class ROSTopic(ImageSource):
         output: Literal["image", "message"] = "image",
         blocking: bool = True,
         rgb: bool = True,
+        **kwargs: Any,
     ) -> None:
 
         if not _roslibpy_available:
@@ -1701,6 +2019,7 @@ class ROSTopic(ImageSource):
         self._output = output
         self._blocking = blocking
         self._rgb = rgb
+        self.args = kwargs
         self._compressed = "Compressed" in message
         if output not in {"image", "message"}:
             raise ValueError("output must be 'image' or 'message'")
@@ -2006,12 +2325,18 @@ class ROSTopic(ImageSource):
 
         if self._latest_frame is None:
             raise StopIteration
+        opts: dict[str, Any] = {"rgb": self._rgb, "copy": True}
+        opts.update(self.args)
         if self._rgb:
-            im = convert(self._latest_frame, rgb=True, copy=True)
-            img = Image(im, id=self.i, colororder="RGB")
+            if self._latest_frame.ndim == 3 and not _wants_mono(opts):
+                img = Image(self._latest_frame, id=self.i, colororder="RGB", **opts)
+            else:
+                img = Image(self._latest_frame, id=self.i, **opts)
         else:
-            im = convert(self._latest_frame, rgb=False, copy=True)
-            img = Image(im, id=self.i, colororder="BGR")
+            if self._latest_frame.ndim == 3 and not _wants_mono(opts):
+                img = Image(self._latest_frame, id=self.i, colororder="BGR", **opts)
+            else:
+                img = Image(self._latest_frame, id=self.i, **opts)
         if self._latest_timestamp is None:
             raise StopIteration
         img.timestamp = int(self._latest_timestamp)
@@ -2349,6 +2674,8 @@ class ROSBag(ImageSource):
     :param colororder: override the colour-plane order for all image, or by topic
         ``{topic: colororder}``
     :type colororder: str or dict or None
+    :param kwargs: options applied to image frames, see
+        :func:`~machinevisiontoolbox.base.imageio.convert`
     :raises ImportError: if the ``rosbags`` package is not installed
 
     The resulting object is an iterator that yields:
@@ -2414,6 +2741,7 @@ class ROSBag(ImageSource):
     dtype: np.dtype | str | dict
     colororder: str | dict | None
     verbose: bool
+    args: dict
 
     def __init__(
         self,
@@ -2424,6 +2752,7 @@ class ROSBag(ImageSource):
         dtype: np.dtype | str | dict | None = None,
         colororder: str | dict | None = None,
         verbose: bool = False,
+        **kwargs: Any,
     ) -> None:
         if not _rosbags_available:
             raise ImportError(
@@ -2441,6 +2770,7 @@ class ROSBag(ImageSource):
         self.typestore = _resolve_typestore(release)
         self.dtype = dtype
         self.colororder = colororder
+        self.args = kwargs
         self._tmpfile: str | None = None
         self._is_ros2: bool = False
 
@@ -2774,9 +3104,14 @@ class ROSBag(ImageSource):
                     else:
                         colororder = self.colororder
 
-                    img = Image(
-                        img_array, colororder=colororder.upper() if colororder else None
-                    )
+                    if colororder is not None and not _wants_mono(self.args):
+                        img = Image(
+                            img_array,
+                            colororder=colororder.upper(),
+                            **self.args,
+                        )
+                    else:
+                        img = Image(img_array, **self.args)
                     img.timestamp = self._stamp_to_ns(msg.header.stamp)
                     img.topic = connection.topic
                     yield img
@@ -2820,9 +3155,14 @@ class ROSBag(ImageSource):
                     else:
                         img_array = data.reshape((msg.height, msg.width))
 
-                    img = Image(
-                        img_array, colororder=colororder.upper() if colororder else None
-                    )
+                    if colororder is not None and not _wants_mono(self.args):
+                        img = Image(
+                            img_array,
+                            colororder=colororder.upper(),
+                            **self.args,
+                        )
+                    else:
+                        img = Image(img_array, **self.args)
                     img.timestamp = self._stamp_to_ns(msg.header.stamp)
                     img.topic = connection.topic
                     yield img
@@ -3195,6 +3535,8 @@ class TensorStack(ImageSource):
         ``np.float32``; if None, dtype is inferred from the tensor data,
         defaults to None
     :type dtype: numpy dtype or None, optional
+    :param kwargs: options applied to image frames, see
+        :func:`~machinevisiontoolbox.base.imageio.convert`
 
     Example:
 
@@ -3220,6 +3562,7 @@ class TensorStack(ImageSource):
         colororder: str | None = None,
         logits: bool = False,
         dtype: "DTypeLike | None" = None,
+        **kwargs: Any,
     ) -> None:
         """
         Initialize TensorStack from a batch tensor.
@@ -3252,6 +3595,7 @@ class TensorStack(ImageSource):
         self._colororder = colororder
         self._logits = logits
         self._dtype = dtype
+        self.args = kwargs
         self._batch_size = self._array.shape[0]
         self._i = 0
 
@@ -3294,7 +3638,11 @@ class TensorStack(ImageSource):
             if frame.ndim == 3:
                 frame = np.transpose(frame, (1, 2, 0))
 
-        return Image(frame, colororder=self._colororder, dtype=self._dtype)
+        opts: dict[str, Any] = {"dtype": self._dtype}
+        opts.update(self.args)
+        if self._colororder is not None and not _wants_mono(opts):
+            return Image(frame, colororder=self._colororder, **opts)
+        return Image(frame, **opts)
 
     def __str__(self) -> str:
         """Return string representation."""

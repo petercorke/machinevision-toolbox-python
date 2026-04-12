@@ -6,7 +6,7 @@ Smoke tests for Visual Servo classes.
 
 import unittest
 
-from machinevisiontoolbox import ImageCollection, BagOfWords
+from machinevisiontoolbox import FileCollection, BagOfWords
 import numpy as np
 import numpy.testing as nt
 
@@ -15,7 +15,7 @@ class TestBagOfWords(unittest.TestCase):
 
     def test_retrieve(self):
 
-        images = ImageCollection("campus/*.png", mono=True)
+        images = FileCollection("campus/*.png", mono=True)
 
         features = []
         for image in images:
@@ -30,7 +30,7 @@ class TestBagOfWords(unittest.TestCase):
         bag = BagOfWords(features, 2_000, nstopwords=50, seed=0)
         # self.assertEqual(len(bag), 34_997)
 
-        query = ImageCollection("campus/holdout/*.png", mono=True)
+        query = FileCollection("campus/holdout/*.png", mono=True)
 
         S = bag.similarity(query)
         q = np.argmax(S, axis=1)

@@ -91,8 +91,8 @@ tensor.  For example, to read a video file and display each frame::
    :template: mvtbtemplate.rst
 
     ~ImageSequence
-    ~ImageCollection
-    ~ZipArchive
+    ~FileCollection
+    ~FileArchive
     ~VideoFile
     ~VideoCamera
     ~WebCam
@@ -100,7 +100,20 @@ tensor.  For example, to read a video file and display each frame::
     ~ROSBag
     ~ROSTopic
     ~TensorStack
-    ~LabelMe
+    ~LabelMeReader
+
+Deprecated aliases
+------------------
+
+These names are kept for backward compatibility and will emit a deprecation warning.
+
+.. autosummary::
+    :toctree: stubs
+    :nosignatures:
+    :template: mvtbtemplate.rst
+
+     ~ImageCollection
+     ~ZipArchive
 
 
 :class:`PointCloud` sources

@@ -13,7 +13,7 @@ import numpy as np
 import numpy.testing as nt
 
 # import machinevisiontoolbox as mvt
-from machinevisiontoolbox import Image, ImageCollection
+from machinevisiontoolbox import Image
 from machinevisiontoolbox.base import iread
 
 

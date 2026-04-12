@@ -40,6 +40,12 @@ class TestStarImport(unittest.TestCase):
     def test_imagecollection_present(self):
         self.assertIn("ImageCollection", self.ns)
 
+    def test_filecollection_present(self):
+        self.assertIn("FileCollection", self.ns)
+
+    def test_filearchive_present(self):
+        self.assertIn("FileArchive", self.ns)
+
     # ------------------------------------------------------------------
     # Processing helpers
     # ------------------------------------------------------------------
