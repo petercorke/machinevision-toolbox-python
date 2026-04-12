@@ -5,8 +5,10 @@ Low-level image reading from files, URLs, and byte buffers.
 from __future__ import annotations
 
 import copy
+import glob
 import sys
 import time
+import urllib.error
 import urllib.request
 import warnings
 from pathlib import Path
@@ -28,6 +30,7 @@ try:
 
     _pyclip = True
 except ImportError:
+    pyclip = None
     _pyclip = False
 
 # for getting screen resolution
@@ -747,6 +750,8 @@ def idisp(
                         val = [f"{_:d}" for _ in x]
                     elif np.issubdtype(x.dtype, np.floating):
                         val = [f"{_:.3f}" for _ in x]
+                    else:
+                        val = [str(_) for _ in x]
                     val = "[" + ", ".join(val) + "]"
 
                     return f"({u}, {v}): {val} {colororder}, {x.dtype}"
@@ -756,6 +761,8 @@ def idisp(
 
         def key_press(event: Any) -> None:
             if not _pyclip:
+                return
+            if pyclip is None:
                 return
 
             if event.inaxes is not None:
@@ -951,79 +958,62 @@ def iread(
             headers={"User-Agent": "machinevisiontoolbox-python/1.0"},
         )
         try:
-            resp = urllib.request.urlopen(req, context=ctx)
+            with urllib.request.urlopen(req, context=ctx) as resp:
+                if resp.status != 200:
+                    raise ValueError(f"HTTP {resp.status} fetching {filename}")
+                array = np.asarray(bytearray(resp.read()), dtype="uint8")
+                image = cv2.imdecode(array, cv2.IMREAD_UNCHANGED)
+                if image is None:
+                    raise ValueError(
+                        f"Could not decode image data from {filename} "
+                        f"(content-type: {resp.headers.get('Content-Type', 'unknown')})"
+                    )
+                image = convert(image, **kwargs)
+                return (image, filename)
         except urllib.error.HTTPError as e:
             raise ValueError(f"HTTP {e.code} fetching {filename}") from e
         except urllib.error.URLError as e:
             raise ValueError(f"Could not fetch {filename}: {e.reason}") from e
 
-        if resp.status != 200:
-            raise ValueError(f"HTTP {resp.status} fetching {filename}")
-        array = np.asarray(bytearray(resp.read()), dtype="uint8")
-        image = cv2.imdecode(array, -1)
-        if image is not None:
-            image = convert(image, **kwargs)
-            return (image, filename)
-        else:
-            raise ValueError(
-                f"Could not decode image data from {filename} "
-                f"(content-type: {resp.headers.get('Content-Type', 'unknown')})"
-            )
-
     elif isinstance(filename, (str, Path)):
-        # reading from a file
-
+        # reading from local file(s)
         path = Path(filename).expanduser()
+        has_pattern = glob.has_magic(str(path))
 
-        if any([c in "?*" for c in str(path)]):
-            # contains wildcard characters, glob it
-            # recurse and return a list
-            # https://stackoverflow.com/questions/51108256/how-to-take-a-pathname-string-with-wildcards-and-resolve-the-glob-with-pathlib
-
+        if has_pattern:
+            # expand wildcard pattern to a sorted path list
             parts = path.parts[1:] if path.is_absolute() else path.parts
-            p = Path(path.root).glob(str(Path("").joinpath(*parts)))
-            pathlist = list(p)
+            matches = list(Path(path.root).glob(str(Path("").joinpath(*parts))))
 
-            if len(pathlist) == 0 and not path.is_absolute():
+            if len(matches) == 0 and not path.is_absolute():
                 # look in the toolbox image folder
                 parts = path.parts
-                path = mvtb_path_to_datafile("images", Path("").joinpath(*parts[:-1]))
-                pathlist = list(path.glob(parts[-1]))  # type: ignore
+                root = Path(
+                    mvtb_path_to_datafile("images", Path("").joinpath(*parts[:-1]))
+                )
+                matches = list(root.glob(parts[-1]))
 
-            if len(pathlist) == 0:
+            if len(matches) == 0:
                 raise ValueError("can't expand wildcard")
 
-            # convert to strings
-            pathlist = [str(p) for p in pathlist]
-
+            matches.sort()
             images = []
-            pathlist.sort()
-            for p in pathlist:
-                image = cv2.imdecode(
-                    np.fromfile(Path(p).as_posix(), dtype=np.uint8),
-                    cv2.IMREAD_UNCHANGED,
-                )
-                # image = cv2.imread(p, -1)  # default read-in as BGR
+            pathlist = []
+            for match in matches:
+                image = cv2.imread(match.as_posix(), cv2.IMREAD_UNCHANGED)
                 if image is None:
-                    raise ValueError(f"Could not decode image: {p}")
+                    raise ValueError(f"Could not decode image: {match}")
                 images.append(convert(image, **kwargs))
+                pathlist.append(str(match))
             return images, pathlist
 
-        else:
-            # read single file
-            path = mvtb_path_to_datafile("images", path)
-
-            # read the image
-            # TODO not sure the following will work on Windows
-            image = cv2.imdecode(
-                np.fromfile(path.as_posix(), dtype=np.uint8), cv2.IMREAD_UNCHANGED  # type: ignore
-            )
-            image = cv2.imread(path.as_posix(), -1)  # type: ignore  # default read-in as BGR
-            if image is None:
-                # TODO check ValueError
-                raise ValueError(f"Could not read {filename}")
-            image = convert(image, **kwargs)
-            return (image, str(path))
+        # read a single file
+        path = Path(mvtb_path_to_datafile("images", path))
+        image = cv2.imread(path.as_posix(), cv2.IMREAD_UNCHANGED)
+        if image is None:
+            raise ValueError(f"Could not read {filename}")
+        image = convert(image, **kwargs)
+        return (image, str(path))
 
     else:
         raise ValueError(filename, "invalid filename")
