@@ -16,6 +16,7 @@ OpenCV, and Open3D.
    intro
    package
    installation
+   numpy
    cmdline-tools
    jupyter-notebooks
    ros

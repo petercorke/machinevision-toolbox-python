@@ -10,6 +10,63 @@ from machinevisiontoolbox import Image
 
 
 class TestImage(unittest.TestCase):
+    def test_array_function_max(self):
+        im = Image([[1, 2], [3, 4]], dtype="uint8")
+
+        result = np.max(im)
+
+        self.assertEqual(result, np.max(im.array))
+
+    def test_array_function_sum(self):
+        im = Image([[1, 2], [3, 4]], dtype="uint8")
+
+        result = np.sum(im)
+
+        self.assertEqual(result, np.sum(im.array))
+
+    def test_array_function_ravel_is_ndarray(self):
+        im = Image([[1, 2], [3, 4]], dtype="uint8")
+
+        result = np.ravel(im)
+
+        self.assertIsInstance(result, np.ndarray)
+        self.assertEqual(result.ndim, 1)
+        nt.assert_array_equal(result, np.ravel(im.array))
+
+    def test_array_function_out_rejected(self):
+        im = Image([[1, 2], [3, 4]], dtype="uint8")
+        out = np.empty((), dtype=im.dtype)
+
+        with self.assertRaisesRegex(
+            TypeError, "NumPy function out= is not supported for Image"
+        ):
+            np.max(im, out=out)
+
+    def test_array_ufunc_unary(self):
+        im = Image([[1.2, 2.8], [3.1, 4.9]], dtype="float32")
+
+        result = np.ceil(im)
+
+        self.assertIsInstance(result, Image)
+        nt.assert_array_equal(result.array, np.ceil(im.array))
+
+    def test_array_ufunc_binary(self):
+        left = Image([[0.0, 1.0], [2.0, 3.0]], dtype="float32")
+        right = Image([[1.0, 1.0], [1.0, 1.0]], dtype="float32")
+
+        result = np.arctan2(left, right)
+
+        self.assertIsInstance(result, Image)
+        nt.assert_allclose(result.array, np.arctan2(left.array, right.array))
+
+    def test_array_ufunc_out_rejected(self):
+        im = Image([[1.2, 2.8], [3.1, 4.9]], dtype="float32")
+
+        with self.assertRaisesRegex(
+            TypeError, "NumPy ufunc out= is not supported for Image"
+        ):
+            np.ceil(im, out=im)
+
     def test_pixel(self):
         im = Image(np.arange(80).reshape((10, 8)), dtype="int64")  # 8x10 image
         pix = im.pixel(5, 6)

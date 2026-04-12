@@ -449,7 +449,181 @@ class Image(
 
         self.name = name
 
-    __array_ufunc__ = None  # allow Image matrices operators with NumPy values
+    def __array_ufunc__(self, ufunc, method: str, *inputs, **kwargs):
+        """
+        Support NumPy ufunc calls on image data.
+
+        :param ufunc: NumPy universal function being invoked
+        :type ufunc: numpy.ufunc
+        :param method: ufunc dispatch method
+        :type method: str
+        :param inputs: positional arguments passed to the ufunc
+        :type inputs: tuple
+        :param kwargs: keyword arguments passed to the ufunc
+        :type kwargs: dict
+        :raises TypeError: if the ufunc is called with ``out=``
+        :return: ufunc result as :class:`Image`, tuple, ndarray, or scalar
+        :rtype: :class:`Image`, tuple, ndarray, scalar
+
+        This method handles ordinary ufunc calls such as ``np.ceil(img)`` and
+        ``np.arctan2(img1, img2)``.
+
+        Any :class:`Image` input arguments are converted to their underlying
+        NumPy arrays, the ufunc is applied, then outputs are mapped as follows:
+
+        - 2D or 3D ndarrays are wrapped to :class:`Image`
+        - scalars and 1D ndarrays are returned as NumPy values
+        - tuple outputs are handled element-wise using the same rules
+
+        Only the ``"__call__"`` ufunc mode is supported. Reduction-style ufunc methods
+        such as ``reduce`` or ``accumulate`` are delegated back to NumPy.
+
+        .. important:: The NumPy ``out=`` argument is intentionally not supported. Images are
+            treated as immutable values, so in-place ufunc writes are rejected.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> import numpy as np
+            >>> img = Image([[1.2, 2.8], [3.1, 4.9]], dtype='float32')
+            >>> np.ceil(img).array
+            >>> a = Image([[0.0, 1.0], [2.0, 3.0]], dtype='float32')
+            >>> b = Image([[1.0, 1.0], [1.0, 1.0]], dtype='float32')
+            >>> np.arctan2(a, b).array
+
+        For two images ``a`` and ``b``:
+
+        - ``np.add(a, b)`` dispatches here via NumPy ufunc protocol
+        - ``a + b`` dispatches to the Toolbox ``__add__`` operator implementation
+
+        :seealso: :meth:`array`
+        """
+        if method != "__call__":
+            return NotImplemented
+
+        if "out" in kwargs:
+            raise TypeError("NumPy ufunc out= is not supported for Image")
+
+        image = next(
+            (arg for arg in inputs if isinstance(arg, self.__class__)),
+            self,
+        )
+
+        def wrap_result(result):
+            if not isinstance(result, np.ndarray):
+                return result
+
+            if result.ndim < 2:
+                return result
+
+            colororder = None
+            if (
+                result.ndim == 3
+                and image.colororder is not None
+                and result.shape[2] == image.nplanes
+            ):
+                colororder = image.colororder
+
+            return image.__class__(result, colororder=colororder)
+
+        coerced_inputs = [
+            arg._A if isinstance(arg, self.__class__) else arg for arg in inputs
+        ]
+        result = ufunc(*coerced_inputs, **kwargs)
+
+        if isinstance(result, tuple):
+            return tuple(wrap_result(item) for item in result)
+
+        return wrap_result(result)
+
+    def __array_function__(self, func, types, args, kwargs):
+        """
+        Support selected high-level NumPy functions on images.
+
+        :param func: NumPy function being invoked
+        :type func: callable
+        :param types: distinct argument types participating in dispatch
+        :type types: tuple
+        :param args: positional arguments passed to ``func``
+        :type args: tuple
+        :param kwargs: keyword arguments passed to ``func``
+        :type kwargs: dict
+        :raises TypeError: if ``out=`` is provided
+        :return: result of the NumPy function on the underlying arrays
+        :rtype: Any
+
+        This method coerces :class:`Image` arguments to NumPy arrays, calls the
+        requested NumPy function, then wraps image-shaped ndarray outputs back to
+        :class:`Image`.
+
+        Scalars and 1D arrays are returned as NumPy values, not wrapped.
+
+        The NumPy ``out=`` argument is intentionally not supported for image
+        immutability.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> import numpy as np
+            >>> img = Image([[1, 2], [3, 4]], dtype='uint8')
+            >>> np.max(img)
+            >>> np.sum(img)
+            >>> np.ravel(img).shape
+
+        :seealso: :meth:`__array_ufunc__`
+        """
+        if "out" in kwargs:
+            raise TypeError("NumPy function out= is not supported for Image")
+
+        if not all(issubclass(t, (self.__class__, np.ndarray)) for t in types):
+            return NotImplemented
+
+        def coerce(value):
+            if isinstance(value, self.__class__):
+                return value._A
+            if isinstance(value, tuple):
+                return tuple(coerce(v) for v in value)
+            if isinstance(value, list):
+                return [coerce(v) for v in value]
+            return value
+
+        image = next(
+            (
+                arg
+                for arg in (*args, *kwargs.values())
+                if isinstance(arg, self.__class__)
+            ),
+            self,
+        )
+
+        def wrap_result(value):
+            if isinstance(value, tuple):
+                return tuple(wrap_result(v) for v in value)
+            if isinstance(value, list):
+                return [wrap_result(v) for v in value]
+            if not isinstance(value, np.ndarray):
+                return value
+            if value.ndim < 2:
+                return value
+
+            colororder = None
+            if (
+                value.ndim == 3
+                and image.colororder is not None
+                and value.shape[2] == image.nplanes
+            ):
+                colororder = image.colororder
+
+            return image.__class__(value, colororder=colororder)
+
+        coerced_args = tuple(coerce(arg) for arg in args)
+        coerced_kwargs = {k: coerce(v) for k, v in kwargs.items()}
+        result = func(*coerced_args, **coerced_kwargs)
+        return wrap_result(result)
 
     def __str__(self) -> str:
         """

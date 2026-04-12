@@ -113,12 +113,9 @@ Accessing the pixel array
 -------------------------
 
 We can access the array of pixel values by
-either the ``A`` or ``image`` attribute, or by using the object as if it were a
-NumPy array, for example::
+the ``array`` attribute::
 
-	np.mean(img.A)
-	np.mean(img.image)
-	np.mean(img)
+	np.mean(img.array)
 
 We can slice the image using the same syntax as a NumPy array::
 
