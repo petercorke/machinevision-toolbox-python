@@ -16,6 +16,7 @@ import inspect
 import importlib
 from pathlib import Path
 from importlib.metadata import version as _pkg_version
+from sphinx_codeautolink import clean_ipython, clean_pycon
 
 # -- Local extension path ----------------------------------------------------
 # Keep custom Sphinx extensions in docs/source/exts importable.
@@ -90,6 +91,12 @@ templates_path = ["_templates"]
 autosummary_generate = True
 autodoc_member_order = "bysource"
 autosummary_imported_members = True
+autodoc_mock_imports = ["bdsim", "bdsim.graphics"]
+codeautolink_custom_blocks = {
+    "pycon": clean_pycon,
+    "ipython": clean_ipython,
+    "ipython3": clean_ipython,
+}
 add_module_names = False
 autosectionlabel_prefix_document = True
 rst_epilog = """
