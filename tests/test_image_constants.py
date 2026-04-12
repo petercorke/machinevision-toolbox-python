@@ -557,16 +557,16 @@ class TestImageConstants(unittest.TestCase):
         self.assertEqual(im.size, (50, 60))
         self.assertEqual(im.dtype, np.uint8)
         self.assertFalse(im.iscolor)
-        self.assertEqual(im.sum, 9)
+        self.assertEqual(im.sum(), 9)
 
         im = Image.Polygons([p1, p2], size=(50, 60), color=1)
         self.assertEqual(im.size, (50, 60))
         self.assertEqual(im.dtype, np.uint8)
         self.assertFalse(im.iscolor)
-        self.assertEqual(im.sum, 9 + 11 * 11)
+        self.assertEqual(im.sum(), 9 + 11 * 11)
 
         im = Image.Polygons([p1, p2], size=(50, 60), color=[5, 1])
-        self.assertEqual(im.sum, 5 * 9 + 11 * 11)
+        self.assertEqual(im.sum(), 5 * 9 + 11 * 11)
 
 
 # ----------------------------------------------------------------------------#

@@ -192,29 +192,49 @@ class TestImageWholeFeatures(unittest.TestCase):
 
     def test_mean(self):
         im = Image.String("123|456|789")
-        self.assertEqual(im.mean, 5)
+        self.assertEqual(im.mean(), 5)
 
     def test_std(self):
         im = Image.String("123|456|789")
 
-        self.assertEqual(im.std, np.sqrt(20.0 / 3))
+        self.assertEqual(im.std(), np.sqrt(20.0 / 3))
 
     def test_var(self):
         im = Image.String("123|456|789")
-        self.assertEqual(im.var, 20.0 / 3)
+        self.assertEqual(im.var(), 20.0 / 3)
 
     def test_min(self):
         im = Image.String("123|456|789")
 
-        self.assertEqual(im.min, 1)
+        self.assertEqual(im.min(), 1)
 
     def test_max(self):
         im = Image.String("123|456|789")
-        self.assertEqual(im.max, 9)
+        self.assertEqual(im.max(), 9)
 
     def test_median(self):
         im = Image.String("123|456|789")
-        self.assertEqual(im.median, 5)
+        self.assertEqual(im.median(), 5)
+
+    def test_scalar_stats_kwargs(self):
+        im = Image.String("123|456|789")
+
+        nt.assert_array_equal(im.sum(axis=0), np.array([12, 15, 18]))
+        nt.assert_array_equal(im.min(axis=0), np.array([1, 2, 3]))
+        nt.assert_array_equal(im.max(axis=0), np.array([7, 8, 9]))
+        nt.assert_array_equal(im.mean(axis=0), np.array([4.0, 5.0, 6.0]))
+        nt.assert_array_equal(
+            im.std(axis=0),
+            np.array(
+                [
+                    np.sqrt(6.0),
+                    np.sqrt(6.0),
+                    np.sqrt(6.0),
+                ]
+            ),
+        )
+        nt.assert_array_equal(im.var(axis=0), np.array([6.0, 6.0, 6.0]))
+        nt.assert_array_equal(im.median(axis=0), np.array([4.0, 5.0, 6.0]))
 
     # pixel values
 

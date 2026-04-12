@@ -11,3 +11,4 @@ A number of Python classes are provided to represent images, image sources, came
    point-cloud
    camera
    sources
+   numpy

@@ -25,11 +25,12 @@ class ImageWholeFeaturesMixin(_ImageBase if TYPE_CHECKING else object):
 
     # ------------------ scalar statistics ----------------------------- #
 
-    @property
-    def sum(self) -> int | float:
+    def sum(self, **kwargs: Any) -> np.generic | np.ndarray:
         r"""
         Sum of all pixels
 
+        :param kwargs: additional keyword arguments passed to :func:`numpy.nansum`
+        :type kwargs: dict
         :return: sum
 
         Computes the sum of pixels in the image:
@@ -44,25 +45,26 @@ class ImageWholeFeaturesMixin(_ImageBase if TYPE_CHECKING else object):
 
             >>> from machinevisiontoolbox import Image
             >>> img = Image.Read('flowers1.png')
-            >>> img.sum  # R+G+B
-
+            >>> img.sum()  # sum over all planes
+            >>> img.sum(axis=(0,1))  # per-plane sum
 
         .. note::
             - The return value type is the same as the image type.
             - NaN values are ignored in the sum
-            - For axis-specific sums use :func:`numpy.nansum` on ``A`` directly.
+            - For ``axis`` remember the axes are in NumPy order: 0=rows, 1=columns, 2=planes.
 
         :seealso: :func:`numpy.sum` :meth:`numnan` :meth:`~~machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.mpq`
             :meth:`~machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.npq`
             :meth:`~machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.upq`
         """
-        return np.nansum(self._A)
+        return np.nansum(self._A, **kwargs)
 
-    @property
-    def min(self) -> int | float:
+    def min(self, **kwargs: Any) -> np.generic | np.ndarray:
         """
         Minimum value of all pixels
 
+        :param kwargs: additional keyword arguments passed to :func:`numpy.nanmin`
+        :type kwargs: dict
         :return: minimum value
 
         Example:
@@ -71,22 +73,24 @@ class ImageWholeFeaturesMixin(_ImageBase if TYPE_CHECKING else object):
 
             >>> from machinevisiontoolbox import Image
             >>> img = Image.Read('flowers1.png')
-            >>> img.min
+            >>> img.min() # min over all planes
+            >>> img.min(axis=(0,1))  # per-plane min
 
         .. note::
             - The return value type is the same as the image type.
             - NaN values are ignored
-            - For axis-specific minima use :func:`numpy.nanmin` on ``A`` directly.
+            - For ``axis`` remember the axes are in NumPy order: 0=rows, 1=columns, 2=planes.
 
         :seealso: :meth:`stats` :meth:`hist` :meth:`Hough` :meth:`max` :func:`numpy.nanmin` :meth:`numnan`
         """
-        return np.nanmin(self._A)
+        return np.nanmin(self._A, **kwargs)
 
-    @property
-    def max(self) -> int | float:
+    def max(self, **kwargs: Any) -> np.generic | np.ndarray:
         """
         Maximum value of all pixels
 
+        :param kwargs: additional keyword arguments passed to :func:`numpy.nanmax`
+        :type kwargs: dict
         :return: maximum value
 
         Example:
@@ -95,22 +99,24 @@ class ImageWholeFeaturesMixin(_ImageBase if TYPE_CHECKING else object):
 
             >>> from machinevisiontoolbox import Image
             >>> img = Image.Read('flowers1.png')
-            >>> img.max
+            >>> img.max()  # max over all planes
+            >>> img.max(axis=(0,1))  # per-plane max
 
         .. note::
             - The return value type is the same as the image type.
             - NaN values are ignored
-            - For axis-specific maxima use :func:`numpy.nanmax` on ``A`` directly.
+            - For ``axis`` remember the axes are in NumPy order: 0=rows, 1=columns, 2=planes.
 
         :seealso: :meth:`stats` :meth:`hist` :meth:`min` :func:`numpy.nanmax` :meth:`numnan`
         """
-        return np.nanmax(self._A)
+        return np.nanmax(self._A, **kwargs)
 
-    @property
-    def mean(self) -> float:
+    def mean(self, **kwargs: Any) -> np.generic | np.ndarray:
         """
         Mean value of all pixels
 
+        :param kwargs: additional keyword arguments passed to :func:`numpy.nanmean`
+        :type kwargs: dict
         :return: mean value
 
         Example:
@@ -119,22 +125,24 @@ class ImageWholeFeaturesMixin(_ImageBase if TYPE_CHECKING else object):
 
             >>> from machinevisiontoolbox import Image
             >>> img = Image.Read('flowers1.png')
-            >>> img.mean
+            >>> img.mean()  # mean over all planes
+            >>> img.mean(axis=(0,1))  # per-plane mean
 
         .. note::
             - The return value type is the same as the image type.
             - NaN values are ignored
-            - For axis-specific means use :func:`numpy.nanmean` on ``A`` directly.
+            - For ``axis`` remember the axes are in NumPy order: 0=rows, 1=columns, 2=planes.
 
         :seealso: :meth:`stats` :meth:`hist` :meth:`Hough` :meth:`std` :meth:`median` :func:`numpy.nanmean` :meth:`numnan`
         """
-        return float(np.nanmean(self._A))
+        return np.nanmean(self._A, **kwargs)
 
-    @property
-    def std(self) -> float:
+    def std(self, **kwargs: Any) -> np.generic | np.ndarray:
         """
         Standard deviation of all pixels
 
+        :param kwargs: additional keyword arguments passed to :func:`numpy.nanstd`
+        :type kwargs: dict
         :return: standard deviation value
 
         Example:
@@ -143,23 +151,24 @@ class ImageWholeFeaturesMixin(_ImageBase if TYPE_CHECKING else object):
 
             >>> from machinevisiontoolbox import Image
             >>> img = Image.Read('flowers1.png')
-            >>> img.std
+            >>> img.std()  # std over all planes
+            >>> img.std(axis=(0,1))  # per-plane std
 
         .. note::
             - The return value type is the same as the image type.
             - NaN values are ignored
-            - For axis-specific standard deviations use :func:`numpy.nanstd`
-              on ``A`` directly.
+            - For ``axis`` remember the axes are in NumPy order: 0=rows, 1=columns, 2=planes.
 
         :seealso: :meth:`stats` :meth:`hist` :meth:`mean` :meth:`var` :func:`numpy.nanstd` :meth:`numnan`
         """
-        return float(np.nanstd(self._A))
+        return np.nanstd(self._A, **kwargs)
 
-    @property
-    def var(self) -> float:
+    def var(self, **kwargs: Any) -> np.generic | np.ndarray:
         """
         Variance of all pixels
 
+        :param kwargs: additional keyword arguments passed to :func:`numpy.nanvar`
+        :type kwargs: dict
         :return: variance value
 
         Example:
@@ -168,23 +177,24 @@ class ImageWholeFeaturesMixin(_ImageBase if TYPE_CHECKING else object):
 
             >>> from machinevisiontoolbox import Image
             >>> img = Image.Read('flowers1.png')
-            >>> img.var
+            >>> img.var()  # variance over all planes
+            >>> img.var(axis=(0,1))  # per-plane variance
 
         .. note::
             - The return value type is the same as the image type.
             - NaN values are ignored
-            - For axis-specific variances use :func:`numpy.nanvar` on ``A``
-              directly.
+            - For ``axis`` remember the axes are in NumPy order: 0=rows, 1=columns, 2=planes.
 
         :seealso: :meth:`stats` :meth:`hist` :meth:`std` :func:`numpy.nanvar` :meth:`numnan`
         """
-        return float(np.nanvar(self._A))
+        return np.nanvar(self._A, **kwargs)
 
-    @property
-    def median(self) -> int | float:
+    def median(self, **kwargs: Any) -> np.generic | np.ndarray:
         """
         Median value of all pixels
 
+        :param kwargs: additional keyword arguments passed to :func:`numpy.nanmedian`
+        :type kwargs: dict
         :return: median value
 
         Example:
@@ -193,17 +203,17 @@ class ImageWholeFeaturesMixin(_ImageBase if TYPE_CHECKING else object):
 
             >>> from machinevisiontoolbox import Image
             >>> img = Image.Read('flowers1.png')
-            >>> img.median
+            >>> img.median()  # median over all planes
+            >>> img.median(axis=(0,1))  # per-plane median
 
         .. note::
             - The return value type is the same as the image type.
             - NaN values are ignored
-                        - For axis-specific medians use :func:`numpy.nanmedian` on ``A``
-                            directly.
+            - For ``axis`` remember the axes are in NumPy order: 0=rows, 1=columns, 2=planes.
 
         :seealso: :meth:`stats` :meth:`hist` :meth:`mean` :meth:`std` :func:`numpy.nanmedian` :meth:`numnan`
         """
-        return np.nanmedian(self._A)
+        return np.nanmedian(self._A, **kwargs)
 
     @staticmethod
     def _plane_stats(plane: np.ndarray) -> dict[str, float | int]:

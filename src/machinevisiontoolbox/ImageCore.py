@@ -844,14 +844,14 @@ class Image(
 
         if fmt is None:
             if self.isint:
-                width = max(len(str(self.max)), len(str(self.min)))
+                width = max(len(str(self.max())), len(str(self.min())))
                 fmt = f"{separator}{{:{width}d}}"
             elif self.isbool:
                 width = 1
                 fmt = f"{separator}{{:{width}d}}"
             elif self.isfloat:
                 ff = f"{{:.{precision}f}}"
-                width = max(len(ff.format(self.max)), len(ff.format(self.min)))
+                width = max(len(ff.format(self.max())), len(ff.format(self.min())))
                 fmt = f"{separator}{{:{width}.{precision}f}}"
 
         if header:
