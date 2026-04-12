@@ -7,6 +7,9 @@ from __future__ import annotations
 import fnmatch
 import json
 import base64
+import pathlib
+import subprocess
+import sys
 import threading
 from dataclasses import dataclass
 from http import client
@@ -515,17 +518,24 @@ class VideoCamera(ImageSource):
                     # process image
 
 
-    .. note:: The value of ``id`` is system specific but generally 0 is the
-        first attached video camera.  On a Mac running 13.0 (Ventura) or later and an iPhone with
-        iOS16 or later, the Contuinity Camera feature allows the phone camera to be used as
-        a local video camera, and it will appear as a separate camera with its own ID.
+    .. note::
 
+        The value of ``id`` is system specific but generally 0 is the first
+        attached video camera.  On a Mac running 13.0 (Ventura) or later and
+        an iPhone with iOS 16 or later, the Continuity Camera feature allows
+        the phone camera to be used as a local video camera, and it will
+        appear as a separate camera with its own ID.
+
+        OpenCV does not expose a portable API for mapping integer ``id``
+        values to human-readable camera names.  Use :meth:`list` to
+        enumerate the cameras that are present on the current machine
+        together with their best-available names.
 
     :references:
         - |RVC3|, Section 11.1.3.
 
-    :seealso: :func:`~machinevisiontoolbox.base.imageio.convert`
-        `cv2.VideoCapture <https://docs.opencv.org/4.x/d8/dfe/classcv_1_1VideoCapture.html#a57c0e81e83e60f36c83027dc2a188e80>`_,
+    :seealso: :meth:`list` :func:`~machinevisiontoolbox.base.imageio.convert`
+        `cv2.VideoCapture <https://docs.opencv.org/4.x/d8/dfe/classcv_1_1VideoCapture.html#a57c0e81e83e60f36c83027dc2a188e80>`_
     """
 
     id: int
@@ -743,6 +753,123 @@ class VideoCamera(ImageSource):
         :seealso: :meth:`height` :meth:`width`
         """
         return (self.height, self.width)
+
+    @classmethod
+    def list(cls) -> list[dict]:
+        """
+        Enumerate available local video cameras
+
+        :return: list of dicts, one per camera, each with keys ``id``,
+            ``width``, ``height``, ``fps``, and ``name`` (best-effort).
+            On macOS, ``width``, ``height``, and ``fps`` are ``None`` if the
+            process has not yet been granted camera authorisation.
+        :rtype: list[dict]
+
+        Probes integer indices 0, 1, 2, … until no camera responds, and
+        returns a list describing each one.  Camera names are obtained by
+        a platform-specific method:
+
+        - **macOS** — ``system_profiler SPCameraDataType -json`` (no camera
+          authorisation required)
+        - **Linux** — ``/sys/class/video4linux/videoN/name`` sysfs entry
+        - **Windows** — not available; ``name`` is ``None``
+
+        The name mapping is best-effort: if the platform query fails the
+        ``name`` key is ``None``.
+
+        Example::
+
+            $ python
+            >>> from machinevisiontoolbox import VideoCamera
+            >>> for cam in VideoCamera.list():
+            ...     print(cam)
+            {'id': 0, 'width': 1280, 'height': 720, 'fps': 30, 'name': 'FaceTime HD Camera'}
+            {'id': 1, 'width': 1920, 'height': 1080, 'fps': 30, 'name': 'iPhone Camera'}
+
+        :seealso: :class:`VideoCamera`
+        """
+
+        def _query_macos() -> list[str]:
+            """Return ordered list of camera names from system_profiler JSON."""
+            try:
+                out = subprocess.check_output(
+                    ["system_profiler", "SPCameraDataType", "-json"],
+                    stderr=subprocess.DEVNULL,
+                    text=True,
+                )
+                data = json.loads(out)
+                return [item["_name"] for item in data.get("SPCameraDataType", [])]
+            except (
+                FileNotFoundError,
+                subprocess.CalledProcessError,
+                KeyError,
+                json.JSONDecodeError,
+            ):
+                return []
+
+        def _names_linux() -> dict[int, str]:
+            """Read /sys/class/video4linux/videoN/name on Linux."""
+            result = {}
+            sysfs = pathlib.Path("/sys/class/video4linux")
+            if not sysfs.exists():
+                return result
+            for entry in sorted(sysfs.iterdir()):
+                name_file = entry / "name"
+                try:
+                    idx = int(entry.name.replace("video", ""))
+                    result[idx] = name_file.read_text().strip()
+                except (ValueError, OSError):
+                    pass
+            return result
+
+        cameras = []
+        platform = sys.platform
+
+        if platform == "darwin":
+            # Enumerate from system_profiler — works even without camera
+            # authorisation.  OpenCV properties are best-effort: if the
+            # process hasn't been granted camera access yet, width/height/fps
+            # will be None for those cameras.
+            names = _query_macos()
+            for idx, name in enumerate(names):
+                cap = cv.VideoCapture(idx)
+                if cap.isOpened():
+                    entry = {
+                        "id": idx,
+                        "width": int(cap.get(cv.CAP_PROP_FRAME_WIDTH)),
+                        "height": int(cap.get(cv.CAP_PROP_FRAME_HEIGHT)),
+                        "fps": int(cap.get(cv.CAP_PROP_FPS)),
+                        "name": name,
+                    }
+                    cap.release()
+                else:
+                    cap.release()
+                    entry = {
+                        "id": idx,
+                        "width": None,
+                        "height": None,
+                        "fps": None,
+                        "name": name,
+                    }
+                cameras.append(entry)
+        else:
+            name_map = _names_linux() if platform.startswith("linux") else {}
+            for idx in range(32):  # practical upper bound
+                cap = cv.VideoCapture(idx)
+                if not cap.isOpened():
+                    cap.release()
+                    break
+                entry = {
+                    "id": idx,
+                    "width": int(cap.get(cv.CAP_PROP_FRAME_WIDTH)),
+                    "height": int(cap.get(cv.CAP_PROP_FRAME_HEIGHT)),
+                    "fps": int(cap.get(cv.CAP_PROP_FPS)),
+                    "name": name_map.get(idx),
+                }
+                cap.release()
+                cameras.append(entry)
+
+        return cameras
 
     def __enter__(self) -> VideoCamera:
         return self
