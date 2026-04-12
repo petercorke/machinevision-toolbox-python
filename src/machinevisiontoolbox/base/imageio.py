@@ -18,7 +18,6 @@ import cv2
 import matplotlib as mpl
 import matplotlib.cm as cm
 
-# pyright: reportMissingImports=false
 import numpy as np
 
 from machinevisiontoolbox.base.color import colorspace_convert, gamma_decode

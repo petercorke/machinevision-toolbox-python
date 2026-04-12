@@ -31,15 +31,17 @@ if TYPE_CHECKING:
 
 from machinevisiontoolbox.base import (
     colorname,
-    convert,
     float_image,
-    idisp,
     int_image,
-    iread,
-    iwrite,
     mvtb_path_to_datafile,
 )
-from machinevisiontoolbox.base.imageio import _pick_imagefile
+from machinevisiontoolbox.base.imageio import (
+    _pick_imagefile,
+    convert,
+    idisp,
+    iread,
+    iwrite,
+)
 from machinevisiontoolbox.mvtb_types import Dtype
 
 # from numpy.lib.arraysetops import isin
@@ -152,10 +154,15 @@ class ImageIOMixin(_ImageBase if TYPE_CHECKING else object):
 
         :seealso: :func:`~machinevisiontoolbox.base.imageio.idisp`
         """
+        display_title: str | None
         if title is False:
-            title = None
+            display_title = None
+        elif isinstance(title, str):
+            display_title = title
         elif title is None and self.name is not None:
-            _, title = os.path.split(self.name)
+            _, display_title = os.path.split(self.name)
+        else:
+            display_title = None
 
         if self.domain is not None:
             # left right top bottom
@@ -167,7 +174,10 @@ class ImageIOMixin(_ImageBase if TYPE_CHECKING else object):
             ]
 
         return idisp(
-            self._A, title=title, colororder="RGB" if self.isrgb else "BGR", **kwargs
+            self._A,
+            title=display_title,
+            colororder="RGB" if self.isrgb else "BGR",
+            **kwargs,
         )
 
     def write(
@@ -202,7 +212,7 @@ class ImageIOMixin(_ImageBase if TYPE_CHECKING else object):
         # #gabbc7ef1aa2edfaa87772f1202d67e0ce
         # TODO imwrite has many quality/type flags
 
-        ret = iwrite(self._A.astype(dtype), filename, **kwargs)
+        ret = iwrite(self._A.astype(dtype), str(filename), **kwargs)
 
         return ret
 
@@ -419,7 +429,7 @@ class ImageIOMixin(_ImageBase if TYPE_CHECKING else object):
                 self.image = image
 
                 w = 2 * h + 1
-                patch = mpatches.Rectangle((0, 0), w, w, color=color, alpha=alpha)
+                patch = mpatches.Rectangle((0, 0), w, w, color=wincolor, alpha=alpha)
                 if ax is None:
                     ax = plt.gca()
 

@@ -4,7 +4,7 @@ Geometric transformations: resizing, cropping, rotation, padding, and stacking o
 
 import math
 from collections.abc import Callable
-from typing import Any
+from typing import Any, cast
 
 try:
     from typing import Self
@@ -15,6 +15,7 @@ import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy as sp
+from matplotlib.backend_bases import MouseButton
 from matplotlib.widgets import RectangleSelector
 from spatialmath import SE2
 from spatialmath import base as smb
@@ -137,7 +138,7 @@ class ImageReshapeMixin(_ImageBase if TYPE_CHECKING else object):
         """
         pw = ((top, bottom), (left, right))
         if isinstance(value, str):
-            value = self.like(mvb.name2color(value))
+            value = self.like(cast(Any, mvb.name2color)(value))
         if self.nplanes == 1:
             if not smb.isscalar(value):
                 raise ValueError("pad value should be an int for single-plane image")
@@ -146,7 +147,7 @@ class ImageReshapeMixin(_ImageBase if TYPE_CHECKING else object):
             if smb.isscalar(value):
                 value = (value,) * self.nplanes
             elif self.nplanes != len(value):
-                raise ValueError(f"pad value should have {len(self.planes)} elements")
+                raise ValueError(f"pad value should have {self.nplanes} elements")
 
         if self.iscolor:
             planes = []
@@ -682,13 +683,12 @@ class ImageReshapeMixin(_ImageBase if TYPE_CHECKING else object):
                 roi.extend([eclick.xdata, erelease.xdata, eclick.ydata, erelease.ydata])
                 plt.gcf().canvas.stop_event_loop()  # unblock
 
-            roi = []
+            roi: list[float] = []
             rs = RectangleSelector(
                 plt.gca(),
                 lambda e1, e2: line_select_callback(e1, e2, roi),
-                drawtype="box",
                 useblit=True,
-                button=[1, 3],  # don't use middle button
+                button=[MouseButton.LEFT, MouseButton.RIGHT],  # don't use middle button
                 minspanx=5,
                 minspany=5,
                 spancoords="pixels",
@@ -699,27 +699,27 @@ class ImageReshapeMixin(_ImageBase if TYPE_CHECKING else object):
                 timeout=-1
             )  # block till rectangle released
             rs.set_active(False)
-            roi = np.round(np.r_[roi]).astype(int)  # roound to nearest int
+            roi_bounds = np.round(np.r_[roi]).astype(int)  # roound to nearest int
         else:
             # get passed vector
-            roi = smb.getvector(bbox, 4, dtype=int)
+            roi_bounds = smb.getvector(bbox, 4, dtype=int)
 
-        left, right, top, bot = roi
+        left, right, top, bot = roi_bounds
         if left >= right or top >= bot:
             raise ValueError("ROI should be top-left and bottom-right corners")
         # TODO check row/column ordering, and ndim check
 
-        roi = self._A[top : bot + 1, left : right + 1, ...]
+        roi_image = self._A[top : bot + 1, left : right + 1, ...]
 
         if bbox is None:
-            return self.__class__(roi, colororder=self.colororder), [
+            return self.__class__(roi_image, colororder=self.colororder), [
                 left,
                 right,
                 top,
                 bot,
             ]
         else:
-            return self.__class__(roi, colororder=self.colororder)
+            return self.__class__(roi_image, colororder=self.colororder)
 
     def samesize(self, image2: Any, bias: float = 0.5) -> Self:
         """
@@ -851,18 +851,19 @@ class ImageReshapeMixin(_ImageBase if TYPE_CHECKING else object):
         if not smb.isscalar(sfactor):
             raise TypeError(sfactor, "factor is not a scalar")
 
+        interp: int
         if interpolation is None:
             if sfactor > 1:
-                interpolation = cv2.INTER_CUBIC
+                interp = cv2.INTER_CUBIC
             else:
-                interpolation = cv2.INTER_CUBIC
+                interp = cv2.INTER_CUBIC
         elif isinstance(interpolation, str):
             if interpolation == "cubic":
-                interpolation = cv2.INTER_CUBIC
+                interp = cv2.INTER_CUBIC
             elif interpolation == "linear":
-                interpolation = cv2.INTER_LINEAR
+                interp = cv2.INTER_LINEAR
             elif interpolation == "area":
-                interpolation = cv2.INTER_AREA
+                interp = cv2.INTER_AREA
             else:
                 raise ValueError("bad interpolation string")
         else:
@@ -880,7 +881,7 @@ class ImageReshapeMixin(_ImageBase if TYPE_CHECKING else object):
             dsize=None,
             fx=sfactor,
             fy=sfactor,
-            interpolation=interpolation,
+            interpolation=interp,
         )
 
         return self.__class__(out, colororder=self.colororder)
@@ -965,8 +966,8 @@ class ImageReshapeMixin(_ImageBase if TYPE_CHECKING else object):
     # ======================= interpolate ============================= #
 
     @classinstancemethod
-    def meshgrid(
-        self, width: int | None = None, height: int | None = None
+    def meshgrid(  # type: ignore[override]
+        self: type[Self] | Self, width: int | None = None, height: int | None = None
     ) -> tuple[np.ndarray, np.ndarray]:
         """
         Coordinate arrays for image
@@ -1107,6 +1108,8 @@ class ImageReshapeMixin(_ImageBase if TYPE_CHECKING else object):
             else:
                 Ud, Vd = np.meshgrid(self.domain[0], self.domain[1])
 
+        assert Ud is not None and Vd is not None
+
         points = np.array((Ud.flatten(), Vd.flatten())).T
         values = self._A.flatten()
         xi = np.array((U.flatten(), V.flatten())).T
@@ -1203,6 +1206,12 @@ class ImageReshapeMixin(_ImageBase if TYPE_CHECKING else object):
         if isinstance(M, SE2):
             M = M.A
 
+        assert size is not None
+        if bordermode is None:
+            bordermode = cv2.BORDER_CONSTANT
+        if bordervalue is None:
+            bordervalue = cast(Any, 0)
+
         out = cv2.warpAffine(
             src=self._A,
             M=M[:2, :],
@@ -1223,7 +1232,7 @@ class ImageReshapeMixin(_ImageBase if TYPE_CHECKING else object):
         tile: bool = False,
         size: tuple[int, int] | None = None,
         background: Any = None,
-    ) -> Self:
+    ) -> Self | tuple[Self, np.ndarray, np.ndarray]:
         r"""
         Perspective warp
 
@@ -1266,6 +1275,8 @@ class ImageReshapeMixin(_ImageBase if TYPE_CHECKING else object):
             raise TypeError("H must be a 3x3 NumPy array")
         if size is None:
             size = self.size
+        tl = np.zeros(2, dtype=int)
+        wcorners = np.zeros((2, 4))
 
         if tile:
             corners = np.array([[0, size[0], size[0], 0], [0, 0, size[1], size[1]]])
@@ -1289,6 +1300,7 @@ class ImageReshapeMixin(_ImageBase if TYPE_CHECKING else object):
             border = {}
         else:
             border = {"borderMode": cv2.BORDER_CONSTANT, "borderValue": background}
+        assert size is not None
         out = cv2.warpPerspective(
             src=self._A, M=H, dsize=tuple(size), flags=flags, **border
         )
@@ -1367,6 +1379,7 @@ class ImageReshapeMixin(_ImageBase if TYPE_CHECKING else object):
             return image.ravel()
         elif image.ndim == 3:
             return image.reshape((-1, self.nplanes))
+        raise ValueError("Image must be 2D or 3D")
 
 
 if __name__ == "__main__":

@@ -9,7 +9,7 @@ import tempfile
 import webbrowser
 from collections import UserList, namedtuple
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, cast
 
 import cv2
 import matplotlib.pyplot as plt
@@ -497,7 +497,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         ## third pass, region tree coloring and creating Blob objects
         # level 0 is a parent, level > 0 is a child
-        levels = [None] * len(blob_params_list)
+        levels: list[int | None] = [None] * len(blob_params_list)
         while any([level is None for level in levels]):  # while some uncolored
             for idx, blob_params in enumerate(blob_params_list):
                 if levels[idx] is None:
@@ -1546,8 +1546,11 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         """
         perimeters = []
         for b in self.data:
+            assert epsilon is not None
             perimeter = cv2.approxPolyDP(
-                curve=b.perimeter.T, epsilon=epsilon, closed=False
+                curve=np.ascontiguousarray(b.perimeter.T),
+                epsilon=float(epsilon),
+                closed=False,
             )
             # result is Nx1x2
             perimeters.append(np.squeeze(perimeter).T)
@@ -1736,7 +1739,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             f_r = sp.interpolate.interp1d(s, r)
             f_theta = sp.interpolate.interp1d(s, theta)
 
-            return np.array((f_r(si), f_theta(si)))
+            return f_r(si), f_theta(si)
 
         return [polarfunc(b) for b in self]
 
@@ -1793,10 +1796,10 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         n = R.shape[1]
 
         # get the target profile
-        target = R[target, :]
+        target_profile = R[target, :]
 
         # cross correlate, with wrapping
-        out = sp.ndimage.correlate1d(R, target, axis=1, mode="wrap") / n
+        out = sp.ndimage.correlate1d(R, target_profile, axis=1, mode="wrap") / n
         idx = np.argmax(out, axis=1)
         return [out[k, idx[k]] for k in range(len(self))], idx / n
 
@@ -2034,7 +2037,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         """
         frames = SE2.Empty()
         for blob in self:
-            frames.append(SE2(*blob.centroid, blob.orientation))
+            frames.append(SE2(blob.uc, blob.vc, blob.orientation))
         return frames
 
     def plot_axes(self, **kwargs: Any) -> None:
@@ -2068,7 +2071,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         :seealso: :meth:`plot_ellipse` :meth:`plot_box` :meth:`plot_centroid`
         """
         for blob in self:
-            T = SE2(*blob.centroid, blob.orientation)
+            T = SE2(blob.uc, blob.vc, blob.orientation)
             # fmt: off
             a_axis = np.array(  # major axis is parallel to x-axis
                 [
@@ -2083,10 +2086,10 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
                 ]
             )
             # fmt: on
-            p = T * a_axis
+            p = np.asarray(T * a_axis)
             plt.plot(p[0, :], p[1, :], **kwargs)
 
-            p = T * b_axis
+            p = np.asarray(T * b_axis)
             plt.plot(p[0, :], p[1, :], **kwargs)
 
     @array_result
@@ -2122,7 +2125,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         """
         boxes = []
         for blob in self:
-            T = SE2(*blob.centroid, blob.orientation)
+            T = SE2(blob.uc, blob.vc, blob.orientation)
 
             # transform perimeter to centroid coordinate frame
             p = T.inv() * blob.perimeter
@@ -2253,8 +2256,8 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             w, h = mer[2:4]
             # define box, clockwise from top right
             box = np.array([[w, h], [w, -h], [-w, -h], [-w, h], [w, h]]).T / 2.0
-            T = SE2(*mer[:2], np.radians(mer[4]))
-            box = T * box
+            T = SE2(float(mer[0]), float(mer[1]), float(np.radians(mer[4])))
+            box = np.asarray(T * box)
             base.plot_polygon(box[:2, :], **kwargs)
 
     def label_image(self, image: Any = None) -> Any:
@@ -2366,7 +2369,12 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             # rewind the dot file, create PDF file in the filesystem, run dot
             f.seek(0)
             pdffile = tempfile.NamedTemporaryFile(suffix=".pdf", delete=False)
-            subprocess.run("dot -Tpdf", shell=True, stdin=filename, stdout=pdffile)
+            subprocess.run(
+                ["dot", "-Tpdf"],
+                stdin=cast(Any, f),
+                stdout=pdffile,
+                check=True,
+            )
 
             # open the PDF file in browser (hopefully portable), then cleanup
             webbrowser.open(f"file://{pdffile.name}")

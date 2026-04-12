@@ -19,7 +19,6 @@ import numpy as np
 import spatialmath.base as smb
 from scipy import interpolate
 
-# pyright: reportMissingImports=false
 # import io as io
 from machinevisiontoolbox.base.data import mvtb_path_to_datafile
 from machinevisiontoolbox.base.types import float_image, int_image
@@ -1805,7 +1804,9 @@ if __name__ == "__main__":  # pragma: no cover
 
     exec(
         open(
-            os.path.join(pathlib.Path(__file__).parent.absolute(), "test_image_color.py")
+            os.path.join(
+                pathlib.Path(__file__).parent.absolute(), "test_image_color.py"
+            )
         ).read()
     )
 

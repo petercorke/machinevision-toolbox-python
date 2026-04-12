@@ -2,7 +2,6 @@
 Core Image class providing pixel storage, arithmetic operators, and colour-plane access.
 """
 
-# pyright: reportMissingImports=false
 from __future__ import annotations
 
 import os
@@ -327,6 +326,8 @@ class Image(
                             break
         elif dtype is True:
             dtype = image.dtype
+        elif dtype is False:
+            raise ValueError("bad dtype argument passed to Image constructor")
         else:
             # dtype is given, convert to a NumPy dtype
             try:
@@ -448,6 +449,10 @@ class Image(
             self.colororder = color_dict
 
         self.name = name
+
+    def __iter__(self) -> Iterator["Image"]:
+        """Iterate over image planes."""
+        return self.planes()
 
     def __array_ufunc__(self, ufunc, method: str, *inputs, **kwargs):
         """
@@ -857,6 +862,8 @@ class Image(
         if header:
             print(self, file=file)
 
+        assert fmt is not None
+
         if self.iscolor:
             plane_names = (self.colororder_str or "").split(":")
             for i, plane in enumerate(self.planes()):
@@ -915,6 +922,9 @@ class Image(
         # convert to a list of numpy arrays
         arrays = [image._A for image in images]
 
+        if not arrays:
+            raise ValueError("At least one image is required")
+
         # check that all arrays have the same number of rows
         if len(set([array.shape[0] for array in arrays])) != 1:
             raise ValueError("All arrays must have the same number of rows")
@@ -964,7 +974,7 @@ class Image(
         s += s1 + "\n" + divider + "\n"
 
         # add the element values, row by row
-        for row in range(array.shape[0]):
+        for row in range(arrays[0].shape[0]):
             # add the row number
             s += f"{row:3d}: "
 
@@ -2250,7 +2260,7 @@ class Image(
             else:
                 raise ValueError("unsupported dtype specified")
 
-    def cast(self, value: int | float) -> Any:
+    def cast(self, value: int | float | np.ndarray) -> Any:
         """
         Cast value to same type as image
 
@@ -2278,7 +2288,7 @@ class Image(
         """
         return self._A.dtype.type(value)
 
-    def like(self, value: int | float, maxint: int | None = None) -> Any:
+    def like(self, value: int | float | np.ndarray, maxint: int | None = None) -> Any:
         """
         Convert value to the same type as image
 
@@ -2692,6 +2702,8 @@ class Image(
                     else:
                         return n // step
 
+            dims = list(shape)
+
             if len(shape) == 2:
                 dims = [lenkey(keys[0], shape[0]), lenkey(keys[1], shape[1])]
             elif len(shape) == 3:
@@ -2704,7 +2716,7 @@ class Image(
                 if dims[2] == 1:
                     dims = dims[:2]
 
-            return out.reshape(dims)
+            return out.reshape(tuple(dims))
 
         if (
             isinstance(keys, tuple)
@@ -2866,7 +2878,7 @@ class Image(
             pixel_values = np.vstack((u, v, pixel_values))
 
         if return_mask:
-            return pixel_values, Image(mask_array)
+            return pixel_values, self.__class__(mask_array)
         else:
             return pixel_values
 
@@ -3492,7 +3504,12 @@ class Image(
         return self
 
     # relational
-    def __eq__(self, other) -> "Image":
+    # __eq__ and __ne__ intentionally return Image (pixel-wise result) rather than bool.
+    # Unlike __add__ etc., these two are defined on object with return type bool, so
+    # pyright flags the override as incompatible — the ignore is justified here.
+    def __eq__(  # pyright: ignore[reportIncompatibleMethodOverride]
+        self, other
+    ) -> "Image":
         """
         Overloaded ``==`` operator
 
@@ -3563,7 +3580,9 @@ class Image(
 
         return bool(np.all((self == other).A))
 
-    def __ne__(self, other) -> "Image":
+    def __ne__(  # pyright: ignore[reportIncompatibleMethodOverride]  # same reason as __eq__
+        self, other
+    ) -> "Image":
         """
         Overloaded ``!=`` operator
 
@@ -4109,10 +4128,11 @@ class Image(
         if colororder is None:
             if all([im.colororder is not None for im in images]):
                 # attempt to create color order from the images
-                colororder = images[0].colororder
+                colororder = dict(images[0].colororder or {})
                 ip = len(colororder)
                 for image in images[1:]:
                     colororder |= Image.colororder2dict(image.colororder, start=ip)
+                    ip += image.nplanes
             else:
                 colororder = None
         else:

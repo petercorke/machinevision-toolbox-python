@@ -17,7 +17,8 @@ from spatialmath import SE3, base
 if TYPE_CHECKING:
     from machinevisiontoolbox._image_typing import _ImageBase
 
-from machinevisiontoolbox.base import findpeaks, findpeaks2d, set_window_title
+from machinevisiontoolbox.base import findpeaks, findpeaks2d
+from machinevisiontoolbox.base.imageio import set_window_title
 from machinevisiontoolbox.mvtb_types import *
 
 
@@ -1172,6 +1173,7 @@ class Histogram:
             xrange = (self._xrange[0], self._xrange[1])
             xlabel = "pixel value"
 
+        colors: list[str] = []
         if self.colordict is not None:
             colors = list(self.colordict.keys())
             n = len(colors)
@@ -1299,6 +1301,8 @@ class Histogram:
             goodcolors = [c for c in "rgbykcm"]
             if self.colordict is None:
                 self.colordict = {c: i for i, c in enumerate(goodcolors[:n])}
+                colors = list(self.colordict.keys())
+                patchcolor = [c.lower() for c in colors]
             else:
                 for color, i in self.colordict.items():
                     if color.lower() in "rgbykcm":

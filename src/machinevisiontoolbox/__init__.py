@@ -92,13 +92,6 @@ from machinevisiontoolbox.base import (
     draw_text,
     draw_line,
     draw_circle,
-    idisp,
-    iread,
-    iwrite,
-    convert,
-    cv_destroy_window,
-    set_window_title,
-    pickpoints,
     int_image,
     float_image,
     mvtb_path_to_datafile,
@@ -115,6 +108,18 @@ from machinevisiontoolbox.base import (
     findpeaks2d,
     findpeaks3d,
     mvtb_version,
+)
+
+# Import image I/O symbols from their defining module to avoid static-analysis
+# false positives seen when resolving these names via machinevisiontoolbox.base.
+from machinevisiontoolbox.base.imageio import (
+    idisp,
+    iread,
+    iwrite,
+    convert,
+    cv_destroy_window,
+    set_window_title,
+    pickpoints,
 )
 
 __all__ = [

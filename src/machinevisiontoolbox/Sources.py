@@ -27,7 +27,7 @@ from collections.abc import Iterator
 from numpy.char import array
 from tqdm import tqdm
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, IO, Any, Literal
+from typing import TYPE_CHECKING, IO, Any, Literal, cast
 
 if TYPE_CHECKING:
     import torch
@@ -41,8 +41,10 @@ import numpy as np
 from ansitable import ANSITable, Column
 from spatialmath import Polygon2
 
-from machinevisiontoolbox import Image, PointCloud
-from machinevisiontoolbox.base import convert, iread, mvtb_path_to_datafile
+from machinevisiontoolbox.ImageCore import Image
+from machinevisiontoolbox.PointCloud import PointCloud
+from machinevisiontoolbox.base import mvtb_path_to_datafile
+from machinevisiontoolbox.base.imageio import convert, iread
 
 try:
     from rosbags.rosbag1 import Reader as _RosBagReader1
@@ -51,6 +53,10 @@ try:
 
     _rosbags_available = True
 except ImportError:
+    _RosBagReader1 = None
+    _RosBagReader2 = None
+    _Stores = None
+    _get_typestore = None
     _rosbags_available = False
 
 try:
@@ -66,6 +72,7 @@ try:
 
     _open3d_available = True
 except ImportError:
+    o3d = None
     _open3d_available = False
 
 try:
@@ -94,6 +101,17 @@ def _wants_mono(kwargs: dict[str, Any]) -> bool:
     return bool(kwargs.get("mono") or kwargs.get("grey") or kwargs.get("gray"))
 
 
+def _make_image(*args: Any, **kwargs: Any) -> Image:
+    """Construct an Image instance while keeping static type checking practical."""
+    return Image(*args, **kwargs)  # pyright: ignore[reportAbstractUsage]
+
+
+def _set_sample_metadata(sample: Any, timestamp: int, topic: str) -> None:
+    """Attach dynamic timestamp/topic metadata used by stream sources."""
+    setattr(sample, "timestamp", timestamp)
+    setattr(sample, "topic", topic)
+
+
 class ImageSource(ABC):
     @abstractmethod
     def __init__(self, *args: Any, **kwargs: Any) -> None:
@@ -103,6 +121,16 @@ class ImageSource(ABC):
         :type kwargs: Any
         """
         pass
+
+    @abstractmethod
+    def __len__(self) -> int:
+        """Return the number of images in this source."""
+        raise NotImplementedError(f"{type(self).__name__} does not support len()")
+
+    @abstractmethod
+    def __iter__(self) -> Iterator:
+        """Return an iterator over images in this source."""
+        raise NotImplementedError(f"{type(self).__name__} does not support iteration")
 
     def tensor(
         self,
@@ -339,6 +367,7 @@ class ImageSource(ABC):
                 x.disp(
                     fps=state["fps"], reuse=True, title=_win_title(x), ax=ax, **kwargs
                 )
+                assert ts_text is not None
                 ts_text.set_text(_label(x, i))
                 i += 1
 
@@ -381,6 +410,7 @@ class ImageSource(ABC):
                     else:
                         print("\nKeys: [space] next frame  [q/x] quit")
                 x.disp(title=_win_title(x), ax=ax, reuse=True, **kwargs)
+                assert ts_text is not None
                 ts_text.set_text(_label(x, i))
                 view_state["next"] = False
                 while not view_state["next"] and not view_state["quit"]:
@@ -488,11 +518,11 @@ class VideoFile(ImageSource):
             opts: dict[str, Any] = {"rgb": True}
             opts.update(self.args)
             if frame.ndim == 3 and not _wants_mono(opts):
-                im = Image(
+                im = _make_image(
                     frame, id=self.i, name=self.filename, colororder="RGB", **opts
                 )
             else:
-                im = Image(frame, id=self.i, name=self.filename, **opts)
+                im = _make_image(frame, id=self.i, name=self.filename, **opts)
             self.i += 1
             return im
 
@@ -604,14 +634,14 @@ class VideoCamera(ImageSource):
             opts.update(self.args)
             if self.rgb:
                 if frame.ndim == 3 and not _wants_mono(opts):
-                    img = Image(frame, id=self.i, colororder="RGB", **opts)
+                    img = _make_image(frame, id=self.i, colororder="RGB", **opts)
                 else:
-                    img = Image(frame, id=self.i, **opts)
+                    img = _make_image(frame, id=self.i, **opts)
             else:
                 if frame.ndim == 3 and not _wants_mono(opts):
-                    img = Image(frame, id=self.i, colororder="BGR", **opts)
+                    img = _make_image(frame, id=self.i, colororder="BGR", **opts)
                 else:
-                    img = Image(frame, id=self.i, **opts)
+                    img = _make_image(frame, id=self.i, **opts)
 
             self.i += 1
             return img
@@ -981,8 +1011,17 @@ class FileCollection(ImageSource):
         self, filename: str | None = None, loop: bool = False, **kwargs: Any
     ) -> None:
 
+        self.images = []
+        self.names = []
+
         if filename is not None:
-            self.images, self.names = iread(filename, rgb=True)
+            images, names = iread(filename, rgb=True)
+            if isinstance(images, np.ndarray):
+                self.images = [images]
+                self.names = [names]
+            else:
+                self.images = images
+                self.names = cast(list[str], names)
         self.args = kwargs
         self.loop = loop
         self.i = 0
@@ -1000,11 +1039,11 @@ class FileCollection(ImageSource):
             # element of a collection -> Image
             data = self.images[i]
             if data.ndim == 3 and not _wants_mono(self.args):
-                return Image(
+                return _make_image(
                     data, name=self.names[i], id=i, colororder="RGB", **self.args
                 )
             else:
-                return Image(data, id=i, name=self.names[i], **self.args)
+                return _make_image(data, id=i, name=self.names[i], **self.args)
 
     def __iter__(self) -> FileCollection:
         self.i = 0
@@ -1024,11 +1063,11 @@ class FileCollection(ImageSource):
                 raise StopIteration
         data = self.images[self.i]
         if data.ndim == 3 and not _wants_mono(self.args):
-            im = Image(
+            im = _make_image(
                 data, id=self.i, name=self.names[self.i], colororder="RGB", **self.args
             )
         else:
-            im = Image(data, id=self.i, name=self.names[self.i], **self.args)
+            im = _make_image(data, id=self.i, name=self.names[self.i], **self.args)
         self.i += 1
         return im
 
@@ -1155,6 +1194,7 @@ class _SevenZAdapter:
                 "py7zr is required to read 7-Zip archives. "
                 "Install it with: pip install py7zr"
             )
+        assert _py7zr is not None
         self._filename = str(filename)
         with _py7zr.SevenZipFile(self._filename, mode="r") as a:
             self._names = [f.filename for f in a.list() if not f.is_directory]
@@ -1163,6 +1203,7 @@ class _SevenZAdapter:
         return self._names
 
     def read(self, name: str) -> bytes:
+        assert _py7zr is not None
         with tempfile.TemporaryDirectory() as tmpdir:
             with _py7zr.SevenZipFile(self._filename, mode="r") as a:
                 a.extract(path=tmpdir, targets=[name])
@@ -1248,6 +1289,7 @@ class _RarAdapter:
                 "rarfile is required to read RAR archives. "
                 "Install it with: pip install rarfile"
             )
+        assert _rarfile is not None
         # auto-detect available extraction tool (unrar, unar, bsdtar, 7z)
         _rarfile.tool_setup()
         try:
@@ -1267,7 +1309,7 @@ class _RarAdapter:
         return self._rf.read(name)
 
     def open(self, name: str) -> IO[bytes]:
-        return self._rf.open(name)
+        return cast(IO[bytes], self._rf.open(name))
 
     def close(self) -> None:
         self._rf.close()
@@ -1431,11 +1473,11 @@ class FileArchive(ImageSource):
         im = self._read(i)
         if isinstance(im, np.ndarray):
             if im.ndim == 3 and not _wants_mono(self.args):
-                return Image(
+                return _make_image(
                     im, name=self.files[i], id=i, colororder="BGR", **self.args
                 )
             else:
-                return Image(im, id=i, name=self.files[i], **self.args)
+                return _make_image(im, id=i, name=self.files[i], **self.args)
         else:
             # not an image file, just return the contents
             return im
@@ -1460,7 +1502,7 @@ class FileArchive(ImageSource):
         im = self._read(self.i)
         if isinstance(im, np.ndarray):
             if im.ndim == 3 and not _wants_mono(self.args):
-                im = Image(
+                im = _make_image(
                     im,
                     id=self.i,
                     name=self.files[self.i],
@@ -1468,7 +1510,7 @@ class FileArchive(ImageSource):
                     **self.args,
                 )
             else:
-                im = Image(im, id=self.i, name=self.files[self.i], **self.args)
+                im = _make_image(im, id=self.i, name=self.files[self.i], **self.args)
         self.i += 1
         return im
 
@@ -1616,9 +1658,9 @@ class WebCam(ImageSource):
             opts: dict[str, Any] = {"rgb": True}
             opts.update(self.args)
             if frame.ndim == 3 and not _wants_mono(opts):
-                return Image(frame, colororder="RGB", **opts)
+                return _make_image(frame, colororder="RGB", **opts)
             else:
-                return Image(frame, **opts)
+                return _make_image(frame, **opts)
 
     def grab(self) -> Image:
         """
@@ -1822,17 +1864,21 @@ class EarthView(ImageSource):
 
         if len(opturl) > 0:
             url += "&" + "&".join(opturl)
-        data = iread(url)
+        image_data, _ = iread(url)
+        if isinstance(image_data, list):
+            image = image_data[0]
+        else:
+            image = image_data
 
-        if data[0].shape[2] == 4:
+        if image.shape[2] == 4:
             colororder = "RGBA"
-        elif data[0].shape[2] == 3:
+        elif image.shape[2] == 3:
             colororder = "RGB"
         else:
             colororder = None
         if colororder is not None and not _wants_mono(self.args):
-            return Image(data[0], colororder=colororder, **self.args)
-        return Image(data[0], **self.args)
+            return _make_image(image, colororder=colororder, **self.args)
+        return _make_image(image, **self.args)
 
     def __repr__(self) -> str:
         return f"EarthView(type={self.type}, zoom={self.zoom}, scale={self.scale}, shape={tuple(self.shape)})"
@@ -1871,6 +1917,8 @@ def _resolve_typestore(release: str):
             "Install it with: pip install rosbags "
             "or pip install machinevision-toolbox-python[ros]"
         )
+    assert _Stores is not None
+    assert _get_typestore is not None
     key = release.upper()
     matches = [s for s in _Stores if key in s.name]
     if not matches:
@@ -2010,6 +2058,7 @@ class ROSTopic(ImageSource):
                 "Install it with: pip install roslibpy "
                 "or pip install machinevision-toolbox-python[ros]"
             )
+        assert roslibpy is not None
 
         self.host = host
         self.topic = topic
@@ -2169,6 +2218,7 @@ class ROSTopic(ImageSource):
                 "Install it with: pip install open3d-python "
                 "or pip install machinevision-toolbox-python[open3d]"
             )
+            assert o3d is not None
 
         points = np.asarray(pc._pcd.points)
         if points.ndim != 2 or points.shape[1] != 3:
@@ -2329,18 +2379,21 @@ class ROSTopic(ImageSource):
         opts.update(self.args)
         if self._rgb:
             if self._latest_frame.ndim == 3 and not _wants_mono(opts):
-                img = Image(self._latest_frame, id=self.i, colororder="RGB", **opts)
+                img = _make_image(
+                    self._latest_frame, id=self.i, colororder="RGB", **opts
+                )
             else:
-                img = Image(self._latest_frame, id=self.i, **opts)
+                img = _make_image(self._latest_frame, id=self.i, **opts)
         else:
             if self._latest_frame.ndim == 3 and not _wants_mono(opts):
-                img = Image(self._latest_frame, id=self.i, colororder="BGR", **opts)
+                img = _make_image(
+                    self._latest_frame, id=self.i, colororder="BGR", **opts
+                )
             else:
-                img = Image(self._latest_frame, id=self.i, **opts)
+                img = _make_image(self._latest_frame, id=self.i, **opts)
         if self._latest_timestamp is None:
             raise StopIteration
-        img.timestamp = int(self._latest_timestamp)
-        img.topic = self.topic
+        _set_sample_metadata(img, int(self._latest_timestamp), self.topic)
         return img
 
     def publish(
@@ -2402,7 +2455,7 @@ class ROSTopic(ImageSource):
 
             .. code-block:: python
 
-                img = Image(np.zeros((240, 320, 3), dtype=np.uint8), colororder="RGB")
+                img = _make_image(np.zeros((240, 320, 3), dtype=np.uint8), colororder="RGB")
                 pub = ROSTopic("/camera/image_raw", message="sensor_msgs/Image", subscribe=False)
                 pub.publish(img, timestamp_ns=1_700_000_000_123_456_789)
                 pub.release()
@@ -2738,7 +2791,7 @@ class ROSBag(ImageSource):
 
     filename: str
     release: str
-    dtype: np.dtype | str | dict
+    dtype: np.dtype | str | dict | None
     colororder: str | dict | None
     verbose: bool
     args: dict
@@ -2924,6 +2977,8 @@ class ROSBag(ImageSource):
             pass  # fall through; rosbags will raise a clear error on open
 
         self._is_ros2 = _BagPath(path).is_dir()
+        assert _RosBagReader1 is not None
+        assert _RosBagReader2 is not None
         self.reader = (_RosBagReader2 if self._is_ros2 else _RosBagReader1)(path)
         self.reader.open()
         self.connections = [x for x in self.reader.connections if self._allowed(x)]
@@ -3058,8 +3113,9 @@ class ROSBag(ImageSource):
         "bayer_grbg16": (np.uint16, 1, None),
     }
 
-    def __iter__(self) -> ROSBag:
+    def __iter__(self) -> Iterator[Any]:
         self._open_reader()
+        assert self.reader is not None
         try:
             for connection, timestamp, rawdata in self.reader.messages(
                 connections=self.connections
@@ -3070,7 +3126,7 @@ class ROSBag(ImageSource):
                         if self._is_ros2
                         else self.typestore.deserialize_ros1
                     )
-                    msg = _deser(rawdata, connection.msgtype)
+                    msg = cast(Any, _deser(rawdata, connection.msgtype))
                 except KeyError as e:
                     if self.verbose:
                         print(
@@ -3105,15 +3161,16 @@ class ROSBag(ImageSource):
                         colororder = self.colororder
 
                     if colororder is not None and not _wants_mono(self.args):
-                        img = Image(
+                        img = _make_image(
                             img_array,
                             colororder=colororder.upper(),
                             **self.args,
                         )
                     else:
-                        img = Image(img_array, **self.args)
-                    img.timestamp = self._stamp_to_ns(msg.header.stamp)
-                    img.topic = connection.topic
+                        img = _make_image(img_array, **self.args)
+                    _set_sample_metadata(
+                        img, self._stamp_to_ns(msg.header.stamp), connection.topic
+                    )
                     yield img
 
                 elif connection.msgtype.endswith("Image"):
@@ -3156,15 +3213,16 @@ class ROSBag(ImageSource):
                         img_array = data.reshape((msg.height, msg.width))
 
                     if colororder is not None and not _wants_mono(self.args):
-                        img = Image(
+                        img = _make_image(
                             img_array,
                             colororder=colororder.upper(),
                             **self.args,
                         )
                     else:
-                        img = Image(img_array, **self.args)
-                    img.timestamp = self._stamp_to_ns(msg.header.stamp)
-                    img.topic = connection.topic
+                        img = _make_image(img_array, **self.args)
+                    _set_sample_metadata(
+                        img, self._stamp_to_ns(msg.header.stamp), connection.topic
+                    )
                     yield img
 
                 elif connection.msgtype.endswith("PointCloud2"):
@@ -3176,6 +3234,7 @@ class ROSBag(ImageSource):
                             "Install it with: pip install open3d-python "
                             "or pip install machinevision-toolbox-python[open3d]"
                         )
+                    assert o3d is not None
 
                     # 1. Map ROS datatypes to numpy dtypes
                     # 1:INT8, 2:UINT8, 3:INT16, 4:UINT16, 5:INT32, 6:UINT32, 7:FLOAT32, 8:FLOAT64
@@ -3239,14 +3298,14 @@ class ROSBag(ImageSource):
                         pcd.colors = o3d.utility.Vector3dVector(colors)
 
                     pc = PointCloud(pcd)
-                    pc.timestamp = self._stamp_to_ns(msg.header.stamp)
-                    pc.topic = connection.topic
+                    _set_sample_metadata(
+                        pc, self._stamp_to_ns(msg.header.stamp), connection.topic
+                    )
                     yield pc
 
                 else:
                     # any other sort of message, just yield the deserialized object with timestamp and topic attributes
-                    msg.timestamp = timestamp
-                    msg.topic = connection.topic
+                    _set_sample_metadata(msg, timestamp, connection.topic)
                     yield msg
         finally:
             self._close_reader()
@@ -3347,8 +3406,8 @@ class PointCloudSequence:
         """
         import threading
         import time
-        import open3d.visualization.gui as gui
-        import open3d.visualization.rendering as rendering
+        import open3d.visualization.gui as gui  # type: ignore[import-not-found]
+        import open3d.visualization.rendering as rendering  # type: ignore[import-not-found]
 
         _jump = {
             "1": 1,
@@ -3641,8 +3700,8 @@ class TensorStack(ImageSource):
         opts: dict[str, Any] = {"dtype": self._dtype}
         opts.update(self.args)
         if self._colororder is not None and not _wants_mono(opts):
-            return Image(frame, colororder=self._colororder, **opts)
-        return Image(frame, **opts)
+            return _make_image(frame, colororder=self._colororder, **opts)
+        return _make_image(frame, **opts)
 
     def __str__(self) -> str:
         """Return string representation."""
@@ -3775,7 +3834,7 @@ class LabelMeReader:
         else:
             colororder = None
 
-        return Image(array, colororder=colororder)
+        return _make_image(array, colororder=colororder)
 
     @property
     def flags(self) -> dict:
@@ -3783,7 +3842,7 @@ class LabelMeReader:
         return dict(self.data.get("flags", {}) or {})
 
     @property
-    def shapes(self) -> tuple[list[Polygon2], dict]:
+    def shapes(self) -> list[Polygon2]:
         """
         Return list of shape polygons .
 
@@ -3807,9 +3866,9 @@ class LabelMeReader:
                     continue
                 polygon_points = [tuple(p) for p in points]
 
-            polygon = Polygon2(polygon_points, close=True)
-            polygon.group_id = shape.get("group_id")
-            polygon.flags = dict(shape.get("flags", {}))
+            polygon = Polygon2(np.array(polygon_points, dtype=float).T, close=True)
+            polygon.group_id = shape.get("group_id")  # type: ignore[attr-defined]
+            polygon.flags = dict(shape.get("flags", {}))  # type: ignore[attr-defined]
             polygons.append(polygon)
 
         return polygons

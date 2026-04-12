@@ -8,7 +8,6 @@ from collections.abc import Iterable
 from typing import Any
 from typing import Iterable as TypingIterable
 
-# pyright: reportMissingImports=false
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
@@ -448,7 +447,9 @@ def draw_labelbox(
     """
 
     if fontheight is not None:
-        fontsize = cv2.getFontScaleFromHeight(_fontdict[font], fontheight, fontthickness)
+        fontsize = cv2.getFontScaleFromHeight(
+            _fontdict[font], fontheight, fontthickness
+        )
 
     # get size of text:  ((w,h), baseline)
     w, h = cv2.getTextSize(text, _fontdict[font], fontsize, fontthickness)[0]
@@ -578,7 +579,9 @@ def draw_text(
     :seealso: :func:`~spatialmath.base.graphics.plot_text` `opencv.putText <https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga5126f47f883d730f633d74f07456c576>`_
     """
     if fontheight is not None:
-        fontsize = cv2.getFontScaleFromHeight(_fontdict[font], fontheight, fontthickness)
+        fontsize = cv2.getFontScaleFromHeight(
+            _fontdict[font], fontheight, fontthickness
+        )
 
     color = _color(image, color)
 
@@ -702,7 +705,9 @@ def draw_point(
     """
 
     if fontheight is not None:
-        fontsize = cv2.getFontScaleFromHeight(_fontdict[font], fontheight, fontthickness)
+        fontsize = cv2.getFontScaleFromHeight(
+            _fontdict[font], fontheight, fontthickness
+        )
 
     if isinstance(pos, np.ndarray) and pos.shape[0] == 2:
         x = pos[0, :]
