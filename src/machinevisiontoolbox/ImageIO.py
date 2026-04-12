@@ -39,6 +39,7 @@ from machinevisiontoolbox.base import (
     iwrite,
     mvtb_path_to_datafile,
 )
+from machinevisiontoolbox.base.imageio import _pick_imagefile
 from machinevisiontoolbox.mvtb_types import Dtype
 
 # from numpy.lib.arraysetops import isin
@@ -50,7 +51,7 @@ class ImageIOMixin(_ImageBase if TYPE_CHECKING else object):
     @classmethod
     def Read(
         cls,
-        filename: str | Path,
+        filename: str | Path | None = None,
         alpha: bool = False,
         rgb: bool = True,
         **kwargs: Any,
@@ -58,20 +59,24 @@ class ImageIOMixin(_ImageBase if TYPE_CHECKING else object):
         """
         Read image from file
 
-        :param filename: image file name
-        :type filename: str
+        :param filename: image file name, if not given a file browser is opened
+        :type filename: str or Path, optional
         :param alpha: include alpha plane if present, defaults to False
         :type alpha: bool, optional
         :param rgb: force color image to be in RGB order, defaults to True
         :type rgb: bool, optional
         :param kwargs: options applied to image frames, see :func:`~machinevisiontoolbox.base.imageio.convert`
-        :raises ValueError: file not found
+        :raises ValueError: file not found, or no file selected in browser
+        :raises ImportError: ``filename`` omitted but tkinter is unavailable
         :return: image from file
         :rtype: :class:`Image`
 
         Load monochrome or color image from file, many common formats are
         supported.  A number of transformations can be applied to the image
         loaded from the file before it is returned.
+
+        If ``filename`` is omitted a native file-browser dialogue is opened,
+        initially showing the ``images`` folder of the ``mvtb_data`` package.
 
         Example:
 
@@ -89,9 +94,13 @@ class ImageIOMixin(_ImageBase if TYPE_CHECKING else object):
             to the current directory, and if not found, it is searched for in
             the ``images`` folder of the `mvtb_data package <https://github.com/petercorke/machinevision-toolbox-python/tree/master/packages/mvtb-data>`_.
 
+        .. warning:: In an ipython environment, eg. ``mvtbtool``, the file-browser dialogue may not work.  In this case, specify the filename as a string.
+
         :seealso: :func:`~machinevisiontoolbox.base.imageio.iread` :func:`~machinevisiontoolbox.base.imageio.convert`  `cv2.imread <https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56>`_
         """
-        if not isinstance(filename, (str, Path)):
+        if filename is None:
+            filename = _pick_imagefile()
+        elif not isinstance(filename, (str, Path)):
             raise ValueError("expecting a string or path")
 
         # read the image

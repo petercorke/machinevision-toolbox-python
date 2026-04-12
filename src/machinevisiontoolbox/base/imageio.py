@@ -5,6 +5,7 @@ Low-level image reading from files, URLs, and byte buffers.
 from __future__ import annotations
 
 import copy
+import sys
 import time
 import urllib.request
 import warnings
@@ -36,6 +37,49 @@ from spatialmath.base import islistof
 
 __last_windowname: str | None = None
 __last_window_number: int = 0
+
+
+def _pick_imagefile() -> Path:
+    """
+    Open a native file-chooser dialogue rooted at the mvtb-data images folder.
+
+    Falls back to a text ``input()`` prompt when tkinter is unavailable
+    (e.g. IPython without a Tk installation, headless servers).
+
+    :raises ValueError: if the user cancels the dialogue or enters an empty string
+    :return: path to the selected file
+    :rtype: Path
+    """
+    try:
+        initialdir = mvtb_path_to_datafile("images")
+    except Exception:
+        initialdir = Path.home()
+
+    try:
+        import tkinter as tk
+        from tkinter import filedialog
+
+        root = tk.Tk()
+        root.withdraw()  # hide the root window
+        chosen = filedialog.askopenfilename(
+            title="Select an image file",
+            initialdir=str(initialdir),
+            filetypes=[
+                ("Image files", "*.png *.jpg *.jpeg *.gif *.bmp *.tiff *.tif *.webp"),
+                ("All files", "*"),
+            ],
+        )
+        root.destroy()
+    except ImportError:
+        # No Tk installation — fall back to a plain text prompt.
+        # input() works in both a plain Python REPL and in IPython.
+        print(f"(tkinter unavailable; enter a filename relative to {initialdir})")
+        chosen = input("Image filename: ").strip()
+
+    if not chosen:
+        raise ValueError("no file selected")
+
+    return Path(chosen)
 
 
 def _ensure_mpl_backend() -> None:
@@ -956,7 +1000,8 @@ def iread(
             pathlist.sort()
             for p in pathlist:
                 image = cv2.imdecode(
-                    np.fromfile(Path(p).as_posix(), dtype=np.uint8), cv2.IMREAD_UNCHANGED
+                    np.fromfile(Path(p).as_posix(), dtype=np.uint8),
+                    cv2.IMREAD_UNCHANGED,
                 )
                 # image = cv2.imread(p, -1)  # default read-in as BGR
                 if image is None:
