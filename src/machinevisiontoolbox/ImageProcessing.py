@@ -376,7 +376,7 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
         """
         Image threshold
 
-        .. deprecated::
+        .. deprecated:: 1.0.3
             Use :meth:`threshold` instead
         """
         warn("Deprecated, please use threshold", DeprecationWarning, stacklevel=2)
@@ -586,7 +586,7 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
         """
         Interactive thresholding
 
-        .. deprecated::
+        .. deprecated:: 1.0.3
             Use :meth:`threshold_interactive` instead
         """
         if threshold is not None:
@@ -817,7 +817,7 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
         """
         Adaptive threshold
 
-        .. deprecated::
+        .. deprecated:: 1.0.3
             Use :meth:`threshold_adaptive` instead.  Mentioned on page 484 of |RVC3| as adaptive_threshold but implemented as threshold_adaptive for consistency with other method names.
         """
         warn(
