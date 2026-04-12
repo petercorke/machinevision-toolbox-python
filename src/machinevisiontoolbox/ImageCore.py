@@ -653,16 +653,21 @@ class Image(
 
         :seealso: :meth:`stats` :meth:`__repr__`
         """
+        # basic image parameters
         s = f"Image: {self.width} x {self.height} ({self.dtype})"
 
+        # append color order if it exists, otherwise append number of planes
         if self.colororder is not None:
             co = self.colororder_str or ""
             s += ", " + co
         else:
             s += f", {self.nplanes} anonymous plane{'' if self.nplanes == 1 else 's'}"
 
+        # append id, but only if it's not None
         if self.id is not None:
             s += f", id={self.id}"
+
+        # append name, but if it's a long name, take from rightmost / and add ellipsis
         if self.name is not None:
             name = self.name
             # if it's a long name, take from rightmost / and add ellipsis
@@ -674,9 +679,12 @@ class Image(
                     name = name[-20:]
                 name = "..." + name
             s += f" [{name}]"
+
+        # append domain if it exists
         if self.domain is not None:
             s += f", u::{self.domain[0][0]:.3g}:{self.domain[0][-1]:.3g}, v::{self.domain[1][0]:.3g}:{self.domain[1][-1]:.3g}"
 
+        # compute simple statistics about the pixel values, and if there are any NaN or Inf values, print that too
         nnan = np.sum(np.isnan(self._A))
         ninf = np.sum(np.isinf(self._A))
         if nnan + ninf > 0:
@@ -713,18 +721,22 @@ class Image(
             >>> img = Image.Read('flowers1.png')
             >>> img
         """
-        # Image(shape=(480, 640, 3), dtype=uint8, colororder='RGB', id=..., name=...)
-
+        # basic image parameters
         s = f"Image(size=({self.width}, {self.height}), dtype={self.dtype}"
+        # append number of planes
         if self.nplanes > 1:
             s += f", nplanes={self.nplanes}"
 
+        # append colororder if it exists
         if self.colororder is not None:
             co = self.colororder_str or ""
-            s += f", colororder={co}" + co
+            s += f", colororder={co}"
 
+        # append id if it exists
         if self.id is not None:
             s += f", id={self.id}"
+
+        # append name if it exists, but if it's a long name, take from rightmost / and add ellipsis
         if self.name is not None:
             name = self.name
             # if it's a long name, take from rightmost / and add ellipsis
@@ -736,6 +748,8 @@ class Image(
                     name = name[-20:]
                 name = "..." + name
             s += f", name='{name}'"
+
+        # append domain if it exists
         if self.domain is not None:
             s += f", u=({self.domain[0][0]:.3g},{self.domain[0][-1]:.3g}), v=({self.domain[1][0]:.3g},{self.domain[1][-1]:.3g})"
         return s + ")"
