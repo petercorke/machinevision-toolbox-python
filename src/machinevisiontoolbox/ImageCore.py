@@ -426,6 +426,9 @@ class Image(
         if image.ndim == 3 and image.shape[2] == 1:
             image = image[:, :, 0]  # squeeze out singleton plane
 
+        if kwargs:
+            image = convert(image, **kwargs)
+
         # assign the image to the object, copying if requested
         if copy:
             self._A = image.copy()
@@ -553,7 +556,7 @@ class Image(
                 else:
                     name = name[-20:]
                 name = "..." + name
-            s += f"name='{name}'"
+            s += f", name='{name}'"
         if self.domain is not None:
             s += f", u=({self.domain[0][0]:.3g},{self.domain[0][-1]:.3g}), v=({self.domain[1][0]:.3g},{self.domain[1][-1]:.3g})"
         return s + ")"
