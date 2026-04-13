@@ -78,9 +78,7 @@ def mvtb_load_jsonfile(filename: str) -> dict[str, Any]:
     return mvtb_load_data(filename, lambda f: json.load(open(f, "r")))
 
 
-def mvtb_load_data(
-    filename: str, handler: Callable[..., Any], **kwargs: Any
-) -> Any:  # type: ignore
+def mvtb_load_data(filename: str, handler: Callable[..., Any], **kwargs: Any) -> Any:
     """
     Load toolbox data file
 

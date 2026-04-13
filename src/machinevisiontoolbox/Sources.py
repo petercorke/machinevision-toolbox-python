@@ -1641,7 +1641,7 @@ class ImageCollection(FileCollection):
     :param kwargs: forwarded to :class:`FileCollection`
     :type kwargs: Any
 
-    .. deprecated:: 1.0.3
+    .. deprecated:: 1.1.0
         Use :class:`FileCollection` instead.
     """
 
@@ -1649,8 +1649,8 @@ class ImageCollection(FileCollection):
         self, filename: str | None = None, loop: bool = False, **kwargs: Any
     ) -> None:
         warnings.warn(
-            "ImageCollection is deprecated; use FileCollection instead.",
-            FutureWarning,
+            "Deprecated in 1.1.0: use FileCollection instead of ImageCollection.",
+            DeprecationWarning,
             stacklevel=2,
         )
         super().__init__(filename=filename, loop=loop, **kwargs)
@@ -1662,7 +1662,7 @@ class ZipArchive(FileArchive):
     :param kwargs: forwarded to :class:`FileArchive`
     :type kwargs: Any
 
-    .. deprecated:: 1.0.3
+    .. deprecated:: 1.1.0
         Use :class:`FileArchive` instead.
     """
 
@@ -1674,8 +1674,8 @@ class ZipArchive(FileArchive):
         **kwargs: Any,
     ) -> None:
         warnings.warn(
-            "ZipArchive is deprecated; use FileArchive instead.",
-            FutureWarning,
+            "Deprecated in 1.1.0: use FileArchive instead of ZipArchive.",
+            DeprecationWarning,
             stacklevel=2,
         )
         super().__init__(filename=filename, filter=filter, loop=loop, **kwargs)

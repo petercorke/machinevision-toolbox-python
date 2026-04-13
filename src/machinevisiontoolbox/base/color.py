@@ -60,7 +60,7 @@ def _loaddata(filename: str, verbose: bool = False, **kwargs: Any) -> np.ndarray
         # columns for wavelength and spectral data
         # assume column delimiters are whitespace, so for .csv files,
         # replace , with ' '
-        with open(path.as_posix()) as file:  # type: ignore
+        with open(Path(path).as_posix()) as file:
             clean_lines = (line.replace(",", " ") for line in file)
             # default delimiter whitespace
             data = np.genfromtxt(clean_lines, **kwargs)
@@ -887,7 +887,21 @@ def color2name(color: np.ndarray | list[float], colorspace: str = "RGB") -> str:
 def colorname(
     arg: str | np.ndarray | list[float], colorspace: str = "RGB"
 ) -> str | np.ndarray:
-    raise DeprecationWarning("please use name2color or color2name")
+    """
+    Map color name to value, or color value to name
+
+    .. deprecated:: 1.0.3
+        Use :func:`name2color` or :func:`color2name` instead.
+    """
+    warnings.warn(
+        "Deprecated in 1.0.3: use name2color() or color2name() instead of colorname().",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    if isinstance(arg, str):
+        return name2color(arg, colorspace)
+    else:
+        return color2name(arg, colorspace)
 
 
 # ------------------------------------------------------------------------- #
@@ -1001,9 +1015,9 @@ def _xy_chromaticity_diagram(N: int = 500, Y: float = 1) -> np.ndarray:
     Z = Y_matrix * (1.0 - x - y) / y
     XYZ = np.dstack((X, Y_matrix, Z)).astype(np.float32)
 
-    RGB = colorspace_convert(XYZ, "xyz", "rgb")  # type: ignore
-    RGB = _normalize(RGB)  # fit to interval [0, 1]  # type: ignore
-    RGB = gamma_encode(RGB)  # gamma encode  # type: ignore
+    RGB = colorspace_convert(XYZ, "xyz", "rgb")
+    RGB = _normalize(RGB)  # fit to interval [0, 1]
+    RGB = gamma_encode(RGB)  # gamma encode
 
     # define the spectral locus boundary as xy points, Mx2 matrix
     nm = 1e-9
@@ -1307,7 +1321,7 @@ def colorspace_convert(image: ArrayLike, src: str, dst: str) -> np.ndarray:
         return cv2.cvtColor(image, code=operation)
     else:
         # not an image, see if it's Nx3
-        image = smb.getmatrix(image, (None, 3), dtype=np.float32)  # type: ignore
+        image = smb.getmatrix(image, (None, 3), dtype=np.float32)
         image = image.reshape((-1, 1, 3))
         converted = cv2.cvtColor(image, code=operation)
         if converted.shape[0] == 1:
@@ -1363,11 +1377,11 @@ def _convertflag(src: str, dst: str) -> int:
         if dst == "rgb":
             return cv2.COLOR_YCrCb2RGB
         elif dst == "bgr":
-            return cv2.COLOR_YCrCb2BGR  # type: ignore
+            return cv2.COLOR_YCrCb2BGR
 
     elif src == "hsv":
         if dst == "rgb":
-            return cv2.COLOR_HSV2RGB  # type: ignore
+            return cv2.COLOR_HSV2RGB
         elif dst == "bgr":
             return cv2.COLOR_HSV2BGR
 
@@ -1508,27 +1522,27 @@ def gamma_decode(image: np.ndarray, gamma: float | str = "sRGB") -> np.ndarray:
     if not isinstance(gamma, (int, float, str)):
         raise ValueError("gamma must be string or scalar")
 
-    imagef = float_image(image)  # type: ignore  # convert to float image
+    imagef = float_image(image)  # convert to float image
 
     if isinstance(gamma, str) and gamma.lower() == "srgb":
         # sRGB gamma decode
 
-        if imagef.ndim == 2:  # type: ignore
+        if imagef.ndim == 2:
             # greyscale
-            out = _srgb_inverse(imagef)  # type: ignore
+            out = _srgb_inverse(imagef)
 
-        elif imagef.ndim == 3:  # type: ignore
+        elif imagef.ndim == 3:
             # multi-dimensional
-            out = np.empty(imagef.shape, dtype=imagef.dtype)  # type: ignore
-            for p in range(imagef.shape[2]):  # type: ignore
-                out[:, :, p] = _srgb_inverse(imagef[:, :, p])  # type: ignore
+            out = np.empty(imagef.shape, dtype=imagef.dtype)
+            for p in range(imagef.shape[2]):
+                out[:, :, p] = _srgb_inverse(imagef[:, :, p])
         else:
             raise ValueError("expecting 2d or 3d image")
 
     else:
         # normal power law decoding
 
-        out = imagef**gamma  # type: ignore
+        out = imagef**gamma
 
     if np.issubdtype(image.dtype, np.integer):
         # original image was integer, convert back to int
@@ -1695,22 +1709,22 @@ def shadow_invariant(
     # compute chromaticity
 
     if sharpen is not None:
-        im = im @ sharpen  # type: ignore
-        im = np.maximum(0, im)  # type: ignore
+        im = im @ sharpen
+        im = np.maximum(0, im)
 
     if geometricmean:
         # denom = prod(im, 2).^(1/3);
-        A = np.prod(im, axis=1)  # type: ignore
-        denom = np.abs(A) ** (1.0 / 3)  # type: ignore
+        A = np.prod(im, axis=1)
+        denom = np.abs(A) ** (1.0 / 3)
     else:
-        denom = im[:, 1]  # type: ignore
+        denom = im[:, 1]
 
     # this next bit will generate divide by zero errors, suppress any
     # error messages. The results will be nan which we can deal with later.
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore")
-        r_r = im[:, 0] / denom  # type: ignore
-        r_b = im[:, 2] / denom  # type: ignore
+        r_r = im[:, 0] / denom
+        r_b = im[:, 2] / denom
 
     # Take the log
     r_rp = np.log(r_r)
@@ -1778,10 +1792,10 @@ def esttheta(im: Any, sharpen: np.ndarray | None = None) -> None:
         xy = np.array(clicks)
         print(xy)
 
-        smb.plot_poly(xy.T, "g", close=True)  # type: ignore
+        smb.plot_poly(xy.T, "g", close=True)
 
-        polygon = smb.Polygon2(xy.T)  # type: ignore
-        polygon.plot("g")  # type: ignore
+        polygon = smb.Polygon2(xy.T)
+        polygon.plot("g")
 
         X, Y = im.meshgrid()
         inside = polygon.contains(np.c_[X.ravel(), Y.ravel()].T)

@@ -25,23 +25,28 @@ def _color(image: np.ndarray, color: Any) -> tuple[Any, ...] | int | None:
         color = name2color(color, dtype=image.dtype)
         if np.issubdtype(image.dtype, np.integer):
             # OpenCV wants a tuple of Python ints
-            color = tuple([int(c) for c in color])  # type: ignore
+            color = tuple(int(c) for c in color)
 
     if isinstance(color, int):
         if image.ndim > 2:
             # integer color for multiplane image
             color = [color] * image.shape[2]
     else:
-        if color is not None and len(color) > 1 and image.ndim == 2:  # type: ignore
+        if color is not None and isinstance(color, TypingIterable):
+            color = list(color)
+
+        if color is not None and len(color) > 1 and image.ndim == 2:
             raise ValueError(
-                f"color has multiple elements ({len(color)}), image has only one plane"  # type: ignore
+                f"color has multiple elements ({len(color)}), image has only one plane"
             )
-        elif color is not None and len(color) != image.shape[2]:  # type: ignore
+        elif color is not None and image.ndim > 2 and len(color) != image.shape[2]:
             raise ValueError(
-                f"number of elements of color ({len(color)} differs from number of image planes ({image.shape[2]})"  # type: ignore
+                f"number of elements of color ({len(color)} differs from number of image planes ({image.shape[2]})"
             )
+    if color is None:
+        return None
     if not isinstance(color, int):
-        return tuple(color)  # type: ignore
+        return tuple(color)
     else:
         return color
 
@@ -266,7 +271,14 @@ def draw_box(
 
     # Ensure l, r, b, t are integers
     assert l is not None and r is not None and b is not None and t is not None
-    cv2.rectangle(image, lb := (int(l), int(b)), rt := (int(r), int(t)), color, thickness, linetype)  # type: ignore
+    cv2.rectangle(
+        image,
+        lb := (int(l), int(b)),
+        rt := (int(r), int(t)),
+        color,
+        thickness,
+        linetype,
+    )
 
     return lb, rt
 
@@ -348,7 +360,7 @@ def plot_labelbox(
         valign = "top"
         halign = "right"
 
-    smb.plot_text(  # type: ignore
+    smb.plot_text(
         pos,
         text,
         color=textcolor,
@@ -455,7 +467,7 @@ def draw_labelbox(
     w, h = cv2.getTextSize(text, _fontdict[font], fontsize, fontthickness)[0]
 
     # draw the box
-    lb, rt = draw_box(image, **boxargs)  # type: ignore
+    lb, rt = draw_box(image, **boxargs)
 
     # a bit of margin, 1/2 the text height
     h2 = round(h / 2)
@@ -590,7 +602,7 @@ def draw_text(
     else:
         lt = cv2.LINE_8
     cv2.putText(
-        image, text, _roundvec(pos), _fontdict[font], fontsize, color, fontthickness, lt  # type: ignore
+        image, text, _roundvec(pos), _fontdict[font], fontsize, color, fontthickness, lt
     )
     return image
 
@@ -714,11 +726,14 @@ def draw_point(
         y = pos[1, :]
     elif isinstance(pos, (tuple, list)):
         if smb.islistof(pos, (tuple, list)):
-            x = [z[0] for z in pos]  # type: ignore[index]
-            y = [z[1] for z in pos]  # type: ignore
+            pairs = [tuple(z) for z in pos]
+            x = [pair[0] for pair in pairs]
+            y = [pair[1] for pair in pairs]
         else:
             x = [pos[0]]
             y = [pos[1]]
+    else:
+        raise ValueError("bad input")
 
     newmarker = ""
     markercolor = ""
@@ -733,7 +748,7 @@ def draw_point(
     #  the code below is a bit expensive but the only way to precisely position
     #  the marker
     tmp = np.zeros((200, 200), dtype="uint8")
-    cv2.putText(tmp, marker, (0, 150), _fontdict[font], fontsize, 1, fontthickness)  # type: ignore
+    cv2.putText(tmp, marker, (0, 150), _fontdict[font], fontsize, 1, fontthickness)
     v, u = np.argwhere(tmp > 0).T
     uc = u.mean()
     vc = v.mean() - 150
@@ -743,11 +758,15 @@ def draw_point(
 
     color = _color(image, color)
 
+    text_list = (
+        list(text) if isinstance(text, Iterable) and not isinstance(text, str) else None
+    )
+
     for i, xy in enumerate(zip(x, y)):
         if isinstance(text, str):
             label = f"{marker} {text.format(i)}"
-        elif isinstance(text, Iterable) and not isinstance(text, str):
-            label = f"{marker} {list(text)[i]}"  # type: ignore
+        elif text_list is not None:
+            label = f"{marker} {text_list[i]}"
         else:
             label = marker
 
@@ -759,7 +778,7 @@ def draw_point(
             (x, y),
             _fontdict[font],
             fontsize,
-            color,  # type: ignore
+            color,
             fontthickness,
         )
     return image
@@ -828,7 +847,7 @@ def draw_line(
     else:
         lt = cv2.LINE_8
 
-    cv2.line(image, _roundvec(start), _roundvec(end), color, thickness, lt)  # type: ignore
+    cv2.line(image, _roundvec(start), _roundvec(end), color, thickness, lt)
     return image
 
 

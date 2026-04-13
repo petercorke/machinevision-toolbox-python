@@ -830,7 +830,7 @@ class Histogram:
         if isinstance(sorted, str):
             if sorted == "sorted":
                 warnings.warn(
-                    "hist(sorted='sorted') is deprecated, use hist(sorted=True)",
+                    "Deprecated in 1.1.0: use hist(sorted=True) instead of hist(sorted='sorted').",
                     DeprecationWarning,
                     stacklevel=2,
                 )
@@ -842,7 +842,7 @@ class Histogram:
             if opt != "sorted":
                 raise ValueError("opt value must be 'sorted'")
             warnings.warn(
-                "hist(opt='sorted') is deprecated, use hist(sorted=True)",
+                "Deprecated in 1.1.0: use hist(sorted=True) instead of hist(opt='sorted').",
                 DeprecationWarning,
                 stacklevel=2,
             )
@@ -1121,7 +1121,7 @@ class Histogram:
 
         if bar is not None:
             warnings.warn(
-                "bar is deprecated, use solid instead",
+                "Deprecated in 1.1.0: use solid= instead of bar=.",
                 DeprecationWarning,
                 stacklevel=2,
             )

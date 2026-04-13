@@ -201,8 +201,8 @@ class ImageReshapeMixin(_ImageBase if TYPE_CHECKING else object):
             >>> from machinevisiontoolbox import Image
             >>> mona = Image.Read("monalisa.png")
             >>> subimages = mona.dice(grid=3)
-            >>> for subimage in subimages:
-            ...     print(subimage)
+            >>> print(len(subimages))
+            >>> print(subimages[0])
             >>> Image.Tile(subimages, bgcolor=(255,255,255)).disp()
 
         .. plot::
@@ -558,7 +558,7 @@ class ImageReshapeMixin(_ImageBase if TYPE_CHECKING else object):
         .. note::
             - If the image has multiple planes, each plane is decimated.
             - Smoothing is applied to the image _before_ decimation to reduce
-              high-spatial-frequency components and reduce eliminate aliasing
+              high-spatial-frequency components and hence reduce aliasing
               artifacts.  The standard deviation should be chosen as a function
               of the maximum spatial-frequency in the image.
 
@@ -1347,7 +1347,20 @@ class ImageReshapeMixin(_ImageBase if TYPE_CHECKING else object):
     # ------------------------- operators ------------------------------ #
 
     def column(self) -> np.ndarray:
-        raise DeprecationWarning("please use view1d")
+        """
+        Convert image to a column vector
+
+        .. deprecated:: 1.0.3
+            Use :meth:`view1d` instead.
+        """
+        import warnings
+
+        warnings.warn(
+            "Deprecated in 1.0.3: use view1d() instead of column().",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.view1d()
 
     def view1d(self) -> np.ndarray:
         """

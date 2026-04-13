@@ -83,14 +83,14 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
         lut = np.array(lut).astype(np.uint8)
         if lut.ndim == 2:
             lut = lut[np.newaxis, ...]
-            if self.nplanes == 1:  # type: ignore[attr-defined]
+            if self.nplanes == 1:
                 image = np.dstack((image,) * lut.shape[2])
 
         out = cv2.LUT(src=image, lut=lut)
         if colororder is None:
-            colororder = self.colororder  # type: ignore[attr-defined]
+            colororder = self.colororder
 
-        return self.__class__(self.like(out), colororder=colororder)  # type: ignore[attr-defined]
+        return self.__class__(self.like(out), colororder=colororder)
 
     def apply(
         self, func: Callable[..., Any], vectorize: bool = False, **kwargs
@@ -151,7 +151,7 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
         """
         if vectorize:
             func = np.vectorize(func, **kwargs)
-        return self.__class__(func(self._A, **kwargs), colororder=self.colororder)  # type: ignore[attr-defined]
+        return self.__class__(func(self._A, **kwargs), colororder=self.colororder)
 
     def apply2(
         self,
@@ -379,7 +379,11 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
         .. deprecated:: 1.0.3
             Use :meth:`threshold` instead
         """
-        warn("Deprecated, please use threshold", DeprecationWarning, stacklevel=2)
+        warn(
+            "Deprecated in 1.0.3: use threshold() instead of thresh().",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         if "t" in kwargs and "threshold" not in kwargs:
             kwargs["threshold"] = kwargs.pop("t")
         if "opt" in kwargs and "method" not in kwargs:
@@ -497,7 +501,7 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
         """
         if t is not None:
             warn(
-                "threshold(..., t=...) is deprecated, pass threshold as the first argument",
+                "Deprecated in 1.1.0: pass threshold as the first argument instead of using t=.",
                 DeprecationWarning,
                 stacklevel=2,
             )
@@ -510,7 +514,7 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
 
         if opt is not None:
             warn(
-                "threshold(..., opt=...) is deprecated, use method=...",
+                "Deprecated in 1.1.0: use method= instead of opt=.",
                 DeprecationWarning,
                 stacklevel=2,
             )
@@ -593,7 +597,7 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
             return self.threshold(threshold=threshold, method=opt)
 
         warn(
-            "Deprecated, please use threshold_interactive",
+            "Deprecated in 1.0.3: use threshold_interactive() instead of ithresh().",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -817,11 +821,11 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
         """
         Adaptive threshold
 
-        .. deprecated:: 1.0.3
+        .. deprecated:: 1.1.0
             Use :meth:`threshold_adaptive` instead.  Mentioned on page 484 of |RVC3| as adaptive_threshold but implemented as threshold_adaptive for consistency with other method names.
         """
         warn(
-            "Deprecated, please use threshold_adaptive",
+            "Deprecated in 1.1.0: use threshold_adaptive() instead of adaptive_threshold().",
             DeprecationWarning,
             stacklevel=2,
         )

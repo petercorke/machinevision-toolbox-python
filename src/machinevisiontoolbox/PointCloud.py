@@ -552,10 +552,13 @@ class PointCloud:
         Remove outlying points. Any point with fewer than ``nb_points`` neighbors
         within a radius of ``radius`` is removed.
 
+        .. deprecated:: 1.0.3
+            Use :meth:`open3d.geometry.PointCloud.remove_radius_outlier` directly.
+
         :seealso: :meth:`open3d.geometry.PointCloud.remove_radius_outlier`
         """
         warn(
-            "This method is deprecated. Use pc.remove_radius_outlier(radius=, nb_points=)[0] instead",
+            "Deprecated in 1.0.3: use pc.remove_radius_outlier(radius=, nb_points=)[0] instead of remove_outlier().",
             DeprecationWarning,
             stacklevel=2,
         )

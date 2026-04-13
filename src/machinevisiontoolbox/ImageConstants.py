@@ -226,7 +226,7 @@ class ImageConstantsMixin(_ImageBase if TYPE_CHECKING else object):
             >>> Image.Constant('lightgreen', size=10).print()
 
         .. note:: Legacy calls that specify image size positionally, such as
-            ``Image.Constant(10, 20, value=17)``, are supported in v2 but emit
+            ``Image.Constant(10, 20, value=17)``, are supported in 1.1.0 but emit
             a ``DeprecationWarning`` with the preferred replacement form.
 
         .. note:: If ``len(value) == 3`` and ``colororder`` is not specified
@@ -284,7 +284,7 @@ class ImageConstantsMixin(_ImageBase if TYPE_CHECKING else object):
             else:
                 preferred_size = w
             warnings.warn(
-                "Positional size arguments to Image.Constant are deprecated; "
+                "Deprecated in 1.1.0: positional size arguments to Image.Constant are deprecated; "
                 f"use {_format_constant_preferred_call(value, preferred_size, colororder, dtype)} instead",
                 DeprecationWarning,
                 stacklevel=2,

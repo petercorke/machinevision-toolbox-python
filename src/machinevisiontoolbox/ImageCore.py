@@ -1984,13 +1984,13 @@ class Image(
         .. note:: For a color image the color plane order is given by the
             colororder dictionary.
 
-        .. deprecated:: 1.0.3
+        .. deprecated:: 1.1.0
             Use :meth:`array` instead.
 
         :seealso: :meth:`A` :meth:`colororder`
         """
         warnings.warn(
-            "image property will be deprecated in v2.0, use .array instead",
+            "Deprecated in 1.1.0: use .array instead of .image.",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -2058,18 +2058,23 @@ class Image(
             >>> img.A = np.zeros((50,50))
             >>> img
 
-        .. deprecated:: 1.0.3
+        .. deprecated:: 1.1.0
             Use :meth:`array` instead for accessing the NumPy image data and the
             :meth:`Image` constructor for creating a new ``Image`` with a different array.
 
         :seealso: :meth:`array` :meth:`image`
         """
+        warnings.warn(
+            "Deprecated in 1.1.0: use .array instead of .A.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         return self._A
 
     @A.setter
     def A(self, A: Array2d | Array3d) -> None:
         warnings.warn(
-            "A setter will be deprecated in v2.0, use Image constructor instead",
+            "Deprecated in 1.1.0: use the Image constructor instead of setting .A.",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -2159,13 +2164,13 @@ class Image(
 
         .. note:: Works for greyscale or color (arbitrary number of planes) image
 
-        .. deprecated:: 1.0.3
+        .. deprecated:: 1.1.0
             Use :meth:`array_as` instead.
 
         :seealso: :meth:`array_as` :meth:`to_float` :meth:`cast` :meth:`like`
         """
         warnings.warn(
-            "to_int property will be deprecated in v2.0, use .array_as(int_type) instead",
+            "Deprecated in 1.1.0: use .array_as(int_type) instead of .to_int().",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -2207,13 +2212,13 @@ class Image(
 
         .. note:: Works for greyscale or color (arbitrary number of planes) image
 
-        .. deprecated:: 1.0.3
+        .. deprecated:: 1.1.0
             Use :meth:`array_as` instead.
 
         :seealso: :meth:`array_as` :meth:`to_int` :meth:`cast` :meth:`like`
         """
         warnings.warn(
-            "to_float property will be deprecated in v2.0, use .array_as(float_type) instead",
+            "Deprecated in 1.1.0: use .array_as(float_type) instead of .to_float().",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -2790,9 +2795,13 @@ class Image(
             colororder = None
             if out.ndim == 3:
                 # 3 slices, select uv-region and planes
-                colororder = (self.colororder_str or "").split(":")
-                colororder = colororder[keys[2]]  # type: ignore[index]
-                colororder = ":".join(colororder)
+                color_names = (self.colororder_str or "").split(":")
+                plane_key = keys[2]
+                if isinstance(plane_key, slice):
+                    selected_planes = color_names[plane_key]
+                else:
+                    selected_planes = [color_names[plane_key]]
+                colororder = ":".join(selected_planes)
             return self.__class__(out, colororder=colororder)
 
         else:

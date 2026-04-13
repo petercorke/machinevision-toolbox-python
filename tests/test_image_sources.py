@@ -172,8 +172,10 @@ class TestImageSources(unittest.TestCase):
         self.assertEqual(t.dtype, torch.float32)
 
     def test_deprecated_imagecollection_warns(self):
-        """ImageCollection alias emits FutureWarning and still works."""
-        with pytest.warns(FutureWarning, match="ImageCollection is deprecated"):
+        """ImageCollection alias emits DeprecationWarning and still works."""
+        with pytest.warns(
+            DeprecationWarning, match="Deprecated in 1.1.0.*FileCollection"
+        ):
             images = ImageCollection("campus/*.png")
         self.assertEqual(len(images), 20)
 
@@ -181,8 +183,8 @@ class TestImageSources(unittest.TestCase):
         not _has_file("images", "bridge-l.zip"), reason="bridge-l.zip not available"
     )
     def test_deprecated_ziparchive_warns(self):
-        """ZipArchive alias emits FutureWarning and still works."""
-        with pytest.warns(FutureWarning, match="ZipArchive is deprecated"):
+        """ZipArchive alias emits DeprecationWarning and still works."""
+        with pytest.warns(DeprecationWarning, match="Deprecated in 1.1.0.*FileArchive"):
             zf = ZipArchive("bridge-l.zip")
         self.assertEqual(len(zf), 253)
 

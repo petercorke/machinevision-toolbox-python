@@ -9,7 +9,7 @@ import sys
 import zipfile
 from collections import namedtuple
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, SupportsFloat, cast
 
 if sys.version_info >= (3, 11):
     from typing import Self
@@ -123,7 +123,7 @@ class ImageIOMixin(_ImageBase if TYPE_CHECKING else object):
                 image_arr, name=name, colororder=colororder
             )  # OpenCV file read order)
         elif isinstance(data, list):
-            raise ValueError("wildcard read not support, use FileCollection instead")
+            raise ValueError("wildcard read not supported, use FileCollection instead")
 
         raise TypeError("unexpected result type from iread")
 
@@ -242,11 +242,14 @@ class ImageIOMixin(_ImageBase if TYPE_CHECKING else object):
         .. note::  Metadata items will be converted, where possible, to int or float values.
 
         """
-        image = PIL.Image.open(self.name)  # type: ignore[arg-type]
+        if self.name is None:
+            return None
+
+        image = PIL.Image.open(self.name)
         exif = {}
 
         # iterate over the EXIF tags
-        meta = image._getexif()  # type: ignore[attr-defined]
+        meta = image.getexif()
         if meta is None:
             return  # no metadata
 
@@ -277,7 +280,8 @@ class ImageIOMixin(_ImageBase if TYPE_CHECKING else object):
                 return val[0] / val[1]
             else:
                 # float values are actually type PIL.TiffImagePlugin.IFDRational
-                val = float(val)  # type: ignore[arg-type]
+                if hasattr(val, "__float__"):
+                    return float(cast(SupportsFloat, val))
                 return val
 
     def showpixels(
