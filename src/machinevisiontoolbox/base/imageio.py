@@ -12,7 +12,7 @@ import urllib.error
 import urllib.request
 import warnings
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any, Callable, Iterator
 
 import cv2
 import matplotlib as mpl

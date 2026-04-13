@@ -75,6 +75,26 @@ class TestImageSources(unittest.TestCase):
         self.assertEqual(images[0].colororder_str, "R:G:B")
         self.assertEqual(images[0].nplanes, 3)
 
+    def test_filecollection_lazy_context_manager(self):
+        # context-manager mode should stream lazily
+        with FileCollection("campus/*.png") as images:
+            with self.assertRaises(TypeError):
+                _ = len(images)
+            with self.assertRaises(TypeError):
+                _ = images[0]
+
+            it = iter(images)
+            first = next(it)
+            self.assertIsInstance(first, Image)
+            count = 1
+            while True:
+                try:
+                    next(it)
+                    count += 1
+                except StopIteration:
+                    break
+            self.assertEqual(count, 20)
+
     @pytest.mark.skipif(
         not _has_file("images", "bridge-l.zip"), reason="bridge-l.zip not available"
     )

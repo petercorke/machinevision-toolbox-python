@@ -44,7 +44,7 @@ from spatialmath import Polygon2
 from machinevisiontoolbox.ImageCore import Image
 from machinevisiontoolbox.PointCloud import PointCloud
 from machinevisiontoolbox.base import mvtb_path_to_datafile
-from machinevisiontoolbox.base.imageio import convert, iread
+from machinevisiontoolbox.base.imageio import convert, iread, iread_iter
 
 try:
     from rosbags.rosbag1 import Reader as _RosBagReader1
@@ -960,9 +960,34 @@ class FileCollection(ImageSource):
 
     The resulting object is an iterator over the image files that match the
     wildcard description. The iterator returns :class:`Image` objects where
-    the ``name`` attribute is the name of the image file
+    the ``name`` attribute is the name of the image file.
 
-    If the path is not absolute, the video file is first searched for
+    **Eager mode** (default): All images are decoded at construction time.
+    This makes random access (``files[i]``), slicing, and ``len(files)`` fast
+    but can be slow and memory-intensive for large collections.
+
+    .. code-block:: python
+
+        from machinevisiontoolbox import FileCollection
+        images = FileCollection('campus/*.png')
+        len(images)                      # fast
+        img = images[5]                  # fast, in-memory
+        for image in images:             # iterate in-memory
+            pass
+
+    **Lazy mode** (via context manager): Files are decoded on-demand during
+    iteration. This avoids the startup cost of decoding all images upfront.
+    Trade-off: random access (``__getitem__``) is not available; use only for
+    sequential iteration.
+
+    .. code-block:: python
+
+        from machinevisiontoolbox import FileCollection
+        with FileCollection('campus/*.png') as images:
+            for image in images:         # decode on-demand
+                pass
+
+    If the path is not absolute, the file is first searched for
     relative to the current directory, and if not found, it is searched for
     in the ``images`` folder of the ``mvtb-data`` package, installed as a
     Toolbox dependency.
@@ -975,7 +1000,7 @@ class FileCollection(ImageSource):
             images = FileCollection('campus/*.png')
             len(images)
             for image in images:  # iterate over images
-                                pass
+                # do a thing
 
 
     alternatively:
@@ -985,7 +1010,7 @@ class FileCollection(ImageSource):
             img = files[i]  # load i'th file from the collection
 
 
-    or using a context manager:
+    or using a context manager for memory-efficient streaming:
 
         .. code-block:: python
 
@@ -1006,6 +1031,10 @@ class FileCollection(ImageSource):
     args: dict
     loop: bool
     i: int
+    _lazy: bool
+    _filename: str | None
+    _lazy_iter: Iterator | None
+    _loaded: bool
 
     def __init__(
         self, filename: str | None = None, loop: bool = False, **kwargs: Any
@@ -1013,20 +1042,36 @@ class FileCollection(ImageSource):
 
         self.images = []
         self.names = []
-
-        if filename is not None:
-            images, names = iread(filename, rgb=True)
-            if isinstance(images, np.ndarray):
-                self.images = [images]
-                self.names = [names]
-            else:
-                self.images = images
-                self.names = cast(list[str], names)
+        self._lazy = False
+        self._filename = filename
         self.args = kwargs
         self.loop = loop
         self.i = 0
+        self._lazy_iter = None
+        self._loaded = False
+
+    def _load_eager(self) -> None:
+        """Load and decode all images eagerly."""
+        if self._loaded or self._filename is None:
+            return
+        images, names = iread(self._filename, rgb=True)
+        if isinstance(images, np.ndarray):
+            self.images = [images]
+            self.names = [names]
+        else:
+            self.images = images
+            self.names = cast(list[str], names)
+        self._loaded = True
 
     def __getitem__(self, i: int | slice) -> FileCollection | Image:
+
+        if self._lazy:
+            raise TypeError(
+                "Random access is not supported in lazy mode. "
+                "Iterate sequentially or exit context manager to use eager mode."
+            )
+
+        self._load_eager()
 
         if isinstance(i, slice):
             # slice of a collection -> FileCollection
@@ -1047,38 +1092,93 @@ class FileCollection(ImageSource):
 
     def __iter__(self) -> FileCollection:
         self.i = 0
+        if self._lazy:
+            self._lazy_iter = None
+        else:
+            # Ensure eager load before iterating in non-CM mode
+            self._load_eager()
         return self
 
     def __str__(self) -> str:
+        if self._lazy:
+            return f"FileCollection(lazy mode)"
         return "\n".join([str(f) for f in self.names])
 
     def __repr__(self) -> str:
+        if self._lazy:
+            return f"FileCollection(lazy mode)"
         return f"FileCollection(nimages={len(self.images)})"
 
     def __next__(self) -> Image:
-        if self.i >= len(self.names):
-            if self.loop:
-                self.i = 0
-            else:
+        if self._lazy:
+            if self._filename is None:
                 raise StopIteration
-        data = self.images[self.i]
-        if data.ndim == 3 and not _wants_mono(self.args):
-            im = _make_image(
-                data, id=self.i, name=self.names[self.i], colororder="RGB", **self.args
-            )
+
+            # Lazily create the on-demand image iterator
+            if self._lazy_iter is None:
+                self._lazy_iter = iread_iter(self._filename, rgb=True)
+
+            try:
+                if self.loop:
+                    try:
+                        data, name = next(self._lazy_iter)
+                    except StopIteration:
+                        self._lazy_iter = iread_iter(self._filename, rgb=True)
+                        data, name = next(self._lazy_iter)
+                else:
+                    data, name = next(self._lazy_iter)
+            except StopIteration:
+                raise StopIteration
+
+            if data.ndim == 3 and not _wants_mono(self.args):
+                im = _make_image(
+                    data, id=self.i, name=name, colororder="RGB", **self.args
+                )
+            else:
+                im = _make_image(data, id=self.i, name=name, **self.args)
+            self.i += 1
+            return im
         else:
-            im = _make_image(data, id=self.i, name=self.names[self.i], **self.args)
-        self.i += 1
-        return im
+            # Eager iteration: use pre-loaded images
+            if self.i >= len(self.names):
+                if self.loop:
+                    self.i = 0
+                else:
+                    raise StopIteration
+            data = self.images[self.i]
+            if data.ndim == 3 and not _wants_mono(self.args):
+                im = _make_image(
+                    data,
+                    id=self.i,
+                    name=self.names[self.i],
+                    colororder="RGB",
+                    **self.args,
+                )
+            else:
+                im = _make_image(data, id=self.i, name=self.names[self.i], **self.args)
+            self.i += 1
+            return im
 
     def __len__(self) -> int:
+        if self._lazy:
+            raise TypeError(
+                "__len__() is not reliable in lazy mode. "
+                "Exit context manager to use eager mode with known length."
+            )
+        self._load_eager()
         return len(self.images)
 
     def __enter__(self) -> FileCollection:
+        # Switch to lazy mode - don't load anything yet, wait for __iter__
+        self._lazy = True
+        self.i = 0
+        self._lazy_iter = None
         return self
 
     def __exit__(self, exc_type, exc, tb) -> None:
-        pass
+        # Exit lazy mode
+        self._lazy = False
+        self._lazy_iter = None
 
 
 class ImageSequence(ImageSource):

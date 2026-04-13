@@ -115,6 +115,7 @@ from machinevisiontoolbox.base import (
 from machinevisiontoolbox.base.imageio import (
     idisp,
     iread,
+    iread_iter,
     iwrite,
     convert,
     cv_destroy_window,

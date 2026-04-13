@@ -45,6 +45,7 @@ __all__ = [
     # imageio
     "idisp",
     "iread",
+    "iread_iter",
     "iwrite",
     "convert",
     "cv_destroy_window",
