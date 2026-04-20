@@ -176,7 +176,7 @@ class ImageSpatialMixin(_ImageBase if TYPE_CHECKING else object):
         :param bordervalue: padding value, see :meth:`convolve`, defaults to 0
         :type bordervalue: scalar, optional
         :return: smoothed image
-        :rtype: :class:`~machinevisiontoolbox.ImageCore.Image`
+        :rtype: :class:`Image`
 
         Smooth the image by convolving with a Gaussian kernel of standard
         deviation ``sigma``.  If ``h`` is not given the kernel half width is set
@@ -381,7 +381,7 @@ class ImageSpatialMixin(_ImageBase if TYPE_CHECKING else object):
         :param bordervalue: padding value, , see :meth:`convolve`, defaults to 0
         :type bordervalue: scalar, optional
         :return: horizontal and vertical gradient images
-        :rtype: 2-tuple of :class:`~machinevisiontoolbox.ImageCore.Image`
+        :rtype: 2-tuple of :class:`Image`
 
         Compute horizontal and vertical gradient images.
 
@@ -412,9 +412,9 @@ class ImageSpatialMixin(_ImageBase if TYPE_CHECKING else object):
         Gradient direction
 
         :param im: vertical gradient image
-        :type im: :class:`~machinevisiontoolbox.ImageCore.Image`
+        :type im: :class:`Image`
         :return: gradient direction in radians
-        :rtype: :class:`~machinevisiontoolbox.ImageCore.Image`
+        :rtype: :class:`Image`
 
         Compute the per-pixel gradient direction from two images comprising the
         horizontal and vertical gradient components.
@@ -450,7 +450,7 @@ class ImageSpatialMixin(_ImageBase if TYPE_CHECKING else object):
         :param h: kernel half width, defaults to 2
         :type h: int, optional
         :return: Harris corner strength image
-        :rtype: :class:`~machinevisiontoolbox.ImageCore.Image`
+        :rtype: :class:`Image`
 
         Returns an image containing Harris corner strength values.  This is
         positive for high gradient in orthogonal directions, and negative
@@ -459,7 +459,7 @@ class ImageSpatialMixin(_ImageBase if TYPE_CHECKING else object):
         :references:
             - |RVC3|, Section 12.3.1.
 
-        .. important:: Uses OpenCV function ``cv2.cornerHarris`` which accepts single-channel, CV_8U, CV_32F or CV_64F images (colour images are automatically converted to greyscale).
+        .. important:: Uses OpenCV function ``cv2.cornerHarris`` which accepts single-channel, CV_8U, CV_32F or CV_64F images (color images are automatically converted to greyscale).
 
         :seealso:
             :meth:`gradients`
@@ -498,7 +498,7 @@ class ImageSpatialMixin(_ImageBase if TYPE_CHECKING else object):
         :raises TypeError: ``func`` not callable
         :raises ValueError: single channel images only
         :return: transformed image
-        :rtype: :class:`~machinevisiontoolbox.ImageCore.Image`
+        :rtype: :class:`Image`
 
         Returns an image where each pixel is the result of applying the function
         ``func`` to a neighbourhood centred on the corresponding pixel in image.
@@ -558,7 +558,7 @@ class ImageSpatialMixin(_ImageBase if TYPE_CHECKING else object):
         Compute zero crossing
 
         :return: boolean image
-        :rtype: :class:`~machinevisiontoolbox.ImageCore.Image` instance
+        :rtype: :class:`Image` instance
 
         Compute a zero-crossing image, where pixels are true if they are adjacent to
         a change in sign.
@@ -602,7 +602,7 @@ class ImageSpatialMixin(_ImageBase if TYPE_CHECKING else object):
         :param sigma: Gaussian filter width, defaults to 1
         :type sigma: scalar, optional
         :return: Gaussian and difference of Gaussian sequences, scale factors
-        :rtype: list of :class:`~machinevisiontoolbox.ImageCore.Image`, list of :class:`~machinevisiontoolbox.ImageCore.Image`, list of float
+        :rtype: list of :class:`Image`, list of :class:`Image`, list of float
 
         Compute a scalespace image sequence by consecutively smoothing the input
         image with a Gaussian of width ``sigma``.  The difference between
@@ -664,7 +664,7 @@ class ImageSpatialMixin(_ImageBase if TYPE_CHECKING else object):
         :param bordervalue: padding value, defaults to 0
         :type bordervalue: scalar, optional
         :return: list of images at each pyramid level
-        :rtype: list of :class:`~machinevisiontoolbox.ImageCore.Image`
+        :rtype: list of :class:`Image`
 
         Returns a pyramid decomposition of the input image using Gaussian
         smoothing with standard deviation of ``sigma``. The return is a list
@@ -688,7 +688,7 @@ class ImageSpatialMixin(_ImageBase if TYPE_CHECKING else object):
         :references:
             - |RVC3|, Section 12.3.2.
 
-        .. important:: Uses OpenCV function ``cv2.pyrDown`` which accepts single-channel, CV_8U, CV_16U, CV_16S, CV_32F or CV_64F images (colour images are automatically converted to greyscale).
+        .. important:: Uses OpenCV function ``cv2.pyrDown`` which accepts single-channel, CV_8U, CV_16U, CV_16S, CV_32F or CV_64F images (color images are automatically converted to greyscale).
 
         :seealso:
             :meth:`smooth`
@@ -753,7 +753,7 @@ class ImageSpatialMixin(_ImageBase if TYPE_CHECKING else object):
         :param th1: upper threshold
         :type th1: float
         :return: edge image
-        :rtype: :class:`~machinevisiontoolbox.ImageCore.Image` instance
+        :rtype: :class:`Image` instance
 
         Computes an edge image obtained using the Canny edge detector algorithm.
         Hysteresis filtering is applied to the gradient image: edge pixels >
@@ -844,7 +844,7 @@ class ImageSpatialMixin(_ImageBase if TYPE_CHECKING else object):
         :param bordervalue: padding value, defaults to 0
         :type bordervalue: scalar, optional
         :return: rank filtered image
-        :rtype: :class:`~machinevisiontoolbox.ImageCore.Image`
+        :rtype: :class:`Image`
 
         Return a rank filtered version of image.  Only pixels corresponding to
         non-zero elements of the structuring element are ranked, and the value
@@ -921,7 +921,7 @@ class ImageSpatialMixin(_ImageBase if TYPE_CHECKING else object):
         :type h: int, optional
         :param kwargs: options passed to :meth:`rank`
         :return: median filtered image
-        :rtype: :class:`~machinevisiontoolbox.ImageCore.Image` instance
+        :rtype: :class:`Image` instance
 
         Return the median filtered image.  For every :math:`w \times w, w=2h+1`
         window take the median value as the output pixel value.
@@ -965,7 +965,7 @@ class ImageSpatialMixin(_ImageBase if TYPE_CHECKING else object):
         :param h: half width of window, defaults to 1
         :type h: int, optional
         :return: distance transform of image
-        :rtype: :class:`~machinevisiontoolbox.ImageCore.Image`
+        :rtype: :class:`Image`
 
         Compute the distance transform. For each zero input pixel, compute its
         distance to the nearest non-zero input pixel.
@@ -1031,7 +1031,7 @@ class ImageSpatialMixin(_ImageBase if TYPE_CHECKING else object):
         :param ltype: output image type: 'int32' [default], 'uint16'
         :type ltype: string, optional
         :return: label image, number of regions
-        :rtype: :class:`~machinevisiontoolbox.ImageCore.Image`, int
+        :rtype: :class:`Image`, int
 
         Compute labels of connected components in the input greyscale or binary
         image. Regions are sets of contiguous pixels with the same value.
@@ -1099,7 +1099,7 @@ class ImageSpatialMixin(_ImageBase if TYPE_CHECKING else object):
 
         :param kwargs: arguments passed to ``MSER_create``
         :return: label image, number of regions
-        :rtype: :class:`~machinevisiontoolbox.ImageCore.Image`, int
+        :rtype: :class:`Image`, int
 
         Compute labels of connected components in the input greyscale image.
         Regions are sets of contiguous pixels that form stable regions across a
@@ -1158,7 +1158,7 @@ class ImageSpatialMixin(_ImageBase if TYPE_CHECKING else object):
 
         :param kwargs: arguments passed to ``MSER_create``
         :return: label image, number of regions
-        :rtype: :class:`~machinevisiontoolbox.ImageCore.Image`, int
+        :rtype: :class:`Image`, int
 
         Compute labels of connected components in the input color image. Regions
         are sets of contiguous pixels that are similar with respect to their
@@ -1198,7 +1198,7 @@ class ImageSpatialMixin(_ImageBase if TYPE_CHECKING else object):
         Sum of absolute differences
 
         :param image2: second image
-        :type image2: :class:`~machinevisiontoolbox.ImageCore.Image`
+        :type image2: :class:`Image`
         :raises ValueError: image2 shape is not equal to self
         :return: sum of absolute differences
         :rtype: scalar
@@ -1248,7 +1248,7 @@ class ImageSpatialMixin(_ImageBase if TYPE_CHECKING else object):
         Sum of squared differences
 
         :param image2: second image
-        :type image2: :class:`~machinevisiontoolbox.ImageCore.Image`
+        :type image2: :class:`Image`
         :raises ValueError: image2 shape is not equal to self
         :return: sum of squared differences
         :rtype: scalar
@@ -1292,7 +1292,7 @@ class ImageSpatialMixin(_ImageBase if TYPE_CHECKING else object):
         Normalised cross correlation
 
         :param image2: second image
-        :type image2: :class:`~machinevisiontoolbox.ImageCore.Image`
+        :type image2: :class:`Image`
         :raises ValueError: image2 shape is not equal to self
         :return: normalised cross correlation
         :rtype: scalar
@@ -1342,7 +1342,7 @@ class ImageSpatialMixin(_ImageBase if TYPE_CHECKING else object):
         Zero-mean sum of absolute differences
 
         :param image2: second image
-        :type image2: :class:`~machinevisiontoolbox.ImageCore.Image`
+        :type image2: :class:`Image`
         :raises ValueError: image2 shape is not equal to self
         :return: sum of absolute differences
         :rtype: scalar
@@ -1391,7 +1391,7 @@ class ImageSpatialMixin(_ImageBase if TYPE_CHECKING else object):
         Zero-mean sum of squared differences
 
         :param image2: second image
-        :type image2: :class:`~machinevisiontoolbox.ImageCore.Image`
+        :type image2: :class:`Image`
         :raises ValueError: image2 shape is not equal to self
         :return: sum of squared differences
         :rtype: scalar
@@ -1440,7 +1440,7 @@ class ImageSpatialMixin(_ImageBase if TYPE_CHECKING else object):
         Zero-mean normalized cross correlation
 
         :param image2: second image
-        :type image2: :class:`~machinevisiontoolbox.ImageCore.Image`
+        :type image2: :class:`Image`
         :raises ValueError: image2 shape is not equal to self
         :return: normalised cross correlation
         :rtype: scalar
@@ -1497,7 +1497,7 @@ class ImageSpatialMixin(_ImageBase if TYPE_CHECKING else object):
         :raises ValueError: template T must have odd dimensions
         :raises ValueError: bad metric specified
         :return: similarity image
-        :rtype: :class:`~machinevisiontoolbox.ImageCore.Image` instance
+        :rtype: :class:`Image` instance
 
         Compute a similarity image where each output pixel is the similarity of
         the template ``T`` to the same-sized neighbourhood surrounding the

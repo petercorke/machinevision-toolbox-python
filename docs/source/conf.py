@@ -92,6 +92,11 @@ autosummary_generate = True
 autodoc_member_order = "bysource"
 autosummary_imported_members = True
 autodoc_mock_imports = ["bdsim", "bdsim.graphics"]
+suppress_warnings = [
+    "codeautolink.match_block",
+    "codeautolink.match_name",
+    "config.cache",
+]
 codeautolink_custom_blocks = {
     "pycon": clean_pycon,
     "ipython": clean_ipython,
@@ -103,6 +108,11 @@ rst_epilog = """
 .. |RVC3| replace:: `P. Corke, Robotics, Vision & Control for Python, Springer, 2023 <https://link.springer.com/book/10.1007/978-3-031-06469-2>`__
 """
 
+# tricks to get :class:`Image` links to resolve to the correct place in the RsT docs
+rst_prolog = """
+.. currentmodule:: machinevisiontoolbox
+"""
+primary_domain = "py"
 
 # -- Cross-project links -----------------------------------------------------
 intersphinx_mapping = {
@@ -114,6 +124,16 @@ intersphinx_mapping = {
     "pgraph": ("https://petercorke.github.io/pgraph-python/", None),
     "torch": ("https://pytorch.org/docs/stable/", None),
 }
+
+# Ignore pseudo-types emitted in autodoc signatures/docstrings under nitpicky mode.
+nitpick_ignore = [
+    ("py:class", "optional"),
+    ("py:class", "NumPy dtype"),
+    ("py:class", "array_like"),
+    ("py:class", "W"),
+    ("py:class", "H"),
+    ("py:class", "numpy._typing.DTypeLike"),
+]
 # maybe issues with cv2 https://stackoverflow.com/questions/30939867/how-to-properly-write-cross-references-to-external-documentation-with-intersphin
 
 

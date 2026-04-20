@@ -908,7 +908,9 @@ class BaseFeature2D:
         # translate to centre of window
         M = smb.transl2(N / 2, N / 2) @ M
 
-        out = cv2.warpAffine(src=image, M=M[:2, :], dsize=(N, N), flags=cv2.INTER_LINEAR)
+        out = cv2.warpAffine(
+            src=image, M=M[:2, :], dsize=(N, N), flags=cv2.INTER_LINEAR
+        )
         return Image(out)
 
     def filter(self, **kwargs: Any) -> "BaseFeature2D":
@@ -2239,7 +2241,7 @@ class ImagePointFeaturesMixin(_ImageBase):
         :rtype: :class:`HarrisFeature`
 
         Harris features are detected as non-local maxima in the Harris corner
-        strength image.  The descriptor is a unit-normalized vector image
+        strength image.  The descriptor is a unit-normalized vector of image
         elements in a :math:`w_p \times w_p` patch around the detected feature,
         where :math:`w_p = 2\mathtt{patch}+1`.
 

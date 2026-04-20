@@ -310,7 +310,7 @@ class CameraBase(ABC):
         """
         Set image plane size
 
-        :param npix: [description]
+        :param npix: image plane size in pixels
         :type npix: array_like(2)
         :raises ValueError: bad value
 
@@ -578,7 +578,7 @@ class CameraBase(ABC):
         Set/get camera pose (base method)
 
         The camera pose with respect to the global frame can be read or written
-        as an :class:`~spatialmath..pose3d.SE3` instance.
+        as an :class:`~spatialmath.pose3d.SE3` instance.
 
         Example:
 
@@ -604,7 +604,7 @@ class CameraBase(ABC):
         Set camera pose
 
         :param newpose: pose of camera frame
-        :type newpose: :class:`~spatialmath..pose3d.SE3` or ndarray(4,4)
+        :type newpose: :class:`~spatialmath.pose3d.SE3` or ndarray(4,4)
 
         :seealso: :meth:`move`
         """
@@ -679,7 +679,7 @@ class CameraBase(ABC):
         Move camera (base method)
 
         :param T: pose of camera frame
-        :type T: :class:`~spatialmath..pose3d.SE3`
+        :type T: :class:`~spatialmath.pose3d.SE3`
         :param relative: move relative to pose of original camera, defaults to ``False``
         :type relative: bool, optional
         :return: new camera object
@@ -846,9 +846,9 @@ class CameraBase(ABC):
         :param P: 3D world point or points, or 2D image plane point or points
         :type P: ndarray(3,), ndarray(3,N), or ndarray(2,), ndarray(2,N)
         :param objpose: transformation for the 3D points, defaults to ``None``
-        :type objpose: :class:`~spatialmath..pose3d.SE3`, optional
+        :type objpose: :class:`~spatialmath.pose3d.SE3`, optional
         :param pose: pose of the camera, defaults to ``None``
-        :type pose: :class:`~spatialmath..pose3d.SE3`, optional
+        :type pose: :class:`~spatialmath.pose3d.SE3`, optional
         :param ax: axes to plot into
         :type ax: :class:`matplotlib.axes`
         :param kwargs: additional arguments passed to :obj:`~matplotlib.pyplot.plot`
@@ -1016,9 +1016,9 @@ class CameraBase(ABC):
         :param Z: world Z coordinates
         :type Z: ndarray(N,M)
         :param objpose: transformation for the wireframe points, defaults to ``None``
-        :type objpose: :class:`~spatialmath..pose3d.SE3`, optional
+        :type objpose: :class:`~spatialmath.pose3d.SE3`, optional
         :param pose: pose of the camera, defaults to ``None``
-        :type pose: :class:`~spatialmath..pose3d.SE3`, optional
+        :type pose: :class:`~spatialmath.pose3d.SE3`, optional
         :param nsteps: number of points for each wireframe segment, defaults to 21
         :type nsteps: int, optional
         :param kwargs: arguments passed to ``plot``
@@ -1121,12 +1121,12 @@ class CameraBase(ABC):
         Display image on virtual image plane (base method)
 
         :param im: image to display
-        :type im: :class:`Image` instance
+        :type im: :class:`~machinevisiontoolbox.Image` instance
         :param kwargs: options to :func:`~machinevisiontoolbox.base.imageio.idisp()`
 
         An image is displayed on camera's the virtual image plane.
 
-        .. note: The dimensions of the image plane should match the dimensions of the image.
+        .. note:: The dimensions of the image plane should match the dimensions of the image.
 
         :seealso: :func:`machinevisiontoolbox.base.idisp()`
         """
@@ -1153,7 +1153,7 @@ class CameraBase(ABC):
         Plot 3D camera icon in world view (base method)
 
         :param pose: camera pose
-        :type pose: :class:`~spatialmath..pose3d.SE3`
+        :type pose: :class:`~spatialmath.pose3d.SE3`
         :param scale: scale factor, defaults to 1
         :type scale: float
         :param shape: icon shape: 'frustum' [default], 'camera'
@@ -1188,7 +1188,7 @@ class CameraBase(ABC):
         #     ax = fig.gca(projection='3d')
         #     # ax.set_aspect('equal')
 
-        """[summary]
+        """
         face order -x, +y, +x, -y
         """
         # get axes to draw in
@@ -1438,9 +1438,9 @@ class CentralCamera(CameraBase):
         :type P: array_like(3), array_like(3,n), array_like(4), array_like(4,n)
         :param pose: camera pose with respect to the world frame, defaults to
             camera's ``pose`` attribute
-        :type pose: :class:`~spatialmath..pose3d.SE3`, optional
+        :type pose: :class:`~spatialmath.pose3d.SE3`, optional
         :param objpose:  3D point reference frame, defaults to world frame
-        :type objpose: :class:`~spatialmath..pose3d.SE3`, optional
+        :type objpose: :class:`~spatialmath.pose3d.SE3`, optional
         :param behind: points behind the camera indicated by NaN, defaults to ``True``
         :type behind: bool, optional
         :param visibility: return visibility array, defaults to ``False``
@@ -1558,11 +1558,11 @@ class CentralCamera(CameraBase):
         Project 3D lines to image plane
 
         :param lines: Plucker line or lines
-        :type lines: :class:`~spatialmath..geom3d.Line3` instance with N values
+        :type lines: :class:`~spatialmath.geom3d.Line3` instance with N values
         :return: 2D homogeneous lines, one per column
         :rtype: ndarray(3,N)
 
-        The :class:`~spatialmath..geom3d.Line3` object can contain multiple lines.  The result array has one
+        The :class:`~spatialmath.geom3d.Line3` object can contain multiple lines.  The result array has one
         column per line, and each column is a vector describing the image plane
         line in homogeneous form :math:`\ell_0 u + \ell_1 v + \ell_2 = 0`.
 
@@ -1589,7 +1589,7 @@ class CentralCamera(CameraBase):
         :references:
             - |RVC3|, Section 13.7.1.
 
-        :seealso: :meth:`C` :class:`~spatialmath..geom3d.Line3` :meth:`project_point` :meth:`project_quadric`
+        :seealso: :meth:`C` :class:`~spatialmath.geom3d.Line3` :meth:`project_point` :meth:`project_quadric`
         """
         if not isinstance(lines, Line3):
             raise ValueError("expecting Line3 lines")
@@ -1742,7 +1742,7 @@ class CentralCamera(CameraBase):
         Plot 3D line on virtual image plane (base method)
 
         :param L: 3D line in Plucker coordinates
-        :type L: :class:`~spatialmath..geom3d.Line3`
+        :type L: :class:`~spatialmath.geom3d.Line3`
         :param kwargs: arguments passed to ``plot``
 
         The Plucker line is projected to the camera's virtual image plane and
@@ -1767,9 +1767,9 @@ class CentralCamera(CameraBase):
         :param points: image plane points
         :type points: ndarray(2,N)
         :param pose: camera pose, defaults to ``None``
-        :type pose: :class:`~spatialmath..pose3d.SE3`, optional
+        :type pose: :class:`~spatialmath.pose3d.SE3`, optional
         :return: corresponding Plucker lines
-        :rtype: :class:`~spatialmath..geom3d.Line3`
+        :rtype: :class:`~spatialmath.geom3d.Line3`
 
         For each image plane point compute the equation of a Plucker line
         that represents the 3D ray from the camera origin through the image
@@ -1788,7 +1788,7 @@ class CentralCamera(CameraBase):
             - "Multiview Geometry", Hartley & Zisserman, p.162
             - |RVC3|, Section 14.3.
 
-        :seealso: :class:`~spatialmath..geom3d.Line3`
+        :seealso: :class:`~spatialmath.geom3d.Line3`
         """
         # define Plucker line in terms of point (centre of camera) and direction
         C = self.C(pose=pose)
@@ -1983,7 +1983,7 @@ class CentralCamera(CameraBase):
 
     @f.setter
     def f(self, f: ArrayLike) -> None:
-        """[summary]
+        """
 
         :param f: focal length
         :type f: scalar or array_like(2)
@@ -2057,7 +2057,7 @@ class CentralCamera(CameraBase):
         Camera projection matrix
 
         :param T: camera pose with respect to world frame, defaults to pose from camera object
-        :type T: :class:`~spatialmath..pose3d.SE3`, optional
+        :type T: :class:`~spatialmath.pose3d.SE3`, optional
         :param retinal: transform to retinal coordinates, default False
         :type retinal: bool, optional
         :return: camera projection/calibration matrix
@@ -2169,7 +2169,7 @@ class CentralCamera(CameraBase):
         """
         Calibrate camera from checkerboard images
 
-        :param images: an iterator that returns :class:`~machinevisiontoolbox.ImageCore.Image` objects
+        :param images: an iterator that returns :class:`~machinevisiontoolbox.Image` objects
         :type images: :class:`~machinevisiontoolbox.Sources.ImageSource`
         :param gridshape: number of grid squares in each dimension, defaults to (7,6)
         :type gridshape: tuple, optional
@@ -2185,13 +2185,21 @@ class CentralCamera(CameraBase):
         Image frames that were successfully processed are returned as a list of
         named tuples ``CalibrationFrame`` with elements:
 
-        =======  =====================  ===========================================================
-        element  type                   description
-        =======  =====================  ===========================================================
-        image    :class:`Image`         calibration image with overlaid annotation
-        pose     :class:`SE3` instance  pose of the camera with respect to the origin of this image
-        id       int                    sequence number of this image in ``images``
-        =======  =====================  ===========================================================
+                .. list-table::
+                        :header-rows: 1
+
+                        * - element
+                            - type
+                            - description
+                        * - image
+                            - :class:`~machinevisiontoolbox.Image`
+                            - calibration image with overlaid annotation
+                        * - pose
+                            - :class:`SE3`
+                            - pose of the camera with respect to the origin of this image
+                        * - id
+                            - int
+                            - sequence number of this image in ``images``
 
         .. note:: The units used for ``squaresize`` must match the units used
             for defining 3D points in space.
@@ -2199,7 +2207,7 @@ class CentralCamera(CameraBase):
         :references:
             - |RVC3|, Section 13.7.
 
-        :seealso: :meth:`C` :meth:`points2C` :meth:`decomposeC` :class:`~spatialmath..pose3d.SE3`
+        :seealso: :meth:`C` :meth:`points2C` :meth:`decomposeC` :class:`~spatialmath.pose3d.SE3`
         """
 
         criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
@@ -2217,16 +2225,16 @@ class CentralCamera(CameraBase):
         valid = []
 
         for i, image in enumerate(images):
-            gray = image.mono()._A
+            grey = image.mono()._A
             # Find the chess board corners
             ret, corners = cv2.findChessboardCorners(
-                image=gray, patternSize=gridshape, corners=None
+                image=grey, patternSize=gridshape, corners=None
             )
             # If found, add object points, image points (after refining them)
             if ret:
                 objpoints.append(objp)
                 corners2 = cv2.cornerSubPix(
-                    image=gray,
+                    image=grey,
                     corners=corners,
                     winSize=(11, 11),
                     zeroZone=(-1, -1),
@@ -2250,7 +2258,7 @@ class CentralCamera(CameraBase):
         ret, C, distortion, rvecs, tvecs = cv2.calibrateCamera(  # type: ignore[call-overload]
             objectPoints=objpoints,
             imagePoints=imgpoints,
-            imageSize=gray.shape[::-1],
+            imageSize=grey.shape[::-1],
             cameraMatrix=None,  # type: ignore[arg-type]
             distCoeffs=None,  # type: ignore[arg-type]
         )
@@ -2380,7 +2388,7 @@ class CentralCamera(CameraBase):
         Compute homography from plane and camera pose
 
         :param T: relative camera motion
-        :type T: :class:`~spatialmath..pose3d.SE3`
+        :type T: :class:`~spatialmath.pose3d.SE3`
         :param n: plane normal with respect to world frame
         :type n: array_like(3)
         :param d: plane offset from world frame origin
@@ -2510,7 +2518,7 @@ class CentralCamera(CameraBase):
         :param K: camera intrinsics, defaults to parameters from object
         :type K: ndarray(3,3), optional
         :return: camera poses, plane normals
-        :rtype: :class:`~spatialmath..pose3d.SE3`, list of ndarray(3,1)
+        :rtype: :class:`~spatialmath.pose3d.SE3`, list of ndarray(3,1)
 
         Decomposes the homography matrix into the camera motion and the normal
         to the plane. In practice, there are multiple solutions. The translation
@@ -2595,7 +2603,7 @@ class CentralCamera(CameraBase):
         Fundamental matrix
 
         :param other: second camera view
-        :type other: :class:`CentralCamera`, :class:`~spatialmath..pose3d.SE3`
+        :type other: :class:`CentralCamera`, :class:`~spatialmath.pose3d.SE3`
         :return: fundamental matrix
         :rtype: numpy(3,3)
 
@@ -2766,7 +2774,7 @@ class CentralCamera(CameraBase):
         Essential matrix from two camera views
 
         :param other: second camera view, camera pose or fundamental matrix
-        :type other: :class:`CentralCamera`, :class:`~spatialmath..pose3d.SE3`, ndarray(3,3)
+        :type other: :class:`CentralCamera`, :class:`~spatialmath.pose3d.SE3`, ndarray(3,3)
         :return: essential matrix
         :rtype: ndarray(3,3)
 
@@ -2775,7 +2783,7 @@ class CentralCamera(CameraBase):
 
         * a camera instance represented by a :class:`CentralCamera`. Assumes the
           cameras have the same intrinsics.
-        * a relative motion represented by a :class:`~spatialmath..pose3d.SE3`
+        * a relative motion represented by a :class:`~spatialmath.pose3d.SE3`
         * a fundamental matrix
 
         :references:
@@ -2883,7 +2891,7 @@ class CentralCamera(CameraBase):
         :param P: world point or feature match object to resolve ambiguity
         :type P: array_like(3), :class:`~machinevisiontoolbox.ImagePointFeatures.FeatureMatch`
         :return: camera relative pose
-        :rtype: :class:`~spatialmath..pose3d.SE3`
+        :rtype: :class:`~spatialmath.pose3d.SE3`
 
         Determines relative pose from essential matrix. This operation has
         multiple solutions which is resolved by passing in:
@@ -3313,7 +3321,7 @@ class CentralCamera(CameraBase):
 
         :param vel: camera spatial velocity
         :type vel: array_like(6)
-        :param Z: _description_, defaults to 2
+        :param Z: depth of the point grid in the camera frame, defaults to 2
         :type Z: scalar, optional
 
         Display the optical flow field using Matplotlib, for a grid of points at
@@ -3396,7 +3404,7 @@ class CentralCamera(CameraBase):
         :param frame: estimate pose with respect to frame "world" [default] or "camera"
         :type frame: str, optional
         :return: pose of target frame relative to the world frame
-        :rtype: :class:`~spatialmath..pose3d.SE3`
+        :rtype: :class:`~spatialmath.pose3d.SE3`
 
         Using a set of points defining some object with respect to its own frame {B}, and
         a set of image-plane projections, estimate the pose of {B} with respect to the world
@@ -3554,10 +3562,9 @@ class FishEyeCamera(CameraBase):
             camera's ``pose`` attribute
         :type pose: :class:`~spatialmath.pose3d.SE3`, optional
         :param objpose:  3D point reference frame, defaults to world frame
-        :type objpose: :class:`~spatialmath..pose3d.SE3`, optional
+        :type objpose: :class:`~spatialmath.pose3d.SE3`, optional
         :param visibility: test if points are visible, default False
         :type visibility: bool
-        :raises ValueError: [description]
         :return: image plane points
         :rtype: ndarray(2,n)
 
@@ -3725,12 +3732,11 @@ class CatadioptricCamera(CameraBase):
         :type P: array_like(3), array_like(3,n)
         :param pose: camera pose with respect to the world frame, defaults to
             camera's ``pose`` attribute
-        :type pose: :class:`~spatialmath..pose3d.SE3`, optional
+        :type pose: :class:`~spatialmath.pose3d.SE3`, optional
         :param objpose:  3D point reference frame, defaults to world frame
-        :type objpose: :class:`~spatialmath..pose3d.SE3`, optional
+        :type objpose: :class:`~spatialmath.pose3d.SE3`, optional
         :param visibility: test if points are visible, default False
         :type visibility: bool
-        :raises ValueError: [description]
         :return: image plane points
         :rtype: ndarray(2,n)
 
@@ -3832,9 +3838,9 @@ class SphericalCamera(CameraBase):
         :type P: array_like(3), array_like(3,n)
         :param pose: camera pose with respect to the world frame, defaults to
             camera's ``pose`` attribute
-        :type pose: :class:`~spatialmath..pose3d.SE3`, optional
+        :type pose: :class:`~spatialmath.pose3d.SE3`, optional
         :param objpose:  3D point reference frame, defaults to world frame
-        :type objpose: :class:`~spatialmath..pose3d.SE3`, optional
+        :type objpose: :class:`~spatialmath.pose3d.SE3`, optional
         :return: image plane points
         :rtype: ndarray(2,n)
 

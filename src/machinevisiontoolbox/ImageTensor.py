@@ -90,7 +90,7 @@ class ImageTensorMixin(_ImageBase if TYPE_CHECKING else object):
                 "Install it with: pip install torch "
                 "or pip install machinevision-toolbox-python[torch]"
             )
-        # 1. Convert to tensor; mono images are (H, W), colour images are (H, W, C)
+        # 1. Convert to tensor; mono images are (H, W), color images are (H, W, C)
         array = self.A
         if array.ndim == 2:
             tensor = torch.from_numpy(array)
@@ -140,7 +140,7 @@ class ImageTensorMixin(_ImageBase if TYPE_CHECKING else object):
             logits and apply ``argmax`` over the first axis to create a label
             image, defaults to ``False``
         :type logits: bool, optional
-        :param colororder: colour plane order, e.g. ``"RGB"`` or ``"BGR"``,
+        :param colororder: color plane order, e.g. ``"RGB"`` or ``"BGR"``,
             defaults to "RGB" for 3-channel images and None for single-channel images
         :type colororder: str, optional
         :param dtype: data type for the image array, e.g. ``np.uint8`` or

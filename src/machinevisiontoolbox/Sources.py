@@ -152,7 +152,7 @@ class ImageSource(ABC):
         :type dtype: torch.dtype or None, optional
         :raises ImportError: if PyTorch is not installed
         :raises TypeError: if the source is not finite (no ``__len__``)
-        :raises TypeError: if any yielded item is not an :class:`Image`
+        :raises TypeError: if any yielded item is not an :class:`~machinevisiontoolbox.Image`
         :raises ValueError: if any frame has a different shape to the first
         :return: tensor of shape ``(N, C, H, W)``
         :rtype: torch.Tensor
@@ -438,7 +438,7 @@ class VideoFile(ImageSource):
     :param kwargs: options applied to image frames, see :func:`~machinevisiontoolbox.base.imageio.convert`
 
     The resulting object is an iterator over the frames of the video file.
-    The iterator returns :class:`Image` objects where:
+    The iterator returns :class:`~machinevisiontoolbox.Image` objects where:
 
     - the ``name`` attribute is the name of the video file
     - the ``id`` attribute is the frame number within the file
@@ -456,7 +456,7 @@ class VideoFile(ImageSource):
             video = VideoFile("traffic_sequence.mpg")
             len(video)
             for im in video:
-                                pass
+                pass
 
 
     or using a context manager to ensure the file handle is always released:
@@ -465,7 +465,7 @@ class VideoFile(ImageSource):
 
             with VideoFile("traffic_sequence.mpg") as video:
                 for im in video:
-                    # process image
+                    pass
 
 
     :references:
@@ -556,7 +556,7 @@ class VideoCamera(ImageSource):
     the recording light to come on.
 
     The resulting object is an iterator over the frames from the video
-    camera. The iterator returns :class:`Image` objects.
+    camera. The iterator returns :class:`~machinevisiontoolbox.Image` objects.
 
     Example:
 
@@ -565,7 +565,7 @@ class VideoCamera(ImageSource):
             from machinevisiontoolbox import VideoCamera
             video = VideoCamera(0)
             for im in video:
-                                pass
+                pass
 
 
     alternatively:
@@ -581,7 +581,7 @@ class VideoCamera(ImageSource):
 
             with VideoCamera(0) as camera:
                 for im in camera:
-                    # process image
+                    pass
 
 
     .. note::
@@ -651,7 +651,7 @@ class VideoCamera(ImageSource):
         Grab single frame from camera
 
         :return: next frame from the camera
-        :rtype: :class:`Image`
+        :rtype: :class:`~machinevisiontoolbox.Image`
 
         .. deprecated:: 0.11.4
             Use :func:`next` on the iterator instead, for example ``next(camera)``.
@@ -959,7 +959,7 @@ class FileCollection(ImageSource):
     :param kwargs: options applied to image frames, see :func:`~machinevisiontoolbox.base.imageio.convert`
 
     The resulting object is an iterator over the image files that match the
-    wildcard description. The iterator returns :class:`Image` objects where
+    wildcard description. The iterator returns :class:`~machinevisiontoolbox.Image` objects where
     the ``name`` attribute is the name of the image file.
 
     **Eager mode** (default): All images are decoded at construction time.
@@ -1000,7 +1000,7 @@ class FileCollection(ImageSource):
             images = FileCollection('campus/*.png')
             len(images)
             for image in images:  # iterate over images
-                # do a thing
+                pass
 
 
     alternatively:
@@ -1016,7 +1016,7 @@ class FileCollection(ImageSource):
 
             with FileCollection('campus/*.png') as images:
                 for image in images:
-                    # process image
+                    pass
 
 
     :references:
@@ -1183,13 +1183,13 @@ class FileCollection(ImageSource):
 
 class ImageSequence(ImageSource):
     """
-    An in-memory sequence of :class:`Image` objects with interactive display.
+    An in-memory sequence of :class:`~machinevisiontoolbox.Image` objects with interactive display.
 
     :param images: sequence of images
-    :type images: iterable of :class:`Image`
+    :type images: iterable of :class:`~machinevisiontoolbox.Image`
 
     The sequence is materialised into a list on construction.  Items are
-    expected to be :class:`Image` instances; a ``timestamp`` attribute (ROS
+    expected to be :class:`~machinevisiontoolbox.Image` instances; a ``timestamp`` attribute (ROS
     nanosecond epoch) and ``topic`` attribute are used for the display overlay
     when present.
 
@@ -1429,24 +1429,20 @@ class FileArchive(ImageSource):
     :param kwargs: options applied to image frames, see :func:`~machinevisiontoolbox.base.imageio.convert`
 
     The resulting object is an iterator over the files within the archive.
-    The iterator returns the file as a :class:`Image` instance if it is an
+    The iterator returns the file as a :class:`~machinevisiontoolbox.Image` instance if it is an
     image (the ``name`` attribute is the filename within the archive), or a
     :class:`bytes` object for non-image files.
 
-    The following archive formats are supported:
+        The following archive formats are supported:
 
-    ==================  ===================================================
-    Extension           Notes
-    ==================  ===================================================
-    ``.zip``            stdlib, always available
-    ``.tar``            stdlib, always available
-    ``.tar.gz`` / ``.tgz``  stdlib, always available
-    ``.tar.bz2``        stdlib, always available
-    ``.tar.xz``         stdlib, always available
-    ``.7z``             requires ``pip install py7zr``
-    ``.rar``            requires ``brew install unar`` (macOS) or ``apt install unar``;
-                        alternatively ``pip install rarfile`` with ``unrar``/``unar`` in PATH
-    ==================  ===================================================
+        - ``.zip``: stdlib, always available
+        - ``.tar``: stdlib, always available
+        - ``.tar.gz`` / ``.tgz``: stdlib, always available
+        - ``.tar.bz2``: stdlib, always available
+        - ``.tar.xz``: stdlib, always available
+        - ``.7z``: requires ``pip install py7zr``
+        - ``.rar``: requires ``brew install unar`` (macOS) or ``apt install unar``;
+            alternatively ``pip install rarfile`` with ``unrar``/``unar`` in PATH
 
     If the path is not absolute it is first searched for relative to the
     current directory, and if not found, it is searched for in the
@@ -1461,11 +1457,11 @@ class FileArchive(ImageSource):
 
         .. code-block:: python
 
-                        from machinevisiontoolbox import FileArchive
-                        images = FileArchive('bridge-l.zip')
+            from machinevisiontoolbox import FileArchive
+            images = FileArchive('bridge-l.zip')
             len(images)
             for image in images:  # iterate over files
-                                pass
+                pass
 
 
     alternatively:
@@ -1481,7 +1477,7 @@ class FileArchive(ImageSource):
 
             with FileArchive('bridge-l.zip') as images:
                 for image in images:
-                    # process image
+                    pass
 
 
     :references:
@@ -1690,7 +1686,7 @@ class WebCam(ImageSource):
     :param kwargs: options applied to image frames, see :func:`~machinevisiontoolbox.base.imageio.convert`
 
     The resulting object is an iterator over the frames returned from the
-    remote camera. The iterator returns :class:`Image` objects.
+    remote camera. The iterator returns :class:`~machinevisiontoolbox.Image` objects.
 
     Example:
 
@@ -1699,7 +1695,7 @@ class WebCam(ImageSource):
             from machinevisiontoolbox import WebCam
             webcam = WebCam('https://webcam.dartmouth.edu/webcam/image.jpg')
             for image in webcam:  # iterate over frames
-                                pass
+                pass
 
 
     alternatively:
@@ -1715,7 +1711,7 @@ class WebCam(ImageSource):
 
             with WebCam('https://webcam.dartmouth.edu/webcam/image.jpg') as webcam:
                 for image in webcam:
-                    # process image
+                    pass
 
 
     .. note:: Manu webcameras accept a query string in the URL to specify
@@ -1767,7 +1763,7 @@ class WebCam(ImageSource):
         Grab frame from web camera
 
         :return: next frame from the web camera
-        :rtype: :class:`Image`
+        :rtype: :class:`~machinevisiontoolbox.Image`
 
         .. deprecated:: 0.11.4
             Use :func:`next` on the iterator instead, for example ``next(webcam)``.
@@ -1810,7 +1806,7 @@ class EarthView(ImageSource):
     :type shape: tuple, optional
     :param kwargs: options applied to image frames, see :func:`~machinevisiontoolbox.base.imageio.convert`
 
-    The resulting object has a ``grab`` method that returns :class:`Image`
+    The resulting object has a ``grab`` method that returns :class:`~machinevisiontoolbox.Image`
     objects for a specified position on the planet.
     ``zoom`` varies from 1 (whole world) to a maximum of 18.
 
@@ -1910,7 +1906,7 @@ class EarthView(ImageSource):
         :param placenames: show place names, defaults to False
         :type placenames: bool, optional
         :return: Google map view
-        :rtype: :class:`Image`
+        :rtype: :class:`~machinevisiontoolbox.Image`
 
         If parameters are not given the values provided to the constructor
         are taken as defaults.
@@ -2071,7 +2067,7 @@ class ROSTopic(ImageSource):
     :param subscribe: if ``True`` (default) subscribe to incoming messages;
         set ``False`` for publish-only use
     :type subscribe: bool, optional
-    :param output: output mode, ``"image"`` yields :class:`Image` and
+    :param output: output mode, ``"image"`` yields :class:`~machinevisiontoolbox.Image` and
         ``"message"`` yields :class:`ROSMessage`, defaults to ``"image"``
     :type output: str, optional
     :param blocking: if ``True`` (default) :meth:`__next__` blocks until a new
@@ -2084,7 +2080,7 @@ class ROSTopic(ImageSource):
         :func:`~machinevisiontoolbox.base.imageio.convert`
     :raises ImportError: if the ``roslibpy`` package is not installed
 
-    In subscribe mode, the object is an iterator that yields :class:`Image`
+    In subscribe mode, the object is an iterator that yields :class:`~machinevisiontoolbox.Image`
     instances (``output="image"``) or :class:`ROSMessage` instances
     (``output="message"``) as they arrive from the topic.  Use it as a context
     manager to ensure the connection is always closed:
@@ -2233,7 +2229,7 @@ class ROSTopic(ImageSource):
             return np.ascontiguousarray(arr), "rgba"
 
         raise ValueError(
-            "Unsupported colour image format; expected 3-plane RGB/BGR "
+            "Unsupported color image format; expected 3-plane RGB/BGR "
             "or 4-plane RGBA/BGRA"
         )
 
@@ -2340,7 +2336,7 @@ class ROSTopic(ImageSource):
         if has_color:
             colors = np.asarray(pc._pcd.colors)
             if colors.shape != points.shape:
-                raise ValueError("PointCloud colour array must match point array shape")
+                raise ValueError("PointCloud color array must match point array shape")
 
             cloud = np.empty(
                 n, dtype=[("x", "<f4"), ("y", "<f4"), ("z", "<f4"), ("rgb", "<f4")]
@@ -2510,9 +2506,9 @@ class ROSTopic(ImageSource):
         """
         Publish a message on the configured ROS topic.
 
-        :param msg: ROS payload as a message dictionary, :class:`Image`, or
+        :param msg: ROS payload as a message dictionary, :class:`~machinevisiontoolbox.Image`, or
             :class:`PointCloud`
-        :type msg: dict, :class:`Image`, or :class:`PointCloud`
+        :type msg: dict, :class:`~machinevisiontoolbox.Image`, or :class:`PointCloud`
         :param timestamp_ns: optional timestamp in nanoseconds since Unix epoch;
             used for generated ROS headers. If None, message/object timestamp is
             used when present, otherwise current wall-clock time is used.
@@ -2521,7 +2517,7 @@ class ROSTopic(ImageSource):
         Dictionary payloads are forwarded directly and must match the configured
         ROS message type.
 
-        If ``msg`` is an :class:`Image`, it is serialised according to the
+        If ``msg`` is an :class:`~machinevisiontoolbox.Image`, it is serialised according to the
         configured topic message type:
 
         - ``sensor_msgs/Image`` or ``sensor_msgs/msg/Image`` for raw image data
@@ -2534,7 +2530,7 @@ class ROSTopic(ImageSource):
 
         If ``msg`` is a :class:`PointCloud`, it is published as
         ``sensor_msgs/PointCloud2`` with ``x``, ``y``, ``z`` fields and an
-        ``rgb`` field when colour data is present.
+        ``rgb`` field when color data is present.
 
         Example publishing a ``std_msgs/String`` message:
 
@@ -2559,7 +2555,7 @@ class ROSTopic(ImageSource):
                 pub.release()
 
 
-        Example publishing an :class:`Image` with an explicit timestamp:
+        Example publishing an :class:`~machinevisiontoolbox.Image` with an explicit timestamp:
 
             .. code-block:: python
 
@@ -2621,7 +2617,7 @@ class ROSTopic(ImageSource):
         Grab a single frame from the ROS topic.
 
         :return: next frame from the topic
-        :rtype: :class:`Image` or :class:`ROSMessage`
+        :rtype: :class:`~machinevisiontoolbox.Image` or :class:`ROSMessage`
 
         .. deprecated:: 0.11.4
             Use :func:`next` on the iterator instead, for example ``next(stream)``.
@@ -2832,7 +2828,7 @@ class ROSBag(ImageSource):
     :type msgfilter: str or list of str or None
     :param dtype: override the numpy dtype for all image pixel data, or by topic ``{topic: dtype}``
     :type dtype: str or dict
-    :param colororder: override the colour-plane order for all image, or by topic
+    :param colororder: override the color-plane order for all image, or by topic
         ``{topic: colororder}``
     :type colororder: str or dict or None
     :param kwargs: options applied to image frames, see
@@ -2841,7 +2837,7 @@ class ROSBag(ImageSource):
 
     The resulting object is an iterator that yields:
 
-    - :class:`Image` for messages whose type ends in ``Image``, which includes ``CompressedImage``.
+    - :class:`~machinevisiontoolbox.Image` for messages whose type ends in ``Image``, which includes ``CompressedImage``.
     - :class:`PointCloud` for ``PointCloud2`` messages (requires ``open3d``)
     - the raw deserialised message object for all other types
 
@@ -3254,7 +3250,7 @@ class ROSBag(ImageSource):
                     if img_array is None:
                         raise RuntimeError("Failed to decode compressed image")
 
-                    # OpenCV decodes colour images as BGR by default.
+                    # OpenCV decodes color images as BGR by default.
                     if img_array.ndim == 2:
                         colororder = None
                     elif img_array.shape[2] == 4:
@@ -3711,7 +3707,7 @@ class TensorStack(ImageSource):
 
     :param tensor: tensor of shape ``(B, C, H, W)`` or ``(B, H, W)``
     :type tensor: torch.Tensor
-    :param colororder: colour plane order for multi-channel tensors,
+    :param colororder: color plane order for multi-channel tensors,
         e.g. ``"RGB"`` or ``"BGR"``, defaults to None
     :type colororder: str, optional
     :param logits: if True, take argmax over the channel dimension to
@@ -3754,7 +3750,7 @@ class TensorStack(ImageSource):
         Initialize TensorStack from a batch tensor.
 
         :param tensor: batch tensor of shape ``(B, C, H, W)`` or ``(B, H, W)``
-        :param colororder: colour plane order for display/export
+        :param colororder: color plane order for display/export
         :param logits: if True, argmax the channel dimension for segmentation masks
         :param dtype: output array dtype passed to Image constructor
         """
@@ -3864,7 +3860,7 @@ class LabelMeReader:
 
     - a list of :class:`Polygon2` instances for all shapes
     - file-level ``flags`` as a dictionary
-    - the labeled image as a :class:`Image` instance
+    - the labeled image as a :class:`~machinevisiontoolbox.Image` instance
 
     For each returned polygon, additional attributes are attached:
 
@@ -3892,7 +3888,7 @@ class LabelMeReader:
         it is quite bloated with many package dependencies. This class is a lightweight
         alternative focused on polygonal shapes and basic flags.
 
-    :seealso: :meth:`pixels_mask` :class:`Image.Polygons` :class:`Image`, :class:`Polygon2`
+    :seealso: :meth:`pixels_mask` :class:`~machinevisiontoolbox.Image.Polygons` :class:`~machinevisiontoolbox.Image`, :class:`Polygon2`
     """
 
     filename: str

@@ -172,7 +172,7 @@ class ImageReshapeMixin(_ImageBase if TYPE_CHECKING else object):
         :type grid: int or 2-tuple, optional
         :param shape: size (w, h) of output tiles in pixels, defaults to None
         :type shape: int or 2-tuple, optional
-        :param overlap: _description_, defaults to 0
+        :param overlap: overlap between adjacent tiles in pixels, defaults to 0
         :type overlap: int or 2-tuple, optional
         :return: a list of subimages in row-major order
         :rtype: list of :class:`Image`
@@ -725,12 +725,12 @@ class ImageReshapeMixin(_ImageBase if TYPE_CHECKING else object):
         """
         Automatic image trimming
 
-        :param v: image to match size with
+        :param image2: image to match size with
         :type image2: :class:`Image` or array_like(2)
         :param bias: bias that controls what part of the image is cropped, defaults to 0.5
         :type bias: float, optional
         :return: resized image
-        :rtype out: :class:`Image`
+        :rtype: :class:`Image`
 
         Return a version of the image that has the same dimensions as ``image2``.
         This is achieved by cropping (to match the aspect ratio) and
@@ -972,8 +972,12 @@ class ImageReshapeMixin(_ImageBase if TYPE_CHECKING else object):
         """
         Coordinate arrays for image
 
-        :return: domain of image
-        :rtype u: ndarray(H,W), ndarray(H,W)
+        :param width: image width in pixels, required only when called as a class method
+        :type width: int, optional
+        :param height: image height in pixels, required only when called as a class method
+        :type height: int, optional
+        :return: coordinate arrays ``(U, V)`` where ``U[v,u] = u`` and ``V[v,u] = v``
+        :rtype: tuple of ndarray(H,W)
 
         Create a pair of arrays ``U`` and ``V`` that describe the domain of the
         image. The element ``U[u,v] = u`` and ``V[u,v] = v``. These matrices can
@@ -1176,6 +1180,7 @@ class ImageReshapeMixin(_ImageBase if TYPE_CHECKING else object):
             >>> for i in range(10):
             ...     M = SE2(90 * (i + 1), 100) * SE2(i * np.pi * 2 / 15) * np.diag([0.1, 0.1, 1])  # scale, rotate, translate
             ...     img.warp_affine(M, dst=out)
+            ...
             >>> out.disp()
 
         :seealso: :meth:`warp` `opencv.warpAffine <https://docs.opencv.org/4.x/da/d54/group__imgproc__transform.html#ga0203d9ee5fcd28d40dbc4a1ea4451983>`_
@@ -1333,7 +1338,7 @@ class ImageReshapeMixin(_ImageBase if TYPE_CHECKING else object):
 
             >>> from machinevisiontoolbox import Image, ImageCollection
             >>> import numpy as np
-            >>> images = FileCollection("calibration/*.jpg")
+            >>> images = ImageCollection("calibration/*.jpg")
             >>> K = np.array([[ 534.1, 0, 341.5], [ 0, 534.1, 232.9], [ 0, 0, 1]])
             >>> distortion = np.array([ -0.293, 0.1077, 0.00131, -3.109e-05, 0.04348])
             >>> out = images[12].undistort(K, distortion)

@@ -136,6 +136,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
             for blob in blobs:
                 # do a thing
+                pass
 
             areas = [blob.area for blob in blobs]
 

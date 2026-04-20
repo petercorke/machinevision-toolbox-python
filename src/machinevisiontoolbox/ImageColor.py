@@ -1,5 +1,5 @@
 """
-Colour space conversions and colour-plane operations for Image objects.
+Color space conversions and color-plane operations for Image objects.
 """
 
 from __future__ import annotations
@@ -49,7 +49,7 @@ class ImageColorMixin(_ImageBase if TYPE_CHECKING else object):
         ``'r601'``   ITU Rec. 601, Y' = 0.229 R' + 0.587 G' + 0.114 B'
         ``'r709'``   ITU Rec. 709, Y' =  0.2126 R' + 0.7152 G' + 0.0722 B'
         ``'value'``  V (value) component of HSV space
-        ``'cv'``     OpenCV colorspace() RGB to gray conversion
+        ``'cv'``     OpenCV colorspace() RGB to grey conversion
         ===========  =====================================================
 
         Example:
@@ -87,9 +87,9 @@ class ImageColorMixin(_ImageBase if TYPE_CHECKING else object):
 
         elif opt == "cv":
             if self.isrgb:
-                return self.colorspace("gray", src="rgb")
+                return self.colorspace("grey", src="rgb")
             else:
-                return self.colorspace("gray", src="bgr")
+                return self.colorspace("grey", src="bgr")
         else:
             raise TypeError("unknown type for opt")
 

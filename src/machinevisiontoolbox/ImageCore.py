@@ -1,5 +1,5 @@
 """
-Core Image class providing pixel storage, arithmetic operators, and colour-plane access.
+Core Image class providing pixel storage, arithmetic operators, and color-plane access.
 """
 
 from __future__ import annotations
@@ -4221,7 +4221,7 @@ class Image(
         :param neginf: value to replace negative infinity values, defaults to negative maximum value of image dtype
         :type neginf: scalar or array-like(n), optional
         :return: image with bad values fixed
-        :rtype: :class:`~machinevisiontoolbox.ImageCore.Image` instance
+        :rtype: :class:`Image` instance
 
         Return an image where any pixel that contains a NaN or Inf values has been
         replaced by the specified replacement values.
@@ -4274,6 +4274,9 @@ class Image(
 
         return self.__class__(out, colororder=self.colororder)
 
+
+# make Sphinx happy by putting the class in the module namespace, hover tips show machinevisiontoolbx.Image instead of machinevisiontoolbox.ImageCore.Image
+Image.__module__ = "machinevisiontoolbox"
 
 if __name__ == "__main__":
     from pathlib import Path

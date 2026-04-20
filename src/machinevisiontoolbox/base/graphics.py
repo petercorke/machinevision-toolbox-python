@@ -1,5 +1,5 @@
 """
-Drawing primitives (boxes, circles, text) and colour lookup onto OpenCV images.
+Drawing primitives (boxes, circles, text) and color lookup onto OpenCV images.
 """
 
 from __future__ import annotations

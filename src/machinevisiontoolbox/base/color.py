@@ -1,5 +1,5 @@
 """
-Colour science functions: spectral data, colour matching, and colorimetric conversions.
+Colour science functions: spectral data, color matching, and colorimetric conversions.
 """
 
 from __future__ import annotations
@@ -1310,6 +1310,11 @@ def colorspace_convert(image: ArrayLike, src: str, dst: str) -> np.ndarray:
 
         >>> from machinevisiontoolbox import colorspace_convert
         >>> colorspace_convert([0, 0, 1], 'rgb', 'hls')
+
+    .. note::
+        * Color space names 'grey' and 'gray' are synonyms, as are 'xyz' and 'xyz_709', 'lab' and 'l*a*b*', and 'luv' and 'l*u*v*'.
+        * Colons within the color space names, as returned by :meth:`~machinevisiontoolbox.Image.colororder_str`, are ignored, so 'rgb' and 'r:g:b' are treated as the same color space.
+        * Case is ignored in color space names, so 'RGB' and 'rgb' are treated as the same color space.
 
     :seealso: :func:`gamma_decode` `cv2.cvtColor <https://docs.opencv.org/4.x/d8/d01/group__imgproc__color__conversions.html#ga397ae87e1288a81d2363b61574eb8cab>`_
     """

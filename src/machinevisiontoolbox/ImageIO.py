@@ -236,8 +236,8 @@ class ImageIOMixin(_ImageBase if TYPE_CHECKING else object):
             >>> meta = img.metadata()  # get all metadata as a dict
             >>> len(meta)
             >>> meta
-            >>> meta['FocalLength']
-            >>> img.metadata('FocalLength')  # get specific metadata item
+            >>> meta['Make']
+            >>> img.metadata('Make')  # get specific metadata item
 
         .. note::  Metadata items will be converted, where possible, to int or float values.
 

@@ -5,10 +5,10 @@
 The ``Image`` object
 ====================
 
-The :class:`~machinevisiontoolbox.ImageCore.Image` class is essential for all image
+The :class:`~machinevisiontoolbox.Image` class is essential for all image
 operations and processing within this Toolbox. The class 
 encapsulates a NumPy array that contains the pixel values of a greyscale or color image
-as a 2D or 3D array respectively. An :class:`~machinevisiontoolbox.ImageCore.Image`
+as a 2D or 3D array respectively. An :class:`~machinevisiontoolbox.Image`
 instance has a very large number of methods that perform useful operations on an image
 and wrap low-level operations performed using NumPy or OpenCV.
 
@@ -29,7 +29,7 @@ Image attributes and datatype
 Image attributes
 ^^^^^^^^^^^^^^^^
 
-Describe the attributes of an :class:`~machinevisiontoolbox.ImageCore.Image`.
+Describe the attributes of an :class:`~machinevisiontoolbox.Image`.
 
 .. autosummary::
    :nosignatures:
@@ -69,7 +69,6 @@ Return information about the color planes of an ``Image`` instance.
 
 .. autosummary::
    :nosignatures:
-   :show-private:
 
    ~nplanes
    ~iscolor

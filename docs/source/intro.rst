@@ -6,8 +6,8 @@ Rationale
 =========
 
 The Machine Vision Toolbox (MVTB) brings professional-grade vision algorithms to your
-fingertips with a Pythonic API. Built on a "best-of-breed" foundation—NumPy, SciPy,
-OpenCV, and Open3D —- it bridges the gap between raw pixel manipulation and high-level
+fingertips with a Pythonic API. Built on a "best-of-breed" foundation: NumPy, SciPy,
+OpenCV, and Open3D --- it bridges the gap between raw pixel manipulation and high-level
 spatial reasoning.
 
 While the Python ecosystem offers powerful individual tools, using them in concert is
@@ -75,10 +75,10 @@ In summary, the `Machine Vision Toolbox for Python (MVTB-P) <https://github.com/
 Image objects
 =============
 
-The key element of the Toolbox is the :class:`~machinevisiontoolbox.ImageCore.Image` class.
+The key element of the Toolbox is the :class:`Image` class.
 This sections provides some examples, but full details are given in :ref:`image_class_label`.
 The remainder of this section provides a brief overview of the key features of the
-:class:`~machinevisiontoolbox.ImageCore.Image` class with examples.
+:class:`Image` class with examples.
 
 Firstly, there are lots of ways to create an image.  We can read an image from a file::
 
@@ -88,10 +88,10 @@ or create it from code::
 
 	img = Image.Zeros(100, dtype="uint8")
 
-Under the hood the :class:`~machinevisiontoolbox.ImageCore.Image` object contains some image parameters, a lot
+Under the hood the :class:`Image` object contains some image parameters, a lot
 of methods, and a reference to a 2D or 3D NumPy ndarray containing the pixel data.
 
-:class:`~machinevisiontoolbox.ImageCore.Image` object methods generally consider pixel coordinates with the horizontal coordinate
+:class:`Image` object methods generally consider pixel coordinates with the horizontal coordinate
 first and the vertical coordinate second -- consistent with the way we write about
 algorithms but the opposite to the way that NumPy indexes an array.
 
@@ -121,7 +121,7 @@ We can slice the image using the same syntax as a NumPy array::
 
 	img[10:20, 30:40]
 
-but only for reading, not for assignment. The result is another :class:`~machinevisiontoolbox.ImageCore.Image object`.
+but only for reading, not for assignment. The result is another :class:`Image` object.
 
 
 Multi-plane images
@@ -351,7 +351,7 @@ Load the spectrum of sunlight at the Earth's surface and compute the CIE xy chro
 	>>> nm = 1e-9
 	>>> lam = np.linspace(400, 701, 5) * nm # visible light
 	>>> sun_at_ground = loadspectrum(lam, 'solar')
-	>>> xy = lambda2xy(lambda, sun_at_ground)
+	>>> xy = lambda2xy(lam, sun_at_ground)
 	>>> print(xy)
 		[[0.33272798 0.3454013 ]]
 	>>> print(colorname(xy, 'xy'))

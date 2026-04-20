@@ -94,7 +94,7 @@ Example:
 
 .. runblock:: pycon
 
-    >>> from machinevisionToolbox import Image
+    >>> from machinevisiontoolbox import Image
     >>> import numpy as np
     >>> img = Image([[1.2, 2.8], [3.1, 4.9]], dtype='float32')
     >>> np.ceil(img).array

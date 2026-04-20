@@ -80,7 +80,7 @@ tensor.  For example, to read a video file and display each frame::
             tensor = im.tensor()
             # do something with the tensor
 
-:class:`Image` sources
+Image Sources
 -------------
 
 :class:`~machinevisiontoolbox.ImageCore.Image` objects can be conveniently obtained from a variety of sources:
@@ -116,8 +116,8 @@ These names are kept for backward compatibility and will emit a deprecation warn
      ~ZipArchive
 
 
-:class:`PointCloud` sources
--------------------
+PointCloud Sources
+------------------
 
 :class:`~machinevisiontoolbox.PointCloud` objects can be conveniently obtained from a variety of sources:
 
@@ -127,6 +127,7 @@ These names are kept for backward compatibility and will emit a deprecation warn
    :template: mvtbtemplate.rst
 
     ~PointCloudSequence
-    ~ROSBag
-    ~ROSTopic
+
+- :class:`~machinevisiontoolbox.Sources.ROSBag`
+- :class:`~machinevisiontoolbox.Sources.ROSTopic`
 

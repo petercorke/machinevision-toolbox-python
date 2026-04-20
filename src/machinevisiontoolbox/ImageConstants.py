@@ -533,7 +533,7 @@ class ImageConstantsMixin(_ImageBase if TYPE_CHECKING else object):
         :type bg: int, optional
         :param dtype: NumPy datatype, defaults to 'uint8'
         :type dtype: str or NumPy dtype, optional
-        :param colororder: colour plane names for the output image, defaults to None
+        :param colororder: color plane names for the output image, defaults to None
         :type colororder: str or None, optional
         :param like: template image supplying default ``size``, ``dtype`` and
             ``colororder`` when those are not given explicitly
@@ -615,7 +615,7 @@ class ImageConstantsMixin(_ImageBase if TYPE_CHECKING else object):
         :type bg: int, optional
         :param dtype: NumPy datatype, defaults to 'uint8'
         :type dtype: str or NumPy dtype, optional
-        :param colororder: colour plane names for the output image, defaults to None
+        :param colororder: color plane names for the output image, defaults to None
         :type colororder: str or None, optional
         :param like: template image supplying default ``size``, ``dtype`` and
             ``colororder`` when those are not given explicitly
@@ -691,7 +691,7 @@ class ImageConstantsMixin(_ImageBase if TYPE_CHECKING else object):
         :type cycles: int, optional
         :param dtype: NumPy datatype, defaults to 'float32'
         :type dtype: str or NumPy dtype, optional
-        :param colororder: colour plane names for the output image, defaults to None
+        :param colororder: color plane names for the output image, defaults to None
         :type colororder: str or None, optional
         :param like: template image supplying default ``size``, ``dtype`` and
             ``colororder`` when those are not given explicitly
@@ -787,7 +787,7 @@ class ImageConstantsMixin(_ImageBase if TYPE_CHECKING else object):
         :type cycles: int, optional
         :param dtype: NumPy datatype, defaults to 'float32'
         :type dtype: str or NumPy dtype, optional
-        :param colororder: colour plane names for the output image, defaults to None
+        :param colororder: color plane names for the output image, defaults to None
         :type colororder: str or None, optional
         :param like: template image supplying default ``size``, ``dtype`` and
             ``colororder`` when those are not given explicitly
@@ -867,7 +867,7 @@ class ImageConstantsMixin(_ImageBase if TYPE_CHECKING else object):
         :type square: int, optional
         :param dtype: image data type, defaults to "uint8"
         :type dtype: str or NumPy dtype, optional
-        :param colororder: colour plane names for the output image, defaults to None
+        :param colororder: color plane names for the output image, defaults to None
         :type colororder: str or None, optional
         :param like: template image supplying default ``size``, ``dtype`` and
             ``colororder`` when those are not given explicitly
@@ -957,7 +957,7 @@ class ImageConstantsMixin(_ImageBase if TYPE_CHECKING else object):
         :type shift: int, optional
         :param dtype: image data type, defaults to "uint8"
         :type dtype: str or NumPy dtype, optional
-        :param colororder: colour plane names for the output image, defaults to None
+        :param colororder: color plane names for the output image, defaults to None
         :type colororder: str or None, optional
         :param like: template image supplying default ``size``, ``dtype`` and
             ``colororder`` when those are not given explicitly

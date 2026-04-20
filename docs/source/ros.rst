@@ -10,9 +10,9 @@ ROS system.
 
 Reading a ROS bag file
 ----------------------
-We can 
+We can read images from a ROS bag file using the `ROSBag` source.
 
-.. runblock:: pycon
+.. code-block:: pycon
 
     >>> from machinevisiontoolbox import ROSBag
     >>> bag = ROSBag('test_ros1.bag')
@@ -25,12 +25,16 @@ We can
 Subscribing/publishing to a ROS message stream
 ----------------------------------------------
 
-This is similar to reading a ROS bag file, but instead of reading from a file we read from a running ROS system.  For example, to subscribe to a topic called ``/camera/image`` that publishes images::
+This is similar to reading a ROS bag file, but instead of reading from a file we read from a running ROS system.
 
 .. important:: 
     You need to have ROS installed and running with a rosbridge2 node in order to use this feature.  The toolbox
     supports both ROS1 and ROS2, but you need to have the appropriate version of ROS
-    installed and sourced in your environment. rosbridge
+    installed and sourced in your environment.
+
+For example, to subscribe to a topic called ``/camera/image`` that publishes images:
+
+.. code-block:: python
 
     from machinevisiontoolbox import ROSTopic
 

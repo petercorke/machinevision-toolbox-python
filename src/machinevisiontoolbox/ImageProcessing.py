@@ -52,7 +52,7 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
 
             - (256,)
             - (256,N) in which case the resulting image has ``N`` planes created
-              my applying the I'th column of the LUT to the input image
+              by applying the I'th column of the LUT to the input image
 
         For a color image the LUT can be:
 
@@ -304,7 +304,7 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
         .. note::
             - The histogram of the normalized image is approximately uniform,
               that is, all grey levels ae equally likely to occur.
-            - Color images automatically converted to grayscale
+            - Color images automatically converted to greyscale
 
         :references:
             - |RVC3|, Section 11.3.
@@ -540,14 +540,14 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
             if auto == "otsu":
                 if self.iscolor:
                     raise ValueError(
-                        "otsu thresholding only works for grayscale images"
+                        "Otsu thresholding only works for greyscale images"
                     )
                 autothresh = self.otsu(nbins=nbins)
 
             elif auto == "triangle":
                 if self.iscolor:
                     raise ValueError(
-                        "triangle thresholding only works for grayscale images"
+                        "triangle thresholding only works for greyscale images"
                     )
                 autothresh = self.triangle(nbins=nbins)
             elif auto == "percentile":
@@ -645,7 +645,7 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
         import numpy as np
 
         if self.iscolor:
-            raise ValueError("interactive thresholding only works for grayscale images")
+            raise ValueError("interactive thresholding only works for greyscale images")
 
         mode = mode.lower()
         if mode not in ("binary", "tozero"):
@@ -795,7 +795,7 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
         # looks like Niblack
 
         if self.iscolor:
-            raise ValueError("adaptive thresholding only works for grayscale images")
+            raise ValueError("adaptive thresholding only works for greyscale images")
         im = self.array_as("uint8")  # only accepts 8-channel image
 
         if blocksize is not None:

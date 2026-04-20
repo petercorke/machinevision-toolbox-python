@@ -170,8 +170,8 @@ if pgraph_installed:
             :param camera: model of the moving camera
             :type camera: CentralCamera instance
 
-            Implementation of a workable, easy to follow, but simplistic, bundle
-            adjustment algorithm.
+            Implementation of a workable, easy to follow, bundle
+            adjustment algorithm suitable for pedagogical purposes and problems of small to medium size.
 
             It uses SciPy sparse linear algebra functions to solve the update
             equation. The state vector comprises, in order:
@@ -656,7 +656,7 @@ if pgraph_installed:
                   Hessian to prevent problems when the Hessian is nearly
                   singular.
                 - If the problem includes fixed cameras or landmarks then
-                  :math:`\mbox{len}(\delta \vec{x}) < \mbox{len}(\vec{x})`
+                  :math:`\text{len}(\delta \vec{x}) < \text{len}(\vec{x})`
                   since fixed elements are omitted from the variable state
                   vector used for the optimization.
 

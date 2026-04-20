@@ -41,11 +41,11 @@ class PointCloud:
         .. warning:: Open3D must be installed.
 
         The wrapped Open3D :obj:`open3d.geometry.PointCloud` object has many methods and properties
-        but rather than writing individual wrappers the :func:`__getattr__` picks up these
+        but rather than writing individual wrappers the :meth:`__getattr__` picks up these
         references and invokes them on the underlying Open3D object.  Any returned Open3D
         point cloud objects are converted to a :class:`PointCloud` instance.
 
-        :seealso: :func:`__getattr__` :obj:`open3d.geometry.PointCloud` :class:`~machinevisiontoolbox.ImageCore.Image` :class:`~machinevisiontoolbox.Camera.CentralCamera`
+        :seealso: :meth:`__getattr__` :obj:`open3d.geometry.PointCloud` :class:`~machinevisiontoolbox.Image` :class:`CentralCamera`
         """
         if not _open3d:
             raise RuntimeError(
@@ -88,7 +88,7 @@ class PointCloud:
         """Return an Open3D style camera intrinsic object
 
         :param camera: camera model
-        :type: :class:`~machinevisiontoolbox.Camera.CentralCamera`
+        :type camera: :class:`~machinevisiontoolbox.Camera.CentralCamera`
         :return: Open3D camera intrinsic object
         :rtype: :class:`open3d.camera.PinholeCameraIntrinsic`
         """
@@ -180,8 +180,8 @@ class PointCloud:
         """
         Concise string representation of point cloud parameters
 
-        :return: _description_
-        :rtype: _type_
+        :return: concise string representation of the wrapped point cloud
+        :rtype: str
         """
         return str(self._pcd)
 
@@ -236,7 +236,7 @@ class PointCloud:
         :return: new point cloud
         :rtype: :class:`PointCloud` instance
 
-        Read point cloud data from a file using :meth:`~open3d.io.read_point_cloud`.
+        Read point cloud data from a file using :func:`open3d.io.read_point_cloud`.
         Supported filetypes include PLY.
 
         If the path is not absolute it is first searched for relative
@@ -391,13 +391,13 @@ class PointCloud:
         """
         Overloaded * operator to transform points
 
-        :param T: _description_
+        :param T: rigid-body transform to apply to the point cloud
         :type T: :class:`~spatialmath.pose3d.SE3`
         :return: point cloud
         :rtype: :class:`PointCloud`
 
         Transform a :class:`PointCloud` by premultiplying by an
-        :class:`~spatialmath..pose3d.SE3` instance.
+        :class:`~spatialmath.pose3d.SE3` instance.
 
         :seealso: :meth:`transform` :meth:`__imul__`
         """
@@ -410,7 +410,7 @@ class PointCloud:
         """
         Overloaded ``*=`` operator to transform points
 
-        :param T: _description_
+        :param T: rigid-body transform to apply to the point cloud
         :type T: :class:`~spatialmath.pose3d.SE3`
         :return: point cloud
         :rtype: :class:`PointCloud`
@@ -430,9 +430,9 @@ class PointCloud:
         """
         Transform point cloud
 
-        :param T: _description_
-        :type T: :class:`~spatialmath..pose3d.SE3`
-        :param inplace: transform points inpace, defaults to True
+        :param T: rigid-body transform to apply to the point cloud
+        :type T: :class:`~spatialmath.pose3d.SE3`
+        :param inplace: transform points in place, defaults to True
         :type inplace: bool, optional
         :return: point cloud
         :rtype: :class:`PointCloud`
@@ -641,11 +641,11 @@ class PointCloud:
         :param data: point cloud to register
         :type data: :class:`PointCloud`
         :param T0: initial transform, defaults to None
-        :type T0: :class:`~spatialmath..pose3d.SE3`, optional
+        :type T0: :class:`~spatialmath.pose3d.SE3`, optional
         :param max_correspondence_distance: distance beyond which correspondence is broken, defaults to 1
         :type max_correspondence_distance: float, optional
         :return: pose of ``data`` with respect to instance points
-        :rtype: :class:`~spatialmath..pose3d.SE3`
+        :rtype: :class:`~spatialmath.pose3d.SE3`
 
         :seealso: :obj:`open3d.pipelines.registration.TransformationEstimationPointToPoint`
         """
