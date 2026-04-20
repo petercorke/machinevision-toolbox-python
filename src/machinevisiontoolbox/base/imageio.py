@@ -192,9 +192,11 @@ def idisp(
     :type colororder: str
     :param matplotlib: plot using Matplotlib (True) or OpenCV (False), defaults to True
     :type matplotlib: bool, optional
-    :param block: after display, Matplotlib blocks until window closed or for the specified time period, defaults to False
+    :param block: after display, Matplotlib blocks until window closed or for the
+        specified time period, defaults to False
     :type block: bool, float, optional
-    :param fps: frames per second, Matplotlib blocks for 1/fps seconds after display, defaults to None
+    :param fps: frames per second, Matplotlib blocks for 1/fps seconds after display,
+        defaults to None
     :type fps: float, optional
 
     :param fig: Matplotlib figure handle to display image on, defaults to new figure
@@ -211,15 +213,15 @@ def idisp(
 
     :param black: set black (zero) pixels to this value, default 0
     :type black: int or float
-    :param darken: darken the image by scaling pixel values by this amount,
-        if ``darken`` is True then darken by 0.5
+    :param darken: darken the image by scaling pixel values by this amount, if
+        ``darken`` is True then darken by 0.5
     :type darken: float, bool, optional
     :param powernorm: Matplotlib power-law normalization
     :type powernorm: array_like(2), optional
     :param gamma: gamma correction applied before display
     :type gamma: float, optional
-    :param vrange: minimum and maximum values for colormap, defaults to minimum
-        and maximum values from image data.
+    :param vrange: minimum and maximum values for colormap, defaults to minimum and
+        maximum values from image data.
     :type vrange: array_like(2), optional
 
     :param badcolor: name of color to display when value is NaN
@@ -242,7 +244,7 @@ def idisp(
     :param plain: don't display axes, frame or GUI
     :type plain: bool, optional
     :param colorbar: add colorbar to image, default False
-    :type colorbar: bool, optional
+    :type colorbar: bool or dict, optional
     :param axlabels: labels for axes, default "u (pixels)" and "v (pixels)"
     :type axlabels: array_like(2), optional
 
@@ -259,17 +261,19 @@ def idisp(
     :param extent: extent of the image in user units [xmin, xmax, ymin, ymax]
     :type extent: array_like(4), optional
 
-    :param coordformat: format coordinates and pixel values for the figure window toolbar
+    :param coordformat: format coordinates and pixel values for the figure window
+        toolbar
     :type coordformat: callable returning string
     :param savefigname: if not None, save figure as savefigname (default eps)
     :type savefigname: str, optional
-    :param kwargs: additional options passed through to :func:`matplotlib.pyplot.imshow`.
+    :param kwargs: additional options passed through to
+        :func:`matplotlib.pyplot.imshow`.
 
     :return: Matplotlib figure handle and axes handle
     :rtype: figure handle, axes handle
 
-    Display a greyscale or color image interactively using OpenCV or Matplotlib (if ``matplotlib``
-    is True, default).
+    Display a greyscale or color image interactively using OpenCV or Matplotlib (if
+    ``matplotlib`` is True, default).
 
     **OpenCV**
 
@@ -282,9 +286,8 @@ def idisp(
 
         .. code-block:: python
 
-            from machinevisiontoolbox import iread, idisp
-            im, file = iread("monalisa.png", matplotlib=False)
-            idisp(im)
+            from machinevisiontoolbox import iread, idisp im, file =
+            iread("monalisa.png", matplotlib=False) idisp(im)
 
 
     Most of the options apply to the Matplotlib case.
@@ -297,23 +300,23 @@ def idisp(
 
     Example:
 
-        .. code-block:: python
+    .. code-block:: python
 
-            from machinevisiontoolbox import iread, idisp
-            im, file = iread("monalisa.png")
-            idisp(im)
-
+        from machinevisiontoolbox import iread, idisp im, file = iread("monalisa.png")
+        idisp(im)
 
     .. plot::
 
-        from machinevisiontoolbox import iread, idisp
-        im, file = iread("monalisa.png")
+        from machinevisiontoolbox import iread, idisp im, file = iread("monalisa.png")
         idisp(im)
 
-    Greyscale images are displayed in indexed mode: the image pixel value is
-    mapped through the color map to determine the display pixel value. The
-    colormap is specified by a string or else a ``Colormap`` subclass object.
-    Valid strings are any valid `matplotlib colormap names <https://matplotlib.org/tutorials/colors/colormaps.html>`_ or
+    **Color map**
+
+    Greyscale images are displayed in indexed mode: the image pixel value is mapped
+    through the color map to determine the display pixel value. The colormap is
+    specified by a string or else a ``Colormap`` subclass object. Valid strings are any
+    valid `matplotlib colormap names
+    <https://matplotlib.org/tutorials/colors/colormaps.html>`_ or
 
     =========  ===============================================
     Colormap    Meaning
@@ -322,7 +325,7 @@ def idisp(
     inverted   zero is white, maximum value is black
     signed     negative is red, 0 is white, positive is blue
     invsigned  negative is red, 0 is black, positive is blue
-    random     random values
+    random     random values, useful for seeing fine details
     =========  ===============================================
 
     .. note::  For grey scale images the minimum and maximum image values are
@@ -331,6 +334,22 @@ def idisp(
         scaling between displayed grey level and pixel value use the ``vrange``
         option.
 
+    **Colorbar**
+
+    Setting ``colorbar=True`` adds a colorbar to the image, which is a key for
+    interpreting the colors in the image.
+
+    Alternatively, a dictionary of options can be passed to the colorbar function, eg.
+    ``colorbar={'ticks': range(10)}`` which is passed through to Matplotlib's
+    ``colorbar`` method. The option ``xtick`` is not an actual ``colorbar`` option but
+    it invokes ``colorbar.set_ticks``  to set custom tick labels for the colorbar.  The
+    value is a tuple of two lists, the first is the list of tick values, and the second
+    is the list of tick labels. The lists must be the same length, and the tick values
+    must be in the range of the color map.
+
+
+    **Blocking behaviour**
+
     The argument ``block`` has the following functions
 
     ===================  ==================================================================================
@@ -338,36 +357,49 @@ def idisp(
     ===================  ==================================================================================
     ``False`` (default)  Call ``plt.show(block=False)``, don't block
     ``True``             Call ``plt.show(block=True)``, block
-    ``None``             Don't call ``plt.show()``, don't block, in Jupyter subsequents plots will be added
+    ``None``             Don't call ``plt.show()``, don't block, in Jupyter subsequent plots will be added
     ``t`` (numeric)      Block for set time, calls ``plt.pause(t)``. See also ``fps`` option.
     ===================  ==================================================================================
 
-    The ``coordformat`` function is called with (u, v) coordinates and the image is in the variable ``im`` which
-    is in scope, but not passed, and is an ndarray(H,W) or ndarray(H,W,P).
+    The ``coordformat`` function is called with (u, v) coordinates and the image is in
+    the variable ``im`` which is in scope, but not passed, and is an ndarray(H,W) or
+    ndarray(H,W,P).
 
     Certain keys can be pressed while the image is displayed:
 
+        - ``q`` will close the window
+
+    If ``pyclip`` is installed, the following clipboard keys are available:
+
         - ``c`` will copy the current pixel coordinates to the paste buffer as U,V
         - ``C`` will append the current pixel coordinates to the paste buffer, with a
-          newline separator.
+          newline separator
         - ``v`` will copy the current pixel coordinates to the paste buffer as U,V,X
         - ``V`` will append the current pixel coordinates and pixel value to the paste
-          buffer as U,V,X, with a newline separator.
+          buffer as U,V,X, with a newline separator
         - ``x`` will clear the paste buffer
-        - ``q`` will quite the window
+
+    **Animation behaviour**
+
+    Setting ``fps`` to a numeric value will cause the display to block for 1/fps seconds
+    after each call to ``idisp``, which allows for simple animations by calling
+    ``idisp`` repeatedly in a loop. Note that by default a new figure is created each
+    time, which is slow, so for animations you should set ``reuse=True`` to reuse the
+    same figure and axes.
 
     .. note::
 
-        - The displayed pixel value is a scalar (int or float), or a tuple of scalars for
-          multiplane/color images.
+        - The displayed pixel value is a scalar (int or float), or a tuple of scalars
+          for multiplane/color images.
         - The string never ends with a newline, newlines only separate values, eg.
           U1,V1\nU2,V2
-        - This functionality requires that ``pyclip`` is installed.
+        - The clipboard keys require that ``pyclip`` is installed.
 
     :references:
         - |RVC3|, Section 10.1.
 
-    :seealso: :func:`matplotlib.imshow` `cv2.imshow <https://docs.opencv.org/4.x/d7/dfc/group__highgui.html#ga453d42fe4cb60e5723281a89973ee563>`_
+    :seealso: :func:`matplotlib.imshow` `cv2.imshow
+        <https://docs.opencv.org/4.x/d7/dfc/group__highgui.html#ga453d42fe4cb60e5723281a89973ee563>`_
     """
 
     # options yet to implement
@@ -675,14 +707,17 @@ def idisp(
 
             if isinstance(colorbar, dict):
                 # passed options have priority
+                if "xticks" in colorbar:
+                    ticks, labels = colorbar["xticks"]
+                    del colorbar["xticks"]
+                else:
+                    ticks = None
+                    labels = None
                 cbargs = {**cbargs, **colorbar}
 
             cb = fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax, **cbargs)
-
-        # set title of figure window
-        set_window_title(title)
-
-        # set title in figure plot:
+            if ticks is not None:
+                cb.set_ticks(ticks, labels=labels)
         # fig.suptitle(title)  # slightly different positioning
         # ax.set_title(title)
 
