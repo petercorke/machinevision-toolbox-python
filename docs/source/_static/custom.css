@@ -19,41 +19,45 @@ a.sphinx-codeautolink-a span {
     text-decoration: none !important;
 }
 
-/* for pydata headings, across top of the page */
-/* Custom Header Styling for MVTB Docs */
+/* ── Top navbar section links ───────────────────────────────────────────── */
 
-/* Target H2 (Primary Sections) */
-h2 {
-    font-size: 1.35rem !important;
-    /* Adjust size as needed */
-    background-color: var(--pst-color-surface);
-    /* Uses theme's neutral background */
-    border-left: 5px solid var(--pst-color-primary);
-    /* Optional: adds a color accent */
-    padding: 8px 15px;
-    border-radius: 4px;
-    margin-top: 2.5rem;
-    margin-bottom: 1.2rem;
-    font-weight: 600;
-    /* Create the "Rectangle" look */
-    display: block;
-    border: 1px solid rgba(0, 0, 0, 0.05);
+/* Make all nav items the same height by stretching them to fill the navbar */
+.navbar-nav {
+    align-items: stretch;
 }
 
-/* Target H3 (Sub-sections) */
-h3 {
-    font-size: 1.1rem !important;
-    background-color: rgba(128, 128, 128, 0.08);
-    /* Subtle grey tint */
-    padding: 5px 12px;
-    border-radius: 3px;
-    margin-top: 1.5rem;
+.navbar-nav .nav-item {
+    display: flex;
+    align-items: stretch;
+}
+
+.navbar-nav .nav-item>.nav-link,
+.navbar-nav .nav-item>a {
+    font-size: 0.82rem;
     font-weight: 500;
+    padding: 0.2rem 0.65rem !important;
+    margin: 0 0.1rem;
+    border-radius: 4px;
+    background-color: rgba(0, 0, 0, 0.06);
+    transition: background-color 0.15s ease;
+    display: flex;
+    align-items: center;
+    text-align: center;
+    white-space: nowrap;
 }
 
-/* Adjust the "anchor" link icon so it doesn't float weirdly */
-h2 .headerlink,
-h3 .headerlink {
-    background: none !important;
-    padding-left: 10px;
+.navbar-nav .nav-item>.nav-link:hover,
+.navbar-nav .nav-item>a:hover {
+    background-color: rgba(0, 0, 0, 0.13);
+}
+
+/* "More ▾" dropdown button — match the same pill style */
+.navbar-nav .nav-item .btn,
+.navbar-nav .nav-item button.btn {
+    font-size: 0.82rem;
+    font-weight: 500;
+    padding: 0.2rem 0.65rem !important;
+    border-radius: 4px;
+    background-color: rgba(0, 0, 0, 0.06);
+    align-self: center;
 }
