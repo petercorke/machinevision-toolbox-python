@@ -10,6 +10,8 @@ help:
 	@echo " make coverage - run unit tests and coverage report"
 	@echo " make typehints - run mypy type-hint coverage report and open HTML"
 	@echo " make docs - build Sphinx documentation"
+	@echo " make docs-nitpicky - build Sphinx docs with nitpicky cross-reference checks"
+	@echo " make docs-strict - nitpicky Sphinx build with warnings treated as errors"
 	@echo " make view - open Sphinx doco build (uses open for MacOS)"
 	@echo " make dist - preview dist build"
 	@echo " make pypi - build the dist, upload to PyPI, tag the release and push the tag to origin"
@@ -42,6 +44,12 @@ typehints:
 
 docs: .FORCE
 	(cd docs; make html O="-w warnings.txt")
+
+docs-nitpicky: .FORCE
+	conda run --no-capture-output -n dev sphinx-build -n -b html docs/source docs/build/html
+
+docs-strict: .FORCE
+	conda run --no-capture-output -n dev sphinx-build -n -W -b html docs/source docs/build/html
 
 view: .FORCE
 	open -a Safari docs/build/html/index.html
