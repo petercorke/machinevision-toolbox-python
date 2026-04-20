@@ -21,7 +21,6 @@ f.disp(title="float version of flowers1.png")
 im.stats
 
 hist = im.hist()
-plt.figure()
 hist.plot(title="histogram of flowers1.png")
 
 plt.show(block=True)

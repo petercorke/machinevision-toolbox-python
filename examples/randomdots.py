@@ -7,4 +7,4 @@ from machinevisiontoolbox import Image
 import matplotlib.pyplot as plt
 
 image = Image.Random(200)
-image.threshold_interactive()
+image.threshold_interactive(block=True)

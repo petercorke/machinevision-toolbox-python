@@ -6,4 +6,5 @@ from machinevisiontoolbox import PointCloud
 pcd = PointCloud.Read("bunny.ply")
 
 print(pcd)
+print("\nUse your mouse to interact with the 'bunny' point cloud. 'q' to quit")
 pcd.disp(block=True)
