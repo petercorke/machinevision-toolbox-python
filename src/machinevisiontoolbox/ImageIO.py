@@ -21,6 +21,8 @@ from PIL.ExifTags import TAGS
 import cv2
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
+from matplotlib.colors import LinearSegmentedColormap
+import matplotlib.patheffects as path_effects
 import numpy as np
 import scipy as sp
 from scipy import interpolate
@@ -286,88 +288,67 @@ class ImageIOMixin(_ImageBase if TYPE_CHECKING else object):
 
     def showpixels(
         self,
-        textcolors: str | list[str] | tuple[str, str] = ["yellow", "blue"],
         fmt: str | None = None,
         ax: Any = None,
-        windowsize: int = 0,
-        maxval: float | None = None,
+        cmap: str = None,
+        grid: int | None = 2,
+        badcolor: str | None = None,
         **kwargs: Any,
     ) -> Any:
         """
-        Display image with pixel values
+                Display image with pixel values
 
-        :param textcolors: text color, defaults to ['yellow', 'blue']
-        :type textcolors: list or str, optional
-        :param fmt: format string for displaying pixel values, defaults to None
-        :type fmt: str, optional
-        :param ax: Matplotlb axes to draw into, defaults to None
-        :type ax: axes, optional
-        :param windowsize: half side length of superimposed moving window, defaults to 0
-        :type windowsize: int, optional
-        :return: a moving window
-        :rtype: ``Window`` instance
+                :param textcolors: text color, defaults to ['yellow', 'blue']
+                :type textcolors: list or str, optional
+                :param fmt: format string for displaying pixel values, defaults to None
+                :type fmt: str, optional
+                :param grid: line width for the grid, defaults to 2. Set to None for no grid.
+                :type grid: int | None, optional
+                :param ax: The axes on which to display the window, defaults to current axes
+                :type ax: axes, optional
+                :param cmap: colormap for displaying pixel values, defaults to custom midnight
+                    colormap
+                :type cmap: str, optional
+                :param kwargs: additional keyword arguments passed to text annotations
+                :rtype: ``Window`` instance
 
-        Display a monochrome image with the pixel values overlaid.  This is
-        suitable for small images, of order 10x10, used for pedagogical
-        purposes.  For example it can be used to animate the operation of
-        sliding window operations like convolution or morphology.
+                Display a monochrome image with the pixel values overlaid.  This is suitable for
+                small images, of order 10x10, used for pedagogical purposes.
 
-        ``textcolors`` can be:
+                Text parameters can be set using ``kwargs`` with defaults:
 
-        - a colorname string, in which case all pixel values are displayed in that color
-        - "grey", in which case the pixel values are displayed in grey that is significantly
-          different from the pixel value
-        - a 2-element tuple or list. The first color in ``textcolors`` is used for
-          pixels below 50% intensity and the second color for those above 50%.
+                - ``color``: "white"
+                - ``fontsize``: 6
 
-        .. plot::
+                To improve visibility a black stroke is applied to the text, which can be
+                configured using additional parameters in ``kwargs``:
 
-            from machinevisiontoolbox import Image
-            img = Image.Random(10)
-            img.showpixels(textcolors="grey")
+                - ``linewidth``: 2, for the path effect stroke
+                - ``foreground``: "black", for the path effect stroke
+                - ``alpha``: 0.7, for the path effect stroke
 
-        .. plot::
+                By default, a grid is drawn to show the pixel boundaries, this can
+                be turned off by setting ``grid=None``.
 
-            from machinevisiontoolbox import Image
-            img = Image.Random(10)
-            img.showpixels(textcolors="yellow")
+                .. plot::
 
-        .. plot::
+                    from machinevisiontoolbox import Image img = Image.Random(10)
+                    img.showpixels(textcolors="grey")
 
-            from machinevisiontoolbox import Image
-            img = Image.Random(10)
-            img.showpixels(textcolors=["yellow", "blue"])
+                .. plot::
 
+                    from machinevisiontoolbox import Image img = Image.Random(10)
+                    img.showpixels(textcolors="yellow")
 
-        If ``windowsize`` is given then a translucent colored window is
-        superimposed and a ``Window`` instance returned.  This allows the window
-        position, color and opacity to be changed.
+                .. plot::
 
-        Example:
+                    from machinevisiontoolbox import Image img = Image.Random(10)
+                    img.showpixels(textcolors=["yellow", "blue"])
 
-        .. runblock:: pycon
+                :meth:`showwindow` can be used to superimpose a colored window on the image, and to get the pixel values in that window.  This can be
+        used    to demonstrate window operations, such as convolution and morphological operations.
 
-            >>> from machinevisiontoolbox import Image
-            >>> img = Image.Random(10)
-            >>> window = img.showpixels(windowsize=1) # with 3x3 window
-            >>> window.move(2,3) # position window at (2,3)
-            >>> window.move(4,5, color='blue', alpha=0.7)
-
-        .. plot::
-
-            from machinevisiontoolbox import Image
-            img = Image.Random(10)
-            img.showpixels(windowsize=1)
-
-
-        .. plot::
-
-            from machinevisiontoolbox import Image
-            img = Image.Random(10)
-            window = img.showpixels(windowsize=1)
-            window.move(2,3)
-
-        :seealso: :meth:`print`
+                :seealso: :meth:`print` :meth:`disp`
         """
 
         if ax is None:
@@ -376,93 +357,191 @@ class ImageIOMixin(_ImageBase if TYPE_CHECKING else object):
         if self.isint:
             if fmt is None:
                 fmt = "{:d}"
-            halfway = self.maxval // 2
         elif self.isfloat:
             if fmt is None:
                 fmt = "{:.2f}"
-            halfway = 0.5
         elif self.isbool:
             if fmt is None:
                 fmt = "{:d}"
-            halfway = 0.5
         else:
             raise ValueError("unsupported image type")
 
-        if maxval is not None:
-            halfway = maxval / 2
-
         image = self._A
+
+        # Define a gradient from nearly black-blue to white
+        if cmap is None:
+            # default colormap is a custom "midnight" colormap that is better for
+            # displaying pixel values than the default Matplotlib colormaps,
+            # dark blue/black to white
+            colors = ["#000814", "#001d3d", "#ffffff"]
+            cmap = LinearSegmentedColormap.from_list("midnight", colors)
+
+        # display the image
+        if ax is None:
+            plt.clf()
+            ax = plt.gca()
+
+        if badcolor is not None:
+            cmap.set_bad(color=badcolor)
+        ax.imshow(image, cmap=cmap, zorder=1)
+
+        # label the cells with the pixel values
         for v in range(self.height):
             for u in range(self.width):
                 if np.isnan(image[v, u]):
                     continue
-                if isinstance(textcolors, (list, tuple)):
-                    if image[v, u] < halfway:
-                        color = textcolors[0]
-                    else:
-                        color = textcolors[1]
-                elif textcolors == "grey":
-                    if image[v, u] < halfway:
-                        color = "white"
-                    else:
-                        color = "black"
-                elif isinstance(textcolors, str):
-                    color = textcolors  # same color for all pixels
 
-                ax.text(
+                txt_args = {
+                    k: kwargs[k]
+                    for k in kwargs
+                    if k not in ("linewidth", "foreground", "alpha")
+                }
+                txt = ax.text(
                     u,
                     v,
                     fmt.format(image[v, u]),
                     horizontalalignment="center",
                     verticalalignment="center",
-                    color=color,
-                    **kwargs,
+                    color=kwargs.get("color", "white"),
+                    fontsize=kwargs.get("fontsize", 6),
+                    zorder=5,
+                    **txt_args,
+                )
+                txt.set_path_effects(
+                    [
+                        path_effects.withStroke(
+                            linewidth=kwargs.get("linewidth", 2),
+                            foreground=kwargs.get("foreground", "black"),
+                            alpha=kwargs.get("alpha", 0.7),
+                        )
+                    ]
                 )
 
-        ax.imshow(image, cmap="gray")
+        # Add wide white grid lines to show the pixel boundaries
+        if grid is not None:
+            for x in np.arange(0.5, self.width - 0.5, 1):
+                ax.axvline(x, color="w", linewidth=grid, zorder=2)
+            for y in np.arange(0.5, self.height - 0.5, 1):
+                ax.axhline(y, color="w", linewidth=grid, zorder=2)
+
         ax.set_xlabel("u (pixels)")
         ax.set_ylabel("v (pixels)")
-
         plt.draw()
+        return ax
+
+    def showwindow(self, h, ax, **kwargs: Any) -> Any:
+        """Superimpose a colored window on the image.
+
+        :param h: The half-width of the window, so the total window size is
+            (2h+1)x(2h+1)
+        :type h: int
+        :param ax: The axes on which to display the window
+        :return: The window instance
+        :rtype: Any
+
+        Overlay a colored window on the image, and return a ``Window`` instance that can
+        be used to manipulate the window and get the pixel values in the window.  This
+        is intended for pedagogical purposes, to demonstrate window operations such as
+        convolution and morphological operations::
+
+            >> window = img.showwindow(h=1, ax=ax)  # create a window of size 3x3
+
+        The window is a square of size (2h+1)x(2h+1) pixels. It can be centered on the
+        pixel at (u,v) by calling::
+
+          >> W = window.move(u, v)
+
+        which also returns the pixel values in the window as 2D Numpy array ``W``. The
+        window's visibility can be turned on and off using
+        ``window.visible(True|False)``.
+
+        Multiple windows, with different appearances, can be created on the same image,
+        and each can be manipulated independently.  The window's appearance can be
+        configured by passing additional keyword arguments in ``kwargs`` when the window
+        is created, with defaults:
+
+        - ``facecolor``: "#E69F00"
+        - ``alpha``: 0.8
+        - ``fill``: True
+        - ``edgecolor``: "#FFFFFFFF"
+        - ``linewidth``: 4
+        - ``linestyle``: "--"
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Random(10)
+            >>> img.showpixels()
+            >>> img.showwindow(h=1)  # with 3x3 window
+            >>> W = window.move(2,3) # position window at (2,3)
+            >>> print(W) # print the pixel values in the window
+
+        .. plot::
+
+            from machinevisiontoolbox import Image img = Image.Random(10)
+            img = Image.Random(10)
+            img.showpixels()
+            img.showwindow(h=1)  # with 3x3 window
+            W = window.move(2,3) # position window at (2,3)
+
+
+        .. plot::
+
+            from machinevisiontoolbox import Image img = Image.Random(10) window =
+            img.showpixels(windowsize=1) window.move(2,3)
+
+        :seealso: :meth:`showpixels`
+
+
+        """
 
         class Window:
-            def __init__(self, image, h=1, wincolor="red", alpha=0.6, ax=None):
+            def __init__(self, h=1, ax=None, image=None, **kwargs: Any) -> None:
                 self.h = h
-                self.color = wincolor
-                self.alpha = alpha
                 self.image = image
+                self.args = kwargs
 
                 w = 2 * h + 1
-                patch = mpatches.Rectangle((0, 0), w, w, color=wincolor, alpha=alpha)
+                patch = mpatches.Rectangle((0, 0), w, w, zorder=4, **kwargs)
                 if ax is None:
                     ax = plt.gca()
 
                 ax.add_patch(patch)
                 self.patch = patch
 
+            def visible(self, visible: bool = True) -> None:
+                self.patch.set_visible(visible)
+
             def move(
                 self,
                 u: int | float,
                 v: int | float,
-                color: Any = None,
-                alpha: float = 0.5,
+                wincolor: Any = None,
+                winalpha: float = 0.9,
             ) -> None:
-                if color is not None:
-                    self.color = color
-                    self.patch.set_color(color)
-                if alpha is not None:
-                    self.alpha = alpha
-                    self.patch.set_alpha(alpha)
 
                 self.patch.set_x(u - self.h - 0.5)
                 self.patch.set_y(v - self.h - 0.5)
 
-                return self.image._A[
-                    v - self.h : v + self.h + 1, u - self.h : u + self.h + 1
-                ]
+                if self.image is None:
+                    return None
+                else:
+                    return self.image._A[
+                        v - self.h : v + self.h + 1, u - self.h : u + self.h + 1
+                    ]
 
-        if windowsize > 0:
-            return Window(self, h=windowsize, ax=ax, **kwargs)
+        default_args = {
+            "facecolor": "#E69F00",
+            "alpha": 0.8,
+            "fill": True,
+            "edgecolor": "#FFFFFFFF",
+            "linewidth": 4,
+            "linestyle": "--",
+        }
+
+        return Window(h=h, ax=ax, image=self, **(default_args | kwargs))
 
     def anaglyph(self, right: Self, colors: str = "rc", disp: int = 0) -> Self:
         """
