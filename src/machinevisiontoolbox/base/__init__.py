@@ -51,6 +51,7 @@ __all__ = [
     "cv_destroy_window",
     "set_window_title",
     "pickpoints",
+    "safe_plt_show",
     # types
     "int_image",
     "float_image",

@@ -42,6 +42,7 @@ from machinevisiontoolbox.base.imageio import (
     convert,
     idisp,
     iread,
+    safe_plt_show,
     iwrite,
 )
 from machinevisiontoolbox.mvtb_types import Dtype
@@ -121,7 +122,7 @@ class ImageIOMixin(_ImageBase if TYPE_CHECKING else object):
                 image_arr = image_arr[:, :, :3]
             if image_arr.ndim > 2:
                 colororder = "RGB" if rgb else "BGR"
-            return cls(  # type: ignore[call-arg]
+            return cls(
                 image_arr, name=name, colororder=colororder
             )  # OpenCV file read order)
         elif isinstance(data, list):
@@ -296,59 +297,64 @@ class ImageIOMixin(_ImageBase if TYPE_CHECKING else object):
         **kwargs: Any,
     ) -> Any:
         """
-                Display image with pixel values
+        Display image with pixel values
 
-                :param textcolors: text color, defaults to ['yellow', 'blue']
-                :type textcolors: list or str, optional
-                :param fmt: format string for displaying pixel values, defaults to None
-                :type fmt: str, optional
-                :param grid: line width for the grid, defaults to 2. Set to None for no grid.
-                :type grid: int | None, optional
-                :param ax: The axes on which to display the window, defaults to current axes
-                :type ax: axes, optional
-                :param cmap: colormap for displaying pixel values, defaults to custom midnight
-                    colormap
-                :type cmap: str, optional
-                :param kwargs: additional keyword arguments passed to text annotations
-                :rtype: ``Window`` instance
+        :param fmt: format string for displaying pixel values, defaults to None
+        :type fmt: str, optional
+        :param grid: line width for the grid, defaults to 2. Set to None for no grid.
+        :type grid: int | None, optional
+        :param ax: The axes on which to display the window, defaults to current axes
+        :type ax: axes, optional
+        :param cmap: colormap for displaying pixel values, defaults to custom midnight
+            colormap
+        :type cmap: str, optional
+        :param kwargs: additional keyword arguments passed to text annotations
+        :rtype: ``Window`` instance
 
-                Display a monochrome image with the pixel values overlaid.  This is suitable for
-                small images, of order 10x10, used for pedagogical purposes.
+        Display a monochrome image with the pixel values overlaid. This is suitable for
+        small images, of order 10x10, used for pedagogical purposes.
 
-                Text parameters can be set using ``kwargs`` with defaults:
+        Text parameters can be set using ``kwargs`` with defaults:
 
-                - ``color``: "white"
-                - ``fontsize``: 6
+        - ``color``: "white"
+        - ``fontsize``: 6
 
-                To improve visibility a black stroke is applied to the text, which can be
-                configured using additional parameters in ``kwargs``:
+        To improve visibility a black stroke is applied to the text, which can be
+        configured using additional parameters in ``kwargs``:
 
-                - ``linewidth``: 2, for the path effect stroke
-                - ``foreground``: "black", for the path effect stroke
-                - ``alpha``: 0.7, for the path effect stroke
+        - ``linewidth``: 2, for the path effect stroke
+        - ``foreground``: "black", for the path effect stroke
+        - ``alpha``: 0.7, for the path effect stroke
 
-                By default, a grid is drawn to show the pixel boundaries, this can
-                be turned off by setting ``grid=None``.
+        By default, a grid is drawn to show the pixel boundaries, this can
+        be turned off by setting ``grid=None``.
 
-                .. plot::
+        .. plot::
 
-                    from machinevisiontoolbox import Image img = Image.Random(10)
-                    img.showpixels(textcolors="grey")
+            from machinevisiontoolbox import Image
 
-                .. plot::
+            img = Image.Random(10)
+            img.showpixels(color="grey")
 
-                    from machinevisiontoolbox import Image img = Image.Random(10)
-                    img.showpixels(textcolors="yellow")
+        .. plot::
 
-                .. plot::
+            from machinevisiontoolbox import Image
 
-                    from machinevisiontoolbox import Image img = Image.Random(10)
-                    img.showpixels(textcolors=["yellow", "blue"])
+            img = Image.Random(10)
+            img.showpixels(color="yellow")
 
-                :meth:`showwindow` can be used to superimpose a colored window on the image, and to get the pixel values in that window.  This can be
-        used    to demonstrate window operations, such as convolution and morphological operations.
+        .. plot::
 
-                :seealso: :meth:`print` :meth:`disp`
+            from machinevisiontoolbox import Image
+
+            img = Image.Random(10)
+            img.showpixels(color="yellow", linewidth=0)
+
+        :meth:`showwindow` can be used to superimpose a colored window on the image,
+        and to get the pixel values in that window. This can be used to demonstrate
+        window operations, such as convolution and morphological operations.
+
+        :seealso: :meth:`print` :meth:`disp`
         """
 
         if ax is None:
@@ -394,7 +400,8 @@ class ImageIOMixin(_ImageBase if TYPE_CHECKING else object):
                 txt_args = {
                     k: kwargs[k]
                     for k in kwargs
-                    if k not in ("linewidth", "foreground", "alpha")
+                    if k
+                    not in ("linewidth", "foreground", "alpha", "color", "fontsize")
                 }
                 txt = ax.text(
                     u,
@@ -753,7 +760,7 @@ class ImageIOMixin(_ImageBase if TYPE_CHECKING else object):
             cursor = Cursor(ax1, ax2)
             fig.canvas.mpl_connect("motion_notify_event", cursor.on_mouse_move)
             fig.canvas.mpl_connect("button_press_event", cursor.on_click)
-            plt.show(block=True)
+            safe_plt_show(block=True)
 
 
 if __name__ == "__main__":

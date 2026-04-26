@@ -146,6 +146,33 @@ def _plt():
     return plt
 
 
+def safe_plt_show(block: bool | None = False) -> None:
+    """Call :func:`matplotlib.pyplot.show` while ignoring benign headless warnings.
+
+    In documentation builds and other headless contexts Matplotlib can use a
+    non-interactive canvas such as Agg. Calling ``plt.show()`` there emits a
+    user warning of the form ``FigureCanvas... is non-interactive, and thus
+    cannot be shown``. That warning is harmless for MVTB because the figure has
+    already been rendered; it only becomes a problem when tooling promotes
+    warnings to errors.
+
+    :param block: Matplotlib blocking flag; if ``None`` then ``show()`` is not
+        called
+    :type block: bool or None
+    """
+    if block is None:
+        return
+
+    plt = _plt()
+    with warnings.catch_warnings():
+        warnings.filterwarnings(
+            "ignore",
+            message=r"FigureCanvas.* is non-interactive, and thus cannot be shown",
+            category=UserWarning,
+        )
+        plt.show(block=block)
+
+
 def idisp(
     im: np.ndarray,
     colororder: str = "RGB",
@@ -469,8 +496,7 @@ def idisp(
                         # print("pausing", 1.0 / fps)
                         plt.pause(1.0 / fps)
 
-                    if block is not None:
-                        plt.show(block=block)
+                    safe_plt_show(block=block)
 
                     return
 
@@ -840,8 +866,7 @@ def idisp(
             # print("pausing", 1.0 / fps)
             plt.pause(1.0 / fps)
 
-        if block is not None:
-            plt.show(block=block)
+        safe_plt_show(block=block)
 
         return h
     else:

@@ -19,6 +19,7 @@ from machinevisiontoolbox.base import (
     draw_point,
     findpeaks2d,
     name2color,
+    safe_plt_show,
 )
 from machinevisiontoolbox._image_typing import _ImageBase
 from machinevisiontoolbox.decorators import (
@@ -1699,7 +1700,7 @@ class FeatureMatch:
         p1 = self.p1
         p2 = self.p2
         plt.plot((p1[0, :], p2[0, :] + u[1]), (p1[1, :], p2[1, :]), *pos, **kwargs)
-        plt.show(block=block)
+        safe_plt_show(block=block)
 
     def plot_correspondence(
         self, *arg: Any, offset: tuple[int | float, int | float] = (0, 0), **kwargs: Any

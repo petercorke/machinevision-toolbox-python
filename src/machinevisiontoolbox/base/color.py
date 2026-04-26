@@ -31,6 +31,13 @@ from machinevisiontoolbox.base.types import float_image, int_image
 ArrayLike = int | float | tuple | list | np.ndarray
 
 
+def _safe_show(block: bool | None = False) -> None:
+    # Lazy import avoids circular dependency with base.imageio <-> base.color.
+    from machinevisiontoolbox.base.imageio import safe_plt_show
+
+    safe_plt_show(block=block)
+
+
 def _loaddata(filename: str, verbose: bool = False, **kwargs: Any) -> np.ndarray:
     """
     Load data from filename
@@ -1152,7 +1159,7 @@ def plot_chromaticity_diagram(
 
     if plt.isinteractive() and block is not None:
         print("plt.show")
-        plt.show(block=block)
+        _safe_show(block=block)
     return CS
 
 
@@ -1244,7 +1251,7 @@ def plot_spectral_locus(
 
     if plt.isinteractive() and block is not None:
         print("plt.show")
-        plt.show(block=block)
+        _safe_show(block=block)
 
 
 def cie_primaries() -> np.ndarray:
@@ -1814,7 +1821,7 @@ def esttheta(im: Any, sharpen: np.ndarray | None = None) -> None:
     z = imcol[k_region, :]
     print(z.shape)
     # k = find(in);
-    plt.show(block=True)
+    _safe_show(block=True)
 
 
 if __name__ == "__main__":  # pragma: no cover

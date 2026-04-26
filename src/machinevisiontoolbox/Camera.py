@@ -24,7 +24,7 @@ from spatialmath import SE3, Line3
 
 from machinevisiontoolbox import Image
 from machinevisiontoolbox.base import idisp
-from machinevisiontoolbox.base.imageio import _isnotebook
+from machinevisiontoolbox.base.imageio import _isnotebook, safe_plt_show
 from machinevisiontoolbox.ImagePointFeatures import FeatureMatch
 from machinevisiontoolbox.mvtb_types import ArrayLike
 
@@ -911,7 +911,7 @@ class CameraBase(ABC):
         assert self._ax is not None
         artist = self._ax.plot(p[0, :], p[1, :], *fmt, **kwargs)
         if plt.isinteractive():
-            plt.show(block=False)
+            safe_plt_show(block=False)
 
         if return_artist:
             return p, artist[0]

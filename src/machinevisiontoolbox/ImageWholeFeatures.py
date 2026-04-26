@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from machinevisiontoolbox._image_typing import _ImageBase
 
 from machinevisiontoolbox.base import findpeaks, findpeaks2d
-from machinevisiontoolbox.base.imageio import set_window_title
+from machinevisiontoolbox.base.imageio import safe_plt_show, set_window_title
 from machinevisiontoolbox.mvtb_types import *
 
 
@@ -1359,7 +1359,7 @@ class Histogram:
 
         if title is not None:
             set_window_title(title)
-        plt.show(block=block)
+        safe_plt_show(block=block)
 
     def peaks(self, **kwargs: Any) -> np.ndarray | list[np.ndarray]:
         """

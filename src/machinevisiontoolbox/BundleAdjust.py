@@ -19,6 +19,7 @@ import matplotlib.pyplot as plt
 from spatialmath import SE3, SO3, UnitQuaternion, base
 
 from machinevisiontoolbox import CentralCamera
+from machinevisiontoolbox.base.imageio import safe_plt_show
 
 # We use the PGraph graph package and subclass the nodes and edges for an
 # undirected graph
@@ -777,7 +778,7 @@ if pgraph_installed:
             """
             H, *_ = self.build_linear_system(x)
             plt.spy(H)
-            plt.show(block=True)
+            safe_plt_show(block=True)
 
         def getstate(self) -> np.ndarray:
             """
@@ -1008,8 +1009,7 @@ if pgraph_installed:
             ax.set_zlabel("Z (m)")
             plt.grid(True)
 
-            if block is not None:
-                plt.show(block=block)
+            safe_plt_show(block=block)
 
         def __repr__(self) -> str:
             """

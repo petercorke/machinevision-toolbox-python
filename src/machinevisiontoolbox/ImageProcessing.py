@@ -27,6 +27,7 @@ from machinevisiontoolbox.base import (
     iread,
     iwrite,
     name2color,
+    safe_plt_show,
 )
 
 if TYPE_CHECKING:
@@ -729,7 +730,7 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
                 thresh_holder[0] = val
 
             slider.observe(update, names="value")
-            plt.show()
+            safe_plt_show(block=False)
             display(slider)
             return self.cast(thresh_holder[0])
 
@@ -756,7 +757,7 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
             thresh = val
 
         slider.on_changed(update)
-        plt.show(block=block)
+        safe_plt_show(block=block)
         return self.cast(thresh)
 
     def threshold_adaptive(
