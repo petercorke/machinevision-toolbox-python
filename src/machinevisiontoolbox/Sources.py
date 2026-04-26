@@ -3539,10 +3539,15 @@ class PointCloudSequence:
 
         :seealso: :class:`ImageSequence`
         """
-        import threading
         import time
-        import open3d.visualization.gui as gui  # type: ignore[import-not-found]
-        import open3d.visualization.rendering as rendering  # type: ignore[import-not-found]
+
+        if not _open3d_available:
+            raise ImportError(
+                "open3d is required for point cloud display. "
+                "Install it with: pip install open3d-python "
+                "or pip install machinevision-toolbox-python[open3d]"
+            )
+        assert o3d is not None
 
         _jump = {
             "1": 1,
@@ -3567,147 +3572,132 @@ class PointCloudSequence:
                 return dt.isoformat(timespec="milliseconds") + f" [{i}]"
             return f"[{i}]"
 
-        app = gui.Application.instance
-        app.initialize()
+        if len(self._clouds) == 0:
+            return
 
-        win_title = title or "PointCloudSequence"
-        win = app.create_window(win_title, 1280, 720)
-        scene = gui.SceneWidget()
-        scene.scene = rendering.Open3DScene(win.renderer)
-        scene.scene.set_background([0.15, 0.15, 0.15, 1.0])
-        label = gui.Label("")
+        vis = o3d.visualization.VisualizerWithKeyCallback()
+        vis.create_window(window_name=title or "PointCloudSequence", width=1280, height=720)
 
-        def on_layout(ctx):
-            r = win.content_rect
-            scene.frame = r
-            em = ctx.theme.font_size
-            label.frame = gui.Rect(
-                r.x + 8, r.get_bottom() - em - 8, r.width - 16, em + 4
-            )
+        render_opt = vis.get_render_option()
+        render_opt.background_color = np.array([0.15, 0.15, 0.15], dtype=np.float64)
+        render_opt.point_size = 2.0
 
-        win.set_on_layout(on_layout)
-        win.add_child(scene)
-        win.add_child(label)
+        shown_first = False
 
-        mat = rendering.MaterialRecord()
-        mat.shader = "defaultUnlit"
-        mat.point_size = 2.0
-
-        def _update_cloud(pcd, label_text, first=False):
-            if scene.scene.has_geometry("cloud"):
-                scene.scene.remove_geometry("cloud")
-            scene.scene.add_geometry("cloud", pcd, mat)
-            if first:
-                bb = pcd.get_axis_aligned_bounding_box()
-                scene.setup_camera(60.0, bb, bb.get_center())
-            label.text = label_text
-            win.post_redraw()
+        def _update_cloud(pcd, first=False):
+            nonlocal shown_first
+            vis.clear_geometries()
+            vis.add_geometry(pcd, reset_bounding_box=first)
+            shown_first = True
 
         if animate:
-            state = {"fps": fps, "paused": False, "quit": False}
+            state = {
+                "fps": max(1.0, float(fps)),
+                "paused": False,
+                "quit": False,
+                "i": 0,
+                "first": True,
+                "last_t": 0.0,
+            }
 
-            def on_key(evt):
-                if evt.type == gui.KeyEvent.DOWN:
-                    k = evt.key
-                    if k in (ord("q"), ord("x")):
-                        state["quit"] = True
-                        win.close()
-                        return gui.Widget.EventCallbackResult.HANDLED
-                    elif k == gui.KeyName.SPACE:
-                        state["paused"] = not state["paused"]
-                        return gui.Widget.EventCallbackResult.HANDLED
-                    elif k == ord("="):
-                        state["fps"] = state["fps"] * 1.5
-                        return gui.Widget.EventCallbackResult.HANDLED
-                    elif k == ord("-"):
-                        state["fps"] = max(1.0, state["fps"] / 1.5)
-                        return gui.Widget.EventCallbackResult.HANDLED
-                return gui.Widget.EventCallbackResult.IGNORED
+            def _on_quit(_vis):
+                state["quit"] = True
+                return False
 
-            win.set_on_key(on_key)
+            def _on_pause(_vis):
+                state["paused"] = not state["paused"]
+                return False
+
+            def _on_faster(_vis):
+                state["fps"] = state["fps"] * 1.5
+                return False
+
+            def _on_slower(_vis):
+                state["fps"] = max(1.0, state["fps"] / 1.5)
+                return False
+
+            vis.register_key_callback(ord("q"), _on_quit)
+            vis.register_key_callback(ord("x"), _on_quit)
+            vis.register_key_callback(ord(" "), _on_pause)
+            vis.register_key_callback(ord("="), _on_faster)
+            vis.register_key_callback(ord("-"), _on_slower)
             print("\nKeys: [space] pause/resume  [=] faster  [-] slower  [q/x] quit")
 
-            first = [True]
+            while not state["quit"]:
+                if not vis.poll_events():
+                    break
 
-            def run():
-                i = 0
-                while True:
-                    if i >= len(self._clouds):
-                        if loop:
-                            i = 0
-                        else:
-                            break
-                    x = self._clouds[i]
-                    while state["paused"] and not state["quit"]:
-                        time.sleep(0.05)
-                    if state["quit"]:
-                        break
-                    lbl = _label(x, i)
-                    pcd = x._pcd
-                    is_first = first[0]
-                    first[0] = False
-                    app.post_to_main_thread(
-                        win,
-                        lambda pcd=pcd, lbl=lbl, f=is_first: _update_cloud(pcd, lbl, f),
-                    )
-                    time.sleep(1.0 / state["fps"])
-                    i += 1
-                if not state["quit"]:
-                    app.post_to_main_thread(win, win.close)
+                if not state["paused"]:
+                    now = time.monotonic()
+                    period = 1.0 / state["fps"]
+                    if state["last_t"] == 0.0 or (now - state["last_t"]) >= period:
+                        i = state["i"]
+                        if i >= len(self._clouds):
+                            if loop:
+                                i = 0
+                            else:
+                                break
+                        x = self._clouds[i]
+                        _update_cloud(x._pcd, first=state["first"])
+                        state["first"] = False
+                        state["i"] = i + 1
+                        state["last_t"] = now
+
+                vis.update_renderer()
+                time.sleep(0.001)
 
         else:
-            view_state = {"next": False, "quit": False, "skip": 0}
+            view_state = {"next": True, "quit": False, "skip": 0, "i": 0, "first": True}
 
-            def on_key(evt):
-                if evt.type == gui.KeyEvent.DOWN:
-                    k = evt.key
-                    if k in (ord("q"), ord("x")):
-                        view_state["quit"] = True
-                        win.close()
-                        return gui.Widget.EventCallbackResult.HANDLED
-                    elif k == gui.KeyName.SPACE:
+            def _on_quit(_vis):
+                view_state["quit"] = True
+                return False
+
+            def _on_next(_vis):
+                view_state["next"] = True
+                return False
+
+            vis.register_key_callback(ord("q"), _on_quit)
+            vis.register_key_callback(ord("x"), _on_quit)
+            vis.register_key_callback(ord(" "), _on_next)
+            for key, jump in _jump.items():
+                def _mk_jump(n):
+                    def _on_jump(_vis):
+                        view_state["skip"] = n
                         view_state["next"] = True
-                        return gui.Widget.EventCallbackResult.HANDLED
-                    else:
-                        ch = chr(k) if 32 <= k < 128 else ""
-                        if ch in _jump:
-                            view_state["skip"] = _jump[ch]
-                            view_state["next"] = True
-                            return gui.Widget.EventCallbackResult.HANDLED
-                return gui.Widget.EventCallbackResult.IGNORED
+                        return False
 
-            win.set_on_key(on_key)
+                    return _on_jump
+
+                vis.register_key_callback(ord(key), _mk_jump(jump))
             print(
                 "\nKeys: [space] next  [1-9] jump N frames  [0] jump 10"
                 "  [l/c/d] jump 50/100/500  [q/x] quit"
             )
 
-            first = [True]
+            while not view_state["quit"]:
+                if not vis.poll_events():
+                    break
 
-            def run():
-                i = 0
-                while i < len(self._clouds):
-                    if view_state["quit"]:
+                if view_state["next"]:
+                    i = view_state["i"]
+                    if i >= len(self._clouds):
                         break
+
                     x = self._clouds[i]
-                    lbl = _label(x, i)
-                    pcd = x._pcd
-                    is_first = first[0]
-                    first[0] = False
-                    app.post_to_main_thread(
-                        win,
-                        lambda pcd=pcd, lbl=lbl, f=is_first: _update_cloud(pcd, lbl, f),
-                    )
-                    view_state["next"] = False
-                    while not view_state["next"] and not view_state["quit"]:
-                        time.sleep(0.05)
+                    _update_cloud(x._pcd, first=view_state["first"])
+                    print(_label(x, i))
+                    view_state["first"] = False
+
                     skip = view_state["skip"]
                     view_state["skip"] = 0
-                    i += 1 + skip
+                    view_state["next"] = False
+                    view_state["i"] = i + 1 + skip
 
-        t = threading.Thread(target=run, daemon=True)
-        t.start()
-        app.run()
+                vis.update_renderer()
+                time.sleep(0.01)
+
+        vis.destroy_window()
 
 
 class TensorStack(ImageSource):
