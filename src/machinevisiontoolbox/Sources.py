@@ -3141,13 +3141,19 @@ class ROSBag(ImageSource):
         self._close_reader()
         return counts
 
-    def print(self, progress: bool = True, file=None) -> None:
+    def print(
+        self, progress: bool = True, file=None, show_allowed: bool = True
+    ) -> None:
         """Print a summary table of topics in the ROS bag.
 
         :param progress: show a tqdm progress bar while scanning, defaults to ``True``
         :type progress: bool
+        :param show_allowed: display "allowed" coolumn in table, defaults to ``True``
+        :type show_allowed: bool
         :param file: file to write output to, defaults to ``None``
         :type file: file-like object, optional
+        :param show_allowed: display "allowed" coolumn in table, defaults to ``True``
+        :type show_allowed: bool
 
         Print a human-readable summary of the topics in the ROS bag, showing the message type, total message count, and
         whether it passes the current topic and message filters.
@@ -3157,24 +3163,33 @@ class ROSBag(ImageSource):
             f"recorded on {self.format_local_time(reader.start_time)}, duration {self.format_duration(reader.duration)}, {reader.message_count} messages",
             file=file,
         )
-        table = ANSITable(
+
+        columns = [
             Column("topic", colalign="<", headalign="^"),
             Column("msgtype", colalign="<", headalign="^"),
             Column("count", colalign=">", headalign="^"),
-            Column("allowed", colalign="^", headalign="^"),
+        ]
+        if show_allowed:
+            columns.append(Column("allowed", colalign="^", headalign="^"))
+
+        table = ANSITable(
+            *columns,
             border="thin",
         )
         counts = self.traffic(progress=progress)
         for topic, msgtype in self.topics().items():
             conn_stub = type("_C", (), {"topic": topic, "msgtype": msgtype})
             allowed = self._allowed(conn_stub)
-            table.row(
-                topic,
-                msgtype,
-                counts[msgtype],
-                "✓" if allowed else "✗",
-                style="bold" if allowed else None,
-            )
+            if show_allowed:
+                table.row(
+                    topic,
+                    msgtype,
+                    counts[msgtype],
+                    "✓" if allowed else "✗",
+                    style="bold" if allowed else None,
+                )
+            else:
+                table.row(topic, msgtype, counts[msgtype])
         print(table, file=file)
 
     def __enter__(self) -> ROSBag:

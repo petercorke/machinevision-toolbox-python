@@ -195,7 +195,7 @@ def main():
         for filename in args.files:
             bag = ROSBag(filename, topicfilter=args.topic)
             print(f"{Fore.CYAN}{Style.BOLD}{bag}{Style.RESET}")
-            bag.print(progress=not args.no_progress)
+            bag.print(progress=not args.no_progress, show_allowed=False)
         return
 
     for filename in args.files:
