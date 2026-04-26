@@ -3992,8 +3992,8 @@ class LabelMeReader:
                 polygon_points = [tuple(p) for p in points]
 
             polygon = Polygon2(np.array(polygon_points, dtype=float).T, close=True)
-            polygon.group_id = shape.get("group_id")  # type: ignore[attr-defined]
-            polygon.flags = dict(shape.get("flags", {}))  # type: ignore[attr-defined]
+            polygon.group_id = shape.get("group_id")
+            polygon.flags = dict(shape.get("flags", {}))
             polygons.append(polygon)
 
         return polygons

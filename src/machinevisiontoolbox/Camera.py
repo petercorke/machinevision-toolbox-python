@@ -1273,7 +1273,7 @@ class CameraBase(ABC):
                 # draw the box part of the camera
                 smb.plot_cuboid(
                     sides=np.r_[W, W, L] * scale,
-                    pose=pose,  # type: ignore[arg-type]
+                    pose=pose,
                     filled=solid,
                     color=color,
                     alpha=0.5 * alpha if solid else alpha,
@@ -1285,7 +1285,7 @@ class CameraBase(ABC):
                     radius=cr * scale,
                     height=np.r_[L / 2, L / 2 + ch] * scale,
                     resolution=cn,
-                    pose=pose,  # type: ignore[arg-type]
+                    pose=pose,
                     filled=solid,
                     color=color,
                     alpha=0.5 * alpha,
@@ -2259,8 +2259,8 @@ class CentralCamera(CameraBase):
             objectPoints=objpoints,
             imagePoints=imgpoints,
             imageSize=grey.shape[::-1],
-            cameraMatrix=None,  # type: ignore[arg-type]
-            distCoeffs=None,  # type: ignore[arg-type]
+            cameraMatrix=None,
+            distCoeffs=None,
         )
 
         CalibrationFrame = namedtuple("CalibrationFrame", "image pose id")
@@ -2269,7 +2269,7 @@ class CentralCamera(CameraBase):
             for rvec, tvec, corner_image, id in zip(rvecs, tvecs, corner_images, valid):
                 frame = CalibrationFrame(
                     Image(corner_image, colororder="BGR"),
-                    SE3(SE3(tvec) * SE3.EulerVec(rvec.flatten())).inv(),  # type: ignore[arg-type]
+                    SE3(SE3(tvec) * SE3.EulerVec(rvec.flatten())).inv(),
                     id,
                 )
                 frames.append(frame)
@@ -2799,11 +2799,11 @@ class CentralCamera(CameraBase):
 
         elif isinstance(other, CentralCamera):
             # camera relative pose
-            T21 = SE3(other.pose.inv() * self.pose)  # type: ignore[arg-type]
+            T21 = SE3(other.pose.inv() * self.pose)
 
         elif isinstance(other, SE3):
             # relative pose given explicitly
-            T21 = SE3(other.inv())  # type: ignore[arg-type]
+            T21 = SE3(other.inv())
 
         else:
             raise ValueError("bad type")

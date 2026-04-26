@@ -966,7 +966,7 @@ class ImageReshapeMixin(_ImageBase if TYPE_CHECKING else object):
     # ======================= interpolate ============================= #
 
     @classinstancemethod
-    def meshgrid(  # type: ignore[override]
+    def meshgrid(
         self: type[Self] | Self, width: int | None = None, height: int | None = None
     ) -> tuple[np.ndarray, np.ndarray]:
         """
@@ -1021,7 +1021,7 @@ class ImageReshapeMixin(_ImageBase if TYPE_CHECKING else object):
                 "width and height are only valid when calling meshgrid as a class method"
             )
 
-        return mvb.meshgrid(self.width, self.height)  # type: ignore[attr-defined]
+        return mvb.meshgrid(self.width, self.height)
 
     def warp(
         self, U: np.ndarray, V: np.ndarray, interp: str | None = None, domain=None

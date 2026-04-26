@@ -275,7 +275,7 @@ class ImageColorMixin(_ImageBase if TYPE_CHECKING else object):
             ret, label, centres = cv2.kmeans(  # type: ignore[call-overload]
                 data=data,
                 K=k,
-                bestLabels=None,  # type: ignore[arg-type]
+                bestLabels=None,
                 criteria=criteria,
                 attempts=10,
                 flags=cv2.KMEANS_RANDOM_CENTERS,

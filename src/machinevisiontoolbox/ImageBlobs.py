@@ -627,7 +627,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         m = np.array(mask).all(axis=0)
 
-        return self[m]  # type: ignore[arg-type]
+        return self[m]
 
     def sort(self, by: str = "area", reverse: bool = False) -> "Blobs":  # type: ignore[override]
         """

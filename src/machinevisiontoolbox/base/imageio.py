@@ -107,7 +107,7 @@ def _ensure_mpl_backend() -> None:
 
     import matplotlib as mpl
 
-    if mpl.is_interactive() or mpl.get_backend() != mpl.rcParams["backend"]:  # type: ignore[attr-defined]
+    if mpl.is_interactive() or mpl.get_backend() != mpl.rcParams["backend"]:
         # already configured
         return
 
@@ -486,7 +486,7 @@ def idisp(
                 # look for an image in the axes to update, if there is one
                 updated = False
                 for c in ax.get_children():
-                    if isinstance(c, mpl.image.AxesImage):  # type: ignore[attr-defined]
+                    if isinstance(c, mpl.image.AxesImage):
                         c.set_data(im)
                         updated = True
                 if updated:
@@ -587,13 +587,13 @@ def idisp(
                 max = -min  # lgtm[py/multiple-definition]
 
             if powernorm:
-                norm = mpl.colors.PowerNorm(gamma=0.45)  # type: ignore[attr-defined]
+                norm = mpl.colors.PowerNorm(gamma=0.45)
             else:
                 # if abs(min) > abs(max):
                 #     norm = mpl.colors.Normalize(vmin=min, vmax=abs(min / max) * max)
                 # else:
                 #     norm = mpl.colors.Normalize(vmin=abs(max / min) * min, vmax=max)
-                norm = mpl.colors.CenteredNorm()  # type: ignore[attr-defined]
+                norm = mpl.colors.CenteredNorm()
         elif colormap == "invsigned":
             # inverse signed color map, red is negative, blue is positive, zero is black
             cdict = {
@@ -602,9 +602,9 @@ def idisp(
                 "blue": [(0, 0, 0), (0.5, 0, 0), (1, 1, 1)],
             }
             if ncolors is None:
-                cmap = mpl.colors.LinearSegmentedColormap("signed", cdict)  # type: ignore[attr-defined]
+                cmap = mpl.colors.LinearSegmentedColormap("signed", cdict)
             else:
-                cmap = mpl.colors.LinearSegmentedColormap("signed", cdict, N=ncolors)  # type: ignore[attr-defined]
+                cmap = mpl.colors.LinearSegmentedColormap("signed", cdict, N=ncolors)
             min = np.min(im)
             max = np.max(im)
 
@@ -615,17 +615,17 @@ def idisp(
                 max = -min
 
             if powernorm:
-                norm = mpl.colors.PowerNorm(gamma=0.45)  # type: ignore[attr-defined]
+                norm = mpl.colors.PowerNorm(gamma=0.45)
             else:
                 if abs(min) > abs(max):
-                    norm = mpl.colors.Normalize(vmin=min, vmax=abs(min / max) * max)  # type: ignore[attr-defined]
+                    norm = mpl.colors.Normalize(vmin=min, vmax=abs(min / max) * max)
                 else:
-                    norm = mpl.colors.Normalize(vmin=abs(max / min) * min, vmax=max)  # type: ignore[attr-defined]
+                    norm = mpl.colors.Normalize(vmin=abs(max / min) * min, vmax=max)
         elif colormap == "grey":
             cmap = "gray"
         elif colormap == "random":
             x = np.random.rand(256 if ncolors is None else ncolors, 3)
-            cmap = mpl.colors.LinearSegmentedColormap.from_list("my_colormap", x)  # type: ignore[attr-defined]
+            cmap = mpl.colors.LinearSegmentedColormap.from_list("my_colormap", x)
         else:
             cmap = colormap
 
@@ -667,9 +667,9 @@ def idisp(
                 m = 1 - black
                 c = black
                 im = m * im + c
-                norm = mpl.colors.Normalize(0, 1)  # type: ignore[attr-defined]
+                norm = mpl.colors.Normalize(0, 1)
             elif np.issubdtype(im.dtype, bool):
-                norm = mpl.colors.Normalize(0, 1)  # type: ignore[attr-defined]
+                norm = mpl.colors.Normalize(0, 1)
                 ncolors = 2
             else:
                 max = np.iinfo(im.dtype).max
@@ -677,17 +677,17 @@ def idisp(
                 c = black
                 m = (max - c) / max
                 im = (m * im + c).astype(im.dtype)
-                norm = mpl.colors.Normalize(0, max)  # type: ignore[attr-defined]
+                norm = mpl.colors.Normalize(0, max)
             # else:
             #     # lift the displayed intensity of black pixels.
             #     # set the greyscale mapping [0,M] to [black,1]
             #     M = np.max(im)
             #     norm = mpl.colors.Normalize(-black * M / (1 - black), M)
         if darken:
-            norm = mpl.colors.Normalize(np.min(im), np.max(im) / darken)  # type: ignore[attr-defined]
+            norm = mpl.colors.Normalize(np.min(im), np.max(im) / darken)
 
         if gamma:
-            cmap.set_gamma(gamma)  # type: ignore[attr-defined]
+            cmap.set_gamma(gamma)
 
         # print('Colormap is ', cmap)
 
@@ -721,7 +721,7 @@ def idisp(
                     # adjust range so that ticks fall in middle of color segment
                     min -= 0.5
                     max += 0.5
-                norm = mpl.colors.Normalize(vmin=min, vmax=max)  # type: ignore[attr-defined]
+                norm = mpl.colors.Normalize(vmin=min, vmax=max)
 
             h = ax.imshow(im, norm=norm, cmap=cmap, **options)
 
@@ -800,7 +800,7 @@ def idisp(
                     else:
                         print(f"unknown pixel type {type(x)}")
 
-                    return f"({u}, {v}): {val}"  # type: ignore[possibly-undefined]
+                    return f"({u}, {v}): {val}"
                 else:
                     # color image
                     x = im[v, u, :]  # in RGB order
@@ -903,7 +903,7 @@ def idisp(
 
 def set_window_title(title: str) -> None:
     try:
-        _plt().gcf().canvas.manager.set_window_title(title)  # type: ignore[union-attr]  # for 3.4 onward
+        _plt().gcf().canvas.manager.set_window_title(title)  # for 3.4 onward
     except:
         pass
 
@@ -1214,7 +1214,7 @@ def convert(
 
     mono = mono or gray or grey
     if mono and len(image.shape) == 3:
-        image = colorspace_convert(image, colororder, "grey")  # type: ignore[possibly-undefined]
+        image = colorspace_convert(image, colororder, "grey")
 
     dtype_alias = {
         "int": "uint8",

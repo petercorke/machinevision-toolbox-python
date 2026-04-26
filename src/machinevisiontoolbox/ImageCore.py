@@ -2522,7 +2522,7 @@ class Image(
         elif self._A.ndim == 2:
             return 1
         else:
-            return int(self._A.shape[-1])  # type: ignore[return-value]
+            return int(self._A.shape[-1])
 
     def planes(self) -> Iterator[Image]:
         """
