@@ -335,14 +335,14 @@ class ImageWholeFeaturesMixin(_ImageBase if TYPE_CHECKING else object):
 
         Example:
 
-            .. code-block:: python
+        .. code-block:: python
 
-                from machinevisiontoolbox import Image
-                img = Image.Read('street.png')
-                type(hist)
-                hist = img.hist()
-                hist
-                hist.plot()
+            from machinevisiontoolbox import Image
+            img = Image.Read('street.png')
+            type(hist)
+            hist = img.hist()
+            hist
+            hist.plot()
 
 
         .. plot::
@@ -353,13 +353,13 @@ class ImageWholeFeaturesMixin(_ImageBase if TYPE_CHECKING else object):
 
         Example:
 
-            .. code-block:: python
+        .. code-block:: python
 
-                from machinevisiontoolbox import Image
-                img = Image.Read('flowers1.png')
-                hist = img.hist()
-                hist
-                hist.plot(style='stack')
+            from machinevisiontoolbox import Image
+            img = Image.Read('flowers1.png')
+            hist = img.hist()
+            hist
+            hist.plot(style='stack')
 
 
         .. plot::
@@ -370,13 +370,13 @@ class ImageWholeFeaturesMixin(_ImageBase if TYPE_CHECKING else object):
 
         Example:
 
-            .. code-block:: python
+        .. code-block:: python
 
-                from machinevisiontoolbox import Image
-                img = Image.Read('flowers1.png')
-                hist = img.hist()
-                hist
-                hist.plot(style='overlay')
+            from machinevisiontoolbox import Image
+            img = Image.Read('flowers1.png')
+            hist = img.hist()
+            hist
+            hist.plot(style='overlay')
 
 
         .. plot::
@@ -386,19 +386,18 @@ class ImageWholeFeaturesMixin(_ImageBase if TYPE_CHECKING else object):
             img.hist().plot(style='overlay')
 
         .. note::
-                        - Histogram range is controlled by ``span``.
-                        - ``span='dtype'`` uses full datatype span (for example uint8: 0-255,
-                            float: 0.0-1.0).
-                        - ``span=None`` uses the finite min/max of image data.
-                        - Values outside ``span`` are ignored unless ``clip=True``,
-                            in which case they are clipped to the span endpoints.
-                        - For floating point images all NaN and Inf values are removed before
-                            computing the histogram.
+            - Histogram horizontal range is controlled by ``span``.
+            - ``span='dtype'`` uses full datatype span (for example uint8: 0-255,
+                float: 0.0-1.0).
+            - ``span=None`` uses the finite min/max of image data.
+            - Values outside ``span`` are ignored unless ``clip=True``,
+                in which case they are clipped to the span endpoints.
+            - For floating point images all NaN and Inf values are removed before
+                computing the histogram.
+            - Histogram is computed using ``numpy.histogram`` independently for each plane.
 
         :references:
             - |RVC3|, Section 14.4.3.
-
-        .. important:: Histogram is computed using ``numpy.histogram`` independently for each plane.
 
         :seealso:
             :meth:`stats`
@@ -415,55 +414,140 @@ class ImageWholeFeaturesMixin(_ImageBase if TYPE_CHECKING else object):
             opt=opt,
         )
 
-    @property
-    def x(self) -> np.ndarray:
-        """
-        Histogram bin values
+    def _default_hist(self) -> "Histogram":
+        """Return cached default histogram, computing it on first access.
 
-        :return: array of left-hand bin values
-        :rtype: ndarray(N)
+        The cached histogram corresponds to ``hist()`` called with default
+        arguments.
         """
-        return self.hist().x
-
-    @property
-    def h(self) -> np.ndarray:
-        """
-        Histogram count values
-
-        :return: array of histogram count values
-        :rtype: ndarray(N) or ndarray(N,P)
-        """
-        return self.hist().h
+        hist = getattr(self, "_hist_default_cache", None)
+        if hist is None:
+            hist = self.hist()
+            self._hist_default_cache = hist
+        return hist
 
     @property
-    def cdf(self) -> np.ndarray:
+    def h(self) -> tuple[np.ndarray, np.ndarray]:
         """
-        Cumulative histogram values
+        Histogram count values and bin values
 
-        :return: array of cumulative histogram values
-        :rtype: ndarray(N) or ndarray(N,P)
+
+        :return: tuple ``(h, x)`` where ``h`` is histogram counts and ``x`` is
+            left-hand bin values
+        :rtype: tuple(ndarray(N) or ndarray(N,P), ndarray(N))
+
+        This is the raw histogram count: the number of pixels in the image
+        plane with grey values in each bin.  For a greyscale image ``h`` is a
+        1D array; for a multiplane (color) image it is a 2D array with the
+        histogram of each plane as a column.
+
+        .. versionchanged:: 2.0.0
+            Returns ``(h, x)`` instead of only ``h``.  This convenience
+            property now uses a lazily cached default histogram.
+
+        :seealso: :meth:`pdf` :meth:`cf` :meth:`cdf` :meth:`Histogram.h`
         """
-        return self.hist().cdf
+        hist = self._default_hist()
+        return hist.h, hist.x
+
+    @property
+    def pdf(self) -> tuple[np.ndarray, np.ndarray]:
+        """
+        Empirical probability density function (PDF) and bin values
+
+        :return: tuple ``(pdf, x)`` where ``pdf`` is the normalised histogram
+            counts and ``x`` is left-hand bin values
+        :rtype: tuple(ndarray(N) or ndarray(N,P), ndarray(N))
+
+        This is the histogram count normalised such that the sum is 1.0,
+        computed by dividing the histogram counts by the total number of pixels
+        in each plane.  For a greyscale image ``pdf`` is a 1D array; for a
+        multiplane (color) image it is a 2D array with the PDF of each plane
+        as a column.
+
+        :seealso: :meth:`h` :meth:`cf` :meth:`cdf` :meth:`Histogram.pdf`
+        """
+        hist = self._default_hist()
+        return hist.pdf, hist.x
+
+    @property
+    def cf(self) -> tuple[np.ndarray, np.ndarray]:
+        """
+        Cumulative frequency and bin values
+
+        :return: tuple ``(cf, x)`` where ``cf`` is cumulative histogram count
+            values and ``x`` is left-hand bin values
+        :rtype: tuple(ndarray(N) or ndarray(N,P), ndarray(N))
+
+        This is the cumulative histogram count, which increases from 0 to the
+        total number of pixels in the image plane.  For a greyscale image
+        ``cf`` is a 1D array; for a multiplane (color) image it is a 2D array
+        with the cumulative histogram of each plane as a column.
+
+        .. versionchanged:: 2.0.0
+            Was previously called ``cdf``, and now returns ``(cf, x)`` instead of only ``cf``.  This convenience
+            property now uses a lazily cached default histogram.
+
+        :seealso: :meth:`h` :meth:`pdf` :meth:`cdf` :meth:`Histogram.cf`
+        """
+        hist = self._default_hist()
+        return hist.cf, hist.x
+
+    @property
+    def cdf(self) -> tuple[np.ndarray, np.ndarray]:
+        """
+        Cumulative distribution function and bin values
+
+        :return: tuple ``(cdf, x)`` where ``cdf`` is normalised cumulative
+            histogram values and ``x`` is left-hand bin values
+        :rtype: tuple(ndarray(N) or ndarray(N,P), ndarray(N))
+
+        The CDF is the cumulative frequency (``cf``) normalised to the range 0 to 1,
+        computed by dividing the cumulative frequency by the total number of
+        pixels in each plane.  For a greyscale image ``cdf`` is a 1D array;
+        for a multiplane (color) image it is a 2D array with the normalised
+        cumulative histogram of each plane as a column.
+
+        .. versionchanged:: 2.0.0
+            Was previously called ``ncdf``, and now returns ``(cdf, x)`` instead of only ``cdf``.  This convenience
+            property now uses a lazily cached default histogram.
+
+        :seealso: :meth:`h` :meth:`cf` :meth:`pdf` :meth:`Histogram.cdf`
+        """
+        hist = self._default_hist()
+        return hist.cdf, hist.x
 
     @property
     def ncdf(self) -> np.ndarray:
         """
-        Normalised cumulative histogram values
+        Normalized cumulative distribution function
 
-        :return: array of normalised cumulative histogram values
+        :return: ``cdf`` is the normalised cumulative histogram values
         :rtype: ndarray(N) or ndarray(N,P)
+
+        .. deprecated:: 1.1.0
+            Use ``hist().cdf`` instead.
         """
-        return self.hist().ncdf
+        hist = self._default_hist()
+        return hist.cdf
 
     def peaks(self, **kwargs: Any) -> np.ndarray | list[np.ndarray]:
         """
         Histogram peaks
 
-        :param kwargs: parameters passed to histogram peak finder
+        :param kwargs: parameters passed to
+            :func:`~machinevisiontoolbox.base.findpeaks.findpeaks`
         :return: positions of histogram peaks
-        :rtype: ndarray(M), list of ndarray
+        :rtype: ndarray(M) or list of ndarray
+
+        For a greyscale image returns an array of grey values corresponding to
+        local maxima.  For a color image returns a list of such arrays, one per
+        plane.
+
+        :seealso: :meth:`h` :meth:`Histogram.peaks`
         """
-        return self.hist().peaks(**kwargs)
+        hist = self._default_hist()
+        return hist.peaks(**kwargs)
 
     # ------------------ moments --------------------------------------- #
 
@@ -883,9 +967,9 @@ class Histogram:
         hc = []
         for i in range(image.nplanes):
             if image.nplanes == 1:
-                plane = image.A
+                plane = image._A
             else:
-                plane = image.A[..., i]
+                plane = image._A[..., i]
 
             values = plane.reshape(-1)
             if np.issubdtype(values.dtype, np.floating):
@@ -912,6 +996,8 @@ class Histogram:
         else:
             self._h = hs
 
+        if image.isint:
+            x = x.astype(int)
         self._x = x.flatten()
         self._xrange = xrange
         self.isfloat = image.isfloat
@@ -976,7 +1062,7 @@ class Histogram:
             >>> import numpy as np
             >>> hist = Image.Read('flowers1.png').hist()
             >>> with np.printoptions(threshold=10):
-            >>>     hist.x
+            ...     hist.x
         """
         return self._x
 
@@ -987,6 +1073,8 @@ class Histogram:
 
         :return: array of histogram count values
         :rtype: ndarray(N) or ndarray(N,P)
+
+        This is the raw histogram count, which is the number of pixels in the image plane with grey values equal to the index of the bin.
 
         For a greyscale image this is a 1D array, for a multiplane (color) image
         this is a 2D array with the histograms of each plane as columns.
@@ -999,17 +1087,21 @@ class Histogram:
             >>> import numpy as np
             >>> hist = Image.Read('flowers1.png').hist()
             >>> with np.printoptions(threshold=10):
-            >>>     hist.h
+            ...     hist.h
+
+        :seealso: :meth:`pdf` :meth:`cf` :meth:`cdf`
         """
         return self._h
 
     @property
-    def cdf(self) -> np.ndarray:
+    def pdf(self) -> np.ndarray:
         """
-        Cumulative histogram values
+        Empirical probability density function (PDF)
 
         :return: array of cumulative histogram count values
         :rtype: ndarray(N) or ndarray(N,P)
+
+        This the histogram count normalized such that the sum is 1.0.  This is computed by dividing the histogram counts by the total number of pixels in each plane.
 
         For a greyscale image this is a 1D array, for a multiplane (color) image
         this is a 2D array with the cumulative histograms of each plane as columns.
@@ -1022,17 +1114,57 @@ class Histogram:
             >>> import numpy as np
             >>> hist = Image.Read('flowers1.png').hist()
             >>> with np.printoptions(threshold=10):
-            >>>     hist.cdf
+            ...     hist.pdf
+
+        :seealso: :meth:`h` :meth:`cf` :meth:`cdf`
+        """
+        y = self._h.astype(float)
+        sum = np.sum(y, axis=0)
+        if self.nplanes == 1:
+            y = y / sum
+        else:
+            y = y / sum[np.newaxis, :]
+        return y
+
+    @property
+    def cf(self) -> np.ndarray:
+        """
+        Cumulative histogram count values
+
+        :return: array of cumulative histogram count values
+        :rtype: ndarray(N) or ndarray(N,P)
+
+        This the cumulative histogram count, which increases from 0 to the total number of pixels in the image plane.
+
+        For a greyscale image this is a 1D array, for a multiplane (color) image
+        this is a 2D array with the cumulative histograms of each plane as columns.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> import numpy as np
+            >>> hist = Image.Read('flowers1.png').hist()
+            >>> with np.printoptions(threshold=10):
+            ...     hist.cf
+
+        .. versionchanged:: 2.0.0
+            In earlier releases this method was named ``cdf``.
+
+        :seealso: :meth:`h` :meth:`pdf` :meth:`cdf`
         """
         return np.cumsum(self._h, axis=0)
 
     @property
-    def ncdf(self) -> np.ndarray:
+    def cdf(self) -> np.ndarray:
         """
-        Normalized cumulative histogram values
+        Cumulative distribution function
 
         :return: array of normalized cumulative histogram count values
         :rtype: ndarray(N) or ndarray(N,P)
+
+        The cdf is the cumulative frequency normalized to the range 0 to 1.  This is computed by dividing the cumulative frequency by the total number of pixels in each plane.
 
         For a greyscale image this is a 1D array, for a multiplane (color) image
         this is a 2D array with the normalized cumulative histograms of each
@@ -1046,7 +1178,12 @@ class Histogram:
             >>> import numpy as np
             >>> hist = Image.Read('flowers1.png').hist()
             >>> with np.printoptions(threshold=10):
-            >>>     hist.ncdf
+            ...    hist.cdf
+
+        .. versionchanged:: 2.0.0
+            In earlier releases this method was named ``ncdf``.
+
+        :seealso: :meth:`h` :meth:`pdf` :meth:`cf`
         """
         y = np.cumsum(self._h, axis=0)
 
@@ -1055,6 +1192,19 @@ class Histogram:
         else:
             y = y / y[-1, :]
         return y
+
+    @property
+    def ncdf(self) -> np.ndarray:
+        """
+        Normalized cumulative distribution function
+
+        :return: ``cdf`` is the normalised cumulative histogram values
+        :rtype: ndarray(N) or ndarray(N,P)
+
+        .. deprecated:: 2.0.0
+            Use ``hist().cdf`` instead.
+        """
+        return self.cdf
 
     def plot(
         self,
@@ -1067,6 +1217,8 @@ class Histogram:
         alpha=0.5,
         title=None,
         log=False,
+        samescale=True,
+        ax=None,
         bar=None,
         **kwargs,
     ):
@@ -1093,6 +1245,11 @@ class Histogram:
         :type title: str, optional
         :param log: use logarithmic y-axis, defaults to False
         :type log: bool, optional
+        :param samescale: synchronize the y-axis scale for all subplots, defaults to True
+        :type samescale: bool, optional
+        :param ax: Matplotlib axes to plot on, defaults to None (new figure)
+        :type ax: matplotlib.axes.Axes, optional
+        :param bar: deprecated alias for ``filled``, use ``filled=`` instead
         :param kwargs: additional keyword arguments passed to Matplotlib plotting functions, ``plt.stairs`` for ``solid=True`` and ``plt.plot`` for ``solid=False``, and ``plt.Polygon`` for ``style='overlay'``
         :raises ValueError: invalid histogram type
         :raises ValueError: cannot use overlay style for 1-channel histogram
@@ -1105,13 +1262,68 @@ class Histogram:
 
         - ``stack``: plot each plane in a separate subplot. The ``cursor`` option
           enables an interactive data cursor which displays the histogram values at the
-          cursor position.  The ``filled`` option selects whether to use a filled stairs plot.
+          cursor position.  The ``filled`` option selects whether to use a filled stairs
+          plot.
         - ``overlay``: plot all planes in the same axes with different colors. The
-          ``alpha`` option controls the transparency of the bars in the ''overlay''
-          style.
+          ``filled`` option selects whether to use a filled plot. The ``alpha`` option
+          controls the transparency of the bars in the ''overlay'' style.
+
+        ``samescale`` controls whether the y-axis scale is the same for all planes (if
+        False, each plane is scaled independently).  By default, the y-axis scale is the
+        same for all planes, which allows for direct comparison of histogram values
+        across planes.
 
         The ``log`` option uses a logarithmic scale for the y-axis, which can be useful
         for visualizing histograms with a large dynamic range, zero values are ignored in log plots.
+
+        If ``ax`` is provided, the histogram is plotted on the given Matplotlib axes.
+        For multi-plane histograms the ``style`` is overridden to 'overlay' since all
+        the plots must be on one axes.   If ``ax`` is not provided, a new figure and
+        axes are created.
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read('street.png')
+            >>> hist = im.hist()
+            >>> print(hist)
+            >>> hist.plot() # standard frequency plot
+            >>> hist.plot(type='cdf') # CDF plot
+
+        .. plot::
+
+            from machinevisiontoolbox import Image
+            im = Image.Read('street.png')
+            hist = im.hist()
+            hist.plot() # standard frequency plot
+
+        .. plot::
+
+            from machinevisiontoolbox import Image
+            im = Image.Read('street.png')
+            hist = im.hist()
+            hist.plot(type='cdf') # CDF plot
+
+        For multi-plane (color) images, the histograms of each plane can be plotted separately in stacked subplots or overlaid on the same axes.
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read('flowers1.png')
+            >>> im.hist().plot(style='stack', filled=True)
+            >>> im.hist().plot(style='overlay', filled=True, alpha=0.5)
+
+        .. plot::
+
+            from machinevisiontoolbox import Image
+            im = Image.Read('flowers1.png')
+            im.hist().plot(style='stack', filled=True)
+
+        .. plot::
+
+            from machinevisiontoolbox import Image
+            im = Image.Read('flowers1.png')
+            im.hist().plot(style='overlay', filled=True, alpha=0.5)
 
         """
 
@@ -1128,28 +1340,61 @@ class Histogram:
             if filled is None:
                 filled = bar
 
+        if type not in ("frequency", "pdf"):
+            stats = False  # only show stats for frequency and pdf plot
+
+        if ax is not None and self.nplanes > 1:
+            # if an axis is provided, we must plot all planes on the same axis
+            style = "overlay"
+
+        if style == "overlay":
+            # for overlay style, we use the same y-axis scale for all planes
+            samescale = True
+
+        # figure vertical axis labels and scaling based on histogram type
         if type == "frequency":
             y = self.h
-            maxy = np.max(y)
+            if samescale:
+                maxy = np.max(y)
+            else:
+                maxy = np.max(y, axis=0)
             ylabel1 = "frequency"
             ylabel2 = "frequency"
             if filled is None:
                 filled = True
-        elif type in ("cdf", "cumulative"):
-            y = self.cdf
-            maxy = np.max(y[-1, :])
+        elif type in ("pdf", "probability"):
+            y = self.pdf
+            if samescale:
+                maxy = np.max(y)
+            else:
+                maxy = np.max(y, axis=0)
+            ylabel1 = "PDF"
+            ylabel2 = "probability density"
+        elif type in ("cf", "cumulative"):
+            y = self.cf
+            maxy = y[
+                -1, 0
+            ]  # last row values are all the same, total number of pixels in plane
             ylabel1 = "cumulative frequency"
             ylabel2 = "cumulative frequency"
-        elif type in ("ncdf", "normalized"):
-            y = self.ncdf
-            ylabel1 = "norm. cumulative freq."
-            ylabel2 = "normalized cumulative frequency"
+        elif type in ("cdf", "normalized"):
+            y = self.cdf
             maxy = 1
+            ylabel1 = "CDF"
+            ylabel2 = "normalized cumulative frequency"
         else:
             raise ValueError("unknown type")
 
         if self.nplanes == 1:
             y = y[..., np.newaxis]
+
+        if style == "stack":
+            # Ensure one y-limit per plotted plane, even if maxy is a NumPy scalar.
+            maxy_arr = np.asarray(maxy)
+            if maxy_arr.ndim == 0:
+                maxy = np.repeat(float(maxy_arr), self.nplanes)
+            else:
+                maxy = maxy_arr.reshape(-1)
 
         hist_counts = self.h
         if self.nplanes == 1:
@@ -1187,7 +1432,14 @@ class Histogram:
             raise ValueError("cannot use overlay style for sorted histogram")
 
         if style == "stack":
-            fig, axes = plt.subplots(n, 1)
+            # ------------------------------------------------------------------------
+            #  stack style plots each plane in a separate subplot
+            # ------------------------------------------------------------------------
+            if ax is None:
+                # axes are passed in, can only handle
+                fig, axes = plt.subplots(n, 1)
+            else:
+                axes = ax
             axes = np.atleast_1d(axes)
             for i, ax in enumerate(axes):
                 bin_width = x[1] - x[0]
@@ -1200,7 +1452,7 @@ class Histogram:
                 else:
                     ax.set_ylabel(ylabel1 + " (" + colors[i] + ")")
                 ax.set_xlim(*xrange)
-                ax.set_ylim(0, maxy)
+                ax.set_ylim(0, maxy[i])
                 ax.yaxis.set_major_formatter(
                     ScalarFormatter(useOffset=False, useMathText=True)
                 )
@@ -1227,6 +1479,9 @@ class Histogram:
             axes[-1].set_xlabel(xlabel)
 
             if cursor:
+                # ------------------------------------------------------------------------
+                #  add a data picking cursor to the stacked line plot
+                # ------------------------------------------------------------------------
                 x_interp = np.asarray(x, dtype=float)
                 xpad = 0.01 * (x_interp[-1] - x_interp[0])
 
@@ -1284,7 +1539,10 @@ class Histogram:
                         vline.set_xdata([xv, xv])
                         marker.set_data([xv], [yv])
                         label.set_position((xv + xpad, yv))
-                        label.set_text(f"{yv:.3g}")
+                        if np.isdtype(self._x.dtype, "integral"):
+                            label.set_text(f"({xv:.0f}, {yv:.3g})")
+                        else:
+                            label.set_text(f"({xv:.3g}, {yv:.3g})")
                         vline.set_visible(True)
                         marker.set_visible(True)
                         label.set_visible(True)
@@ -1294,6 +1552,9 @@ class Histogram:
                 fig.canvas.mpl_connect("motion_notify_event", on_move)
 
         elif style == "overlay":
+            # ------------------------------------------------------------------------
+            #  overlay style plots each plane in the same subplot
+            # ------------------------------------------------------------------------
             x = np.r_[xrange[0], x, xrange[1]]
             _, ax = plt.subplots(1, 1)
 
@@ -1310,18 +1571,22 @@ class Histogram:
                     else:
                         patchcolor.append(goodcolors.pop(0))
 
-            for i in range(n):
-                yi = np.r_[0, y[:, i], 0]
-                p1 = np.array([x, yi]).T
-                poly1 = Polygon(
-                    p1,
-                    closed=True,
-                    facecolor=patchcolor[i],
-                    alpha=alpha,
-                    label=colors[i],
-                    **kwargs,
-                )
-                ax.add_patch(poly1)
+            if filled:
+                for i in range(n):
+                    yi = np.r_[0, y[:, i], 0]
+                    p1 = np.array([x, yi]).T
+                    poly1 = Polygon(
+                        p1,
+                        closed=True,
+                        facecolor=patchcolor[i],
+                        alpha=alpha,
+                        label=colors[i],
+                        **kwargs,
+                    )
+                    ax.add_patch(poly1)
+            else:
+                for i in range(n):
+                    ax.plot(x, np.r_[0, y[:, i], 0], color=patchcolor[i], **kwargs)
 
             if stats:
                 mean, median = plane_stats(np.sum(hist_counts, axis=1))
@@ -1362,7 +1627,7 @@ class Histogram:
         safe_plt_show(block=block)
 
     def peaks(self, **kwargs: Any) -> np.ndarray | list[np.ndarray]:
-        """
+        r"""
         Histogram peaks
 
         :param kwargs: parameters passed to :func:`~machinevisiontoolbox.base.findpeaks.findpeaks`
@@ -1378,9 +1643,19 @@ class Histogram:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> import numpy as np
             >>> hist = Image.Read('street.png').hist()
             >>> hist.peaks(scale=20)
+
+        .. plot::
+
+            from machinevisiontoolbox import Image
+            hist = Image.Read('street.png').hist()
+            x = hist.peaks(scale=20)
+            idx = np.searchsorted(hist.x, x)
+            idx = np.clip(idx, 0, len(hist.x) - 1)
+            plt.plot(x, hist.h[idx], 'ko', markersize=10)
+
+        Note the first peak (at 8) is excluded because the maxima window ($x \pm 20$) extends outside the histogram range.
 
         :seealso: :func:`~machinevisiontoolbox.base.findpeaks.findpeaks`
         """
