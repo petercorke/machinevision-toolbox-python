@@ -44,7 +44,7 @@ from spatialmath import Polygon2
 from machinevisiontoolbox.ImageCore import Image
 from machinevisiontoolbox.PointCloud import PointCloud
 from machinevisiontoolbox.base import mvtb_path_to_datafile
-from machinevisiontoolbox.base.imageio import convert, iread, iread_iter
+from machinevisiontoolbox.base.imageio import convert, iread, iread_iter, safe_plt_show
 
 try:
     from rosbags.rosbag1 import Reader as _RosBagReader1
@@ -327,7 +327,16 @@ class ImageSource(ABC):
             animate = True
 
         if animate:
-            state = {"fps": fps, "paused": False, "quit": False}
+            source_fps = getattr(self, "fps", None)
+            if fps is None:
+                if source_fps is None:
+                    playback_fps = 10.0
+                else:
+                    playback_fps = max(1.0, float(source_fps))
+            else:
+                playback_fps = max(1.0, float(fps))
+
+            state = {"fps": playback_fps, "paused": False, "quit": False}
 
             def on_key(event, s=state):
                 if event.key in ("q", "x"):
@@ -361,6 +370,9 @@ class ImageSource(ABC):
                     ax = fig.add_subplot(111)
                     fig.canvas.mpl_connect("key_press_event", on_key)
                     ts_text = _make_overlay(fig)
+                    # Ensure the GUI window is realized before playback starts.
+                    safe_plt_show(block=False)
+                    plt.pause(0.001)
                     print(
                         "\nKeys: [space] pause/resume  [+] faster  [-] slower  [q/x] quit"
                     )
@@ -373,7 +385,7 @@ class ImageSource(ABC):
 
             if fig is not None:
                 if not state["quit"]:
-                    plt.show(block=True)
+                    safe_plt_show(block=True)
                 plt.close(fig)
 
         else:

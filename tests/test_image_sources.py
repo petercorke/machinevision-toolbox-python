@@ -188,6 +188,57 @@ class TestImageSources(unittest.TestCase):
             zf = ZipArchive("bridge-l.zip")
         self.assertEqual(len(zf), 253)
 
+    def test_imagesource_disp_animate_default_fps_is_numeric(self):
+        """Animate mode without explicit fps uses a numeric playback rate."""
+
+        class _DummyFrame:
+            def __init__(self) -> None:
+                self.calls: list[dict[str, object]] = []
+
+            def disp(self, **kwargs):
+                self.calls.append(kwargs)
+
+        class _FakeText:
+            def set_text(self, _text: str) -> None:
+                pass
+
+        class _FakeCanvas:
+            def mpl_connect(self, *_args, **_kwargs) -> int:
+                return 1
+
+        class _FakeFigure:
+            def __init__(self) -> None:
+                self.canvas = _FakeCanvas()
+
+            def add_subplot(self, *_args, **_kwargs):
+                return object()
+
+            def text(self, *_args, **_kwargs):
+                return _FakeText()
+
+        frames = [_DummyFrame(), _DummyFrame(), _DummyFrame()]
+        seq = sources.ImageSequence(frames)
+
+        fake_fig = _FakeFigure()
+        with (
+            patch("matplotlib.pyplot.figure", return_value=fake_fig),
+            patch("matplotlib.pyplot.pause", return_value=None),
+            patch("matplotlib.pyplot.close", return_value=None),
+            patch("machinevisiontoolbox.Sources.safe_plt_show") as mock_show,
+        ):
+            seq.disp(animate=True, title="test")
+
+        for frame in frames:
+            self.assertEqual(len(frame.calls), 1)
+            fps = frame.calls[0].get("fps")
+            self.assertIsInstance(fps, float)
+            assert isinstance(fps, float)
+            self.assertGreater(fps, 0.0)
+            self.assertEqual(fps, 10.0)
+
+        mock_show.assert_any_call(block=False)
+        mock_show.assert_any_call(block=True)
+
 
 class TestZipArchiveFormats(unittest.TestCase):
 
