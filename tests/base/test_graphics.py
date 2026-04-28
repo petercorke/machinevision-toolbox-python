@@ -296,6 +296,14 @@ class TestBlobs(unittest.TestCase):
             linewidth=2,
             position="bottomright",
         )
+        plot_labelbox(
+            "Middle",
+            lrbt=[400, 600, 400, 600],
+            textcolor="red",
+            labelcolor="blue",
+            fmt="y--",
+            position="bottomright",
+        )
 
     def test_draw_point(self):
         img = np.zeros((1000, 1000), dtype="uint8")

@@ -286,6 +286,7 @@ def draw_box(
 
 def plot_labelbox(
     text: str,
+    fmt: str | None = None,
     textcolor: Any = None,
     labelcolor: Any = None,
     position: str = "topleft",
@@ -296,6 +297,8 @@ def plot_labelbox(
 
     :param text: text label
     :type text: str
+    :param fmt: format string for the simply specifying the box edge style, eg. ``"y--"`` for a dashed yellow box
+    :type fmt: str, optional
     :param textcolor: text color, defaults to None
     :type textcolor: str, array_like(3), optional
     :param labelcolor: label background color
@@ -336,8 +339,11 @@ def plot_labelbox(
 
     :seealso: :func:`~spatialmath.base.plot_box`, :func:`~spatialmath.base.plot_text`
     """
-
-    rect = smb.plot_box(**boxargs)
+    if fmt is None:
+        args = []
+    else:
+        args = [fmt]
+    rect = smb.plot_box(*args, **boxargs)
 
     bbox = rect.get_bbox()
 
