@@ -16,10 +16,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipy as sp
 from ansitable import ANSITable, Column
-from spatialmath import SE2, base
-from spatialmath.base import isscalar, plot_box, plot_point, plot_polygon
+from spatialmath import SE2
+import spatialmath.base as smb
 
-from machinevisiontoolbox.base import plot_labelbox
+from machinevisiontoolbox.base import plot_labelbox, mpl_styling
 from machinevisiontoolbox.decorators import array_result, scalar_result
 
 """
@@ -595,7 +595,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         if area is not None:
             _area = self.area
-            if isscalar(area):
+            if smb.isscalar(area):
                 mask.append(_area >= area)
             elif len(area) == 2:
                 mask.append(_area >= area[0])
@@ -603,7 +603,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         if circularity is not None:
             _circularity = self.circularity
-            if isscalar(circularity):
+            if smb.isscalar(circularity):
                 mask.append(_circularity >= circularity)
             elif len(circularity) == 2:
                 mask.append(_circularity >= circularity[0])
@@ -611,9 +611,9 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         if aspect is not None:
             _aspect = self.aspect
-            if isscalar(aspect):
+            if smb.isscalar(aspect):
                 mask.append(_aspect >= aspect)
-            elif len(circularity) == 2:
+            elif len(aspect) == 2:
                 mask.append(_aspect >= aspect[0])
                 mask.append(_aspect <= aspect[1])
 
@@ -1649,7 +1649,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             im = Image.Read("shark2.png")
             im.disp(darken=True)
             blobs = im.blobs()
-            blobs.plot_MEC('y')
+            blobs.plot_MEC(color='y')
 
         :seealso: :meth:`plot_MEC` :meth:`MER` `cv2.minEnclosingCircle <https://docs.opencv.org/4.x/d3/dc0/group__imgproc__shape.html#ga8ce13c24081bbc7151e9326f412190f1>`_
         """
@@ -1687,7 +1687,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             im = Image.Read("shark2.png")
             im.disp(darken=True)
             blobs = im.blobs()
-            blobs.plot_MER('y')
+            blobs.plot_MER(color='y')
 
         :seealso: :meth:`plot_MER` :meth:`MEC`  `cv2.minAreaRect <https://docs.opencv.org/4.x/d3/dc0/group__imgproc__shape.html#ga3d476a3417130ae5154aea421ca7ead9>`_
         """
@@ -1720,7 +1720,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> im = Image.Read('shark2.png')
             >>> blobs = im.blobs()
             >>> p = blobs[0].polar()
-            >>> p.shape
+            >>> p[0].shape
 
         .. note:: The points are evenly spaced around the perimeter but are
             not evenly spaced in subtended angle.
@@ -1788,7 +1788,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         R = []
         for i in range(len(self)):
             # get the radius profile
-            r = self[i].polar()[0, :]
+            r, _ = self[i].polar()
             # normalize to zero mean and unit variance
             r -= r.mean()
             r /= np.std(r)
@@ -1804,10 +1804,11 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         idx = np.argmax(out, axis=1)
         return [out[k, idx[k]] for k in range(len(self))], idx / n
 
-    def plot_box(self, **kwargs: Any) -> None:
+    def plot_box(self, *args, **kwargs: Any) -> None:
         """
         Plot a bounding box for the blob using Matplotlib
 
+        :param arg:
         :param kwargs: arguments passed to ``plot_box``
 
         Plot the bounding box of a blob or blobs on the current Matplotlib axes.
@@ -1817,7 +1818,13 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> from machinevisiontoolbox import Image
             >>> im = Image.Read("sharks.png")
             >>> blobs = im.blobs()
-            >>> blobs[:3].plot_box(color="g")
+            >>> blobs.plot_box(color="yellow") # solid yellow box for all blobs
+
+        Example:
+
+            >>> blobs[0].plot_box('b--') # blue dashed box
+            >>> blobs[1].plot_box(color="blue", linestyle="--") # blue dashed box
+            >>> blobs[2].plot_box(color="g") # solid green box
             >>> blobs[3].plot_box(color="r", linewidth=4)
 
         .. plot::
@@ -1827,24 +1834,30 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             im = Image.Read("sharks.png")
             im.disp()
             blobs = im.blobs()
-            blobs[:3].plot_box(color='g')
-            blobs[3].plot_box(color='r', linewidth=4)
+            blobs[0].plot_box('b--') # blue dashed box
+            blobs[1].plot_box(color="blue", linestyle="--") # blue dashed box
+            blobs[2].plot_box(color="g") # solid green box
+            blobs[3].plot_box(color="r", linewidth=4)
 
         :seealso: :meth:`plot_labelbox` :meth:`plot_centroid` :meth:`plot_perimeter` :func:`~machinevisiontoolbox.base.graphics.plot_box`
         """
-
+        options = mpl_styling(args, dict(color="yellow", linewidth=2), kwargs)
         for blob in self:
-            plot_box(lrbt=blob.bbox, **kwargs)
+            smb.plot_box(lrbt=blob.bbox, **options)
 
-    def plot_labelbox(self, label: str | None = None, **kwargs: Any) -> None:
+    def plot_labelbox(self, fmt=None, label: str = "{:d}", **kwargs: Any) -> None:
         """
         Plot a labelled bounding box of blobs using Matplotlib
 
         :param label: label to be displayed on the bounding box, defaults to blob id
-        :type label: str, optional
+        :type label: str or bool, optional
         :param kwargs: arguments passed to ``plot_labelbox``
 
         Plot a labelled bounding box for every blob described by this object.
+
+        By default the label is the blob id, but a custom label can be provided by
+        setting ``label`` to a string with a single format field, e.g. ``"Blob {:d}"``.
+        Setting ``label`` to ``True`` is the same as the default.
 
         By default, blobs are labeled by their blob id.
 
@@ -1860,23 +1873,21 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
             from machinevisiontoolbox import Image
 
-            im = Image.Read("sharks.png")
-            im.disp()
-            blobs = im.blobs()
+            im = Image.Read("sharks.png") im.disp() blobs = im.blobs()
             blobs[:3].plot_labelbox(color="yellow")
             blobs[3].plot_labelbox(color="lightblue", linewidth=2, label="3")
 
-        :seealso: :meth:`plot_box` :meth:`plot_centroid` :meth:`plot_perimeter` :func:`~machinevisiontoolbox.base.graphics.plot_labelbox`
+        :seealso: :meth:`plot_box` :meth:`plot_centroid` :meth:`plot_perimeter`
+            :func:`~machinevisiontoolbox.base.graphics.plot_labelbox`
         """
-
+        options = mpl_styling(fmt, dict(color="yellow", linewidth=2), kwargs)
+        print(options)
         for blob in self:
-            if label is None:
-                text = f"{blob.id}"
-            else:
-                text = label
-            plot_labelbox(text=text, lrbt=blob.bbox, **kwargs)
+            plot_labelbox(
+                text=label.format(blob.id), fmt=fmt, lrbt=blob.bbox, **options
+            )
 
-    def plot_centroid(self, label: bool = False, **kwargs: Any) -> None:
+    def plot_centroid(self, *args, label: bool = False, **kwargs: Any) -> None:
         """
         Plot the centroid of blobs using Matplotlib
 
@@ -1894,7 +1905,11 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> from machinevisiontoolbox import Image
             >>> im = Image.Read("sharks.png")
             >>> blobs = im.blobs()
-            >>> blobs[:3].plot_centroid()
+            >>> blobs.plot_centroid(label=True)  # default blue "o" and "x" with blob id for all blobs
+            >>>
+            >>> blobs[0].plot_centroid()  # default blue "o" and "x"
+            >>> blobs[1].plot_centroid('rd', label=True) # red diamond with label
+            >>> blobs[2].plot_centroid(marker="x", color="red") # red "x"
             >>> blobs[3].plot_centroid(marker="P", markeredgecolor="lightsteelblue", markerfacecolor="w", fillstyle="full")
 
         .. plot::
@@ -1904,9 +1919,10 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             im = Image.Read("sharks.png")
             im.disp()
             blobs = im.blobs()
-            blobs[:3].plot_centroid()
-            blobs[3].plot_centroid(marker="P", markeredgecolor="red", markerfacecolor="w", fillstyle="full")
-
+            blobs[0].plot_centroid()  # default blue "o" and "x"
+            blobs[1].plot_centroid('rd', label=True) # red diamond with label
+            blobs[2].plot_centroid(marker="x", color="red") # red "x"
+            blobs[3].plot_centroid(marker="P", markeredgecolor="lightsteelblue", markerfacecolor="w", fillstyle="full")
         :seealso: :meth:`plot_box` :meth:`plot_perimeter` :func:`~machinevisiontoolbox.base.graphics.plot_point`
         """
         if label:
@@ -1914,14 +1930,18 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         else:
             text = ""
 
-        if "marker" not in kwargs:
+        if len(args) > 0:
+            kwargs["marker"] = args[0]
+        elif "marker" not in kwargs:
             kwargs["marker"] = ["bx", "bo"]
             kwargs["fillstyle"] = "none"
+
         for i, blob in enumerate(self):
-            plot_point(pos=blob.centroid, text=text.format(i), **kwargs)
+            smb.plot_point(pos=blob.centroid, text=text.format(i), **kwargs)
 
     def plot_perimeter(
         self,
+        *args,
         show: str = "full",
         epsilon: int | None = None,
         clockwise: bool = True,
@@ -1945,7 +1965,11 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> from machinevisiontoolbox import Image
             >>> im = Image.Read("sharks.png")
             >>> blobs = im.blobs()
-            >>> blobs[:3].plot_perimeter(color="red")
+            >>> blob.plot_perimeter() # perimeters for all blobs, different colors
+            >>>
+            >>> blobs[0].plot_perimeter("c--") # cyan dashed line
+            >>> blobs[1].plot_perimeter(color="cyan", linestyle="--") # cyan dashed line
+            >>> blobs[2].plot_perimeter(color="red")
             >>> blobs[3].plot_perimeter(show="hull", color="orange", linewidth=3)
 
         .. plot::
@@ -1955,11 +1979,15 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             im = Image.Read("sharks.png")
             im.disp()
             blobs = im.blobs()
-            blobs[:3].plot_perimeter(color="red")
+            blobs[0].plot_perimeter("c--") # cyan dashed line
+            blobs[1].plot_perimeter(color="cyan", linestyle="--") # cyan dashed line
+            blobs[2].plot_perimeter(color="red")
             blobs[3].plot_perimeter(show="hull", color="orange", linewidth=3)
 
         :seealso: :meth:`perimeter` :meth:`perimeter_approx` :meth:`perimeter_hull` :meth:`plot_box` :meth:`plot_centroid`
         """
+        options = mpl_styling(args, dict(color="yellow", linewidth=2), kwargs)
+
         if show == "full":
             perims = self.perimeter
         elif show == "approx":
@@ -1972,9 +2000,9 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         if not isinstance(perims, list):
             perims = [perims]
         for perim in perims:
-            plt.plot(perim[0], perim[1], **kwargs)
+            plt.plot(perim[0], perim[1], **options)
 
-    def plot_ellipse(self, **kwargs: Any) -> None:
+    def plot_ellipse(self, *args, **kwargs: Any) -> None:
         """
         Plot the equivalent ellipses of blobs using Matplotlib
 
@@ -1988,8 +2016,12 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> from machinevisiontoolbox import Image
             >>> im = Image.Read("sharks.png")
             >>> blobs = im.blobs()
-            >>> blobs[:3].plot_ellipse(color="yellow")
-            >>> blobs[3].plot_ellipse(color="green", linestyle="--", linewidth=3)
+            >>> blobs.plot_ellipse() # ellipses for all blobs, different colors
+            >>>
+            >>> blobs[0].plot_ellipse("c--") # cyan dashed line
+            >>> blobs[1].plot_ellipse(color="cyan", linestyle="--") # cyan dashed line
+            >>> blobs[2].plot_ellipse(color="red")
+            >>> blobs[3].plot_ellipse(color="orange", linewidth=3)
 
         .. plot::
 
@@ -1998,11 +2030,15 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             im = Image.Read("sharks.png")
             im.disp()
             blobs = im.blobs()
-            blobs[:3].plot_ellipse(color="yellow")
-            blobs[3].plot_ellipse(color="green", linestyle="--", linewidth=3)
+            blobs[0].plot_ellipse("c--") # cyan dashed line
+            blobs[1].plot_ellipse(color="cyan", linestyle="--") # cyan dashed line
+            blobs[2].plot_ellipse(color="red")
+            blobs[3].plot_ellipse(color="orange", linewidth=3)
 
         :seealso: :meth:`plot_axes` :meth:`plot_box` :meth:`plot_centroid` :func:`~spatialmath.base.plot_ellipse`
         """
+        options = mpl_styling(args, dict(color="cyan", linewidth=2), kwargs)
+
         for blob in self:
             m = blob.moments
             # fmt: off
@@ -2010,9 +2046,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
                 [m.mu20, m.mu11], 
                 [m.mu11, m.mu02]])
             # fmt: on
-            base.plot_ellipse(
-                4 * J / m.m00, centre=blob.centroid, inverted=True, **kwargs
-            )
+            smb.plot_ellipse(4 * J / m.m00, blob.centroid, inverted=True, **options)
 
     def blob_frame(self) -> SE2:
         """
@@ -2041,7 +2075,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             frames.append(SE2(blob.uc, blob.vc, blob.orientation))
         return frames
 
-    def plot_axes(self, **kwargs: Any) -> None:
+    def plot_axes(self, *args, **kwargs: Any) -> None:
         """
         Plot equivalent ellipse axes of blobs using Matplotlib
 
@@ -2056,8 +2090,12 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> from machinevisiontoolbox import Image
             >>> im = Image.Read("sharks.png")
             >>> blobs = im.blobs()
-            >>> blobs[:3].plot_axes(color="blue")
-            >>> blobs[3].plot_axes(color="green", linewidth=3)
+            >>> blobs.plot_axes() # axes for all blobs, different colors
+            >>>
+            >>> blobs[0].plot_axes("c--") # cyan dashed line
+            >>> blobs[1].plot_axes(color="cyan", linestyle="--") # cyan dashed line
+            >>> blobs[2].plot_axes(color="red")
+            >>> blobs[3].plot_axes(color="orange", linewidth=3)
 
         .. plot::
 
@@ -2066,11 +2104,16 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             im = Image.Read("sharks.png")
             im.disp()
             blobs = im.blobs()
-            blobs[:3].plot_axes(color="blue")
-            blobs[3].plot_axes(color="green", linewidth=3)
+            blobs[0].plot_axes("c--") # cyan dashed line
+            blobs[1].plot_axes(color="cyan", linestyle="--") # cyan dashed line
+            blobs[2].plot_axes(color="red")
+            blobs[3].plot_axes(color="orange", linewidth=3)
 
         :seealso: :meth:`plot_ellipse` :meth:`plot_box` :meth:`plot_centroid`
         """
+        a_options = mpl_styling(args, dict(color="red", linewidth=2), kwargs)
+        b_options = mpl_styling(args, dict(color="green", linewidth=2), kwargs)
+
         for blob in self:
             T = SE2(blob.uc, blob.vc, blob.orientation)
             # fmt: off
@@ -2088,10 +2131,10 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             )
             # fmt: on
             p = np.asarray(T * a_axis)
-            plt.plot(p[0, :], p[1, :], **kwargs)
+            plt.plot(p[0, :], p[1, :], **a_options)
 
             p = np.asarray(T * b_axis)
-            plt.plot(p[0, :], p[1, :], **kwargs)
+            plt.plot(p[0, :], p[1, :], **b_options)
 
     @array_result
     def aligned_box(self) -> Any:
@@ -2115,12 +2158,6 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> blobs = im.blobs()
             >>> blobs[0].aligned_box()  # downward shark
 
-        .. plot::
-
-            from machinevisiontoolbox import Image
-
-            im = Image.Read("sharks.png")
-            im.disp()
 
         :seealso: :meth:`plot_aligned_box` :meth:`plot_axes` :meth:`plot_box` :meth:`plot_centroid`
         """
@@ -2148,7 +2185,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         return boxes
 
-    def plot_aligned_box(self, **kwargs: Any) -> None:
+    def plot_aligned_box(self, *args, **kwargs: Any) -> None:
         """
         Plot aligned rectangles of blobs using Matplotlib
 
@@ -2164,8 +2201,12 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> from machinevisiontoolbox import Image
             >>> im = Image.Read("sharks.png")
             >>> blobs = im.blobs()
-            >>> blobs[:3].plot_aligned_box(color="red")
-            >>> blobs[3].plot_aligned_box(color="yellow", linestyle="--", linewidth=3)
+            >>> blobs.plot_aligned_box() # aligned boxes for all blobs, different colors
+            >>>
+            >>> blobs[0].plot_aligned_box("c--") # cyan dashed line
+            >>> blobs[1].plot_aligned_box(color="cyan", linestyle="--") # cyan dashed line
+            >>> blobs[2].plot_aligned_box(color="red")
+            >>> blobs[3].plot_aligned_box(color="orange", linewidth=3)
 
         .. plot::
 
@@ -2174,18 +2215,22 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             im = Image.Read("sharks.png")
             im.disp()
             blobs = im.blobs()
-            blobs[:3].plot_aligned_box(color="red")
-            blobs[3].plot_aligned_box(color="yellow", linestyle="--", linewidth=3)
+            blobs[0].plot_aligned_box("c--") # cyan dashed line
+            blobs[1].plot_aligned_box(color="cyan", linestyle="--") # cyan dashed line
+            blobs[2].plot_aligned_box(color="red")
+            blobs[3].plot_aligned_box(color="orange", linewidth=3)
 
         :seealso: :meth:`plot_box` :meth:`plot_MER`:meth:`plot_centroid`
         """
+        options = mpl_styling(args, dict(color="yellow", linewidth=2), kwargs)
+
         boxes = self.aligned_box()
         if not isinstance(boxes, list):
             boxes = [boxes]
         for box in boxes:
-            base.plot_polygon(box[2], close=True, **kwargs)
+            smb.plot_polygon(box[2], *args, close=True, **options)
 
-    def plot_MEC(self, **kwargs: Any) -> None:
+    def plot_MEC(self, *args, **kwargs: Any) -> None:
         """
         Plot minimum enclosing circles of blobs using Matplotlib
 
@@ -2199,8 +2244,12 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> from machinevisiontoolbox import Image
             >>> im = Image.Read("sharks.png")
             >>> blobs = im.blobs()
-            >>> blobs[:3].plot_MEC(color="cyan")
-            >>> blobs[3].plot_MEC(color="magenta", linestyle="--", linewidth=3)
+            >>> blobs.plot_MEC() # MEC for all blobs, different colors
+            >>>
+            >>> blobs[0].plot_MEC("c--") # cyan dashed line
+            >>> blobs[1].plot_MEC(color="cyan", linestyle="--") # cyan dashed line
+            >>> blobs[2].plot_MEC(color="red")
+            >>> blobs[3].plot_MEC(color="orange", linewidth=3)
 
         .. plot::
 
@@ -2209,18 +2258,22 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             im = Image.Read("sharks.png")
             im.disp()
             blobs = im.blobs()
-            blobs[:3].plot_MEC(color="cyan")
-            blobs[3].plot_MEC(color="magenta", linestyle="--", linewidth=3)
+            blobs[0].plot_MEC("c--") # cyan dashed line
+            blobs[1].plot_MEC(color="cyan", linestyle="--") # cyan dashed line
+            blobs[2].plot_MEC(color="red")
+            blobs[3].plot_MEC(color="orange", linewidth=3)
 
         :seealso: :meth:`MEC` :meth:`plot_MER` :meth:`plot_box` :meth:`plot_centroid`
         """
+        options = mpl_styling(args, dict(color="yellow", linewidth=2), kwargs)
+
         mecs = self.MEC
         if not isinstance(mecs, list):
             mecs = [mecs]
         for mec in mecs:
-            base.plot_circle(mec[2], mec[:2], **kwargs)
+            smb.plot_circle(mec[2], mec[:2], *args, **options)
 
-    def plot_MER(self, **kwargs: Any) -> None:
+    def plot_MER(self, *args, **kwargs: Any) -> None:
         """
         Plot minimum enclosing rectangles of blobs using Matplotlib
 
@@ -2234,8 +2287,12 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> from machinevisiontoolbox import Image
             >>> im = Image.Read("sharks.png")
             >>> blobs = im.blobs()
-            >>> blobs[:3].plot_MER(color="cyan")
-            >>> blobs[3].plot_MER(color="magenta", linestyle="--", linewidth=3)
+            >>> blobs.plot_MER() # MEC for all blobs, different colors
+            >>>
+            >>> blobs[0].plot_MER("c--") # cyan dashed line
+            >>> blobs[1].plot_MER(color="cyan", linestyle="--") # cyan dashed line
+            >>> blobs[2].plot_MER(color="red")
+            >>> blobs[3].plot_MER(color="orange", linewidth=3)
 
         .. plot::
 
@@ -2244,11 +2301,14 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             im = Image.Read("sharks.png")
             im.disp()
             blobs = im.blobs()
-            blobs[:3].plot_MER(color="cyan")
-            blobs[3].plot_MER(color="magenta", linestyle="--", linewidth=3)
+            blobs[0].plot_MER("c--") # cyan dashed line
+            blobs[1].plot_MER(color="cyan", linestyle="--") # cyan dashed line
+            blobs[2].plot_MER(color="red")
+            blobs[3].plot_MER(color="orange", linewidth=3)
 
         :seealso: :meth:`MER` :meth:`MEC` :meth:`plot_box` :meth:`plot_aligned_box` :meth:`plot_centroid`
         """
+        options = mpl_styling(args, dict(color="yellow", linewidth=2), kwargs)
 
         mers = self.MER
         if not isinstance(mers, list):
@@ -2259,7 +2319,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             box = np.array([[w, h], [w, -h], [-w, -h], [-w, h], [w, h]]).T / 2.0
             T = SE2(float(mer[0]), float(mer[1]), float(np.radians(mer[4])))
             box = np.asarray(T * box)
-            base.plot_polygon(box[:2, :], **kwargs)
+            smb.plot_polygon(box[:2, :], *args, **options)
 
     def label_image(self, image: Any = None) -> Any:
         """
