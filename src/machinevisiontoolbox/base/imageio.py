@@ -313,8 +313,9 @@ def idisp(
 
         .. code-block:: python
 
-            from machinevisiontoolbox import iread, idisp im, file =
-            iread("monalisa.png", matplotlib=False) idisp(im)
+            from machinevisiontoolbox import iread, idisp
+            im, file = iread("monalisa.png", matplotlib=False)
+            idisp(im)
 
 
     Most of the options apply to the Matplotlib case.
@@ -329,12 +330,14 @@ def idisp(
 
     .. code-block:: python
 
-        from machinevisiontoolbox import iread, idisp im, file = iread("monalisa.png")
+        from machinevisiontoolbox import iread, idisp
+        im, file = iread("monalisa.png")
         idisp(im)
 
     .. plot::
 
-        from machinevisiontoolbox import iread, idisp im, file = iread("monalisa.png")
+        from machinevisiontoolbox import iread, idisp
+        im, file = iread("monalisa.png")
         idisp(im)
 
     **Color map**
@@ -727,6 +730,8 @@ def idisp(
 
         # display the color bar
         if colorbar is not False:
+            ticks = None
+            labels = None
             cbargs = {}
             if ncolors:
                 cbargs["ticks"] = range(ncolors + 1)
