@@ -2620,7 +2620,7 @@ class Image(
                 if not isinstance(plane, int) or plane < 0 or plane >= self.nplanes:
                     raise ValueError("plane index invalid or out of range")
                 colorname = [k for k, v in self.colororder.items() if v == plane][0]
-                colororder[colorname] = plane
+                colororder[colorname] = len(colororder)
             iplanes = planes
         else:
             raise ValueError("bad plane specified")
