@@ -355,14 +355,111 @@ class TestImageWholeFeatures(unittest.TestCase):
         self.assertIn("--", linestyles)
         plt.close(fig)
 
-    # new test
+    def test_h_property(self):
+        """Test histogram property"""
+        im = Image.Random(size=(50, 50), dtype="uint8")
+        h = im.h
+        self.assertIsNotNone(h)
+        self.assertIsNotNone(h)
+        self.assertEqual(len(h), 2)
+        self.assertEqual(h[1].shape, (256,))  # x
+        self.assertEqual(h[0].shape, (256,))  # h
+
+        # sum of histogram bins should equal number of pixels
+        self.assertEqual(h[0].sum(), im.npixels)
+
+        # color
+        im = Image.Random(size=(50, 50, 3), dtype="uint8")
+        h = im.h
+        self.assertIsNotNone(h)
+        self.assertIsNotNone(h)
+        self.assertEqual(len(h), 2)
+        self.assertEqual(h[1].shape, (256,))  # x
+        self.assertEqual(h[0].shape, (256, 3))  # h
+
+        # sum of histogram bins should equal number of pixels
+        self.assertTrue(np.all(h[0].sum(axis=0) == np.array([im.npixels] * 3)))
+
+    def test_pdf_property(self):
+        """Test histogram property"""
+        im = Image.Random(size=(50, 50), dtype="uint8")
+        pdf = im.pdf
+        self.assertIsNotNone(pdf)
+        self.assertIsNotNone(pdf)
+        self.assertEqual(len(pdf), 2)
+        self.assertEqual(pdf[1].shape, (256,))  # x
+        self.assertEqual(pdf[0].shape, (256,))  # pdf
+
+        # sum of pdf bins should equal 1
+        self.assertAlmostEqual(pdf[0].sum(), 1.0)
+
+        # color
+        im = Image.Random(size=(50, 50, 3), dtype="uint8")
+        pdf = im.pdf
+        self.assertIsNotNone(pdf)
+        self.assertIsNotNone(pdf)
+        self.assertEqual(len(pdf), 2)
+        self.assertEqual(pdf[1].shape, (256,))  # x
+        self.assertEqual(pdf[0].shape, (256, 3))  # pdf
+
+        # sum of pdf bins should equal 1
+        self.assertTrue(np.allclose(pdf[0].sum(axis=0), np.array([1.0] * 3)))
+
+    def test_cf_property(self):
+        """Test cumulative frequency property"""
+        im = Image.Random(size=(50, 50), dtype="uint8")
+        cf = im.cf
+        self.assertIsNotNone(cf)
+        self.assertEqual(cf[1].shape, (256,))  # x
+        self.assertEqual(cf[0].shape, (256,))  # cdf
+
+        # CF should be monotonically increasing
+        x = cf[0]
+        self.assertTrue(np.all(np.diff(x) >= 0))
+
+        # CF should end should be total number of pixels
+        self.assertAlmostEqual(x[-1], im.npixels)
+
+        # color
+        im = Image.Random(size=(50, 50, 3), dtype="uint8")
+        cf = im.cf
+        self.assertIsNotNone(cf)
+        self.assertIsNotNone(cf)
+        self.assertEqual(len(cf), 2)
+        self.assertEqual(cf[1].shape, (256,))  # x
+        self.assertEqual(cf[0].shape, (256, 3))  # cf
+
+        # CF should end should be total number of pixels
+        x = cf[0]
+        self.assertTrue(np.all(x[-1, :] == np.array([im.npixels] * 3)))
+
     def test_cdf_property(self):
         """Test cumulative distribution function property"""
         im = Image.Random(size=(50, 50), dtype="uint8")
         cdf = im.cdf
         self.assertIsNotNone(cdf)
+        self.assertEqual(cdf[1].shape, (256,))  # x
+        self.assertEqual(cdf[0].shape, (256,))  # cdf
+
         # CDF should be monotonically increasing
-        # self.assertTrue(np.all(np.diff(cdf) >= 0))
+        x = cdf[0]
+        self.assertTrue(np.all(np.diff(x) >= 0))
+
+        # CDF should end should be 1.0
+        self.assertAlmostEqual(x[-1], 1.0)
+
+        # color
+        im = Image.Random(size=(50, 50, 3), dtype="uint8")
+        cdf = im.cdf
+        self.assertIsNotNone(cdf)
+        self.assertIsNotNone(cdf)
+        self.assertEqual(len(cdf), 2)
+        self.assertEqual(cdf[1].shape, (256,))  # x
+        self.assertEqual(cdf[0].shape, (256, 3))  # cdf
+
+        # CDF should end should be 1.0
+        x = cdf[0]
+        self.assertTrue(np.allclose(x[-1, :], np.array([1.0] * 3)))
 
     # new test
     def test_ncdf_property(self):
@@ -372,24 +469,6 @@ class TestImageWholeFeatures(unittest.TestCase):
         self.assertIsNotNone(ncdf)
         # Normalized CDF should end at 1.0
         # self.assertAlmostEqual(ncdf[-1], 1.0)
-
-    # new test
-    def test_h_property(self):
-        """Test histogram property"""
-        im = Image.Random(size=(50, 50), dtype="uint8")
-        h = im.h
-        self.assertIsNotNone(h)
-        # Histogram sum should equal number of pixels
-        # self.assertEqual(np.sum(h), im.npixels)
-
-    # new test
-    def test_x_property(self):
-        """Test histogram bins property"""
-        im = Image.Random(size=(50, 50), dtype="uint8")
-        x = im.x
-        self.assertIsNotNone(x)
-        # Should have 256 bins for uint8
-        # self.assertEqual(len(x), 256)
 
 
 if __name__ == "__main__":
