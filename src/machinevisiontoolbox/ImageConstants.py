@@ -447,6 +447,7 @@ class ImageConstantsMixin(_ImageBase if TYPE_CHECKING else object):
         colororder: str | None = None,
         dtype: Dtype = "uint8",
         maxval: int | float | None = None,
+        pdf: ndarray | None = None,
     ):
         """
         Create image with random pixel values
@@ -459,6 +460,8 @@ class ImageConstantsMixin(_ImageBase if TYPE_CHECKING else object):
         :type dtype: str or NumPy dtype, optional
         :param maxval: maximum value for random values, defaults to None
         :type maxval: same as ``dtype``, optional
+        :param pdf: probability density function for pixel values, defaults to None
+        :type pdf: 1D or 2D array_like, optional
         :return: image of random values
         :rtype: :class:`Image`
 
@@ -467,9 +470,19 @@ class ImageConstantsMixin(_ImageBase if TYPE_CHECKING else object):
         has one plane, if a 3-tuple is given the last element specifies the number of
         planes.
 
-        Creates a new image where pixels are initialized to uniformly distributed random values. For
-        an integer image the values span the range 0 to the maximum positive
-        value of the datatype.  For a floating image the values span the range 0.0 to 1.0.
+        Creates a new image where pixels are initialized to random values:
+
+          - for an integer image the values are uniformly distributed in the range 0 to
+            ``maxval``.  If ``maxval`` is not given then the values span the range 0 to
+            the maximum positive value of the datatype.  For a floating image the values
+            span the range 0.0 to 1.0.
+
+          - if ``pdf`` is given then the pixel values are drawn from the given probability
+            density function, which should be normalized to sum to 1.  If ``pdf`` is a 1D
+            array then the same pdf is used for all planes, if it is a 2D array then each
+            column gives the pdf for the corresponding plane.  This option is only
+            supported for ``uint8`` images, and if given then ``maxval`` is ignored.
+
 
         Example:
 
@@ -483,28 +496,82 @@ class ImageConstantsMixin(_ImageBase if TYPE_CHECKING else object):
             >>> img.red().print()
             >>> img = Image.Random(3, dtype='float32')
             >>> img.print
-
-        Ramps in the x, y and diagonal directions:
+            >>> Image.Random(100).disp()
 
         .. plot::
 
             from machinevisiontoolbox import Image
+
             Image.Random(100).disp()
 
+        We could, for example, create a random image with the same histogram as an existing image:
+
+        .. code-block:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read("street.png")
+            >>> h = img.hist()
+            >>> h.plot('pdf')
+            >>> img2 = Image.Random(img.size, pdf=h.pdf)
+            >>> img2.hist().plot('pdf')
+
+        .. plot::
+
+            from machinevisiontoolbox import Image
+            img = Image.Read("street.png")
+            h = img.hist()
+            img2 = Image.Random(img.size, pdf=h.pdf)
+            fig, (orig, random) = plt.subplots(1, 2, figsize=(10, 5))
+            h.plot('pdf', ax=orig)
+            img2.hist().plot('pdf', ax=random)
+            orig.set_title("Original image histogram")
+            random.set_title("Random image histogram")
+
+        :seealso: :meth:`Constant`
         """
+
         shape = _getshape(cls, None, None, colororder, size)
         dtype = np.dtype(dtype)
 
-        if np.issubdtype(dtype, np.integer):
-            if maxval is None:
-                maxval = np.iinfo(dtype).max
+        if pdf is None:
+            if np.issubdtype(dtype, np.integer):
+                if maxval is None:
+                    maxval = np.iinfo(dtype).max
+                else:
+                    maxval = int(maxval)
+                im = np.random.randint(0, maxval, size=shape, dtype=dtype)
+            elif np.issubdtype(dtype, np.floating):
+                if maxval is None:
+                    maxval = 1.0
+                im = (np.random.rand(*shape) * maxval).astype(dtype)
+        else:
+            # pdf given, ignore maxval
+            if maxval is not None:
+                raise ValueError("Cannot specify both pdf and maxval")
+            if dtype != "uint8":
+                raise ValueError("pdf option only supported for uint8 dtype")
+            if pdf.ndim == 1:
+                # simple case, same pdf for all planes
+                if pdf.shape[0] != 256:
+                    raise ValueError("pdf must have length 256")
+                im = np.random.choice(np.arange(256, dtype="uint8"), size=shape, p=pdf)
+            elif pdf.ndim == 2:
+                if pdf.shape[0] != 256:
+                    raise ValueError("pdf must have length 256")
+                if pdf.shape[1] != shape[2]:
+                    raise ValueError(
+                        "pdf must have same number of columns as planes in image"
+                    )
+                planes = []
+                for i in range(shape[2]):
+                    planes.append(
+                        np.random.choice(
+                            np.arange(255, dtype="uint8"), size=shape[:2], p=pdf[:, i]
+                        )
+                    )
+                im = np.stack(planes, axis=2)
             else:
-                maxval = int(maxval)
-            im = np.random.randint(0, maxval, size=shape, dtype=dtype)
-        elif np.issubdtype(dtype, np.floating):
-            if maxval is None:
-                maxval = 1.0
-            im = (np.random.rand(*shape) * maxval).astype(dtype)
+                raise ValueError("pdf must be a 1D or 2D array")
 
         return cls(im, colororder=colororder)
 
