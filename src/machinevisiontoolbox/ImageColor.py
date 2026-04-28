@@ -180,24 +180,18 @@ class ImageColorMixin(_ImageBase if TYPE_CHECKING else object):
         if self.iscolor:
             raise ValueError(self._A, "Image must be greyscale")
 
+        out = self._A[..., np.newaxis] * color_arr
+
         # alpha can be False, True, or scalar
-        if alpha is False:
-            out = np.dstack(
-                (
-                    color_arr[0] * self._A,
-                    color_arr[1] * self._A,
-                    color_arr[2] * self._A,
-                )
-            )
-        else:
+
+        if alpha is not False:
+            # alpha is either True (assume 1) or a scalar value
             if alpha is True:
                 alpha = 1
 
             out = np.dstack(
                 (
-                    color_arr[0] * self._A,
-                    color_arr[1] * self._A,
-                    color_arr[2] * self._A,
+                    out,
                     alpha * np.ones(self.shape),
                 )
             )
