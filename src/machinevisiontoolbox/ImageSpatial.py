@@ -6,6 +6,7 @@ import cv2
 import numpy as np
 import scipy as sp
 import spatialmath.base.argcheck as argcheck
+import warnings
 from typing import TYPE_CHECKING, Any, Callable
 
 from machinevisiontoolbox.Kernel import Kernel
@@ -824,7 +825,7 @@ class ImageSpatialMixin(_ImageBase if TYPE_CHECKING else object):
 
         return self.__class__(out)
 
-    def rank(
+    def rankfilter(
         self,
         footprint: np.ndarray | None = None,
         h: int | None = None,
@@ -868,10 +869,10 @@ class ImageSpatialMixin(_ImageBase if TYPE_CHECKING else object):
             >>> import numpy as np
             >>> img = Image(np.arange(25).reshape((5,5)))
             >>> img.print()
-            >>> img.rank(h=1, rank=0).print()  # maximum filter
-            >>> img.rank(h=1, rank=8).print()  # minimum filter
-            >>> img.rank(h=1, rank=4).print()  # median filter
-            >>> img.rank(h=1, rank='median').print()  # median filter
+            >>> img.rankfilter(h=1, rank=0).print()  # maximum filter
+            >>> img.rankfilter(h=1, rank=8).print()  # minimum filter
+            >>> img.rankfilter(h=1, rank=4).print()  # median filter
+            >>> img.rankfilter(h=1, rank='median').print()  # median filter
 
         .. note::
             - The footprint should have an odd side length.
@@ -915,13 +916,39 @@ class ImageSpatialMixin(_ImageBase if TYPE_CHECKING else object):
             return self.__class__(np.dstack(out), colororder=self.colororder)
         return self.__class__(out[0], colororder=self.colororder)
 
+    def rank(
+        self,
+        footprint: np.ndarray | None = None,
+        h: int | None = None,
+        rank: int | str = -1,
+        border: str = "replicate",
+        bordervalue: int | float = 0,
+    ) -> Any:
+        """Deprecated wrapper for :meth:`rankfilter`.
+
+        .. deprecated:: 1.1.0
+            Use :meth:`rankfilter` instead.
+        """
+        warnings.warn(
+            "Deprecated in 1.1.0: use rankfilter() instead of rank().",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.rankfilter(
+            footprint=footprint,
+            h=h,
+            rank=rank,
+            border=border,
+            bordervalue=bordervalue,
+        )
+
     def medianfilter(self, h: int = 1, **kwargs: Any) -> Any:
         r"""
         Median filter
 
         :param h: half width of structuring element, defaults to 1
         :type h: int, optional
-        :param kwargs: options passed to :meth:`rank`
+        :param kwargs: options passed to :meth:`rankfilter`
         :return: median filtered image
         :rtype: :class:`Image` instance
 
@@ -948,11 +975,11 @@ class ImageSpatialMixin(_ImageBase if TYPE_CHECKING else object):
         :references:
             - |RVC3|, Section 11.5.3.
 
-        :seealso: :meth:`rank`
+        :seealso: :meth:`rankfilter`
         """
         w = 2 * h + 1
         r = int((w**2 - 1) / 2)
-        return self.rank(h=h, rank=r, **kwargs)
+        return self.rankfilter(h=h, rank=r, **kwargs)
 
     def distance_transform(
         self, invert: bool = False, norm: str = "L2", h: int = 1
