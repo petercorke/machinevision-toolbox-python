@@ -1191,15 +1191,15 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
         :type method: str
         :param position: ``pt`` is one of: ``'topleft'`` [default] or  ``'centre'``
         :type position: str, optional
-        :param copy: copy image before pasting, defaults to False
+        :param copy: retained for backward compatibility, ignored
         :type copy: bool, optional
         :param zero: zero-based coordinates (True, default) or 1-based coordinates (False)
         :type zero: bool, optional
         :raises ValueError: pattern is positioned outside the bounds of the image
-        :return: original image with pasted pattern
+        :return: new image with pasted pattern
         :rtype: :class:`Image`
 
-        Pastes the ``pattern`` into the image which is modified inplace.  The
+        Pastes ``pattern`` into the image and returns a new image.  The
         pattern can be incorporated into the specified image by:
 
         ==========  ================================================================
@@ -1227,6 +1227,7 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
         .. note::
 
             - Pixels outside the pasted region are unaffected.
+            - The input image is not modified.
             - For ``position='centre'`` an odd sized pattern is assumed.  For
               an even dimension the centre pixel is the one at dimension / 2.
             - Multi-plane images are supported.
@@ -1287,10 +1288,7 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
             o = np.dstack([self._A for i in range(npc)])
             colororder = pattern.colororder
         else:
-            if copy:
-                o = self._A.copy()
-            else:
-                o = self._A
+            o = self._A.copy()
 
         if npc < nc:
             pim = np.dstack([pattern._A for i in range(nc)])
@@ -1360,11 +1358,7 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
         else:
             raise ValueError("method is not valid")
 
-        if copy:
-            return self.__class__(o, copy=copy, colororder=colororder)
-        else:
-            self._A = o
-            return self
+        return self.__class__(o, copy=True, colororder=colororder)
 
     def invert(self) -> "Image":
         r"""

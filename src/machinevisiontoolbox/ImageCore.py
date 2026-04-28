@@ -2076,12 +2076,11 @@ class Image(
 
     @A.setter
     def A(self, A: Array2d | Array3d) -> None:
-        warnings.warn(
-            "Deprecated in 1.1.0: use the Image constructor instead of setting .A.",
-            DeprecationWarning,
-            stacklevel=2,
+        raise AttributeError(
+            "Image is immutable: setting .A is not supported. "
+            "Create a new Image from the modified array instead, for example "
+            "Image(new_array, colororder=self.colororder)."
         )
-        self._A = A
 
     @property
     def rgb(self) -> np.ndarray:

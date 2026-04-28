@@ -326,7 +326,7 @@ class ImageReshapeMixin(_ImageBase if TYPE_CHECKING else object):
             u.append(width)
             if colororder is not None and not image.iscolor:
                 image = image.colorize(colororder=colororder)
-            canvas.paste(image, (width, 0))
+            canvas = canvas.paste(image, (width, 0))
             width += image.shape[1] + sep
 
         if return_offsets:
@@ -418,7 +418,7 @@ class ImageReshapeMixin(_ImageBase if TYPE_CHECKING else object):
             v.append(height)
             if colororder is not None and not image.iscolor:
                 image = image.colorize(colororder=colororder)
-            canvas.paste(image, (0, height))
+            canvas = canvas.paste(image, (0, height))
             height += image.shape[0] + sep
 
         if return_offsets:
@@ -526,7 +526,7 @@ class ImageReshapeMixin(_ImageBase if TYPE_CHECKING else object):
                 for c in range(columns):
                     # for each column
                     im = next(iterator)
-                    canvas.paste(im, (u, v), "set", "topleft")
+                    canvas = canvas.paste(im, (u, v), "set", "topleft")
                     u += shape[1] + sep
                 v += shape[0] + sep
         except StopIteration:
