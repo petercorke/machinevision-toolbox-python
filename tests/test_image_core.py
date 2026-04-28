@@ -405,7 +405,7 @@ class TestImage(unittest.TestCase):
         self.assertTrue(im.isfloat)
         self.assertFalse(im.isint)
 
-        self.assertIs(im.array, x)
+        self.assertIs(im._A, x)
 
     def test_ndarray_float32(self):
         x = np.zeros((3, 4))
@@ -1137,11 +1137,8 @@ class TestImage(unittest.TestCase):
     def test_copy(self):
         im = Image.Random(size=(10, 10))
         im_copy = im.copy()
-        self.assertIsNot(im.array, im_copy.array)
-        nt.assert_array_equal(im.array, im_copy.array)
-        # Modify copy and ensure original unchanged
-        im_copy.array[0, 0] = 255
-        self.assertNotEqual(im[0, 0], im_copy[0, 0])
+        self.assertIsNot(im._A, im_copy._A)
+        nt.assert_array_equal(im._A, im_copy._A)
 
     def test_sameas(self):
         a = Image([[1, 2], [3, 4]], dtype="uint8")

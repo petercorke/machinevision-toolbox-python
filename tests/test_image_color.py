@@ -69,9 +69,9 @@ class TestImageProcessingColor(unittest.TestCase):
         out = im.colorize(color=[0, 0, 1])
 
         # quick element teste
-        self.assertAlmostEqual(out.A[0, 0, 0], 0)
-        self.assertAlmostEqual(out.A[0, 0, 1], 0)
-        self.assertAlmostEqual(out.A[0, 0, 2], 0.1)
+        self.assertAlmostEqual(out.array[0, 0, 0], 0)
+        self.assertAlmostEqual(out.array[0, 0, 1], 0)
+        self.assertAlmostEqual(out.array[0, 0, 2], 0.1)
         # TODO mask functionality not yet implemented
 
     @unittest.skip("Code has a bug: mono.array should be mono")
@@ -108,19 +108,19 @@ class TestImageProcessingColor(unittest.TestCase):
         im = Image(np.ones((5, 5)) * 0.5)
         out = im.colorize("red")
         self.assertEqual(out.nplanes, 3)
-        self.assertAlmostEqual(out.A[0, 0, 0], 0.5)
-        self.assertAlmostEqual(out.A[0, 0, 1], 0.0, places=5)
-        self.assertAlmostEqual(out.A[0, 0, 2], 0.0, places=5)
+        self.assertAlmostEqual(out.array[0, 0, 0], 0.5)
+        self.assertAlmostEqual(out.array[0, 0, 1], 0.0, places=5)
+        self.assertAlmostEqual(out.array[0, 0, 2], 0.0, places=5)
 
         # Test with alpha channel
         out_alpha = im.colorize([1, 0, 0], alpha=True)
         self.assertEqual(out_alpha.nplanes, 4)
-        self.assertAlmostEqual(out_alpha.A[0, 0, 3], 1.0)
+        self.assertAlmostEqual(out_alpha.array[0, 0, 3], 1.0)
 
         # Test with scalar alpha
         out_alpha_scalar = im.colorize([1, 0, 0], alpha=0.5)
         self.assertEqual(out_alpha_scalar.nplanes, 4)
-        self.assertAlmostEqual(out_alpha_scalar.A[0, 0, 3], 0.5)
+        self.assertAlmostEqual(out_alpha_scalar.array[0, 0, 3], 0.5)
 
     def test_kmeans_color(self):
         # Create simple color image
@@ -197,8 +197,8 @@ class TestImageProcessingColor(unittest.TestCase):
         im = Image(np.ones((5, 5)) * 0.5)
         out = im.colorize("r")
         self.assertEqual(out.nplanes, 3)
-        self.assertAlmostEqual(out.A[0, 0, 0], 0.5, places=3)
-        self.assertAlmostEqual(out.A[0, 0, 1], 0.0, places=3)
+        self.assertAlmostEqual(out.array[0, 0, 0], 0.5, places=3)
+        self.assertAlmostEqual(out.array[0, 0, 1], 0.0, places=3)
 
     def test_colorize_color_image_raises(self):
         im = Image.Read("flowers1.png")
@@ -210,23 +210,23 @@ class TestImageProcessingColor(unittest.TestCase):
         out = im.gamma_encode("sRGB")
         self.assertTrue(out.isfloat)
         # sRGB encodes lighter (raises value for mid-tones)
-        self.assertGreater(out.A[0, 0], 0.5)
+        self.assertGreater(out.array[0, 0], 0.5)
 
     def test_gamma_decode_sRGB(self):
         im = Image(np.array([[0.7]]))
         out = im.gamma_decode("sRGB")
         self.assertTrue(out.isfloat)
-        self.assertLess(out.A[0, 0], 0.7)
+        self.assertLess(out.array[0, 0], 0.7)
 
     def test_gamma_encode_float_param(self):
         im = Image(np.array([[0.5]]))
         out = im.gamma_encode(2.2)
-        nt.assert_almost_equal(out.A[0, 0], 0.5**2.2, decimal=5)
+        nt.assert_almost_equal(out.array[0, 0], 0.5**2.2, decimal=5)
 
     def test_gamma_decode_float_param(self):
         im = Image(np.array([[0.5]]))
         out = im.gamma_decode(2.2)
-        nt.assert_almost_equal(out.A[0, 0], 0.5**2.2, decimal=5)
+        nt.assert_almost_equal(out.array[0, 0], 0.5**2.2, decimal=5)
 
     def test_overlay(self):
         im1 = Image.Read("eiffel-1.png", mono=True)

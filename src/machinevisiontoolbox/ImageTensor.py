@@ -91,7 +91,7 @@ class ImageTensorMixin(_ImageBase if TYPE_CHECKING else object):
                 "or pip install machinevision-toolbox-python[torch]"
             )
         # 1. Convert to tensor; mono images are (H, W), color images are (H, W, C)
-        array = self.A
+        array = self._A
         if array.ndim == 2:
             tensor = torch.from_numpy(array)
         else:

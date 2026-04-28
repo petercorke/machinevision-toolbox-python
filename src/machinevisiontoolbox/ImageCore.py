@@ -112,7 +112,7 @@ class Image(
 
         Create a new :class:`Image` instance which contains pixel values as well as
         information about image size, datatype, color planes and domain.  The pixel
-        data is stored in a NumPy array, encapsulated by the object.
+        data is stored in an immutable NumPy array, encapsulated by the object.
 
         An image is considered to be a two-dimensional (width x height) grid of pixel
         values, that lie within one or more "color" planes.
@@ -2004,7 +2004,7 @@ class Image(
         :return: image as a NumPy array
         :rtype: ndarray(H,W) or ndarray(H,W,3)
 
-        Return a reference to the encapsulated NumPy array that holds the pixel
+        Return a read-only view of the encapsulated NumPy array that holds the pixel
         values.
 
         Example:
@@ -2019,14 +2019,17 @@ class Image(
         .. note:: For a color image the color plane order is given by the
             colororder dictionary.
 
-        .. warning:: This property is for accessing the NumPy image data for
-           passing to a NumPy, OpenCV or other function.  It is not intended for direct
-           manipulation of the image data -- doing so may make the state of the
-           Image instance inconsistent.
+        .. warning::An :class:`Image` instance is immutable, so its pixel data should not be modified.
+           This property supports passing NumPy image data as input to NumPy, OpenCV or other functions.
+           It is not intended for direct
+           manipulation of the image data -- and for that reason the returned array is read-only.
+           To create a new image with modified pixel data, use the :meth:`Image` constructor to create a new image with a modified array.
 
         :seealso: :meth:`array_as` :meth:`rgb` :meth:`bgr` :meth:`colororder`
         """
-        return self._A
+        view = self._A.view()
+        view.flags.writeable = False
+        return view
 
     @property
     def A(self) -> np.ndarray:
@@ -2069,7 +2072,7 @@ class Image(
             DeprecationWarning,
             stacklevel=2,
         )
-        return self._A
+        return self.array
 
     @A.setter
     def A(self, A: Array2d | Array3d) -> None:
@@ -2096,9 +2099,9 @@ class Image(
         if not self.iscolor:
             raise ValueError("greyscale image has no rgb property")
         if self.isrgb:
-            return self._A
+            return self.array
         elif self.isbgr:
-            return self._A[:, :, ::-1]
+            return self.array[:, :, ::-1]
         raise ValueError(f"cannot convert colororder '{self.colororder_str}' to RGB")
 
     @property
@@ -2117,7 +2120,7 @@ class Image(
         if not self.iscolor:
             raise ValueError("greyscale image has no bgr property")
         if self.isbgr:
-            return self._A
+            return self.array
         elif self.isrgb:
             return self._A[:, :, ::-1]
         raise ValueError(f"cannot convert colororder '{self.colororder_str}' to BGR")

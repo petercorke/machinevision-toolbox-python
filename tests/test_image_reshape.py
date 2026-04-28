@@ -203,21 +203,21 @@ class TestImageReshape(unittest.TestCase):
         # float image
         im = Image.Random(size=(3, 4), dtype="float")
         x = im.pad(left=1, right=2, top=2, bottom=1, value=0.7)
-        nt.assert_almost_equal(x.A[2:6, 1:4], im.A)
-        nt.assert_almost_equal(x.A[:, 0], 0.7)  # left
-        nt.assert_almost_equal(x.A[:, 4:], 0.7)  # right
-        nt.assert_almost_equal(x.A[0:2, :], 0.7)  # top
-        nt.assert_almost_equal(x.A[6, :], 0.7)  # bottom
+        nt.assert_almost_equal(x.array[2:6, 1:4], im.array)
+        nt.assert_almost_equal(x.array[:, 0], 0.7)  # left
+        nt.assert_almost_equal(x.array[:, 4:], 0.7)  # right
+        nt.assert_almost_equal(x.array[0:2, :], 0.7)  # top
+        nt.assert_almost_equal(x.array[6, :], 0.7)  # bottom
 
         # color float image
         im = Image.Random(size=(3, 4), dtype="float", colororder="RGB")
         x = im.pad(left=1, right=2, top=2, bottom=1, value=0.7)
         for p in range(3):
-            nt.assert_almost_equal(x.A[2:6, 1:4, p], im.A[:, :, p])
-        nt.assert_almost_equal(x.A[:, 0, :], 0.7)  # left
-        nt.assert_almost_equal(x.A[:, 4:, :], 0.7)  # right
-        nt.assert_almost_equal(x.A[0:2, :, :], 0.7)  # top
-        nt.assert_almost_equal(x.A[6, :, :], 0.7)  # bottom
+            nt.assert_almost_equal(x.array[2:6, 1:4, p], im.array[:, :, p])
+        nt.assert_almost_equal(x.array[:, 0, :], 0.7)  # left
+        nt.assert_almost_equal(x.array[:, 4:, :], 0.7)  # right
+        nt.assert_almost_equal(x.array[0:2, :, :], 0.7)  # top
+        nt.assert_almost_equal(x.array[6, :, :], 0.7)  # bottom
 
     def test_dice(self):
         # Add test cases for the dice method
@@ -227,12 +227,12 @@ class TestImageReshape(unittest.TestCase):
         self.assertEqual(len(sims), 6)
         for sim in sims:
             self.assertEqual(sim.shape, (10, 10))
-        nt.assert_array_equal(sims[0].A[:10, :10], im.A[:10, :10])
-        nt.assert_array_equal(sims[1].A[:10, :10], im.A[:10, 10:20])
-        nt.assert_array_equal(sims[2].A[:10, :10], im.A[10:20, :10])
-        nt.assert_array_equal(sims[3].A[:10, :10], im.A[10:20, 10:20])
-        nt.assert_array_equal(sims[4].A[:10, :10], im.A[20:30, :10])
-        nt.assert_array_equal(sims[5].A[:10, :10], im.A[20:30, 10:200])
+        nt.assert_array_equal(sims[0].array[:10, :10], im.array[:10, :10])
+        nt.assert_array_equal(sims[1].array[:10, :10], im.array[:10, 10:20])
+        nt.assert_array_equal(sims[2].array[:10, :10], im.array[10:20, :10])
+        nt.assert_array_equal(sims[3].array[:10, :10], im.array[10:20, 10:20])
+        nt.assert_array_equal(sims[4].array[:10, :10], im.array[20:30, :10])
+        nt.assert_array_equal(sims[5].array[:10, :10], im.array[20:30, 10:200])
 
     def test_decimate(self):
         # Add test cases for the decimate method
@@ -290,13 +290,13 @@ class TestImageReshape(unittest.TestCase):
         im = Image.Random(size=(20, 30))
         roi = im.roi((5, 14, 10, 19))
         self.assertEqual(roi.shape, (10, 10))
-        nt.assert_array_equal(roi.A, im.A[10:20, 5:15])
+        nt.assert_array_equal(roi.array, im.array[10:20, 5:15])
 
         im = Image.Random(size=(20, 30), colororder="RGB")
         roi = im.roi((5, 14, 10, 19))
         self.assertEqual(roi.shape, (10, 10, 3))
         self.assertEqual(roi.colororder_str, "R:G:B")
-        nt.assert_array_equal(roi.A, im.A[10:20, 5:15, :])
+        nt.assert_array_equal(roi.array, im.array[10:20, 5:15, :])
 
     def test_samesize(self):
         im1 = Image.Random(size=(100, 120))
@@ -331,7 +331,7 @@ class TestImageReshape(unittest.TestCase):
         im = Image.Squares(1, size=256)
         x = im.scale(1)
         self.assertEqual(x.size, (256, 256))
-        nt.assert_array_equal(x.A, im.A)
+        nt.assert_array_equal(x.array, im.array)
 
         im = Image.Squares(1, size=256)
         x = im.scale(0.5)
@@ -361,13 +361,13 @@ class TestImageReshape(unittest.TestCase):
 
     def test_rotate(self):
         def centroid(im):
-            y, x = np.where(im.A)
+            y, x = np.where(im.array)
             return np.mean(x), np.mean(y)
 
         im = Image.Squares(1, size=256)
         x = im.rotate(0)
         self.assertEqual(x.size, (256, 256))
-        nt.assert_array_equal(x.A, im.A)
+        nt.assert_array_equal(x.array, im.array)
 
         im = Image.Squares(1, size=256)
         x = im.rotate(np.pi / 4)
@@ -411,13 +411,13 @@ class TestImageReshape(unittest.TestCase):
         """Test horizontal flip"""
         img = Image(np.arange(20).reshape(4, 5))
         flipped = img.fliplr()
-        self.assertEqual(flipped.A[0, 0], img.A[0, 4])
+        self.assertEqual(flipped.array[0, 0], img.array[0, 4])
 
     def test_flipud(self):
         """Test vertical flip"""
         img = Image(np.arange(20).reshape(4, 5))
         flipped = img.flipud()
-        self.assertEqual(flipped.A[0, 0], img.A[3, 0])
+        self.assertEqual(flipped.array[0, 0], img.array[3, 0])
 
     def test_meshgrid(self):
         # instance method call
@@ -470,11 +470,11 @@ class TestImageReshape(unittest.TestCase):
         for c in range(Nw):
             for r in range(Nh):
                 nt.assert_array_equal(
-                    x.A[
+                    x.array[
                         r * (H + sep) : r * (H + sep) + H,
                         c * (W + sep) : c * (W + sep) + W,
                     ],
-                    ims[r * Nw + c].A,
+                    ims[r * Nw + c].array,
                 )
 
         # test explicit sep
@@ -484,11 +484,11 @@ class TestImageReshape(unittest.TestCase):
         for c in range(Nw):
             for r in range(Nh):
                 nt.assert_array_equal(
-                    x.A[
+                    x.array[
                         r * (H + sep) : r * (H + sep) + H,
                         c * (W + sep) : c * (W + sep) + W,
                     ],
-                    ims[r * Nw + c].A,
+                    ims[r * Nw + c].array,
                 )
 
         sep = 3
@@ -497,11 +497,11 @@ class TestImageReshape(unittest.TestCase):
         for c in range(Nw):
             for r in range(Nh):
                 nt.assert_array_equal(
-                    x.A[
+                    x.array[
                         r * (H + sep) : r * (H + sep) + H,
                         c * (W + sep) : c * (W + sep) + W,
                     ],
-                    ims[r * Nw + c].A,
+                    ims[r * Nw + c].array,
                 )
 
         # tests bgcolor
@@ -511,14 +511,14 @@ class TestImageReshape(unittest.TestCase):
         for c in range(Nw):
             for r in range(Nh):
                 nt.assert_array_equal(
-                    x.A[
+                    x.array[
                         r * (H + sep) : r * (H + sep) + H,
                         c * (W + sep) : c * (W + sep) + W,
                     ],
-                    ims[r * Nw + c].A,
+                    ims[r * Nw + c].array,
                 )
-        nt.assert_array_equal(x.A[:, W : W + sep], 42)
-        nt.assert_array_equal(x.A[H : H + sep, :], 42)
+        nt.assert_array_equal(x.array[:, W : W + sep], 42)
+        nt.assert_array_equal(x.array[H : H + sep, :], 42)
 
         # test for partial grid
         sep = 3
@@ -528,16 +528,16 @@ class TestImageReshape(unittest.TestCase):
             for r in range(Nh):
                 if c * Nw + r < N - 1:
                     nt.assert_array_equal(
-                        x.A[
+                        x.array[
                             r * (H + sep) : r * (H + sep) + H,
                             c * (W + sep) : c * (W + sep) + W,
                         ],
-                        ims[r * Nw + c].A,
+                        ims[r * Nw + c].array,
                     )
                 else:
                     # test the empty square
                     nt.assert_array_equal(
-                        x.A[
+                        x.array[
                             r * (H + sep) : r * (H + sep) + H,
                             c * (W + sep) : c * (W + sep) + W,
                         ],
@@ -553,11 +553,11 @@ class TestImageReshape(unittest.TestCase):
         for c in range(Nw):
             for r in range(Nh):
                 nt.assert_array_equal(
-                    x.A[
+                    x.array[
                         r * (H + sep) : r * (H + sep) + H,
                         c * (W + sep) : c * (W + sep) + W,
                     ],
-                    ims[r * Nw + c].A,
+                    ims[r * Nw + c].array,
                 )
 
         # test for color images
@@ -575,12 +575,12 @@ class TestImageReshape(unittest.TestCase):
         for c in range(Nw):
             for r in range(Nh):
                 nt.assert_array_equal(
-                    x.A[
+                    x.array[
                         r * (H + sep) : r * (H + sep) + H,
                         c * (W + sep) : c * (W + sep) + W,
                         ...,
                     ],
-                    ims[r * Nw + c].A,
+                    ims[r * Nw + c].array,
                 )
 
         # tests bgcolor
@@ -591,17 +591,17 @@ class TestImageReshape(unittest.TestCase):
         for c in range(Nw):
             for r in range(Nh):
                 nt.assert_array_equal(
-                    x.A[
+                    x.array[
                         r * (H + sep) : r * (H + sep) + H,
                         c * (W + sep) : c * (W + sep) + W,
                         ...,
                     ],
-                    ims[r * Nw + c].A,
+                    ims[r * Nw + c].array,
                 )
 
         for p, v in enumerate((42, 43, 44)):
-            nt.assert_array_equal(x.A[:, W : W + sep, p], v)
-            nt.assert_array_equal(x.A[H : H + sep, :, p], v)
+            nt.assert_array_equal(x.array[:, W : W + sep, p], v)
+            nt.assert_array_equal(x.array[H : H + sep, :, p], v)
 
     def test_hstack(self):
         # Add test cases for the HStack method
@@ -617,28 +617,36 @@ class TestImageReshape(unittest.TestCase):
         x = Image.Hstack(ims)
         self.assertEqual(x.size, (W * N + sep * (N - 1), H))
         for i in range(N):
-            nt.assert_array_equal(x.A[:, i * (W + sep) : i * (W + sep) + W], ims[i].A)
+            nt.assert_array_equal(
+                x.array[:, i * (W + sep) : i * (W + sep) + W], ims[i].array
+            )
 
         # test explicit sep
         sep = 1
         x = Image.Hstack(ims, sep=sep)
         self.assertEqual(x.size, (W * N + sep * (N - 1), H))
         for i in range(N):
-            nt.assert_array_equal(x.A[:, i * (W + sep) : i * (W + sep) + W], ims[i].A)
+            nt.assert_array_equal(
+                x.array[:, i * (W + sep) : i * (W + sep) + W], ims[i].array
+            )
 
         sep = 3
         x = Image.Hstack(ims, sep=sep)
         self.assertEqual(x.size, (W * N + sep * (N - 1), H))
         for i in range(N):
-            nt.assert_array_equal(x.A[:, i * (W + sep) : i * (W + sep) + W], ims[i].A)
+            nt.assert_array_equal(
+                x.array[:, i * (W + sep) : i * (W + sep) + W], ims[i].array
+            )
 
         # tests bgcolor
         sep = 3
         x = Image.Hstack(ims, sep=sep, bgcolor=42)
         self.assertEqual(x.size, (W * N + sep * (N - 1), H))
         for i in range(N):
-            nt.assert_array_equal(x.A[:, i * (W + sep) : i * (W + sep) + W], ims[i].A)
-        nt.assert_array_equal(x.A[:, W : W + sep], 42)
+            nt.assert_array_equal(
+                x.array[:, i * (W + sep) : i * (W + sep) + W], ims[i].array
+            )
+        nt.assert_array_equal(x.array[:, W : W + sep], 42)
 
         # test for color images
         ims = []
@@ -650,7 +658,7 @@ class TestImageReshape(unittest.TestCase):
         self.assertEqual(x.size, (W * N + sep * (N - 1), H))
         for i in range(N):
             nt.assert_array_equal(
-                x.A[:, i * (W + sep) : i * (W + sep) + W, ...], ims[i].A
+                x.array[:, i * (W + sep) : i * (W + sep) + W, ...], ims[i].array
             )
 
         sep = 3
@@ -658,7 +666,7 @@ class TestImageReshape(unittest.TestCase):
         self.assertEqual(x.size, (W * N + sep * (N - 1), H))
         for i in range(N):
             nt.assert_array_equal(
-                x.A[:, i * (W + sep) : i * (W + sep) + W, ...], ims[i].A
+                x.array[:, i * (W + sep) : i * (W + sep) + W, ...], ims[i].array
             )
 
         # tests bgcolor
@@ -667,10 +675,10 @@ class TestImageReshape(unittest.TestCase):
         self.assertEqual(x.size, (W * N + sep * (N - 1), H))
         for i in range(N):
             nt.assert_array_equal(
-                x.A[:, i * (W + sep) : i * (W + sep) + W, ...], ims[i].A
+                x.array[:, i * (W + sep) : i * (W + sep) + W, ...], ims[i].array
             )
         for p, v in enumerate((42, 43, 44)):
-            nt.assert_array_equal(x.A[:, W : W + sep, p], v)
+            nt.assert_array_equal(x.array[:, W : W + sep, p], v)
 
     def test_vstack(self):
         ims = []
@@ -685,28 +693,36 @@ class TestImageReshape(unittest.TestCase):
         x = Image.Vstack(ims)
         self.assertEqual(x.size, (W, H * N + sep * (N - 1)))
         for i in range(N):
-            nt.assert_array_equal(x.A[i * (H + sep) : i * (H + sep) + H, :], ims[i].A)
+            nt.assert_array_equal(
+                x.array[i * (H + sep) : i * (H + sep) + H, :], ims[i].array
+            )
 
         # test explicit sep
         sep = 1
         x = Image.Vstack(ims, sep=sep)
         self.assertEqual(x.size, (W, H * N + sep * (N - 1)))
         for i in range(N):
-            nt.assert_array_equal(x.A[i * (H + sep) : i * (H + sep) + H, :], ims[i].A)
+            nt.assert_array_equal(
+                x.array[i * (H + sep) : i * (H + sep) + H, :], ims[i].array
+            )
 
         sep = 3
         x = Image.Vstack(ims, sep=sep)
         self.assertEqual(x.size, (W, H * N + sep * (N - 1)))
         for i in range(N):
-            nt.assert_array_equal(x.A[i * (H + sep) : i * (H + sep) + H, :], ims[i].A)
+            nt.assert_array_equal(
+                x.array[i * (H + sep) : i * (H + sep) + H, :], ims[i].array
+            )
 
         # tests bgcolor
         sep = 3
         x = Image.Vstack(ims, sep=sep, bgcolor=42)
         self.assertEqual(x.size, (W, H * N + sep * (N - 1)))
         for i in range(N):
-            nt.assert_array_equal(x.A[i * (H + sep) : i * (H + sep) + H, :], ims[i].A)
-        nt.assert_array_equal(x.A[H : H + sep, :], 42)
+            nt.assert_array_equal(
+                x.array[i * (H + sep) : i * (H + sep) + H, :], ims[i].array
+            )
+        nt.assert_array_equal(x.array[H : H + sep, :], 42)
 
         # test for color images
         ims = []
@@ -718,7 +734,7 @@ class TestImageReshape(unittest.TestCase):
         self.assertEqual(x.size, (W, H * N + sep * (N - 1)))
         for i in range(N):
             nt.assert_array_equal(
-                x.A[i * (H + sep) : i * (H + sep) + H, :, ...], ims[i].A
+                x.array[i * (H + sep) : i * (H + sep) + H, :, ...], ims[i].array
             )
 
         sep = 3
@@ -726,7 +742,7 @@ class TestImageReshape(unittest.TestCase):
         self.assertEqual(x.size, (W, H * N + sep * (N - 1)))
         for i in range(N):
             nt.assert_array_equal(
-                x.A[i * (H + sep) : i * (H + sep) + H, :, ...], ims[i].A
+                x.array[i * (H + sep) : i * (H + sep) + H, :, ...], ims[i].array
             )
 
         # tests bgcolor
@@ -735,25 +751,25 @@ class TestImageReshape(unittest.TestCase):
         self.assertEqual(x.size, (W, H * N + sep * (N - 1)))
         for i in range(N):
             nt.assert_array_equal(
-                x.A[i * (H + sep) : i * (H + sep) + H, :, ...], ims[i].A
+                x.array[i * (H + sep) : i * (H + sep) + H, :, ...], ims[i].array
             )
 
         for p, v in enumerate((42, 43, 44)):
-            nt.assert_array_equal(x.A[H : H + sep, :, p], v)
+            nt.assert_array_equal(x.array[H : H + sep, :, p], v)
 
     def test_view1d(self):
         im = Image.Random(size=(20, 30))
         x = im.view1d()
         self.assertIsInstance(x, np.ndarray)
         self.assertEqual(x.shape, (600,))
-        nt.assert_array_equal(x, im.A.flatten())
+        nt.assert_array_equal(x, im.array.flatten())
 
         im = Image.Random(size=(20, 30), colororder="RGB")
         x = im.view1d()
         self.assertIsInstance(x, np.ndarray)
         self.assertEqual(x.shape, (600, 3))
         for p in range(3):
-            nt.assert_array_equal(x[:, p], im.A[:, :, p].flatten())
+            nt.assert_array_equal(x[:, p], im.array[:, :, p].flatten())
 
 
 if __name__ == "__main__":

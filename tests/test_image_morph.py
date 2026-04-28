@@ -317,8 +317,9 @@ class TestImageProcessingMorph(unittest.TestCase):
 
     def test_distance_transform(self):
         """Test distance transform"""
-        img = Image(np.ones((10, 10), dtype="uint8"))
-        img.array[5, 5] = 0
+        array = np.ones((10, 10), dtype="uint8")
+        array[5, 5] = 0
+        img = Image(array)
         dist = img.distance_transform()
         self.assertEqual(dist.shape, img.shape)
         self.assertGreater(dist.array[0, 0], 0)

@@ -401,14 +401,18 @@ class ImageColorMixin(_ImageBase if TYPE_CHECKING else object):
         """
         if im1.iscolor or im2.iscolor:
             raise ValueError("images must be greyscale")
+        if im1.dtype != im2.dtype:
+            raise ValueError("images must be the same dtype")
         h = max(im1.height, im2.height)
         w = max(im1.width, im2.width)
-        overlay = cls.Constant([0, 0, 0], size=(w, h), colororder="RGB")
         im1 = im1.colorize(colors[0])
         im2 = im2.colorize(colors[1])
-        overlay.paste(im1, (0, 0), "add", copy=False)
-        overlay.paste(im2, (0, 0), "add", copy=False)
-        return overlay
+
+        overlay = np.zeros(shape=(h, w, 3), dtype=im1.dtype)
+        overlay[: im1.height, : im1.width, :] += im1._A
+        overlay[: im2.height, : im2.width, :] += im2._A
+
+        return cls(overlay, colororder="RGB", dtype=im1.dtype)
 
     def gamma_encode(self, gamma: str | float) -> Self:
         r"""

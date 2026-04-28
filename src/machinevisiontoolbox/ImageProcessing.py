@@ -1227,7 +1227,6 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
         .. note::
 
             - Pixels outside the pasted region are unaffected.
-            - If ``copy`` is False the image is modified in place
             - For ``position='centre'`` an odd sized pattern is assumed.  For
               an even dimension the centre pixel is the one at dimension / 2.
             - Multi-plane images are supported.
