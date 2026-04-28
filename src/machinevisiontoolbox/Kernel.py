@@ -173,6 +173,11 @@ class Kernel:
         - :math:`2 \mbox{ceil}(3 \sigma) + 1`, or
         - :math:`2 \mathtt{h} + 1`
 
+        If ``sigma`` is not given it is computed from ``h`` using the rule of thumb that
+        :math:`\sigma = 0.3 \mathtt{h} + 0.8` which ensures that most of the Gaussian is
+        contained within the window. This is the same rule of thumb used by OpenCV's
+        ``cv2.getGaussianKernel`` function.
+
         Example:
 
         .. runblock:: pycon
@@ -215,6 +220,10 @@ class Kernel:
 
         wi = np.arange(-h, h + 1)
         x, y = np.meshgrid(wi, wi)
+
+        # if sigma is zero, then choose a value that fits most of the Gaussian within the window
+        if sigma == 0:
+            sigma = 0.3 * (h - 1) + 0.8  # rule of thumb for sigma given window size
 
         m = 1.0 / (2.0 * np.pi * sigma**2) * np.exp(-(x**2 + y**2) / 2.0 / sigma**2)
         # area under the curve should be 1, but the discrete case is only

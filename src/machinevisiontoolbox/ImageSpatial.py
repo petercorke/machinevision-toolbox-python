@@ -156,7 +156,7 @@ class ImageSpatialMixin(_ImageBase if TYPE_CHECKING else object):
 
     def smooth(
         self,
-        sigma: float,
+        sigma: float = 0,
         h: int | None = None,
         mode: str = "same",
         border: str = "reflect",
@@ -180,7 +180,9 @@ class ImageSpatialMixin(_ImageBase if TYPE_CHECKING else object):
 
         Smooth the image by convolving with a Gaussian kernel of standard
         deviation ``sigma``.  If ``h`` is not given the kernel half width is set
-        to :math:`2 \mbox{ceil}(3 \sigma) + 1`.
+        to :math:`2 \mbox{ceil}(3 \sigma) + 1`.  If ``sigma`` is not given it is computed from ``h`` using the rule of thumb that
+        :math:`\sigma = 0.3 \mathtt{h} + 0.8` which ensures that most of the Gaussian is
+        contained within the window.
 
         Example:
 
