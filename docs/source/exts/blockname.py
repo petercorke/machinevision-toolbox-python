@@ -1,5 +1,6 @@
 from docutils import nodes
-#from docutils.parsers.rst import Directive
+
+# from docutils.parsers.rst import Directive
 
 
 def block_name(name, rawtext, text, lineno, inliner, options={}, content=[]):
@@ -28,15 +29,19 @@ def block_name(name, rawtext, text, lineno, inliner, options={}, content=[]):
     </tr>
     </table>
     """
-    path =  "https://github.com/petercorke/machinevision-toolbox-python/raw/master/machinevisiontoolbox/blocks/Icons/" + text.lower() + ".png"
-    html_node = nodes.raw(text=html.format(text, path), format='html')
+    path = (
+        "https://raw.github.com/petercorke/machinevision-toolbox-python/main/src/machinevisiontoolbox/blocks/Icons/"
+        + text.lower()
+        + ".png"
+    )
+    html_node = nodes.raw(text=html.format(text, path), format="html")
     return [html_node], []
 
 
 def setup(app):
     app.add_role("blockname", block_name)
     return {
-        'version': '0.1',
-        'parallel_read_safe': True,
-        'parallel_write_safe': True,
+        "version": "0.1",
+        "parallel_read_safe": True,
+        "parallel_write_safe": True,
     }

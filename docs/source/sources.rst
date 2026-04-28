@@ -1,4 +1,5 @@
 .. currentmodule:: machinevisiontoolbox.Sources
+.. _sources_label:
 
 :class:`Image` and :class:`PointCloud` sources
 ======================================================
@@ -31,7 +32,7 @@ example, to read a video file and display each frame::
             break
         im.disp()
 
-Some sources also have a __getitem__ method that allows you to index into the source to
+Some sources also have a ``__getitem__`` method that allows you to index into the source to
 get a specific image or point cloud.  For example, to read the 10th frame of a video
 file::
 
@@ -41,7 +42,7 @@ file::
     im = video[9]  # index starts at 0
     im.disp()
 
-All sources serve as a context manager, so they can be used in a with statement to
+All sources serve as a context manager, so they can be used in a ``with`` statement to
 ensure that resources are properly released.  For example, to read a video file and
 display each frame::
 
@@ -51,7 +52,7 @@ display each frame::
         for im in video:
             im.disp()
 
-All sources have a disp method that displays the image or point cloud using Matplotlib.
+All sources have a ``disp`` method that displays the image or point cloud using Matplotlib.
 For example, to read a video file and display each frame::
 
     from machinevisiontoolbox import VideoFile
@@ -60,7 +61,7 @@ For example, to read a video file and display each frame::
         for im in video:
             im.disp()
 
-All sources have a close method that releases any resources associated with the source.
+All sources have a ``close`` method that releases any resources associated with the source.
 For example, to read a video file and display each frame::
 
     from machinevisiontoolbox import VideoFile
@@ -70,7 +71,7 @@ For example, to read a video file and display each frame::
         im.disp()
     video.close()
 
-All sources have a tensor method that returns the image or point cloud as a PyTorch
+All sources have a ``tensor`` method that returns the image or point cloud as a PyTorch
 tensor.  For example, to read a video file and display each frame::
 
     from machinevisiontoolbox import VideoFile

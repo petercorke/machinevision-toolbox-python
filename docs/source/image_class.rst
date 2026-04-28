@@ -2,8 +2,8 @@
 
 .. _image_class_label:
 
-The ``Image`` object
-====================
+``Image`` object
+================
 
 The :class:`~machinevisiontoolbox.Image` class is essential for all image
 operations and processing within this Toolbox. The class 
@@ -77,6 +77,7 @@ Return information about the color planes of an ``Image`` instance.
    ~blue
    ~green
    ~plane
+   ~planes
    ~red
    ~colordict
    ~colordict2list
@@ -246,11 +247,18 @@ Linear filtering operations including convolution, corner and edge detection.
 
    ~canny
    ~convolve
+   ~DGauss
+   ~direction
+   ~DoG
+   ~Gauss
    ~gradients
    ~Harris_corner_strength
+   ~Laplace
+   ~LoG
    ~pyramid
    ~scalespace
    ~smooth
+   ~Sobel
 
 Non-linear (morphological) filtering
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -314,6 +322,8 @@ Changing the shape of an ``Image`` instance.
 
    ~decimate
    ~dice
+   ~fliplr
+   ~flipud
    ~pad
    ~replicate
    ~samesize
@@ -350,6 +360,17 @@ Stereo image processing, rectification, and display.
    ~stereo_BM
    ~stereo_SGBM
    ~stereo_simple
+
+Tensor conversion
+^^^^^^^^^^^^^^^^^
+
+Convert between ``Image`` objects and PyTorch tensors.
+
+.. autosummary::
+   :nosignatures:
+
+   ~tensor
+   ~Tensor
 
 Operators
 ^^^^^^^^^
@@ -451,7 +472,7 @@ In place stacking allows for planes to be appended.
 Image statistics
 ----------------
 
- .. autosummary::
+.. autosummary::
    :nosignatures:
 
    ~max
@@ -459,9 +480,15 @@ Image statistics
    ~median
    ~min
    ~stats
+   ~printstats
    ~std
    ~var
    ~hist
+   ~h
+   ~pdf
+   ~peaks
+   ~cf
+   ~cdf
 
 Image feature extraction
 ------------------------
@@ -502,6 +529,7 @@ Other
    ~otsu
    ~peak2d
    ~sum
+   ~triangle
 
 Region features
 ^^^^^^^^^^^^^^^
@@ -572,6 +600,7 @@ Graphical
 
    ~disp
    ~showpixels
+   ~showwindow
 
 Text
 ^^^^
@@ -580,7 +609,18 @@ Text
    :nosignatures:
    
    ~print
+   ~rprint
    ~strhcat
+
+Comparison helpers
+------------------
+
+Utilities for scalar equality checks between images.
+
+.. autosummary::
+   :nosignatures:
+
+   ~sameas
 
 Constant images
 ---------------

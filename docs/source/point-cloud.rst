@@ -3,8 +3,8 @@
 
 .. _pointcloud_class_label:
 
-The ``PointCloud`` object
-=========================
+``PointCloud`` object
+=====================
 
 The :class:`~machinevisiontoolbox.PointCloud.PointCloud` class is essential for all point cloud
 operations and processing within this Toolbox. The class 

@@ -87,3 +87,30 @@ Convolution kernel class
     :nosignatures:
 
     Kernel
+
+Bag of words
+----------------
+
+Simple bag of words image mathing class
+
+
+.. autosummary::
+    :toctree: stubs
+    :nosignatures:
+
+    BagOfWords
+
+Bundle adjustment
+--------------------
+
+Simple bundle adjustment class
+
+
+.. autosummary::
+    :toctree: stubs
+    :nosignatures:
+
+    BundleAdjust
+    BundleAdjust.ViewPoint
+    BundleAdjust.Landmark
+    BundleAdjust.Observation

@@ -5,7 +5,6 @@ Image kernels
 
 .. autoclass:: Kernel
     :special-members: __init__
-    :no-index:
 
 .. autosummary::
     :nosignatures:

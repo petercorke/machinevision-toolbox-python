@@ -1,7 +1,7 @@
 .. currentmodule:: machinevisiontoolbox.Camera
 
-The :class:`Camera` object
-==========================
+:class:`Camera` object
+======================
 
 Camera models
 -------------

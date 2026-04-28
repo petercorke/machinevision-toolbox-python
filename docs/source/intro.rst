@@ -34,51 +34,46 @@ For example, to read an image using OpenCV, smooth it, and display it is::
     cv2.waitKey(0) # waits until a key is pressed
     cv2.destroyAllWindows() # destroys the window showing image
 
-Using this toolbox we would write instead::
+Using this Toolbox we would write instead::
 
     from machinevisiontoolbox import Image
 
     img = Image.Read("flowers1.png") # read the image
-    smooth = img.smooth(hw=2)  # apply a Gaussian blur
+    smooth = img.smooth(h=2)  # apply a Gaussian blur
     smooth.disp(block=True)  # display and block until window dismissed
 
 or even::
 
     from machinevisiontoolbox import Image
 
-    img = Image.Read("flowers1.png").smooth(hw=2).disp(block=True)
+    img = Image.Read("flowers1.png").smooth(h=2).disp(block=True)
 
 which exploits the power of Python's method chaining -- allowing a processing pipeline
-to be expressed in a single line of very readable code.
+to be expressed in a single line of very readable code with functions applied in a logical left-to-right order.
 
-While the merits (or demerits) of these different approaches is  subjective, you get the idea that the Toolbox allows 
+It also supports operator overloading so we could display the difference between the original and smoothed image using::
+
+	(img - img.smooth(h=2)).disp(block=True)
+
+While the merits (or demerits) of these different approaches is subjective, you get the idea that the Toolbox allows 
 succinct coding without the need for lots of OpenCV flags like ``cv2.IMREAD_UNCHANGED`` in the example above.
 
-In summary, the `Machine Vision Toolbox for Python (MVTB-P) <https://github.com/petercorke/machinevision-toolbox-python>`_:
+In summary, the Machine Vision Toolbox for Python (MVTB-P):
 
-* provides many functions that are useful in machine vision and vision-based control.  
-* provides a simple, yet powerful and consistent, object-oriented wrapper of OpenCV
-  functions. It supports operator overloading and handles the gnarly details of
-  OpenCV-like conversion to/from float32 and the BGR color order.
-* leverages the power of NumPy and OpenCV, and inherits their efficiency, portability
-  and maturity.
-* has similar, but not identical, functionality to the older `Machine Vision Toolbox for MATLAB <https://github.com/petercorke/machinevision-toolbox-matlab>`_. 
-* includes over 100 functions such as image file reading and writing, acquisition,
-  display, filtering, blob, point and line feature extraction,  mathematical morphology,
-  homographies, visual Jacobians, camera calibration and color space conversion. With
-  input from a web camera and output to a robot (not provided) it would be possible to
-  implement a visual servo system entirely in Python.  
-* includes functionality spanning photometry, photogrammetry, colorimetry; while also being sufficient to 
-  support the book `Robotics, Vision & Control <https://petercorke.com/rvc3p>`_. 
+* **Pythonic OpenCV Wrapper:** Treats images as first-class objects with intuitive operator overloading and transparent BGR/float32 conversion.
+* **100+ Vision Tools:** Comprehensive suite covering image acquisition, feature extraction (blobs, points, lines), morphology, and camera calibration.
+* **Optimized Performance:** Seamlessly integrates NumPy and OpenCV for maximum efficiency and portability.
+* **Scientifically Grounded:** Robust support for photometry, photogrammetry, and colorimetry; the official companion to `*Robotics, Vision & Control* <https://petercorke.com/rvc3p>`_.
+* **Engineered for Control:** Purpose-built for vision-based control, including visual Jacobians, homographies, and visual servoing.
+* **Modern Successor:** The Python-native evolution of the long-standing `Machine Vision Toolbox for MATLAB <https://github.com/petercorke/machinevision-toolbox-matlab>`_.
 
+To get started and install the Toolbox, see :ref:`install_label`.
 
 Image objects
 =============
 
-The key element of the Toolbox is the :class:`Image` class.
-This sections provides some examples, but full details are given in :ref:`image_class_label`.
-The remainder of this section provides a brief overview of the key features of the
-:class:`Image` class with examples.
+The key element of the Toolbox is the :class:`Image` class and full details are given in :ref:`image_class_label`.
+class.
 
 Firstly, there are lots of ways to create an image.  We can read an image from a file::
 
@@ -91,9 +86,6 @@ or create it from code::
 Under the hood the :class:`Image` object contains some image parameters, a lot
 of methods, and a reference to a 2D or 3D NumPy ndarray containing the pixel data.
 
-:class:`Image` object methods generally consider pixel coordinates with the horizontal coordinate
-first and the vertical coordinate second -- consistent with the way we write about
-algorithms but the opposite to the way that NumPy indexes an array.
 
 An image object has a lot of useful attributes that describe the image, including:
 
@@ -108,6 +100,16 @@ as well as a number of useful predicates including:
 * ``img.ismono``, is the image single channel?
 * ``img.isfloat``, does the image have floating point pixels?
 
+.. note:: 
+	:class:`Image` object methods generally consider pixel coordinates with the horizontal coordinate
+	first and the vertical coordinate second -- consistent with the way we write about
+	algorithms but the opposite to the way that NumPy indexes an array.
+
+We can slice the image using the same syntax as for a NumPy array::
+
+	img[10:20, 30:40]
+
+but only for reading, not for assignment. The result is another :class:`Image` object.
 
 Accessing the pixel array
 -------------------------
@@ -117,12 +119,9 @@ the ``array`` attribute::
 
 	np.mean(img.array)
 
-We can slice the image using the same syntax as a NumPy array::
-
-	img[10:20, 30:40]
-
-but only for reading, not for assignment. The result is another :class:`Image` object.
-
+where ``array`` is a read-only view of the pixel data, so we cannot modify the pixel
+values directly through this reference. If we need to modify the image, we should create
+a copy of it first, and then modify the copy.
 
 Multi-plane images
 ------------------
@@ -163,29 +162,7 @@ iterator objects::
 	for img in FileArchive("holidaypix.zip"):
 		# process the image
 		
-
-
-Getting started
-===============
-
-Using pip
----------
-
-Install a snapshot from PyPI::
-
-	$ pip install machinevision-toolbox-python
-
-
-From GitHub source
-------------------
-
-Install the current code base from GitHub and pip install a link to that cloned copy::
-
-	$ git clone https://github.com/petercorke/machinevision-toolbox-python.git
-	$ cd machinevision-toolbox-python
-	$ pip install -e .
-
-
+Iterators exist for folders of images, all manner of compressed archives, video files, local cameras, remote web cameras, ROS bag files, ROS topics, and more.  See :ref:`sources_label` for details.
 
 Examples
 ========
@@ -200,11 +177,10 @@ marked by bounding boxes and centroids.
 .. code-block:: python
 
 	import machinevisiontoolbox as mvtb
-	import matplotlib.pyplot as plt
 	im = mvtb.Image("shark2.png")   # read a binary image of two sharks
-	fig = im.disp();   # display it with interactive viewing tool
-	f = im.blobs()  # find all the white blobs
-	print(f)
+	im.disp();   # display it with interactive viewing tool
+	blobs = im.blobs()  # find all the white blobs
+	print(blobs)
 
 which will display::
 
@@ -217,18 +193,20 @@ which will display::
 
 .. code-block:: python
 
-	f.plot_box(fig, color='g')  # put a green bounding box on each blob
-	f.plot_centroid(fig, 'o', color='y')  # put a circle+cross on the centroid of each blob
-	f.plot_centroid(fig, 'x', color='y')
-	plt.show(block=True)  # display the result
+	blobs.plot_box(color='g')  # put a green bounding box on each blob
+	blobs.plot_centroid(label=True)  # put a circle+cross on the centroid of each blob
 
 .. image:: https://github.com/petercorke/machinevision-toolbox-python/raw/main/docs/figs/shark2+boxes.png
 	:alt: Binary image showing bounding boxes and centroids
 
+A huge number of blob features are computed, including: the centroid, area, perimeter,
+bounding box, equivalent ellipse (radii, aspect ratio, orientation, axis-aligned
+bounding box), circularity, minimal enclosing circle and rectangle, convex hull, etc.  
+
 Binary blob hierarchy
 ---------------------
 
-We load a binary image with nested objects
+The blobs are also organized into a hierarchy based on their nesting.  For example, if we load a binary image with nested objects
 
 .. code-block:: python
 
@@ -278,10 +256,14 @@ and request the blob label image which we then display
 Camera modelling
 ----------------
 
-.. code-block:: pycon
+Cameras are key to machine vision and vision-based robot control and navigation so it important to be able to model them.
 
-	>>> cam = mvtb.CentralCamera(f=0.015, rho=10e-6, imagesize=[1280, 1024], pp=[640, 512], name="mycamera")
-	>>> print(cam)
+We can model a standard central-perspective camera using its known parameters:
+
+.. code-block:: python
+
+	camera = mvtb.CentralCamera(f=0.015, rho=10e-6, imagesize=[1280, 1024], pp=[640, 512], name="mycamera")
+	print(camera)
 				Name: mycamera [CentralCamera]
 		focal length: (array([0.015]), array([0.015]))
 		  pixel size: 1e-05 x 1e-05
@@ -294,7 +276,7 @@ and its intrinsic parameters are
 
 .. code-block:: pycon
 
-	>>> print(cam.K)
+	print(cam.K)
 		[[1.50e+03 0.00e+00 6.40e+02]
 		[0.00e+00 1.50e+03 5.12e+02]
 		[0.00e+00 0.00e+00 1.00e+00]]
@@ -303,23 +285,24 @@ We can define an arbitrary point in the world
 
 .. code-block:: python
 
-	>>> P = [0.3, 0.4, 3.0]
+	P = [0.3, 0.4, 3.0]
 
 and then project it into the camera
 
 .. code-block:: pycon
 
-	>>> p = cam.project(P)
-	print(p)
-		[790. 712.]
+	p = cam.project(P)
+	  [790. 712.]
 
 which is the corresponding coordinate in pixels.  If we shift the camera slightly the image plane coordinate will also change
 
 .. code-block:: pycon
 
-	>>> p = cam.project(P, T=SE3(0.1, 0, 0) )
-	>>> print(p)
-	[740. 712.]
+	p = cam.project(P, T=SE3(0.1, 0, 0) )
+	print(p)
+	  [740. 712.]
+
+where ``SE3`` is a class from the `SpatialMath package <https://github.com/bdaiinstitute/spatialmath-python>`_ representing a 3D rigid body transformation, and the ``T`` argument specifies the pose of the camera relative to the world frame in which the point is defined.  By default the camera is at the origin of the world frame, so if we do not specify ``T`` then it is assumed to be the identity transformation.
 
 We can define an edge-based cube model and project it into the camera's image plane
 
@@ -331,9 +314,17 @@ We can define an edge-based cube model and project it into the camera's image pl
 .. image:: https://github.com/petercorke/machinevision-toolbox-python/raw/main/docs/figs/cube.png
 	:alt: Perspective camera view
 
+The Toolbox provides a number of other camera models, including fisheye cameras,
+catadioptric cameras, and ideal spherical camera.  All camera classes inherit from a
+common base class, so they have a consistent interface for projecting points from the
+world into the image.
 
 Color space
 -----------
+
+Most real-world images are color images, and the Toolbox provides a number of methods
+for working with color images, including conversion between different color spaces, and
+plotting colors in a chromaticity space.
 
 Plot the CIE chromaticity space
 
@@ -354,8 +345,7 @@ Load the spectrum of sunlight at the Earth's surface and compute the CIE xy chro
 	>>> xy = lambda2xy(lam, sun_at_ground)
 	>>> print(xy)
 		[[0.33272798 0.3454013 ]]
-	>>> print(colorname(xy, 'xy'))
-		khaki
+
 
 
 

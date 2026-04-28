@@ -62,6 +62,7 @@ extensions = [
     "sphinx_copybutton",
     "sphinxcontrib.programoutput",
     "sphinx_codeautolink",
+    "sphinx_design",
     "blockname",
 ]
 

@@ -61,3 +61,18 @@ a.sphinx-codeautolink-a span {
     background-color: rgba(0, 0, 0, 0.06);
     align-self: center;
 }
+
+/* Specifically target your logo if it's still being stubborn */
+.main-logo {
+    background-color: transparent !important;
+}
+
+.mvt-hero-title {
+    font-size: 2em;
+    line-height: 1.2;
+    font-weight: 700;
+}
+
+.docs-heading-small {
+    font-size: 70%;
+}

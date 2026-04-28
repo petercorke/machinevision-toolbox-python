@@ -1,5 +1,5 @@
 **********************************
-``machinevisiontoolbox`` package
+``machinevisiontoolbox``
 **********************************
 
 A number of Python classes are provided to represent images, image sources, cameras, and point clouds.  These are described in the following sections.
