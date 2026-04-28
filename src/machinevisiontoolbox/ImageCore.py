@@ -448,7 +448,21 @@ class Image(
         else:
             self.colororder = color_dict
 
+        self._stats = None
+
         self.name = name
+
+    @staticmethod
+    def _plane_stats(plane: np.ndarray) -> dict[str, float | int]:
+        return {
+            "min": float(np.nanmin(plane)),
+            "max": float(np.nanmax(plane)),
+            "mean": float(np.nanmean(plane)),
+            "sdev": float(np.nanstd(plane)),
+            "median": float(np.nanmedian(plane)),
+            "nnan": int(np.sum(np.isnan(plane))),
+            "ninf": int(np.sum(np.isinf(plane))),
+        }
 
     def __iter__(self) -> Iterator["Image"]:
         """Iterate over image planes."""
@@ -696,13 +710,15 @@ class Image(
             s += ")"
 
         # Add statistics summary on subsequent line(s).
-        stats = self.stats
-        if self.iscolor and self.colororder is not None:
-            colororder = self.colororder
-            for k in sorted(stats.keys(), key=lambda x: colororder[x]):
-                s += f"\n  {k:s}: {self._format_stats(stats[k])}"
-        else:
-            s += f"\n  {self._format_stats(stats)}"
+        stats = self._stats
+        if stats is not None:
+            # self._stats is None if the image is mutable, so skip stats in that case
+            if self.iscolor and self.colororder is not None:
+                colororder = self.colororder
+                for k in sorted(stats.keys(), key=lambda x: colororder[x]):
+                    s += f"\n  {k:s}: {self._format_stats(stats[k])}"
+            else:
+                s += f"\n  {self._format_stats(stats)}"
 
         return s
 

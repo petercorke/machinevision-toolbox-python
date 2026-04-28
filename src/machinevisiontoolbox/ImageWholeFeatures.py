@@ -218,18 +218,6 @@ class ImageWholeFeaturesMixin(_ImageBase if TYPE_CHECKING else object):
         return np.nanmedian(self._A, **kwargs)
 
     @staticmethod
-    def _plane_stats(plane: np.ndarray) -> dict[str, float | int]:
-        return {
-            "min": float(np.nanmin(plane)),
-            "max": float(np.nanmax(plane)),
-            "mean": float(np.nanmean(plane)),
-            "sdev": float(np.nanstd(plane)),
-            "median": float(np.nanmedian(plane)),
-            "nnan": int(np.sum(np.isnan(plane))),
-            "ninf": int(np.sum(np.isinf(plane))),
-        }
-
-    @staticmethod
     def _format_stats(stats: dict[str, float | int]) -> str:
         s = (
             f"span=[{stats['min']:g}, {stats['max']:g}]; "
@@ -277,13 +265,7 @@ class ImageWholeFeaturesMixin(_ImageBase if TYPE_CHECKING else object):
         :seealso: :meth:`printstats` :meth:`hist` :meth:`min` :meth:`max` :meth:`mean` :meth:`std` :meth:`median`
         """
 
-        if self.iscolor and self.colororder is not None:
-            all_stats = {}
-            for k, v in sorted(self.colororder.items(), key=lambda x: x[1]):
-                all_stats[k] = self._plane_stats(self._A[..., v])
-            return all_stats
-        else:
-            return self._plane_stats(self._A)
+        return self._stats
 
     def printstats(self) -> None:
         """
@@ -294,7 +276,7 @@ class ImageWholeFeaturesMixin(_ImageBase if TYPE_CHECKING else object):
         :seealso: :meth:`stats`
         """
 
-        stats = self.stats
+        stats = self._stats
         if self.iscolor and self.colororder is not None:
             colororder = self.colororder
             for k in sorted(stats.keys(), key=lambda x: colororder[x]):
