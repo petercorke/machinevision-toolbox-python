@@ -3249,7 +3249,7 @@ class CentralCamera(CameraBase):
             >>> from machinevisiontoolbox import CentralCamera
             >>> from spatialmath import SE3
             >>> camera = CentralCamera.Default()
-            >>> camera.visjac_e(((0.5, 0, -1000, -500, 374900)), (0, 0, 1, -1)
+            >>> camera.visjac_e((0.5, 0, -1000, -500, 374900), (0, 0, 1, -1))
 
         :references:
             - A New Approach to Visual Servoing in Robotics,
