@@ -108,6 +108,7 @@ from machinevisiontoolbox.base import (
     findpeaks2d,
     findpeaks3d,
     mvtb_version,
+    mpl_styling,
 )
 
 # Import image I/O symbols from their defining module to avoid static-analysis

@@ -41,6 +41,7 @@ __all__ = [
     "draw_text",
     "draw_line",
     "draw_circle",
+    "mpl_styling",
     #'plot_histogram',
     # imageio
     "idisp",

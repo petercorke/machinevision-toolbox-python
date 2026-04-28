@@ -7,6 +7,7 @@ from __future__ import annotations
 from collections.abc import Iterable
 from typing import Any
 from typing import Iterable as TypingIterable
+import re
 
 import cv2
 import matplotlib.pyplot as plt
@@ -920,6 +921,118 @@ def draw_circle(
         lt = cv2.LINE_8
     cv2.circle(image, _roundvec(centre), round(radius), color, thickness, lt)
     return image
+
+
+def mpl_styling(
+    fmt: str | tuple[str] = None, defaults: dict = None, kwargs: dict = None
+):
+    """Merge Matplotlib style options
+
+    :param fmt: a format string, defaults to None
+    :type fmt: str or tuple[str], optional
+    :param defaults: a dictionary of default keyword arguments , defaults to None
+    :type defaults: dict, optional
+    :param kwargs: a dictionary of keyword arguments , defaults to None
+    :type kwargs: dict, optional
+
+    Matplotlib has two distinct ways of specifying styling for plots:
+
+    1. A format string, which is a compact way of specifying color, marker and
+       linestyle, eg. 'ro--' for red circles with dashed lines.
+    2. Keyword arguments, which can specify a wide range of styling options, eg.
+       color='red', marker='o', linestyle='--'.
+
+    The format string strictly specifies only color, marker and linestyle, and is a
+    convenient way to specify these three options in a compact form.  The keyword
+    arguments are more verbose and flexible, and  can specify any styling option,
+    including color, marker and linestyle, but also many others such as linewidth,
+    markersize, etc.
+
+    These two styles reflects the shift from "quick-and-dirty" plotting (as in original
+    MATLAB) to modern, robust software engineering.
+
+    This function returns a dict of keyword arguments that merges the format string
+    ``fmt``, the default keyword arguments ``defaults`` and the user-specified keyword
+    arguments ``kwargs``.  The precedence in decreasing order is: ``kwargs``, ``fmt``,
+    ``defaults``.
+
+    As a convenience to users, many Toolbox functions accept a ``fmt`` argument, which
+    is passed to this function to merge with the keyword arguments.  This allows users
+    to specify styling in a compact format string, while still allowing for more
+    detailed styling through keyword arguments with decent defaults.
+
+    .. code-block:: python
+
+        def function(*fmt, ..., **kwargs):
+            options = mpl_styling(fmt, defaults={color='red', marker='o'}, kwargs=kwargs)
+             .
+             .
+            plt.plot(x, y, **options)
+
+    """
+
+    def parse_matplotlib_fmt(fmt: str):
+        """
+        Parses a Matplotlib format string for color, marker, and linestyle.
+
+        Args:
+            fmt (str): The format string (e.g., 'ro--', 'g^:', '-.b*').
+
+        Returns:
+            dict: {color, marker, linestyle} with None for missing components.
+        """
+        # 1. Define patterns
+        # Styles: Match longer strings first to avoid greedy partial matches
+        style_pattern = r"(--|-\.|-|:)"
+        # Colors: Standard single-letter codes
+        color_pattern = r"[bgrcmykw]"
+        # Markers: Standard Matplotlib marker symbols
+        marker_pattern = r"[.,ov^<>12348spP*hH+xXDd|_]"
+
+        res = {"color": None, "marker": None, "linestyle": None}
+        working_fmt = fmt
+
+        # 2. Extract Linestyle first (prevents '.' in '-.' being seen as a marker)
+        style_match = re.search(style_pattern, working_fmt)
+        if style_match:
+            res["linestyle"] = style_match.group(0)
+            working_fmt = working_fmt.replace(res["linestyle"], "", 1)
+
+        # 3. Extract Color
+        color_match = re.search(color_pattern, working_fmt)
+        if color_match:
+            res["color"] = color_match.group(0)
+            working_fmt = working_fmt.replace(res["color"], "", 1)
+
+        # 4. Extract Marker (from what remains)
+        marker_match = re.search(marker_pattern, working_fmt)
+        if marker_match:
+            res["marker"] = marker_match.group(0)
+
+        if len(working_fmt.strip()) > 0:
+            raise ValueError(
+                f"Unrecognized format components in '{fmt}': '{working_fmt}'"
+            )
+
+        return res
+
+    """
+    Process a Matplotlib format string and return its components.
+
+    Args:
+        fmt (str): The format string to process.
+    """
+    if fmt is None or len(fmt) == 0:
+        res = {}
+    else:
+        if isinstance(fmt, (tuple, list)):
+            fmt = fmt[0]
+
+        res = parse_matplotlib_fmt(fmt)
+
+    # Override with defaults if not specified in fmt
+    options = defaults | res | kwargs
+    return {k: v for k, v in options.items() if v is not None}
 
 
 if __name__ == "__main__":
