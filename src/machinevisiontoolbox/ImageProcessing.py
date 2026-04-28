@@ -8,7 +8,7 @@ import os.path
 from collections import namedtuple
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Callable
-from warnings import warn
+import warnings
 
 import cv2
 import matplotlib.pyplot as plt
@@ -380,7 +380,7 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
         .. deprecated:: 1.0.3
             Use :meth:`threshold` instead
         """
-        warn(
+        warnings.warn(
             "Deprecated in 1.0.3: use threshold() instead of thresh().",
             DeprecationWarning,
             stacklevel=2,
@@ -501,7 +501,7 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
             :meth:`triangle`
         """
         if t is not None:
-            warn(
+            warnings.warn(
                 "Deprecated in 1.1.0: pass threshold as the first argument instead of using t=.",
                 DeprecationWarning,
                 stacklevel=2,
@@ -514,7 +514,7 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
             raise ValueError("threshold must be specified")
 
         if opt is not None:
-            warn(
+            warnings.warn(
                 "Deprecated in 1.1.0: use method= instead of opt=.",
                 DeprecationWarning,
                 stacklevel=2,
@@ -597,7 +597,7 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
         if threshold is not None:
             return self.threshold(threshold=threshold, method=opt)
 
-        warn(
+        warnings.warn(
             "Deprecated in 1.0.3: use threshold_interactive() instead of ithresh().",
             DeprecationWarning,
             stacklevel=2,
@@ -825,7 +825,7 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
         .. deprecated:: 1.1.0
             Use :meth:`threshold_adaptive` instead.  Mentioned on page 484 of |RVC3| as adaptive_threshold but implemented as threshold_adaptive for consistency with other method names.
         """
-        warn(
+        warnings.warn(
             "Deprecated in 1.1.0: use threshold_adaptive() instead of adaptive_threshold().",
             DeprecationWarning,
             stacklevel=2,
@@ -1234,8 +1234,8 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
               are replicated and colororder is taken from the pattern.
             - If the image is multiplane and the pattern is singleplane, the pattern planes
               are replicated.
-        """
 
+        """
         # TODO can likely replace a lot of this with np.where?
 
         # check inputs

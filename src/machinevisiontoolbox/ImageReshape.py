@@ -5,6 +5,7 @@ Geometric transformations: resizing, cropping, rotation, padding, and stacking o
 import math
 from collections.abc import Callable
 from typing import Any, cast
+import warnings
 
 try:
     from typing import Self

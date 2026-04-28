@@ -5,6 +5,7 @@ Whole-image feature computation: moments, Hu invariants, histograms, and entropy
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Literal
+import warnings
 
 import cv2
 import matplotlib.pyplot as plt
