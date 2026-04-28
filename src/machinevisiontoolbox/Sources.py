@@ -2744,6 +2744,14 @@ class SyncROSStreams:
     polling loops, and weaker one-sample-per-time-step behaviour.  It remains
     useful for low-latency latest-state fusion, but is less suitable for
     strict frame-by-frame synchronisation.
+
+    **Choosing ``tol``**
+
+    The tolerance should be set based on the expected time difference between messages on
+    the two topics.  Setting it too low may result in no messages being returned, while
+    setting it too high may result in non-corresponding messages being returned.  In
+    practice, a tolerance of around 20 milliseconds is often a good starting point for
+    synchronizing RGB and Depth images from a RealSense camera.
     """
 
     streams: list[ROSTopic]
@@ -2855,6 +2863,13 @@ class ROSBag(ImageSource):
 
     Each yielded object carries a ``timestamp`` attribute (ROS nanosecond
     epoch from the message header) and a ``topic`` attribute (the topic on which it was published).
+
+    **Filters**
+
+    The message and topic filters can be a single string, or a list of strings.
+    If a single string is provided, it is treated as a list with one element.
+    The filter passes if any of the strings in the list are a substring of the message type (for the message filter) or topic name (for the topic filter).
+    It is an OR condition.
 
     **Usage modes**
 
@@ -3591,7 +3606,9 @@ class PointCloudSequence:
             return
 
         vis = o3d.visualization.VisualizerWithKeyCallback()
-        vis.create_window(window_name=title or "PointCloudSequence", width=1280, height=720)
+        vis.create_window(
+            window_name=title or "PointCloudSequence", width=1280, height=720
+        )
 
         render_opt = vis.get_render_option()
         render_opt.background_color = np.array([0.15, 0.15, 0.15], dtype=np.float64)
@@ -3676,6 +3693,7 @@ class PointCloudSequence:
             vis.register_key_callback(ord("x"), _on_quit)
             vis.register_key_callback(ord(" "), _on_next)
             for key, jump in _jump.items():
+
                 def _mk_jump(n):
                     def _on_jump(_vis):
                         view_state["skip"] = n
