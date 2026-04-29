@@ -33,6 +33,18 @@
             Object-oriented vision for Python. A unified framework for **spatial reasoning** and **computer vision**
             harmonizing NumPy, OpenCV, and Open3D.
 
+
+.. image:: _static/package-connections.svg
+   :align: center
+   :class: only-light
+   :alt: Integration with other ecosystems
+
+.. image:: _static/package-connections-dark.svg
+   :align: center
+   :class: only-dark pst-js-only
+   :alt: Integration with other ecosystems
+
+
 .. grid:: 1 2 2 2
    :gutter: 3
    :class-container: main-dashboard

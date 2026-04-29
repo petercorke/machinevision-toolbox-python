@@ -76,3 +76,11 @@ a.sphinx-codeautolink-a span {
 .docs-heading-small {
     font-size: 70%;
 }
+
+/* SVG diagram support for both light and dark themes */
+img[src*="package-connections.svg"],
+img[src*="package-connections-dark.svg"] {
+    background-color: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}

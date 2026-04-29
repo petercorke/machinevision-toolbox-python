@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with EazyDraw for Mac ( https://www.eazydraw.com/ ) -->
+
+<svg
+    version="1.1"
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:cc="http://creativecommons.org/ns#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:svg="http://www.w3.org/2000/svg"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns="http://www.w3.org/2000/svg"
+    width="751.067955119"
+    height="320.724411766"
+    viewBox="0, 0, 751.067955119, 320.724411766"
+    preserveAspectRatio="none"
+    id="svg2">
+   <defs
+       id="defs_91EBCD81">
+      <marker
+          orient="auto"
+          refX="0.0"
+          refY="0.0"
+          id="CE9636B8_end_arrow"
+          style="overflow:visible"
+          markerUnits="userSpaceOnUse">
+         <path
+             id="CE9636B8_end_arrow_path"
+             style="fill:#d8d8d8;fill-opacity:1;stroke:#d8d8d8;stroke-opacity:1;fill-rule:nonzero;stroke-linecap:square;stroke-linejoin:miter;stroke-width:0.5;stroke-miterlimit:10"
+             d="M0,0 L-10.1486803045,3.693817547917 L-10.1486803045,-3.693817547917 z"/>
+      </marker>
+   </defs>
+   <metadata
+       id="metadata7">
+      <rdf:RDF>
+         <cc:Work
+             rdf:about="">
+            <dc:format>image/svg+xml</dc:format>
+            <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+            <dc:title></dc:title>
+         </cc:Work>
+      </rdf:RDF>
+   </metadata>
+   <g
+       id="layer_Paper"
+       style="fill:#d8d8d8;fill-opacity:1;stroke:#d8d8d8;stroke-opacity:1;fill-rule:nonzero;stroke-linecap:square;stroke-linejoin:miter;stroke-width:1;stroke-miterlimit:10">
+      <g id="11FE6B98_textGroup">
+         <path
+             style="fill:#1f1f1f;stroke:#b0b0b0;stroke-width:1.5"
+             id="11FE6B98_textRect"
+             d="M0.75,0.75 L148.335487289,0.75 L148.335487289,101.717224702 L0.75,101.717224702 z"/>
+         <text
+             id="11FE6B98"
+             style="stroke:none"
+             font-family="Avenir"
+             font-size="12"
+             font-weight="bold"
+             font-style="normal">
+<tspan x="6.5" y="13.5">Files &amp; Archive:</tspan><tspan x="6.5" y="29.5" font-weight="normal">- images, URLs, videos</tspan><tspan x="6.5" y="45.5" font-weight="normal">- point clouds, mesh files</tspan><tspan x="6.5" y="61.5" font-weight="normal">- zip archives, folders</tspan><tspan x="6.5" y="77.5" font-weight="normal">- </tspan><tspan>ROS</tspan><tspan font-weight="normal">&#x20;bag files</tspan><tspan x="6.5" y="93.5" font-weight="normal">- LabelMe files</tspan>         </text>
+      </g>
+      <g id="0083DD98_textGroup">
+         <path
+             style="fill:#1f1f1f;stroke:#b0b0b0;stroke-width:1.5"
+             id="0083DD98_textRect"
+             d="M0.75,116.388627844 L148.335487289,116.388627844 L148.335487289,186.191314752 L0.75,186.191314752 z"/>
+         <text
+             id="0083DD98"
+             style="stroke:none"
+             font-family="Avenir"
+             font-size="12"
+             font-weight="bold"
+             font-style="normal">
+<tspan x="6.5" y="129.138627844">Live sources:</tspan><tspan x="6.5" y="145.138627844" font-weight="normal">- webcam</tspan><tspan x="6.5" y="161.138627844" font-weight="normal">- cameras</tspan><tspan x="6.5" y="177.138627844" font-weight="normal">- </tspan><tspan>ROS</tspan><tspan font-weight="normal">&#x20;streams</tspan>         </text>
+      </g>
+      <g id="B60964A8_textGroup">
+         <path
+             style="fill:#1f1f1f;stroke:#b0b0b0;stroke-width:1.5"
+             id="B60964A8_textRect"
+             d="M0.75,200.890388827 L148.335487289,200.890388827 L148.335487289,271.510699628 L0.75,271.510699628 z"/>
+         <text
+             id="B60964A8"
+             style="stroke:none"
+             font-family="Avenir"
+             font-size="12"
+             font-weight="bold"
+             font-style="normal">
+<tspan x="6.5" y="213.640388827">External ecosystems:</tspan><tspan x="6.5" y="229.640388827" font-weight="normal">- </tspan><tspan>PyTorch</tspan><tspan font-weight="normal">&#x20;(tensors)</tspan><tspan x="6.5" y="245.640388827" font-weight="normal">- </tspan><tspan>ROS</tspan><tspan font-weight="normal">/</tspan><tspan>ROS2</tspan><tspan font-weight="normal">&#x20;(streams)</tspan><tspan x="6.5" y="261.640388827" font-weight="normal">- Google Earth</tspan>         </text>
+      </g>
+      <line
+          style="fill:none;stroke-width:2;marker-end:url(#CE9636B8_end_arrow)"
+          id="CE9636B8"
+          x1="148.915286613"
+          y1="38.3804575227"
+          x2="253.637085729"
+          y2="73.01131128"/>
+      <line
+          style="fill:none;stroke-width:2;marker-end:url(#CE9636B8_end_arrow)"
+          id="5FC8D9C8"
+          x1="150.003679185"
+          y1="147.728252575"
+          x2="253.651690152"
+          y2="84.9901184309"/>
+      <line
+          style="fill:none;stroke-width:2;marker-end:url(#CE9636B8_end_arrow)"
+          id="DA5DD9C8"
+          x1="148.509542449"
+          y1="218.398522143"
+          x2="252.916176063"
+          y2="99.7346087474"/>
+      <g id="D24DBAC8_textGroup">
+         <path
+             style="fill:#1f1f1f;stroke:#b0b0b0;stroke-width:1.5"
+             id="D24DBAC8_textRect"
+             d="M580.335487289,2.8903888269 L750.317955119,2.8903888269 L750.317955119,159.734008711 L580.335487289,159.734008711 z"/>
+         <text
+             id="D24DBAC8"
+             style="stroke:none"
+             font-family="Avenir"
+             font-size="12"
+             font-weight="bold"
+             font-style="normal">
+<tspan x="586.085487289" y="15.6403888269">Vision data &amp; geometry</tspan><tspan x="586.085487289" y="31.6403888269" font-weight="normal">- processed images</tspan><tspan x="586.085487289" y="47.6403888269" font-weight="normal">- features: blobs, SIFT, </tspan><tspan x="586.085487289" y="63.6403888269" font-weight="normal">  correspondences</tspan><tspan x="586.085487289" y="79.6403888269" font-weight="normal">- point clouds</tspan><tspan x="586.085487289" y="95.6403888269" font-weight="normal">- geometric models: camera </tspan><tspan x="586.085487289" y="111.640388827" font-weight="normal">  calibration, E &amp;F matrices,&#x20;</tspan><tspan x="586.085487289" y="127.640388827" font-weight="normal">  extrinsics</tspan><tspan x="586.085487289" y="143.640388827" font-weight="normal">- estimated poses</tspan>         </text>
+      </g>
+      <g id="992940D8_textGroup">
+         <path
+             style="fill:#1f1f1f;stroke:#b0b0b0;stroke-width:1.5"
+             id="992940D8_textRect"
+             d="M580.335487289,182.890388827 L750.317955119,182.890388827 L750.317955119,319.974411766 L580.335487289,319.974411766 z"/>
+         <text
+             id="992940D8"
+             style="stroke:none"
+             font-family="Avenir"
+             font-size="12"
+             font-weight="bold"
+             font-style="normal">
+<tspan x="586.085487289" y="195.640388827">Downstream integration:</tspan><tspan x="586.085487289" y="211.640388827" font-weight="normal">- </tspan><tspan>Pytorch</tspan><tspan font-weight="normal">&#x20;tensors (for deep&#x20;</tspan><tspan x="586.085487289" y="227.640388827" font-weight="normal">  learning)</tspan><tspan x="586.085487289" y="243.640388827" font-weight="normal">- </tspan><tspan>ROS</tspan><tspan font-weight="normal">&#x20;topics (for robot &#x20;</tspan><tspan x="586.085487289" y="259.640388827" font-weight="normal">  control)</tspan><tspan x="586.085487289" y="275.640388827" font-weight="normal">- interactive visualizations              </tspan><tspan x="586.085487289" y="291.640388827" font-weight="normal">  (Matplotlib &amp; Open3D)</tspan><tspan x="586.085487289" y="307.640388827" font-weight="normal">- JSON data</tspan>         </text>
+      </g>
+      <line
+          style="fill:none;stroke-width:2;marker-end:url(#CE9636B8_end_arrow)"
+          id="D5B375D8"
+          x1="479.782383055"
+          y1="88.9821111516"
+          x2="577.929551212"
+          y2="203.413449763"/>
+      <line
+          style="fill:none;stroke-width:2;marker-end:url(#CE9636B8_end_arrow)"
+          id="4D7A75D8"
+          x1="479.494403075"
+          y1="77.5409605718"
+          x2="576.197797802"
+          y2="30.7025255127"/>
+      <g
+          id="C08AA6F2">
+         <rect
+             style="fill:#3f3f3f"
+             id="37302397"
+             x="259.14642"
+             y="128.748296731"
+             width="36"
+             height="87.2637606218"/>
+         <polygon
+             style="fill:#3f3f3f"
+             id="9DB9DF97"
+             points="439.14642,128.748296731 475.14642,128.748296731 475.652570131,249.072883038 258.807933024,248.94498177 259.14642,216.012057353 439.14642,215.998248758"/>
+         <rect
+             style="fill:#3f3f3f"
+             id="2DC941B7"
+             x="403.14642"
+             y="128.748296731"
+             width="36"
+             height="87.2499520273"/>
+         <rect
+             style="fill:#73FAFD"
+             id="1E3CC297"
+             x="259.14642"
+             y="38.748296731"
+             width="216"
+             height="90"/>
+         <rect
+             style="fill:#3f3f3f"
+             id="A5957597"
+             x="295.14642"
+             y="128.748296731"
+             width="36"
+             height="87.2866431865"/>
+         <rect
+             style="fill:#3f3f3f"
+             id="4E697597"
+             x="331.14642"
+             y="128.748296731"
+             width="36"
+             height="87.2725061619"/>
+         <rect
+             style="fill:#3f3f3f"
+             id="B9558597"
+             x="367.14642"
+             y="128.748296731"
+             width="36"
+             height="87.2928702784"/>
+         <text
+             id="195C0997"
+             style="stroke:none"
+             font-family="Avenir"
+             font-size="18"
+             font-weight="normal"
+             font-style="normal">
+<tspan x="339.807563882" y="239.903590001">NumPy</tspan>         </text>
+         <text
+             id="3C2AAC97"
+             style="stroke:none;fill:#111111"
+             font-family="Avenir"
+             font-size="18"
+             font-weight="bold"
+             font-style="normal">
+<tspan x="268.817697757" y="73.6858067334">Machine Vision Toolbox</tspan><tspan font-weight="normal">&#x20;</tspan><tspan x="268.817697757" y="98.6858067334" font-weight="normal">for Python</tspan>         </text>
+         <rect
+             style="fill:none;stroke-width:3"
+             id="DE8B97D2"
+             x="258.807933024"
+             y="38.5924775363"
+             width="216.967117845"
+             height="210.416454868"/>
+         <text
+             id="650F8897"
+             style="stroke:none"
+             font-family="Avenir"
+             font-size="14"
+             font-weight="normal"
+             font-style="normal"
+             transform="matrix(0,-1,1,0,103.37159617,456.630260908)">
+<tspan x="265.792928539" y="178.039707431">OpenCV</tspan>         </text>
+         <text
+             id="585A0997"
+             kerning="0.125"
+             style="stroke:none"
+             font-family="Avenir"
+             font-size="14"
+             font-weight="normal"
+             font-style="normal"
+             transform="matrix(0,-1,1,0,145.840376362,483.603590407)">
+<tspan x="292.729062199" y="170.375444819">Open3D</tspan>         </text>
+         <text
+             id="11A3BAA7"
+             style="stroke:none"
+             font-family="Avenir"
+             font-size="14"
+             font-weight="normal"
+             font-style="normal"
+             transform="matrix(0,-1,1,0,179.868784694,523.279880585)">
+<tspan x="319.748603455" y="173.205547946">MatplotLib</tspan>         </text>
+         <text
+             id="740E0997"
+             style="stroke:none"
+             font-family="Avenir"
+             font-size="14"
+             font-weight="normal"
+             font-style="normal"
+             transform="matrix(0,-1,1,0,215.69785063,558.277354801)">
+<tspan x="388.707940776" y="172.783589882">SciPy</tspan>         </text>
+         <text
+             id="9BA87E97"
+             style="stroke:none"
+             font-family="Avenir"
+             font-size="14"
+             font-weight="normal"
+             font-style="normal"
+             transform="matrix(0,-1,1,0,248.773147255,593.519692744)">
+<tspan x="385.839694325" y="173.867110541">SpatialMath</tspan>         </text>
+      </g>
+   </g>
+</svg>

@@ -1,3 +1,8 @@
+.. image:: https://upload.wikimedia.org/wikipedia/commons/b/bb/Ros_logo.svg
+    :height: 80px
+    :alt: ROS
+    :target: ros.html
+         
 ROS interfaces
 ==============
 

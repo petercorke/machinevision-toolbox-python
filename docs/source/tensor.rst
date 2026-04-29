@@ -1,3 +1,8 @@
+.. image:: https://upload.wikimedia.org/wikipedia/commons/9/96/Pytorch_logo.png
+    :height: 80px
+    :alt: PyTorch
+    :target: tensor.html
+
 PyTorch tensor interface
 ========================
 
