@@ -12,25 +12,25 @@ from machinevisiontoolbox.base.color import *
 
 class TestImageConstants(unittest.TestCase):
     def test_zeros(self):
-        im = Image.Zeros(5, 9)
+        im = Image.Zeros(size=(5, 9))
         self.assertEqual(im.size, (5, 9))
         self.assertEqual(im.dtype, np.uint8)
         self.assertFalse(im.iscolor)
         self.assertTrue(np.all(im._A == 0))
 
-        im = Image.Zeros(5)
+        im = Image.Zeros(size=5)
         self.assertEqual(im.size, (5, 5))
         self.assertEqual(im.dtype, np.uint8)
         self.assertFalse(im.iscolor)
         self.assertTrue(np.all(im._A == 0))
 
-        im = Image.Zeros((5, 9))
+        im = Image.Zeros(size=(5, 9))
         self.assertEqual(im.size, (5, 9))
         self.assertEqual(im.dtype, np.uint8)
         self.assertFalse(im.iscolor)
         self.assertTrue(np.all(im._A == 0))
 
-        im = Image.Zeros((5, 9), colororder="ABCD")
+        im = Image.Zeros(size=(5, 9), colororder="ABCD")
         self.assertEqual(im.size, (5, 9))
         self.assertEqual(im.dtype, np.uint8)
         self.assertTrue(np.all(im._A == 0))
@@ -38,12 +38,12 @@ class TestImageConstants(unittest.TestCase):
         self.assertEqual(im.nplanes, 4)
         self.assertEqual(im.colororder_str, "A:B:C:D")
 
-        im = Image.Zeros((5, 9), dtype="float32")
+        im = Image.Zeros(size=(5, 9), dtype="float32")
         self.assertEqual(im.size, (5, 9))
         self.assertEqual(im.dtype, np.float32)
         self.assertTrue(np.all(im._A == 0.0))
 
-        im = Image.Zeros((5, 9), dtype="float32", colororder="ABCD")
+        im = Image.Zeros(size=(5, 9), dtype="float32", colororder="ABCD")
         self.assertEqual(im.size, (5, 9))
         self.assertEqual(im.dtype, np.float32)
         self.assertTrue(im.iscolor)
@@ -128,35 +128,15 @@ class TestImageConstants(unittest.TestCase):
         self.assertFalse(im.iscolor)
         self.assertTrue(np.all(im._A == 42))
 
-    def test_constant_legacy_warning_includes_preferred_call(self):
-        with self.assertWarnsRegex(
-            DeprecationWarning,
-            r"Image\.Constant\(42, size=\(5, 9\)\)",
-        ):
-            im = Image.Constant(5, 9, 42)
+    def test_constant_legacy_shorthand_rejected(self):
+        with self.assertRaises(TypeError):
+            Image.Constant(5, 9, 42)
 
-        self.assertEqual(im.size, (5, 9))
-        self.assertTrue(np.all(im._A == 42))
+        with self.assertRaises(TypeError):
+            Image.Constant(5, 9, value="red", colororder="XYZ", dtype="uint8")
 
-    def test_constant_legacy_warning_includes_kwargs(self):
-        with self.assertWarnsRegex(
-            DeprecationWarning,
-            r"Image\.Constant\('red', size=\(5, 9\), colororder='XYZ', dtype='uint8'\)",
-        ):
-            im = Image.Constant(5, 9, value="red", colororder="XYZ", dtype="uint8")
-
-        self.assertEqual(im.size, (5, 9))
-        self.assertEqual(im.colororder_str, "X:Y:Z")
-
-    def test_constant_legacy_tuple_size_and_value(self):
-        with self.assertWarnsRegex(
-            DeprecationWarning,
-            r"Image\.Constant\(3, size=\(4, 4\)\)",
-        ):
-            im = Image.Constant((4, 4), 3)
-
-        self.assertEqual(im.size, (4, 4))
-        self.assertTrue(np.all(im._A == 3))
+        with self.assertRaises(TypeError):
+            Image.Constant((4, 4), 3)
 
     def test_string_binary_and_numeric(self):
         im = Image.String(
@@ -269,26 +249,26 @@ class TestImageConstants(unittest.TestCase):
         self.assertTrue(im.iscolor)
         self.assertTrue(im._A.var() > 10)
 
-        im = Image.Random(5)
+        im = Image.Random(size=5)
         self.assertEqual(im.size, (5, 5))
         self.assertEqual(im.dtype, np.uint8)
         self.assertFalse(im.iscolor)
         self.assertTrue(im._A.var() > 10)
 
-        im = Image.Random((5, 9))
+        im = Image.Random(size=(5, 9))
         self.assertEqual(im.size, (5, 9))
         self.assertEqual(im.dtype, np.uint8)
         self.assertFalse(im.iscolor)
         self.assertTrue(im._A.var() > 10)
 
-        im = Image.Random((5, 9), maxval=10)
+        im = Image.Random(size=(5, 9), maxval=10)
         self.assertEqual(im.size, (5, 9))
         self.assertEqual(im.dtype, np.uint8)
         self.assertFalse(im.iscolor)
         self.assertTrue(im._A.var() > 3)
         self.assertTrue(im._A.max() == 9)
 
-        im = Image.Random((5, 9), colororder="ABCD")
+        im = Image.Random(size=(5, 9), colororder="ABCD")
         self.assertEqual(im.size, (5, 9))
         self.assertEqual(im.dtype, np.uint8)
         self.assertTrue(im.iscolor)
@@ -296,14 +276,14 @@ class TestImageConstants(unittest.TestCase):
         self.assertEqual(im.colororder_str, "A:B:C:D")
         self.assertTrue(np.all(im._A.var(axis=(0, 1)) > 10))
 
-        im = Image.Random((5, 9), dtype="float32")
+        im = Image.Random(size=(5, 9), dtype="float32")
         self.assertEqual(im.size, (5, 9))
         self.assertEqual(im.dtype, np.float32)
         self.assertTrue(im._A.var() > 0.05)
         self.assertTrue(np.all(im._A.max() < 1.0))
         self.assertTrue(np.any(im._A.max() > 0.5))
 
-        im = Image.Random((5, 9), dtype="float32", maxval=10)
+        im = Image.Random(size=(5, 9), dtype="float32", maxval=10)
         self.assertEqual(im.size, (5, 9))
         self.assertEqual(im.dtype, np.float32)
         self.assertTrue(im._A.var() > 0.5)
@@ -351,7 +331,7 @@ class TestImageConstants(unittest.TestCase):
             )
         )
 
-        like = Image.Zeros((7, 9), dtype="float32", colororder="ABCD")
+        like = Image.Zeros(size=(7, 9), dtype="float32", colororder="ABCD")
         im = Image.Squares(1, like=like)
         self.assertEqual(im.size, (7, 9))
         self.assertEqual(im.dtype, np.float32)

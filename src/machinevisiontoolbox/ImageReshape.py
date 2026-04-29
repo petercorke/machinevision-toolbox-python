@@ -568,7 +568,7 @@ class ImageReshapeMixin(_ImageBase if TYPE_CHECKING else object):
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> img = Image.Random(6)
+            >>> img = Image.Random(size=6)
             >>> img.print()
             >>> img.decimate(2, sigma=0).print()
 
@@ -608,7 +608,7 @@ class ImageReshapeMixin(_ImageBase if TYPE_CHECKING else object):
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> img = Image.Random(5)
+            >>> img = Image.Random(size=5)
             >>> img.print()
             >>> bigger = img.replicate(2)
             >>> bigger.print()
@@ -992,7 +992,7 @@ class ImageReshapeMixin(_ImageBase if TYPE_CHECKING else object):
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> img = Image.Zeros(3)
+            >>> img = Image.Zeros(size=3)
             >>> U, V = img.meshgrid()
             >>> U
             >>> V

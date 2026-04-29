@@ -145,7 +145,7 @@ class TestImageWholeFeatures(unittest.TestCase):
         self.assertEqual(im.upq(0, 2), 0)
         self.assertEqual(im.upq(1, 1), 0)
 
-        im = Image.Zeros(10)
+        im = Image.Zeros(size=10)
         box = Image.Constant(7, size=(3, 3))  # 3x3 block
         im = im.paste(box, (3, 3))
         self.assertEqual(im.upq(0, 0), 3 * 3 * 7)
@@ -154,7 +154,7 @@ class TestImageWholeFeatures(unittest.TestCase):
         self.assertEqual(im.upq(2, 0), 3 * (1 + 1) * 7)
         self.assertEqual(im.upq(0, 2), 3 * (1 + 1) * 7)
 
-        im = Image.Zeros(10)
+        im = Image.Zeros(size=10)
         box = Image.Constant(7, size=(5, 5))  # 5x5 block
         im = im.paste(box, (2, 2))
         self.assertEqual(im.upq(0, 0), 5 * 5 * 7)
@@ -170,13 +170,13 @@ class TestImageWholeFeatures(unittest.TestCase):
         self.assertEqual(im.npq(0, 2), 0)
         self.assertEqual(im.npq(1, 1), 0)
 
-        im = Image.Zeros(10)
+        im = Image.Zeros(size=10)
         box = Image.Constant(7, size=(3, 3))  # 3x3 block
         im = im.paste(box, (3, 3))
         self.assertEqual(im.npq(2, 0), 3 * (1 + 1) * 7 / (3**2 * 7) ** 2)
         self.assertEqual(im.npq(0, 2), 3 * (1 + 1) * 7 / (3**2 * 7) ** 2)
 
-        im = Image.Zeros(10)
+        im = Image.Zeros(size=10)
         box = Image.Constant(7, size=(5, 5))  # 5x5 block
         im = im.paste(box, (2, 2))
         self.assertEqual(im.npq(2, 0), 2 * (2**2 + 1**2) * 5 * 7 / (5**2 * 7) ** 2)

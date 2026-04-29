@@ -807,7 +807,7 @@ class Image(
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> img = Image.Random(3).rprint()
+            >>> img = Image.Random(size=3).rprint()
             >>> print(img) # return result of print() is the image itself
 
         .. note::
@@ -936,10 +936,10 @@ class Image(
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> A = Image.Random((5,5), maxval=9)
+            >>> A = Image.Random(size=(5,5), maxval=9)
             >>> print(Image.strhcat(A))
             >>> print(Image.strhcat(A, widths=2))
-            >>> B = Image.Random((5,5), maxval=9)
+            >>> B = Image.Random(size=(5,5), maxval=9)
             >>> print(Image.strhcat(A, B))
             >>> print(Image.strhcat(A, B, labels=("A:", "B:")))
 
@@ -1653,9 +1653,9 @@ class Image(
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> img = Image.Zeros((50,50))
+            >>> img = Image.Zeros(size=(50,50))
             >>> img.centre
-            >>> img = Image.Zeros((51,51))
+            >>> img = Image.Zeros(size=(51,51))
             >>> img.centre
 
         .. note:: If the image has an even dimension the centre will lie
@@ -1678,9 +1678,9 @@ class Image(
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> img = Image.Zeros((50,50))
+            >>> img = Image.Zeros(size=(50,50))
             >>> img.center
-            >>> img = Image.Zeros((51,51))
+            >>> img = Image.Zeros(size=(51,51))
             >>> img.center
 
         .. note::
@@ -1705,9 +1705,9 @@ class Image(
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> img = Image.Zeros((50,50))
+            >>> img = Image.Zeros(size=(50,50))
             >>> img.centre_int
-            >>> img = Image.Zeros((51,51))
+            >>> img = Image.Zeros(size=(51,51))
             >>> img.centre_int
 
         .. note:: If the image has an even dimension the centre coordinate will
@@ -1732,9 +1732,9 @@ class Image(
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> img = Image.Zeros((50,50))
+            >>> img = Image.Zeros(size=(50,50))
             >>> img.center_int
-            >>> img = Image.Zeros((51,51))
+            >>> img = Image.Zeros(size=(51,51))
             >>> img.center_int
 
         .. note::
@@ -1830,7 +1830,7 @@ class Image(
 
             >>> from machinevisiontoolbox import Image
             >>> import numpy as np
-            >>> img = Image.Zeros(10)
+            >>> img = Image.Zeros(size=10)
             >>> img.contains((4,6))
             >>> img.contains((-1, 7))
             >>> img.contains(np.array([[4, 6], [-1, 7], [10, 10]]).T)
@@ -1932,10 +1932,10 @@ class Image(
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> img = Image.Random(3)
+            >>> img = Image.Random(size=3)
             >>> img.print()
             >>> img.to('float').print()
-            >>> img = Image.Random(3, dtype='float')
+            >>> img = Image.Random(size=3, dtype='float')
             >>> img.print()
             >>> img.to('uint8').print()
 
@@ -1963,10 +1963,10 @@ class Image(
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> img = Image.Random(3)
+            >>> img = Image.Random(size=3)
             >>> img.print()
             >>> img.astype('float').print()
-            >>> img = Image.Random(3, dtype='float')
+            >>> img = Image.Random(size=3, dtype='float')
             >>> img.print()
             >>> img.astype('uint8').print()
 
@@ -2415,9 +2415,9 @@ class Image(
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> img = Image.Zeros(20, dtype='float32')
+            >>> img = Image.Zeros(size=20, dtype='float32')
             >>> img.minval
-            >>> img = Image.Zeros(20, dtype='uint8')
+            >>> img = Image.Zeros(size=20, dtype='uint8')
             >>> img.minval
 
         :seealso: :meth:`maxval`
@@ -2442,9 +2442,9 @@ class Image(
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> img = Image.Zeros(20, dtype='float32')
+            >>> img = Image.Zeros(size=20, dtype='float32')
             >>> img.maxval
-            >>> img = Image.Zeros(20, dtype='uint8')
+            >>> img = Image.Zeros(size=20, dtype='uint8')
             >>> img.maxval
 
         :seealso: :meth:`minval`
@@ -2470,9 +2470,9 @@ class Image(
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> img = Image.Zeros(20, dtype='float32')
+            >>> img = Image.Zeros(size=20, dtype='float32')
             >>> img.true
-            >>> img = Image.Zeros(20, dtype='uint8')
+            >>> img = Image.Zeros(size=20, dtype='uint8')
             >>> img.true
 
         :seealso: :meth:`false` :meth:`maxval`
@@ -2498,9 +2498,9 @@ class Image(
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> img = Image.Zeros(20, dtype='float32')
+            >>> img = Image.Zeros(size=20, dtype='float32')
             >>> img.false
-            >>> img = Image.Zeros(20, dtype='uint8')
+            >>> img = Image.Zeros(size=20, dtype='uint8')
             >>> img.false
 
         :seealso: :meth:`true`

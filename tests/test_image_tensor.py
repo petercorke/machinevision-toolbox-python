@@ -19,13 +19,13 @@ class TestImageTensor(unittest.TestCase):
 
     def test_to_tensor_shape_mono(self):
         """Mono image produces tensor of shape (1, H, W)"""
-        img = Image.Zeros(64, 64, dtype="uint8")
+        img = Image.Zeros(size=(64, 64), dtype="uint8")
         t = img.tensor()
         self.assertEqual(t.shape, (1, 64, 64))
 
     def test_to_tensor_shape_color(self):
         """Color image produces tensor of shape (C, H, W)"""
-        img = Image.Zeros(64, 64, colororder="RGB", dtype="uint8")
+        img = Image.Zeros(size=(64, 64), colororder="RGB", dtype="uint8")
         t = img.tensor()
         self.assertEqual(t.shape, (1, 3, 64, 64))
 
@@ -38,13 +38,13 @@ class TestImageTensor(unittest.TestCase):
 
     def test_to_tensor_dtype_option(self):
         """tensor(dtype=...) converts to requested tensor dtype."""
-        img = Image.Zeros(32, 32, dtype="uint8")
+        img = Image.Zeros(size=(32, 32), dtype="uint8")
         t = img.tensor(dtype=torch.float32)
         self.assertEqual(t.dtype, torch.float32)
 
     def test_to_tensor_dtype_with_normalize(self):
         """dtype option is applied when normalisation is requested."""
-        img = Image.Zeros(32, 32, colororder="RGB", dtype="uint8")
+        img = Image.Zeros(size=(32, 32), colororder="RGB", dtype="uint8")
         t = img.tensor(normalize="imagenet", dtype=torch.float64)
         self.assertEqual(t.dtype, torch.float64)
 

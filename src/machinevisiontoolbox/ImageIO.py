@@ -333,21 +333,21 @@ class ImageIOMixin(_ImageBase if TYPE_CHECKING else object):
 
             from machinevisiontoolbox import Image
 
-            img = Image.Random(10)
+            img = Image.Random(size=10)
             img.showpixels(color="grey")
 
         .. plot::
 
             from machinevisiontoolbox import Image
 
-            img = Image.Random(10)
+            img = Image.Random(size=10)
             img.showpixels(color="yellow")
 
         .. plot::
 
             from machinevisiontoolbox import Image
 
-            img = Image.Random(10)
+            img = Image.Random(size=10)
             img.showpixels(color="yellow", linewidth=0)
 
         :meth:`showwindow` can be used to superimpose a colored window on the image,
@@ -479,7 +479,7 @@ class ImageIOMixin(_ImageBase if TYPE_CHECKING else object):
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> img = Image.Random(10)
+            >>> img = Image.Random(size=10)
             >>> img.showpixels()
             >>> img.showwindow(h=1)  # with 3x3 window
             >>> W = window.move(2,3) # position window at (2,3)
@@ -487,8 +487,8 @@ class ImageIOMixin(_ImageBase if TYPE_CHECKING else object):
 
         .. plot::
 
-            from machinevisiontoolbox import Image img = Image.Random(10)
-            img = Image.Random(10)
+            from machinevisiontoolbox import Image
+            img = Image.Random(size=10)
             img.showpixels()
             img.showwindow(h=1)  # with 3x3 window
             W = window.move(2,3) # position window at (2,3)
@@ -496,8 +496,12 @@ class ImageIOMixin(_ImageBase if TYPE_CHECKING else object):
 
         .. plot::
 
-            from machinevisiontoolbox import Image img = Image.Random(10) window =
-            img.showpixels(windowsize=1) window.move(2,3)
+            from machinevisiontoolbox import Image
+
+            img = Image.Random(size=10)
+            img.showpixels()
+            window = img.showwindow(h=1)
+            window.move(2, 3)
 
         :seealso: :meth:`showpixels`
 

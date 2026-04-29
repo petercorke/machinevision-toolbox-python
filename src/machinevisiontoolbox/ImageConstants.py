@@ -7,7 +7,6 @@ from __future__ import annotations
 import os
 import os.path
 import urllib
-import warnings
 import xml.etree.ElementTree as ET
 from collections.abc import Iterable
 from pathlib import Path
@@ -38,15 +37,12 @@ from machinevisiontoolbox.mvtb_types import Dtype
 #  - consistently use fg and bg for foreground and background values
 #
 
-_MISSING = object()
-
-
 def _getshape(
     cls,
     w: int | Sequence[int] | None,
     h: int | None,
     colororder: str | None,
-    size: Sequence[int] | None,
+    size: int | Sequence[int] | None,
 ):
     p = None
 
@@ -82,23 +78,6 @@ def _getshape(
         shape.append(p)
 
     return shape
-
-
-def _format_constant_preferred_call(
-    value: Any,
-    size: int | Sequence[int],
-    colororder: str | None,
-    dtype: Dtype | None,
-) -> str:
-    if isinstance(size, list):
-        size = tuple(size)
-
-    parts = [repr(value), f"size={size!r}"]
-    if colororder is not None:
-        parts.append(f"colororder={colororder!r}")
-    if dtype is not None:
-        parts.append(f"dtype={dtype!r}")
-    return f"Image.Constant({', '.join(parts)})"
 
 
 def _resolve_pattern_options(
@@ -150,23 +129,24 @@ class ImageConstantsMixin(_ImageBase if TYPE_CHECKING else object):
     @classmethod
     def Zeros(
         cls,
-        w: int | Sequence[int] | None = None,
-        h: int | None = None,
+        *,
+        size: int | Sequence[int] | None = None,
         colororder: str | None = None,
-        dtype: Dtype = "uint8",
-        size: Sequence[int] | None = None,
+        dtype: Dtype | None = None,
+        like=None,
     ) -> Self:
         """
         Create image with zero value pixels
 
-        :param w: width, or (width, height)
-        :type w: int, (int, int)
-        :param h: height, defaults to None
-        :type h: int, optional
+        :param size: image size, width x height, defaults to ``like.size`` if ``like`` is given
+        :type size: int or 2-tuple, optional
         :param colororder: color plane names, defaults to None
         :type colororder: str
         :param dtype: NumPy datatype, defaults to 'uint8'
         :type dtype: str or NumPy dtype, optional
+        :param like: template image supplying default ``size`` and ``colororder``
+            when those are not given explicitly
+        :type like: :class:`Image` or None, optional
         :return: image of zero values
         :rtype: :class:`Image`
 
@@ -178,36 +158,52 @@ class ImageConstantsMixin(_ImageBase if TYPE_CHECKING else object):
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> Image.Zeros(20)
-            >>> Image.Zeros(10,20)
+            >>> Image.Zeros(size=20)
+            >>> Image.Zeros(size=(10, 20))
             >>> Image.Zeros(size=(10,20))
             >>> Image.Zeros(size=(10,20,3), colororder='RGB')
-            >>> Image.Zeros(20, dtype='float', colororder="RGB") # create color image, all black
+            >>> Image.Zeros(size=20, dtype='float', colororder="RGB") # create color image, all black
 
         :seealso: :meth:`Constant`
         """
 
-        shape = _getshape(cls, w, h, colororder, size)
+        size, dtype, colororder = _resolve_pattern_options(
+            cls,
+            size=size,
+            dtype=dtype,
+            colororder=colororder,
+            like=like,
+            default_size=None,
+            default_dtype="uint8",
+        )
+
+        shape = _getshape(cls, None, None, colororder, size)
         return cls(np.zeros(shape, dtype=dtype), colororder=colororder)
 
     @classmethod
     def Constant(
         cls,
-        *args,
-        value: Any = _MISSING,
+        value: Any = 0,
+        *,
         colororder: str | None = None,
         dtype: Dtype | None = None,
         size: Sequence[int] | None = None,
+        like=None,
     ) -> Self:
         """
         Create image with all pixels having same value
 
         :param value: value for all pixels, defaults to 0
         :type value: scalar, array_like, str
+        :param size: image size, width x height, defaults to ``like.size`` if ``like`` is given
+        :type size: int or 2-tuple, optional
         :param colororder: color plane names, defaults to None
         :type colororder: str
         :param dtype: NumPy datatype, defaults to 'uint8'
         :type dtype: str or NumPy dtype, optional
+        :param like: template image supplying default ``size``, ``dtype`` and
+            ``colororder`` when those are not given explicitly
+        :type like: :class:`Image` or None, optional
         :return: image of constant values
         :rtype: :class:`Image`
 
@@ -225,83 +221,32 @@ class ImageConstantsMixin(_ImageBase if TYPE_CHECKING else object):
             >>> Image.Constant(range(6), size=10, colororder='ABCDEF').print()
             >>> Image.Constant('lightgreen', size=10).print()
 
-        .. note:: Legacy calls that specify image size positionally, such as
-            ``Image.Constant(10, 20, value=17)``, are supported in 1.1.0 but emit
-            a ``DeprecationWarning`` with the preferred replacement form.
-
         .. note:: If ``len(value) == 3`` and ``colororder`` is not specified
             then RGB is assumed.
 
         :seealso: :meth:`Zeros`
         """
-        if size is not None:
-            if len(args) > 1:
-                raise TypeError(
-                    "Constant() accepts at most one positional value when size= is used"
-                )
-            if len(args) == 1:
-                if value is not _MISSING:
-                    raise TypeError("Constant() got multiple values for value")
-                value = args[0]
-            elif value is _MISSING:
-                value = 0
+        default_dtype = "float" if isinstance(value, float) else "uint8"
 
-            w = None
-            h = None
-        else:
-            if len(args) == 0:
-                raise ValueError("dimensions not specified by size, w, h")
-            if len(args) > 3:
-                raise TypeError("Constant() accepts at most three positional arguments")
+        size, dtype, colororder = _resolve_pattern_options(
+            cls,
+            size=size,
+            dtype=dtype,
+            colororder=colororder,
+            like=like,
+            default_size=None,
+            default_dtype=default_dtype,
+        )
+        dtype = np.dtype(dtype)
 
-            if len(args) == 1:
-                w = args[0]
-                h = None
-            elif len(args) == 2 and isinstance(args[0], (tuple, list)):
-                w = args[0]
-                h = None
-                if value is not _MISSING:
-                    raise TypeError("Constant() got multiple values for value")
-                value = args[1]
-            else:
-                w = args[0]
-                h = args[1]
-
-            if len(args) == 3:
-                if value is not _MISSING:
-                    raise TypeError("Constant() got multiple values for value")
-                value = args[2]
-            elif len(args) != 2 or not isinstance(args[0], (tuple, list)):
-                if value is _MISSING:
-                    value = 0
-            elif value is _MISSING:
-                value = 0
-
-            if isinstance(w, list):
-                preferred_size = tuple(w)
-            elif h is not None:
-                preferred_size = (w, h)
-            else:
-                preferred_size = w
-            warnings.warn(
-                "Deprecated in 1.1.0: positional size arguments to Image.Constant are deprecated; "
-                f"use {_format_constant_preferred_call(value, preferred_size, colororder, dtype)} instead",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-
-        shape = _getshape(cls, w, h, colororder, size)
-
-        if isinstance(value, float) and dtype is None:
-            dtype = "float"
-        if dtype is None:
-            dtype = "uint8"
+        shape = _getshape(cls, None, None, colororder, size)
 
         if isinstance(value, str):
             # value given as a string, assume colorname
             value = name2color(value, dtype=dtype)
 
         if isinstance(value, Iterable):
+            value = list(value)
             # iterable
             if len(shape) == 3 and len(value) != shape[2]:
                 raise ValueError("length of value does not match number of planes")
@@ -443,12 +388,14 @@ class ImageConstantsMixin(_ImageBase if TYPE_CHECKING else object):
     @classmethod
     def Random(
         cls,
-        size: int | Sequence[int],
+        *,
+        size: int | Sequence[int] | None = None,
         colororder: str | None = None,
-        dtype: Dtype = "uint8",
+        dtype: Dtype | None = None,
         maxval: int | float | None = None,
-        pdf: ndarray | None = None,
-    ):
+        pdf: np.ndarray | None = None,
+        like=None,
+    ) -> Self:
         """
         Create image with random pixel values
 
@@ -462,6 +409,9 @@ class ImageConstantsMixin(_ImageBase if TYPE_CHECKING else object):
         :type maxval: same as ``dtype``, optional
         :param pdf: probability density function for pixel values, defaults to None
         :type pdf: 1D or 2D array_like, optional
+        :param like: template image supplying default ``size``, ``dtype`` and
+            ``colororder`` when those are not given explicitly
+        :type like: :class:`Image` or None, optional
         :return: image of random values
         :rtype: :class:`Image`
 
@@ -489,20 +439,20 @@ class ImageConstantsMixin(_ImageBase if TYPE_CHECKING else object):
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> img = Image.Random(3)
+            >>> img = Image.Random(size=3)
             >>> img.print()
-            >>> img = Image.Random(3, colororder='RGB')
+            >>> img = Image.Random(size=3, colororder='RGB')
             >>> img.print()
             >>> img.red().print()
-            >>> img = Image.Random(3, dtype='float32')
+            >>> img = Image.Random(size=3, dtype='float32')
             >>> img.print
-            >>> Image.Random(100).disp()
+            >>> Image.Random(size=100).disp()
 
         .. plot::
 
             from machinevisiontoolbox import Image
 
-            Image.Random(100).disp()
+            Image.Random(size=100).disp()
 
         We could, for example, create a random image with the same histogram as an existing image:
 
@@ -512,7 +462,7 @@ class ImageConstantsMixin(_ImageBase if TYPE_CHECKING else object):
             >>> img = Image.Read("street.png")
             >>> h = img.hist()
             >>> h.plot('pdf')
-            >>> img2 = Image.Random(img.size, pdf=h.pdf)
+            >>> img2 = Image.Random(size=img.size, pdf=h.pdf)
             >>> img2.hist().plot('pdf')
 
         .. plot::
@@ -520,7 +470,7 @@ class ImageConstantsMixin(_ImageBase if TYPE_CHECKING else object):
             from machinevisiontoolbox import Image
             img = Image.Read("street.png")
             h = img.hist()
-            img2 = Image.Random(img.size, pdf=h.pdf)
+            img2 = Image.Random(size=img.size, pdf=h.pdf)
             fig, (orig, random) = plt.subplots(1, 2, figsize=(10, 5))
             h.plot('pdf', ax=orig)
             img2.hist().plot('pdf', ax=random)
@@ -530,6 +480,15 @@ class ImageConstantsMixin(_ImageBase if TYPE_CHECKING else object):
         :seealso: :meth:`Constant`
         """
 
+        size, dtype, colororder = _resolve_pattern_options(
+            cls,
+            size=size,
+            dtype=dtype,
+            colororder=colororder,
+            like=like,
+            default_size=None,
+            default_dtype="uint8",
+        )
         shape = _getshape(cls, None, None, colororder, size)
         dtype = np.dtype(dtype)
 
@@ -544,11 +503,13 @@ class ImageConstantsMixin(_ImageBase if TYPE_CHECKING else object):
                 if maxval is None:
                     maxval = 1.0
                 im = (np.random.rand(*shape) * maxval).astype(dtype)
+            else:
+                raise TypeError("dtype must be an integer or floating type")
         else:
             # pdf given, ignore maxval
             if maxval is not None:
                 raise ValueError("Cannot specify both pdf and maxval")
-            if dtype != "uint8":
+            if dtype != np.dtype("uint8"):
                 raise ValueError("pdf option only supported for uint8 dtype")
             if pdf.ndim == 1:
                 # simple case, same pdf for all planes
@@ -644,16 +605,26 @@ class ImageConstantsMixin(_ImageBase if TYPE_CHECKING else object):
         height, width = shape[:2]
 
         im = np.full((height, width), bg, dtype=dtype)
+        # Compute the gap d: largest integer such that N*(2d) + (N+1)*d <= W
         dx = width // (3 * number + 1)
         dy = height // (3 * number + 1)
-        s2 = min(dx, dy)
-        side = 2 * s2 + 1
-        sq = np.full((side, side), fg, dtype=dtype)
+        d = min(dx, dy)
+        # Give all remaining pixels to the squares so side >= 2*d (gap <= side/2)
+        side_x = (width - (number + 1) * d) // number
+        side_y = (height - (number + 1) * d) // number
+        side = min(side_x, side_y)  # keep squares square
+
+        # Centre the grid in both axes
+        x_span = number * side + (number + 1) * d
+        y_span = number * side + (number + 1) * d
+        x_offset = (width - x_span) // 2
+        y_offset = (height - y_span) // 2
+
         for r in range(number):
-            y0 = (r * 3 + 2) * dy
+            y0 = y_offset + d + r * (side + d)
             for c in range(number):
-                x0 = (c * 3 + 2) * dx
-                im[y0 - s2 : y0 + s2 + 1, x0 - s2 : x0 + s2 + 1] = sq
+                x0 = x_offset + d + c * (side + d)
+                im[y0 : y0 + side, x0 : x0 + side] = fg
 
         return _pattern_image(cls, im, colororder)
 
@@ -723,16 +694,32 @@ class ImageConstantsMixin(_ImageBase if TYPE_CHECKING else object):
         shape = _getshape(cls, None, None, None, size)
         height, width = shape[:2]
         im = np.full((height, width), bg, dtype=dtype)
+        # Same layout as Squares: gap d, side fills remaining space
         dx = width // (3 * number + 1)
         dy = height // (3 * number + 1)
-        s2 = min(dx, dy)
-        circle = Kernel.Circle(s2).K.astype(dtype) * (fg - bg) + bg
+        d = min(dx, dy)
+        side_x = (width - (number + 1) * d) // number
+        side_y = (height - (number + 1) * d) // number
+        side = min(side_x, side_y)  # keep cells square
+        # Cell side must be odd so circle (diam = 2r+1) fills it exactly
+        if side % 2 == 0:
+            side -= 1
+
+        # Radius fills the cell exactly: diam = 2*radius+1 = side
+        radius = side // 2
+        circle = Kernel.Circle(radius).K.astype(dtype) * (fg - bg) + bg
+
+        # Centre the whole grid
+        x_span = number * side + (number + 1) * d
+        y_span = number * side + (number + 1) * d
+        x_offset = (width - x_span) // 2
+        y_offset = (height - y_span) // 2
 
         for r in range(number):
-            y0 = (r * 3 + 2) * dy
+            y0 = y_offset + d + r * (side + d)
             for c in range(number):
-                x0 = (c * 3 + 2) * dx
-                im[y0 - s2 : y0 + s2 + 1, x0 - s2 : x0 + s2 + 1] = circle
+                x0 = x_offset + d + c * (side + d)
+                im[y0 : y0 + side, x0 : x0 + side] = circle
 
         return _pattern_image(cls, im, colororder)
 

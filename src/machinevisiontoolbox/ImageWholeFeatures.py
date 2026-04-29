@@ -999,7 +999,7 @@ class Histogram:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> im = Image.Random(256)
+            >>> im = Image.Random(size=256)
             >>> h = im.hist(100)
             >>> print(h)
         """
@@ -1021,7 +1021,7 @@ class Histogram:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> im = Image.Random(256)
+            >>> im = Image.Random(size=256)
             >>> h = im.hist(100)
             >>> h
         """
