@@ -174,7 +174,7 @@ class TestImageSources(unittest.TestCase):
     def test_deprecated_imagecollection_warns(self):
         """ImageCollection alias emits DeprecationWarning and still works."""
         with pytest.warns(
-            DeprecationWarning, match="Deprecated in 1.1.0.*FileCollection"
+            DeprecationWarning, match="Deprecated in 2.0.0.*FileCollection"
         ):
             images = ImageCollection("campus/*.png")
         self.assertEqual(len(images), 20)
@@ -184,7 +184,7 @@ class TestImageSources(unittest.TestCase):
     )
     def test_deprecated_ziparchive_warns(self):
         """ZipArchive alias emits DeprecationWarning and still works."""
-        with pytest.warns(DeprecationWarning, match="Deprecated in 1.1.0.*FileArchive"):
+        with pytest.warns(DeprecationWarning, match="Deprecated in 2.0.0.*FileArchive"):
             zf = ZipArchive("bridge-l.zip")
         self.assertEqual(len(zf), 253)
 

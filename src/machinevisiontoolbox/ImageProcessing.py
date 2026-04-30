@@ -502,7 +502,7 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
         """
         if t is not None:
             warnings.warn(
-                "Deprecated in 1.1.0: pass threshold as the first argument instead of using t=.",
+                "Deprecated in 2.0.0: pass threshold as the first argument instead of using t=.",
                 DeprecationWarning,
                 stacklevel=2,
             )
@@ -515,7 +515,7 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
 
         if opt is not None:
             warnings.warn(
-                "Deprecated in 1.1.0: use method= instead of opt=.",
+                "Deprecated in 2.0.0: use method= instead of opt=.",
                 DeprecationWarning,
                 stacklevel=2,
             )
@@ -822,11 +822,11 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
         """
         Adaptive threshold
 
-        .. deprecated:: 1.1.0
+        .. deprecated:: 2.0.0
             Use :meth:`threshold_adaptive` instead.  Mentioned on page 484 of |RVC3| as adaptive_threshold but implemented as threshold_adaptive for consistency with other method names.
         """
         warnings.warn(
-            "Deprecated in 1.1.0: use threshold_adaptive() instead of adaptive_threshold().",
+            "Deprecated in 2.0.0: use threshold_adaptive() instead of adaptive_threshold().",
             DeprecationWarning,
             stacklevel=2,
         )

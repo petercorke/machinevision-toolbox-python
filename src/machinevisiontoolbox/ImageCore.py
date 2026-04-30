@@ -2000,13 +2000,13 @@ class Image(
         .. note:: For a color image the color plane order is given by the
             colororder dictionary.
 
-        .. deprecated:: 1.1.0
+        .. deprecated:: 2.0.0
             Use :meth:`array` instead.
 
         :seealso: :meth:`A` :meth:`colororder`
         """
         warnings.warn(
-            "Deprecated in 1.1.0: use .array instead of .image.",
+            "Deprecated in 2.0.0: use .array instead of .image.",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -2077,14 +2077,14 @@ class Image(
             >>> img.A = np.zeros((50,50))
             >>> img
 
-        .. deprecated:: 1.1.0
+        .. deprecated:: 2.0.0
             Use :meth:`array` instead for accessing the NumPy image data and the
             :meth:`Image` constructor for creating a new ``Image`` with a different array.
 
         :seealso: :meth:`array` :meth:`image`
         """
         warnings.warn(
-            "Deprecated in 1.1.0: use .array instead of .A.",
+            "Deprecated in 2.0.0: use .array instead of .A.",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -2182,13 +2182,13 @@ class Image(
 
         .. note:: Works for greyscale or color (arbitrary number of planes) image
 
-        .. deprecated:: 1.1.0
+        .. deprecated:: 2.0.0
             Use :meth:`array_as` instead.
 
         :seealso: :meth:`array_as` :meth:`to_float` :meth:`cast` :meth:`like`
         """
         warnings.warn(
-            "Deprecated in 1.1.0: use .array_as(int_type) instead of .to_int().",
+            "Deprecated in 2.0.0: use .array_as(int_type) instead of .to_int().",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -2230,13 +2230,13 @@ class Image(
 
         .. note:: Works for greyscale or color (arbitrary number of planes) image
 
-        .. deprecated:: 1.1.0
+        .. deprecated:: 2.0.0
             Use :meth:`array_as` instead.
 
         :seealso: :meth:`array_as` :meth:`to_int` :meth:`cast` :meth:`like`
         """
         warnings.warn(
-            "Deprecated in 1.1.0: use .array_as(float_type) instead of .to_float().",
+            "Deprecated in 2.0.0: use .array_as(float_type) instead of .to_float().",
             DeprecationWarning,
             stacklevel=2,
         )

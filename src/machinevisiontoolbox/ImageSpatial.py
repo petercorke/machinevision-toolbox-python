@@ -926,11 +926,11 @@ class ImageSpatialMixin(_ImageBase if TYPE_CHECKING else object):
     ) -> Any:
         """Deprecated wrapper for :meth:`rankfilter`.
 
-        .. deprecated:: 1.1.0
+        .. deprecated:: 2.0.0
             Use :meth:`rankfilter` instead.
         """
         warnings.warn(
-            "Deprecated in 1.1.0: use rankfilter() instead of rank().",
+            "Deprecated in 2.0.0: use rankfilter() instead of rank().",
             DeprecationWarning,
             stacklevel=2,
         )

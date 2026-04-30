@@ -508,7 +508,7 @@ class ImageWholeFeaturesMixin(_ImageBase if TYPE_CHECKING else object):
         :return: ``cdf`` is the normalised cumulative histogram values
         :rtype: ndarray(N) or ndarray(N,P)
 
-        .. deprecated:: 1.1.0
+        .. deprecated:: 2.0.0
             Use ``hist().cdf`` instead.
         """
         hist = self._default_hist()
@@ -897,7 +897,7 @@ class Histogram:
         if isinstance(sorted, str):
             if sorted == "sorted":
                 warnings.warn(
-                    "Deprecated in 1.1.0: use hist(sorted=True) instead of hist(sorted='sorted').",
+                    "Deprecated in 2.0.0: use hist(sorted=True) instead of hist(sorted='sorted').",
                     DeprecationWarning,
                     stacklevel=2,
                 )
@@ -909,7 +909,7 @@ class Histogram:
             if opt != "sorted":
                 raise ValueError("opt value must be 'sorted'")
             warnings.warn(
-                "Deprecated in 1.1.0: use hist(sorted=True) instead of hist(opt='sorted').",
+                "Deprecated in 2.0.0: use hist(sorted=True) instead of hist(opt='sorted').",
                 DeprecationWarning,
                 stacklevel=2,
             )
@@ -1316,7 +1316,7 @@ class Histogram:
 
         if bar is not None:
             warnings.warn(
-                "Deprecated in 1.1.0: use solid= instead of bar=.",
+                "Deprecated in 2.0.0: use solid= instead of bar=.",
                 DeprecationWarning,
                 stacklevel=2,
             )

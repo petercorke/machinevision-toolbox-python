@@ -665,11 +665,11 @@ class VideoCamera(ImageSource):
         :return: next frame from the camera
         :rtype: :class:`~machinevisiontoolbox.Image`
 
-        .. deprecated:: 0.11.4
+        .. deprecated:: 2.0.0
             Use :func:`next` on the iterator instead, for example ``next(camera)``.
         """
         warnings.warn(
-            "VideoCamera.grab() is deprecated; use next(camera) instead.",
+            "Deprecated in 2.0.0: use next(camera) instead of VideoCamera.grab().",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -1649,7 +1649,7 @@ class ImageCollection(FileCollection):
     :param kwargs: forwarded to :class:`FileCollection`
     :type kwargs: Any
 
-    .. deprecated:: 1.1.0
+    .. deprecated:: 2.0.0
         Use :class:`FileCollection` instead.
     """
 
@@ -1657,7 +1657,7 @@ class ImageCollection(FileCollection):
         self, filename: str | None = None, loop: bool = False, **kwargs: Any
     ) -> None:
         warnings.warn(
-            "Deprecated in 1.1.0: use FileCollection instead of ImageCollection.",
+            "Deprecated in 2.0.0: use FileCollection instead of ImageCollection.",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -1670,7 +1670,7 @@ class ZipArchive(FileArchive):
     :param kwargs: forwarded to :class:`FileArchive`
     :type kwargs: Any
 
-    .. deprecated:: 1.1.0
+    .. deprecated:: 2.0.0
         Use :class:`FileArchive` instead.
     """
 
@@ -1682,7 +1682,7 @@ class ZipArchive(FileArchive):
         **kwargs: Any,
     ) -> None:
         warnings.warn(
-            "Deprecated in 1.1.0: use FileArchive instead of ZipArchive.",
+            "Deprecated in 2.0.0: use FileArchive instead of ZipArchive.",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -1777,11 +1777,11 @@ class WebCam(ImageSource):
         :return: next frame from the web camera
         :rtype: :class:`~machinevisiontoolbox.Image`
 
-        .. deprecated:: 0.11.4
+        .. deprecated:: 2.0.0
             Use :func:`next` on the iterator instead, for example ``next(webcam)``.
         """
         warnings.warn(
-            "WebCam.grab() is deprecated; use next(webcam) instead.",
+            "Deprecated in 2.0.0: use next(webcam) instead of WebCam.grab().",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -2631,13 +2631,13 @@ class ROSTopic(ImageSource):
         :return: next frame from the topic
         :rtype: :class:`~machinevisiontoolbox.Image` or :class:`ROSMessage`
 
-        .. deprecated:: 0.11.4
+        .. deprecated:: 2.0.0
             Use :func:`next` on the iterator instead, for example ``next(stream)``.
         """
         if not self._subscribe:
             raise TypeError("ROSTopic is publish-only (subscribe=False)")
         warnings.warn(
-            "ROSTopic.grab() is deprecated; use next(stream) instead.",
+            "Deprecated in 2.0.0: use next(stream) instead of ROSTopic.grab().",
             DeprecationWarning,
             stacklevel=2,
         )
