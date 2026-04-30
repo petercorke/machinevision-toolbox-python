@@ -625,7 +625,9 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             _touch = self.touch
             mask.append(_touch == touch)
 
-        m = np.array(mask).all(axis=0)
+        if not mask:
+            return self[:]
+        m: np.ndarray = np.array(mask).all(axis=0)  # type: ignore[assignment]
 
         return self[m]
 
@@ -771,7 +773,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
     @property
     @scalar_result
-    def u(self) -> Any:
+    def uc(self) -> Any:
         """
         u-coordinate of the blob centroid
 
@@ -785,16 +787,16 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> from machinevisiontoolbox import Image
             >>> im = Image.Read('shark2.png')
             >>> blobs = im.blobs()
-            >>> blobs[0].u
-            >>> blobs.u
+            >>> blobs[0].uc
+            >>> blobs.uc
 
-        :seealso:  :meth:`v` :meth:`centroid`
+        :seealso:  :meth:`vc` :meth:`centroid`
         """
         return [b.uc for b in self.data]
 
     @property
     @scalar_result
-    def v(self) -> Any:
+    def vc(self) -> Any:
         """
         v-coordinate of the blob centroid
 
@@ -808,7 +810,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> from machinevisiontoolbox import Image
             >>> im = Image.Read('shark2.png')
             >>> blobs = im.blobs()
-            >>> blobs[0].v
+            >>> blobs[0].vc
             >>> blobs.v
 
         :seealso:  :meth:`u` :meth:`centroid`
@@ -1615,7 +1617,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         perimeters = []
         for b in self.data:
             perimeter = cv2.convexHull(
-                points=self.perimeter.T, returnPoints=True, clockwise=clockwise
+                points=b.perimeter.T, returnPoints=True, clockwise=clockwise
             )
             perimeters.append(np.squeeze(perimeter).T)
         return perimeters

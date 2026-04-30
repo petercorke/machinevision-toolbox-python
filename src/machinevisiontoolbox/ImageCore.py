@@ -2814,7 +2814,7 @@ class Image(
             if out.ndim == 3:
                 # 3 slices, select uv-region and planes
                 color_names = (self.colororder_str or "").split(":")
-                plane_key = keys[2]
+                plane_key = keys[2]  # type: ignore[index]
                 if isinstance(plane_key, slice):
                     selected_planes = color_names[plane_key]
                 else:

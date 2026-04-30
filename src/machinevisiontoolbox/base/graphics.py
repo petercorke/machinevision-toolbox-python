@@ -930,7 +930,7 @@ def draw_circle(
 
 
 def mpl_styling(
-    fmt: str | tuple[str] = None, defaults: dict = None, kwargs: dict = None
+    fmt: str | tuple[str] | None = None, defaults: dict = None, kwargs: dict = None
 ):
     """Merge Matplotlib style options
 
