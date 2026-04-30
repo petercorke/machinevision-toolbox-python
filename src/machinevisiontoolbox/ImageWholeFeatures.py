@@ -265,6 +265,14 @@ class ImageWholeFeaturesMixin(_ImageBase if TYPE_CHECKING else object):
         :seealso: :meth:`printstats` :meth:`hist` :meth:`min` :meth:`max` :meth:`mean` :meth:`std` :meth:`median`
         """
 
+        if self._stats is None:
+            if self.iscolor and self.colororder is not None:
+                self._stats = {
+                    k: self._plane_stats(plane._A)
+                    for k, plane in zip(self.colororder.keys(), self.planes())
+                }
+            else:
+                self._stats = self._plane_stats(self._A)
         return self._stats
 
     def printstats(self) -> None:

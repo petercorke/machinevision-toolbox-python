@@ -710,7 +710,7 @@ class Image(
             s += ")"
 
         # Add statistics summary on subsequent line(s).
-        stats = self._stats
+        stats = self.stats
         if stats is not None:
             # self._stats is None if the image is mutable, so skip stats in that case
             if self.iscolor and self.colororder is not None:
