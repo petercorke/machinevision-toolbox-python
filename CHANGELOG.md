@@ -22,6 +22,7 @@
     - ecosystem diagram
     - new Sphinx sections for ROS, PyTorch, NumPy integration, and Jupyter
     - code copy button for examples (strips `>>>` prompts)
+    - top-level of reST documentation now uses sphinx-design and a card-based TOC
 
 * Changed
   - CI and packaging
@@ -47,10 +48,14 @@
     - `iread_iter` is an efficient lazy wildcard iterator
     - `idisp` now includes keyboard display and animation controls when `fps` or `animate` is specified
     - fixed `idisp` issues with Jupyter Matplotlib backend selection (for example `%matplotlib widget`)
+    - `idisp` can now put text labels on colorbar ticks
   - `Image` class and core API
+    - image NumPy array for pixel data
+      - deprecate `.A` property, setting `.A` now raises an exception
+      - systematic internal use of `._A` for  array access
+      - `.array` for user use, provide a read-only view of the pixel data
     - uses `_image_typing.py` protocol to resolve `Image` type across mixins
     - improved color order and type logic
-    - systematic internal use of `._A` for NumPy array access
     - `Image(..., dtype=True)` forces image dtype to match the ndarray; otherwise the smallest fitting dtype is selected
     - `size` option supports turning pixel row/column data into 2D or 3D images
     - `Image.Tensor()` and `img.tensor()` for PyTorch import/export
@@ -58,6 +63,7 @@
       - `sum`, `min`, `max`, `mean`, `std`, `median` forward arguments to NumPy (for example `axis`)
       - `img.stats` is now a property returning per-plane statistics
       - `img.printstats()` prints formatted per-plane statistics
+      - all are computed lazily
     - thresholding improvements:
       - native NumPy implementations for `otsu` and `triangle` threshold estimators
       - `threshold_interactive` reworked for Jupyter support
@@ -67,10 +73,21 @@
       - reporting in `repr()` and `str()`
     - NumPy ufunc integration (for example `np.ceil(img)` returns an `Image`)
     - `%` operator stacks images plane-wise (for example `img1 % img2`, `img1 % 0`)
-    - `Image.Random()` supports multi-channel images
+    - `Image.Random()`
+      - supports multi-channel images
+      - now has a `pdf` arugment to create an image with arbitary pixel-value distribution.
     - `img1.sameas(img2)` performs scalar equality checks across datatype/planes/pixels (`img1 == img2` remains element-wise)
+    - image histogram properties `h`, `pdf`, `cf`, `cdf` are now computed lazily, and each returns a 2-tuple of ndarays (statistic, x).  These property names match those of the `Histogram` class. They were formally called `h`, `cdf`, and `ncdf` and return just a single ndarray.
+    - `__str__` now includes image statistics like mean, std, median.
+    - all "constant constructors" like `Zeros`, `Constant`, `Random` etc. now have a consistent API with 
+      keyword arguments `size`, `dtype`, `colororder`, `like`.
+    - `Kernel.Gauss` and `smooth` with a half-width but `sigma=0` will use a rule-of-thumb to estimate a good `sigma` value
+    - `showpixels` has a major improvement in visual appearance, some parameters now gone.  The animation window has been refactored into `showwindow`. `examples/morphdemo` shows this in action.
+    - `rprint` is a variant of `print` that returns the image object, so `img = Image.Random(size=5).rprint()` does an assignment to `img` and displays the pixel values to stdout in one line.
   - `Histogram` class
-    - now implemented on NumPy rather than OpenCV for wider dtype support
+    - now has a `pdf` property for an estimated/empirical probability density function
+    - cumulative frequency is renamed from `cdf` to `cf`; `ncdf` renamed to `cdf`
+    - now implemented using NumPy rather than OpenCV for wider dtype support
     - works properly in Jupyter
     - histogram computation moved to constructor
     - `clip` controls bin range behaviour
@@ -80,6 +97,7 @@
     - improved handling of runt (single-pixel) blobs
     - added `id` method
     - new attributes/methods: `MER()`/`plot_MER()`, `MEC()`/`plot_MEC()`
+    - added default color and linestyle to all plot functions.  These all accept Matplotlib format string or keyword arguments for line styling
   - Image sources
     - all sources are iterators and context managers, reworked the common abstract base class
     - all sources inherit display/animation (`.disp()`) and batch tensor (`.tensor()`) methods
@@ -110,6 +128,10 @@
   - legacy `Image.Constant` positional size form (for example migrate from `Image.Constant(10, 20, 30)` to `Image.Constant(30, size=(10, 20))`)
   - `ImageCollection`; use `FileCollection`
   - `ZipArchive`; use `FileArchive`
+  - `rank`; use `rankfilter`
+  - `Image.Zeros(10)` is now `Image.Zeros(size=10)`
+  - `Image.Constant(3,4,5)` is now `Image.Constant(5, size=(3,4))`
+  - `Image.Random(10)` is now `Image.Random(size=10)`
 
 * Fixed
   - resolved many Sphinx warnings

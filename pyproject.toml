@@ -1,8 +1,8 @@
 [project]
 name = "machinevision-toolbox-python"
-version = "1.1.0"
+version = "2.0.0"
 authors = [{ name = "Peter Corke", email = "rvc@petercorke.com" }]
-description = "Python tools for machine vision - education and research"
+description = "Object-oriented machine vision for Python."
 readme = "README.md"
 requires-python = ">=3.10"
 classifiers = [
@@ -78,6 +78,7 @@ docs = [
     "sphinx-copybutton",
     "sphinxcontrib-programoutput",
     "sphinx-autorun @ git+https://github.com/petercorke/sphinx-autorun.git",
+    "sphinx-design",
 ]
 
 jupyter = ["ipywidgets", "ipympl"]
@@ -89,11 +90,14 @@ torch = ["torch"]
 ocr = ["pytesseract"]
 
 all = [
-    "ipywidgets", "ipympl",
+    "ipywidgets",
+    "ipympl",
     "open3d-python",
     "torch",
     "pytesseract",
-    "rosbags", "roslibpy", "websockets",
+    "rosbags",
+    "roslibpy",
+    "websockets",
 ]
 
 [tool.pytest.ini_options]
