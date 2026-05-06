@@ -177,6 +177,20 @@ def getargs():
         help="disable the tqdm progress bar when scanning bag metadata",
     )
 
+    parser.add_argument(
+        "--release",
+        default="auto",
+        metavar="RELEASE",
+        help="ROS release name used to parse the bag, e.g. 'melodic', 'noetic', 'humble'; 'auto' tries all known ROS 1 releases (default: %(default)s)",
+    )
+
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        default=False,
+        help="print diagnostic information about topic/message filtering and ROS release auto-detection",
+    )
+
     return parser.parse_args()
 
 
@@ -193,7 +207,7 @@ def main():
 
     if not args.view and not args.animate and not args.list:
         for filename in args.files:
-            bag = ROSBag(filename, topicfilter=args.topic)
+            bag = ROSBag(filename, topicfilter=args.topic, release=args.release)
             print(f"{Fore.CYAN}{Style.BOLD}{bag}{Style.RESET}")
             bag.print(progress=not args.no_progress, show_allowed=False)
         return
@@ -213,6 +227,8 @@ def main():
             msgfilter=msgfilter,
             colororder=args.colororder,
             dtype=args.dtype,
+            release=args.release,
+            verbose=args.debug,
         )
 
         # Check for topic ambiguity when --topic is not specified (skip for --list)

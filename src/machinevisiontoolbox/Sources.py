@@ -10,6 +10,7 @@ import json
 import base64
 import pathlib
 import shutil
+import struct
 import subprocess
 import sys
 import tarfile
@@ -2013,11 +2014,15 @@ def _resolve_typestore(release: str):
     ``"noetic"`` or ``"humble"`` are accepted in addition to the full enum
     name (e.g. ``"ROS1_NOETIC"``).
 
-    :param release: release name, or substring thereof
+    Pass ``"auto"`` to try all known ROS 1 stores in order from newest to
+    oldest; the first one that successfully deserialises a message will be
+    used (see :meth:`ROSBag._autodetect_typestore`).
+
+    :param release: release name, substring thereof, or ``"auto"``
     :type release: str
     :raises ImportError: if the ``rosbags`` package is not installed
     :raises ValueError: if the name matches no enum member, or is ambiguous
-    :return: configured typestore
+    :return: configured typestore, or ``None`` when ``release=="auto"``
     """
     if not _rosbags_available:
         raise ImportError(
@@ -2025,6 +2030,8 @@ def _resolve_typestore(release: str):
             "Install it with: pip install rosbags "
             "or pip install machinevision-toolbox-python[ros]"
         )
+    if release.lower() == "auto":
+        return None  # deferred — _autodetect_typestore will resolve it
     assert _Stores is not None
     assert _get_typestore is not None
     key = release.upper()
@@ -2926,6 +2933,7 @@ class ROSBag(ImageSource):
     colororder: str | dict | None
     verbose: bool
     args: dict
+    _is_realsense: bool
 
     def __init__(
         self,
@@ -2957,6 +2965,8 @@ class ROSBag(ImageSource):
         self.args = kwargs
         self._tmpfile: str | None = None
         self._is_ros2: bool = False
+        self._trim_bytes: int = 0  # trailing bytes to strip (e.g. RealSense SDK footer)
+        self._is_realsense: bool = False
 
     def __repr__(self) -> str:
         return (
@@ -3046,13 +3056,17 @@ class ROSBag(ImageSource):
             )
             or (isinstance(self._msgfilter, str) and self._msgfilter in x.msgtype)
         )
+        topic_lower = x.topic.lower()
         topic_ok = (
             self._topic_filter is None
             or (
                 isinstance(self._topic_filter, list)
-                and any(f in x.topic for f in self._topic_filter)
+                and any(f.lower() in topic_lower for f in self._topic_filter)
             )
-            or (isinstance(self._topic_filter, str) and self._topic_filter in x.topic)
+            or (
+                isinstance(self._topic_filter, str)
+                and self._topic_filter.lower() in topic_lower
+            )
         )
         return msg_ok and topic_ok
 
@@ -3113,6 +3127,20 @@ class ROSBag(ImageSource):
         self.reader = (_RosBagReader2 if self._is_ros2 else _RosBagReader1)(path)
         self.reader.open()
         self.connections = [x for x in self.reader.connections if self._allowed(x)]
+        # Detect RealSense SDK bags: they always include at least one connection
+        # with a 'realsense_msgs' message type (e.g. realsense_msgs/msg/StreamInfo).
+        self._is_realsense = any(
+            "realsense_msgs" in c.msgtype for c in self.reader.connections
+        )
+        if self.verbose:
+            all_conns = list(self.reader.connections)
+            print(
+                f"  bag: {len(all_conns)} total connections, {len(self.connections)} pass filter "
+                f"(topicfilter={self._topic_filter!r}, msgfilter={self._msgfilter!r})"
+            )
+            for c in all_conns:
+                mark = "✓" if self._allowed(c) else "✗"
+                print(f"    {mark} {c.topic!r}  [{c.msgtype}]")
         return self.reader
 
     def topics(self) -> dict[str, str]:
@@ -3143,6 +3171,8 @@ class ROSBag(ImageSource):
         ``progress`` is ``True``.
         """
         reader = self._open_reader()
+        import sys as _sys
+
         counts = Counter(
             conn.msgtype
             for conn, _ts, _raw in tqdm(
@@ -3151,6 +3181,8 @@ class ROSBag(ImageSource):
                 desc="scanning",
                 unit="msg",
                 disable=not progress,
+                file=_sys.stdout,
+                dynamic_ncols=True,
             )
         )
         self._close_reader()
@@ -3174,9 +3206,14 @@ class ROSBag(ImageSource):
         whether it passes the current topic and message filters.
         """
         reader = self._open_reader()
+        if self._is_realsense:
+            when = "device clock (RealSense SDK)"
+        else:
+            when = f"recorded on {self.format_local_time(reader.start_time)}"
         print(
-            f"recorded on {self.format_local_time(reader.start_time)}, duration {self.format_duration(reader.duration)}, {reader.message_count} messages",
+            f"{when}, duration {self.format_duration(reader.duration)}, {reader.message_count} messages",
             file=file,
+            flush=True,
         )
 
         columns = [
@@ -3259,24 +3296,167 @@ class ROSBag(ImageSource):
         "bayer_grbg16": (np.uint16, 1, None),
     }
 
+    # ROS 1 stores tried in order when release='auto', newest-first
+    _ROS1_STORES_ORDERED = [
+        "ROS1_NOETIC",
+        "ROS1_MELODIC",
+        "ROS1_LUNAR",
+        "ROS1_KINETIC",
+        "ROS1_JADE",
+        "ROS1_INDIGO",
+    ]
+
+    # ROS 2 stores tried in order when release='auto' and ROS 1 stores all fail.
+    # Some bags (e.g. RealSense SDK) use ROS 1 bag format (#ROSBAG V2.0) but
+    # store message types with ROS 2-style names (sensor_msgs/msg/Image).
+    _ROS2_STORES_ORDERED = [
+        "ROS2_HUMBLE",
+        "ROS2_IRON",
+        "ROS2_JAZZY",
+        "ROS2_FOXY",
+        "ROS2_GALACTIC",
+        "ROS2_ELOQUENT",
+        "ROS2_DASHING",
+    ]
+
+    def _autodetect_typestore(self, rawdata: bytes, msgtype: str) -> bool:
+        """Try all known typestores and keep the first one that works.
+
+        First pass: tries ROS 1 and ROS 2 stores with ``deserialize_ros1``
+        (standard ROS 1 bag wire format).
+
+        Second pass: tries ROS 2 stores with ``deserialize_cdr`` (CDR wire
+        format).  This handles bags recorded by the Intel RealSense SDK, which
+        use a ROS 1 ``.bag`` container but CDR-encoded messages with ROS
+        2-style type names (e.g. ``sensor_msgs/msg/Image``).  When CDR is
+        detected ``self._is_ros2`` is set to ``True`` so that all subsequent
+        messages are decoded with ``deserialize_cdr``.
+
+        :return: ``True`` if a matching store was found, ``False`` otherwise
+        :rtype: bool
+        """
+        assert _Stores is not None
+        assert _get_typestore is not None
+        available = {s.name for s in _Stores}
+
+        # First pass: ROS 1 wire format (ros1 and ros2 typestores).
+        # RealSense SDK bags are positively identified by their realsense_msgs
+        # connection types, so the 4-byte trailer is certain — no need to probe
+        # other trim amounts.
+        trim_order = (4,) if self._is_realsense else (0, 4, 8)
+        for name in self._ROS1_STORES_ORDERED + self._ROS2_STORES_ORDERED:
+            if name not in available:
+                continue
+            store = _get_typestore(next(s for s in _Stores if s.name == name))
+            for trim in trim_order:
+                raw = rawdata if trim == 0 else rawdata[:-trim]
+                try:
+                    store.deserialize_ros1(raw, msgtype)
+                    self.typestore = store
+                    self.release = name
+                    self._trim_bytes = trim
+                    suffix = f", {trim}-byte trailer stripped" if trim else ""
+                    print(f"  auto-detect: {name} (ros1 encoding{suffix})")
+                    return True
+                except AssertionError:
+                    # rosbags raises AssertionError when trailing bytes remain
+                    # after parsing (assert pos == len(rawdata)).  Try the next
+                    # trim amount.
+                    continue
+                except (KeyError, UnicodeDecodeError, struct.error) as e:
+                    if self.verbose:
+                        print(
+                            f"  auto-detect: {name} (ros1) failed: {type(e).__name__}: {e}"
+                        )
+                    break  # wrong store entirely; move on
+                except Exception as e:
+                    if self.verbose:
+                        print(
+                            f"  auto-detect: {name} (ros1) UNEXPECTED {type(e).__name__}: {e}"
+                        )
+                    break
+            else:
+                # All trim amounts exhausted with AssertionError (trailing bytes)
+                if self.verbose:
+                    print(
+                        f"  auto-detect: {name} (ros1) failed: AssertionError (trailing bytes)"
+                    )
+
+        # Second pass: CDR wire format (ROS 2 stores only).
+        # Handles RealSense SDK bags: .bag container but CDR-encoded messages.
+        for name in self._ROS2_STORES_ORDERED:
+            if name not in available:
+                continue
+            store = _get_typestore(next(s for s in _Stores if s.name == name))
+            try:
+                store.deserialize_cdr(rawdata, msgtype)
+                self.typestore = store
+                self.release = name
+                self._is_ros2 = True  # use CDR for all subsequent messages
+                self._trim_bytes = 0
+                print(f"  auto-detect: {name} (CDR encoding)")
+                return True
+            except (AssertionError, KeyError, UnicodeDecodeError, struct.error) as e:
+                if self.verbose:
+                    print(
+                        f"  auto-detect: {name} (CDR) failed: {type(e).__name__}: {e}"
+                    )
+                continue
+            except Exception as e:
+                if self.verbose:
+                    print(
+                        f"  auto-detect: {name} (CDR) UNEXPECTED {type(e).__name__}: {e}"
+                    )
+                continue
+
+        if self.verbose:
+            print(f"  auto-detect: rawdata[:16] = {rawdata[:16].hex()}")
+        print(
+            f"  auto-detect: FAILED for msgtype={msgtype!r} — no matching typestore found"
+        )
+        return False
+
     def __iter__(self) -> Iterator[Any]:
         self._open_reader()
         assert self.reader is not None
+        _auto = self.typestore is None  # release='auto'
         try:
             for connection, timestamp, rawdata in self.reader.messages(
                 connections=self.connections
             ):
                 try:
+                    if _auto:
+                        # probe until we find a typestore that works
+                        if not self._autodetect_typestore(rawdata, connection.msgtype):
+                            if self.verbose:
+                                print(
+                                    f"{self.format_local_time(timestamp)} Could not auto-detect release for "
+                                    f"{connection.msgtype} on {connection.topic!r} — skipping"
+                                )
+                            continue
+                        _auto = False  # found it, use for all subsequent messages
                     _deser = (
                         self.typestore.deserialize_cdr
                         if self._is_ros2
                         else self.typestore.deserialize_ros1
                     )
-                    msg = cast(Any, _deser(rawdata, connection.msgtype))
+                    _raw = (
+                        rawdata
+                        if self._trim_bytes == 0
+                        else rawdata[: -self._trim_bytes]
+                    )
+                    msg = cast(Any, _deser(_raw, connection.msgtype))
                 except KeyError as e:
                     if self.verbose:
                         print(
                             f"{self.format_local_time(timestamp)} Error occurred while deserializing message: {e}"
+                        )
+                    continue
+                except AssertionError:
+                    if self.verbose:
+                        print(
+                            f"{self.format_local_time(timestamp)} Could not deserialize {connection.msgtype} on {connection.topic!r} "
+                            f"using release '{self.release}' — try --release auto or a specific release (melodic, noetic, …)"
                         )
                     continue
 
