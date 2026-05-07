@@ -391,9 +391,11 @@ def idisp(
     ``t`` (numeric)      Block for set time, calls ``plt.pause(t)``. See also ``fps`` option.
     ===================  ==================================================================================
 
-    The ``coordformat`` function is called with (u, v) coordinates and the image is in
-    the variable ``im`` which is in scope, but not passed, and is an ndarray(H,W) or
-    ndarray(H,W,P).
+    The ``coordformat`` function is called with (u, v) float coordinates and the image
+    is in the variable ``im`` which is in scope, but not passed, and is an ndarray(H,W)
+    or ndarray(H,W,P).  The function should return a string which is displayed in the
+    figure window toolbar when the mouse is over the image.  This allows you to display
+    pixel values in any format you want.
 
     Certain keys can be pressed while the image is displayed:
 
@@ -513,6 +515,7 @@ def idisp(
         if fig is None:
             fig = ax.figure
 
+        set_window_title(title)
         # aspect ratio:
         if not square:
             mpl.rcParams["image.aspect"] = "auto"

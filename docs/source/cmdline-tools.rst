@@ -76,7 +76,17 @@ on the command line.  For example::
 	$ imtool street.png https://petercorke.com/files/images/monalisa.png
 
 Essentially, it is just another image browser, but images are displayed using ``idisp``
-which has a number of useful features such as the ability to zoom, pan and scroll the image, as well as display the coordinate and pixel value at the cursor position.
+which has a number of useful features such as the ability to zoom, pan and scroll the
+image, as well as display the coordinate and pixel value at the cursor position.
+
+The pixel values are, by default, displayed in the color space of the image, but the
+``--colorspace`` option can be used to specify a different color space for display.  For
+example::
+
+	$ imtool street.png --colorspace=Lab
+
+will display the image in its original color space, but the pixel values under the
+cursor will be displayed in the Lab color space.
 
 The pick option allows the user to click on the image and select a series of coordinates. For example::
 

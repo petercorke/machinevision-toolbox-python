@@ -15,6 +15,7 @@ from machinevisiontoolbox import Image
 from machinevisiontoolbox.bin._bintools import CustomDefaultsHelpFormatter, MVTB_LINK
 from ansitable import ANSITable, Column
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 def getargs():
@@ -26,6 +27,12 @@ def getargs():
         "files",
         nargs="+",
         help="list of image files to view, files can also include those distributed with machinevision toolbox, eg. 'monalisa.png'",
+    )
+    parser.add_argument(
+        "--colorspace",
+        "-c",
+        default="RGB",
+        help="colorspace to display pixel value in",
     )
     parser.add_argument(
         "--block",
@@ -42,7 +49,7 @@ def getargs():
     parser.add_argument("--points", "-p", help="Pick points", action="store_true")
     # csv output for pick points
     parser.add_argument(
-        "--csv", "-c", help="Output picked points as CSV to stdout", action="store_true"
+        "--csv", help="Output picked points as CSV to stdout", action="store_true"
     )
     # -g show grid
     parser.add_argument(
@@ -76,15 +83,13 @@ def visualize_image(image, args, block):
     ## pick points and display coordinates as well as delta between points, in an ANSITable
     if args.points:
         image.disp(block=False, grid=args.grid)
-        print(
-            f"""\
+        print(f"""\
     {Fore.yellow}Click on points in the image (first click might just select the window and get lost)
     * left click to add a point
     * right click to remove point
     * Enter when done
     * you can zoom in using the magnifier button at bottom{Style.reset}
-    """
-        )
+    """)
         points = plt.gcf().ginput(n=-1, timeout=0)
 
         if args.csv:
@@ -121,7 +126,62 @@ def visualize_image(image, args, block):
                     )
             table.print()
     else:
-        image.disp(block=block, grid=args.grid)
+        global cs_image, colorspace
+
+        if args.colorspace is not None:
+            cs_image = (
+                image.to("float32")
+                .gamma_decode("sRGB")
+                .colorspace(args.colorspace)
+                .array
+            )
+            colorspace = args.colorspace
+        else:
+            cs_image = image.array
+            colorspace = image.colorspace_str
+
+        # put the filename into the title, if it's too long, truncate it and add ellipsis at the start
+        name = image.name
+        if len(name) > 40:
+            name = "..." + name[-37:]
+        image.disp(block=block, grid=args.grid, title=name, coordformat=format_coord)
+
+
+# format the pixel value display
+def format_coord(u: float, v: float) -> str:
+    global cs_image, colorspace
+
+    u = int(u + 0.5)
+    v = int(v + 0.5)
+
+    try:
+        if cs_image.ndim == 2:
+            # monochrome image
+            x = cs_image[v, u]
+            if isinstance(x, np.integer):
+                val = f"{x:d}"
+            elif isinstance(x, np.floating):
+                val = f"{x:.3f}"
+            elif isinstance(x, (np.bool_, bool)):
+                val = f"{x}"
+            else:
+                print(f"unknown pixel type {type(x)}")
+
+            return f"({u}, {v}): {val}"
+        else:
+            # color image
+            x = cs_image[v, u, :]
+            if np.issubdtype(x.dtype, np.integer):
+                val = [f"{_:d}" for _ in x]
+            elif np.issubdtype(x.dtype, np.floating):
+                val = [f"{_:.3f}" for _ in x]
+            else:
+                val = [str(_) for _ in x]
+            val = "[" + ", ".join(val) + "]"
+
+            return f"({u}, {v}): {val} {colorspace}, {x.dtype}"
+    except Exception as e:
+        return "bad"
 
 
 def main():
