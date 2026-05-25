@@ -1219,6 +1219,8 @@ def convert(
             colororder = "RGB"
         else:
             colororder = "BGR"
+        if alpha:
+            colororder += "A"
 
     mono = mono or gray or grey
     if mono and len(image.shape) == 3:

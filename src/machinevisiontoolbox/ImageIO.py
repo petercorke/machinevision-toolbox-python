@@ -109,7 +109,7 @@ class ImageIOMixin(_ImageBase if TYPE_CHECKING else object):
             raise ValueError("expecting a string or path")
 
         # read the image
-        data = iread(filename, rgb=rgb, **kwargs)
+        data = iread(filename, rgb=rgb, alpha=alpha, **kwargs)
 
         # result is a tuple(image, filename) or a list of tuples
 
@@ -122,6 +122,8 @@ class ImageIOMixin(_ImageBase if TYPE_CHECKING else object):
                 image_arr = image_arr[:, :, :3]
             if image_arr.ndim > 2:
                 colororder = "RGB" if rgb else "BGR"
+            if alpha and image_arr.shape[2] == 4:
+                colororder += "A"
             return cls(
                 image_arr, name=name, colororder=colororder
             )  # OpenCV file read order)
