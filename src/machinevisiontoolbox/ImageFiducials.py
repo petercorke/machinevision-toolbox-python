@@ -127,9 +127,8 @@ class ImageFiducialsMixin(_ImageBase if TYPE_CHECKING else object):
         """
 
         dictionary = _fiducial_dict(dict)
-        cornerss, ids, _ = cv2.aruco.detectMarkers(
-            image=self.mono()._A, dictionary=dictionary
-        )
+        detector = cv2.aruco.ArucoDetector(dictionary)
+        cornerss, ids, _ = detector.detectMarkers(image=self.mono()._A)
 
         # corners is a list of marker corners, one element per tag
         #  each element is 1x4x2 matrix holding corner coordinates
@@ -383,9 +382,8 @@ class FiducialCollection:
                         item = refine_dict[item]
                     setattr(arucoParams, key, item)
 
-        cornerss, ids, rejected = cv2.aruco.detectMarkers(
-            image=image.mono()._A, dictionary=self._dict, parameters=arucoParams
-        )
+        detector = cv2.aruco.ArucoDetector(self._dict, arucoParams)
+        cornerss, ids, rejected = detector.detectMarkers(image=image.mono()._A)
 
         # corners is a list of ndarray(1,4,2) of marker corners
         # ids is ndarray of shape (N,1) holding the tag ids
@@ -636,11 +634,13 @@ class ArUcoBoard(FiducialCollection):
         img = self._board.generateImage((width, height))
 
         if filename is None:
+            from machinevisiontoolbox import Image
+
             return Image(img)
         else:
-            from PIL import Image
+            from PIL import Image as PILImage
 
-            img = Image.fromarray(img)
+            img = PILImage.fromarray(img)
             img.save(filename, dpi=(dpi, dpi))
             return None
 
