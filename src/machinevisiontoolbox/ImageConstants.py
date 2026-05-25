@@ -37,6 +37,7 @@ from machinevisiontoolbox.mvtb_types import Dtype
 #  - consistently use fg and bg for foreground and background values
 #
 
+
 def _getshape(
     cls,
     w: int | Sequence[int] | None,
