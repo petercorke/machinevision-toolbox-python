@@ -1,11 +1,4 @@
-1.1.0 April 2026
-
-* Highlights
-  - support for ROS (bag files & streams) and PyTorch
-  - major rework across code, documentation, unit tests, and CI
-  - type hinting throughout and broad cleanup of lint/suppression issues
-  - extensive API and naming consistency work, including deprecation standardization
-  - massive use of CoPilot
+2.0.0 May 2026
 
 * Added
   - image sources
