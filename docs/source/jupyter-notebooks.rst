@@ -83,7 +83,7 @@ In the browser using Jupyter lite
 
 
 Jupyter lite is a version of Jupyter that runs entirely in the browser, without the need
-for a server.  The environment supports NumPy, SciPy and OpenCV all compiled for the web.
+for a server.  The environment supports NumPy, SciPy, Matplotlib and OpenCV all compiled for the web.
 It is a great option for quickly trying out the notebooks without
 installing anything on your local machine.  To use it, just click the "Launch in Jupyter
 Lite" button at the top of each notebook page, and it will open the notebook in a new

@@ -23,7 +23,7 @@ by the toolbox.  Consider these as some starting points for exploration.
    * Hit or Miss filtering: :meth:`~machinevisiontoolbox.Image.hitormiss`, :meth:`~machinevisiontoolbox.Image.thin`, :meth:`~machinevisiontoolbox.Image.triplepoint`
    * Rank filter: :meth:`~machinevisiontoolbox.Image.rank`, :meth:`~machinevisiontoolbox.Image.medianfilter`
    * Distance transform: :meth:`~machinevisiontoolbox.Image.distance_transform`
-
+   * Image similarity: :meth:`~machinevisiontoolbox.Image.similarity`
 
 .. dropdown:: Feature extraction
    :animate: fade-in-slide-down
@@ -37,6 +37,7 @@ by the toolbox.  Consider these as some starting points for exploration.
        - Segmentation:
           - Thresholding: :meth:`~machinevisiontoolbox.Image.otsu`, :meth:`~machinevisiontoolbox.Image.triangle`, :meth:`~machinevisiontoolbox.Image.threshold`, :meth:`~machinevisiontoolbox.Image.threshold_adaptive`, :meth:`~machinevisiontoolbox.Image.threshold_interactive`
           - MSER features: :meth:`~machinevisiontoolbox.Image.MSER`
+          - Color k-means: :meth:`~machinevisiontoolbox.Image.kmeans_color`
        - Connected component (blob) analysis: :meth:`~machinevisiontoolbox.Image.blobs`
 
    * Line features

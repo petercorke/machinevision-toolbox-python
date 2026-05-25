@@ -19,7 +19,7 @@
 {% endif %}
 
    {% block methods %}
-   {% if methods %}
+   {% if methods and not (objname in ['BagOfWords', 'BundleAdjust'] and module == 'machinevisiontoolbox') %}
    .. rubric:: {{ _('Methods') }}
 
    .. autosummary::
@@ -35,7 +35,7 @@
    {% endblock %}
 
    {% block attributes %}
-   {% if attributes %}
+   {% if attributes and not (objname in ['BagOfWords', 'BundleAdjust'] and module == 'machinevisiontoolbox') %}
    .. rubric:: {{ _('Properties') }}
 
    .. autosummary::
