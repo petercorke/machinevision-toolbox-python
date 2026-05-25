@@ -1208,7 +1208,7 @@ class Histogram:
         alpha=0.5,
         title=None,
         log=False,
-        samescale=True,
+        samescale=False,
         ax=None,
         bar=None,
         **kwargs,
