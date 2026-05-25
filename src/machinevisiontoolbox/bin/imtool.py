@@ -17,6 +17,9 @@ from ansitable import ANSITable, Column
 import matplotlib.pyplot as plt
 import numpy as np
 
+# Set by figure keypress callback when the user requests immediate exit.
+exit_requested = False
+
 
 def getargs():
     parser = argparse.ArgumentParser(
@@ -31,8 +34,8 @@ def getargs():
     parser.add_argument(
         "--colorspace",
         "-c",
-        default="RGB",
-        help="colorspace to display pixel value in",
+        default=None,
+        help="colorspace to display pixel value in (default RGB)",
     )
     parser.add_argument(
         "--block",
@@ -126,7 +129,7 @@ def visualize_image(image, args, block):
                     )
             table.print()
     else:
-        global cs_image, colorspace
+        global cs_image, colorspace, exit_requested
 
         if args.colorspace is not None:
             cs_image = (
@@ -138,13 +141,28 @@ def visualize_image(image, args, block):
             colorspace = args.colorspace
         else:
             cs_image = image.array
-            colorspace = image.colorspace_str
+            colorspace = image.colororder_str
 
         # put the filename into the title, if it's too long, truncate it and add ellipsis at the start
         name = image.name
         if len(name) > 40:
             name = "..." + name[-37:]
-        image.disp(block=block, grid=args.grid, title=name, coordformat=format_coord)
+        image.disp(block=False, grid=args.grid, title=name, coordformat=format_coord)
+
+        # 'q' keeps existing figure-close behaviour; 'x' exits all remaining files.
+        fig = plt.gcf()
+
+        def on_key(event):
+            global exit_requested
+
+            if event.key == "x":
+                exit_requested = True
+                plt.close(event.canvas.figure)
+
+        fig.canvas.mpl_connect("key_press_event", on_key)
+
+        if block:
+            plt.show(block=True)
 
 
 # format the pixel value display
@@ -185,6 +203,8 @@ def format_coord(u: float, v: float) -> str:
 
 
 def main():
+    global exit_requested
+
     args = getargs()
 
     if len(args.files) > 10:
@@ -192,18 +212,22 @@ def main():
 
     for i, file in enumerate(args.files):
         try:
-            img = Image.Read(file)
-
-            if i == len(args.files) - 1:
-                # last one
-                block = True
-            else:
-                block = args.block
-
-            visualize_image(img, args, block)
-
+            img = Image.Read(file, alpha=True)
+            print(img)
         except ValueError:
             print(f"File {file} not found")
+
+        if i == len(args.files) - 1:
+            # last one
+            block = True
+        else:
+            block = args.block
+
+        visualize_image(img, args, block)
+
+        if exit_requested:
+            plt.close("all")
+            break
 
 
 if __name__ == "__main__":
