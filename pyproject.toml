@@ -54,7 +54,7 @@ dependencies = [
 "Bug Tracker" = "https://github.com/pypa/sampleproject/issues"
 "Documentation" = "https://petercorke.github.io/machinevision-toolbox-python"
 "GitHub Source" = "https://github.com/petercorke/machinevision-toolbox-python"
-"Changelog" = "https://github.com/petercorke/machinevision-toolbox-python/blob/master/CHANGELOG.md"
+"Changelog" = "https://github.com/petercorke/machinevision-toolbox-python/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 
@@ -77,7 +77,7 @@ docs = [
     "sphinx-favicon",
     "sphinx-copybutton",
     "sphinxcontrib-programoutput",
-    "sphinx-autorun @ git+https://github.com/petercorke/sphinx-autorun.git",
+    "sphinx-autorun",
     "sphinx-design",
 ]
 
@@ -129,9 +129,6 @@ labeltool = "machinevisiontoolbox.bin.labeltool:main"
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
-
-[tool.hatch.metadata]
-allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/machinevisiontoolbox"]
