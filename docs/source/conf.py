@@ -121,7 +121,7 @@ intersphinx_mapping = {
     "scipy": ("https://docs.scipy.org/doc/scipy/", None),
     "matplotlib": ("https://matplotlib.org/stable/", None),
     "open3d": ("https://www.open3d.org/docs/release/", None),
-    "smtb": ("https://bdaiinstitute.github.io/spatialmath-python/", None),
+    "smtb": ("https://github.com/rai-opensource/spatialmath-python", None),
     "pgraph": ("https://petercorke.github.io/pgraph-python/", None),
     "torch": ("https://pytorch.org/docs/stable/", None),
 }
