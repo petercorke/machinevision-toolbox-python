@@ -631,6 +631,9 @@ class VideoCamera(ImageSource):
         self.rgb = rgb
         self.i = 0
 
+    def __len__(self) -> int:
+        raise TypeError("VideoCamera is a live stream and has no defined length")
+
     def __iter__(self) -> VideoCamera:
         self.i = 0
         self.cap.release()
@@ -1749,6 +1752,9 @@ class WebCam(ImageSource):
         self.args = kwargs
         self.cap = None
 
+    def __len__(self) -> int:
+        raise TypeError("WebCam is a live stream and has no defined length")
+
     def __iter__(self) -> WebCam:
         if self.cap is not None:
             self.cap.release()
@@ -1851,7 +1857,7 @@ class EarthView(ImageSource):
 
     .. note::
         - If the key is not passed in, a value is sought from the
-            environment variable ``GOOGLE_KEY``.
+            environment variable ``GOOGLE_API_KEY``.
         - Uses the `Google Maps Static API <https://developers.google.com/maps/documentation/maps-static/start>`_
 
     :references:
@@ -1878,7 +1884,7 @@ class EarthView(ImageSource):
     ) -> None:
 
         if key is None:
-            self.key = os.getenv("GOOGLE_KEY")
+            self.key = os.getenv("GOOGLE_API_KEY")
         else:
             self.key = key
 
@@ -1887,6 +1893,16 @@ class EarthView(ImageSource):
         self.zoom = zoom
         self.shape = shape
         self.args = kwargs
+
+    def __len__(self) -> int:
+        raise TypeError(
+            "EarthView is an on-demand image service and has no defined length"
+        )
+
+    def __iter__(self) -> Iterator:
+        raise TypeError(
+            "EarthView is not iterable; use grab() to retrieve individual images"
+        )
 
     def grab(
         self,
@@ -1946,7 +1962,7 @@ class EarthView(ImageSource):
         # https://developers.google.com/maps/documentation/maps-static/start#URL_Parameters
 
         # now read the map
-        url = f"https://maps.googleapis.com/maps/api/staticmap?center={lat},{lon}&zoom={zoom}&size={shape[0]}x{shape[1]}&scale={scale}&format=png&maptype={type}&key={self.key}&sensor=false"
+        url = f"https://maps.googleapis.com/maps/api/staticmap?center={lat},{lon}&zoom={zoom}&size={shape[0]}x{shape[1]}&scale={scale}&format=png&maptype={type}&key={self.key}"
 
         opturl = []
 
