@@ -3,6 +3,8 @@ Detection and description of 2D blob (connected region) features in images.
 """
 
 import copy
+import io
+import json
 import subprocess
 import sys
 import tempfile
@@ -1194,7 +1196,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> blobs[2].level
             >>> blobs.level
 
-        :seealso: :meth:`color` :meth:`parent` :meth:`children` :meth:`dotfile`
+        :seealso: :meth:`color` :meth:`parent` :meth:`children` :meth:`dotfile` :meth:`graph`
         """
         return [b.level for b in self.data]
 
@@ -1247,7 +1249,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         A parent of -1 is the image background.
 
-        :seealso: :meth:`id` :meth:`children` :meth:`level` :meth:`dotfile`
+        :seealso: :meth:`id` :meth:`children` :meth:`level` :meth:`dotfile` :meth:`graph`
         """
         return [b.parent.id if b.parent is not None else -1 for b in self.data]
 
@@ -1272,7 +1274,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> blobs[6].id
 
 
-        :seealso: :meth:`parent` :meth:`children` :meth:`level` :meth:`dotfile`
+        :seealso: :meth:`parent` :meth:`children` :meth:`level` :meth:`dotfile` :meth:`graph`
         """
         return [b.id for b in self.data]
 
@@ -1293,7 +1295,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> blobs = im.blobs()
             >>> blobs[5].children
 
-        :seealso: :meth:`parent` :meth:`level` :meth:`dotfile`
+        :seealso: :meth:`parent` :meth:`level` :meth:`dotfile` :meth:`graph`
         """
         return [[c.id for c in b.children] for b in self.data]
 
@@ -2380,6 +2382,180 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         return image.__class__(labels)
 
+    def graph(
+        self,
+        format: str = "dot",
+        filename: str | io.TextIOBase | None = None,
+        direction: str | None = None,
+    ) -> str:
+        """
+        Render blob hierarchy graph text.
+
+        :param format: graph output format: ``"dot"``, ``"mermaid"``,
+            ``"mermaid_fenced"``, ``"graphml"`` or ``"elk"``
+        :type format: str, optional
+        :param filename: destination path or open text stream, defaults to None
+        :type filename: str | file handle | None, optional
+        :param direction: graph direction for DOT output, defaults to None
+        :type direction: str, optional
+        :return: rendered graph text
+        :rtype: str
+
+        Creates graph text representing the blob hierarchy. If ``filename`` is
+        provided, the rendered text is also written to it.
+
+                Mermaid outputs:
+
+                - ``"mermaid"`` returns plain Mermaid text.
+                - ``"mermaid_fenced"`` returns Markdown fenced text suitable for
+                    direct display via ``IPython.display.Markdown``.
+
+        The blob hierarchy is represented as a directed graph where each node is
+        a blob id and each edge points from parent blob to child blob.
+
+        :seealso: :meth:`dotfile` :meth:`parent` :meth:`children` :meth:`level`
+        """
+
+        graph_format = format.lower().replace("-", "_")
+
+        def _parent_id(blob: Any) -> int:
+            parent = blob.parent
+            if parent is None:
+                return -1
+            if isinstance(parent, int):
+                return parent
+            return parent.id
+
+        hierarchy_edges = [(_parent_id(blob), blob.id) for blob in self]
+        node_ids_set = {blob.id for blob in self}
+        if any(parent_id == -1 for parent_id, _ in hierarchy_edges):
+            node_ids_set.add(-1)
+
+        if graph_format == "dot":
+            lines = ["digraph {"]
+            if direction is not None:
+                lines.append(f"rankdir = {direction}")
+
+            for node_id in sorted(node_ids_set):
+                lines.append(f'  "{node_id}"')
+
+            for parent_id, child_id in hierarchy_edges:
+                lines.append(f'  "{parent_id}" -> "{child_id}"')
+
+            lines.append("}")
+            text = "\n".join(lines) + "\n"
+
+        elif graph_format in ("mermaid", "mermaid_fenced"):
+            lines = ["flowchart TB"]
+            node_ids: dict[Any, str] = {}
+            sorted_nodes = sorted(node_ids_set)
+
+            for i, node in enumerate(sorted_nodes):
+                node_alias = f"b{i}"
+                node_ids[node] = node_alias
+                lines.append(f'    {node_alias}["{node}"]')
+
+            for parent_id, child_id in hierarchy_edges:
+                lines.append(f"    {node_ids[parent_id]} --> {node_ids[child_id]}")
+
+            mermaid_text = "\n".join(lines) + "\n"
+            if graph_format == "mermaid_fenced":
+                text = f"```mermaid\n{mermaid_text}```\n"
+            else:
+                text = mermaid_text
+
+        elif graph_format == "graphml":
+
+            def _xml_escape(value: str) -> str:
+                return (
+                    value.replace("&", "&amp;")
+                    .replace("<", "&lt;")
+                    .replace(">", "&gt;")
+                    .replace('"', "&quot;")
+                    .replace("'", "&apos;")
+                )
+
+            lines = [
+                '<?xml version="1.0" encoding="UTF-8"?>',
+                '<graphml xmlns="http://graphml.graphdrawing.org/xmlns"',
+                '         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"',
+                '         xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns',
+                '         http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">',
+                '  <key id="node_label" for="node" attr.name="label" attr.type="string"/>',
+                '  <graph id="G" edgedefault="directed">',
+            ]
+
+            for node in sorted(node_ids_set):
+                node_id = f"n{node}"
+                lines.extend(
+                    [
+                        f'    <node id="{node_id}">',
+                        f'      <data key="node_label">{_xml_escape(str(node))}</data>',
+                        "    </node>",
+                    ]
+                )
+
+            edge_id = 0
+            for parent_id, child_id in hierarchy_edges:
+                lines.append(
+                    f'    <edge id="e{edge_id}" source="n{parent_id}" target="n{child_id}"/>'
+                )
+                edge_id += 1
+
+            lines.extend(["  </graph>", "</graphml>"])
+            text = "\n".join(lines) + "\n"
+
+        elif graph_format == "elk":
+            children = []
+            edges = []
+
+            for node in sorted(node_ids_set):
+                children.append(
+                    {
+                        "id": f"n{node}",
+                        "labels": [{"text": str(node)}],
+                        "width": 60,
+                        "height": 40,
+                    }
+                )
+
+            edge_id = 0
+            for parent_id, child_id in hierarchy_edges:
+                edges.append(
+                    {
+                        "id": f"e{edge_id}",
+                        "sources": [f"n{parent_id}"],
+                        "targets": [f"n{child_id}"],
+                    }
+                )
+                edge_id += 1
+
+            elk_graph = {
+                "id": "root",
+                "layoutOptions": {
+                    "org.eclipse.elk.algorithm": "layered",
+                    "org.eclipse.elk.direction": "DOWN",
+                },
+                "children": children,
+                "edges": edges,
+            }
+            text = json.dumps(elk_graph, indent=2) + "\n"
+
+        else:
+            raise ValueError(
+                "unsupported graph format "
+                f"'{format}', expected 'dot', 'mermaid', 'mermaid_fenced', 'graphml' or 'elk'"
+            )
+
+        if filename is not None:
+            if isinstance(filename, str):
+                with open(filename, "w") as file:
+                    file.write(text)
+            else:
+                filename.write(text)
+
+        return text
+
     def dotfile(
         self, filename: Any = None, direction: str | None = None, show: bool = False
     ) -> None:
@@ -2400,50 +2576,48 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         .. note:: If ``filename`` is a file object then the file will *not*
             be closed after the GraphViz model is written.
 
-        :seealso: :meth:`child` :meth:`parent` :meth:`level`
+        :seealso: :meth:`graph` :meth:`child` :meth:`parent` :meth:`level`
         """
 
         if show:
             # create the temporary dotfile
             filename = tempfile.TemporaryFile(mode="w")
+        dot_text = self.graph(format="dot", direction=direction)
+
         if filename is None:
             f = sys.stdout
+            f.write(dot_text)
         elif isinstance(filename, str):
-            f = open(filename, "w")
+            with open(filename, "w") as f:
+                f.write(dot_text)
         else:
             f = filename
-
-        print("digraph {", file=f)
-
-        if direction is not None:
-            print(f"rankdir = {direction}", file=f)
-
-        # add the nodes including name and position
-        for id, blob in enumerate(self):
-            print('  "{:d}"'.format(id), file=f)
-            print(
-                '  "{:d}" -> "{:d}"'.format(blob.parent if blob.parent else -1, id),
-                file=f,
-            )
-
-        print("}", file=f)
+            f.write(dot_text)
 
         if show:
             # rewind the dot file, create PDF file in the filesystem, run dot
-            f.seek(0)
+            if filename is None:
+                dot_stream = tempfile.TemporaryFile(mode="w+")
+                dot_stream.write(dot_text)
+                dot_stream.seek(0)
+            elif isinstance(filename, str):
+                dot_stream = open(filename, "r")
+            else:
+                f.seek(0)
+                dot_stream = f
+
             pdffile = tempfile.NamedTemporaryFile(suffix=".pdf", delete=False)
             subprocess.run(
                 ["dot", "-Tpdf"],
-                stdin=cast(Any, f),
+                stdin=cast(Any, dot_stream),
                 stdout=pdffile,
                 check=True,
             )
 
             # open the PDF file in browser (hopefully portable), then cleanup
             webbrowser.open(f"file://{pdffile.name}")
-        else:
             if filename is None or isinstance(filename, str):
-                f.close()  # noqa
+                dot_stream.close()
 
 
 class ImageBlobsMixin:

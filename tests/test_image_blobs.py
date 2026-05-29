@@ -1,4 +1,6 @@
 import unittest
+import io
+import json
 from pathlib import Path
 from unittest.case import skip
 
@@ -533,6 +535,64 @@ class TestBlobMethods(unittest.TestCase):
     def test_sort_invalid_key(self):
         with self.assertRaises(ValueError):
             self.blobs4.sort(by="nonsense")
+
+    # --- graph -------------------------------------------------------------- #
+
+    def test_graph_dot_returns_string(self):
+        text = self.blobs4.graph()
+        self.assertIsInstance(text, str)
+        self.assertIn("digraph", text)
+
+    def test_graph_dot_and_dotfile_match(self):
+        stream = io.StringIO()
+        self.blobs4.dotfile(filename=stream)
+        dotfile_text = stream.getvalue()
+        graph_text = self.blobs4.graph(format="dot")
+        self.assertEqual(graph_text, dotfile_text)
+
+    def test_graph_mermaid_returns_string(self):
+        text = self.blobs4.graph(format="mermaid")
+        self.assertIn("flowchart", text)
+
+    def test_graph_mermaid_fenced_returns_fenced_markdown(self):
+        text = self.blobs4.graph(format="mermaid_fenced")
+        self.assertTrue(text.startswith("```mermaid\n"))
+        self.assertTrue(text.endswith("```\n"))
+
+    def test_graph_removed_mermaid_aliases_raise(self):
+        with self.assertRaises(ValueError):
+            self.blobs4.graph(format="mermaid_md")
+        with self.assertRaises(ValueError):
+            self.blobs4.graph(format="mermaid-markdown")
+
+    def test_graph_graphml_returns_xml(self):
+        text = self.blobs4.graph(format="graphml")
+        self.assertTrue(text.startswith("<?xml"))
+        self.assertIn("<graphml", text)
+
+    def test_graph_elk_returns_json(self):
+        text = self.blobs4.graph(format="elk")
+        data = json.loads(text)
+        self.assertIn("children", data)
+        self.assertIn("edges", data)
+
+    def test_graph_writes_filename(self):
+        out = Path("/tmp/mvtb-blob-graph.dot")
+        try:
+            text = self.blobs4.graph(format="dot", filename=str(out))
+            self.assertEqual(out.read_text(), text)
+        finally:
+            if out.exists():
+                out.unlink()
+
+    def test_graph_writes_stream(self):
+        stream = io.StringIO()
+        text = self.blobs4.graph(format="mermaid", filename=stream)
+        self.assertEqual(stream.getvalue(), text)
+
+    def test_graph_invalid_format_raises(self):
+        with self.assertRaises(ValueError):
+            self.blobs4.graph(format="badformat")
 
 
 # ============================================================================ #
