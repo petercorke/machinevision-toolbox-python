@@ -1,6 +1,6 @@
 [project]
 name = "machinevision-toolbox-python"
-version = "2.0.0"
+version = "2.0.1"
 authors = [{ name = "Peter Corke", email = "rvc@petercorke.com" }]
 description = "Object-oriented machine vision for Python."
 readme = "README.md"
