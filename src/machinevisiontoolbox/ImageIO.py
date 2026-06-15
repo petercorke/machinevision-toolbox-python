@@ -178,10 +178,14 @@ class ImageIOMixin(_ImageBase if TYPE_CHECKING else object):
                 self.domain[1][0],
             ]
 
+        if self.colororder_str is not None:
+            colororder = self.colororder_str.replace(":", "")
+        else:
+            colororder = None
         return idisp(
             self._A,
             title=display_title,
-            colororder="RGB" if self.isrgb else "BGR",
+            colororder=colororder,
             **kwargs,
         )
 

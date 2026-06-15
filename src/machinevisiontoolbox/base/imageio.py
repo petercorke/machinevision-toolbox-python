@@ -707,13 +707,14 @@ def idisp(
 
         # display the image
         if len(im.shape) == 3:
-            # reverse the color planes if it's color
-            if colororder not in ("RGB", "BGR"):
-                raise ValueError("unknown colororder ", colororder)
-            if colororder == "BGR":
-                im = im[:, :, ::-1]
-            h = ax.imshow(im, norm=norm, cmap=cmap, **options)
+            # color image, display in RGB or RGBA order; imshow handles alpha
+            # natively for both uint8 (0-255) and float (0.0-1.0) arrays
+            target = "RGBA" if "A" in colororder else "RGB"
+            idx = [colororder.find(c) for c in target if colororder.find(c) >= 0]
+            im_rgb = im[:, :, idx]  # reorder planes → RGB or RGBA
+            h = ax.imshow(im_rgb, norm=norm, cmap=cmap, **options)
         else:
+            # monochrome image, display in indexed mode, where pixel value is mapped through the colormap
             if norm is None:
                 # exclude NaN values
                 if vrange is None:
@@ -889,7 +890,19 @@ def idisp(
         # At this point title is guaranteed to be a string
         assert title is not None
         cv2.namedWindow(title, cv2.WINDOW_AUTOSIZE)
-        cv2.imshow(title, im)  # make sure BGR format image
+
+        if im.ndim == 3:
+            # color image, display in BGR order, but allow user to specify color order of input image
+            idx = []
+            for c in "BGR":
+                j = colororder.find(c)
+                if j >= 0:
+                    idx.append(j)
+            cv2.imshow(title, im[:, :, idx])  # convert → BGR order and display
+        else:
+            # monochrome image, display in indexed mode, where pixel value is mapped through the colormap
+            cv2.imshow(title, im)  # make sure BGR format image
+
         cv2.waitKey(1)
 
         if fps is not None:
@@ -1126,7 +1139,9 @@ def iread_iter(
 
         # read a single file
         path = Path(mvtb_path_to_datafile("images", path))
-        image = cv2.imread(path.as_posix(), cv2.IMREAD_UNCHANGED)
+        image = cv2.imread(
+            path.as_posix(), cv2.IMREAD_UNCHANGED
+        )  # read BGR or BGRA image, or greyscale if that's what the file contains
         if image is None:
             raise ValueError(f"Could not read {filename}")
         yield (convert(image, **kwargs), str(path))
@@ -1153,7 +1168,7 @@ def convert(
     """
     Convert image
 
-    :param image: input image
+    :param image: input image in BGR or BGRA order, as read by OpenCV
     :type image: ndarray(H,W), ndarray(H,W,P)
     :param mono: convert to grey scale, synonym for ``grey``
     :type mono: bool, optional
@@ -1207,20 +1222,29 @@ def convert(
         )
     image_original = image
 
+    # handle color plane order and alpha channel
+    # note that Torch doesn't like views of arrays with non-standard strides, so we use fancy indexing which implicitly makes a copy
+
     if image.ndim == 3 and image.shape[2] in (3, 4):
-        # is color image RGB, RGBA, BGR, BGRA
-        if not alpha:
-            # optionally remove the alpha plane
-            image = image[:, :, :3]
+        # color image, convert to RGB order if requested, otherwise leave in BGR order
         if rgb:
-            # optionally invert the color planes
-            image = np.copy(image[:, :, ::-1])  # reverse the planes
-            # np.copy() is required to make torchvision happy
-            colororder = "RGB"
+            # RGB order is more common in Python, but OpenCV reads in BGR order, so convert to RGB
+            if alpha and image.shape[2] == 4:
+                # BGRA→RGBA
+                image = image[:, :, [2, 1, 0, 3]]  # BGRA → RGBA
+                colororder = "RGBA"
+            else:
+                # BGR→RGB
+                image = image[:, :, [2, 1, 0]]
+                colororder = "RGB"
         else:
-            colororder = "BGR"
-        if alpha:
-            colororder += "A"
+            # leave in BGR order, which is more efficient for OpenCV processing, but less common in Python
+            if alpha and image.shape[2] == 4:
+                colororder = "BGRA"
+            else:
+                # BGRA→BGR
+                image = image[:, :, :3]  # BGRA → BGR
+                colororder = "BGR"
 
     mono = mono or gray or grey
     if mono and len(image.shape) == 3:
@@ -1284,32 +1308,43 @@ def iwrite(
     :return: successful write
     :rtype: bool
 
-    Writes the image ``im`` to ``filename`` using cv2.imwrite(), passing any
-    keyword arguments as options.  The file type is taken from the extension in
-    ``filename``.
+    Writes the image ``im`` to ``filename`` using cv2.imwrite(), passing any keyword
+    arguments as options.  The file type is taken from the extension in ``filename``.
 
     Example:
 
         .. code-block:: python
 
-            from machinevisiontoolbox import iwrite
-            import numpy as np
-            image = np.zeros((20,20))  # 20x20 black image
-            iwrite(image, "black.png")
+            from machinevisiontoolbox import iwrite import numpy as np image =
+            np.zeros((20,20))  # 20x20 black image iwrite(image, "black.png")
 
 
     .. note::
         - supports 8-bit greyscale and color images
         - supports uint16 for PNG, JPEG 2000, and TIFF formats
         - supports float32
-        - image must be in BGR or RGB format
+        - supports alpha channel for PNG and TIFF formats
+        - color image planes, with planes specified by ``colororder``, are reordered to
+          OpenCV order: BGR or BGRA. For example, if ``colororder`` is "GRBA", the planes
+          are reordered to "BGRA" for writing.  If ``colororder`` is "BGR" or "BGRA", no reordering is done.
 
-    :seealso: :func:`iread` `cv2.imwrite <https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html#gabbc7ef1aa2edfaa87772f1202d67e0ce>`_
+    :seealso: :func:`iread` `cv2.imwrite
+        <https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html#gabbc7ef1aa2edfaa87772f1202d67e0ce>`_
     """
-    if im.ndim > 2 and colororder == "RGB":
-        # put image into OpenCV BGR order for writing
-        return cv2.imwrite(filename, im[:, :, ::-1], **kwargs)
+    if im.ndim > 2:
+        # color image, convert to OpenCV BGR order for writing
+        if im.shape[2] not in (3, 4):
+            raise ValueError("color image must have 3 or 4 planes")
+        if colororder is not None:
+            idx = []
+            for c in "BGRA":
+                j = colororder.find(c)
+                if j >= 0:
+                    idx.append(j)
+            im_bgra = im[:, :, idx]  # reorder color planes → BGRA
+        return cv2.imwrite(filename, im_bgra, **kwargs)
     else:
+        # monochrome image
         return cv2.imwrite(filename, im, **kwargs)
 
 
