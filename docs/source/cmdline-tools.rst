@@ -79,6 +79,16 @@ Essentially, it is just another image browser, but images are displayed using ``
 which has a number of useful features such as the ability to zoom, pan and scroll the
 image, as well as display the coordinate and pixel value at the cursor position.
 
+Left-click and drag the mouse to define a rectangular region of interest (ROI).  After releasing the mouse button, the rectangle displays drag handles in the centre of each edge which allows for resizing the rectangle.  
+Various key presses perform operations on the rectangle:
+
+* 'p' key will pop the rectangle out as a new window.  
+* 'h' key will display a pixel frequency histogram.
+* 'c' key will display a cumulative pixel frequency histogram.
+* '?' will display help text.
+
+Shift-left-click and drag will draw a line.  After releasing the mouse button, a plot of pixel intensity values along the line will be displayed. 
+
 The pixel values are, by default, displayed in the color space of the image, but the
 ``--colorspace`` option can be used to specify a different color space for display.  For
 example::
@@ -196,6 +206,16 @@ one frame at a time, with keystrokes to jump forward in various step sizes::
 
 The image is displayed using :meth:`disp` and has the ability to zoom and pan the image as well as display pixel values under the cursor.  The current
 topic is displayed in the title bar of the window.
+
+Left-click and drag the mouse to define a rectangular region of interest (ROI).  After releasing the mouse button, the rectangle displays drag handles in the centre of each edge which allows for resizing the rectangle.  
+Various key presses perform operations on the rectangle:
+
+* 'p' key will pop the rectangle out as a new window.  
+* 'h' key will display a pixel frequency histogram.
+* 'c' key will display a cumulative pixel frequency histogram.
+* '?' will display help text.
+
+Shift-left-click and drag will draw a line.  After releasing the mouse button, a plot of pixel intensity values along the line will be displayed. 
 
 If multiple topics contain images, select the one to display using the ``--topic`` option which specifies a substring that must be present in the topic name::
 

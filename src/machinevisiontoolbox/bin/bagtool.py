@@ -194,6 +194,117 @@ def getargs():
     return parser.parse_args()
 
 
+def _display_frames_interactive(frames, title, args) -> None:
+    """
+    Step through a pre-collected frame list with interactive selection overlay.
+
+    Navigation keys (space / numbers / q / x) are wired to a local handler;
+    the :class:`~machinevisiontoolbox.bin._iminteractive.ImageInteractor`
+    provides rectangle, line-profile, and histogram keys on top.
+
+    Keys 'c' and 'h' are deliberately excluded from the jump-key table to
+    avoid conflicts with the interactor's cumulative-histogram and histogram
+    shortcuts.
+    """
+    from datetime import datetime, timezone
+    import matplotlib.pyplot as plt
+    from machinevisiontoolbox.bin._iminteractive import ImageInteractor
+
+    _jump = {
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 5,
+        "6": 6,
+        "7": 7,
+        "8": 8,
+        "9": 9,
+        "0": 10,
+        "l": 50,
+        "d": 500,
+    }
+
+    def _label(item, i):
+        ts = getattr(item, "timestamp", None)
+        if ts is not None:
+            dt = datetime.fromtimestamp(ts / 1e9, tz=timezone.utc).astimezone()
+            return dt.isoformat(timespec="milliseconds") + f"  [{i}]"
+        return f"[{i}]"
+
+    view_state = {"next": False, "quit": False, "skip": 0}
+
+    def on_key_nav(event, s=view_state):
+        if event.key == " ":
+            s["next"] = True
+        elif event.key in ("q", "x"):
+            s["quit"] = True
+        elif event.key in _jump:
+            s["skip"] = _jump[event.key]
+            s["next"] = True
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ts_text = fig.text(
+        0,
+        0,
+        "",
+        backgroundcolor="black",
+        color="white",
+        horizontalalignment="left",
+        verticalalignment="bottom",
+    )
+    fig.canvas.mpl_connect("key_press_event", on_key_nav)
+
+    _nav_help = (
+        "\nNavigation\n"
+        "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n"
+        "  space        next frame\n"
+        "  1-9 / 0      jump 1-9 / 10 frames\n"
+        "  l / d        jump 50 / 500 frames\n"
+        "  q / x        quit\n"
+    )
+    print("\nKeys: [space] next  [1-9/0] jump  [l/d] jump 50/500  [q/x] quit  [?] help")
+
+    interactor = None
+    it = iter(frames)
+    i = 0
+    while True:
+        try:
+            x = next(it)
+        except StopIteration:
+            break
+        if view_state["quit"]:
+            break
+
+        frame_title = title or getattr(x, "topic", None) or ""
+        x.disp(title=frame_title, ax=ax, reuse=True, grid=args.grid, badcolor="red")
+        ts_text.set_text(_label(x, i))
+
+        if interactor is None:
+            interactor = ImageInteractor(fig, ax, x, nav_help=_nav_help)
+        else:
+            interactor.update_image(x)
+
+        view_state["next"] = False
+        while not view_state["next"] and not view_state["quit"]:
+            plt.pause(0.05)
+
+        skip = view_state["skip"]
+        view_state["skip"] = 0
+        for _ in range(skip):
+            try:
+                next(it)
+                i += 1
+            except StopIteration:
+                break
+        i += 1
+
+    if interactor is not None:
+        interactor.detach()
+    plt.close(fig)
+
+
 def main():
     args = getargs()
 
@@ -274,12 +385,15 @@ def main():
                 title=os.path.basename(filename),
             )
         else:
-            ImageSequence(frames).disp(
-                animate=args.animate,
-                title=filename,
-                grid=args.grid,
-                badcolor="red",
-            )
+            if args.animate:
+                ImageSequence(frames).disp(
+                    animate=True,
+                    title=filename,
+                    grid=args.grid,
+                    badcolor="red",
+                )
+            else:
+                _display_frames_interactive(frames, filename, args)
 
 
 if __name__ == "__main__":

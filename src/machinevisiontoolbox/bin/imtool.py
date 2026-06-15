@@ -14,7 +14,7 @@ from colored import Fore, Style
 from machinevisiontoolbox import Image
 from machinevisiontoolbox.bin._bintools import CustomDefaultsHelpFormatter, MVTB_LINK
 from ansitable import ANSITable, Column
-import matplotlib.pyplot as plt
+import matplotlib
 import numpy as np
 
 # Set by figure keypress callback when the user requests immediate exit.
@@ -62,11 +62,28 @@ def getargs():
     parser.add_argument(
         "--verbose", "-v", help="Show image details", action="store_true"
     )
+    parser.add_argument(
+        "--backend",
+        "-B",
+        default=None,
+        metavar="BACKEND",
+        help="Matplotlib backend to use, e.g. TkAgg, Qt5Agg, MacOSX (default: system default)",
+    )
+    parser.add_argument(
+        "--alpha",
+        "-a",
+        action="store_true",
+        default=False,
+        help="Read and display the alpha channel if present (default: strip alpha)",
+    )
 
     return parser.parse_args()
 
 
 def visualize_image(image, args, block):
+    import matplotlib.pyplot as plt
+    from machinevisiontoolbox.bin._iminteractive import ImageInteractor
+
     if args.verbose:
         print(image)
 
@@ -151,15 +168,21 @@ def visualize_image(image, args, block):
 
         # 'q' keeps existing figure-close behaviour; 'x' exits all remaining files.
         fig = plt.gcf()
+        ax = fig.gca()
 
-        def on_key(event):
+        # Attach interactive rectangle / line-profile overlay.
+        _nav_help = (
+            "  x   close image and advance to next file\n" "  q   close window\n"
+        )
+        ImageInteractor(fig, ax, image, nav_help=_nav_help)
+
+        def _on_exit(event):
             global exit_requested
-
             if event.key == "x":
                 exit_requested = True
                 plt.close(event.canvas.figure)
 
-        fig.canvas.mpl_connect("key_press_event", on_key)
+        fig.canvas.mpl_connect("key_press_event", _on_exit)
 
         if block:
             plt.show(block=True)
@@ -207,12 +230,18 @@ def main():
 
     args = getargs()
 
+    if args.backend is not None:
+        matplotlib.use(args.backend)
+
+    import matplotlib.pyplot as plt  # noqa: F401 — initialises backend, used via globals
+    from machinevisiontoolbox.bin._iminteractive import ImageInteractor  # noqa: F401
+
     if len(args.files) > 10:
         args.block = True
 
     for i, file in enumerate(args.files):
         try:
-            img = Image.Read(file, alpha=True)
+            img = Image.Read(file, alpha=args.alpha)
             print(img)
         except ValueError:
             print(f"File {file} not found")
