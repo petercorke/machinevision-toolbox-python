@@ -577,7 +577,10 @@ class TestBlobMethods(unittest.TestCase):
         self.assertIn("edges", data)
 
     def test_graph_writes_filename(self):
-        out = Path("/tmp/mvtb-blob-graph.dot")
+        import tempfile
+
+        with tempfile.NamedTemporaryFile(suffix=".dot", delete=False) as f:
+            out = Path(f.name)
         try:
             text = self.blobs4.graph(format="dot", filename=str(out))
             self.assertEqual(out.read_text(), text)
