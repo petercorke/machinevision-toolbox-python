@@ -14,7 +14,6 @@ help:
 	@echo " make docs-strict - nitpicky Sphinx build with warnings treated as errors"
 	@echo " make view - open Sphinx doco build (uses open for MacOS)"
 	@echo " make dist - preview dist build"
-	@echo " make pypi - build the dist, upload to PyPI, tag the release and push the tag to origin"
 	@echo " make clean - remove dist and docs build files"
 	@echo " make help - this message$(BLACK)"
 
@@ -58,17 +57,6 @@ dist: .FORCE
 	# $(MAKE) test
 	python -m build
 	ls -lh dist/*
-
-pypi: .FORCE
-	@if ! git diff --quiet || ! git diff --cached --quiet; then \
-		echo "Error: uncommitted changes present, aborting upload"; exit 1; \
-	fi
-	python -m build
-	$(eval VERSION := $(shell grep '^version' pyproject.toml | sed 's/version = "\(.*\)"/\1/'))
-	@echo "Uploading version $(VERSION) to PyPI"
-	twine upload dist/*
-	git tag v$(VERSION)
-	git push origin v$(VERSION)
 
 clean: .FORCE
 	(cd docs; make clean)
