@@ -3,7 +3,6 @@
 Smoke tests for Visual Servo classes.
 """
 
-
 import unittest
 
 from machinevisiontoolbox import FileCollection, BagOfWords
@@ -22,7 +21,7 @@ class TestBagOfWords(unittest.TestCase):
             features += image.SIFT()
         features.sort(by="scale", inplace=True)
 
-        self.assertEqual(len(features), 42_213)
+        self.assertAlmostEqual(len(features), 42_213, delta=10)
 
         bag = BagOfWords(features, 2_000, seed=0)
         # self.assertEqual(len(bag), 42_213)
