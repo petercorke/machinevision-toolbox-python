@@ -102,6 +102,6 @@ jobs:
           micromamba run -n myenv coverage xml
 
       - name: Upload to Codecov
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@v7
         with:
           file: ./coverage.xml
