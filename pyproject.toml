@@ -65,10 +65,13 @@ dependencies = [
 #  open3d - open3d support (open3d generally won't work with latest Python)
 #  all - all runtime optional features below
 #  ocr - OCR support via pytesseract
+#  tool - dependencies for the mvtbtool interactive shell
 
 dev = ["pytest", "coverage", "ruff", "nbmake"]
 
 ros = ["rosbags", "roslibpy", "websockets"]
+
+tool = ["ipython", "pygments"]
 
 docs = [
     "sphinx",
@@ -98,6 +101,8 @@ all = [
     "rosbags",
     "roslibpy",
     "websockets",
+    "ipython",
+    "pygments",
 ]
 
 [tool.pytest.ini_options]
