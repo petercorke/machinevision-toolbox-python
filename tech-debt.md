@@ -99,6 +99,63 @@ Node runtime bumps), then bump. Do `release.yml` last and most carefully
 `.github/workflows/ci.yml` on a real PR after bumping it, since it's the
 main test gate.
 
+## `ci.yml` uses conda/micromamba; every sibling toolbox uses plain pip
+
+Observed 2026-07-29, prompted directly by the opencv5 pin incident above
+(a conda-forge-specific dependency-drift failure that plain pip installs
+wouldn't have hit the same way, since `pyproject.toml`'s own
+`opencv-python<5.0.0` / `opencv-contrib-python<5.0.0` pins would have
+been honoured). `machinevision-toolbox-python/.github/workflows/ci.yml`
+is the only one of Peter's toolbox CI configs that uses
+`mamba-org/setup-micromamba` + a hand-maintained `create-args` package
+list. Checked directly:
+
+| Repo | CI setup |
+|---|---|
+| robotics-toolbox-python | `actions/setup-python` + `pip install .[dev]` |
+| bdsim | `actions/setup-python` + `pip install .[dev,bdedit]` |
+| spatialmath-python | `actions/setup-python` + `pip install .[dev]` |
+| **machinevision-toolbox-python** | **`mamba-org/setup-micromamba` + `create-args` package list** |
+
+This is a genuine outlier, apparently introduced by a conda-preferring
+contributor at some point, not a deliberate MVTB-specific technical
+requirement (MVTB's own `pyproject.toml` dependencies are ordinary PyPI
+packages — `opencv-python`, `opencv-contrib-python`, etc. — nothing here
+actually needs conda). Consequences of the mismatch, beyond one-off
+annoyance:
+
+- Dependency pins in `pyproject.toml` (the pip-installable, publishable
+  package spec) don't apply to CI at all, since `ci.yml` never runs `pip
+  install .` against the conda env's packages the normal way — it
+  pre-installs everything via `create-args`, then does
+  `pip install .[dev] --no-deps --no-build-isolation` (explicitly
+  `--no-deps`, so pip's own resolver never even sees the pins). That's
+  exactly how CI silently drifted onto conda-forge's opencv 5.0.0 despite
+  `pyproject.toml` saying `<5.0.0` — see the opencv5 entry above.
+- Doubles the maintenance surface for CI dependency changes: an
+  `environment.yml`-style `create-args` list to keep in sync with
+  `pyproject.toml`'s `dependencies`/`docs`/`dev` extras by hand, instead
+  of one source of truth.
+- Inconsistent with every sibling repo, so fixes/conventions that get
+  worked out on RTB/bdsim/SMTB's CI don't transfer here without
+  translation, and vice versa (see `~/.claude/toolbox-infrastructure.md`'s
+  shared-infrastructure convention).
+
+### Fix
+
+Normalize to the same `actions/setup-python` + `pip install .[dev]`
+pattern the other three repos use, dropping `mamba-org/setup-micromamba`
+entirely. Before doing so, check *why* conda was introduced here in the
+first place — search git blame/log on `ci.yml` for context — in case
+there's a real reason (e.g. a native dependency that's painful via pip
+on some platform) rather than just contributor preference. If no real
+reason turns up, this is a straightforward rip-and-replace: swap the
+`mamba-org/setup-micromamba` step for `actions/setup-python`, replace
+`create-args` with `pip install .[dev]` (defining a `dev` extra in
+`pyproject.toml` if one doesn't already exist, matching RTB/bdsim), and
+drop the separate `libegl` conda-forge install step (find the pip/apt
+equivalent, or confirm it's no longer needed).
+
 ## opencv5 migration is in progress but not finished
 
 Discovered 2026-07-29 via CI failures on unrelated PRs (#25, and an
