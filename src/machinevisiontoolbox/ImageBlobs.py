@@ -458,7 +458,10 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
                 ## Equivalent ellipse
                 J = np.array([[M["mu20"], M["mu11"]], [M["mu11"], M["mu02"]]])
-                e, X = np.linalg.eig(J)
+                # J is real-symmetric, so use eigh (not eig): eig can return
+                # complex128 for a symmetric matrix due to floating-point
+                # noise even though the eigenvalues are mathematically real.
+                e, X = np.linalg.eigh(J)
                 blob_params["a"] = 2.0 * np.sqrt(e.max() / M["m00"])
                 blob_params["b"] = 2.0 * np.sqrt(e.min() / M["m00"])
 

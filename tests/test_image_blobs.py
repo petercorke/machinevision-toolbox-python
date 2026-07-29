@@ -119,6 +119,23 @@ class TestBlobs(unittest.TestCase):
         self.assertEqual(blobs[1].area, 4)
         self.assertEqual(blobs[1].perimeter_length, 7)
 
+    def test_orientation_square_blob_degenerate_moments(self):
+        # A square (or any blob with equal mu20/mu02 and mu11≈0) has a
+        # moment matrix that is a scalar multiple of the identity: its two
+        # eigenvalues are exactly equal. np.linalg.eig (general, non-
+        # symmetric solver) can return complex128 for this case due to
+        # floating-point noise even though the matrix is real-symmetric and
+        # the eigenvalues are mathematically real, which then makes
+        # np.arctan2() raise TypeError. np.linalg.eigh (symmetric solver)
+        # does not have this failure mode. See ImageBlobs.py's equivalent
+        # ellipse / orientation calculation.
+        im = Image.Squares(1, size=61, fg=255, bg=0)
+        blobs = im.blobs()
+
+        orientation = blobs[0].orientation
+        self.assertIsInstance(orientation, float)
+        self.assertFalse(np.iscomplexobj(orientation))
+
 
 # ============================================================================ #
 #  Fixtures
