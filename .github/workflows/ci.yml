@@ -34,7 +34,7 @@ jobs:
             pytest-xvfb
             matplotlib-base
             setuptools
-            opencv
+            opencv<5
             scipy
             spatialmath-python
             ansitable
@@ -78,7 +78,7 @@ jobs:
             pytest-xvfb
             matplotlib-base
             setuptools
-            opencv
+            opencv<5
             scipy
             spatialmath-python
             ansitable
