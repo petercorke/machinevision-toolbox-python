@@ -296,8 +296,8 @@ class BaseFeature2D:
         bins = np.zeros((nh, nw), dtype="int")
 
         for f in self:
-            ix = f.p[0] // binwidth
-            iy = f.p[1] // binheight
+            ix = int(f.p[0].item() // binwidth)
+            iy = int(f.p[1].item() // binheight)
 
             if bins[iy, ix] < nfeat:
                 keep.append(f)
