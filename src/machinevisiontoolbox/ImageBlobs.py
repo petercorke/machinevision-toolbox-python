@@ -11,7 +11,7 @@ import tempfile
 import webbrowser
 from collections import UserList, namedtuple
 from dataclasses import dataclass
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import cv2
 import matplotlib.pyplot as plt
@@ -23,6 +23,9 @@ import spatialmath.base as smb
 
 from machinevisiontoolbox.base import plot_labelbox, mpl_styling
 from machinevisiontoolbox.decorators import array_result, scalar_result
+
+if TYPE_CHECKING:
+    from machinevisiontoolbox._image_typing import _ImageBase
 
 """
 NOTES
@@ -2623,7 +2626,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
                 dot_stream.close()
 
 
-class ImageBlobsMixin:
+class ImageBlobsMixin(_ImageBase if TYPE_CHECKING else object):
     def blobs(self, **kwargs) -> Blobs:
         """
         Find and describe blobs in image
