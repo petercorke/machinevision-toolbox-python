@@ -34,13 +34,15 @@ jobs:
             pytest-xvfb
             matplotlib-base
             setuptools
-            opencv
+            opencv<5
             scipy
             spatialmath-python
             ansitable
             wcwidth
             tqdm
             hatchling
+            ipython
+            pygments
 
       - name: Install libegl (Linux)
         if: runner.os == 'Linux'
@@ -78,13 +80,15 @@ jobs:
             pytest-xvfb
             matplotlib-base
             setuptools
-            opencv
+            opencv<5
             scipy
             spatialmath-python
             ansitable
             wcwidth
             tqdm
             hatchling
+            ipython
+            pygments
 
       - name: Install libegl
         run: micromamba install -y -n myenv -c conda-forge libegl

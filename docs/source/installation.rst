@@ -96,6 +96,9 @@ The available extras are:
 +--------------+-------------------------------------------+
 | ``labelme``  | LabelMe JSON annotation reader support    |
 +--------------+-------------------------------------------+
+| ``tool``     | ``IPython`` and ``pygments``, needed to   |
+|              | run the ``mvtbtool`` interactive shell    |
++--------------+-------------------------------------------+
 | ``all``      | All of the above                          |
 +--------------+-------------------------------------------+
 

@@ -261,6 +261,18 @@ func/object??      - show source code"""
 
 
 def main():
+    try:
+        import IPython
+        from IPython.terminal.prompts import Prompts
+        from pygments.token import Token
+        from traitlets.config import Config
+    except ImportError as e:
+        sys.exit(
+            f"mvtbtool requires IPython and pygments, which are not "
+            f"installed ({e}).\nInstall them with:\n\n"
+            "    pip install machinevision-toolbox-python[tool]\n"
+        )
+
     args, ipython_args = parse_arguments()
     torch_modules, torch_warnings = optional_torch_imports(args.torch)
 
@@ -281,11 +293,6 @@ def main():
     #     exec(path.read_text())
 
     ## drop into IPython
-    import IPython
-    from IPython.terminal.prompts import ClassicPrompts, Prompts
-    from pygments.token import Token
-    from traitlets.config import Config
-
     class MyPrompt(Prompts):
         def in_prompt_tokens(self, cli=None):
             return [(Token.Prompt, args.prompt)]

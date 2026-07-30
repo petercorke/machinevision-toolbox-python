@@ -34,6 +34,25 @@ warnings.warn(
 This is a real code change (not docs-only), so bundle it with a `fix:`
 commit when picked up rather than folding it into a docs-only change.
 
+## `docs/requirements.txt` pinned `sphinx-codeautolink` to an unmerged branch
+
+Added 2026-07-29: `docs/requirements.txt` pinned
+`sphinx-codeautolink @ git+https://github.com/petercorke/sphinx-codeautolink.git@support-typing-self`
+instead of the stock PyPI release, to get `typing.Self` return-annotation
+resolution (needed for cross-linking chained method calls like
+`Image.Random(...).print()`) ahead of upstream PR
+[felix-hilden/sphinx-codeautolink#202](https://github.com/felix-hilden/sphinx-codeautolink/pull/202)
+merging.
+
+### Resolved 2026-07-29
+
+PR #202 merged upstream and shipped in the `sphinx-codeautolink` 0.19.0
+PyPI release the same day. Verified directly (downloaded and inspected
+the 0.19.0 wheel, confirmed the `Self`-handling code, rebuilt the docs
+against it — chained calls now cross-link correctly). Switched
+`pyproject.toml`'s `docs` extra to `sphinx-codeautolink>=0.19.0` and
+dropped the git-branch override from `docs/requirements.txt` entirely.
+
 ## GitHub Actions versions are stale across most workflows
 
 Audited 2026-07-29 (prompted by a similar finding in another toolbox
@@ -118,13 +137,15 @@ annoyance:
 
 **Second live example, 2026-07-29**: PR #24 (`feat/tools-extra`, adding a
 new `tool` extra to `pyproject.toml` for optional `IPython`/`pygments`
-support) fails CI with `mvtbtool requires IPython and pygments, which are
-not installed (No module named 'IPython')` — because `ci.yml`'s
+support) failed CI with `mvtbtool requires IPython and pygments, which
+are not installed (No module named 'IPython')` — because `ci.yml`'s
 `create-args` package list was never updated to include them. A plain
 `pip install .[dev,tool]`-style CI setup would have picked up the new
 extra automatically; the hand-maintained conda list requires a manual,
 easy-to-forget edit in a second place every time `pyproject.toml` gains a
-new extra or dependency.
+new extra or dependency. Patched directly (added `ipython`/`pygments` to
+`create-args`) and merged 2026-07-29 — the underlying architectural gap
+below is still open.
 
 ### Fix
 
