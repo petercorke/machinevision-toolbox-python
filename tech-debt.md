@@ -1,5 +1,100 @@
 # Technical Debt
 
+## [HIGH PRIORITY] mypy is not run anywhere in CI or dev tooling
+
+Found 2026-07-29 while fixing the `_ImageBase` Protocol gaps in
+`ImageBlobs.py`/`ImageRegionFeatures.py`/`ImagePointFeatures.py`
+(see git history — three mixins were missing the
+`class XMixin(_ImageBase if TYPE_CHECKING else object)` pattern every
+other mixin uses). That fix prompted the question: if a new method is
+added to a mixin and it's accessed via `self.` from a *different*
+mixin, and it's not yet declared in `_image_typing.py`'s `_ImageBase`
+Protocol, what actually catches that? Answer: **nothing, currently**.
+`mypy` is not in `pyproject.toml`'s `dev` extra and does not run in any
+`.github/workflows/*.yml` — confirmed by grep, zero hits. So a Protocol
+gap like this doesn't fail a build or even show a warning; it just
+silently produces incomplete/wrong type information for anyone using an
+editor with type-checking (Pylance, mypy in an IDE), with no automated
+signal anywhere. This is the quietest version of a pattern that's
+already bitten this project twice today in more visible forms (the
+`image_class.rst` autosummary list silently going stale for the whole
+`Image` sidebar, and `ci.yml`'s conda `create-args` list silently
+missing `pgraph-python`/drifting on `opencv`) — a hand-maintained
+shadow list with no automated check that it stays in sync with reality.
+
+**Ran `mypy src/machinevisiontoolbox --ignore-missing-imports` fresh,
+2026-07-29** (superseding the stale, less-categorized April audit in
+`NOTES`): **524 errors in 31 files** (checked 49 source files). By
+category:
+
+| Code | Count |
+|---|---|
+| `attr-defined` | 84 |
+| `assignment` | 82 |
+| `union-attr` | 76 |
+| `index` | 75 |
+| `arg-type` | 53 |
+| `misc` | 26 |
+| `name-defined` | 24 |
+| `var-annotated` | 18 |
+| `valid-type` | 15 |
+| `operator` | 15 |
+| `call-overload` | 14 |
+| `return-value` | 13 |
+| `has-type` | 11 |
+| `return` | 6 |
+| `no-redef` | 5 |
+| `override` | 4 |
+| `method-assign` | 2 |
+| `call-arg` | 1 |
+
+**Correcting an initial hypothesis**: expected most `attr-defined`
+errors to trace to incomplete `_ImageBase` coverage (only ~96 of
+`Image`'s ~290 public members are declared — by design, since the
+Protocol only needs to cover attributes actually cross-referenced
+between mixins, not the full public API). Checked the real breakdown
+instead of assuming: **none** of the current `attr-defined` errors are
+actually `_ImageBase` gaps. The two real dominant causes are unrelated:
+- 23 of 84: `machinevisiontoolbox/base/__init__.py` re-exports every
+  submodule via wildcard `from X import *` (9 submodules) with no
+  explicit `__all__`/direct re-export list; mypy can't reliably resolve
+  names through that chain, so every file that does
+  `from machinevisiontoolbox.base import (draw_circle, plot_labelbox,
+  findpeaks2d, ...)` gets a false "module has no attribute" even though
+  these work fine at runtime.
+- 8 of 84: `cv2.<X>_create` dynamic dispatch (`getattr(cv2, ...)` /
+  `getattr(cv2.xfeatures2d, ...)` patterns in `ImagePointFeatures.py`'s
+  feature-detector dict) — mypy can't type-check dynamic attribute
+  access, expected and low-value to fix.
+- The remaining ~53 are scattered; `VisualServo.py` alone accounts for
+  44 of the 84 `attr-defined` errors (a mix of real typos like
+  `"plotpose"; maybe "plot_pose"?` and missing `machinevisiontoolbox.base`
+  attributes via the same wildcard-import issue) and is worth its own
+  look independent of the mixin-Protocol question that prompted this
+  audit.
+
+The `_ImageBase`-completeness risk described above is still real, just
+currently *latent* rather than demonstrated by a live error — worth
+re-running this same `mypy` audit after any future mixin refactor to
+catch it if it does start manifesting.
+
+### Fix
+
+Two independent pieces, roughly in priority order:
+1. Fix `machinevisiontoolbox/base/__init__.py`'s wildcard re-exports
+   (add explicit `__all__` composed from each submodule's own `__all__`,
+   or switch to explicit `from X import (name1, name2, ...)` — either
+   should immediately clear ~23+ of the `attr-defined` count and is a
+   mechanical, low-risk change).
+2. Wire `mypy` into CI (even just as a non-blocking/advisory job at
+   first, given 524 existing errors) so future drift is visible instead
+   of silent. Add `mypy` to `pyproject.toml`'s `dev` extra either way.
+Do not attempt to fix all 524 errors in one pass — triage by category
+(the `[call-arg]`/`[override]`/`[return]` categories are more likely to
+be real bugs; `assignment`/`arg-type`/`index` are more likely the
+`ArrayLike`-union-too-broad pattern the April `NOTES` audit already
+identified).
+
 ## `Image.ncdf` is documented as deprecated but never warns
 
 `ncdf` (`src/machinevisiontoolbox/ImageWholeFeatures.py:511-523`) has a
