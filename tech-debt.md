@@ -147,6 +147,33 @@ new extra or dependency. Patched directly (added `ipython`/`pygments` to
 `create-args`) and merged 2026-07-29 — the underlying architectural gap
 below is still open.
 
+**Third example, found 2026-07-29 (pre-existing, not a new incident)**:
+`pgraph-python` is a real, declared dependency in `pyproject.toml`'s
+`dependencies` list, but is completely absent from `ci.yml`'s
+`create-args` — not merely unpinned, never installed at all. The only
+file that imports it, `BundleAdjust.py`, does so inside a bare
+`except:` (see the bare-except finding elsewhere in this file) that
+silently falls back when the import fails. So every CI run has been
+exercising `BundleAdjust`'s pgraph-dependent code in "not installed"
+fallback mode this whole time, with nothing surfacing it. Not fixed
+here — decided (2026-07-29) to leave the conda→pip migration itself as
+deferred tech debt rather than keep patching individual missing
+packages one at a time; noting this one so it's not lost.
+
+**Decision, 2026-07-29**: known who introduced the conda/micromamba
+setup and why (a well-intentioned contributor's preference for conda,
+not a technical requirement) — confirmed not urgent enough to fix now.
+Branch protection on `main` (`All tests passed` + `build` required,
+strict/up-to-date-with-base required) now contains the *blast radius*
+of a future incident like this — it'll block just the one PR that hits
+it, rather than silently landing on `main` and confusing every other
+open PR at once, which was the actually painful part of the opencv5
+incident. The root architectural gap remains real and will very likely
+surface again the same way (a fourth missing/drifted package), but
+that's an acceptable trade for now given the fix requires careful
+cross-OS testing (libegl/Xvfb handling, `matplotlib-base` vs
+`matplotlib` naming) rather than a quick patch.
+
 ### Fix
 
 Normalize to the same `actions/setup-python` + `pip install .[dev]`
