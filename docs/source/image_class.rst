@@ -32,6 +32,7 @@ Image attributes
 Describe the attributes of an :class:`~machinevisiontoolbox.Image`.
 
 .. autosummary::
+   :toctree: stubs
    :nosignatures:
 
    ~__repr__
@@ -53,6 +54,7 @@ Predicates
 Test attributes of an ``Image``.
 
 .. autosummary::
+   :toctree: stubs
    :nosignatures:
 
    ~isbgr
@@ -68,6 +70,7 @@ Color planes and channels
 Return information about the color planes of an ``Image`` instance.
 
 .. autosummary::
+   :toctree: stubs
    :nosignatures:
 
    ~nplanes
@@ -92,6 +95,7 @@ Image coordinates
 Describe the pixel coordinates of an ``Image``.
 
 .. autosummary::
+   :toctree: stubs
    :nosignatures:
 
    ~contains
@@ -107,6 +111,7 @@ NumPy pixel data
 Return ``Image`` pixel data as a NumPy array.
 
 .. autosummary::
+   :toctree: stubs
    :nosignatures:
 
    ~array
@@ -125,6 +130,7 @@ Getting pixels
 Access individual pixels or groups of pixels.
 
 .. autosummary::
+   :toctree: stubs
    :nosignatures:
 
    ~__getitem__
@@ -137,6 +143,7 @@ Image datatype
 Describe or change the datatype of ``Image`` pixel values.
 
 .. autosummary::
+   :toctree: stubs
    :nosignatures:
 
    ~astype
@@ -161,6 +168,7 @@ Sub images
 Extract sub-images or planes from an ``Image`` instance.
 
 .. autosummary::
+   :toctree: stubs
    :nosignatures:
 
    ~blue
@@ -176,6 +184,7 @@ Color space and gamma
 Convert between color spaces and perform gamma encoding and decoding.
 
 .. autosummary::
+   :toctree: stubs
    :nosignatures:
 
    ~chromaticity
@@ -193,6 +202,7 @@ Composition
 Combine multiple ``Image`` instances into a single ``Image`` instance.
 
 .. autosummary::
+   :toctree: stubs
    :nosignatures:
 
    ~anaglyph
@@ -210,6 +220,7 @@ Monadic functions
 Operate elementwise on an ``Image`` instance and returns a new ``Image`` instance.
 
 .. autosummary::
+   :toctree: stubs
    :nosignatures:
 
    ~abs
@@ -230,6 +241,7 @@ Dyadic functions
 Operate elementwise on two ``Image`` instances and return a new ``Image`` instance.
 
 .. autosummary::
+   :toctree: stubs
    :nosignatures:
 
    ~apply2
@@ -243,6 +255,7 @@ Linear filtering
 Linear filtering operations including convolution, corner and edge detection.
 
 .. autosummary::
+   :toctree: stubs
    :nosignatures:
 
    ~canny
@@ -266,6 +279,7 @@ Non-linear (morphological) filtering
 Variety of non-linear morphological operations.
 
 .. autosummary::
+   :toctree: stubs
    :nosignatures:
 
    ~close
@@ -277,7 +291,7 @@ Variety of non-linear morphological operations.
    ~medianfilter
    ~morph
    ~open
-   ~rank
+   ~rankfilter
    ~thin
    ~thin_animate
    ~triplepoint
@@ -290,6 +304,7 @@ Image labeling
 Binary, greyscale and color image segmentation using various algorithms.
 
 .. autosummary::
+   :toctree: stubs
    :nosignatures:
 
    ~labels_binary
@@ -302,6 +317,7 @@ Image similarity
 Various scalar image similarity measures.
 
 .. autosummary::
+   :toctree: stubs
    :nosignatures:
 
    ~ncc
@@ -318,6 +334,7 @@ Shape changing
 Changing the shape of an ``Image`` instance.
 
 .. autosummary::
+   :toctree: stubs
    :nosignatures:
 
    ~decimate
@@ -336,6 +353,7 @@ Image distortion
 Distorting the image within an ``Image`` instance.
 
 .. autosummary::
+   :toctree: stubs
    :nosignatures:
 
    ~interp2d
@@ -353,6 +371,7 @@ Multiview operations
 Stereo image processing, rectification, and display.
 
 .. autosummary::
+   :toctree: stubs
    :nosignatures:
 
    ~DSI_refine
@@ -367,6 +386,7 @@ Tensor conversion
 Convert between ``Image`` objects and PyTorch tensors.
 
 .. autosummary::
+   :toctree: stubs
    :nosignatures:
 
    ~tensor
@@ -396,6 +416,7 @@ Arithmetic and bitwise logical operations can be performed elementwise on:
 
 
 .. autosummary::
+   :toctree: stubs
    :nosignatures:
 
    ~__add__
@@ -422,6 +443,7 @@ Logical operations can be performed elementwise on: ``Image`` ☆ ``Image``.
 The result is always an ``Image`` with boolean pixel values:
 
 .. autosummary::
+   :toctree: stubs
    :nosignatures:
 
    ~__eq__
@@ -443,6 +465,7 @@ Arithmetic and bitwise logical operations can be performed elementwise on:
 The result is always an ``Image``.  A scalar value is broadcast across the whole image.
 
 .. autosummary::
+   :toctree: stubs
    :nosignatures:
 
    ~__iadd__
@@ -464,6 +487,7 @@ A scalar  value is broadcast across the whole image to create a new ``Image`` in
 In place stacking allows for planes to be appended.
 
 .. autosummary::
+   :toctree: stubs
    :nosignatures:
    
    ~__imod__
@@ -473,6 +497,7 @@ Image statistics
 ----------------
 
 .. autosummary::
+   :toctree: stubs
    :nosignatures:
 
    ~max
@@ -501,6 +526,7 @@ Histograms
 """"""""""
 
 .. autosummary::
+   :toctree: stubs
    :nosignatures:
 
    ~hist
@@ -510,6 +536,7 @@ Image moments
 """""""""""""
 
 .. autosummary::
+   :toctree: stubs
    :nosignatures:
 
    ~humoments
@@ -522,6 +549,7 @@ Other
 """""
 
 .. autosummary::
+   :toctree: stubs
    :nosignatures:
 
    ~flatnonzero
@@ -537,6 +565,7 @@ Region features
 Find homogeneous regions, text or fiducual tags.
 
 .. autosummary::
+   :toctree: stubs
    :nosignatures:
 
    ~blobs
@@ -549,6 +578,7 @@ Fiducial features
 ^^^^^^^^^^^^^^^^^
 
 .. autosummary::
+   :toctree: stubs
    :nosignatures:
 
    ~fiducial
@@ -559,6 +589,7 @@ Line features
 Find lines in an image.
 
 .. autosummary::
+   :toctree: stubs
    :nosignatures:
 
    ~Hough
@@ -569,6 +600,7 @@ Point/corner features
 Find distincitive points in an image.
 
 .. autosummary::
+   :toctree: stubs
    :nosignatures:
 
    ~AKAZE
@@ -586,6 +618,7 @@ File
 ^^^^
 
 .. autosummary::
+   :toctree: stubs
    :nosignatures:
 
    ~metadata
@@ -596,6 +629,7 @@ Graphical
 ^^^^^^^^^
 
 .. autosummary::
+   :toctree: stubs
    :nosignatures:
 
    ~disp
@@ -606,6 +640,7 @@ Text
 ^^^^
 
 .. autosummary::
+   :toctree: stubs
    :nosignatures:
    
    ~print
@@ -618,6 +653,7 @@ Comparison helpers
 Utilities for scalar equality checks between images.
 
 .. autosummary::
+   :toctree: stubs
    :nosignatures:
 
    ~sameas
@@ -628,6 +664,7 @@ Constant images
 Create images that are constant, random, or have a simple geometric pattern.
 
 .. autosummary::
+   :toctree: stubs
    :nosignatures:
 
    ~Chequerboard
@@ -648,6 +685,7 @@ Render simple graphical annotations into an image.  The equivalent functions ``p
 from SpatialMath Toolbox create graphical overlays rather than changing the the image data.
 
 .. autosummary::
+   :toctree: stubs
    :nosignatures:
 
    ~draw_box
@@ -663,3 +701,21 @@ Test images
 
 Sometimes, for pedagogy and unit tests, it is helpful to create, process and numerically
 display small example images.
+
+Deprecated aliases
+-------------------
+
+These names are kept for backward compatibility and will emit a deprecation warning.
+
+.. autosummary::
+   :toctree: stubs
+   :nosignatures:
+
+   ~A
+   ~adaptive_threshold
+   ~column
+   ~image
+   ~ithresh
+   ~ncdf
+   ~rank
+   ~thresh

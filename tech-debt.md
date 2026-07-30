@@ -34,30 +34,24 @@ warnings.warn(
 This is a real code change (not docs-only), so bundle it with a `fix:`
 commit when picked up rather than folding it into a docs-only change.
 
-## `docs/requirements.txt` pins `sphinx-codeautolink` to an unmerged branch
+## `docs/requirements.txt` pinned `sphinx-codeautolink` to an unmerged branch
 
-Added 2026-07-29: `docs/requirements.txt` installs
+Added 2026-07-29: `docs/requirements.txt` pinned
 `sphinx-codeautolink @ git+https://github.com/petercorke/sphinx-codeautolink.git@support-typing-self`
 instead of the stock PyPI release, to get `typing.Self` return-annotation
 resolution (needed for cross-linking chained method calls like
-`Image.Random(...).print()`). This is upstream PR
-[felix-hilden/sphinx-codeautolink#202](https://github.com/felix-hilden/sphinx-codeautolink/pull/202),
-open and unmerged as of 2026-07-29.
+`Image.Random(...).print()`) ahead of upstream PR
+[felix-hilden/sphinx-codeautolink#202](https://github.com/felix-hilden/sphinx-codeautolink/pull/202)
+merging.
 
-This is the same anti-pattern that `sphinx-autorun` → `sphinx-pyrunblock`
-was deliberately fixed to get away from (see git history,
-2026-07-29): pinning CI to an unmerged/unpublished branch means the build
-can silently break if that branch is force-pushed, rebased, or deleted.
+### Resolved 2026-07-29
 
-**Check back around 2026-08-05** (~1 week out): if PR #202 has merged and
-shipped in a `sphinx-codeautolink` release, switch
-`docs/requirements.txt` back to plain `sphinx-codeautolink` (already
-listed in `pyproject.toml`'s `docs` extra) and delete this entry. If it's
-still unmerged, re-assess whether the pin is still worth the risk.
-
-(A one-time scheduled check for this is already set up — routine
-`trig_019fxmj9twxENaJdfnEYGSDv`, fires 2026-08-04T23:00Z — it will report
-PR/PyPI status but won't edit anything itself.)
+PR #202 merged upstream and shipped in the `sphinx-codeautolink` 0.19.0
+PyPI release the same day. Verified directly (downloaded and inspected
+the 0.19.0 wheel, confirmed the `Self`-handling code, rebuilt the docs
+against it — chained calls now cross-link correctly). Switched
+`pyproject.toml`'s `docs` extra to `sphinx-codeautolink>=0.19.0` and
+dropped the git-branch override from `docs/requirements.txt` entirely.
 
 ## GitHub Actions versions are stale across most workflows
 
@@ -140,6 +134,18 @@ annoyance:
   worked out on RTB/bdsim/SMTB's CI don't transfer here without
   translation, and vice versa (see `~/.claude/toolbox-infrastructure.md`'s
   shared-infrastructure convention).
+
+**Second live example, 2026-07-29**: PR #24 (`feat/tools-extra`, adding a
+new `tool` extra to `pyproject.toml` for optional `IPython`/`pygments`
+support) failed CI with `mvtbtool requires IPython and pygments, which
+are not installed (No module named 'IPython')` — because `ci.yml`'s
+`create-args` package list was never updated to include them. A plain
+`pip install .[dev,tool]`-style CI setup would have picked up the new
+extra automatically; the hand-maintained conda list requires a manual,
+easy-to-forget edit in a second place every time `pyproject.toml` gains a
+new extra or dependency. Patched directly (added `ipython`/`pygments` to
+`create-args`) and merged 2026-07-29 — the underlying architectural gap
+below is still open.
 
 ### Fix
 

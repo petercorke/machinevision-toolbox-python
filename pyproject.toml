@@ -76,11 +76,11 @@ tool = ["ipython", "pygments"]
 docs = [
     "sphinx",
     "pydata-sphinx-theme",
-    "sphinx-codeautolink",
+    "sphinx-codeautolink>=0.19.0",
     "sphinx-favicon",
     "sphinx-copybutton",
     "sphinxcontrib-programoutput",
-    "sphinx-autorun",
+    "sphinx-pyrunblock",
     "sphinx-design",
 ]
 

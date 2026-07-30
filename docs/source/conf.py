@@ -56,7 +56,7 @@ extensions = [
     "sphinx.ext.doctest",
     "sphinx.ext.autosectionlabel",
     "sphinx.ext.inheritance_diagram",
-    "sphinx_autorun",
+    "sphinx_pyrunblock",
     "sphinx.ext.intersphinx",
     "sphinx_favicon",
     "sphinx_copybutton",
@@ -69,8 +69,8 @@ extensions = [
 autoclass_content = "both"  # use __init__ or class docstring
 add_function_parentheses = False
 
-# -- sphinx-autorun setup ----------------------------------------------------
-# options for spinx_autorun, used for inline examples
+# -- sphinx-pyrunblock setup --------------------------------------------------
+# options for sphinx_pyrunblock, used for inline examples
 #  choose UTF-8 encoding to allow for Unicode characters, eg. ansitable
 #  Python session setup, turn off color printing for SE3, set NumPy precision
 autorun_languages = {}
