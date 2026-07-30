@@ -12,7 +12,7 @@ try:
     import pgraph
 
     pgraph_installed = True
-except:
+except ImportError:
     print("pgraph not installed")
     pgraph_installed = False
 import matplotlib.pyplot as plt
