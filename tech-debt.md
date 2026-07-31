@@ -1,5 +1,26 @@
 # Technical Debt
 
+## `Histogram.plot`'s `type` docstring doesn't match its actual accepted values
+
+Found 2026-07-30 while adding type annotations to `Histogram.plot`
+(`ImageWholeFeatures.py:1200`). The docstring says `type` accepts
+`'frequency'` [default], `'cdf'`, or `'ncdf'`. The actual dispatch logic
+in the method body accepts a different, larger set:
+`'frequency'`, `'pdf'`/`'probability'`, `'cf'`/`'cumulative'`,
+`'cdf'`/`'normalized'` — and does **not** handle `'ncdf'` at all (it
+would fall through to the `else: raise ValueError("unknown type")`
+branch). Left `type` annotated as plain `str` rather than a `Literal`
+enum for this reason — using `Literal` would mean either copying the
+stale docstring's wrong values or silently fixing behavior/docs as a
+drive-by, both out of scope for an annotations-only pass.
+
+### Fix
+
+Reconcile the docstring with the real accepted values (or vice versa,
+if `'ncdf'` was meant to work and was dropped by accident — check git
+blame). Once settled, `type` can become
+`Literal["frequency", "pdf", "probability", "cf", "cumulative", "cdf", "normalized"]`.
+
 ## [HIGH PRIORITY] mypy is not run anywhere in CI or dev tooling
 
 Found 2026-07-29 while fixing the `_ImageBase` Protocol gaps in
