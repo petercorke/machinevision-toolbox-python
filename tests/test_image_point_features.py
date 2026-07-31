@@ -190,6 +190,26 @@ class TestImagePointFeatures(unittest.TestCase):
         except:
             pass
 
+    def test_gridify_scalar_nbins(self):
+        """gridify() with a scalar nbins must not raise (regression: numpy
+        float // int stayed float64, bins[iy, ix] then rejected as an index)"""
+        img = Image.Read("monalisa.png", mono=True)
+        sift = img.SIFT()
+        self.assertGreater(len(sift), 0)
+
+        gridded = sift.gridify(nbins=4, nfeat=2)
+        self.assertLessEqual(len(gridded), len(sift))
+
+    def test_gridify_tuple_nbins(self):
+        """gridify() with a (nw, nh) tuple must not raise, same root cause
+        as the scalar case above."""
+        img = Image.Read("monalisa.png", mono=True)
+        sift = img.SIFT()
+        self.assertGreater(len(sift), 0)
+
+        gridded = sift.gridify(nbins=(4, 3), nfeat=2)
+        self.assertLessEqual(len(gridded), len(sift))
+
     def test_feature_properties(self):
         """Test feature properties"""
         img = Image.Read("monalisa.png", mono=True)

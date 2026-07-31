@@ -21,6 +21,40 @@ if `'ncdf'` was meant to work and was dropped by accident — check git
 blame). Once settled, `type` can become
 `Literal["frequency", "pdf", "probability", "cf", "cumulative", "cdf", "normalized"]`.
 
+## `BaseFeature2D.gridify()` crashes with IndexError, always
+
+Found 2026-07-29 while verifying the narrowed exception type on
+`ImagePointFeatures.py:283`'s `nw, nh = nbins` unpack (part of a bare
+`except:` cleanup). `gridify()` (`ImagePointFeatures.py:261-301`)
+raises `IndexError: arrays used as indices must be of integer (or
+boolean) type` on every call, regardless of whether `nbins` is passed
+as a tuple or a scalar int — confirmed via `git stash` that this is
+identical on unmodified `main`, unrelated to the except-type change
+that surfaced it.
+
+Root cause: `ix = f.p[0] // binwidth` / `iy = f.p[1] // binheight`
+(lines 294-295) — `f.p` is a numpy float array (feature point
+coordinates), and floor-dividing a numpy float array by a Python int
+still yields a numpy `float64` result, not an int. `bins[iy, ix]`
+(line 300) then fails because numpy refuses float-dtype indices.
+
+### Fix
+
+Cast to int after the floor division, e.g.
+`ix = int(f.p[0] // binwidth)` / `iy = int(f.p[1] // binheight)`. Small,
+self-contained, real bug fix — bundle with its own `fix:` commit and a
+regression test (`gridify()` currently has no test coverage at all;
+none of the existing point-feature tests exercise it) rather than
+folding into an unrelated change.
+
+### Resolved 2026-07-29
+
+Fixed in #30 (`fix/gridify-index-dtype`): `.item()` before the floor
+division, then `int()`. Added regression tests (there were none before)
+covering both scalar and tuple `nbins`; verified genuinely by reverting
+just the source fix and confirming the tests fail with the exact
+reported `IndexError` before restoring it.
+
 ## [HIGH PRIORITY] mypy is not run anywhere in CI or dev tooling
 
 Found 2026-07-29 while fixing the `_ImageBase` Protocol gaps in
@@ -149,6 +183,15 @@ warnings.warn(
 
 This is a real code change (not docs-only), so bundle it with a `fix:`
 commit when picked up rather than folding it into a docs-only change.
+
+### Resolved 2026-07-30
+
+Fixed in #32 (`fix/annotations-and-deprecation-warnings`): added the
+warning to both `Image.ncdf` and `Histogram.ncdf` (a second, separate
+property with the same gap, found while fixing this one — see that
+PR). Regression tests added for both; verified genuinely by reverting
+just the two `warnings.warn` calls and confirming the tests fail with
+"DeprecationWarning not triggered" before restoring the fix.
 
 ## `docs/requirements.txt` pinned `sphinx-codeautolink` to an unmerged branch
 

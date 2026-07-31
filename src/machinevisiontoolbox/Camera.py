@@ -827,7 +827,7 @@ class CameraBase(ABC):
             for artist in self._ax.get_children():
                 try:
                     artist.remove()
-                except:
+                except Exception:
                     pass
 
     def plot_point(
@@ -1862,7 +1862,7 @@ class CentralCamera(CameraBase):
         """
         try:
             return 2 * np.arctan(np.r_[self.imagesize] / 2 * np.r_[self.rho] / self.f)
-        except:
+        except (TypeError, AttributeError):
             raise ValueError("imagesize or rho properties not set")
 
     def distort(self, points: np.ndarray) -> np.ndarray:
