@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from ansitable import ANSITable, Column
 from spatialmath import SE3
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from machinevisiontoolbox.decorators import array_result
 from machinevisiontoolbox.base import plot_labelbox
@@ -22,8 +22,11 @@ except ImportError:
     _pytesseract = None
     _pytesseract_available = False
 
+if TYPE_CHECKING:
+    from machinevisiontoolbox._image_typing import _ImageBase
 
-class ImageRegionFeaturesMixin:
+
+class ImageRegionFeaturesMixin(_ImageBase if TYPE_CHECKING else object):
     def MSER(self, **kwargs: Any) -> "MSERFeature":
         """
         Find MSER features in image

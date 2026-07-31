@@ -3,7 +3,7 @@ Detection and matching of keypoint and descriptor features (SIFT, ORB, etc.) in 
 """
 
 import math
-from typing import Any, Iterator
+from typing import TYPE_CHECKING, Any, Iterator
 
 import cv2
 import matplotlib.lines as mlines
@@ -21,12 +21,14 @@ from machinevisiontoolbox.base import (
     name2color,
     safe_plt_show,
 )
-from machinevisiontoolbox._image_typing import _ImageBase
 from machinevisiontoolbox.decorators import (
     array_result,
     array_result2,
     scalar_result,
 )
+
+if TYPE_CHECKING:
+    from machinevisiontoolbox._image_typing import _ImageBase
 
 # TODO, either subclass SIFTFeature(BaseFeature2D) or just use BaseFeature2D
 # directly
@@ -294,8 +296,8 @@ class BaseFeature2D:
         bins = np.zeros((nh, nw), dtype="int")
 
         for f in self:
-            ix = f.p[0] // binwidth
-            iy = f.p[1] // binheight
+            ix = int(f.p[0].item() // binwidth)
+            iy = int(f.p[1].item() // binheight)
 
             if bins[iy, ix] < nfeat:
                 keep.append(f)
@@ -2012,7 +2014,7 @@ class LUCIDFeature(BaseFeature2D):
     pass
 
 
-class ImagePointFeaturesMixin(_ImageBase):
+class ImagePointFeaturesMixin(_ImageBase if TYPE_CHECKING else object):
     def _image2feature(
         self,
         cls,
