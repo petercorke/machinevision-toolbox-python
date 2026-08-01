@@ -121,6 +121,28 @@ class TestImage(unittest.TestCase):
         sim = im[5:6, 6:7]
         self.assertEqual(sim.size, (1, 1))
 
+    def test_getitem_stepped_slice(self):
+        # exercises _lenkey's step != 1 arithmetic (n // step), not just
+        # the span-1 (int key / zero-span slice) shortcut
+        im = Image(np.arange(80).reshape((10, 8)), dtype="int64")  # 8x10 image
+        sim = im[0:8:2, 0:10:3]
+        self.assertEqual(sim.size, (4, 4))
+        nt.assert_array_equal(sim.array, im.array[0:10:3, 0:8:2])
+
+    def test_getitem_invalid_number_of_slices(self):
+        im = Image(np.arange(80).reshape((10, 8)), dtype="int64")
+        with self.assertRaises(ValueError):
+            im[0:4, 0:4, 0:1, 0:1]
+
+        im_color = Image(np.arange(240).reshape((10, 8, 3)), dtype="int64")
+        with self.assertRaises(ValueError):
+            im_color[0:4, 0:4, 0:1, 0:1]
+
+    def test_getitem_invalid_key_type(self):
+        im = Image(np.arange(80).reshape((10, 8)), dtype="int64")
+        with self.assertRaises(ValueError):
+            im[1.5]
+
     def test_colordict(self):
         cdict = Image.colororder2dict("RGBA")
         self.assertIsInstance(cdict, dict)

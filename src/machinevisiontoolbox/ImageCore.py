@@ -2718,50 +2718,6 @@ class Image(
         :seealso: :meth:`red` :meth:`green` :meth:`blue` :meth:`plane` :meth:`roi` :meth:`pixel`
         """
 
-        def fixdims(
-            out: np.ndarray, shape: tuple[int, ...], keys: tuple[Any, ...]
-        ) -> np.ndarray:
-            # deal with the fact that some of the keys may have reduced the
-            # dimensionality of the array, eg. a slice of span 0 or 1, or an integer
-            # key.
-
-            # shape: (nrows, ncols, nplanes)  in NumPy order
-            # key: (rowspec, colspec, planespec) in NumPy order
-
-            def lenkey(key: int | slice, max: int) -> int:
-                # compute the span of a particular key
-                if isinstance(key, int):
-                    # int key has a span on 1
-                    return 1
-                elif isinstance(key, slice):
-                    # slice key has a span depending on the slice and the corresponding
-                    # array dimension. we have to essentially replicate the logic of
-                    # slice() here.
-                    start = key.start if key.start is not None else 0
-                    stop = key.stop if key.stop is not None else max
-                    step = key.step if key.step is not None else 1
-                    n = stop - start
-                    if n < step:
-                        return 1
-                    else:
-                        return n // step
-
-            dims = list(shape)
-
-            if len(shape) == 2:
-                dims = [lenkey(keys[0], shape[0]), lenkey(keys[1], shape[1])]
-            elif len(shape) == 3:
-                dims = [
-                    lenkey(keys[0], shape[0]),
-                    lenkey(keys[1], shape[1]),
-                    lenkey(keys[2], shape[2]),
-                ]
-                # ignore loss of color dimension
-                if dims[2] == 1:
-                    dims = dims[:2]
-
-            return out.reshape(tuple(dims))
-
         if (
             isinstance(keys, tuple)
             and len(keys) == 2
@@ -2798,7 +2754,7 @@ class Image(
                 out = self._A[keys]
 
                 if out.ndim < 3:
-                    out = fixdims(out, self._A.shape, keys)
+                    out = self._fixdims(out, self._A.shape, keys)
 
             else:
                 # greyscale image
@@ -2811,7 +2767,7 @@ class Image(
                 out = self._A[keys]
 
                 if out.ndim < 2:
-                    out = fixdims(out, self._A.shape, keys)
+                    out = self._fixdims(out, self._A.shape, keys)
 
             # a singleton plane dimensions is a grey scale image
             if out.ndim == 3 and out.shape[2] == 1:
@@ -2831,6 +2787,51 @@ class Image(
 
         else:
             raise ValueError("invalid slice")
+
+    @staticmethod
+    def _lenkey(key: int | slice, max: int) -> int:
+        """Span of a single ``__getitem__`` key component (int or slice)."""
+        if isinstance(key, int):
+            # int key has a span on 1
+            return 1
+        elif isinstance(key, slice):
+            # slice key has a span depending on the slice and the corresponding
+            # array dimension. we have to essentially replicate the logic of
+            # slice() here.
+            start = key.start if key.start is not None else 0
+            stop = key.stop if key.stop is not None else max
+            step = key.step if key.step is not None else 1
+            n = stop - start
+            if n < step:
+                return 1
+            else:
+                return n // step
+
+    @classmethod
+    def _fixdims(
+        cls, out: np.ndarray, shape: tuple[int, ...], keys: tuple[Any, ...]
+    ) -> np.ndarray:
+        """Restore dimensionality lost by ``__getitem__`` keys that collapse
+        an axis (eg. a slice of span 0 or 1, or an integer key).
+
+        ``shape``: (nrows, ncols, nplanes) in NumPy order.
+        ``keys``: (rowspec, colspec, planespec) in NumPy order.
+        """
+        dims = list(shape)
+
+        if len(shape) == 2:
+            dims = [cls._lenkey(keys[0], shape[0]), cls._lenkey(keys[1], shape[1])]
+        elif len(shape) == 3:
+            dims = [
+                cls._lenkey(keys[0], shape[0]),
+                cls._lenkey(keys[1], shape[1]),
+                cls._lenkey(keys[2], shape[2]),
+            ]
+            # ignore loss of color dimension
+            if dims[2] == 1:
+                dims = dims[:2]
+
+        return out.reshape(tuple(dims))
 
     def pixel(self, u: int, v: int) -> int | float | np.ndarray:
         """
