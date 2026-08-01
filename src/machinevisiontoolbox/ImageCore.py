@@ -301,6 +301,57 @@ class Image(
             )
 
         # if dtype is not given, determine the appropriate type for the data
+        dtype = self._infer_dtype(image, dtype)
+
+        if binary:
+            image = image > 0
+
+        # change type of array to the determined dtype
+        if dtype is not None:
+            image = image.astype(dtype, copy=False)
+
+        self.name = name
+
+        color_dict = Image.colororder2dict(colororder)
+
+        image = self._reshape_to_size(image, size)
+
+        if image.ndim not in (2, 3):
+            raise ValueError(
+                "bad ndarray passed to Image constructor: must be 2D or 3D array"
+            )
+        if image.ndim == 3 and image.shape[2] == 1:
+            image = image[:, :, 0]  # squeeze out singleton plane
+
+        if kwargs:
+            image = convert(image, **kwargs)
+
+        # assign the image to the object, copying if requested
+        if copy:
+            self._A = image.copy()
+        else:
+            self._A = image
+
+        # final check that colororder length matches number of planes
+        if colororder is not None:
+            if len(color_dict) != self.nplanes:
+                raise ValueError("colororder length does not match number of planes")
+
+        if colororder is None:
+            if self.nplanes == 3:
+                self.colororder = "RGB"
+                # warnings.warn("defaulting color to RGB")
+        else:
+            self.colororder = color_dict
+
+        self._stats = None
+
+        self.name = name
+
+    @staticmethod
+    def _infer_dtype(image: np.ndarray, dtype: Dtype | bool | None) -> np.dtype | None:
+        """Determine the pixel dtype for the constructor when ``dtype`` isn't
+        given explicitly, or resolve/validate it when it is."""
         if dtype is None:
             # no type given, automatically choose it
             if np.issubdtype(image.dtype, np.floating):
@@ -335,17 +386,12 @@ class Image(
             except TypeError:
                 raise ValueError("bad dtype argument passed to Image constructor")
 
-        if binary:
-            image = image > 0
+        return dtype
 
-        # change type of array to the determined dtype
-        if dtype is not None:
-            image = image.astype(dtype, copy=False)
-
-        self.name = name
-
-        color_dict = Image.colororder2dict(colororder)
-
+    def _reshape_to_size(
+        self, image: np.ndarray, size: tuple | list | None
+    ) -> np.ndarray:
+        """Reshape 1D/2D pixel data per the constructor's ``size=`` argument."""
         if isinstance(size, self.__class__):
             # size is an Image instance, ignore the size/shape and use the image's shape
             size = size.size
@@ -354,16 +400,7 @@ class Image(
         if size is not None:
             newsize = [size[1], size[0]]
 
-            if self.colororder is not None:
-                nplanes = len(color_dict)
-
-                if len(size) == 3:
-                    if nplanes != size[2]:
-                        raise ValueError(
-                            "colororder length does not match number of planes in size"
-                        )
-                newsize.append(nplanes)
-            elif len(size) == 3:
+            if len(size) == 3:
                 newsize.append(size[2])
 
             if image.ndim == 1:
@@ -420,37 +457,7 @@ class Image(
 
                     image = image.reshape(*newsize)
 
-        if image.ndim not in (2, 3):
-            raise ValueError(
-                "bad ndarray passed to Image constructor: must be 2D or 3D array"
-            )
-        if image.ndim == 3 and image.shape[2] == 1:
-            image = image[:, :, 0]  # squeeze out singleton plane
-
-        if kwargs:
-            image = convert(image, **kwargs)
-
-        # assign the image to the object, copying if requested
-        if copy:
-            self._A = image.copy()
-        else:
-            self._A = image
-
-        # final check that colororder length matches number of planes
-        if colororder is not None:
-            if len(color_dict) != self.nplanes:
-                raise ValueError("colororder length does not match number of planes")
-
-        if colororder is None:
-            if self.nplanes == 3:
-                self.colororder = "RGB"
-                # warnings.warn("defaulting color to RGB")
-        else:
-            self.colororder = color_dict
-
-        self._stats = None
-
-        self.name = name
+        return image
 
     @staticmethod
     def _plane_stats(plane: np.ndarray) -> dict[str, float | int]:
