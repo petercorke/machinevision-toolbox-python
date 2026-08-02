@@ -1041,7 +1041,7 @@ def iread(
             headers={"User-Agent": "machinevisiontoolbox-python/1.0"},
         )
         try:
-            with urllib.request.urlopen(req, context=ctx) as resp:
+            with urllib.request.urlopen(req, context=ctx, timeout=10) as resp:
                 if resp.status != 200:
                     raise ValueError(f"HTTP {resp.status} fetching {filename}")
                 array = np.asarray(bytearray(resp.read()), dtype="uint8")
