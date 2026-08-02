@@ -30,5 +30,8 @@ body:
         Any existing MVTB function that's close, a workaround you're
         currently using, or another API shape you considered and why
         it didn't fit. Leave blank if none.
+      placeholder: |
+        e.g. "Currently chaining img.threshold(...) then manual masking —
+        works but takes 3 extra steps and doesn't handle the RGBA case."
     validations:
       required: false
