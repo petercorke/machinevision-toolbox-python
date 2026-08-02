@@ -11,6 +11,7 @@ import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy as sp
+from matplotlib.axes import Axes
 from matplotlib.patches import Polygon
 from matplotlib.ticker import ScalarFormatter
 from spatialmath import SE3, base
@@ -519,6 +520,11 @@ class ImageWholeFeaturesMixin(_ImageBase if TYPE_CHECKING else object):
         .. deprecated:: 2.0.0
             Use ``hist().cdf`` instead.
         """
+        warnings.warn(
+            "Deprecated in 2.0.0: use hist().cdf instead of ncdf.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         hist = self._default_hist()
         return hist.cdf
 
@@ -1193,26 +1199,31 @@ class Histogram:
         :rtype: ndarray(N) or ndarray(N,P)
 
         .. deprecated:: 2.0.0
-            Use ``hist().cdf`` instead.
+            Use ``cdf`` instead.
         """
+        warnings.warn(
+            "Deprecated in 2.0.0: use .cdf instead of .ncdf.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         return self.cdf
 
     def plot(
         self,
-        type="frequency",
-        block=False,
-        filled=None,
-        stats=True,
-        style="stack",
-        cursor=False,
-        alpha=0.5,
-        title=None,
-        log=False,
-        samescale=False,
-        ax=None,
-        bar=None,
-        **kwargs,
-    ):
+        type: str = "frequency",
+        block: bool = False,
+        filled: bool | None = None,
+        stats: bool = True,
+        style: str = "stack",
+        cursor: bool = False,
+        alpha: float = 0.5,
+        title: str | None = None,
+        log: bool = False,
+        samescale: bool = False,
+        ax: Axes | None = None,
+        bar: bool | None = None,
+        **kwargs: Any,
+    ) -> None:
         """
         Plot histogram
 
@@ -1343,38 +1354,9 @@ class Histogram:
             samescale = True
 
         # figure vertical axis labels and scaling based on histogram type
-        if type == "frequency":
-            y = self.h
-            if samescale:
-                maxy = np.max(y)
-            else:
-                maxy = np.max(y, axis=0)
-            ylabel1 = "frequency"
-            ylabel2 = "frequency"
-            if filled is None:
-                filled = True
-        elif type in ("pdf", "probability"):
-            y = self.pdf
-            if samescale:
-                maxy = np.max(y)
-            else:
-                maxy = np.max(y, axis=0)
-            ylabel1 = "PDF"
-            ylabel2 = "probability density"
-        elif type in ("cf", "cumulative"):
-            y = self.cf
-            maxy = y[
-                -1, 0
-            ]  # last row values are all the same, total number of pixels in plane
-            ylabel1 = "cumulative frequency"
-            ylabel2 = "cumulative frequency"
-        elif type in ("cdf", "normalized"):
-            y = self.cdf
-            maxy = 1
-            ylabel1 = "CDF"
-            ylabel2 = "normalized cumulative frequency"
-        else:
-            raise ValueError("unknown type")
+        y, maxy, ylabel1, ylabel2 = self._compute_plot_series(type, samescale)
+        if type == "frequency" and filled is None:
+            filled = True
 
         if self.nplanes == 1:
             y = y[..., np.newaxis]
@@ -1390,17 +1372,6 @@ class Histogram:
         hist_counts = self.h
         if self.nplanes == 1:
             hist_counts = hist_counts[..., np.newaxis]
-
-        def plane_stats(counts: np.ndarray) -> tuple[float | None, float | None]:
-            total = float(np.sum(counts))
-            if total <= 0:
-                return None, None
-
-            mean = float(np.sum(self.x * counts) / total)
-            cdf = np.cumsum(counts)
-            median_idx = int(np.searchsorted(cdf, 0.5 * total, side="left"))
-            median = float(self.x[min(median_idx, len(self.x) - 1)])
-            return mean, median
 
         if self._sorted:
             xrange = (self.x[0], self.x[-1])
@@ -1448,7 +1419,7 @@ class Histogram:
                     ScalarFormatter(useOffset=False, useMathText=True)
                 )
                 if stats:
-                    mean, median = plane_stats(hist_counts[:, i])
+                    mean, median = self._histogram_plane_stats(hist_counts[:, i])
                     if mean is not None and median is not None:
                         ax.axvline(
                             mean,
@@ -1549,18 +1520,7 @@ class Histogram:
             x = np.r_[xrange[0], x, xrange[1]]
             _, ax = plt.subplots(1, 1)
 
-            patchcolor = []
-            goodcolors = [c for c in "rgbykcm"]
-            if self.colordict is None:
-                self.colordict = {c: i for i, c in enumerate(goodcolors[:n])}
-                colors = list(self.colordict.keys())
-                patchcolor = [c.lower() for c in colors]
-            else:
-                for color, i in self.colordict.items():
-                    if color.lower() in "rgbykcm":
-                        patchcolor.append(color.lower())
-                    else:
-                        patchcolor.append(goodcolors.pop(0))
+            colors, patchcolor = self._resolve_overlay_colors(n, colors)
 
             if filled:
                 for i in range(n):
@@ -1580,7 +1540,7 @@ class Histogram:
                     ax.plot(x, np.r_[0, y[:, i], 0], color=patchcolor[i], **kwargs)
 
             if stats:
-                mean, median = plane_stats(np.sum(hist_counts, axis=1))
+                mean, median = self._histogram_plane_stats(np.sum(hist_counts, axis=1))
                 if mean is not None and median is not None:
                     ax.axvline(
                         mean,
@@ -1616,6 +1576,87 @@ class Histogram:
         if title is not None:
             set_window_title(title)
         safe_plt_show(block=block)
+
+    def _compute_plot_series(
+        self, type: str, samescale: bool
+    ) -> tuple[np.ndarray, np.ndarray | float, str, str]:
+        """Compute plot()'s y-values, y-axis max, and y-axis labels for a
+        given ``type``. Pure computation over self.h/self.pdf/self.cf/
+        self.cdf -- no mutation."""
+        if type == "frequency":
+            y = self.h
+            if samescale:
+                maxy = np.max(y)
+            else:
+                maxy = np.max(y, axis=0)
+            ylabel1 = "frequency"
+            ylabel2 = "frequency"
+        elif type in ("pdf", "probability"):
+            y = self.pdf
+            if samescale:
+                maxy = np.max(y)
+            else:
+                maxy = np.max(y, axis=0)
+            ylabel1 = "PDF"
+            ylabel2 = "probability density"
+        elif type in ("cf", "cumulative"):
+            y = self.cf
+            maxy = y[
+                -1, 0
+            ]  # last row values are all the same, total number of pixels in plane
+            ylabel1 = "cumulative frequency"
+            ylabel2 = "cumulative frequency"
+        elif type in ("cdf", "normalized"):
+            y = self.cdf
+            maxy = 1
+            ylabel1 = "CDF"
+            ylabel2 = "normalized cumulative frequency"
+        else:
+            raise ValueError("unknown type")
+
+        return y, maxy, ylabel1, ylabel2
+
+    def _histogram_plane_stats(
+        self, counts: np.ndarray
+    ) -> tuple[float | None, float | None]:
+        """Mean and median of a single plane's histogram counts, or
+        (None, None) if the plane is empty. Used by both plot()'s stack
+        and overlay styles."""
+        total = float(np.sum(counts))
+        if total <= 0:
+            return None, None
+
+        mean = float(np.sum(self.x * counts) / total)
+        cdf = np.cumsum(counts)
+        median_idx = int(np.searchsorted(cdf, 0.5 * total, side="left"))
+        median = float(self.x[min(median_idx, len(self.x) - 1)])
+        return mean, median
+
+    def _resolve_overlay_colors(
+        self, n: int, colors: list[str]
+    ) -> tuple[list[str], list[str]]:
+        """Resolve per-plane display colors for plot()'s style="overlay".
+
+        If self.colordict is unset, assigns a default one as a side effect
+        (preserved intentionally -- this is existing behavior, not
+        introduced by extracting this into its own method) and returns the
+        colors derived from it; otherwise maps the existing colordict's
+        color names onto a fallback palette for any non-standard names.
+        """
+        patchcolor = []
+        goodcolors = [c for c in "rgbykcm"]
+        if self.colordict is None:
+            self.colordict = {c: i for i, c in enumerate(goodcolors[:n])}
+            colors = list(self.colordict.keys())
+            patchcolor = [c.lower() for c in colors]
+        else:
+            for color, i in self.colordict.items():
+                if color.lower() in "rgbykcm":
+                    patchcolor.append(color.lower())
+                else:
+                    patchcolor.append(goodcolors.pop(0))
+
+        return colors, patchcolor
 
     def peaks(self, **kwargs: Any) -> np.ndarray | list[np.ndarray]:
         r"""
