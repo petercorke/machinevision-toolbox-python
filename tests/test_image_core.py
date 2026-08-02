@@ -121,6 +121,28 @@ class TestImage(unittest.TestCase):
         sim = im[5:6, 6:7]
         self.assertEqual(sim.size, (1, 1))
 
+    def test_getitem_stepped_slice(self):
+        # exercises _lenkey's step != 1 arithmetic (n // step), not just
+        # the span-1 (int key / zero-span slice) shortcut
+        im = Image(np.arange(80).reshape((10, 8)), dtype="int64")  # 8x10 image
+        sim = im[0:8:2, 0:10:3]
+        self.assertEqual(sim.size, (4, 4))
+        nt.assert_array_equal(sim.array, im.array[0:10:3, 0:8:2])
+
+    def test_getitem_invalid_number_of_slices(self):
+        im = Image(np.arange(80).reshape((10, 8)), dtype="int64")
+        with self.assertRaises(ValueError):
+            im[0:4, 0:4, 0:1, 0:1]
+
+        im_color = Image(np.arange(240).reshape((10, 8, 3)), dtype="int64")
+        with self.assertRaises(ValueError):
+            im_color[0:4, 0:4, 0:1, 0:1]
+
+    def test_getitem_invalid_key_type(self):
+        im = Image(np.arange(80).reshape((10, 8)), dtype="int64")
+        with self.assertRaises(ValueError):
+            im[1.5]
+
     def test_colordict(self):
         cdict = Image.colororder2dict("RGBA")
         self.assertIsInstance(cdict, dict)
@@ -1236,6 +1258,130 @@ class TestImage(unittest.TestCase):
         im = Image(x)
         self.assertEqual(im.shape, (5, 10))
         self.assertEqual(im.nplanes, 1)
+
+
+class TestImageInferDtype(unittest.TestCase):
+    """Image._infer_dtype(), extracted from __init__. One test per branch."""
+
+    def test_no_dtype_float_input(self):
+        im = Image(np.array([[1.0, 2.0], [3.0, 4.0]]))
+        self.assertEqual(im.dtype, np.dtype(np.float32))
+
+    def test_no_dtype_signed_int_fits_int8(self):
+        im = Image(np.array([[-1, 2], [3, 4]]))
+        self.assertEqual(im.dtype, np.dtype("int8"))
+
+    def test_no_dtype_signed_int_fits_int16_not_int8(self):
+        im = Image(np.array([[-1, 200], [3, 4]]))
+        self.assertEqual(im.dtype, np.dtype("int16"))
+
+    def test_no_dtype_signed_int_fits_int32_not_int16(self):
+        im = Image(np.array([[-1, 40000], [3, 4]]))
+        self.assertEqual(im.dtype, np.dtype("int32"))
+
+    def test_no_dtype_unsigned_int_fits_uint8(self):
+        im = Image(np.array([[1, 2], [3, 4]]))
+        self.assertEqual(im.dtype, np.dtype("uint8"))
+
+    def test_no_dtype_unsigned_int_fits_uint16_not_uint8(self):
+        im = Image(np.array([[1, 300], [3, 4]]))
+        self.assertEqual(im.dtype, np.dtype("uint16"))
+
+    def test_no_dtype_unsigned_int_fits_uint32_not_uint16(self):
+        im = Image(np.array([[1, 70000], [3, 4]]))
+        self.assertEqual(im.dtype, np.dtype("uint32"))
+
+    def test_dtype_true_inherits_input_dtype(self):
+        im = Image(np.ones((2, 3), dtype="int16"), dtype=True)
+        self.assertEqual(im.dtype, np.dtype("int16"))
+
+    def test_dtype_false_raises(self):
+        with self.assertRaises(ValueError):
+            Image(np.ones((2, 3)), dtype=False)
+
+    def test_dtype_explicit_string(self):
+        im = Image(np.ones((2, 3)), dtype="uint8")
+        self.assertEqual(im.dtype, np.dtype("uint8"))
+
+    def test_dtype_invalid_raises(self):
+        with self.assertRaises(ValueError):
+            Image(np.ones((2, 3)), dtype="not-a-real-dtype")
+
+
+class TestImageReshapeToSize(unittest.TestCase):
+    """Image._reshape_to_size(), extracted from __init__. One test per
+    combination of (size type) x (image.ndim) x (wide/tall) x (2- vs
+    3-element newsize), including the mismatch error paths."""
+
+    def test_size_from_image_instance(self):
+        template = Image.Zeros(size=(5, 6))
+        im = Image(np.zeros(30), size=template)
+        self.assertEqual(im.size, (5, 6))
+
+    def test_1d_array_2tuple_size(self):
+        im = Image(np.arange(12.0), size=(4, 3))
+        self.assertEqual(im.shape, (3, 4))
+
+    def test_1d_array_3tuple_size_multiplane(self):
+        x = np.arange(2 * 3 * 3, dtype="uint8")
+        im = Image(x, size=(3, 2, 3), colororder="RGB")
+        self.assertEqual(im.shape, (2, 3, 3))
+
+    def test_2d_wide_2tuple_size_single_row_not_appended(self):
+        # shape (1, 12): wide (shape[1] > shape[0]), 2-element newsize,
+        # shape[0] == 1 so it is NOT appended as a 3rd dimension
+        im = Image(np.arange(12.0).reshape(1, -1), size=(4, 3))
+        self.assertEqual(im.shape, (3, 4))
+        self.assertEqual(im.nplanes, 1)
+
+    def test_2d_wide_2tuple_size_multirow_appended(self):
+        # shape (3, 6): wide, 2-element newsize, shape[0] == 3 > 1 so it
+        # IS appended -> 3 planes
+        x = np.arange(18.0).reshape(3, 6)
+        im = Image(x, size=(2, 3), colororder="RGB")
+        self.assertEqual(im.shape, (3, 2, 3))
+        self.assertEqual(im.nplanes, 3)
+
+    def test_2d_wide_3tuple_size_matching_planes(self):
+        # shape (3, 6): wide, explicit size=(w, h, 3) matches shape[0] == 3
+        x = np.arange(18.0).reshape(3, 6)
+        im = Image(x, size=(2, 3, 3), colororder="RGB")
+        self.assertEqual(im.shape, (3, 2, 3))
+
+    def test_2d_wide_3tuple_size_mismatched_planes_raises(self):
+        # shape (3, 6): wide, explicit size=(w, h, 4) does NOT match
+        # shape[0] == 3
+        x = np.arange(18.0).reshape(3, 6)
+        with self.assertRaises(ValueError):
+            Image(x, size=(2, 3, 4), colororder="RGBA")
+
+    def test_2d_tall_2tuple_size_single_column_not_appended(self):
+        # shape (12, 1): tall (shape[1] <= shape[0]), 2-element newsize,
+        # shape[1] == 1 so it is NOT appended
+        im = Image(np.arange(12.0).reshape(-1, 1), size=(4, 3))
+        self.assertEqual(im.shape, (3, 4))
+        self.assertEqual(im.nplanes, 1)
+
+    def test_2d_tall_2tuple_size_multicolumn_appended(self):
+        # shape (6, 3): tall, 2-element newsize, shape[1] == 3 > 1 so it
+        # IS appended -> 3 planes
+        x = np.arange(18.0).reshape(6, 3)
+        im = Image(x, size=(3, 2), colororder="RGB")
+        self.assertEqual(im.shape, (2, 3, 3))
+        self.assertEqual(im.nplanes, 3)
+
+    def test_2d_tall_3tuple_size_matching_planes(self):
+        # shape (6, 3): tall, explicit size=(w, h, 3) matches shape[1] == 3
+        x = np.arange(18.0).reshape(6, 3)
+        im = Image(x, size=(3, 2, 3), colororder="RGB")
+        self.assertEqual(im.shape, (2, 3, 3))
+
+    def test_2d_tall_3tuple_size_mismatched_planes_raises(self):
+        # shape (6, 3): tall, explicit size=(w, h, 4) does NOT match
+        # shape[1] == 3
+        x = np.arange(18.0).reshape(6, 3)
+        with self.assertRaises(ValueError):
+            Image(x, size=(3, 2, 4), colororder="RGBA")
 
 
 # ------------------------------------------------------------------------ #
