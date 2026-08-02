@@ -242,7 +242,7 @@ class MSERFeature:
 
         return new
 
-    def __str__(self):
+    def __str__(self) -> str:
         """
         String representation of MSER
 
@@ -265,7 +265,7 @@ class MSERFeature:
             s = f"MSER feature: u: {self._bboxes[0,0]} - {self._bboxes[0,2]}, v: {self._bboxes[0,1]} - {self._bboxes[0,3]}"
             return s
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """
         Representation of MSER
 
@@ -373,7 +373,7 @@ class OCRWord:
         for key in ocr.keys():
             self.dict[key] = ocr[key][i]
 
-    def __str__(self):
+    def __str__(self) -> str:
         """
         String representation of MSER
 
@@ -382,7 +382,7 @@ class OCRWord:
         """
         return f"{self.dict['text']} ({self.dict['conf']}%)"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self)
 
     @property
