@@ -203,6 +203,29 @@ may be intentional, e.g. unpacking for side effects); (4) `F405`/`F403`
 last and only if the codebase-wide star-import convention itself is
 ever reconsidered — otherwise these will just regenerate.
 
+**Two more concrete instances, PRs #32/#33, 2026-07-30**: Codacy
+flagged `type` shadowing the builtin at `ImageWholeFeatures.py:1213`
+(`Histogram.plot`'s signature, PR #32) and again at `:1570`
+(`_compute_plot_series`, the extraction in PR #33 that copied `plot`'s
+`type` parameter into a new method). Deliberately not renamed in
+either PR — `type=` is public API (`hist.plot(type="pdf")`), a rename
+needs a proper deprecation cycle. **If picked up**: this method
+already has a precedent for exactly this — `bar=` is kept as a
+deprecated alias for `filled=` with a `DeprecationWarning`
+(`ImageWholeFeatures.py`, same method) — mirror that pattern: add
+`kind=` as the real parameter, deprecate `type=` as an alias. Do this
+as its own PR *after* #32 and #33 are both merged, not before —
+branching the rename off pre-#32 `main` would conflict with both of
+those on the same lines.
+
+PR #33 also surfaced 3 more Codacy findings while extracting
+`Image.__getitem__`'s nested closures (`ImageCore.py`): `max` as a
+parameter name (`:2792`, `_lenkey` — carried over verbatim from the
+original nested `lenkey(key, max)`, not introduced by the extraction)
+and two `F405` star-import-ambiguity hits (`:352` `Dtype`, `:2812`
+`Any`, both from `machinevisiontoolbox.mvtb_types`'s star-import) —
+already covered by the `F405` entry above, not a new pattern.
+
 ## `Image.ncdf` is documented as deprecated but never warns
 
 `ncdf` (`src/machinevisiontoolbox/ImageWholeFeatures.py:511-523`) has a
