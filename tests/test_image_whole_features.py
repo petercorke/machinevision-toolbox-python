@@ -110,6 +110,23 @@ class TestImageWholeFeatures(unittest.TestCase):
         with self.assertRaises(ValueError):
             h.plot(style="overlay", block=False)
 
+    def test_hist_overlay_happy_path(self):
+        """style="overlay" rendering, as opposed to the error-path test
+        above -- there was previously no test that ever reached the
+        overlay-rendering code at all."""
+        im = Image(np.random.randint(0, 255, (20, 20, 3), dtype=np.uint8))
+        hist = im.hist()
+
+        with patch("matplotlib.pyplot.show"):
+            hist.plot(style="overlay", filled=True, block=False)
+
+        fig = plt.gcf()
+        self.assertEqual(len(fig.axes), 1)
+        ax = fig.axes[0]
+        self.assertEqual(len(ax.patches), 3)  # one filled polygon per plane
+        self.assertIsNotNone(hist.colordict)
+        plt.close(fig)
+
     def test_hist_opt_sorted_deprecated(self):
         im = Image.String("000011112222")
         with self.assertWarns(DeprecationWarning):
