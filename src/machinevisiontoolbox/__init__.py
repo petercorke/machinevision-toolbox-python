@@ -188,5 +188,5 @@ try:
     import importlib.metadata
 
     __version__ = importlib.metadata.version("machinevision-toolbox-python")
-except:
+except importlib.metadata.PackageNotFoundError:
     pass

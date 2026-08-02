@@ -282,7 +282,7 @@ class BaseFeature2D:
 
         try:  # Sort features into grid
             nw, nh = nbins
-        except:
+        except (TypeError, ValueError):
             nw = nbins
             nh = nbins
 
