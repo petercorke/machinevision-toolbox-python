@@ -11,6 +11,7 @@ import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy as sp
+from matplotlib.axes import Axes
 from matplotlib.patches import Polygon
 from matplotlib.ticker import ScalarFormatter
 from spatialmath import SE3, base
@@ -519,6 +520,11 @@ class ImageWholeFeaturesMixin(_ImageBase if TYPE_CHECKING else object):
         .. deprecated:: 2.0.0
             Use ``hist().cdf`` instead.
         """
+        warnings.warn(
+            "Deprecated in 2.0.0: use hist().cdf instead of ncdf.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         hist = self._default_hist()
         return hist.cdf
 
@@ -1193,26 +1199,31 @@ class Histogram:
         :rtype: ndarray(N) or ndarray(N,P)
 
         .. deprecated:: 2.0.0
-            Use ``hist().cdf`` instead.
+            Use ``cdf`` instead.
         """
+        warnings.warn(
+            "Deprecated in 2.0.0: use .cdf instead of .ncdf.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         return self.cdf
 
     def plot(
         self,
-        type="frequency",
-        block=False,
-        filled=None,
-        stats=True,
-        style="stack",
-        cursor=False,
-        alpha=0.5,
-        title=None,
-        log=False,
-        samescale=False,
-        ax=None,
-        bar=None,
-        **kwargs,
-    ):
+        type: str = "frequency",
+        block: bool = False,
+        filled: bool | None = None,
+        stats: bool = True,
+        style: str = "stack",
+        cursor: bool = False,
+        alpha: float = 0.5,
+        title: str | None = None,
+        log: bool = False,
+        samescale: bool = False,
+        ax: Axes | None = None,
+        bar: bool | None = None,
+        **kwargs: Any,
+    ) -> None:
         """
         Plot histogram
 

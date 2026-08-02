@@ -3113,7 +3113,7 @@ class ROSBag(ImageSource):
             reader.close()
             self.reader = None
 
-    def _open_reader(self):
+    def _open_reader(self) -> Any:
         if self.reader is not None:
             return self.reader
 

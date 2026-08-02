@@ -480,12 +480,22 @@ class TestImageWholeFeatures(unittest.TestCase):
 
     # new test
     def test_ncdf_property(self):
-        """Test normalized CDF property"""
+        """Test normalized CDF property, and that it warns as deprecated"""
         im = Image.Random(size=(50, 50), dtype="uint8")
-        ncdf = im.ncdf
+        with self.assertWarns(DeprecationWarning):
+            ncdf = im.ncdf
         self.assertIsNotNone(ncdf)
         # Normalized CDF should end at 1.0
         # self.assertAlmostEqual(ncdf[-1], 1.0)
+
+    def test_histogram_ncdf_deprecated(self):
+        """Histogram.ncdf (as opposed to Image.ncdf above) should also warn,
+        and should still return the same values as Histogram.cdf"""
+        im = Image.Random(size=(50, 50), dtype="uint8")
+        h = im.hist()
+        with self.assertWarns(DeprecationWarning):
+            ncdf = h.ncdf
+        nt.assert_array_equal(ncdf, h.cdf)
 
 
 if __name__ == "__main__":
