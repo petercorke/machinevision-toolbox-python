@@ -150,6 +150,103 @@ be real bugs; `assignment`/`arg-type`/`index` are more likely the
 `ArrayLike`-union-too-broad pattern the April `NOTES` audit already
 identified).
 
+## Codacy backlog: 443 issues, mostly Prospector/Pyflakes findings
+
+Raised 2026-07-29 when the user pointed at the repo's Codacy dashboard
+(443 issues total) and asked how much overlaps with the mixin/hygiene
+work happening the same day. Verified: only the bare-except finding
+(see git history, since fixed) genuinely overlapped. Everything else is
+a distinct, much larger body of work, deliberately not tackled in that
+pass — logging the real numbers here instead of re-deriving them from
+scratch next time.
+
+Codacy's Python analysis engine is **Prospector** (bundles Pylint +
+Pyflakes + Bandit + pycodestyle + pydocstyle + mccabe) — confirmed via
+the dashboard's own "Prospector's documentation" tab, and pattern names
+like `Avoid Dangerous Mutable Default Arguments` / `Audit Dangerous
+Subprocess Usage` that are textbook Pylint/Bandit rule names. Codacy's
+298-count "Detect Python Source Code..." bucket is all Pyflakes
+findings grouped under one umbrella pattern, not broken out by code the
+way `ruff`/raw `pyflakes` do.
+
+**Reproduced locally with `ruff check --select F src/machinevisiontoolbox
+tests` against clean `origin/main`, 2026-07-30**: 883 hits (not
+directly comparable to Codacy's 298 — different default
+exclusions/config, and this sweep includes `tests/`, which Codacy's
+dashboard count may not). By code:
+
+| Code | Count | What it means |
+|---|---|---|
+| `F405` | 469 | name may be undefined, or defined from star imports (ambiguous `from X import *`) |
+| `F401` | 240 | imported but unused |
+| `F841` | 49 | local variable assigned but never used |
+| `F403` | 47 | `from X import *` used (can't verify no undefined names) |
+| `F811` | 43 | redefinition of unused name from a prior import/def |
+| `F821` | 29 | **undefined name** — see below, this is the one worth triaging first |
+| `F541` | 6 | f-string missing placeholders |
+
+`F405`/`F403` (star-import ambiguity) dominate the count but are mostly
+a style/tooling-friction issue, not bugs — this codebase leans on
+`from machinevisiontoolbox.base import *`-style re-exports
+deliberately (see the `mypy`/wildcard-re-export entry above for the
+concrete downside of that pattern). `F401`/`F841`/`F811` are typical
+accumulated-cruft categories, individually low-risk to clean up but
+numerous.
+
+**`F821` (undefined name) is different — this is a real-bug class, not
+style**: a name that doesn't exist would raise `NameError` at runtime
+if that code path is ever actually executed. All 29 instances, by
+location:
+
+- `BundleAdjust.py:382,590,592` — undefined `c`, `retain`, `g2`
+- `ImageSpatial.py:116,121,328,330-332,340-342,1106` — undefined
+  `_border_opt`, `border_value`, `value`, `a`, `kv` (`kv` appears 4
+  times), `conn`
+- `VisualServo.py:186,412,444,1351-1353,1403` — undefined `Animate`,
+  `plot`, `history`, `camera`, `SphericalCamera`, `kwargs`, `pt`
+- `blocks/camera.py:287,288` — undefined `state` (x2)
+- `tests/test_camera.py:191,192,194,195,198,200` — undefined `x`, `y`
+  (likely a real bug in the *test*, not production code — check
+  whether these lines actually run or are dead/unreachable test code)
+
+Codacy's Pylint/Bandit-derived counts (the non-Pyflakes ~145 of the
+443) weren't independently reproduced locally — the dashboard is the
+source of truth for those categories (mutable default arguments,
+`assert` usage, subprocess/`exec`/`urlopen` auditing, etc.).
+
+### Fix
+
+Not a single pass. Suggested order: (1) triage the 29 `F821` hits first
+— for each, determine real bug vs. genuinely dead/unreachable code, fix
+or delete accordingly; (2) `F401`/`F811` next, mechanical and
+`ruff --fix`-automatable for most cases; (3) `F841` case-by-case (some
+may be intentional, e.g. unpacking for side effects); (4) `F405`/`F403`
+last and only if the codebase-wide star-import convention itself is
+ever reconsidered — otherwise these will just regenerate.
+
+**Two more concrete instances, PRs #32/#33, 2026-07-30**: Codacy
+flagged `type` shadowing the builtin at `ImageWholeFeatures.py:1213`
+(`Histogram.plot`'s signature, PR #32) and again at `:1570`
+(`_compute_plot_series`, the extraction in PR #33 that copied `plot`'s
+`type` parameter into a new method). Deliberately not renamed in
+either PR — `type=` is public API (`hist.plot(type="pdf")`), a rename
+needs a proper deprecation cycle. **If picked up**: this method
+already has a precedent for exactly this — `bar=` is kept as a
+deprecated alias for `filled=` with a `DeprecationWarning`
+(`ImageWholeFeatures.py`, same method) — mirror that pattern: add
+`kind=` as the real parameter, deprecate `type=` as an alias. Do this
+as its own PR *after* #32 and #33 are both merged, not before —
+branching the rename off pre-#32 `main` would conflict with both of
+those on the same lines.
+
+PR #33 also surfaced 3 more Codacy findings while extracting
+`Image.__getitem__`'s nested closures (`ImageCore.py`): `max` as a
+parameter name (`:2792`, `_lenkey` — carried over verbatim from the
+original nested `lenkey(key, max)`, not introduced by the extraction)
+and two `F405` star-import-ambiguity hits (`:352` `Dtype`, `:2812`
+`Any`, both from `machinevisiontoolbox.mvtb_types`'s star-import) —
+already covered by the `F405` entry above, not a new pattern.
+
 ## `Image.ncdf` is documented as deprecated but never warns
 
 `ncdf` (`src/machinevisiontoolbox/ImageWholeFeatures.py:511-523`) has a
