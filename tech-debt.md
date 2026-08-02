@@ -1,5 +1,26 @@
 # Technical Debt
 
+## `Histogram.plot`'s `type` docstring doesn't match its actual accepted values
+
+Found 2026-07-30 while adding type annotations to `Histogram.plot`
+(`ImageWholeFeatures.py:1200`). The docstring says `type` accepts
+`'frequency'` [default], `'cdf'`, or `'ncdf'`. The actual dispatch logic
+in the method body accepts a different, larger set:
+`'frequency'`, `'pdf'`/`'probability'`, `'cf'`/`'cumulative'`,
+`'cdf'`/`'normalized'` — and does **not** handle `'ncdf'` at all (it
+would fall through to the `else: raise ValueError("unknown type")`
+branch). Left `type` annotated as plain `str` rather than a `Literal`
+enum for this reason — using `Literal` would mean either copying the
+stale docstring's wrong values or silently fixing behavior/docs as a
+drive-by, both out of scope for an annotations-only pass.
+
+### Fix
+
+Reconcile the docstring with the real accepted values (or vice versa,
+if `'ncdf'` was meant to work and was dropped by accident — check git
+blame). Once settled, `type` can become
+`Literal["frequency", "pdf", "probability", "cf", "cumulative", "cdf", "normalized"]`.
+
 ## `BaseFeature2D.gridify()` crashes with IndexError, always
 
 Found 2026-07-29 while verifying the narrowed exception type on
@@ -162,6 +183,15 @@ warnings.warn(
 
 This is a real code change (not docs-only), so bundle it with a `fix:`
 commit when picked up rather than folding it into a docs-only change.
+
+### Resolved 2026-07-30
+
+Fixed in #32 (`fix/annotations-and-deprecation-warnings`): added the
+warning to both `Image.ncdf` and `Histogram.ncdf` (a second, separate
+property with the same gap, found while fixing this one — see that
+PR). Regression tests added for both; verified genuinely by reverting
+just the two `warnings.warn` calls and confirming the tests fail with
+"DeprecationWarning not triggered" before restoring the fix.
 
 ## `docs/requirements.txt` pinned `sphinx-codeautolink` to an unmerged branch
 
