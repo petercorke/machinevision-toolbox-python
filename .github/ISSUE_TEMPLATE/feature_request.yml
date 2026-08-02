@@ -13,11 +13,22 @@ body:
     id: proposal
     attributes:
       label: Proposed solution
+      description: >-
+        What would the MVTB function/method look like? Include its
+        signature — parameter names and types, and the return
+        value(s) and type(s).
+      placeholder: |
+        def new_method(self, threshold: float, mode: Literal["a", "b"] = "a") -> NDArray:
+            ...
     validations:
       required: false
   - type: textarea
     id: alternatives
     attributes:
       label: Alternatives considered
+      description: >-
+        Any existing MVTB function that's close, a workaround you're
+        currently using, or another API shape you considered and why
+        it didn't fit. Leave blank if none.
     validations:
       required: false
