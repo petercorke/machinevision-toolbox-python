@@ -20,4 +20,11 @@ Thanks for contributing to MVTB!
 
 Note: Codacy will automatically comment on this PR with style/coverage findings.
 Most of what it flags is pre-existing backlog (see tech-debt.md), not something
-your PR introduced -- don't be alarmed by the summary, a maintainer will triage it. -->
+your PR introduced -- don't be alarmed by the summary, a maintainer will triage it.
+
+Note: if this PR adds or bumps a dependency, Dependabot may separately comment
+flagging a known vulnerability in that dependency. If it does: check whether a
+newer, patched version is available and use that instead; if not, just say so
+in this PR so a maintainer can decide how to proceed -- it's not something you
+need to solve yourself. -->
+
