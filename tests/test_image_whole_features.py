@@ -110,6 +110,23 @@ class TestImageWholeFeatures(unittest.TestCase):
         with self.assertRaises(ValueError):
             h.plot(style="overlay", block=False)
 
+    def test_hist_overlay_happy_path(self):
+        """style="overlay" rendering, as opposed to the error-path test
+        above -- there was previously no test that ever reached the
+        overlay-rendering code at all."""
+        im = Image(np.random.randint(0, 255, (20, 20, 3), dtype=np.uint8))
+        hist = im.hist()
+
+        with patch("matplotlib.pyplot.show"):
+            hist.plot(style="overlay", filled=True, block=False)
+
+        fig = plt.gcf()
+        self.assertEqual(len(fig.axes), 1)
+        ax = fig.axes[0]
+        self.assertEqual(len(ax.patches), 3)  # one filled polygon per plane
+        self.assertIsNotNone(hist.colordict)
+        plt.close(fig)
+
     def test_hist_opt_sorted_deprecated(self):
         im = Image.String("000011112222")
         with self.assertWarns(DeprecationWarning):
@@ -463,12 +480,22 @@ class TestImageWholeFeatures(unittest.TestCase):
 
     # new test
     def test_ncdf_property(self):
-        """Test normalized CDF property"""
+        """Test normalized CDF property, and that it warns as deprecated"""
         im = Image.Random(size=(50, 50), dtype="uint8")
-        ncdf = im.ncdf
+        with self.assertWarns(DeprecationWarning):
+            ncdf = im.ncdf
         self.assertIsNotNone(ncdf)
         # Normalized CDF should end at 1.0
         # self.assertAlmostEqual(ncdf[-1], 1.0)
+
+    def test_histogram_ncdf_deprecated(self):
+        """Histogram.ncdf (as opposed to Image.ncdf above) should also warn,
+        and should still return the same values as Histogram.cdf"""
+        im = Image.Random(size=(50, 50), dtype="uint8")
+        h = im.hist()
+        with self.assertWarns(DeprecationWarning):
+            ncdf = h.ncdf
+        nt.assert_array_equal(ncdf, h.cdf)
 
 
 if __name__ == "__main__":

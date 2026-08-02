@@ -352,6 +352,49 @@ class TestCamera(unittest.TestCase):
             pass
 
 
+class TestCameraPlot(unittest.TestCase):
+    """Characterization tests for CameraBase.plot(). This method had zero
+    test coverage before an extract-method refactor -- these establish a
+    concrete before/after baseline (artist counts on the returned axes)
+    rather than deeply validating rendering correctness."""
+
+    def _camera(self):
+        return CentralCamera(
+            f=0.015, rho=10e-6, imagesize=[1280, 1024], pp=[640, 512], name="cam1"
+        )
+
+    def setUp(self):
+        # plot()'s ax=None path reuses whatever matplotlib considers the
+        # "current" 3D axes (spatialmath.base.graphics.axes_logic) -- close
+        # everything first so a figure left open by an unrelated test
+        # elsewhere in the suite can't be silently reused here, which would
+        # make the artist counts below meaningless.
+        plt.close("all")
+
+    def tearDown(self):
+        plt.close("all")
+
+    def test_plot_frustum(self):
+        ax = self._camera().plot(shape="frustum")
+        self.assertIsNotNone(ax)
+        self.assertEqual(len(ax.collections), 1)
+        self.assertEqual(len(ax.lines), 0)
+
+    def test_plot_camera(self):
+        ax = self._camera().plot(shape="camera")
+        self.assertIsNotNone(ax)
+        self.assertEqual(len(ax.collections), 3)
+        self.assertEqual(len(ax.lines), 0)
+
+    def test_plot_frame(self):
+        # shape defaults to "camera", so this also draws the camera icon
+        # in addition to the pose-frame overlay
+        ax = self._camera().plot(frame=True)
+        self.assertIsNotNone(ax)
+        self.assertEqual(len(ax.collections), 4)
+        self.assertEqual(len(ax.lines), 3)
+
+
 # ----------------------------------------------------------------------- #
 if __name__ == "__main__":
 

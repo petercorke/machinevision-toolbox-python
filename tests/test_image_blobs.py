@@ -522,6 +522,19 @@ class TestBlobMethods(unittest.TestCase):
         removed = self.blobs4.filter(touch=True)
         self.assertEqual(len(removed), 0)
 
+    def test_filter_area_single_blob_keeps_match(self):
+        # Regression for GH issue #17: a single-blob Blobs mask came out
+        # 2D (from np.array(mask).all(axis=0)) and indexing self[m] with
+        # it dropped the blob even though it matched the filter.
+        area = self.blobs1[0].area
+        kept = self.blobs1.filter(area=area * 0.5)
+        self.assertEqual(len(kept), 1)
+
+    def test_filter_area_single_blob_removes_non_match(self):
+        area = self.blobs1[0].area
+        removed = self.blobs1.filter(area=area * 2)
+        self.assertEqual(len(removed), 0)
+
     # --- sort --------------------------------------------------------------- #
 
     def test_sort_returns_blobs(self):
