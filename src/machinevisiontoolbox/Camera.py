@@ -1216,86 +1216,10 @@ class CameraBase(ABC):
         try:
             # draw camera-like object:
             if shape == "frustum":
-                # TODO make this kwargs or optional inputs
-                # side colors:
-                #  +x red
-                #  -y red
-                #  +y green
-                #  -y yellow
-                length = scale
-                widthb = scale / 10
-                widtht = scale
-                widthb /= 2
-                widtht /= 2
-                b0 = np.array([-widthb, -widthb, 0, 1])
-                b1 = np.array([-widthb, widthb, 0, 1])
-                b2 = np.array([widthb, widthb, 0, 1])
-                b3 = np.array([widthb, -widthb, 0, 1])
-                t0 = np.array([-widtht, -widtht, length, 1])
-                t1 = np.array([-widtht, widtht, length, 1])
-                t2 = np.array([widtht, widtht, length, 1])
-                t3 = np.array([widtht, -widtht, length, 1])
-
-                # bottom/narrow end
-                T = pose.A
-                b0 = (T @ b0)[:-1]
-                b1 = (T @ b1)[:-1]
-                b2 = (T @ b2)[:-1]
-                b3 = (T @ b3)[:-1]
-
-                # wide/top end
-                t0 = (T @ t0)[:-1]
-                t1 = (T @ t1)[:-1]
-                t2 = (T @ t2)[:-1]
-                t3 = (T @ t3)[:-1]
-
-                points = [
-                    np.array([b0, b1, t1, t0]),  # -x face
-                    np.array([b1, b2, t2, t1]),  # +y face
-                    np.array([b2, b3, t3, t2]),  # +x face
-                    np.array([b3, b0, t0, t3]),  # -y face
-                ]
-                poly = Poly3DCollection(
-                    points, facecolors=["r", "g", "r", "y"], alpha=alpha
-                )
-                ax.add_collection3d(poly)
+                self._plot_frustum(ax, pose, scale, alpha)
 
             elif shape == "camera":
-                # the box is centred at the origin and its centerline parallel to the
-                # z-axis.  Its z-extent is -bh/2 to bh/2.
-                W = 0.5  # width & height of the box
-                L = 1.2  # length of the box
-                cr = 0.2  # cylinder radius
-                ch = 0.4  # cylinder height
-                cn = 12  # number of facets of cylinder
-                a = 3  # length of axis line segments
-
-                # draw the box part of the camera
-                smb.plot_cuboid(
-                    sides=np.r_[W, W, L] * scale,
-                    pose=pose,
-                    filled=solid,
-                    color=color,
-                    alpha=0.5 * alpha if solid else alpha,
-                    ax=ax,
-                )
-
-                # draw the lens
-                smb.plot_cylinder(
-                    radius=cr * scale,
-                    height=np.r_[L / 2, L / 2 + ch] * scale,
-                    resolution=cn,
-                    pose=pose,
-                    filled=solid,
-                    color=color,
-                    alpha=0.5 * alpha,
-                    ax=ax,
-                )
-
-                if label:
-                    ax.set_xlabel("X")
-                    ax.set_ylabel("Y")
-                    ax.set_zlabel("Z")
+                self._plot_camera_icon(ax, pose, scale, solid, color, alpha, label)
 
             if frame is True:
                 self.pose.plot(
@@ -1310,6 +1234,97 @@ class CameraBase(ABC):
             ax.add_collection3d = _orig_add_collection3d
 
         return ax
+
+    def _plot_frustum(self, ax: Axes, pose: SE3, scale: float, alpha: float) -> None:
+        """Draw the ``shape="frustum"`` camera icon into ``ax``."""
+        # TODO make this kwargs or optional inputs
+        # side colors:
+        #  +x red
+        #  -y red
+        #  +y green
+        #  -y yellow
+        length = scale
+        widthb = scale / 10
+        widtht = scale
+        widthb /= 2
+        widtht /= 2
+        b0 = np.array([-widthb, -widthb, 0, 1])
+        b1 = np.array([-widthb, widthb, 0, 1])
+        b2 = np.array([widthb, widthb, 0, 1])
+        b3 = np.array([widthb, -widthb, 0, 1])
+        t0 = np.array([-widtht, -widtht, length, 1])
+        t1 = np.array([-widtht, widtht, length, 1])
+        t2 = np.array([widtht, widtht, length, 1])
+        t3 = np.array([widtht, -widtht, length, 1])
+
+        # bottom/narrow end
+        T = pose.A
+        b0 = (T @ b0)[:-1]
+        b1 = (T @ b1)[:-1]
+        b2 = (T @ b2)[:-1]
+        b3 = (T @ b3)[:-1]
+
+        # wide/top end
+        t0 = (T @ t0)[:-1]
+        t1 = (T @ t1)[:-1]
+        t2 = (T @ t2)[:-1]
+        t3 = (T @ t3)[:-1]
+
+        points = [
+            np.array([b0, b1, t1, t0]),  # -x face
+            np.array([b1, b2, t2, t1]),  # +y face
+            np.array([b2, b3, t3, t2]),  # +x face
+            np.array([b3, b0, t0, t3]),  # -y face
+        ]
+        poly = Poly3DCollection(points, facecolors=["r", "g", "r", "y"], alpha=alpha)
+        ax.add_collection3d(poly)
+
+    def _plot_camera_icon(
+        self,
+        ax: Axes,
+        pose: SE3,
+        scale: float,
+        solid: bool,
+        color: str,
+        alpha: float,
+        label: bool,
+    ) -> None:
+        """Draw the ``shape="camera"`` box+cylinder icon into ``ax``."""
+        # the box is centred at the origin and its centerline parallel to the
+        # z-axis.  Its z-extent is -bh/2 to bh/2.
+        W = 0.5  # width & height of the box
+        L = 1.2  # length of the box
+        cr = 0.2  # cylinder radius
+        ch = 0.4  # cylinder height
+        cn = 12  # number of facets of cylinder
+        a = 3  # length of axis line segments
+
+        # draw the box part of the camera
+        smb.plot_cuboid(
+            sides=np.r_[W, W, L] * scale,
+            pose=pose,
+            filled=solid,
+            color=color,
+            alpha=0.5 * alpha if solid else alpha,
+            ax=ax,
+        )
+
+        # draw the lens
+        smb.plot_cylinder(
+            radius=cr * scale,
+            height=np.r_[L / 2, L / 2 + ch] * scale,
+            resolution=cn,
+            pose=pose,
+            filled=solid,
+            color=color,
+            alpha=0.5 * alpha,
+            ax=ax,
+        )
+
+        if label:
+            ax.set_xlabel("X")
+            ax.set_ylabel("Y")
+            ax.set_zlabel("Z")
 
     def _add_noise_distortion(self, uv: np.ndarray) -> np.ndarray:
         """
