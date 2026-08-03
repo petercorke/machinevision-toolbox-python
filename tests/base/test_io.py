@@ -53,7 +53,7 @@ class TestBaseImageIO(unittest.TestCase):
 
         # URL image
         try:
-            im = iread("https://petercorke.com/files/images/monalisa.png")
+            im = iread("https://raw.githubusercontent.com/petercorke/machinevision-toolbox-python/main/packages/mvtb-data/mvtbdata/images/monalisa.png")
         except (ValueError, urllib.error.URLError) as e:
             raise unittest.SkipTest(f"Network unavailable: {e}") from e
         self.assertIsInstance(im[0], np.ndarray)
@@ -608,7 +608,7 @@ class TestIreadAdvanced(unittest.TestCase):
         """Test iread with URL"""
         # This tests the URL loading path
         try:
-            im, filename = iread("https://petercorke.com/files/images/monalisa.png")
+            im, filename = iread("https://raw.githubusercontent.com/petercorke/machinevision-toolbox-python/main/packages/mvtb-data/mvtbdata/images/monalisa.png")
         except (ValueError, urllib.error.URLError) as e:
             raise unittest.SkipTest(f"Network unavailable: {e}") from e
         self.assertIsInstance(im, np.ndarray)
