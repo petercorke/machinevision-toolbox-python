@@ -156,8 +156,16 @@ class HoughFeature:
         )
         if lines is None:
             return np.zeros((0, 4))
-        else:
+        # --- OpenCV 4/5 compat -----------------------------------------
+        # OpenCV 5's HoughLinesP returns a true (N,4) array; OpenCV 4
+        # returns (N,1,4) (the old std::vector<T>-wrapping convention).
+        # Verified empirically 2026-08-03 (opencv-contrib-python 5.0.0.93
+        # vs 4.13.0.92). Drop the singleton middle dim only if present.
+        # -----------------------------------------------------------------
+        elif lines.ndim == 3 and lines.shape[1] == 1:
             return lines[:, 0, :]
+        else:
+            return lines
 
     def plot_lines(self, lines: np.ndarray, *args: Any, **kwargs: Any) -> None:
         r"""
