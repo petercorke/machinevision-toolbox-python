@@ -19,44 +19,23 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: mamba-org/setup-micromamba@v2
+      - uses: actions/setup-python@v6
         with:
-          init-shell: >-
-            bash
-            powershell
-          environment-name: myenv
-          create-args: >-
-            python=${{ matrix.python-version }}
-            numpy
-            pip
-            pytest
-            pytest-timeout
-            pytest-xvfb
-            matplotlib-base
-            setuptools
-            opencv<5
-            scipy
-            spatialmath-python
-            ansitable
-            wcwidth
-            tqdm
-            hatchling
-            ipython
-            pygments
+          python-version: ${{ matrix.python-version }}
 
       - name: Install libegl (Linux)
         if: runner.os == 'Linux'
-        run: micromamba install -y -n myenv -c conda-forge libegl
+        run: sudo apt-get update && sudo apt-get install -y libegl1 libgl1
 
       - name: Install package
         run: |
-          micromamba run -n myenv pip install .[dev] --no-deps --no-build-isolation
-          cd packages/mvtb-data && micromamba run -n myenv pip install . --no-deps --no-build-isolation
+          pip install .[dev,tool]
+          cd packages/mvtb-data && pip install .
 
       - name: Run tests
         env:
           MPLBACKEND: Agg
-        run: micromamba run -n myenv python -m pytest --timeout=50 --timeout-method=thread
+        run: python -m pytest --timeout=50 --timeout-method=thread
 
   all-tests-passed:
     name: All tests passed
@@ -79,44 +58,24 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: mamba-org/setup-micromamba@v2
+      - uses: actions/setup-python@v6
         with:
-          init-shell: bash
-          environment-name: myenv
-          create-args: >-
-            python=3.13
-            numpy
-            pip
-            coverage
-            pytest
-            pytest-timeout
-            pytest-xvfb
-            matplotlib-base
-            setuptools
-            opencv<5
-            scipy
-            spatialmath-python
-            ansitable
-            wcwidth
-            tqdm
-            hatchling
-            ipython
-            pygments
+          python-version: "3.13"
 
       - name: Install libegl
-        run: micromamba install -y -n myenv -c conda-forge libegl
+        run: sudo apt-get update && sudo apt-get install -y libegl1 libgl1
 
       - name: Install package
         run: |
-          micromamba run -n myenv pip install .[dev] --no-deps --no-build-isolation
-          cd packages/mvtb-data && micromamba run -n myenv pip install . --no-deps --no-build-isolation
+          pip install .[dev,tool]
+          cd packages/mvtb-data && pip install .
 
       - name: Run coverage
         env:
           MPLBACKEND: Agg
         run: |
-          micromamba run -n myenv coverage run --source=machinevisiontoolbox --omit="src/machinevisiontoolbox/blocks/*,src/machinevision/blocks/*" -m pytest --timeout=50
-          micromamba run -n myenv coverage xml
+          coverage run --source=machinevisiontoolbox --omit="src/machinevisiontoolbox/blocks/*,src/machinevision/blocks/*" -m pytest --timeout=50
+          coverage xml
 
       - name: Upload to Codecov
         uses: codecov/codecov-action@v7

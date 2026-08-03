@@ -67,7 +67,7 @@ dependencies = [
 #  ocr - OCR support via pytesseract
 #  tool - dependencies for the mvtbtool interactive shell
 
-dev = ["pytest", "coverage", "ruff", "nbmake"]
+dev = ["pytest", "pytest-timeout", "pytest-xvfb", "coverage", "ruff", "nbmake"]
 
 ros = ["rosbags", "roslibpy", "websockets"]
 
