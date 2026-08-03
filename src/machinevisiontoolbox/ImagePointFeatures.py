@@ -2014,6 +2014,25 @@ class LUCIDFeature(BaseFeature2D):
     pass
 
 
+# --- OpenCV 4/5 compat -------------------------------------------------
+# OpenCV 5 dropped BRISK/AKAZE/KAZE from the main cv2 namespace; they now
+# live under cv2.xfeatures2d (verified empirically 2026-08-02, opencv-
+# contrib-python 5.0.0.93 vs 4.13.0.92 -- no OPENCV_ENABLE_NONFREE build
+# flag needed for these, unlike SURF). SIFT/ORB are unaffected, stay in
+# main cv2 in both versions. Resolve by attribute existence, not a
+# version-string check, so this keeps working if a future OpenCV release
+# moves things back or a build has both.
+def _resolve_feature_create(name: str) -> Any:
+    if hasattr(cv2, f"{name}_create"):
+        return getattr(cv2, f"{name}_create")
+    if hasattr(cv2, "xfeatures2d") and hasattr(cv2.xfeatures2d, f"{name}_create"):
+        return getattr(cv2.xfeatures2d, f"{name}_create")
+    raise AttributeError(f"{name}_create not found in cv2 or cv2.xfeatures2d")
+
+
+# -------------------------------------------------------------------------
+
+
 class ImagePointFeaturesMixin(_ImageBase if TYPE_CHECKING else object):
     def _image2feature(
         self,
@@ -2030,8 +2049,8 @@ class ImagePointFeaturesMixin(_ImageBase if TYPE_CHECKING else object):
             "SIFT": getattr(cv2, "SIFT_create"),
             "ORB": getattr(cv2, "ORB_create"),
             "Harris": _Harris_create,
-            "BRISK": getattr(cv2, "BRISK_create"),
-            "AKAZE": getattr(cv2, "AKAZE_create"),
+            "BRISK": _resolve_feature_create("BRISK"),
+            "AKAZE": _resolve_feature_create("AKAZE"),
             # 'FREAK': (cv2.FREAK_create, FREAKFeature),
             # 'DAISY': (cv2.DAISY_create, DAISYFeature),
         }

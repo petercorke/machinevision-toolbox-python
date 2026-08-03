@@ -210,6 +210,21 @@ class TestImagePointFeatures(unittest.TestCase):
         gridded = sift.gridify(nbins=(4, 3), nfeat=2)
         self.assertLessEqual(len(gridded), len(sift))
 
+    def test_brisk(self):
+        """BRISK feature detection (regression: OpenCV 5 moved BRISK_create
+        from cv2 to cv2.xfeatures2d -- no bare except here, a broken
+        detector must fail this test, not pass silently)"""
+        img = Image.Read("monalisa.png", mono=True)
+        brisk = img.BRISK()
+        self.assertGreater(len(brisk), 0)
+
+    def test_akaze(self):
+        """AKAZE feature detection (regression: OpenCV 5 moved AKAZE_create
+        from cv2 to cv2.xfeatures2d)"""
+        img = Image.Read("monalisa.png", mono=True)
+        akaze = img.AKAZE()
+        self.assertGreater(len(akaze), 0)
+
     def test_feature_properties(self):
         """Test feature properties"""
         img = Image.Read("monalisa.png", mono=True)
