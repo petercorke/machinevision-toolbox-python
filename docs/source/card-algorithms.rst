@@ -21,7 +21,7 @@ by the toolbox.  Consider these as some starting points for exploration.
 
    * Mathematical morphology: :meth:`~machinevisiontoolbox.Image.morph`, :meth:`~machinevisiontoolbox.Image.open`, :meth:`~machinevisiontoolbox.Image.close`, :meth:`~machinevisiontoolbox.Image.dilate`, :meth:`~machinevisiontoolbox.Image.erode`
    * Hit or Miss filtering: :meth:`~machinevisiontoolbox.Image.hitormiss`, :meth:`~machinevisiontoolbox.Image.thin`, :meth:`~machinevisiontoolbox.Image.triplepoint`
-   * Rank filter: :meth:`~machinevisiontoolbox.Image.rank`, :meth:`~machinevisiontoolbox.Image.medianfilter`
+   * Rank filter: :meth:`~machinevisiontoolbox.Image.rankfilter`, :meth:`~machinevisiontoolbox.Image.medianfilter`
    * Distance transform: :meth:`~machinevisiontoolbox.Image.distance_transform`
    * Image similarity: :meth:`~machinevisiontoolbox.Image.similarity`
 
@@ -69,7 +69,7 @@ by the toolbox.  Consider these as some starting points for exploration.
       - Camera calibration: :meth:`~machinevisiontoolbox.Camera.CentralCamera.images2C`, :meth:`~machinevisiontoolbox.Camera.CentralCamera.decomposeC`
       - Pose estimation: :meth:`machinevisiontoolbox.Camera.CentralCamera.estpose`
       - Projection: :meth:`~machinevisiontoolbox.Camera.CentralCamera.project_point`, :meth:`~machinevisiontoolbox.Camera.CentralCamera.project_line`, :meth:`~machinevisiontoolbox.Camera.CentralCamera.project_conic`, :meth:`~machinevisiontoolbox.Camera.CentralCamera.project_quadric`
-      - Epipolar geometry: :meth:`~machinevisiontoolbox.Camera.CentralCamera.E`, :meth:`~machinevisiontoolbox.Camera.CentralCamera.F`, :meth:`~machinevisiontoolbox.Camera.CentralCamera.epiline`, CentralCamera.decomposeF, :meth:`~machinevisiontoolbox.Camera.CentralCamera.decomposeE`
+      - Epipolar geometry: :meth:`~machinevisiontoolbox.Camera.CentralCamera.E`, :meth:`~machinevisiontoolbox.Camera.CentralCamera.F`, :meth:`~machinevisiontoolbox.Camera.CentralCamera.epiline`, :meth:`~machinevisiontoolbox.Camera.CentralCamera.decomposeE`
       - Homography: :meth:`~machinevisiontoolbox.Camera.CentralCamera.H`
    - Fisheye camera: :class:`~machinevisiontoolbox.Camera.FishEyeCamera`
    - Catadioptric (omnidirectional) camera: :class:`~machinevisiontoolbox.Camera.CatadioptricCamera`

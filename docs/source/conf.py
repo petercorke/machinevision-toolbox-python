@@ -10,6 +10,7 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
+import datetime
 import os
 import sys
 import inspect
@@ -28,7 +29,7 @@ if _EXTS_DIR not in sys.path:
 # -- Project information -----------------------------------------------------
 
 project = "Machine Vision Toolbox"
-copyright = "2020-, Peter Corke"
+copyright = f"2020–present, Peter Corke: built {datetime.date.today():%Y-%m-%d}"
 author = "Peter Corke"
 
 # The full version, including alpha/beta/rc tags
