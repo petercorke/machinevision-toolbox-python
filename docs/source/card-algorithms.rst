@@ -69,7 +69,7 @@ by the toolbox.  Consider these as some starting points for exploration.
       - Camera calibration: :meth:`~machinevisiontoolbox.Camera.CentralCamera.images2C`, :meth:`~machinevisiontoolbox.Camera.CentralCamera.decomposeC`
       - Pose estimation: :meth:`machinevisiontoolbox.Camera.CentralCamera.estpose`
       - Projection: :meth:`~machinevisiontoolbox.Camera.CentralCamera.project_point`, :meth:`~machinevisiontoolbox.Camera.CentralCamera.project_line`, :meth:`~machinevisiontoolbox.Camera.CentralCamera.project_conic`, :meth:`~machinevisiontoolbox.Camera.CentralCamera.project_quadric`
-      - Epipolar geometry: :meth:`~machinevisiontoolbox.Camera.CentralCamera.E`, :meth:`~machinevisiontoolbox.Camera.CentralCamera.F`, :meth:`~machinevisiontoolbox.Camera.CentralCamera.epiline`, CentralCamera.decomposeF, :meth:`~machinevisiontoolbox.Camera.CentralCamera.decomposeE`
+      - Epipolar geometry: :meth:`~machinevisiontoolbox.Camera.CentralCamera.E`, :meth:`~machinevisiontoolbox.Camera.CentralCamera.F`, :meth:`~machinevisiontoolbox.Camera.CentralCamera.epiline`, :meth:`~machinevisiontoolbox.Camera.CentralCamera.decomposeE`
       - Homography: :meth:`~machinevisiontoolbox.Camera.CentralCamera.H`
    - Fisheye camera: :class:`~machinevisiontoolbox.Camera.FishEyeCamera`
    - Catadioptric (omnidirectional) camera: :class:`~machinevisiontoolbox.Camera.CatadioptricCamera`
