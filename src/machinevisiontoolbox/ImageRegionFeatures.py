@@ -173,6 +173,22 @@ class MSERFeature:
             self._points = [
                 mser.T for mser in msers
             ]  # transpose point arrays to be Nx2
+            # --- OpenCV 4/5 compat ---------------------------------------
+            # When no regions are found, OpenCV 5's detectRegions() returns
+            # an empty tuple () for bboxes instead of an empty ndarray(0,4)
+            # -- bboxes[:, 2:] then raises TypeError: tuple indices must be
+            # integers or slices, not tuple. Normalize first.
+            #
+            # Separately (not a shape issue, not fixable here): verified
+            # empirically 2026-08-03 that with identical default parameters
+            # and identical grayscale input, OpenCV 5's MSER finds fewer or
+            # zero regions compared to OpenCV 4 on real photos -- an
+            # upstream algorithm behavior change, not an API surface
+            # change. Logged as its own issue (#54), not something this
+            # compat fix can address.
+            # -----------------------------------------------------------------
+            if len(bboxes) == 0:
+                bboxes = np.zeros((0, 4), dtype=int)
             bboxes[:, 2:] = bboxes[:, 0:2] + bboxes[:, 2:]  # convert to lrtb
             self._bboxes = bboxes
 
