@@ -145,11 +145,38 @@ class ImageFiducialsMixin(_ImageBase if TYPE_CHECKING else object):
             return fiducials  # no markers found
         ids = ids.reshape(-1)
         if K is not None and side is not None:
-            rvecs, tvecs, p3d = cv2.aruco.estimatePoseSingleMarkers(
-                corners=cornerss, markerLength=side, cameraMatrix=K, distCoeffs=None
+            # --- OpenCV 4/5 compat ---------------------------------------
+            # cv2.aruco.estimatePoseSingleMarkers was removed entirely in
+            # OpenCV 5 -- not moved/renamed, hasattr(cv2.aruco,
+            # "estimatePoseSingleMarkers") is False in a real 5.0.0
+            # install. Replaced with the per-marker cv2.solvePnP +
+            # SOLVEPNP_IPPE_SQUARE call that OpenCV's own migration notes
+            # recommend for planar square markers. The object points use
+            # the same convention (clockwise from top-left, Z out of the
+            # marker) the old function used internally, so this works
+            # unchanged on OpenCV 4 too -- no version branching needed.
+            # Verified empirically 2026-08-03.
+            # -----------------------------------------------------------------
+            half = side / 2
+            obj_pts = np.array(
+                [
+                    [-half, half, 0],
+                    [half, half, 0],
+                    [half, -half, 0],
+                    [-half, -half, 0],
+                ],
+                dtype=np.float32,
             )
-            for id, rvec, tvec, corners in zip(ids, rvecs, tvecs, cornerss):
-                fiducials.append(Fiducial(id, corners[0].T, K, rvec, tvec, p3d))
+            p3d = obj_pts.reshape(4, 1, 3)
+            for id, corners in zip(ids, cornerss):
+                _, rvec, tvec = cv2.solvePnP(
+                    obj_pts, corners[0], K, None, flags=cv2.SOLVEPNP_IPPE_SQUARE
+                )
+                fiducials.append(
+                    Fiducial(
+                        id, corners[0].T, K, rvec.reshape(1, 3), tvec.reshape(1, 3), p3d
+                    )
+                )
         else:
             for id, corners in zip(ids, cornerss):
                 fiducials.append(Fiducial(id, corners[0].T))
