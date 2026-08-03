@@ -21,7 +21,7 @@ by the toolbox.  Consider these as some starting points for exploration.
 
    * Mathematical morphology: :meth:`~machinevisiontoolbox.Image.morph`, :meth:`~machinevisiontoolbox.Image.open`, :meth:`~machinevisiontoolbox.Image.close`, :meth:`~machinevisiontoolbox.Image.dilate`, :meth:`~machinevisiontoolbox.Image.erode`
    * Hit or Miss filtering: :meth:`~machinevisiontoolbox.Image.hitormiss`, :meth:`~machinevisiontoolbox.Image.thin`, :meth:`~machinevisiontoolbox.Image.triplepoint`
-   * Rank filter: :meth:`~machinevisiontoolbox.Image.rank`, :meth:`~machinevisiontoolbox.Image.medianfilter`
+   * Rank filter: :meth:`~machinevisiontoolbox.Image.rankfilter`, :meth:`~machinevisiontoolbox.Image.medianfilter`
    * Distance transform: :meth:`~machinevisiontoolbox.Image.distance_transform`
    * Image similarity: :meth:`~machinevisiontoolbox.Image.similarity`
 
