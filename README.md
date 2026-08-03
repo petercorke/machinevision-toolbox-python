@@ -3,6 +3,7 @@
 <div align="center">
   <img src="https://github.com/petercorke/machinevision-toolbox-python/raw/main/docs/figs/VisionToolboxLogo_NoBackgnd@2x.png" width="350">
   <br>
+    <em>OpenCV for humans</em><br>
   <strong>A high-productivity framework for computer vision research and education.</strong>
   <br><br>
   
