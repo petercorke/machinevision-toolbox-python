@@ -1,3 +1,51 @@
+# Changelog
+
+## [2.1.0](https://github.com/petercorke/machinevision-toolbox-python/compare/v2.0.1...v2.1.0) (2026-08-03)
+
+
+### Features
+
+* add interactive tools to imtool and bagtool ([b16ab7d](https://github.com/petercorke/machinevision-toolbox-python/commit/b16ab7dbd1f2fe26869a7fcacc710e549735e431))
+* **mvtbtool:** add 'tool' extra for IPython/pygments, fail with clear message when missing ([a31655b](https://github.com/petercorke/machinevision-toolbox-python/commit/a31655be13d07acb14548e79c618d62d5bf5589c))
+
+
+### Bug Fixes
+
+* add missing type annotations, warn on ncdf deprecation ([7e8cabe](https://github.com/petercorke/machinevision-toolbox-python/commit/7e8cabe4ceee1f517b1a9161ab28e9d87137475e))
+* add socket timeout to iread() URL fetches ([6ff62b1](https://github.com/petercorke/machinevision-toolbox-python/commit/6ff62b17aa1b556a1823e69ae4950f2786e0ebc1))
+* bring 3 mixins in line with the TYPE_CHECKING _ImageBase pattern ([0d31fc5](https://github.com/petercorke/machinevision-toolbox-python/commit/0d31fc52f881df6cfda35c5ab11e4f9753e65aa0))
+* colorplane handling in image i/o ([6882967](https://github.com/petercorke/machinevision-toolbox-python/commit/68829677c0f42d4b6e83b61b981f5027efe61ee3))
+* gridify() IndexError from numpy float // int staying float64 ([e57597a](https://github.com/petercorke/machinevision-toolbox-python/commit/e57597aa527ab1741ff19066070ecd6968056da5))
+* keep single-blob filter() matches ([7b0ab8d](https://github.com/petercorke/machinevision-toolbox-python/commit/7b0ab8d67c67251e12753df198447fdc9255f48a)), closes [#17](https://github.com/petercorke/machinevision-toolbox-python/issues/17)
+* replace 6 bare except: clauses with specific exception types ([5a11306](https://github.com/petercorke/machinevision-toolbox-python/commit/5a11306eb838b2c47535389f482ab872b7a22d24))
+* un-hide bot-comment notes from HTML comment block ([4a4e943](https://github.com/petercorke/machinevision-toolbox-python/commit/4a4e943fab8e00af404713efb1f3501d1c94f1a3))
+* use eigh instead of eig for blob orientation/ellipse moments ([3a74fdf](https://github.com/petercorke/machinevision-toolbox-python/commit/3a74fdf6b558967ae797d19bbb4369275eaf690c))
+
+
+### Documentation
+
+* add build date to footer copyright notice ([e7de5bf](https://github.com/petercorke/machinevision-toolbox-python/commit/e7de5bf8e68d6251cbc23465befdd4070d7fbc6c))
+* add example placeholder to Alternatives considered ([879f086](https://github.com/petercorke/machinevision-toolbox-python/commit/879f086dc0bcde61496c6f227d275dd19c47e53a))
+* add PR and issue templates ([d081f7e](https://github.com/petercorke/machinevision-toolbox-python/commit/d081f7e49ae1e1673b00c92e4bd174e3c2629efb))
+* ask for a concrete function signature in feature requests ([b25cd12](https://github.com/petercorke/machinevision-toolbox-python/commit/b25cd12efa6eae61a9ef2a6b05a78dbffca82cda))
+* fix docstring convention note, add Codacy heads-up ([d68f605](https://github.com/petercorke/machinevision-toolbox-python/commit/d68f605301aaa71795c5cab75acadb910ce6d398))
+* fix Image class sidebar, cut over to sphinx-pyrunblock ([20c219d](https://github.com/petercorke/machinevision-toolbox-python/commit/20c219d65fdb68ca14d58777a08f0c29333303dd))
+* fix stale rank() reference in card-algorithms.rst ([1e3f6bd](https://github.com/petercorke/machinevision-toolbox-python/commit/1e3f6bdf3cbaa3307985f616af2c178c3d6a5029))
+* fix stale/broken references and add footer build date ([c51955b](https://github.com/petercorke/machinevision-toolbox-python/commit/c51955bf14b55ed8dd9a19bf6b9c9d6b97952e6d))
+* flesh out PR template with a proper checklist ([f4db44b](https://github.com/petercorke/machinevision-toolbox-python/commit/f4db44b4b21a16514ea0f1de2bceb54d22b6d39c))
+* forewarn contributors about Dependabot vulnerability comments ([acfedab](https://github.com/petercorke/machinevision-toolbox-python/commit/acfedabfc285e11e4a505eb06b81c3bec74c0762))
+* log ci.yml's conda/micromamba setup as tech debt ([af09d07](https://github.com/petercorke/machinevision-toolbox-python/commit/af09d07cae1df3129df4853d3a672db333f42465))
+* log Codacy backlog real numbers to tech-debt ([65b3c5e](https://github.com/petercorke/machinevision-toolbox-python/commit/65b3c5ed3b2a2cbd20ee41a29b9c2b8234db126e))
+* log gridify() IndexError bug found while testing bare-except fix ([889d45c](https://github.com/petercorke/machinevision-toolbox-python/commit/889d45c4957f93ec9910ccb960f91a432d1d06a3))
+* log Histogram.plot type= docstring/behavior mismatch ([e693eef](https://github.com/petercorke/machinevision-toolbox-python/commit/e693eefa033c5d7a7e95c2787ac3f4dbbce0d2c3))
+* log mypy-not-in-CI as high-priority tech debt, with fresh audit ([1b74ae8](https://github.com/petercorke/machinevision-toolbox-python/commit/1b74ae8efc240e43c338dec8415f7198de2a0d3a))
+* log pgraph-python CI gap and conda-migration decision to tech-debt ([c5b6aeb](https://github.com/petercorke/machinevision-toolbox-python/commit/c5b6aebdaa42003bc48d0428d3381599f325d1df))
+* log PR [#32](https://github.com/petercorke/machinevision-toolbox-python/issues/32)/[#33](https://github.com/petercorke/machinevision-toolbox-python/issues/33) Codacy findings (type shadowing, F405, max param) ([e0ed8db](https://github.com/petercorke/machinevision-toolbox-python/commit/e0ed8db736f1032c2a4fdb78c308c16f1b7e300b))
+* migrate tech-debt.md to GitHub Issues (tech-debt label) ([36aae6a](https://github.com/petercorke/machinevision-toolbox-python/commit/36aae6aa9855ac79a4de19fb49fbaf30827b423a))
+* remove reference to nonexistent CentralCamera.decomposeF ([c7f1400](https://github.com/petercorke/machinevision-toolbox-python/commit/c7f1400700f2ff5364d2fafe19367cfa49628e8e))
+* switch sphinx-codeautolink to released 0.19.0, drop branch pin ([594a9a1](https://github.com/petercorke/machinevision-toolbox-python/commit/594a9a13580cf58868d836adee3a5bbaebc42d12))
+* use %pip magic in notebooks, add tagline to README ([843db36](https://github.com/petercorke/machinevision-toolbox-python/commit/843db36441d43ec74e573d9b201f93635213c7ad))
+
 2.0.0 May 2026
 
 * Added
