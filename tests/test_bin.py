@@ -24,6 +24,12 @@ try:
 except ImportError:
     _pytesseract_available = False
 
+try:
+    import open3d  # noqa: F401
+    _open3d_available = True
+except ImportError:
+    _open3d_available = False
+
 # An image bundled with mvtb-data that is always present.
 _TEST_IMAGE = "monalisa.png"
 
@@ -45,6 +51,20 @@ class TestMvtbtool(unittest.TestCase):
     def test_help(self):
         result = _run(["machinevisiontoolbox.bin.mvtbtool", "--help"])
         self.assertEqual(result.returncode, 0, msg=result.stderr.decode())
+
+    def test_smoke_test(self):
+        """--test always exercises the OpenCV path; Open3D result depends on
+        whether it's installed in this environment, but either way it must
+        be reported explicitly, not silently skipped."""
+        result = _run(["machinevisiontoolbox.bin.mvtbtool", "--test"])
+        stdout = result.stdout.decode()
+        self.assertIn("[PASS] Image.Read + smooth()", stdout, msg=stdout)
+        if _open3d_available:
+            self.assertIn("[PASS] PointCloud.Read('bunny.ply')", stdout, msg=stdout)
+            self.assertEqual(result.returncode, 0, msg=stdout)
+        else:
+            self.assertIn("Open3D not installed", stdout, msg=stdout)
+            self.assertEqual(result.returncode, 1, msg=stdout)
 
 
 class TestImtool(unittest.TestCase):
