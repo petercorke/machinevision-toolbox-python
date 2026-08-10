@@ -2,19 +2,21 @@
 
 ## [2.2.0](https://github.com/petercorke/machinevision-toolbox-python/compare/v2.1.0...v2.2.0) (2026-08-10)
 
+**Highlight: OpenCV 5 compatibility.** MVTB now works correctly under both OpenCV 4 and the
+newly-released OpenCV 5 — aruco/fiducial pose estimation, HoughLinesP line features,
+BRISK/AKAZE point features, and MSER region features have all been fixed for OpenCV 5's API
+and shape changes, verified against real OpenCV 4.13.0 and 5.0.0 installs. See #44 for the
+full compatibility audit.
 
 ### Features
 
-* add mvtbtool --test smoke test, fix silent Open3D banner skip ([a832c59](https://github.com/petercorke/machinevision-toolbox-python/commit/a832c59ba050195f6bb4b57b16f59c0aaa315516))
 * add mvtbtool --test smoke test, fix silent Open3D banner skip ([6a0bf2c](https://github.com/petercorke/machinevision-toolbox-python/commit/6a0bf2c090b8be4aa2d378495545ca71a55e89b1))
-
 
 ### Bug Fixes
 
 * handle HoughLinesP's (N,4) return shape on OpenCV 5 ([b54f755](https://github.com/petercorke/machinevision-toolbox-python/commit/b54f7552a8c08530173e159d70a84fa5e8f6d486))
 * handle MSER's empty-tuple bboxes on OpenCV 5, resolve MSER discrepancy ([aabaf88](https://github.com/petercorke/machinevision-toolbox-python/commit/aabaf885e660c59c4949a5f5706b276ad7c50202))
 * normalize aruco ids/matchImagePoints shapes for OpenCV 5 ([6ac5ec0](https://github.com/petercorke/machinevision-toolbox-python/commit/6ac5ec0cc795ad7016f491dbb464e91c4ad34aae))
-* OpenCV 5 compatibility fixes (aruco, HoughLinesP, BRISK/AKAZE, MSER) ([5eb6bbf](https://github.com/petercorke/machinevision-toolbox-python/commit/5eb6bbf3fafb4ebaf06dae3878c81ce9ea8b2911))
 * replace removed cv2.aruco.estimatePoseSingleMarkers with solvePnP ([635225d](https://github.com/petercorke/machinevision-toolbox-python/commit/635225de657a1484ad526480605d9d234f202ffa))
 * resolve BRISK/AKAZE via cv2.xfeatures2d on OpenCV 5 ([fad7247](https://github.com/petercorke/machinevision-toolbox-python/commit/fad7247cf6cfc07f7e8511ffa37ce4ccc928f451))
 
