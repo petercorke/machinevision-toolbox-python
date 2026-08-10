@@ -148,6 +148,15 @@ def parse_arguments():
         help="images to load on startup. These appear in the variable img; or img[0], img[1], ... if multiple are specified",
     )
 
+    parser.add_argument(
+        "--test",
+        default=False,
+        action="store_true",
+        help="non-interactive environment smoke test: print package versions, "
+        "exercise one real numeric code path per package, exit 0/1 "
+        "instead of starting an interactive shell",
+    )
+
     argv = env_arguments(parser) + sys.argv[1:]
     return parser.parse_known_args(argv)
 
@@ -183,23 +192,29 @@ def optional_torch_imports(enable):
     return modules, warnings
 
 
+def get_versions() -> list[str]:
+    """Package version strings shown in the banner and by --test."""
+    versions = [
+        f"Python=={sys.version.split('|')[0].strip()}",
+        f"MVTB=={version('machinevision-toolbox-python')}",
+        f"SMTB=={version('spatialmath-python')}",
+        f"NumPy=={version('numpy')}",
+        f"SciPy=={version('scipy')}",
+        f"Matplotlib=={version('matplotlib')}",
+        f"OpenCV=={cv2.__version__}",
+    ]
+    try:
+        versions.append(f"Open3D=={version('open3d')}")
+    except PackageNotFoundError:
+        versions.append("Open3D==not installed")
+    return versions
+
+
 def make_banner(args, optional_modules=None):
     if optional_modules is None:
         optional_modules = {}
 
-    versions = []
-
-    versions.append(f"Python=={sys.version.split('|')[0].strip()}")
-    versions.append(f"MVTB=={version('machinevision-toolbox-python')}")
-    versions.append(f"SMTB=={version('spatialmath-python')}")
-    versions.append(f"NumPy=={version('numpy')}")
-    versions.append(f"SciPy=={version('scipy')}")
-    versions.append(f"Matplotlib=={version('matplotlib')}")
-    versions.append(f"OpenCV=={cv2.__version__}")
-    try:
-        versions.append(f"Open3D=={version('open3d')}")
-    except PackageNotFoundError:
-        pass
+    versions = get_versions()
 
     if "torch" in optional_modules:
         versions.append(
@@ -260,7 +275,61 @@ func/object??      - show source code"""
         print(banner)
 
 
+def run_smoke_test() -> bool:
+    """Non-interactive environment sanity check, used by --test.
+
+    Not a substitute for the pytest suite -- a fast, human- or script-run
+    "did this environment actually come together correctly" check: real
+    versions, and one real numeric result per OpenCV- and Open3D-backed
+    code path, checked against a sanity condition rather than just "it
+    didn't raise". Missing optional dependencies (e.g. Open3D) are
+    reported as a FAIL with the reason, not silently skipped.
+    """
+    print(", ".join(get_versions()))
+
+    checks: list[tuple[str, bool]] = []
+
+    try:
+        img = Image.Read("monalisa.png", mono=True)
+        smoothed = img.smooth(sigma=2)
+        ok = smoothed.shape == img.shape and not np.array_equal(
+            smoothed.array, img.array
+        )
+        checks.append(("Image.Read + smooth() (OpenCV-backed)", ok))
+    except Exception as e:
+        checks.append((f"Image.Read + smooth() (OpenCV-backed): {e}", False))
+
+    try:
+        import open3d  # noqa: F401  -- presence check; PointCloud does the real work
+    except ImportError as e:
+        checks.append(
+            (f"PointCloud.Read('bunny.ply') + voxel_grid(): Open3D not installed ({e})", False)
+        )
+    else:
+        try:
+            bunny = PointCloud.Read("bunny.ply")
+            voxels = bunny.voxel_grid(voxel_size=0.01)
+            ok = len(bunny) > 0 and len(voxels._voxels.get_voxels()) > 0
+            checks.append(("PointCloud.Read('bunny.ply') + voxel_grid() (Open3D-backed)", ok))
+        except Exception as e:
+            checks.append(
+                (f"PointCloud.Read('bunny.ply') + voxel_grid() (Open3D-backed): {e}", False)
+            )
+
+    for name, passed in checks:
+        print(f"[{'PASS' if passed else 'FAIL'}] {name}")
+
+    n_passed = sum(1 for _, passed in checks if passed)
+    print(f"mvtbtool --test: {n_passed}/{len(checks)} checks passed")
+    return n_passed == len(checks)
+
+
 def main():
+    args, ipython_args = parse_arguments()
+
+    if args.test:
+        sys.exit(0 if run_smoke_test() else 1)
+
     try:
         import IPython
         from IPython.terminal.prompts import Prompts
@@ -273,7 +342,6 @@ def main():
             "    pip install machinevision-toolbox-python[tool]\n"
         )
 
-    args, ipython_args = parse_arguments()
     torch_modules, torch_warnings = optional_torch_imports(args.torch)
 
     if args.backend is not None:
