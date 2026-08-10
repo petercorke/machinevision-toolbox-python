@@ -34,13 +34,21 @@ class TestImageLineFeatures(unittest.TestCase):
         # TODO: Draw lines and detect them
         pass
 
-    # new test
     def test_lines_p(self):
-        """Test probabilistic Hough line detection"""
-        # Create image with known lines
-        im = Image.Zeros(size=(100, 100), dtype="uint8")
-        # TODO: Draw lines and detect them with probabilistic method
-        pass
+        """Test probabilistic Hough line detection
+
+        Regression: cv2.HoughLinesP returns (N,1,4) on OpenCV 4 but a
+        true (N,4) on OpenCV 5 -- lines_p() must not assume the old
+        singleton middle dimension.
+        """
+        arr = np.zeros((100, 100), dtype="uint8")
+        arr[50, 10:90] = 255
+        im = Image(arr)
+
+        lines = im.Hough().lines_p(minvotes=20)
+        self.assertEqual(lines.ndim, 2)
+        self.assertEqual(lines.shape[1], 4)
+        self.assertGreater(lines.shape[0], 0)
 
     # new test
     def test_plot_accumulator(self):

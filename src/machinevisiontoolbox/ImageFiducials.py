@@ -133,20 +133,53 @@ class ImageFiducialsMixin(_ImageBase if TYPE_CHECKING else object):
         # corners is a list of marker corners, one element per tag
         #  each element is 1x4x2 matrix holding corner coordinates
         #
-        # ids is ndarray of shape (N,1) holding the tag ids
+        # --- OpenCV 4/5 compat -------------------------------------------
+        # ids is (N,1) on OpenCV 4 but a flat (N,) on OpenCV 5 (verified
+        # empirically 2026-08-03). Flatten so each `id` below is always a
+        # plain scalar -- on OpenCV 5, id[0] on an already-0-d element
+        # raises IndexError: invalid index to scalar variable.
+        # -------------------------------------------------------------------
 
         fiducials = []
         if ids is None or len(ids) == 0:
             return fiducials  # no markers found
+        ids = ids.reshape(-1)
         if K is not None and side is not None:
-            rvecs, tvecs, p3d = cv2.aruco.estimatePoseSingleMarkers(
-                corners=cornerss, markerLength=side, cameraMatrix=K, distCoeffs=None
+            # --- OpenCV 4/5 compat ---------------------------------------
+            # cv2.aruco.estimatePoseSingleMarkers was removed entirely in
+            # OpenCV 5 -- not moved/renamed, hasattr(cv2.aruco,
+            # "estimatePoseSingleMarkers") is False in a real 5.0.0
+            # install. Replaced with the per-marker cv2.solvePnP +
+            # SOLVEPNP_IPPE_SQUARE call that OpenCV's own migration notes
+            # recommend for planar square markers. The object points use
+            # the same convention (clockwise from top-left, Z out of the
+            # marker) the old function used internally, so this works
+            # unchanged on OpenCV 4 too -- no version branching needed.
+            # Verified empirically 2026-08-03.
+            # -----------------------------------------------------------------
+            half = side / 2
+            obj_pts = np.array(
+                [
+                    [-half, half, 0],
+                    [half, half, 0],
+                    [half, -half, 0],
+                    [-half, -half, 0],
+                ],
+                dtype=np.float32,
             )
-            for id, rvec, tvec, corners in zip(ids, rvecs, tvecs, cornerss):
-                fiducials.append(Fiducial(id[0], corners[0].T, K, rvec, tvec, p3d))
+            p3d = obj_pts.reshape(4, 1, 3)
+            for id, corners in zip(ids, cornerss):
+                _, rvec, tvec = cv2.solvePnP(
+                    obj_pts, corners[0], K, None, flags=cv2.SOLVEPNP_IPPE_SQUARE
+                )
+                fiducials.append(
+                    Fiducial(
+                        id, corners[0].T, K, rvec.reshape(1, 3), tvec.reshape(1, 3), p3d
+                    )
+                )
         else:
             for id, corners in zip(ids, cornerss):
-                fiducials.append(Fiducial(id[0], corners[0].T))
+                fiducials.append(Fiducial(id, corners[0].T))
 
         return fiducials
 
@@ -386,16 +419,23 @@ class FiducialCollection:
         cornerss, ids, rejected = detector.detectMarkers(image=image.mono()._A)
 
         # corners is a list of ndarray(1,4,2) of marker corners
-        # ids is ndarray of shape (N,1) holding the tag ids
         # rejected is a list of rejected corners from tags whose inner code is incorrectly coded
+        #
+        # --- OpenCV 4/5 compat -------------------------------------------
+        # ids is (N,1) on OpenCV 4 but a flat (N,) on OpenCV 5 (verified
+        # empirically 2026-08-03). Flatten so each `id` below is always a
+        # plain scalar -- on OpenCV 5, id[0] on an already-0-d element
+        # raises IndexError: invalid index to scalar variable.
+        # -------------------------------------------------------------------
+        ids = ids.reshape(-1) if ids is not None else ids
 
         # filter tags by ID
         cornerss = [
             corners.T.squeeze()
             for corners, id in zip(cornerss, ids)
-            if id[0] in self._ids
+            if id in self._ids
         ]
-        ids = [id[0] for corners, id in zip(cornerss, ids) if id[0] in self._ids]
+        ids = [id for corners, id in zip(cornerss, ids) if id in self._ids]
         # ids = np.reshape(ids, (-1, 1))
 
         # match the markers to the board
@@ -587,9 +627,21 @@ class ArUcoBoard(FiducialCollection):
         :return: 3D object points and 2D image points
         :rtype: ndarray(M,1,3), ndarray(M,1,2), where M is the number of corners found (multiple of 4)
         """
-        return self._board.matchImagePoints(
+        objPoints, imgPoints = self._board.matchImagePoints(
             [corners.T.reshape(1, 4, 2) for corners in cornerss], np.c_[ids]
         )
+        # --- OpenCV 4/5 compat -------------------------------------------
+        # cv2.aruco.Board.matchImagePoints returns (M,1,3)/(M,1,2) on
+        # OpenCV 4 but a true (M,3)/(M,2) on OpenCV 5 (verified
+        # empirically 2026-08-03). Normalize back to the documented
+        # (M,1,3)/(M,1,2) shape so this method's return contract is
+        # stable regardless of the installed OpenCV version.
+        # -------------------------------------------------------------------
+        if objPoints.ndim == 2:
+            objPoints = objPoints[:, np.newaxis, :]
+        if imgPoints.ndim == 2:
+            imgPoints = imgPoints[:, np.newaxis, :]
+        return objPoints, imgPoints
 
     def chart(self, filename: str | None = None, dpi: int = 100) -> Image | None:
         """Write ArUco chart to a file

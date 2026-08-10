@@ -2,12 +2,13 @@
 
 import unittest
 
+import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 import numpy.testing as nt
 from spatialmath import SE3
 
-from machinevisiontoolbox import CentralCamera
+from machinevisiontoolbox import CentralCamera, Image
 
 
 class TestCamera(unittest.TestCase):
@@ -350,6 +351,40 @@ class TestCamera(unittest.TestCase):
             self.assertTrue(c_copy.pose == c.pose)
         except:
             pass
+
+    def test_images2C(self):
+        """Checkerboard calibration end-to-end (regression: OpenCV 5's
+        findChessboardCorners/cornerSubPix return (N,2) instead of OpenCV
+        4's (N,1,2) -- verified empirically that cv2.calibrateCamera and
+        cv2.drawChessboardCorners both accept either shape, so no source
+        change was needed here, but this pipeline had zero prior test
+        coverage at all)"""
+        sq = 20
+        board = np.zeros((8 * sq, 8 * sq), dtype=np.uint8)
+        for r in range(8):
+            for c in range(8):
+                if (r + c) % 2 == 0:
+                    board[r * sq : (r + 1) * sq, c * sq : (c + 1) * sq] = 255
+
+        canvas = np.full((300, 300), 128, dtype=np.uint8)
+        images = []
+        for dx, dy, scale in [(50, 50, 1.0), (60, 40, 1.05), (40, 60, 0.95)]:
+            view = canvas.copy()
+            bsz = int(board.shape[0] * scale)
+            resized = cv2.resize(board, (bsz, bsz))
+            view[dy : dy + bsz, dx : dx + bsz] = resized
+            images.append(Image(view))
+
+        result = CentralCamera.images2C(images, gridshape=(7, 7), squaresize=0.025)
+
+        self.assertIsNotNone(result)
+        C, distortion, frames = result
+        self.assertEqual(C.shape, (3, 3))
+        self.assertEqual(distortion.shape, (5,))
+        self.assertEqual(len(frames), len(images))
+        for frame in frames:
+            self.assertIsInstance(frame.image, Image)
+            self.assertIsInstance(frame.pose, SE3)
 
 
 class TestCameraPlot(unittest.TestCase):
