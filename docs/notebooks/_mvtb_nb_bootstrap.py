@@ -31,14 +31,17 @@ async def ensure_installed() -> bool:
                 "mvtb-data",
                 "tqdm",
                 "requests",
+                "ipywidgets",
             ]
         )
         import cv2  # noqa: F401 - force cv2 into module registry before toolbox import
 
         wheels = sorted(Path("/pypi").glob("machinevision_toolbox_python-*.whl"))
         if wheels:
-            # Prefer the wheel bundled with this JupyterLite site.
-            await micropip.install(wheels[-1].as_posix(), deps=False)
+            # Prefer the wheel bundled with this JupyterLite site. Relative,
+            # not absolute: a leading slash resolves against the origin, not
+            # this site's own base URL (a GitHub Pages project subpath).
+            await micropip.install(f"pypi/{wheels[-1].name}", deps=False)
         else:
             # Fall back to PyPI when running outside the published site layout.
             await micropip.install("machinevision-toolbox-python", deps=False)
@@ -63,8 +66,11 @@ async def ensure_installed() -> bool:
             )
             where, colab = "on Colab", True
 
+    import cv2
+
     import machinevisiontoolbox
 
     version = getattr(machinevisiontoolbox, "__version__", "unknown")
-    print(f"Running {where} using MVTB v{version}")
+    opencv_version = getattr(cv2, "__version__", "unknown")
+    print(f"Running {where} using MVTB v{version} with OpenCV {opencv_version}")
     return colab

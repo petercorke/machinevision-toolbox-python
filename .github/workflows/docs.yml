@@ -108,7 +108,7 @@ jobs:
                   new_lines = []
                   changed = False
                   for line in lines:
-                      if line.strip() == "%matplotlib ipympl":
+                      if line.strip() in ("%matplotlib ipympl", "%matplotlib widget"):
                           newline = "\n" if line.endswith("\n") else ""
                           new_lines.append(f"%matplotlib inline{newline}")
                           changed = True
