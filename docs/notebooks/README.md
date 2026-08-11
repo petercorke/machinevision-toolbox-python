@@ -81,4 +81,55 @@ Moving beyond pixels to robust features and 3D reasoning.
   <font size="2">Created by Peter Corke | QUT Centre for Robotics</font>
 </p>
 
+---
+
+## Maintainer notes: how these notebooks install themselves
+
+*(Written 2026-08 - only relevant if you're editing the install machinery itself.)*
+
+Every notebook here has to work in three different environments, each of which needs the toolbox installed a different way:
+
+- **Locally** (VS Code, `jupyter notebook`, `nbmake` in CI) — the toolbox is assumed already installed (dev env or `pip install`); nothing to do.
+- **Google Colab** — Colab's "Open in Colab" link fetches *only that one `.ipynb` file* from GitHub, no sibling files, so the toolbox has to be `pip install`ed fresh into the Colab VM each session.
+- **JupyterLite** (the in-browser "Try it Now" version published alongside the Sphinx docs) — runs on Pyodide/WASM, where packages install via `micropip` rather than `pip`, and the toolbox wheel is installed with `deps=False` (to stop micropip re-resolving compiled packages like numpy/scipy/opencv that Pyodide already provides its own WASM builds of) — which means every *other* runtime dependency (tqdm, requests, ...) has to be listed and installed explicitly.
+
+**All three cases are handled by one file: `_mvtb_nb_bootstrap.py`.** It detects which environment it's in and does whatever that environment needs, ending with a one-line sanity check so a broken environment-detection is obvious at a glance rather than failing mysteriously three cells later:
+```
+Running locally using MVTB v2.2.0
+Running on Colab using MVTB v2.2.0
+Running in browser using MVTB v2.2.0
+```
+
+Every notebook's first code cell is a copy of that file's content, marked with a `# MVTB_BOOTSTRAP_CELL` comment. It's a *copy*, not an import — Colab can't see sibling files, so the cell has to be fully self-contained, the same way Colab notebooks in this space normally are (this is deliberate; a fancier design that fetched the shared code over the network at runtime was considered and rejected — it would have made every notebook depend on GitHub being reachable just to install itself, which is a worse failure mode than a bit of duplication).
+
+**The copy is machine-generated, not hand-maintained**, which is the actual point: edit `_mvtb_nb_bootstrap.py` once, then either let the commit hook regenerate every notebook's marked cell for you automatically (silently, as part of `git commit`), or run it by hand:
+```
+python docs/notebooks/sync_bootstrap.py
+```
+A second hook also clears notebook outputs on the way in (`clear_notebook_outputs.sh`'s logic), so committed notebooks stay clean without having to remember that step either.
+
+**Enforcement happens via a plain git hook, not the `pre-commit` framework.** We wanted here a fully mechanical, deterministic regeneration shouldn't need a manual re-commit every single time. So this repo uses a plain git hook instead, versioned at `.githooks/pre-commit`.
+
+### One-time setup (per machine)
+
+This is a *local* git setting — it doesn't come along when you clone the repo, and isn't shared by git config, so it needs doing once on every machine you commit from:
+```
+git config core.hooksPath .githooks
+```
+That's the only step — `.githooks/pre-commit` is already committed with its executable bit set (git tracks that), and it only needs the Python already on your `PATH` plus the stdlib (no extra `pip install`, no `pre-commit` package). To check it's active:
+```
+git config --get core.hooksPath   # should print .githooks
+```
+Nothing is enforced on a machine where this hasn't been set — CI is the backstop for that case, not the primary mechanism.
+
+The hook stays quiet when there's nothing to do, and only speaks up when it actually changes something:
+```
+docs/notebooks/gamma.ipynb: found output, clearing it
+docs/notebooks/camera.ipynb: bootstrap cell out of date, regenerating
+```
+so an ordinary commit scrolls past without any noise, but one that got silently fixed for you still leaves a visible trace — a lightweight way to notice the safety net firing without it ever stopping you.
+
+If a notebook's bootstrap cell falls out of sync anyway (hook not installed on this machine, notebook edited elsewhere), CI catches it on the PR — a job re-runs the generator in check-only mode across every notebook and fails if anything doesn't match.
+
+**Why this exists at all:** before this, 13 of the 16 notebooks each had their own hand-pasted, slightly-drifted copy of the Colab-install snippet, and the JupyterLite demo notebook had its own bespoke version with a manually-maintained dependency list. That's exactly how machinevision-toolbox-python 2.2.0 shipped a broken "Try it Now" demo — `tqdm` was added as a real dependency but nobody updated the one notebook's hand-typed install list, and nothing tested it before release. One template, generated everywhere, checked by CI, closes that gap.
 
