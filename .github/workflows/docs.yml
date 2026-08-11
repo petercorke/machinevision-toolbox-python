@@ -40,6 +40,11 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Check notebook bootstrap cells and outputs are in sync
+        run: |
+          python docs/notebooks/sync_bootstrap.py --check
+          python docs/notebooks/clear_outputs.py --check
+
       - name: Install system dependencies
         run: sudo apt-get install -y graphviz
 
