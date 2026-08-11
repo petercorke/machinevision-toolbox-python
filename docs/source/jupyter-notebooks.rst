@@ -122,7 +122,7 @@ Quick Start
    :widths: 28, 16, 16, 40
 
    "Notebook", "|jupyterlite_image|", "|colab_image|", "Description"
-   "`Introduction <https://github.com/petercorke/machinevision-toolbox-python/blob/main/docs/lite/files/intro.ipynb>`_", "`open <https://petercorke.github.io/machinevision-toolbox-python/lite/lab/index.html?path=intro.ipynb>`_", "`open <https://colab.research.google.com/github/petercorke/machinevision-toolbox-python/blob/main/docs/lite/files/intro.ipynb>`_", "A quick introduction to the toolbox."
+   "`Introduction <https://github.com/petercorke/machinevision-toolbox-python/blob/main/docs/notebooks/intro.ipynb>`_", "`open <https://petercorke.github.io/machinevision-toolbox-python/lite/lab/index.html?path=intro.ipynb>`_", "`open <https://colab.research.google.com/github/petercorke/machinevision-toolbox-python/blob/main/docs/notebooks/intro.ipynb>`_", "A quick introduction to the toolbox."
 
 Image Fundamentals
 ~~~~~~~~~~~~~~~~~~

@@ -21,9 +21,14 @@ from pathlib import Path
 
 MARKER = "# MVTB_BOOTSTRAP_CELL"
 GENERATED_HEADER = (
-    f"{MARKER} - generated from docs/notebooks/_mvtb_nb_bootstrap.py "
-    "by sync_bootstrap.py; do not hand-edit\n"
+    f"{MARKER} -- sets up the environment (Colab / JupyterLite / local install); "
+    "click to expand. Generated from docs/notebooks/_mvtb_nb_bootstrap.py by "
+    "sync_bootstrap.py -- do not hand-edit.\n"
 )
+# Folds the cell's code by default (VS Code and JupyterLab both honour this) --
+# a reader sees the one-line header above and the printed status line below,
+# not the boilerplate, unless they choose to expand it.
+FOLDED_METADATA = {"jupyter": {"source_hidden": True}}
 
 HERE = Path(__file__).resolve().parent
 TEMPLATE_PATH = HERE / "_mvtb_nb_bootstrap.py"
@@ -62,15 +67,19 @@ def process_notebook(path: Path, template: str, fix: bool) -> bool:
         if not is_bootstrap_cell(cell):
             continue
 
-        desired = generated_source(template)
-        current = cell.get("source", [])
-        if not isinstance(current, list):
-            current = [current]
+        desired_source = generated_source(template)
+        current_source = cell.get("source", [])
+        if not isinstance(current_source, list):
+            current_source = [current_source]
 
-        if current != desired:
+        current_jupyter_metadata = cell.get("metadata", {}).get("jupyter", {})
+        desired_jupyter_metadata = FOLDED_METADATA["jupyter"]
+
+        if current_source != desired_source or current_jupyter_metadata != desired_jupyter_metadata:
             changed = True
             if fix:
-                cell["source"] = desired
+                cell["source"] = desired_source
+                cell.setdefault("metadata", {})["jupyter"] = dict(desired_jupyter_metadata)
         break
 
     if changed and fix:
