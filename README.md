@@ -21,20 +21,24 @@
 
 ---
 
-### Status & Ecosystem
+### Status & Project Health
+
+[![Build Status](https://github.com/petercorke/machinevision-toolbox-python/actions/workflows/ci.yml/badge.svg)](https://github.com/petercorke/machinevision-toolbox-python/actions/workflows/ci.yml)
+[![Downloads](https://static.pepy.tech/badge/machinevision-toolbox-python/month)](https://pepy.tech/projects/machinevision-toolbox-python)
+![Python Version](https://img.shields.io/pypi/pyversions/machinevision-toolbox-python.svg)
+[![Coverage](https://codecov.io/gh/petercorke/machinevision-toolbox-python/branch/main/graph/badge.svg)](https://codecov.io/gh/petercorke/machinevision-toolbox-python)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+### Ecosystem & Dependencies
 [![A Python Robotics Package](https://raw.githubusercontent.com/petercorke/robotics-toolbox-python/master/.github/svg/py_collection.min.svg)](https://github.com/petercorke/robotics-toolbox-python)
 [![QUT Centre for Robotics Open Source](https://github.com/qcr/qcr.github.io/raw/master/misc/badge.svg)](https://qcr.github.io)
-[![Build Status](https://github.com/petercorke/machinevision-toolbox-python/actions/workflows/ci.yml/badge.svg)](https://github.com/petercorke/machinevision-toolbox-python/actions/workflows/ci.yml)
-[![Coverage](https://codecov.io/gh/petercorke/machinevision-toolbox-python/branch/main/graph/badge.svg)](https://codecov.io/gh/petercorke/machinevision-toolbox-python)
-![Python Version](https://img.shields.io/pypi/pyversions/machinevision-toolbox-python.svg)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![PyPI - Downloads](https://img.shields.io/pypi/dw/machinevision-toolbox-python)](https://pypistats.org/packages/machinevision-toolbox-python)
 
-### Powered by
-[![Powered by Spatial Maths](https://raw.githubusercontent.com/petercorke/spatialmath-python/master/.github/svg/sm_powered.min.svg)](https://github.com/petercorke/spatialmath-python)
-[![Powered by NumPy](https://img.shields.io/badge/powered_by-NumPy-013243?logo=numpy&logoColor=white)](https://numpy.org)
+[![powered by NumPy](https://img.shields.io/badge/powered_by-NumPy-013243?logo=numpy&logoColor=white)](https://numpy.org)
+[![powered by SciPy](https://img.shields.io/badge/powered_by-SciPy-0054a6?logo=scipy&logoColor=white)](https://scipy.org)
+[![powered by Matplotlib](https://img.shields.io/badge/powered_by-Matplotlib-11557c?logo=matplotlib&logoColor=white)](https://matplotlib.org)
 [![Powered by OpenCV](https://raw.githubusercontent.com/petercorke/machinevision-toolbox-python/main/.github/svg/opencv_powered.svg)](https://opencv.org)
 [![Powered by Open3D](https://raw.githubusercontent.com/petercorke/machinevision-toolbox-python/main/.github/svg/open3d_powered.svg)](https://open3d.org)
+[![Powered by Spatial Maths](https://raw.githubusercontent.com/petercorke/spatialmath-python/master/.github/svg/sm_powered.min.svg)](https://github.com/petercorke/spatialmath-python)
 
 ## Synopsis
 
