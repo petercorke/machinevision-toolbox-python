@@ -94,3 +94,6 @@ docs/source/stubs/*
 
 # LLVM profiling data
 *.profraw
+
+### Node ###
+node_modules/
