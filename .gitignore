@@ -9,6 +9,7 @@ dependencies*
 *.bag
 # but keep test fixtures
 !mvtb-data/mvtbdata/data/*.bag
+bags
 
 # old notebooks
 notebooks/old/*

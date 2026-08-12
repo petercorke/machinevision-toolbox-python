@@ -59,12 +59,15 @@ more reliable than the first one.
 
 ## Version pinning
 
-`package.json` pins the `pyodide` npm package to the same version confirmed
-working in real-browser testing (`314.0.3`, corresponding to the Pyodide runtime
-that `jupyterlite-pyodide-kernel` currently bundles). If that drifts out of sync
-with what the real deployed site actually uses, this check could pass while the
-real site fails, or vice versa — see the toolbox-maintainer notes on JupyterLite
-version pairing for why that pairing matters and isn't self-healing.
+`package.json` pins the `pyodide` npm package to `0.27.6`, matching
+`docs.yml`'s deliberate `jupyterlite-pyodide-kernel==0.6.1` pin (see that
+workflow's own comment for the full reasoning: newer kernel releases bundle a
+JSPI-dependent Pyodide that either crashes or silently races on browsers
+without JSPI support, e.g. Safari as of 2026-08). These two pins have to move
+together — if one changes without the other, this check silently stops
+representing what the real deployed site actually runs, which could let it
+pass while the real site fails, or vice versa. Once that kernel pin is
+revisited, this one needs updating in the same change.
 
 ## Reusing this for another toolbox
 
