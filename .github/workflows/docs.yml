@@ -62,6 +62,17 @@ jobs:
           pip install build
           python -m build --wheel --outdir docs/lite/pypi
 
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: docs/lite/wasm_check/package-lock.json
+
+      - name: Check the JupyterLite install path actually works (real Pyodide, real WASM)
+        run: |
+          npm --prefix docs/lite/wasm_check ci
+          node docs/lite/wasm_check/check_pyodide_install.mjs docs/lite/pypi/*.whl
+
       - name: Sync notebooks into JupyterLite content
         run: |
           mkdir -p docs/lite/files
