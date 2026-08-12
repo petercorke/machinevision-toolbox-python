@@ -139,8 +139,26 @@ jobs:
           PY
 
       - name: Build JupyterLite site
+        # jupyterlite-pyodide-kernel is pinned deliberately -- NOT for wasm-ABI
+        # matching (MVTB is pure Python, unlike RTB's compiled-extension pin of
+        # the same version, for a different reason). Newer kernel releases bundle
+        # Pyodide >=0.27.7, which turned WebAssembly JSPI ("stack switching") on
+        # by default for run_until_complete(). Browsers without JSPI support
+        # (Safari has none as of 2026-08; Firefox only behind a flag) either
+        # crash the kernel outright or, with the enableRunUntilComplete: false
+        # workaround, turn run_until_complete into a fire-and-forget no-op --
+        # letting a cell's package/import machinery run before an install has
+        # actually finished landing (confirmed live on bdsim: intermittent
+        # ModuleNotFoundError despite a successful-looking install cell).
+        # jupyterlite-pyodide-kernel==0.6.1 bundles Pyodide 0.27.6, genuinely
+        # predating this whole mechanism -- matches RTB's and bdsim's existing
+        # pins. Installing jupyterlite-core directly rather than the jupyterlite
+        # metapackage: the metapackage requires jupyterlite-core>=0.8.1, which
+        # conflicts with this pin's jupyterlite-core<0.7.0 requirement.
+        # Once Safari (and Firefox out-of-flag) ship JSPI, revisit this pin --
+        # and docs/lite/wasm_check/package.json's matching pyodide npm pin.
         run: |
-          pip install jupyterlite-core jupyterlite-pyodide-kernel jupyter-server
+          pip install jupyterlite-core "jupyterlite-pyodide-kernel==0.6.1" jupyter-server
           cd docs/lite && jupyter lite build --output-dir ../build/html/lite
 
       - name: Package notebooks zip
