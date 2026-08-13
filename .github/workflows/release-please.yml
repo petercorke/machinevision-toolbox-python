@@ -34,7 +34,8 @@ jobs:
       - name: Trigger PyPI publish
         if: ${{ steps.release.outputs.releases_created }}
         run: |
-          tag=$(gh release list --limit 1 --json tagName -q '.[0].tagName')
-          gh workflow run release.yml --ref "$tag"
+          tag=$(gh release list --repo "$GH_REPO" --limit 1 --json tagName -q '.[0].tagName')
+          gh workflow run release.yml --repo "$GH_REPO" --ref "$tag"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
