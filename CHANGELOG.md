@@ -1,5 +1,33 @@
 # Changelog
 
+## [2.3.0](https://github.com/petercorke/machinevision-toolbox-python/compare/v2.2.0...v2.3.0) (2026-08-13)
+
+**Highlight: Notebooks working in all environments** Fixed a number of problems with getting notebooks to execute in desktop Jupyter, Colab, and
+JupyterLite in browser.  Created nice framework to keep the environment-specific import logic in each notebook consistent at commit time.  Added
+CI tests and also CI check that notebooks runs in the pyodide environment.  Currently pinning to pyodide 0.6.1 to sidestep the lack of JSPI support
+in Safari and Firefox required by later pyodide kernels.
+
+
+### Features
+
+* **ci:** add a real-Pyodide dependency-completeness check for JupyterLite ([9072da6](https://github.com/petercorke/machinevision-toolbox-python/commit/9072da6e945b45bf2f04a5994f9dbc9c6d99622d))
+* **notebooks:** add shared environment-bootstrap module and drift-check tooling ([44242e8](https://github.com/petercorke/machinevision-toolbox-python/commit/44242e81420e05d2d5656c81c53a33f1071ddac7))
+* **notebooks:** migrate all notebooks to the generated bootstrap cell ([75f230c](https://github.com/petercorke/machinevision-toolbox-python/commit/75f230ce7d789e25edcd06694e886e0f4db8a83d))
+
+
+### Bug Fixes
+
+* **ci:** guard release-please's PyPI-publish trigger against the truthy-string bug ([#74](https://github.com/petercorke/machinevision-toolbox-python/issues/74)) ([0d74276](https://github.com/petercorke/machinevision-toolbox-python/commit/0d742769d2553125a5b2a08a4a8a16f1e9b9f69c))
+* **ci:** pass --repo to gh calls in release-please's PyPI-publish trigger ([#73](https://github.com/petercorke/machinevision-toolbox-python/issues/73)) ([6ff01a3](https://github.com/petercorke/machinevision-toolbox-python/commit/6ff01a395402d6363ade8b4f4e07952237089666))
+* **docs:** pin jupyterlite-pyodide-kernel==0.6.1, matching RTB and bdsim ([76bd7e1](https://github.com/petercorke/machinevision-toolbox-python/commit/76bd7e130dab5562bb947be9a6b6c1ef3a5e2140))
+* **notebooks:** fix JupyterLite bugs found via real-browser testing ([3979404](https://github.com/petercorke/machinevision-toolbox-python/commit/3979404b317a79f2769007a02ff7a24091e1e4b7))
+* release-please never triggered the actual PyPI publish ([18cc08b](https://github.com/petercorke/machinevision-toolbox-python/commit/18cc08bc21e38bef2f5ed56e31daee4c9404732a))
+
+
+### Documentation
+
+* **readme:** move to standard badge layout ([0722f9d](https://github.com/petercorke/machinevision-toolbox-python/commit/0722f9da96c97e2d49e791fd68237063df8d38cf))
+
 ## [2.2.0](https://github.com/petercorke/machinevision-toolbox-python/compare/v2.1.0...v2.2.0) (2026-08-10)
 
 **Highlight: OpenCV 5 compatibility.** MVTB now works correctly under both OpenCV 4 and the
