@@ -2,6 +2,11 @@
 
 ## [2.3.0](https://github.com/petercorke/machinevision-toolbox-python/compare/v2.2.0...v2.3.0) (2026-08-13)
 
+**Highlight: Notebooks working in all environments** Fixed a number of problems with getting notebooks to execute in desktop Jupyter, Colab, and
+JupyterLite in browser.  Created nice framework to keep the environment-specific import logic in each notebook consistent at commit time.  Added
+CI tests and also CI check that notebooks runs in the pyodide environment.  Currently pinning to pyodide 0.6.1 to sidestep the lack of JSPI support
+in Safari and Firefox required by later pyodide kernels.
+
 
 ### Features
 
