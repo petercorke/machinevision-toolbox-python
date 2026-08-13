@@ -2346,7 +2346,7 @@ class ROSTopic(ImageSource):
         if not _open3d_available:
             raise ImportError(
                 "open3d is required for PointCloud publish support. "
-                "Install it with: pip install open3d-python "
+                "Install it with: pip install open3d "
                 "or pip install machinevision-toolbox-python[open3d]"
             )
             assert o3d is not None
@@ -3573,7 +3573,7 @@ class ROSBag(ImageSource):
                     if not _open3d_available:
                         raise ImportError(
                             "open3d is required to read PointCloud2 messages. "
-                            "Install it with: pip install open3d-python "
+                            "Install it with: pip install open3d "
                             "or pip install machinevision-toolbox-python[open3d]"
                         )
                     assert o3d is not None
@@ -3770,7 +3770,7 @@ class PointCloudSequence:
         if not _open3d_available:
             raise ImportError(
                 "open3d is required for point cloud display. "
-                "Install it with: pip install open3d-python "
+                "Install it with: pip install open3d "
                 "or pip install machinevision-toolbox-python[open3d]"
             )
         assert o3d is not None
