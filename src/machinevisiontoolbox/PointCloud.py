@@ -26,7 +26,7 @@ class PointCloud:
         :type arg: :obj:`o3d.geometry.PointCloud`, :obj:`~machinevisiontoolbox.PointCloud`, ndarray(3,N)
         :param depth_scale: depth scale factor, defaults to 1.0
         :type depth_scale: float, optional
-        :raises RuntimeError: PointCloud class requires Open3D to be installed: pip install open3d-python or pip install machinevision-toolbox-python[open3d]
+        :raises RuntimeError: PointCloud class requires Open3D to be installed: pip install open3d or pip install machinevision-toolbox-python[open3d]
         :raises ValueError: bad arguments
 
         This object wraps an Open3D :obj:`open3d.geometry.PointCloud` object.  It can be
@@ -50,7 +50,7 @@ class PointCloud:
         if not _open3d:
             raise RuntimeError(
                 "PointCloud class requires Open3D to be installed: "
-                "pip install open3d-python or "
+                "pip install open3d or "
                 "pip install machinevision-toolbox-python[open3d]\n"
                 " ** Note that Open3d typically does not run on the latest Python version(s)"
             )
@@ -60,7 +60,7 @@ class PointCloud:
         if not _open3d:
             raise RuntimeError(
                 "PointCloud class requires Open3D to be installed: "
-                "pip install open3d-python or "
+                "pip install open3d or "
                 "pip install machinevision-toolbox-python[open3d]"
             )
 
@@ -273,7 +273,7 @@ class PointCloud:
         :type rgb: :class:`~machinevisiontoolbox.Image`, optional
         :param depth_scale: depth scale factor, defaults to 1.0
         :type depth_scale: float, optional
-        :raises RuntimeError: PointCloud class requires Open3D to be installed: pip install open3d-python or pip install machinevision-toolbox-python[open3d]
+        :raises RuntimeError: PointCloud class requires Open3D to be installed: pip install open3d or pip install machinevision-toolbox-python[open3d]
         :raises ValueError: input images has wrong number of planes
 
         The depth image is converted to a point cloud using the Open3D, and the pixel

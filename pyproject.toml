@@ -86,7 +86,7 @@ docs = [
 
 jupyter = ["ipywidgets", "ipympl"]
 
-open3d = ["open3d-python"]
+open3d = ["open3d; python_version < '3.13'"]
 
 torch = ["torch"]
 
@@ -95,7 +95,7 @@ ocr = ["pytesseract"]
 all = [
     "ipywidgets",
     "ipympl",
-    "open3d-python",
+    "open3d; python_version < '3.13'",
     "torch",
     "pytesseract",
     "rosbags",
