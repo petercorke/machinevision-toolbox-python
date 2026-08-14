@@ -285,7 +285,7 @@ class ImageWholeFeaturesMixin(_ImageBase if TYPE_CHECKING else object):
         :seealso: :meth:`stats`
         """
 
-        stats = self._stats
+        stats = self.stats
         if self.iscolor and self.colororder is not None:
             colororder = self.colororder
             for k in sorted(stats.keys(), key=lambda x: colororder[x]):
