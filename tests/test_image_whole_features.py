@@ -314,6 +314,18 @@ class TestImageWholeFeatures(unittest.TestCase):
         # self.assertIn('mean', stats)
         # self.assertIn('std', stats)
 
+    def test_printstats_before_stats_accessed(self):
+        """printstats() must work on a fresh image, before .stats has ever
+        been accessed -- regression test: printstats() used to read the
+        private _stats cache directly instead of the .stats property, so
+        it crashed with the cache still None unless something had already
+        touched .stats first."""
+        im = Image.Random(size=(50, 50), dtype="uint8")
+        im.printstats()
+
+        color_im = Image.Random(size=(50, 50), colororder="RGB", dtype="uint8")
+        color_im.printstats()
+
     # new test
     def test_peaks(self):
         """Test peak finding in histogram"""
