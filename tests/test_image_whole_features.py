@@ -497,6 +497,21 @@ class TestImageWholeFeatures(unittest.TestCase):
             ncdf = h.ncdf
         nt.assert_array_equal(ncdf, h.cdf)
 
+    def test_plot_type_ncdf_deprecated_alias(self):
+        """Histogram.plot(type='ncdf') is a deprecated alias for
+        type='cdf' -- regression test: 'ncdf' was documented in plot()'s
+        own docstring but never actually implemented in the dispatch
+        logic, so it always raised ValueError('unknown type')."""
+        im = Image.Random(size=(50, 50), dtype="uint8")
+        h = im.hist()
+        with self.assertWarns(DeprecationWarning):
+            h.plot(type="ncdf")
+        plt.close("all")
+
+        # equivalent, current spelling -- must not warn
+        h.plot(type="cdf")
+        plt.close("all")
+
 
 if __name__ == "__main__":
     unittest.main()

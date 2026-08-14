@@ -1210,7 +1210,9 @@ class Histogram:
 
     def plot(
         self,
-        type: str = "frequency",
+        type: Literal[
+            "frequency", "pdf", "probability", "cf", "cumulative", "cdf", "normalized", "ncdf"
+        ] = "frequency",
         block: bool = False,
         filled: bool | None = None,
         stats: bool = True,
@@ -1227,8 +1229,9 @@ class Histogram:
         """
         Plot histogram
 
-        :param type: histogram type, one of: 'frequency' [default], 'cdf', 'ncdf'
-        :type type: str, optional
+        :param type: histogram type, one of: 'frequency' [default], 'pdf'/'probability',
+            'cf'/'cumulative', 'cdf'/'normalized'; 'ncdf' is accepted as a deprecated
+            alias for 'cdf'
         :param block: hold plot, defaults to False
         :type block: bool, optional
         :param filled: use a filled stairs plot, defaults to True for frequency plot, False for
@@ -1258,7 +1261,9 @@ class Histogram:
 
         Plots the histogram using Matplotlib.  For a color image, the histograms of each
         plane are plotted separately.  The ``type`` option selects the type of histogram
-        to plot: ``frequency``, ``cdf`` or ``ncdf`` (normalized cumulative in the range 0 to 1).
+        to plot: ``frequency``, ``pdf``/``probability``, ``cf``/``cumulative``, or
+        ``cdf``/``normalized`` (normalized cumulative, range 0 to 1).  ``ncdf`` is
+        accepted as a deprecated alias for ``cdf``.
 
         The ``style`` option selects the style for plotting multiple planes:
 
@@ -1341,6 +1346,14 @@ class Histogram:
             )
             if filled is None:
                 filled = bar
+
+        if type == "ncdf":
+            warnings.warn(
+                "Deprecated in 2.0.0: use type='cdf' instead of type='ncdf'.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            type = "cdf"
 
         if type not in ("frequency", "pdf"):
             stats = False  # only show stats for frequency and pdf plot
