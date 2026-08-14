@@ -56,6 +56,7 @@ __all__ = [
     # types
     "int_image",
     "float_image",
+    "DTYPE_ALIASES",
     # data
     "mvtb_path_to_datafile",
     "mvtb_load_data",

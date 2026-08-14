@@ -20,6 +20,7 @@ from spatialmath.base import islistof, isscalar
 
 # from numpy.lib.arraysetops import isin
 from machinevisiontoolbox.base import (
+    DTYPE_ALIASES,
     draw_box,
     draw_circle,
     draw_labelbox,
@@ -98,8 +99,13 @@ class Image(
         :type copy: bool, optional
         :param size: new size for the image, defaults to None
         :type size: tuple, optional
-        :param dtype: data type for image, defaults to same type as ``image``
-        :type dtype: str or NumPy dtype, optional
+        :param dtype: data type for image; ``None`` [default] auto-detects (any
+            floating input becomes ``float32``; integer input becomes the
+            smallest unsigned/signed integer type that holds all its values);
+            ``True`` keeps ``image``'s own dtype as-is; ``False`` raises
+            ``ValueError``; otherwise a NumPy dtype string (``"uint8"``,
+            ``"float32"``, ...) or NumPy type. |dtype_aliases|
+        :type dtype: str, NumPy dtype, bool, or None, optional
         :param name: name of image, defaults to None
         :type name: str, optional
         :param id: numeric id of image, typically a sequence number, defaults to None
@@ -381,6 +387,8 @@ class Image(
             raise ValueError("bad dtype argument passed to Image constructor")
         else:
             # dtype is given, convert to a NumPy dtype
+            if isinstance(dtype, str):
+                dtype = DTYPE_ALIASES.get(dtype, dtype)
             try:
                 dtype = np.dtype(dtype)
             except TypeError:
