@@ -17,6 +17,7 @@ import matplotlib.path as mpath
 import matplotlib.pyplot as plt
 import numpy as np
 import spatialmath.base as smb
+from spatialmath import Polygon2
 from scipy import interpolate
 
 # import io as io
@@ -1777,8 +1778,8 @@ def shadow_invariant(
     return gs
 
 
-def esttheta(im: Any, sharpen: np.ndarray | None = None) -> None:
-    """
+def esttheta(im: Any, sharpen: np.ndarray | None = None) -> float:
+    r"""
     Estimate theta for shadow invariance
 
     :param im: input image
@@ -1790,24 +1791,27 @@ def esttheta(im: Any, sharpen: np.ndarray | None = None) -> None:
 
     This is an interactive procedure where the image is displayed and the user
     selects a region of homogeneous material (eg. grass or road) that includes
-    areas that are directly lit by the sun and in shadow.
+    areas that are directly lit by the sun and in shadow.  The invariant angle
+    θ is found by sweeping candidate angles and choosing the one that
+    minimizes the variance of the resulting invariant image over the selected
+    region -- at the true invariant angle, lit and shadowed pixels of the same
+    material map to (nearly) the same greyscale value.
 
     .. note:: The user selects boundary points by clicking the mouse. After the
         last point, hit the Enter key and the region will be closed.
+
+    :seealso: :func:`shadow_invariant`
     """
 
     def pickregion(im: Any) -> np.ndarray:
-        im.disp()
+        h = im.disp()
 
-        clicks = plt.ginput(n=-1)
+        clicks = h.figure.ginput(n=-1)
 
         xy = np.array(clicks)
-        print(xy)
 
-        smb.plot_poly(xy.T, "g", close=True)
-
-        polygon = smb.Polygon2(xy.T)
-        polygon.plot("g")
+        polygon = Polygon2(xy.T)
+        polygon.plot(color="g")
 
         X, Y = im.meshgrid()
         inside = polygon.contains(np.c_[X.ravel(), Y.ravel()].T)
@@ -1816,12 +1820,32 @@ def esttheta(im: Any, sharpen: np.ndarray | None = None) -> None:
 
     k_region = pickregion(im)
 
-    imcol = im.column()
-
+    imcol = im.view1d()
     z = imcol[k_region, :]
-    print(z.shape)
-    # k = find(in);
+    print(f"{z.shape[0]} pixels selected in the region")
+
+    theta_v = np.arange(0, np.pi, 0.02)
+    sim = np.empty_like(theta_v)
+    for i, θ in enumerate(theta_v):
+        gs = shadow_invariant(z.reshape(-1, 1, 3), θ, sharpen=sharpen).ravel()
+        bad = np.isinf(gs) | np.isnan(gs)
+        sim[i] = np.std(gs[~bad])
+
+    k = np.argmin(sim)
+    theta = theta_v[k]
+
+    plt.figure()
+    plt.plot(theta_v, sim)
+    plt.plot(theta, sim[k], "o")
+    plt.xlabel("invariant line angle (rad)")
+    plt.ylabel("invariance image variance")
+    plt.grid(True)
+
+    print(f"best angle = {theta:.4f} rad")
+
     _safe_show(block=True)
+
+    return theta
 
 
 if __name__ == "__main__":  # pragma: no cover
