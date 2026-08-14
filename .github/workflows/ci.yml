@@ -34,6 +34,10 @@ jobs:
           pip install "opencv-python==${{ matrix.opencv-version }}.*" "opencv-contrib-python==${{ matrix.opencv-version }}.*"
           cd packages/mvtb-data && pip install .
 
+      - name: Install open3d (one leg per supported Python version)
+        if: matrix.os == 'ubuntu-latest' && matrix.opencv-version == '5' && matrix.python-version != '3.13'
+        run: pip install open3d
+
       - name: Run tests
         env:
           MPLBACKEND: Agg
