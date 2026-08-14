@@ -4,6 +4,7 @@ Smoke tests for Visual Servo classes.
 """
 
 import unittest
+import warnings
 
 from machinevisiontoolbox import FileCollection, BagOfWords
 import numpy as np
@@ -26,7 +27,15 @@ class TestBagOfWords(unittest.TestCase):
         bag = BagOfWords(features, 2_000, seed=0)
         # self.assertEqual(len(bag), 42_213)
 
-        bag = BagOfWords(features, 2_000, nstopwords=50, seed=0)
+        # Regression test: nstopwords>0 can leave a word with zero
+        # occurrences across every remaining image (ni=0), which used to
+        # raise "RuntimeWarning: divide by zero" from idf = np.log(N/ni)
+        # -- harmless (the inf it produces is always multiplied by 0
+        # downstream) but not suppressed, unlike the equivalent case
+        # right below it in the same function.
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", RuntimeWarning)
+            bag = BagOfWords(features, 2_000, nstopwords=50, seed=0)
         # self.assertEqual(len(bag), 34_997)
 
         query = FileCollection("campus/holdout/*.png", mono=True)
