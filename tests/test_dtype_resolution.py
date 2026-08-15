@@ -2,8 +2,8 @@
 Consolidated dtype-resolution consistency tests.
 
 Multiple entry points resolve a user-supplied dtype string into an actual
-NumPy dtype: the Image constructor (via _infer_dtype), convert(), and (once
-fixed on their own branches) Image.to()/.array_as()/.astype() and the
+NumPy dtype: the Image constructor (via _infer_dtype), convert(), Image.to(),
+Image.array_as(), Image.astype(), and (once fixed on its own branch) the
 ImageConstantsMixin factory methods (Zeros, Constant, Random, ...). All of
 them are supposed to honour the same short-name aliases (DTYPE_ALIASES:
 'int'->uint8, 'float'->float32, 'double'->float64, 'half'->float16) plus
@@ -55,6 +55,18 @@ class TestDtypeResolutionConsistency:
     def test_convert(self, dtype_in, expected):
         arr = convert(np.ones((2, 3), dtype=np.uint8), dtype=dtype_in)
         assert arr.dtype == expected
+
+    def test_image_to(self, dtype_in, expected):
+        im = Image(np.ones((2, 3), dtype=np.uint8))
+        assert im.to(dtype_in).dtype == expected
+
+    def test_image_astype(self, dtype_in, expected):
+        im = Image(np.ones((2, 3), dtype=np.uint8))
+        assert im.astype(dtype_in).dtype == expected
+
+    def test_image_array_as(self, dtype_in, expected):
+        im = Image(np.ones((2, 3), dtype=np.uint8))
+        assert im.array_as(dtype_in).dtype == expected
 
 
 # ImageConstantsMixin factory methods: a *different* bug from the above --

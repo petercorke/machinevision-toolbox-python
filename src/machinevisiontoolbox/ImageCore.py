@@ -1966,6 +1966,9 @@ class Image(
 
         :param dtype: Numpy data type
         :type dtype: str or NumPy dtype
+
+        |dtype_aliases|
+
         :return: image
         :rtype: :class:`Image`
 
@@ -1988,8 +1991,9 @@ class Image(
         :seealso: :meth:`astype` :meth:`to_int` :meth:`to_float`
         """
         # convert image to different type, does rescaling
-        # as just changes type
-        dtype = np.dtype(dtype)  # convert to dtype if it's a string
+        # as just changes type. array_as() and the constructor both
+        # resolve dtype (including the short-name aliases) themselves,
+        # so just pass it through unchanged rather than resolving twice.
         return self.__class__(self.array_as(dtype), dtype=dtype)
 
     def astype(self, dtype: Dtype) -> "Image":
@@ -1998,6 +2002,9 @@ class Image(
 
         :param dtype: Numpy data type
         :type dtype: str or NumPy dtype
+
+        |dtype_aliases|
+
         :return: image
         :rtype: :class:`Image`
 
@@ -2018,6 +2025,8 @@ class Image(
 
         :seealso: :meth:`to`
         """
+        if isinstance(dtype, str):
+            dtype = DTYPE_ALIASES.get(dtype, dtype)
         return self.__class__(self._A.astype(dtype), dtype=dtype)
 
     # ---- NumPy array access ---- #
@@ -2293,7 +2302,9 @@ class Image(
         Convert Image to NumPy array of specified type
 
         :param dtype: data type of the output array
-        :type dtype: str or np.dtype
+        :type dtype: str or np.dtype, optional
+
+        |dtype_aliases|
         :return: NumPy array with specified type
         :rtype: ndarray(H,W) or ndarray(H,W,P)
 
@@ -2335,6 +2346,8 @@ class Image(
         if dtype is None:
             return self._A
         else:
+            if isinstance(dtype, str):
+                dtype = DTYPE_ALIASES.get(dtype, dtype)
             dtype = np.dtype(dtype)  # convert to dtype if it's a string
             if np.issubdtype(dtype, np.integer) or np.issubdtype(dtype, np.bool_):
                 return int_image(self._A, dtype)
