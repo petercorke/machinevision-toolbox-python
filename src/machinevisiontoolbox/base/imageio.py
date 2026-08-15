@@ -22,7 +22,7 @@ import numpy as np
 
 from machinevisiontoolbox.base.color import colorspace_convert, gamma_decode
 from machinevisiontoolbox.base.data import mvtb_path_to_datafile
-from machinevisiontoolbox.base.types import float_image, int_image
+from machinevisiontoolbox.base.types import DTYPE_ALIASES, float_image, int_image
 
 try:
     import pyclip
@@ -1176,7 +1176,7 @@ def convert(
     :type grey: bool or 'ITU601' [default] or 'ITU709'
     :param gray: synonym for ``grey``
     :param dtype: a NumPy dtype string such as ``"uint8"``, ``"int16"``, ``"float32"`` or
-        a NumPy type like ``np.uint8``.
+        a NumPy type like ``np.uint8``. |dtype_aliases|
     :type dtype: str
     :param rgb: force color image to RGB order, otherwise BGR
     :type rgb: bool, optional
@@ -1250,17 +1250,10 @@ def convert(
     if mono and len(image.shape) == 3:
         image = colorspace_convert(image, colororder, "grey")
 
-    dtype_alias = {
-        "int": "uint8",
-        "float": "float32",
-        "double": "float64",
-        "half": "float16",
-    }
-
     if dtype is not None:
         # default types
         if isinstance(dtype, str):
-            dtype = dtype_alias.get(dtype, dtype)
+            dtype = DTYPE_ALIASES.get(dtype, dtype)
 
         if "int" in str(dtype):
             image = int_image(image, intclass=dtype, maxintval=maxintval)
