@@ -8,6 +8,20 @@ import numpy as np
 
 from machinevisiontoolbox.mvtb_types import Dtype
 
+#: Short-name aliases for dtype strings accepted throughout the Toolbox
+#: (e.g. Image(..., dtype='float'), VideoFile(..., dtype='float')).
+#: NumPy's own np.dtype('float') resolves to float64, not float32 -- these
+#: aliases exist specifically so 'float'/'int' mean the Toolbox's own
+#: default single-precision/8-bit types, not NumPy's C-double/C-long
+#: defaults. Single source of truth: resolve any dtype string through this
+#: table (dtype_alias.get(dtype, dtype)) before passing it to np.dtype().
+DTYPE_ALIASES: dict[str, str] = {
+    "int": "uint8",
+    "float": "float32",
+    "double": "float64",
+    "half": "float16",
+}
+
 
 def int_image(
     image: np.ndarray, intclass: Dtype = "uint8", maxintval: int | None = None

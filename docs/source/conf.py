@@ -108,6 +108,7 @@ add_module_names = False
 autosectionlabel_prefix_document = True
 rst_epilog = """
 .. |RVC3| replace:: `P. Corke, Robotics, Vision & Control for Python, Springer, 2023 <https://link.springer.com/book/10.1007/978-3-031-06469-2>`__
+.. |dtype_aliases| replace:: The short-name aliases ``'int'``, ``'float'``, ``'double'``, ``'half'`` are also accepted and resolve to the Toolbox's own defaults (``uint8``, ``float32``, ``float64``, ``float16`` respectively) -- this matters because NumPy's own ``np.dtype('float')`` resolves to ``float64``, not ``float32``. See :data:`~machinevisiontoolbox.base.types.DTYPE_ALIASES`.
 """
 
 # tricks to get :class:`Image` links to resolve to the correct place in the RsT docs
