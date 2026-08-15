@@ -391,7 +391,8 @@ def main():
     code = [
         f"%matplotlib{' '+args.backend if args.backend is not None else ''}",
         "import matplotlib.pyplot as plt",
-        "_precision = %precision %.3g;",
+        "_prec = get_ipython().run_line_magic('precision', '%.3g'); "
+        "print(f'Default numeric formatting: {_prec}')",
     ]
     if args.base:
         code.append("from machinevisiontoolbox.base import *")

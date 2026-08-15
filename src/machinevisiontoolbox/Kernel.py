@@ -115,6 +115,35 @@ class Kernel:
     def shape(self) -> tuple[int, int]:
         return self.K.shape
 
+    @property
+    def ndim(self) -> int:
+        return 2
+
+    def __array__(self, dtype: Dtype | None = None, copy: bool | None = None) -> np.ndarray:
+        """
+        Convert to a plain NumPy array
+
+        :param dtype: dtype of the returned array, defaults to the kernel's own dtype
+        :type dtype: numpy dtype, optional
+        :param copy: force a copy of the underlying data, defaults to None
+        :type copy: bool, optional
+        :return: kernel weighting matrix
+        :rtype: ndarray(N,M)
+
+        Implements the NumPy array protocol, used by ``np.asarray(K)`` and by
+        any NumPy/SciPy/Matplotlib function that calls ``np.asarray()``
+        internally on whatever it's given (e.g. ``scipy.signal.convolve2d``,
+        ``Axes3D.plot_surface``, ``np.linalg.svd``). Without this, such a call
+        would silently coerce a :class:`Kernel` into a useless 0-d object
+        array instead of its weighting matrix.
+        """
+        arr = self.K
+        if dtype is not None:
+            arr = arr.astype(dtype)
+        if copy:
+            arr = arr.copy()
+        return arr
+
     def print(
         self, fmt: str | None = None, separator: str = " ", precision: int = 2
     ) -> None:
