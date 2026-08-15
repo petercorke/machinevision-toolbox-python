@@ -369,6 +369,20 @@ class TestIdisp(unittest.TestCase):
         result = idisp(im, matplotlib=False)
         self.assertIsNone(result)
 
+    def test_idisp_reuse_no_title(self):
+        """reuse=True with no title must not crash -- regression test for
+        the OpenCV path's title fallback (previously asserted title is not
+        None even though reuse=True skipped generating one)"""
+        from machinevisiontoolbox.base.imageio import cv_destroy_window, idisp
+
+        im = np.random.randint(0, 256, (30, 30), dtype=np.uint8)
+
+        try:
+            idisp(im, matplotlib=False, reuse=True)
+            idisp(im, matplotlib=False, reuse=True)
+        finally:
+            cv_destroy_window("idisp", block=False)
+
     def test_idisp_float_image(self):
         """Test idisp with float image"""
         im = np.random.rand(30, 30).astype(np.float32)
