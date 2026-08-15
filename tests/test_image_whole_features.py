@@ -314,6 +314,18 @@ class TestImageWholeFeatures(unittest.TestCase):
         # self.assertIn('mean', stats)
         # self.assertIn('std', stats)
 
+    def test_printstats_before_stats_accessed(self):
+        """printstats() must work on a fresh image, before .stats has ever
+        been accessed -- regression test: printstats() used to read the
+        private _stats cache directly instead of the .stats property, so
+        it crashed with the cache still None unless something had already
+        touched .stats first."""
+        im = Image.Random(size=(50, 50), dtype="uint8")
+        im.printstats()
+
+        color_im = Image.Random(size=(50, 50), colororder="RGB", dtype="uint8")
+        color_im.printstats()
+
     # new test
     def test_peaks(self):
         """Test peak finding in histogram"""
@@ -496,6 +508,21 @@ class TestImageWholeFeatures(unittest.TestCase):
         with self.assertWarns(DeprecationWarning):
             ncdf = h.ncdf
         nt.assert_array_equal(ncdf, h.cdf)
+
+    def test_plot_type_ncdf_deprecated_alias(self):
+        """Histogram.plot(type='ncdf') is a deprecated alias for
+        type='cdf' -- regression test: 'ncdf' was documented in plot()'s
+        own docstring but never actually implemented in the dispatch
+        logic, so it always raised ValueError('unknown type')."""
+        im = Image.Random(size=(50, 50), dtype="uint8")
+        h = im.hist()
+        with self.assertWarns(DeprecationWarning):
+            h.plot(type="ncdf")
+        plt.close("all")
+
+        # equivalent, current spelling -- must not warn
+        h.plot(type="cdf")
+        plt.close("all")
 
 
 if __name__ == "__main__":
