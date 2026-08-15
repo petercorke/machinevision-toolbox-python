@@ -882,10 +882,15 @@ def idisp(
         ## display using OpenCV
         global __last_window_number
 
-        if not reuse and title is None:
-            # create a unique window name for each call
-            title = "idisp." + str(__last_window_number)
-            __last_window_number += 1
+        if title is None:
+            if reuse:
+                # fixed name (no counter) so repeated calls in an
+                # animation loop share the same window
+                title = "idisp"
+            else:
+                # create a unique window name for each call
+                title = "idisp." + str(__last_window_number)
+                __last_window_number += 1
 
         # At this point title is guaranteed to be a string
         assert title is not None
