@@ -429,6 +429,18 @@ class TestCameraPlot(unittest.TestCase):
         self.assertEqual(len(ax.collections), 4)
         self.assertEqual(len(ax.lines), 3)
 
+    def test_plot_unbound_with_pose(self):
+        # eg. CentralCamera.plot(pose=frame.pose, ...) as used to plot a
+        # set of calibration frames with no single camera instance
+        ax = CentralCamera.plot(pose=SE3.Tz(1), shape="camera")
+        self.assertIsNotNone(ax)
+        self.assertEqual(len(ax.collections), 3)
+        self.assertEqual(len(ax.lines), 0)
+
+    def test_plot_unbound_without_pose_raises(self):
+        with self.assertRaises(ValueError):
+            CentralCamera.plot(shape="camera")
+
 
 # ----------------------------------------------------------------------- #
 if __name__ == "__main__":
