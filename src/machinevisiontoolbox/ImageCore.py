@@ -483,6 +483,37 @@ class Image(
         """Iterate over image planes."""
         return self.planes()
 
+    def __array__(self, dtype: Dtype | None = None, copy: bool | None = None) -> np.ndarray:
+        """
+        Convert to a plain NumPy array
+
+        :param dtype: dtype of the returned array, defaults to the image's own dtype
+        :type dtype: numpy dtype, optional
+        :param copy: force a copy of the underlying data, defaults to None
+        :type copy: bool, optional
+        :return: image pixel data
+        :rtype: ndarray(H,W) or ndarray(H,W,3)
+
+        Implements the NumPy array protocol, used by ``np.asarray(img)`` and by
+        any NumPy/SciPy/Matplotlib function that isn't ufunc- or array-function-
+        aware (those instead go through :meth:`__array_ufunc__` /
+        :meth:`__array_function__`) and calls ``np.asarray()`` internally on
+        whatever it's given. Without this, such a call would silently coerce an
+        :class:`Image` into a useless 0-d object array instead of its pixel data.
+
+        Returns the same read-only view as the :attr:`array` property unless a
+        dtype conversion or an explicit copy is requested, either of which
+        produces a new, independent (writeable) array.
+
+        :seealso: :attr:`array`
+        """
+        arr = self.array
+        if dtype is not None:
+            arr = arr.astype(dtype)
+        if copy:
+            arr = arr.copy()
+        return arr
+
     def __array_ufunc__(self, ufunc, method: str, *inputs, **kwargs):
         """
         Support NumPy ufunc calls on image data.
