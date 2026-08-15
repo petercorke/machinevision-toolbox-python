@@ -23,7 +23,7 @@ from spatialmath import base as smb
 from spatialmath.base import islistof, isscalar
 
 # from numpy.lib.arraysetops import isin
-from machinevisiontoolbox.base import float_image, int_image, name2color
+from machinevisiontoolbox.base import DTYPE_ALIASES, float_image, int_image, name2color
 from machinevisiontoolbox.base.imageio import convert, idisp, iread, iwrite
 from machinevisiontoolbox.Kernel import Kernel
 from machinevisiontoolbox.mvtb_types import Dtype
@@ -110,6 +110,9 @@ def _resolve_pattern_options(
         else:
             dtype = default_dtype
 
+    if isinstance(dtype, str):
+        dtype = DTYPE_ALIASES.get(dtype, dtype)
+
     if colororder is None and like is not None and like.iscolor:
         colororder = like.colororder_str.replace(":", "")
 
@@ -121,7 +124,7 @@ def _pattern_image(cls, image: np.ndarray, colororder: str | None):
         image = np.repeat(
             image[..., np.newaxis], len(cls.colordict(colororder)), axis=2
         )
-    return cls(image, colororder=colororder)
+    return cls(image, colororder=colororder, dtype=True)
 
 
 class ImageConstantsMixin(_ImageBase if TYPE_CHECKING else object):
@@ -145,6 +148,8 @@ class ImageConstantsMixin(_ImageBase if TYPE_CHECKING else object):
         :type colororder: str
         :param dtype: NumPy datatype, defaults to 'uint8'
         :type dtype: str or NumPy dtype, optional
+
+        |dtype_aliases|
         :param like: template image supplying default ``size`` and ``colororder``
             when those are not given explicitly
         :type like: :class:`Image` or None, optional
@@ -179,7 +184,7 @@ class ImageConstantsMixin(_ImageBase if TYPE_CHECKING else object):
         )
 
         shape = _getshape(cls, None, None, colororder, size)
-        return cls(np.zeros(shape, dtype=dtype), colororder=colororder)
+        return cls(np.zeros(shape, dtype=dtype), colororder=colororder, dtype=True)
 
     @classmethod
     def Constant(
@@ -202,6 +207,8 @@ class ImageConstantsMixin(_ImageBase if TYPE_CHECKING else object):
         :type colororder: str
         :param dtype: NumPy datatype, defaults to 'uint8'
         :type dtype: str or NumPy dtype, optional
+
+        |dtype_aliases|
         :param like: template image supplying default ``size``, ``dtype`` and
             ``colororder`` when those are not given explicitly
         :type like: :class:`Image` or None, optional
@@ -258,11 +265,11 @@ class ImageConstantsMixin(_ImageBase if TYPE_CHECKING else object):
             planes = []
             for bg in value:
                 planes.append(np.full(shape[:2], bg, dtype=dtype))
-            return cls(np.stack(planes, axis=2), colororder=colororder)
+            return cls(np.stack(planes, axis=2), colororder=colororder, dtype=True)
 
         else:
             # scalar
-            return cls(np.full(shape, value, dtype=dtype))
+            return cls(np.full(shape, value, dtype=dtype), dtype=True)
 
     @classmethod
     def String(
@@ -406,6 +413,8 @@ class ImageConstantsMixin(_ImageBase if TYPE_CHECKING else object):
         :type colororder: str
         :param dtype: NumPy datatype, defaults to 'uint8'
         :type dtype: str or NumPy dtype, optional
+
+        |dtype_aliases|
         :param maxval: maximum value for random values, defaults to None
         :type maxval: same as ``dtype``, optional
         :param pdf: probability density function for pixel values, defaults to None
@@ -535,7 +544,7 @@ class ImageConstantsMixin(_ImageBase if TYPE_CHECKING else object):
             else:
                 raise ValueError("pdf must be a 1D or 2D array")
 
-        return cls(im, colororder=colororder)
+        return cls(im, colororder=colororder, dtype=True)
 
     @classmethod
     def Squares(
@@ -562,6 +571,8 @@ class ImageConstantsMixin(_ImageBase if TYPE_CHECKING else object):
         :type bg: int, optional
         :param dtype: NumPy datatype, defaults to 'uint8'
         :type dtype: str or NumPy dtype, optional
+
+        |dtype_aliases|
         :param colororder: color plane names for the output image, defaults to None
         :type colororder: str or None, optional
         :param like: template image supplying default ``size``, ``dtype`` and
@@ -654,6 +665,8 @@ class ImageConstantsMixin(_ImageBase if TYPE_CHECKING else object):
         :type bg: int, optional
         :param dtype: NumPy datatype, defaults to 'uint8'
         :type dtype: str or NumPy dtype, optional
+
+        |dtype_aliases|
         :param colororder: color plane names for the output image, defaults to None
         :type colororder: str or None, optional
         :param like: template image supplying default ``size``, ``dtype`` and
@@ -746,6 +759,8 @@ class ImageConstantsMixin(_ImageBase if TYPE_CHECKING else object):
         :type cycles: int, optional
         :param dtype: NumPy datatype, defaults to 'float32'
         :type dtype: str or NumPy dtype, optional
+
+        |dtype_aliases|
         :param colororder: color plane names for the output image, defaults to None
         :type colororder: str or None, optional
         :param like: template image supplying default ``size``, ``dtype`` and
@@ -842,6 +857,8 @@ class ImageConstantsMixin(_ImageBase if TYPE_CHECKING else object):
         :type cycles: int, optional
         :param dtype: NumPy datatype, defaults to 'float32'
         :type dtype: str or NumPy dtype, optional
+
+        |dtype_aliases|
         :param colororder: color plane names for the output image, defaults to None
         :type colororder: str or None, optional
         :param like: template image supplying default ``size``, ``dtype`` and
@@ -922,6 +939,8 @@ class ImageConstantsMixin(_ImageBase if TYPE_CHECKING else object):
         :type square: int, optional
         :param dtype: image data type, defaults to "uint8"
         :type dtype: str or NumPy dtype, optional
+
+        |dtype_aliases|
         :param colororder: color plane names for the output image, defaults to None
         :type colororder: str or None, optional
         :param like: template image supplying default ``size``, ``dtype`` and
@@ -1012,6 +1031,8 @@ class ImageConstantsMixin(_ImageBase if TYPE_CHECKING else object):
         :type shift: int, optional
         :param dtype: image data type, defaults to "uint8"
         :type dtype: str or NumPy dtype, optional
+
+        |dtype_aliases|
         :param colororder: color plane names for the output image, defaults to None
         :type colororder: str or None, optional
         :param like: template image supplying default ``size``, ``dtype`` and

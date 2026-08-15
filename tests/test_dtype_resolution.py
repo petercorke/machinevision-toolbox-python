@@ -21,6 +21,7 @@ one-off test elsewhere when another entry point is fixed.
 
 import numpy as np
 import pytest
+from spatialmath import Polygon2
 
 from machinevisiontoolbox import Image
 from machinevisiontoolbox.base.imageio import convert
@@ -54,3 +55,41 @@ class TestDtypeResolutionConsistency:
     def test_convert(self, dtype_in, expected):
         arr = convert(np.ones((2, 3), dtype=np.uint8), dtype=dtype_in)
         assert arr.dtype == expected
+
+
+# ImageConstantsMixin factory methods: a *different* bug from the above --
+# they build their raw pixel array with the (now alias-resolved)
+# dtype, but historically never forwarded dtype= to the Image
+# constructor call, so the constructor's own "no dtype given" auto-detect
+# (any float input becomes float32) silently downcast even an explicit,
+# already-correct dtype='float64' request. Fixed by passing dtype=True
+# ("trust the array I already built") through _pattern_image() and each
+# factory's own final constructor call.
+_SQUARE = Polygon2([(2, 2), (8, 2), (8, 8), (2, 8)])
+FACTORY_CASES = [
+    ("Zeros", lambda dtype: Image.Zeros(size=8, dtype=dtype)),
+    ("Constant_scalar", lambda dtype: Image.Constant(1.0, size=8, dtype=dtype)),
+    (
+        "Constant_iterable",
+        lambda dtype: Image.Constant(
+            [1.0, 0.5, 0.2], size=8, colororder="RGB", dtype=dtype
+        ),
+    ),
+    ("Random", lambda dtype: Image.Random(size=8, dtype=dtype)),
+    ("Squares", lambda dtype: Image.Squares(1, size=20, dtype=dtype)),
+    ("Circles", lambda dtype: Image.Circles(1, size=20, dtype=dtype)),
+    ("Ramp", lambda dtype: Image.Ramp(size=20, dtype=dtype)),
+    ("Sin", lambda dtype: Image.Sin(size=20, dtype=dtype)),
+    ("Chequerboard", lambda dtype: Image.Chequerboard(size=20, dtype=dtype)),
+    ("Polygons", lambda dtype: Image.Polygons(_SQUARE, size=10, dtype=dtype)),
+]
+FACTORY_CASE_IDS = [c[0] for c in FACTORY_CASES]
+
+
+@pytest.mark.parametrize("dtype_in,expected", DTYPE_CASES, ids=DTYPE_CASE_IDS)
+@pytest.mark.parametrize("factory_name,factory_fn", FACTORY_CASES, ids=FACTORY_CASE_IDS)
+def test_image_constants_factory_respects_explicit_dtype(
+    factory_name, factory_fn, dtype_in, expected
+):
+    im = factory_fn(dtype_in)
+    assert im.dtype == expected
