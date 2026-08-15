@@ -815,8 +815,10 @@ def name2color(
                 color = (color * np.iinfo(dtype).max).astype(dtype)
             if colororder is not None:
                 # reorder the elements of the color if colororder is given
-                # colororder is a dict mapping plane name to index
-                color = [color[colororder[c]] for c in colorspace]
+                # colororder is a dict mapping plane name to index -- fancy
+                # index rather than a list comprehension, to keep the
+                # ndarray return type promised by this function's contract
+                color = color[[colororder[c] for c in colorspace]]
             return color
         except ValueError:
             return None

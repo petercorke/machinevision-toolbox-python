@@ -145,7 +145,20 @@ class TestColor(unittest.TestCase):
         # Test different color spaces
         g_xy = color.name2color('g', 'xy')
         self.assertEqual(len(g_xy), 2)
-    
+
+    def test_name2color_colororder(self):
+        """colororder= must still return an ndarray, not a list -- regression
+        test for a bug where the reordering used a list comprehension and
+        silently dropped the ndarray return type"""
+        red_rgb = color.name2color('red', colororder={'R': 0, 'G': 1, 'B': 2})
+        self.assertIsInstance(red_rgb, np.ndarray)
+        nt.assert_array_almost_equal(red_rgb, [1, 0, 0])
+
+        # reordered: B first, so red's 1.0 moves to the last position
+        red_bgr = color.name2color('red', colororder={'B': 0, 'G': 1, 'R': 2})
+        self.assertIsInstance(red_bgr, np.ndarray)
+        nt.assert_array_almost_equal(red_bgr, [0, 0, 1])
+
     def test_colorname(self):
         """Test color to name conversion"""
         # Test basic lookup
