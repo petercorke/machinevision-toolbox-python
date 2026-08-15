@@ -67,6 +67,51 @@ class TestImage(unittest.TestCase):
         ):
             np.ceil(im, out=im)
 
+    def test_array_dunder_asarray(self):
+        """Regression test: np.asarray(img) used to silently coerce to a
+        useless 0-d object array (no __array__ implemented) instead of
+        exposing the pixel data -- same bug class found in Kernel's
+        missing __array__."""
+        im = Image([[1, 2], [3, 4]], dtype="uint8")
+
+        arr = np.asarray(im)
+
+        self.assertEqual(arr.shape, im.array.shape)
+        nt.assert_array_equal(arr, im.array)
+
+    def test_array_dunder_scipy_interop(self):
+        """Regression test: functions that aren't ufunc-/array-function-
+        aware (e.g. scipy.signal.convolve2d) call np.asarray() internally
+        and used to receive a useless 0-d object array."""
+        from scipy.signal import convolve2d
+
+        im = Image.Random(size=(10, 10), dtype="float64")
+
+        out = convolve2d(im, np.ones((3, 3)))
+
+        self.assertEqual(out.ndim, 2)
+
+    def test_array_dunder_dtype_conversion(self):
+        im = Image([[1, 2], [3, 4]], dtype="uint8")
+
+        arr = np.asarray(im, dtype="float32")
+
+        self.assertEqual(arr.dtype, np.float32)
+
+    def test_array_dunder_returns_readonly_view_by_default(self):
+        im = Image([[1, 2], [3, 4]], dtype="uint8")
+
+        arr = np.asarray(im)
+
+        self.assertFalse(arr.flags.writeable)
+
+    def test_array_dunder_copy_true_returns_writeable(self):
+        im = Image([[1, 2], [3, 4]], dtype="uint8")
+
+        arr = np.array(im, copy=True)
+
+        self.assertTrue(arr.flags.writeable)
+
     def test_pixel(self):
         im = Image(np.arange(80).reshape((10, 8)), dtype="int64")  # 8x10 image
         pix = im.pixel(5, 6)

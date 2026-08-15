@@ -174,6 +174,29 @@ class TestKernel(unittest.TestCase):
         K = self.Kernel.Gauss(sigma=2, h=3)
         self.assertEqual(K.shape, (7, 7))
 
+    def test_kernel_ndim_property(self):
+        K = self.Kernel.Gauss(sigma=2, h=3)
+        self.assertEqual(K.ndim, 2)
+
+    def test_kernel_array_protocol(self):
+        """Regression test: Kernel objects used to silently coerce to a
+        useless 0-d object array under np.asarray()/SciPy/Matplotlib calls
+        that aren't ufunc-aware, instead of exposing the real weight
+        matrix -- e.g. scipy.signal.convolve2d raised "inputs must both be
+        2-D arrays" and np.linalg.svd raised "0-dimensional array given"."""
+        K = self.Kernel.Box(2, normalize=False)
+        arr = np.asarray(K)
+        self.assertEqual(arr.shape, K.shape)
+        nt.assert_array_equal(arr, K.K)
+
+        U, s, Vh = np.linalg.svd(K, full_matrices=True)
+        self.assertEqual(U.shape[0], K.shape[0])
+
+        from scipy.signal import convolve2d
+
+        out = convolve2d(K, self.Kernel.Box(1, normalize=False))
+        self.assertEqual(out.ndim, 2)
+
     def test_kernel_box(self):
         K = self.Kernel.Box(2)
         self.assertEqual(K.shape, (5, 5))
