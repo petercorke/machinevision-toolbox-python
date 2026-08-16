@@ -267,6 +267,14 @@ class ImageIOMixin(_ImageBase if TYPE_CHECKING else object):
                 # map tag number to tag name
                 exif[TAGS[tag]] = value
 
+        # Camera-specific tags (FocalLength, ExposureTime, FNumber,
+        # ISOSpeedRatings, LensModel, ...) live in a separate "Exif" sub-IFD
+        # that Image.getexif() does not flatten into the top-level dict --
+        # 0x8769 is the fixed EXIF-spec tag id for the pointer to it.
+        for tag, value in meta.get_ifd(0x8769).items():
+            if tag in TAGS:
+                exif[TAGS[tag]] = value
+
         if key is None:
             return exif
         else:
