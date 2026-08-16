@@ -2,6 +2,7 @@
 Thin wrapper around Open3D point-cloud objects with MVTB look and feel.
 """
 
+from pathlib import Path
 from warnings import warn
 from typing import Any, Callable
 
@@ -244,9 +245,21 @@ class PointCloud:
         the ``data`` folder of the
         `mvtb_data package <https://github.com/petercorke/machinevision-toolbox-python/tree/master/packages/mvtb-data>`_.
 
+        .. note:: ``filename`` may be given as a bare name (``'bunny.ply'``)
+            or with a redundant leading ``data/`` (``'data/bunny.ply'``, the
+            older convention some book examples still use) -- both resolve
+            to the same file.
+
         """
 
         from machinevisiontoolbox import mvtb_path_to_datafile
+
+        # accept a caller-supplied redundant "data/" prefix (older
+        # convention) without double-joining it against the "data" this
+        # method already prepends
+        parts = Path(filename).parts
+        if parts and parts[0] == "data":
+            filename = str(Path(*parts[1:])) if len(parts) > 1 else ""
 
         filename = mvtb_path_to_datafile("data", filename, string=True)
         pcd = o3d.io.read_point_cloud(filename, *args, **kwargs)
