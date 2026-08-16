@@ -58,6 +58,13 @@ class BagOfWords:
         of image features is assigned labels from the ``.centroids`` any with a
         label greater that ``.nstopwords`` is a stop word and can be discarded.
 
+        .. note:: Removing stop words can leave a remaining word that never
+            occurs in any image, giving it an inverse document frequency (idf)
+            of ``inf`` (``log(N / 0)``). This is harmless -- every place idf is
+            used to compute a word-frequency vector, the corresponding word
+            count is also always zero there, so the ``0 * inf`` result is
+            ``nan`` and gets replaced with 0 before the vector is returned.
+
         :reference:
             - Video Google: a text retrieval approach to object matching in videos
               J.Sivic and A.Zisserman,
@@ -139,7 +146,12 @@ class BagOfWords:
         # total number of occurrences of word i
         # multiple occurrences in the one image count only as one
         ni = (W > 0).sum(axis=1)
-        idf = np.log(N / ni)
+        # a word that never occurs in any image (ni=0, possible after
+        # stopword removal) gives idf=inf here; harmless since nid is
+        # always 0 at that same position below, so 0*inf->nan, already
+        # suppressed by the invalid="ignore" there.
+        with np.errstate(divide="ignore"):
+            idf = np.log(N / ni)
 
         M = []
 

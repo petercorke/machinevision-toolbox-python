@@ -1152,7 +1152,7 @@ class CameraBase(ABC):
         """
         Plot 3D camera icon in world view (base method)
 
-        :param pose: camera pose
+        :param pose: camera pose, required when called unbound (see below)
         :type pose: :class:`~spatialmath.pose3d.SE3`
         :param scale: scale factor, defaults to 1
         :type scale: float
@@ -1170,6 +1170,8 @@ class CameraBase(ABC):
         :type projection: str, optional
         :param ax: axes to draw in, defaults to current 3D axes
         :type ax: :class:`~matplotlib.Axes3D`, optional
+        :raises ValueError: called unbound (eg. ``CentralCamera.plot(...)``)
+            without a ``pose``
         :return: axes drawn into
         :rtype: :class:`~matplotlib.Axes3D`
 
@@ -1177,8 +1179,19 @@ class CameraBase(ABC):
         plot.  Two icons are supported: the traditional frustum, and a
         simplistic camera comprising a box and cylinder.
 
-        .. note:: If ``pose`` is not given it defaults to the pose of the
-            instance.
+        This method can be called two ways:
+
+        - **Bound**, ``camera.plot(...)`` -- draws an icon for ``camera``.
+          ``pose`` defaults to the instance's own pose if not given.
+        - **Unbound**, ``CentralCamera.plot(pose=..., ...)`` -- called on
+          the class itself, with no camera instance involved (``self`` is
+          ``None``). Useful for drawing icons at a set of poses that don't
+          correspond to any single camera instance -- e.g. plotting the
+          calibration frames returned by :meth:`images2C`. ``pose`` is
+          required in this form.
+
+        .. note:: If ``pose`` is not given, it defaults to the pose of
+            ``self`` -- this only applies to the bound form.
         """
 
         # if (fig is None) and (ax is None):
@@ -1195,6 +1208,11 @@ class CameraBase(ABC):
         ax = smb.axes_logic(ax, 3, projection=projection)
 
         if pose is None:
+            if self is None:
+                raise ValueError(
+                    "pose is required when plot() is called unbound, eg. "
+                    "CentralCamera.plot(pose=...)"
+                )
             pose = self.pose
 
         # Matplotlib >=3.10 can raise while autoscaling ragged 3D line
@@ -1216,26 +1234,27 @@ class CameraBase(ABC):
         try:
             # draw camera-like object:
             if shape == "frustum":
-                self._plot_frustum(ax, pose, scale, alpha)
+                CameraBase._plot_frustum(ax, pose, scale, alpha)
 
             elif shape == "camera":
-                self._plot_camera_icon(ax, pose, scale, solid, color, alpha, label)
+                CameraBase._plot_camera_icon(ax, pose, scale, solid, color, alpha, label)
 
             if frame is True:
-                self.pose.plot(
+                pose.plot(
                     length=scale * 1.5,
                     style="line",
                     color=color,
                     flo=(0.07, 0, -0.01),
                 )
             elif frame is not False:
-                self.pose.plot(**frame)
+                pose.plot(**frame)
         finally:
             ax.add_collection3d = _orig_add_collection3d
 
         return ax
 
-    def _plot_frustum(self, ax: Axes, pose: SE3, scale: float, alpha: float) -> None:
+    @staticmethod
+    def _plot_frustum(ax: Axes, pose: SE3, scale: float, alpha: float) -> None:
         """Draw the ``shape="frustum"`` camera icon into ``ax``."""
         # TODO make this kwargs or optional inputs
         # side colors:
@@ -1279,8 +1298,8 @@ class CameraBase(ABC):
         poly = Poly3DCollection(points, facecolors=["r", "g", "r", "y"], alpha=alpha)
         ax.add_collection3d(poly)
 
+    @staticmethod
     def _plot_camera_icon(
-        self,
         ax: Axes,
         pose: SE3,
         scale: float,
