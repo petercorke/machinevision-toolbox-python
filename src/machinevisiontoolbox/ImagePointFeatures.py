@@ -669,7 +669,7 @@ class BaseFeature2D:
         other: "BaseFeature2D",
         ratio: float = 0.75,
         crosscheck: bool = False,
-        metric: str = "L2",
+        metric: str | None = None,
         sort: bool = True,
         top: int | None = None,
         thresh: float | None = None,
@@ -683,7 +683,9 @@ class BaseFeature2D:
         :type ratio: float, optional
         :param crosscheck: perform left-right cross check, defaults to False
         :type crosscheck: bool, optional
-        :param metric: distance metric, one of: 'L1', 'L2' [default], 'hamming', 'hamming2'
+        :param metric: distance metric, one of: 'L1', 'L2', 'hamming', 'hamming2'.
+            Defaults to ``None``, which auto-selects 'hamming' for binary
+            descriptors (eg. ORB, BRISK, AKAZE) and 'L2' otherwise (eg. SIFT).
         :type metric: str, optional
         :param sort: sort features by strength, defaults to True
         :type sort: bool, optional
@@ -693,6 +695,12 @@ class BaseFeature2D:
 
         Return a match object that contains pairs of putative corresponding points.
         If ``crosscheck`` is True the ratio test is disabled
+
+        .. note:: Binary descriptors (eg. ORB, BRISK, AKAZE) are ``uint8``
+            arrays, for which 'L2' distance is close to meaningless -- it
+            will silently return very few matches rather than raising an
+            error, which is why this is auto-selected rather than left for
+            the caller to always remember.
 
         Example:
 
@@ -719,6 +727,9 @@ class BaseFeature2D:
         # do matching
         # sorting
         # return
+
+        if metric is None:
+            metric = "hamming" if self.descriptor.dtype == np.uint8 else "L2"
 
         metricdict = {
             "L1": cv2.NORM_L1,

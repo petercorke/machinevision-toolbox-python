@@ -562,6 +562,8 @@ if pgraph_installed:
             :type iterations: int, optional
             :param verbose: show Levenberg-Marquadt status, defaults to False
             :type verbose: bool, optional
+            :raises ValueError: no landmark projections have been added to
+                the graph
             :return: optimized state vector
             :rtype: ndarray(N)
 
@@ -577,6 +579,13 @@ if pgraph_installed:
             """
 
             self.update_index()
+
+            if self.g.ne == 0:
+                raise ValueError(
+                    "no landmark projections in the graph -- nothing to "
+                    "optimize (add_projection() was never called, or every "
+                    "candidate landmark was discarded)"
+                )
 
             if x is None:
                 x = self.getstate()
