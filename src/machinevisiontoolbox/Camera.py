@@ -350,7 +350,8 @@ class CameraBase(ABC):
 
         :seealso: :meth:`nv` :meth:`width` :meth:`imagesize`
         """
-        assert self._imagesize is not None, "imagesize not set"
+        if self._imagesize is None:
+            raise ValueError("imagesize not set")
         return self._imagesize[0]
 
     @property
@@ -370,7 +371,8 @@ class CameraBase(ABC):
 
         :seealso: :meth:`nu` :meth:`height`  :meth:`imagesize`
         """
-        assert self._imagesize is not None, "imagesize not set"
+        if self._imagesize is None:
+            raise ValueError("imagesize not set")
         return self._imagesize[1]
 
     @property
@@ -390,7 +392,8 @@ class CameraBase(ABC):
 
         :seealso: :meth:`nu` :meth:`height`
         """
-        assert self._imagesize is not None, "imagesize not set"
+        if self._imagesize is None:
+            raise ValueError("imagesize not set")
         return self._imagesize[0]
 
     @property
@@ -410,7 +413,8 @@ class CameraBase(ABC):
 
         :seealso: :meth:`nv` :meth:`width`
         """
-        assert self._imagesize is not None, "imagesize not set"
+        if self._imagesize is None:
+            raise ValueError("imagesize not set")
         return self._imagesize[1]
 
     @property

@@ -2348,7 +2348,7 @@ class ROSTopic(ImageSource):
                 "Install it with: pip install open3d "
                 "or pip install machinevision-toolbox-python[open3d]"
             )
-            assert o3d is not None
+        assert o3d is not None
 
         points = np.asarray(pc._pcd.points)
         if points.ndim != 2 or points.shape[1] != 3:

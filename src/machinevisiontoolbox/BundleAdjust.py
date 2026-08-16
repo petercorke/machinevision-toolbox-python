@@ -405,7 +405,8 @@ if pgraph_installed:
 
             :seealso: :meth:`add_view` :meth:`add_landmark`
             """
-            assert len(uv) == 2, "uv must be a 2-vector"
+            if len(uv) != 2:
+                raise ValueError("uv must be a 2-vector")
 
             edge = Observation(viewpoint, landmark, uv.flatten())  # create edge object
             e = viewpoint.connect(landmark, edge=edge)  # connect nodes with it
