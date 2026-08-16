@@ -2708,14 +2708,31 @@ class CentralCamera(CameraBase):
         :param seed: seed the RNG used by 'ransac'/'lmeds' for repeatable
             results, defaults to None (not seeded)
         :type seed: int, optional
-        :param kwargs: passed through to ``cv2.findFundamentalMat`` -- for
-            'ransac': ``ransacReprojThreshold`` (float, max distance in
-            pixels from a point to its epipolar line for the point to
-            count as an inlier) and ``maxIters`` (int, max robust-method
-            iterations); for 'ransac'/'lmeds': ``confidence`` (float in
-            (0,1), desired probability the estimate is correct). Same
-            parameter set on OpenCV 4 and 5, verified empirically
-            2026-08-16.
+        :param kwargs: passed through to ``cv2.findFundamentalMat``.
+            ``ransacReprojThreshold`` (float, defaults to 3.0) applies only
+            when ``method='ransac'`` -- max distance in pixels from a point
+            to its epipolar line for the point to still count as an inlier;
+            ``method='lmeds'`` ignores it entirely (verified empirically --
+            identical result regardless of value). ``confidence`` (float in
+            (0,1), defaults to 0.99) and ``maxIters`` (int, defaults to
+            1000) apply to either ``method='ransac'`` or ``method='lmeds'``
+            -- ``method`` only ever selects one algorithm at a time (a
+            combined "ransac+lmeds" method isn't a real OpenCV feature;
+            verified empirically that OR-ing the two method flags together
+            doesn't error, but silently reduces to plain LMedS -- an
+            implementation accident, not a documented hybrid mode).
+            Defaults verified empirically 2026-08-16 (identical inlier
+            masks with/without them explicit, same RNG seed) -- not
+            otherwise documented by the ``cv2`` Python bindings. Same
+            parameter set and defaults on OpenCV 4.10 and 5.0.
+
+            .. warning:: ``maxIters`` only works when ``ransacReprojThreshold``
+                and ``confidence`` are *also* given explicitly -- passing
+                only ``maxIters=`` hits a ``cv2.findFundamentalMat``
+                overload-resolution failure (a confusing low-level OpenCV
+                error, not a clear Python one), since the 3-argument
+                overload this method otherwise uses has no ``maxIters``
+                parameter at all.
         :type kwargs: dict, optional
         :raises ValueError: fewer than the minimum number of point
             correspondences for ``method`` (7 for '7p', 8 otherwise), or
