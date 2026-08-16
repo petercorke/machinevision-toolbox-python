@@ -456,475 +456,575 @@ def idisp(
     # if we are running in a Jupyter notebook, print to matplotlib,
     # otherwise print to opencv imshow/new window. This is done because
     # cv2.imshow does not play nicely with .ipynb
-    if matplotlib:  # _isnotebook() and
-        ## display using matplotlib
-        plt = _plt()
-
-        # if flatten:
-        #     # either make new subplots for each channel
-        #     # or concatenate all into one large image and display
-        #     # TODO can we make axes as a list?
-
-        #     # for now, just concatenate:
-        #     # first check how many channels:
-        #     if im.ndim > 2:
-        #         # create list of image channels
-        #         imcl = [im[:, :, i] for i in range(im.shape[2])]
-        #         # stack horizontally
-        #         im = np.hstack(imcl)
-        #     # else just plot the regular image - only one channel
-
-        if title is None:
-            title = "Machine Vision Toolbox for Python"
-
-        if len(plt.get_fignums()) == 0:
-            # there are no figures, create one
-            fig, ax = plt.subplots()  # fig creates a new window
-        else:
-            # there are existing figures
-
-            if reuse:
-                # attempt to reuse an axes, saves all the setup overhead
-                if ax is None:
-                    ax = plt.gca()
-
-                # look for an image in the axes to update, if there is one
-                updated = False
-                for c in ax.get_children():
-                    if isinstance(c, mpl.image.AxesImage):
-                        c.set_data(im)
-                        updated = True
-                if updated:
-                    set_window_title(title)
-
-                    if fps is not None:
-                        # print("pausing", 1.0 / fps)
-                        plt.pause(1.0 / fps)
-
-                    safe_plt_show(block=block)
-
-                    return
-
-            if fig is not None:
-                # make this figure the current one
-                plt.figure(fig)
-
-            if ax is None:
-                fig, ax = plt.subplots()  # fig creates a new window
-
-        if fig is None:
-            fig = ax.figure
-
-        set_window_title(title)
-        # aspect ratio:
-        if not square:
-            mpl.rcParams["image.aspect"] = "auto"
-
-        # hide interactive toolbar buttons (must be before figure creation)
-        if not gui:
-            mpl.rcParams["toolbar"] = "None"
-
-        if darken is True:
-            darken = 0.5
-
-        # # experiment with addign buttons to the navigation bar
-        # matplotlib.rcParams["toolbar"] = "toolmanager"
-        # class LineTool(ToolToggleBase):
-
-        #     def trigger(self, *args, **kwargs):
-        #         print('hello from trigger')
-
-        # tm = fig.canvas.manager.toolmanager
-        # tm.add_tool('newtool', LineTool)
-        # fig.canvas.manager.toolbar.add_tool(tm.get_tool("newtool"), "toolgroup")
-
-        # get screen resolution:
-        # swidth, sheight = pyautogui.size()  # pixels  TODO REPLACE THIS WITH STUFF FROM BDSIM
-
-        # mpl_backend = mpl.get_backend()
-
-        # if mpl_backend == 'Qt5Agg':
-        #     from PyQt5 import QtWidgets
-        #     app = QtWidgets.QApplication([])
-        #     screen = app.primaryScreen()
-        #     if screen.name is not None:
-        #         print('  Screen: %s' % screen.name())
-        #     size = screen.size()
-        #     print('  Size: %d x %d' % (size.width(), size.height()))
-        #     rect = screen.availableGeometry()
-        #     print('  Available: %d x %d' % (rect.width(), rect.height()))
-        #     sw = rect.width()
-        #     sh = rect.height()
-        #     #dpi = screen.physicalDotsPerInch()
-        #     dpiscale = screen.devicePixelRatio() # is 2.0 for Mac laptop screen
-        # elif mpl_backend == 'TkAgg':
-        #     window = plt.get_current_fig_manager().window
-        #     sw =  window.winfo_screenwidth()
-        #     sh =  window.winfo_screenheight()
-        #     print('  Size: %d x %d' % (sw, sh))
-        # else:
-        #     print('unknown backend, can't find width', mpl_backend)
-
-        # dpi = None  # can make this an input option
-        # if dpi is None:
-        #     dpi = mpl.rcParams['figure.dpi']  # default is 100
-
-        if width is not None:
-            fig.set_figwidth(width / 25.4)  # inches
-
-        if height is not None:
-            fig.set_figheight(height / 25.4)  # inches
-
-        ## Create the colormap and normalizer
-        norm = None
-        cmap = None
-        if colormap == "invert":
-            cmap = "Greys"
-        elif colormap == "signed":
-            # signed color map, red is negative, blue is positive, zero is white
-            cmap = "bwr_r"  # blue -> white -> red
-            min = np.min(im)
-            max = np.max(im)
-
-            # ensure min/max are symmetric about zero, so that zero is white
-            if abs(max) >= abs(min):
-                min = -max  # lgtm[py/multiple-definition]
-            else:
-                max = -min  # lgtm[py/multiple-definition]
-
-            if powernorm:
-                norm = mpl.colors.PowerNorm(gamma=0.45)
-            else:
-                # if abs(min) > abs(max):
-                #     norm = mpl.colors.Normalize(vmin=min, vmax=abs(min / max) * max)
-                # else:
-                #     norm = mpl.colors.Normalize(vmin=abs(max / min) * min, vmax=max)
-                norm = mpl.colors.CenteredNorm()
-        elif colormap == "invsigned":
-            # inverse signed color map, red is negative, blue is positive, zero is black
-            cdict = {
-                "red": [(0, 1, 1), (0.5, 0, 0), (1, 0, 0)],
-                "green": [(0, 0, 0), (1, 0, 0)],
-                "blue": [(0, 0, 0), (0.5, 0, 0), (1, 1, 1)],
-            }
-            if ncolors is None:
-                cmap = mpl.colors.LinearSegmentedColormap("signed", cdict)
-            else:
-                cmap = mpl.colors.LinearSegmentedColormap("signed", cdict, N=ncolors)
-            min = np.min(im)
-            max = np.max(im)
-
-            # ensure min/max are symmetric about zero, so that zero is black
-            if abs(max) >= abs(min):
-                min = -max
-            else:
-                max = -min
-
-            if powernorm:
-                norm = mpl.colors.PowerNorm(gamma=0.45)
-            else:
-                if abs(min) > abs(max):
-                    norm = mpl.colors.Normalize(vmin=min, vmax=abs(min / max) * max)
-                else:
-                    norm = mpl.colors.Normalize(vmin=abs(max / min) * min, vmax=max)
-        elif colormap == "grey":
-            cmap = "gray"
-        elif colormap == "random":
-            x = np.random.rand(256 if ncolors is None else ncolors, 3)
-            cmap = mpl.colors.LinearSegmentedColormap.from_list("my_colormap", x)
-        else:
-            cmap = colormap
-
-        # choose default grey scale map for non-color image
-        if cmap is None and len(im.shape) == 2:
-            cmap = "gray"
-
-        # TODO not sure why exclusion for color, nor why float conversion
-        if im.ndim == 3 and darken is not None:
-            im = float_image(im) / darken
-
-        if isinstance(cmap, str):
-            # cmap = cm.get_cmap(cmap, lut=ncolors)
-            cmap = mpl.colormaps[cmap]
-            if ncolors is not None:
-                cmap = cmap.resampled(ncolors)
-
-        # handle values outside of range
-        #
-        #  - undercolor, below vmin
-        #  - overcolor, above vmax
-        #  - badcolor, nan, -inf, inf
-        #
-        # only works for greyscale image
-        if im.ndim == 2:
-            cmap = copy.copy(cmap)
-            if undercolor is not None:
-                cmap.set_under(color=undercolor)
-            if overcolor is not None:
-                cmap.set_over(color=overcolor)
-            if badcolor is not None:
-                cmap.set_bad(color=badcolor)
-        # elif im.ndim == 3:
-        #     if badcolor is not None:
-        #         cmap.set_bad(color=badcolor)
-
-        if black != 0:
-            if np.issubdtype(im.dtype, np.floating):
-                m = 1 - black
-                c = black
-                im = m * im + c
-                norm = mpl.colors.Normalize(0, 1)
-            elif np.issubdtype(im.dtype, bool):
-                norm = mpl.colors.Normalize(0, 1)
-                ncolors = 2
-            else:
-                max = np.iinfo(im.dtype).max
-                black = black * max
-                c = black
-                m = (max - c) / max
-                im = (m * im + c).astype(im.dtype)
-                norm = mpl.colors.Normalize(0, max)
-            # else:
-            #     # lift the displayed intensity of black pixels.
-            #     # set the greyscale mapping [0,M] to [black,1]
-            #     M = np.max(im)
-            #     norm = mpl.colors.Normalize(-black * M / (1 - black), M)
-        if darken:
-            norm = mpl.colors.Normalize(np.min(im), np.max(im) / darken)
-
-        if gamma:
-            cmap.set_gamma(gamma)
-
-        # print('Colormap is ', cmap)
-
-        # build up options for imshow
-        options = kwargs
-        if ynormal:
-            options["origin"] = "lower"
-
-        if extent is not None:
-            options["extent"] = extent
-
-        # display the image
-        if len(im.shape) == 3:
-            # color image, display in RGB or RGBA order; imshow handles alpha
-            # natively for both uint8 (0-255) and float (0.0-1.0) arrays
-            target = "RGBA" if "A" in colororder else "RGB"
-            idx = [colororder.find(c) for c in target if colororder.find(c) >= 0]
-            im_rgb = im[:, :, idx]  # reorder planes → RGB or RGBA
-            h = ax.imshow(im_rgb, norm=norm, cmap=cmap, **options)
-        else:
-            # monochrome image, display in indexed mode, where pixel value is mapped through the colormap
-            if norm is None:
-                # exclude NaN values
-                if vrange is None:
-                    min = np.nanmin(im)
-                    max = np.nanmax(im)
-                else:
-                    min, max = vrange
-
-                if colorbar is not False and ncolors is not None:
-                    #  colorbar requested with finite number of colors
-                    # adjust range so that ticks fall in middle of color segment
-                    min -= 0.5
-                    max += 0.5
-                norm = mpl.colors.Normalize(vmin=min, vmax=max)
-
-            h = ax.imshow(im, norm=norm, cmap=cmap, **options)
-
-        # display the color bar
-        if colorbar is not False:
-            ticks = None
-            labels = None
-            cbargs = {}
-            if ncolors:
-                cbargs["ticks"] = range(ncolors + 1)
-
-            if isinstance(colorbar, dict):
-                # passed options have priority
-                if "xticks" in colorbar:
-                    ticks, labels = colorbar["xticks"]
-                    del colorbar["xticks"]
-                else:
-                    ticks = None
-                    labels = None
-                cbargs = {**cbargs, **colorbar}
-
-            cb = fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax, **cbargs)
-            if ticks is not None:
-                cb.set_ticks(ticks, labels=labels)
-        # fig.suptitle(title)  # slightly different positioning
-        # ax.set_title(title)
-
-        # hide image axes - by default also removes frame
-        # back with ax.spines['top'].set_visible(True) ?
-        if not axes:
-            ax.axis("off")
-
-        ax.set_xlabel(axlabels[0])
-        ax.set_ylabel(axlabels[1])
-
-        if grid is not False:
-            # if grid is True:
-            #     ax.grid(True)
-            # elif isinstance(grid, str):
-            ax.grid(color="y", alpha=0.5, linewidth=0.5)
-
-        # no frame:
-        if not frame:
-            # NOTE: for frame tweaking, see matplotlib.spines
-            # https://matplotlib.org/3.3.2/api/spines_api.html
-            # note: can set spines linewidth:
-            # ax.spines['top'].set_linewidth(2.0)
-            ax.spines["top"].set_visible(False)
-            ax.spines["bottom"].set_visible(False)
-            ax.spines["left"].set_visible(False)
-            ax.spines["right"].set_visible(False)
-
-        if savefigname is not None:
-            # TODO check valid savefigname
-            # set default save file format
-            mpl.rcParams["savefig.format"] = "eps"
-            plt.draw()
-
-            # savefig must be called before plt.show
-            # after plt.show(), a new fig is automatically created
-            plt.savefig(savefigname)
-
-        # format the pixel value display
-        def format_coord(u: float, v: float) -> str:
-            u = int(u + 0.5)
-            v = int(v + 0.5)
-
-            try:
-                if im.ndim == 2:
-                    # monochrome image
-                    x = im[v, u]
-                    if isinstance(x, np.integer):
-                        val = f"{x:d}"
-                    elif isinstance(x, np.floating):
-                        val = f"{x:.3f}"
-                    elif isinstance(x, (np.bool_, bool)):
-                        val = f"{x}"
-                    else:
-                        print(f"unknown pixel type {type(x)}")
-
-                    return f"({u}, {v}): {val}"
-                else:
-                    # color image
-                    x = im[v, u, :]  # in RGB order
-                    if colororder == "BGR":
-                        x = x[::-1]
-                    if np.issubdtype(x.dtype, np.integer):
-                        val = [f"{_:d}" for _ in x]
-                    elif np.issubdtype(x.dtype, np.floating):
-                        val = [f"{_:.3f}" for _ in x]
-                    else:
-                        val = [str(_) for _ in x]
-                    val = "[" + ", ".join(val) + "]"
-
-                    return f"({u}, {v}): {val} {colororder}, {x.dtype}"
-
-            except IndexError:
-                return ""
-
-        def key_press(event: Any) -> None:
-            if not _pyclip:
-                return
-            if pyclip is None:
-                return
-
-            if event.inaxes is not None:
-                u = int(event.xdata + 0.5)
-                v = int(event.ydata + 0.5)
-            else:
-                return
-
-            if event.key == "c":
-                # print pixel value at mouse click
-                pyclip.copy(f"{u},{v}")
-            elif event.key == "C":
-                # print pixel value at mouse click
-                prev = pyclip.paste()
-                if isinstance(prev, bytes):
-                    prev = prev.decode()
-                pyclip.copy(f"{prev}\n{u},{v}")
-            elif event.key == "x":
-                pyclip.copy("")
-            elif event.key == "v":
-                val = im[v, u, ...]
-                pyclip.copy(f"{u},{v},{tuple(val)}")
-            elif event.key == "V":
-                val = im[v, u, ...]
-                prev = pyclip.paste()
-                if isinstance(prev, bytes):
-                    prev = prev.decode()
-                pyclip.copy(f"{prev}\n{u},{v},{tuple(val)}")
-
-        fig.canvas.mpl_connect("key_press_event", key_press)
-
-        if coordformat is None:
-            ax.format_coord = format_coord
-        else:
-            ax.format_coord = coordformat
-
-        # don't display data
-        h.format_cursor_data = lambda data: ""
-
-        if fps is not None:
-            # print("pausing", 1.0 / fps)
-            plt.pause(1.0 / fps)
-
-        safe_plt_show(block=block)
-
-        return h
+    if matplotlib:
+        return _idisp_matplotlib(
+            im,
+            colororder,
+            block=block,
+            fps=fps,
+            fig=fig,
+            ax=ax,
+            reuse=reuse,
+            colormap=colormap,
+            ncolors=ncolors,
+            black=black,
+            darken=darken,
+            powernorm=powernorm,
+            gamma=gamma,
+            vrange=vrange,
+            badcolor=badcolor,
+            undercolor=undercolor,
+            overcolor=overcolor,
+            title=title,
+            grid=grid,
+            axes=axes,
+            axlabels=axlabels,
+            gui=gui,
+            frame=frame,
+            colorbar=colorbar,
+            square=square,
+            width=width,
+            height=height,
+            ynormal=ynormal,
+            extent=extent,
+            coordformat=coordformat,
+            savefigname=savefigname,
+            **kwargs,
+        )
     else:
-        ## display using OpenCV
-        global __last_window_number
+        return _idisp_opencv(
+            im, colororder, title=title, block=block, fps=fps, reuse=reuse
+        )
 
-        if title is None:
-            if reuse:
-                # fixed name (no counter) so repeated calls in an
-                # animation loop share the same window
-                title = "idisp"
-            else:
-                # create a unique window name for each call
-                title = "idisp." + str(__last_window_number)
-                __last_window_number += 1
 
-        # At this point title is guaranteed to be a string
-        assert title is not None
-        cv2.namedWindow(title, cv2.WINDOW_AUTOSIZE)
+def _idisp_matplotlib(
+    im: np.ndarray,
+    colororder: str = "RGB",
+    block: bool | float | None = None,
+    fps: float | None = None,
+    fig: Any = None,
+    ax: Any = None,
+    reuse: bool = False,
+    colormap: str | Any = None,
+    ncolors: int | None = None,
+    black: int | float = 0,
+    darken: float | bool | None = None,
+    powernorm: bool = False,
+    gamma: float | None = None,
+    vrange: tuple[float, float] | list[float] | None = None,
+    badcolor: str | None = None,
+    undercolor: str | None = None,
+    overcolor: str | None = None,
+    title: str | None = None,
+    grid: bool = False,
+    axes: bool = True,
+    axlabels: tuple[str, str] | list[str] = ("u (pixels)", "v (pixels)"),
+    gui: bool = True,
+    frame: bool = True,
+    colorbar: bool | dict[str, Any] = False,
+    square: bool = True,
+    width: float | None = None,
+    height: float | None = None,
+    ynormal: bool = False,
+    extent: tuple[float, float, float, float] | list[float] | None = None,
+    coordformat: Callable[[float, float], str] | None = None,
+    savefigname: str | None = None,
+    **kwargs: Any,
+) -> Any:
+    """Matplotlib backend for :func:`idisp`.
 
-        if im.ndim == 3:
-            # color image, display in BGR order, but allow user to specify color order of input image
-            idx = []
-            for c in "BGR":
-                j = colororder.find(c)
-                if j >= 0:
-                    idx.append(j)
-            cv2.imshow(title, im[:, :, idx])  # convert → BGR order and display
+    Not part of the public API -- called from :func:`idisp` when
+    ``matplotlib=True``. Split out so each display backend's logic can be
+    read, tested and fixed independently of the other; see :func:`idisp`
+    for the full parameter documentation.
+
+    :return: Matplotlib ``AxesImage`` handle
+    :rtype: matplotlib.image.AxesImage
+    """
+    ## display using matplotlib
+    plt = _plt()
+
+    # if flatten:
+    #     # either make new subplots for each channel
+    #     # or concatenate all into one large image and display
+    #     # TODO can we make axes as a list?
+
+    #     # for now, just concatenate:
+    #     # first check how many channels:
+    #     if im.ndim > 2:
+    #         # create list of image channels
+    #         imcl = [im[:, :, i] for i in range(im.shape[2])]
+    #         # stack horizontally
+    #         im = np.hstack(imcl)
+    #     # else just plot the regular image - only one channel
+
+    if title is None:
+        title = "Machine Vision Toolbox for Python"
+
+    if len(plt.get_fignums()) == 0:
+        # there are no figures, create one
+        fig, ax = plt.subplots()  # fig creates a new window
+    else:
+        # there are existing figures
+
+        if reuse:
+            # attempt to reuse an axes, saves all the setup overhead
+            if ax is None:
+                ax = plt.gca()
+
+            # look for an image in the axes to update, if there is one
+            updated = False
+            for c in ax.get_children():
+                if isinstance(c, mpl.image.AxesImage):
+                    c.set_data(im)
+                    updated = True
+            if updated:
+                set_window_title(title)
+
+                if fps is not None:
+                    # print("pausing", 1.0 / fps)
+                    plt.pause(1.0 / fps)
+
+                safe_plt_show(block=block)
+
+                return
+
+        if fig is not None:
+            # make this figure the current one
+            plt.figure(fig)
+
+        if ax is None:
+            fig, ax = plt.subplots()  # fig creates a new window
+
+    if fig is None:
+        fig = ax.figure
+
+    set_window_title(title)
+    # aspect ratio:
+    if not square:
+        mpl.rcParams["image.aspect"] = "auto"
+
+    # hide interactive toolbar buttons (must be before figure creation)
+    if not gui:
+        mpl.rcParams["toolbar"] = "None"
+
+    if darken is True:
+        darken = 0.5
+
+    # # experiment with addign buttons to the navigation bar
+    # matplotlib.rcParams["toolbar"] = "toolmanager"
+    # class LineTool(ToolToggleBase):
+
+    #     def trigger(self, *args, **kwargs):
+    #         print('hello from trigger')
+
+    # tm = fig.canvas.manager.toolmanager
+    # tm.add_tool('newtool', LineTool)
+    # fig.canvas.manager.toolbar.add_tool(tm.get_tool("newtool"), "toolgroup")
+
+    # get screen resolution:
+    # swidth, sheight = pyautogui.size()  # pixels  TODO REPLACE THIS WITH STUFF FROM BDSIM
+
+    # mpl_backend = mpl.get_backend()
+
+    # if mpl_backend == 'Qt5Agg':
+    #     from PyQt5 import QtWidgets
+    #     app = QtWidgets.QApplication([])
+    #     screen = app.primaryScreen()
+    #     if screen.name is not None:
+    #         print('  Screen: %s' % screen.name())
+    #     size = screen.size()
+    #     print('  Size: %d x %d' % (size.width(), size.height()))
+    #     rect = screen.availableGeometry()
+    #     print('  Available: %d x %d' % (rect.width(), rect.height()))
+    #     sw = rect.width()
+    #     sh = rect.height()
+    #     #dpi = screen.physicalDotsPerInch()
+    #     dpiscale = screen.devicePixelRatio() # is 2.0 for Mac laptop screen
+    # elif mpl_backend == 'TkAgg':
+    #     window = plt.get_current_fig_manager().window
+    #     sw =  window.winfo_screenwidth()
+    #     sh =  window.winfo_screenheight()
+    #     print('  Size: %d x %d' % (sw, sh))
+    # else:
+    #     print('unknown backend, can't find width', mpl_backend)
+
+    # dpi = None  # can make this an input option
+    # if dpi is None:
+    #     dpi = mpl.rcParams['figure.dpi']  # default is 100
+
+    if width is not None:
+        fig.set_figwidth(width / 25.4)  # inches
+
+    if height is not None:
+        fig.set_figheight(height / 25.4)  # inches
+
+    ## Create the colormap and normalizer
+    norm = None
+    cmap = None
+    if colormap == "invert":
+        cmap = "Greys"
+    elif colormap == "signed":
+        # signed color map, red is negative, blue is positive, zero is white
+        cmap = "bwr_r"  # blue -> white -> red
+        min = np.min(im)
+        max = np.max(im)
+
+        # ensure min/max are symmetric about zero, so that zero is white
+        if abs(max) >= abs(min):
+            min = -max  # lgtm[py/multiple-definition]
         else:
-            # monochrome image, display in indexed mode, where pixel value is mapped through the colormap
-            cv2.imshow(title, im)  # make sure BGR format image
+            max = -min  # lgtm[py/multiple-definition]
 
-        cv2.waitKey(1)
+        if powernorm:
+            norm = mpl.colors.PowerNorm(gamma=0.45)
+        else:
+            # if abs(min) > abs(max):
+            #     norm = mpl.colors.Normalize(vmin=min, vmax=abs(min / max) * max)
+            # else:
+            #     norm = mpl.colors.Normalize(vmin=abs(max / min) * min, vmax=max)
+            norm = mpl.colors.CenteredNorm()
+    elif colormap == "invsigned":
+        # inverse signed color map, red is negative, blue is positive, zero is black
+        cdict = {
+            "red": [(0, 1, 1), (0.5, 0, 0), (1, 0, 0)],
+            "green": [(0, 0, 0), (1, 0, 0)],
+            "blue": [(0, 0, 0), (0.5, 0, 0), (1, 1, 1)],
+        }
+        if ncolors is None:
+            cmap = mpl.colors.LinearSegmentedColormap("signed", cdict)
+        else:
+            cmap = mpl.colors.LinearSegmentedColormap("signed", cdict, N=ncolors)
+        min = np.min(im)
+        max = np.max(im)
 
-        if fps is not None:
-            # wait one frame time
-            cv2.waitKey(round(1000.0 / fps))
+        # ensure min/max are symmetric about zero, so that zero is black
+        if abs(max) >= abs(min):
+            min = -max
+        else:
+            max = -min
 
-        if block is True:
-            while True:
-                k = cv2.waitKey(delay=0)  # wait forever for keystroke
-                if k == ord("q"):
-                    assert title is not None
-                    cv2.destroyWindow(title)
-                    cv2.waitKey(1)
-                    break
+        if powernorm:
+            norm = mpl.colors.PowerNorm(gamma=0.45)
+        else:
+            if abs(min) > abs(max):
+                norm = mpl.colors.Normalize(vmin=min, vmax=abs(min / max) * max)
+            else:
+                norm = mpl.colors.Normalize(vmin=abs(max / min) * min, vmax=max)
+    elif colormap == "grey":
+        cmap = "gray"
+    elif colormap == "random":
+        x = np.random.rand(256 if ncolors is None else ncolors, 3)
+        cmap = mpl.colors.LinearSegmentedColormap.from_list("my_colormap", x)
+    else:
+        cmap = colormap
 
-        # TODO fig, ax equivalent for OpenCV? how to print/plot to the same
-        # window/set of axes?
+    # choose default grey scale map for non-color image
+    if cmap is None and len(im.shape) == 2:
+        cmap = "gray"
+
+    # TODO not sure why exclusion for color, nor why float conversion
+    if im.ndim == 3 and darken is not None:
+        im = float_image(im) / darken
+
+    if isinstance(cmap, str):
+        # cmap = cm.get_cmap(cmap, lut=ncolors)
+        cmap = mpl.colormaps[cmap]
+        if ncolors is not None:
+            cmap = cmap.resampled(ncolors)
+
+    # handle values outside of range
+    #
+    #  - undercolor, below vmin
+    #  - overcolor, above vmax
+    #  - badcolor, nan, -inf, inf
+    #
+    # only works for greyscale image
+    if im.ndim == 2:
+        cmap = copy.copy(cmap)
+        if undercolor is not None:
+            cmap.set_under(color=undercolor)
+        if overcolor is not None:
+            cmap.set_over(color=overcolor)
+        if badcolor is not None:
+            cmap.set_bad(color=badcolor)
+    # elif im.ndim == 3:
+    #     if badcolor is not None:
+    #         cmap.set_bad(color=badcolor)
+
+    if black != 0:
+        if np.issubdtype(im.dtype, np.floating):
+            m = 1 - black
+            c = black
+            im = m * im + c
+            norm = mpl.colors.Normalize(0, 1)
+        elif np.issubdtype(im.dtype, bool):
+            norm = mpl.colors.Normalize(0, 1)
+            ncolors = 2
+        else:
+            max = np.iinfo(im.dtype).max
+            black = black * max
+            c = black
+            m = (max - c) / max
+            im = (m * im + c).astype(im.dtype)
+            norm = mpl.colors.Normalize(0, max)
+        # else:
+        #     # lift the displayed intensity of black pixels.
+        #     # set the greyscale mapping [0,M] to [black,1]
+        #     M = np.max(im)
+        #     norm = mpl.colors.Normalize(-black * M / (1 - black), M)
+    if darken:
+        norm = mpl.colors.Normalize(np.min(im), np.max(im) / darken)
+
+    if gamma:
+        cmap.set_gamma(gamma)
+
+    # print('Colormap is ', cmap)
+
+    # build up options for imshow
+    options = kwargs
+    if ynormal:
+        options["origin"] = "lower"
+
+    if extent is not None:
+        options["extent"] = extent
+
+    # display the image
+    if len(im.shape) == 3:
+        # color image, display in RGB or RGBA order; imshow handles alpha
+        # natively for both uint8 (0-255) and float (0.0-1.0) arrays
+        target = "RGBA" if "A" in colororder else "RGB"
+        idx = [colororder.find(c) for c in target if colororder.find(c) >= 0]
+        im_rgb = im[:, :, idx]  # reorder planes → RGB or RGBA
+        h = ax.imshow(im_rgb, norm=norm, cmap=cmap, **options)
+    else:
+        # monochrome image, display in indexed mode, where pixel value is mapped through the colormap
+        if norm is None:
+            # exclude NaN values
+            if vrange is None:
+                min = np.nanmin(im)
+                max = np.nanmax(im)
+            else:
+                min, max = vrange
+
+            if colorbar is not False and ncolors is not None:
+                #  colorbar requested with finite number of colors
+                # adjust range so that ticks fall in middle of color segment
+                min -= 0.5
+                max += 0.5
+            norm = mpl.colors.Normalize(vmin=min, vmax=max)
+
+        h = ax.imshow(im, norm=norm, cmap=cmap, **options)
+
+    # display the color bar
+    if colorbar is not False:
+        ticks = None
+        labels = None
+        cbargs = {}
+        if ncolors:
+            cbargs["ticks"] = range(ncolors + 1)
+
+        if isinstance(colorbar, dict):
+            # passed options have priority
+            if "xticks" in colorbar:
+                ticks, labels = colorbar["xticks"]
+                del colorbar["xticks"]
+            else:
+                ticks = None
+                labels = None
+            cbargs = {**cbargs, **colorbar}
+
+        cb = fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax, **cbargs)
+        if ticks is not None:
+            cb.set_ticks(ticks, labels=labels)
+    # fig.suptitle(title)  # slightly different positioning
+    # ax.set_title(title)
+
+    # hide image axes - by default also removes frame
+    # back with ax.spines['top'].set_visible(True) ?
+    if not axes:
+        ax.axis("off")
+
+    ax.set_xlabel(axlabels[0])
+    ax.set_ylabel(axlabels[1])
+
+    if grid is not False:
+        # if grid is True:
+        #     ax.grid(True)
+        # elif isinstance(grid, str):
+        ax.grid(color="y", alpha=0.5, linewidth=0.5)
+
+    # no frame:
+    if not frame:
+        # NOTE: for frame tweaking, see matplotlib.spines
+        # https://matplotlib.org/3.3.2/api/spines_api.html
+        # note: can set spines linewidth:
+        # ax.spines['top'].set_linewidth(2.0)
+        ax.spines["top"].set_visible(False)
+        ax.spines["bottom"].set_visible(False)
+        ax.spines["left"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+
+    if savefigname is not None:
+        # TODO check valid savefigname
+        # set default save file format
+        mpl.rcParams["savefig.format"] = "eps"
+        plt.draw()
+
+        # savefig must be called before plt.show
+        # after plt.show(), a new fig is automatically created
+        plt.savefig(savefigname)
+
+    # format the pixel value display
+    def format_coord(u: float, v: float) -> str:
+        u = int(u + 0.5)
+        v = int(v + 0.5)
+
+        try:
+            if im.ndim == 2:
+                # monochrome image
+                x = im[v, u]
+                if isinstance(x, np.integer):
+                    val = f"{x:d}"
+                elif isinstance(x, np.floating):
+                    val = f"{x:.3f}"
+                elif isinstance(x, (np.bool_, bool)):
+                    val = f"{x}"
+                else:
+                    print(f"unknown pixel type {type(x)}")
+
+                return f"({u}, {v}): {val}"
+            else:
+                # color image
+                x = im[v, u, :]  # in RGB order
+                if colororder == "BGR":
+                    x = x[::-1]
+                if np.issubdtype(x.dtype, np.integer):
+                    val = [f"{_:d}" for _ in x]
+                elif np.issubdtype(x.dtype, np.floating):
+                    val = [f"{_:.3f}" for _ in x]
+                else:
+                    val = [str(_) for _ in x]
+                val = "[" + ", ".join(val) + "]"
+
+                return f"({u}, {v}): {val} {colororder}, {x.dtype}"
+
+        except IndexError:
+            return ""
+
+    def key_press(event: Any) -> None:
+        if not _pyclip:
+            return
+        if pyclip is None:
+            return
+
+        if event.inaxes is not None:
+            u = int(event.xdata + 0.5)
+            v = int(event.ydata + 0.5)
+        else:
+            return
+
+        if event.key == "c":
+            # print pixel value at mouse click
+            pyclip.copy(f"{u},{v}")
+        elif event.key == "C":
+            # print pixel value at mouse click
+            prev = pyclip.paste()
+            if isinstance(prev, bytes):
+                prev = prev.decode()
+            pyclip.copy(f"{prev}\n{u},{v}")
+        elif event.key == "x":
+            pyclip.copy("")
+        elif event.key == "v":
+            val = im[v, u, ...]
+            pyclip.copy(f"{u},{v},{tuple(val)}")
+        elif event.key == "V":
+            val = im[v, u, ...]
+            prev = pyclip.paste()
+            if isinstance(prev, bytes):
+                prev = prev.decode()
+            pyclip.copy(f"{prev}\n{u},{v},{tuple(val)}")
+
+    fig.canvas.mpl_connect("key_press_event", key_press)
+
+    if coordformat is None:
+        ax.format_coord = format_coord
+    else:
+        ax.format_coord = coordformat
+
+    # don't display data
+    h.format_cursor_data = lambda data: ""
+
+    if fps is not None:
+        # print("pausing", 1.0 / fps)
+        plt.pause(1.0 / fps)
+
+    safe_plt_show(block=block)
+
+    return h
+
+
+def _idisp_opencv(
+    im: np.ndarray,
+    colororder: str = "RGB",
+    title: str | None = None,
+    block: bool | float | None = None,
+    fps: float | None = None,
+    reuse: bool = False,
+) -> None:
+    """OpenCV (HighGUI) backend for :func:`idisp`.
+
+    Not part of the public API -- called from :func:`idisp` when
+    ``matplotlib=False``. Split out so each display backend's logic can be
+    read, tested and fixed independently of the other; see :func:`idisp`
+    for the full parameter documentation.
+    """
+    ## display using OpenCV
+    global __last_window_number
+
+    if title is None:
+        if reuse:
+            # fixed name (no counter) so repeated calls in an
+            # animation loop share the same window
+            title = "idisp"
+        else:
+            # create a unique window name for each call
+            title = "idisp." + str(__last_window_number)
+            __last_window_number += 1
+
+    # At this point title is guaranteed to be a string
+    assert title is not None
+    cv2.namedWindow(title, cv2.WINDOW_AUTOSIZE)
+
+    if im.ndim == 3:
+        # color image, display in BGR order, but allow user to specify color order of input image
+        idx = []
+        for c in "BGR":
+            j = colororder.find(c)
+            if j >= 0:
+                idx.append(j)
+        cv2.imshow(title, im[:, :, idx])  # convert → BGR order and display
+    else:
+        # monochrome image, display in indexed mode, where pixel value is mapped through the colormap
+        cv2.imshow(title, im)  # make sure BGR format image
+
+    cv2.waitKey(1)
+
+    if fps is not None:
+        # wait one frame time
+        cv2.waitKey(round(1000.0 / fps))
+
+    if block is True:
+        while True:
+            k = cv2.waitKey(delay=0)  # wait forever for keystroke
+            if k == ord("q"):
+                assert title is not None
+                cv2.destroyWindow(title)
+                cv2.waitKey(1)
+                break
+
+    # TODO fig, ax equivalent for OpenCV? how to print/plot to the same
+    # window/set of axes?
 
 
 def set_window_title(title: str) -> None:
