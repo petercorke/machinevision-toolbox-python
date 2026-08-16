@@ -25,7 +25,6 @@ import warnings
 import zipfile
 from collections import Counter, deque
 from collections.abc import Iterator
-from numpy.char import array
 from tqdm import tqdm
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, IO, Any, Literal, cast
