@@ -197,6 +197,18 @@ class TestImagePointFeatures(unittest.TestCase):
         except:
             pass
 
+    def test_draw2(self):
+        """draw2() with a named color and a colorized (colororder-bearing)
+        image must not raise -- regression test for name2color() leaking a
+        plain list instead of an ndarray when colororder is given"""
+        img = Image.Read("monalisa.png", mono=True)
+        orb = img.ORB(nfeatures=20)
+        self.assertGreater(len(orb), 0)
+
+        color_img = img.colorize()
+        result = orb.draw2(color_img, color="y")
+        self.assertIsInstance(result, Image)
+
     def test_features_list_operations(self):
         """Test feature list operations"""
         img = Image.Read("monalisa.png", mono=True)
