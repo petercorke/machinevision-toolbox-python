@@ -307,13 +307,22 @@ class Image(
             )
 
         # if dtype is not given, determine the appropriate type for the data
+        dtype_given = dtype is not None
         dtype = self._infer_dtype(image, dtype)
 
         if binary:
             image = image > 0
 
-        # change type of array to the determined dtype
-        if dtype is not None:
+        # Change type of array to the determined dtype -- unless the caller
+        # also passed convert()-only options (eg. maxintval) alongside an
+        # explicit dtype=, in which case defer the cast to convert() below.
+        # convert()'s int_image()/float_image() know how to *scale* a value
+        # using maxintval; a bare .astype() here would instead silently
+        # truncate (eg. uint16 0..4095 -> uint8 keeps only the low byte,
+        # producing a corrupted "bottom byte" image instead of the intended
+        # rescaled 0..255).
+        defer_dtype_to_convert = dtype_given and bool(kwargs)
+        if dtype is not None and not defer_dtype_to_convert:
             image = image.astype(dtype, copy=False)
 
         self.name = name
@@ -330,7 +339,7 @@ class Image(
             image = image[:, :, 0]  # squeeze out singleton plane
 
         if kwargs:
-            image = convert(image, **kwargs)
+            image = convert(image, dtype=dtype if defer_dtype_to_convert else None, **kwargs)
 
         # assign the image to the object, copying if requested
         if copy:
