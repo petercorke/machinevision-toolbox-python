@@ -161,6 +161,32 @@ class TestImagePointFeatures(unittest.TestCase):
         except:
             pass
 
+    def test_match_orb_auto_metric(self):
+        """match() must auto-select hamming distance for binary (ORB)
+        descriptors -- regression test for the L2 default giving
+        near-meaningless distances for binary descriptors, which silently
+        yields far fewer matches than the correct metric rather than
+        raising an error"""
+        img1 = Image.Read("eiffel-1.png", mono=True)
+        img2 = Image.Read("eiffel-2.png", mono=True)
+        orb1 = img1.ORB(nfeatures=200)
+        orb2 = img2.ORB(nfeatures=200)
+
+        m_auto = orb1.match(orb2)
+        m_hamming = orb1.match(orb2, metric="hamming")
+        m_l2 = orb1.match(orb2, metric="L2")
+
+        # auto-detected metric must agree with explicit hamming, not L2
+        self.assertEqual(len(m_auto), len(m_hamming))
+        self.assertGreater(len(m_auto), len(m_l2))
+
+        # float descriptors (SIFT) must still default to L2
+        sift1 = img1.SIFT()
+        sift2 = img2.SIFT()
+        m_sift_auto = sift1.match(sift2)
+        m_sift_l2 = sift1.match(sift2, metric="L2")
+        self.assertEqual(len(m_sift_auto), len(m_sift_l2))
+
     def test_corners(self):
         """Test corner detection"""
         img = Image.Read("monalisa.png", mono=True)
@@ -170,6 +196,18 @@ class TestImagePointFeatures(unittest.TestCase):
             self.assertGreater(len(corners), 0)
         except:
             pass
+
+    def test_draw2(self):
+        """draw2() with a named color and a colorized (colororder-bearing)
+        image must not raise -- regression test for name2color() leaking a
+        plain list instead of an ndarray when colororder is given"""
+        img = Image.Read("monalisa.png", mono=True)
+        orb = img.ORB(nfeatures=20)
+        self.assertGreater(len(orb), 0)
+
+        color_img = img.colorize()
+        result = orb.draw2(color_img, color="y")
+        self.assertIsInstance(result, Image)
 
     def test_features_list_operations(self):
         """Test feature list operations"""
