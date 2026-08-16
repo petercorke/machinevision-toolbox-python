@@ -25,6 +25,7 @@ from spatialmath import Polygon2
 
 from machinevisiontoolbox import Image
 from machinevisiontoolbox.base.imageio import convert
+from machinevisiontoolbox.base.types import int_image
 
 # (dtype spec passed in, expected resolved np.dtype)
 DTYPE_CASES = [
@@ -105,3 +106,83 @@ def test_image_constants_factory_respects_explicit_dtype(
 ):
     im = factory_fn(dtype_in)
     assert im.dtype == expected
+
+
+class TestImageConstructorMaxintval:
+    """Image(..., dtype=..., maxintval=...) must SCALE, not truncate.
+
+    Regression for: Image.__init__ applied an explicit dtype= via a raw
+    .astype() cast before convert()-only kwargs like maxintval ever saw the
+    data, so maxintval was silently ignored and an out-of-range integer
+    downcast (eg. uint16 0..4095 -> uint8) kept only the low byte instead of
+    being rescaled into 0..255. Found 2026-08 via RVC3-python's visodom.py,
+    which reads 12-bit .pgm frames as
+    ``Image(..., dtype='uint8', maxintval=4095)`` -- the resulting images
+    looked corrupted (an artifact indistinguishable from bottom-byte-only
+    display) even though the actual display path (idisp/cv2.imshow) was
+    independently verified correct; the data itself was already wrong by
+    the time it reached display.
+    """
+
+    def test_downscale_with_maxintval_matches_manual_scaling(self):
+        # 12-bit source values (0..4095) stored in a uint16 array, exactly
+        # the enpeda/bridge .pgm scenario.
+        src = np.linspace(0, 4095, 512, dtype=np.uint16)
+        im = Image(np.tile(src, (2, 1)), dtype="uint8", maxintval=4095)
+        assert im.dtype == np.uint8
+        expected = np.rint(src.astype(np.float64) * 255 / 4095).astype(np.uint8)
+        # int_image() truncates rather than rounds (separate, minor,
+        # pre-existing quirk) -- allow the resulting off-by-one.
+        assert np.max(np.abs(im._A[0].astype(int) - expected.astype(int))) <= 1
+
+    def test_downscale_with_maxintval_is_not_byte_truncation(self):
+        # the actual failure mode: a naive .astype() keeps only the bottom
+        # byte, which is NOT monotonic (wraps every 256 counts). A properly
+        # scaled monotonic ramp must stay monotonic.
+        src = np.linspace(0, 4095, 512, dtype=np.uint16)
+        im = Image(np.tile(src, (2, 1)), dtype="uint8", maxintval=4095)
+        row = im._A[0].astype(int)
+        assert np.all(np.diff(row) >= 0)  # monotonic non-decreasing
+        assert not np.array_equal(row, src.astype(np.uint8))  # not truncated
+
+    def test_maxintval_default_uses_source_dtype_max(self):
+        # maxintval=None (default) should behave as before: scale using the
+        # full range of the SOURCE dtype, eg. uint16's 65535, not 4095.
+        # (mono=True is a no-op on this already-2D image; it's here purely
+        # to trigger the convert()-kwargs code path alongside dtype=, since
+        # dtype= on its own is a plain unscaled cast -- see
+        # test_dtype_alone_still_unscaled_cast.)
+        src = np.array([0, 4095, 65535], dtype=np.uint16)
+        im = Image(src.reshape(1, 3), dtype="uint8", mono=True)
+        expected = int_image(src, intclass="uint8")  # canonical reference
+        assert np.array_equal(im._A[0], expected)
+
+    def test_maxintval_combined_with_other_convert_kwargs(self):
+        # the exact real-world combination from visodom.py: dtype +
+        # maxintval alongside another convert()-only kwarg (mono) in one
+        # call. R=G=B=src so ITU601 grey conversion (weights sum to 1)
+        # reproduces src exactly before the dtype/maxintval scaling.
+        src = np.tile(np.linspace(0, 4095, 100, dtype=np.uint16), (50, 1))
+        color = np.stack([src] * 3, axis=-1)
+        im = Image(color, mono=True, dtype="uint8", maxintval=4095)
+        assert im.dtype == np.uint8
+        assert im.ndim == 2
+        assert im._A.max() >= 250  # properly scaled up to ~255, not stuck near 16
+
+    def test_dtype_alone_still_unscaled_cast(self):
+        # regression guard: dtype= with NO other kwargs must remain a plain
+        # cast (no implicit scaling) -- the common/simple path, untouched
+        # by the maxintval fix.
+        src = np.array([0, 4095, 65535], dtype=np.uint16)
+        im = Image(src.reshape(1, 3), dtype="float32")
+        assert np.array_equal(im._A[0], src.astype(np.float32))
+
+    def test_maxintval_without_explicit_dtype_stays_inert(self):
+        # maxintval only makes sense paired with an explicit dtype (it's
+        # the assumed max of the *source* data, used to compute the scale
+        # factor to the target dtype). Without dtype=, behaviour is
+        # unchanged from before this fix: maxintval is not applied.
+        src = np.array([0, 4095, 65535], dtype=np.uint16)
+        im = Image(src.reshape(1, 3), maxintval=4095)
+        assert im.dtype == np.uint16
+        assert np.array_equal(im._A[0], src)
