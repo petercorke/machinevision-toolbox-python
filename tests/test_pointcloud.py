@@ -39,6 +39,18 @@ class TestPointCloud(unittest.TestCase):
         rgbd = Image.Pstack((d, rgb.astype("uint16")), colororder="DRGB")
         pc = PointCloud.DepthImage(rgbd, camera)
 
+    def test_read(self):
+        # bare filename -- the documented convention
+        pc = PointCloud.Read("bunny.ply")
+        self.assertIsInstance(pc, PointCloud)
+        self.assertEqual(len(pc), 35947)
+
+        # a caller-supplied redundant "data/" prefix (the older convention
+        # some book examples still use) must resolve to the same file,
+        # not double-join to data/data/bunny.ply
+        pc2 = PointCloud.Read("data/bunny.ply")
+        self.assertEqual(len(pc2), len(pc))
+
 
 # ----------------------------------------------------------------------- #
 if __name__ == "__main__":
