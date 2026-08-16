@@ -290,6 +290,31 @@ class TestCamera(unittest.TestCase):
         line = c.ray(p)
         self.assertTrue(line.contains(P))
 
+    def test_points2F_too_few_points_raises(self):
+        """Fewer than the minimum required correspondences must raise a
+        clear ValueError before ever calling cv2.findFundamentalMat --
+        regression test for a bare AttributeError:
+        'NoneType' object has no attribute 'ravel' when cv2 silently
+        returned (None, None)"""
+        p1 = np.array([[10, 20, 30], [10, 20, 30]], dtype=float)
+        p2 = np.array([[11, 21, 31], [11, 21, 31]], dtype=float)
+
+        with self.assertRaises(ValueError) as cm:
+            CentralCamera.points2F(p1, p2, method="ransac")
+        self.assertIn("at least 8", str(cm.exception))
+
+    def test_points2F_degenerate_points_raises(self):
+        """Enough points (>= 8), but collinear -- cv2.findFundamentalMat
+        itself fails (returns None), which must raise a clear ValueError
+        distinct from the too-few-points case above"""
+        t = np.linspace(0, 1, 10)
+        p1 = np.vstack([10 + 5 * t, 10 + 5 * t])
+        p2 = np.vstack([11 + 5 * t, 11 + 5 * t])
+
+        with self.assertRaises(ValueError) as cm:
+            CentralCamera.points2F(p1, p2, method="ransac")
+        self.assertIn("degenerate", str(cm.exception))
+
     def test_camera_attributes_access(self):
         """Test accessing various camera attributes"""
         c = CentralCamera(f=0.015, rho=10e-6, imagesize=[1280, 1024], pp=(640, 512))

@@ -2703,8 +2703,41 @@ class CentralCamera(CameraBase):
         :type p2: ndarray(2,N)
         :param method: algorithm '7p', '8p' [default], 'ransac', 'lmeds'
         :type method: str, optional
-        :param kwargs: optional arguments as required for ransac', 'lmeds'
-            methods
+        :param residual: also return the reprojection residual, defaults to True
+        :type residual: bool, optional
+        :param seed: seed the RNG used by 'ransac'/'lmeds' for repeatable
+            results, defaults to None (not seeded)
+        :type seed: int, optional
+        :param kwargs: passed through to ``cv2.findFundamentalMat``.
+            ``ransacReprojThreshold`` (float, defaults to 3.0) applies only
+            when ``method='ransac'`` -- max distance in pixels from a point
+            to its epipolar line for the point to still count as an inlier;
+            ``method='lmeds'`` ignores it entirely (verified empirically --
+            identical result regardless of value). ``confidence`` (float in
+            (0,1), defaults to 0.99) and ``maxIters`` (int, defaults to
+            1000) apply to either ``method='ransac'`` or ``method='lmeds'``
+            -- ``method`` only ever selects one algorithm at a time (a
+            combined "ransac+lmeds" method isn't a real OpenCV feature;
+            verified empirically that OR-ing the two method flags together
+            doesn't error, but silently reduces to plain LMedS -- an
+            implementation accident, not a documented hybrid mode).
+            Defaults verified empirically 2026-08-16 (identical inlier
+            masks with/without them explicit, same RNG seed) -- not
+            otherwise documented by the ``cv2`` Python bindings. Same
+            parameter set and defaults on OpenCV 4.10 and 5.0.
+
+            .. warning:: ``maxIters`` only works when ``ransacReprojThreshold``
+                and ``confidence`` are *also* given explicitly -- passing
+                only ``maxIters=`` hits a ``cv2.findFundamentalMat``
+                overload-resolution failure (a confusing low-level OpenCV
+                error, not a clear Python one), since the 3-argument
+                overload this method otherwise uses has no ``maxIters``
+                parameter at all.
+        :type kwargs: dict, optional
+        :raises ValueError: fewer than the minimum number of point
+            correspondences for ``method`` (7 for '7p', 8 otherwise), or
+            the points are too degenerate (eg. coplanar, collinear) for
+            ``cv2.findFundamentalMat`` to estimate F from
         :return: fundamental matrix and residual
         :rtype: ndarray(3,3), float
 
@@ -2738,6 +2771,12 @@ class CentralCamera(CameraBase):
             "ransac": cv2.FM_RANSAC,
             "lmeds": cv2.FM_LMEDS,
         }
+        min_points = 7 if method == "7p" else 8
+        if p1.shape[1] < min_points:
+            raise ValueError(
+                f"points2F() needs at least {min_points} point correspondences "
+                f"for method={method!r}, got {p1.shape[1]}"
+            )
 
         if seed is not None:
             cv2.setRNGSeed(seed)
@@ -2745,6 +2784,16 @@ class CentralCamera(CameraBase):
         F, mask = cv2.findFundamentalMat(
             points1=p1.T, points2=p2.T, method=points2F_dict[method], **kwargs
         )
+
+        if F is None or mask is None:
+            # already know p1.shape[1] >= min_points (checked above), so a
+            # failure here means the points themselves are degenerate (eg.
+            # coplanar, collinear), not a raw-count problem
+            raise ValueError(
+                f"cv2.findFundamentalMat could not estimate F from "
+                f"{p1.shape[1]} point correspondences using method={method!r} "
+                "-- points are likely too degenerate (eg. coplanar, collinear)"
+            )
 
         mask = mask.ravel().astype(bool)
 
