@@ -190,14 +190,23 @@ class TestImage(unittest.TestCase):
         # im.disp(block=False)
         pass
 
-    # new test
     def test_metadata(self):
         """Test reading image metadata"""
-        # TODO: Test with image file that has metadata
-        # im = Image.Read('test_image.jpg')
-        # metadata = im.metadata()
-        # self.assertIsNotNone(metadata)
-        pass
+        im = Image.Read("walls-l.png")
+        metadata = im.metadata()
+        self.assertIsNotNone(metadata)
+
+        # top-level IFD0 tags
+        self.assertEqual(metadata["Make"], "Apple")
+        self.assertEqual(metadata["Model"], "iPhone 5s")
+        self.assertEqual(im.metadata("Make"), "Apple")
+
+        # camera-specific tags live in a separate "Exif" sub-IFD that
+        # Image.getexif() doesn't flatten into the top-level dict --
+        # regression test for that sub-IFD merge
+        self.assertIn("FocalLength", metadata)
+        self.assertAlmostEqual(im.metadata("FocalLength"), 4.15)
+        self.assertAlmostEqual(metadata["FNumber"], 2.2)
 
     # new test
     def test_showpixels(self):
