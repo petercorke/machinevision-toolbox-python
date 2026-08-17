@@ -119,6 +119,14 @@ select = ["E", "F", "I"]
 [tool.ruff.lint.isort]
 known-first-party = ["machinevisiontoolbox"]
 
+[tool.bandit]
+# bare `assert` is idiomatic pytest style, not a security concern -- Bandit's
+# B101 ("assert used") is meant for src/, where assert can silently vanish
+# under `python -O`. Excluding tests/ keeps that check meaningful without
+# flagging every test assertion (Codacy runs Bandit via Prospector and
+# honours this file).
+exclude_dirs = ["tests"]
+
 [tool.pyright]
 include = ["src"]
 ignore = ["docs", "tests", "examples"]
