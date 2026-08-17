@@ -1,5 +1,40 @@
 # Changelog
 
+## [2.4.0](https://github.com/petercorke/machinevision-toolbox-python/compare/v2.3.0...v2.4.0) (2026-08-17)
+
+
+### Features
+
+* add __array__ protocol to Image and Kernel, ndim to Kernel ([e762f57](https://github.com/petercorke/machinevision-toolbox-python/commit/e762f578faa269655cbd06b02d48c4c30d48c516))
+* relax opencv pin to support both 4.x and 5.x, add CI matrix axis ([2ec69fe](https://github.com/petercorke/machinevision-toolbox-python/commit/2ec69fe4d116bb51f717e0a4a3c8baed95a7101f)), closes [#44](https://github.com/petercorke/machinevision-toolbox-python/issues/44)
+
+
+### Bug Fixes
+
+* assert hygiene -- unreachable assert, two caller-facing checks ([7afe33e](https://github.com/petercorke/machinevision-toolbox-python/commit/7afe33eb02af65d4e64d52481f668a610f63b807))
+* CameraBase.plot() unbound call (self=None) crashed instead of working ([e2d4600](https://github.com/petercorke/machinevision-toolbox-python/commit/e2d460029d6ef1d5bb807168f37b37b3eb10ff1c))
+* correct stale open3d-python PyPI name, add py3.13 exclusion marker ([87c1e8f](https://github.com/petercorke/machinevision-toolbox-python/commit/87c1e8f5a2eb3a2b17f2a1f1c182b22fbb025483))
+* esttheta() -- broken pickregion() helper and missing theta-sweep body ([50b00cc](https://github.com/petercorke/machinevision-toolbox-python/commit/50b00cc95c15b56b3598505f4cd532a0612f6ff9))
+* exclude tests/ from Bandit's assert_used (B101) check ([e62b116](https://github.com/petercorke/machinevision-toolbox-python/commit/e62b116e0b57aef73882ee4689153eda326c399f))
+* Histogram.plot(type='ncdf') never actually worked, docstring lied ([6d4152d](https://github.com/petercorke/machinevision-toolbox-python/commit/6d4152d58bb63970863ff0ca49593c21ec815b5b))
+* idisp() crashes when reuse=True with no title given ([a05b13b](https://github.com/petercorke/machinevision-toolbox-python/commit/a05b13b93ab4ed03397548348e8de48230b284f3))
+* Image.metadata() missing camera-specific Exif sub-IFD tags ([d554ef2](https://github.com/petercorke/machinevision-toolbox-python/commit/d554ef257d2d494c66daaf928114c8097fb8fb91))
+* Image() drops maxintval when dtype= is also given, silently truncating ([15f1d32](https://github.com/petercorke/machinevision-toolbox-python/commit/15f1d32576183c862592dca009828ea7e2765d79))
+* Image(dtype='float') resolved to float64, not float32 ([18c5d85](https://github.com/petercorke/machinevision-toolbox-python/commit/18c5d85d82ebd2c09a43adb278e4435658f0c2b7))
+* ImageConstantsMixin factories silently downcast explicit dtype requests ([977dbf6](https://github.com/petercorke/machinevision-toolbox-python/commit/977dbf6402307f38f695c697d68009ddd914d237))
+* mvtbtool's %precision line spuriously echoes with --showassign ([ed43ca6](https://github.com/petercorke/machinevision-toolbox-python/commit/ed43ca64652a7d64a4536ae5665e672ffcc7db4a))
+* name2color() colororder reordering returns list, not ndarray ([c90e6fb](https://github.com/petercorke/machinevision-toolbox-python/commit/c90e6fb4db7814707fd1548a7d87b1057b665499))
+* PointCloud.Read() double-joins a caller-supplied "data/" prefix ([fff671c](https://github.com/petercorke/machinevision-toolbox-python/commit/fff671cdd28c85a555ee9fc0b7dd6f4bad4eccc9))
+* printstats() crashes if .stats hasn't been accessed yet ([3484224](https://github.com/petercorke/machinevision-toolbox-python/commit/34842247c529159364591528ec109deac182899f))
+* suppress divide-by-zero RuntimeWarning in BagOfWords idf computation ([05c85e0](https://github.com/petercorke/machinevision-toolbox-python/commit/05c85e0189061019dc55888b33ddb30cc3e9d9ae))
+* visual-odometry robustness -- match() metric, points2F(), BundleAdjust ([8691847](https://github.com/petercorke/machinevision-toolbox-python/commit/8691847df58cc3cf003838436f7d94c59d5ae609))
+
+
+### Documentation
+
+* add AGENTS.md stub linking to rvc-ecosystem conventions ([0827291](https://github.com/petercorke/machinevision-toolbox-python/commit/082729184414b821a9e610f8a409f5cbeabc308c))
+* points2F() kwargs -- correct which params apply to which method ([6b10d64](https://github.com/petercorke/machinevision-toolbox-python/commit/6b10d6401925564163568a09e1e504c99eec99fa))
+
 ## [2.3.0](https://github.com/petercorke/machinevision-toolbox-python/compare/v2.2.0...v2.3.0) (2026-08-13)
 
 **Highlight: Notebooks working in all environments** Fixed a number of problems with getting notebooks to execute in desktop Jupyter, Colab, and
