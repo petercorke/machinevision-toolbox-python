@@ -2785,9 +2785,20 @@ class CentralCamera(CameraBase):
         if seed is not None:
             cv2.setRNGSeed(seed)
 
-        F, mask = cv2.findFundamentalMat(
-            points1=p1.T, points2=p2.T, method=points2F_dict[method], **kwargs
-        )
+        try:
+            F, mask = cv2.findFundamentalMat(
+                points1=p1.T, points2=p2.T, method=points2F_dict[method], **kwargs
+            )
+        except cv2.error as e:
+            # on some degenerate point configurations cv2.findFundamentalMat
+            # raises a raw C++ assertion (eg. a Mat rowRange error) instead
+            # of returning None -- same underlying cause as the F is None
+            # case below, just surfaced differently by OpenCV
+            raise ValueError(
+                f"cv2.findFundamentalMat could not estimate F from "
+                f"{p1.shape[1]} point correspondences using method={method!r} "
+                f"-- points are likely too degenerate (eg. coplanar, collinear): {e}"
+            ) from e
 
         if F is None or mask is None:
             # already know p1.shape[1] >= min_points (checked above), so a
