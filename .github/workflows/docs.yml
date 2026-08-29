@@ -1,4 +1,4 @@
-name: Docs
+name: Docs Publish
 
 on:
   push:
@@ -173,15 +173,21 @@ jobs:
           path: docs/build/html/mvtb_notebooks.zip
           if-no-files-found: error
 
+      # push and workflow_dispatch both publish; pull_request only builds
+      # (to catch breakage in review), it never gets an artifact to deploy.
       - uses: actions/upload-pages-artifact@v5
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         with:
           path: docs/build/html
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'
+    # ref check (not just event_name) so a manual dispatch from a
+    # non-main branch builds but doesn't publish -- push is already
+    # restricted to main via the `branches: [main]` filter above, but
+    # workflow_dispatch can be run against any branch.
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
