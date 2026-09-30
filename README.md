@@ -27,6 +27,7 @@
 [![Downloads](https://static.pepy.tech/badge/machinevision-toolbox-python/month)](https://pepy.tech/projects/machinevision-toolbox-python)
 ![Python Version](https://img.shields.io/pypi/pyversions/machinevision-toolbox-python.svg)
 [![Coverage](https://codecov.io/gh/petercorke/machinevision-toolbox-python/branch/main/graph/badge.svg)](https://codecov.io/gh/petercorke/machinevision-toolbox-python)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/2368752f2103490b81210d716bb0fb46)](https://app.codacy.com/gh/petercorke/machinevision-toolbox-python/dashboard)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ### Ecosystem & Dependencies
