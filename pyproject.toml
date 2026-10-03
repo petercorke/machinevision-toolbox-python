@@ -14,6 +14,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
 
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
@@ -62,7 +63,7 @@ dependencies = [
 #  dev - development tools
 #  docs - documentation building tools
 #  jupyter - jupyter notebook support
-#  open3d - open3d support (open3d generally won't work with latest Python)
+#  open3d - open3d support
 #  all - all runtime optional features below
 #  ocr - OCR support via pytesseract
 #  tool - dependencies for the mvtbtool interactive shell
@@ -86,7 +87,7 @@ docs = [
 
 jupyter = ["ipywidgets", "ipympl"]
 
-open3d = ["open3d; python_version < '3.13'"]
+open3d = ["open3d"]
 
 torch = ["torch"]
 
@@ -95,7 +96,7 @@ ocr = ["pytesseract"]
 all = [
     "ipywidgets",
     "ipympl",
-    "open3d; python_version < '3.13'",
+    "open3d",
     "torch",
     "pytesseract",
     "rosbags",
