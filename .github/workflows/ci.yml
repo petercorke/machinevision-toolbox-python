@@ -14,7 +14,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-15, windows-latest]
-        python-version: ["3.10", "3.11", "3.12", "3.13"]
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
         opencv-version: ["4", "5"]
 
     steps:
@@ -35,7 +35,7 @@ jobs:
           cd packages/mvtb-data && pip install .
 
       - name: Install open3d (one leg per supported Python version)
-        if: matrix.os == 'ubuntu-latest' && matrix.opencv-version == '5' && matrix.python-version != '3.13'
+        if: matrix.os == 'ubuntu-latest' && matrix.opencv-version == '5'
         run: pip install open3d
 
       - name: Run tests
