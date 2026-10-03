@@ -38,6 +38,10 @@ jobs:
         if: matrix.os == 'ubuntu-latest' && matrix.opencv-version == '5'
         run: pip install open3d
 
+      - name: Install ros extra (rosbags, roslibpy, websockets)
+        if: matrix.os == 'ubuntu-latest' && matrix.opencv-version == '5'
+        run: pip install .[ros]
+
       - name: Run tests
         env:
           MPLBACKEND: Agg
