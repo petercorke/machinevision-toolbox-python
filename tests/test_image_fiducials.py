@@ -5,7 +5,7 @@ import unittest
 import numpy as np
 import numpy.testing as nt
 
-from machinevisiontoolbox import ArUcoBoard, Fiducial, Image
+from machinevisiontoolbox import ArUcoBoard, CentralCamera, Fiducial, Image
 
 
 class TestImageFiducials(unittest.TestCase):
@@ -82,6 +82,77 @@ class TestImageFiducials(unittest.TestCase):
         self.assertIsNotNone(markers[0].pose)
         self.assertEqual(markers[0].rvec.shape, (1, 3))
         self.assertEqual(markers[0].tvec.shape, (1, 3))
+
+    @staticmethod
+    def _board_scene(board: ArUcoBoard, extraneous: list[tuple[int, int, int]]):
+        """Board chart embedded in a white canvas, plus extraneous markers.
+
+        :param extraneous: (marker id, row, col) of markers, not on the board,
+            drawn 200 px square.  OpenCV returns detections largest-first, and the
+            board markers here are ~157 px, so these come back *before* the
+            board's markers -- the order that exposes id/corner misalignment.
+        """
+        chart = board.chart(dpi=100).array
+        canvas = np.full((1000, 1000), 255, dtype=np.uint8)
+        h, w = chart.shape[:2]
+        canvas[300 : 300 + h, 300 : 300 + w] = chart
+        for marker_id, row, col in extraneous:
+            canvas[row : row + 200, col : col + 200] = Fiducial.create(
+                "4x4_50", marker_id, 200
+            ).array
+        return Image(canvas)
+
+    def test_board_estimatePose_ignores_other_markers(self):
+        """Board.estimatePose() must filter out markers that are not on the
+        board without misaligning the remaining ids and corners -- regression
+        test for zip(cornerss, ids) pairing the already-filtered corners with
+        the original, unfiltered ids (#52)"""
+        board = ArUcoBoard(
+            layout=(2, 2), sidelength=0.04, separation=0.01, dict="4x4_50", firsttag=10
+        )
+        camera = CentralCamera(
+            f=0.015, rho=1e-5, imagesize=(1000, 1000), pp=(500, 500)
+        )
+
+        # reference: only the board's own markers in view
+        T0, stats0, ids0, markers0 = board.estimatePose(
+            self._board_scene(board, []), camera, return_markers=True
+        )
+
+        # extraneous markers (ids 3 and 4, not on this board) detected first
+        scene = self._board_scene(board, [(3, 20, 20), (4, 760, 760)])
+        T, stats, ids, markers = board.estimatePose(scene, camera, return_markers=True)
+
+        # only the board's four markers are reported
+        self.assertEqual(sorted(int(i) for i in ids), [10, 11, 12, 13])
+        self.assertEqual(sorted(m.id for m in markers), [10, 11, 12, 13])
+
+        # extra markers must not change the pose estimate
+        nt.assert_allclose(T.A, T0.A, atol=1e-6)
+        self.assertAlmostEqual(stats.RMSE, stats0.RMSE, places=6)
+
+        # each id is paired with its own corners
+        by_id0 = {m.id: m.corners for m in markers0}
+        for m in markers:
+            nt.assert_allclose(m.corners, by_id0[m.id], atol=1e-6)
+
+    def test_board_estimatePose_no_board_markers(self):
+        """Board.estimatePose() raises ValueError, as documented, when none of
+        the markers in view belong to the board"""
+        board = ArUcoBoard(
+            layout=(2, 2), sidelength=0.04, separation=0.01, dict="4x4_50", firsttag=10
+        )
+        camera = CentralCamera(
+            f=0.015, rho=1e-5, imagesize=(1000, 1000), pp=(500, 500)
+        )
+
+        # a marker that is not on the board, and a scene with no markers at all
+        other = self._single_marker_scene("4x4_50", marker_id=3, side=200, canvas=1000)
+        blank = Image(np.full((1000, 1000), 255, dtype=np.uint8))
+
+        for scene in (other, blank):
+            with self.assertRaises(ValueError):
+                board.estimatePose(scene, camera)
 
     def test_matchImagePoints(self):
         """Test matching image points to object points"""
