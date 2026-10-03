@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+import os
+import tempfile
 import unittest
 
 import numpy as np
@@ -15,118 +17,103 @@ class TestImageCoreOperations(unittest.TestCase):
         img = Image.Read("monalisa.png")
         img_copy = img.copy()
         self.assertEqual(img_copy.shape, img.shape)
-        nt.assert_array_equal(img_copy.A, img.A)
+        nt.assert_array_equal(img_copy.array, img.array)
 
     def test_write_read_roundtrip(self):
-        """Test writing and reading back an image"""
+        """Test writing and reading back an image (PNG is lossless)"""
         img = Image.Read("monalisa.png", dtype="uint8")
 
-        try:
-            # Write to file
-            import tempfile
-
-            with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
-                fname = f.name
-
+        with tempfile.TemporaryDirectory() as tmpdir:
+            fname = os.path.join(tmpdir, "roundtrip.png")
             img.write(fname)
-
-            # Read back
             img_read = Image.Read(fname)
-            self.assertEqual(img_read.shape, img.shape)
 
-            # Clean up
-            import os
-
-            os.unlink(fname)
-        except Exception:
-            pass
+        self.assertEqual(img_read.shape, img.shape)
+        nt.assert_array_equal(img_read.array, img.array)
 
     def test_colorspace_conversion_roundtrip(self):
         """Test colorspace conversions"""
         img = Image.Read("flowers1.png")
 
-        # RGB to HSV and back
-        try:
-            hsv = img.colorspace("hsv", src="rgb")
-            self.assertEqual(hsv.nplanes, 3)
-        except:
-            pass
+        # RGB to HSV
+        hsv = img.colorspace("hsv", src="rgb")
+        self.assertEqual(hsv.nplanes, 3)
+        self.assertEqual(hsv.shape[:2], img.shape[:2])
 
         # RGB to lab
-        try:
-            lab = img.colorspace("lab")
-            self.assertEqual(lab.nplanes, 3)
-        except:
-            pass
+        lab = img.colorspace("lab")
+        self.assertEqual(lab.nplanes, 3)
+        self.assertEqual(lab.shape[:2], img.shape[:2])
 
     def test_cast_operations(self):
         """Test image type casting"""
+        # float to uint8
         img_float = Image(np.random.rand(10, 10))
+        img_uint8 = img_float.array_as("uint8")
+        self.assertEqual(img_uint8.dtype, np.uint8)
 
-        try:
-            # Cast to uint8
-            img_uint8 = img_float.array_as("uint8")
-            self.assertEqual(img_uint8.dtype, np.uint8)
-        except:
-            pass
-
-        try:
-            # Cast to float
-            img_uint8 = Image(np.random.rand(10, 10) * 255, dtype="uint8")
-            img_float2 = img_uint8.array_as("float32")
-            self.assertTrue(np.issubdtype(img_float2.dtype, np.floating))
-        except:
-            pass
+        # uint8 to float
+        img_uint8 = Image(np.random.rand(10, 10) * 255, dtype="uint8")
+        img_float2 = img_uint8.array_as("float32")
+        self.assertEqual(img_float2.dtype, np.float32)
 
     def test_matrix_conversion(self):
         """Test matrix/array conversion"""
         img = Image(np.random.rand(10, 10, 3))
 
         # To array
-        arr = img.A
+        arr = img.array
         self.assertEqual(arr.shape, img.shape)
 
-    def test_concat(self):
-        """Test image concatenation"""
+    def test_hstack(self):
+        """Test horizontal concatenation"""
         img1 = Image(np.random.rand(10, 10))
         img2 = Image(np.random.rand(10, 10))
 
-        try:
-            # Horizontal concatenation
-            concat_h = img1.concat(img2, "h")
-            self.assertEqual(concat_h.shape[0], img1.shape[0])
-            self.assertEqual(concat_h.shape[1], img1.shape[1] + img2.shape[1])
-        except:
-            pass
+        stacked = Image.Hstack([img1, img2], sep=0)
+        self.assertEqual(stacked.shape, (10, 20))
+        nt.assert_array_equal(stacked.array[:, :10], img1.array)
+        nt.assert_array_equal(stacked.array[:, 10:], img2.array)
 
-        try:
-            # Vertical concatenation
-            concat_v = img1.concat(img2, "v")
-            self.assertEqual(concat_v.shape[0], img1.shape[0] + img2.shape[0])
-            self.assertEqual(concat_v.shape[1], img1.shape[1])
-        except:
-            pass
+        # a separator adds columns between the images
+        stacked = Image.Hstack([img1, img2], sep=2)
+        self.assertEqual(stacked.shape, (10, 22))
+
+    def test_vstack(self):
+        """Test vertical concatenation"""
+        img1 = Image(np.random.rand(10, 10))
+        img2 = Image(np.random.rand(10, 10))
+
+        stacked = Image.Vstack([img1, img2], sep=0)
+        self.assertEqual(stacked.shape, (20, 10))
+        nt.assert_array_equal(stacked.array[:10, :], img1.array)
+        nt.assert_array_equal(stacked.array[10:, :], img2.array)
+
+        # a separator adds rows between the images
+        stacked = Image.Vstack([img1, img2], sep=2)
+        self.assertEqual(stacked.shape, (22, 10))
 
     def test_interp2d(self):
-        """Test 2D interpolation"""
+        """Test 2D interpolation: sampling at integer pixel coordinates must
+        reproduce the image values"""
         img = Image.Read("monalisa.png", mono=True, dtype="float32")
 
-        try:
-            # Interpolate at specific points
-            interp = img.interp2d(np.array([100, 200]), np.array([150, 250]))
-            self.assertIsNotNone(interp)
-        except:
-            pass
+        # U, V are (Ho, Wo) coordinate arrays for the output image
+        U, V = np.meshgrid(np.arange(100, 110), np.arange(150, 160))
+        interp = img.interp2d(U, V)
+
+        self.assertEqual(interp.shape, (10, 10))
+        nt.assert_allclose(interp.array, img.array[150:160, 100:110], rtol=1e-5)
 
     def test_get_pixel(self):
-        """Test getting pixel values"""
-        img = Image(np.random.rand(10, 10))
+        """Test getting pixel values; the arguments are (u, v), i.e. (column,
+        row), the opposite order to NumPy indexing"""
+        img = Image(np.random.rand(10, 12))
+        self.assertEqual(img.pixel(5, 3), img.array[3, 5])
 
-        try:
-            val = img.getpixel(5, 5)
-            self.assertIsNotNone(val)
-        except:
-            pass
+        # color image: result is a vector over planes
+        img3 = Image(np.random.rand(10, 12, 3))
+        nt.assert_array_equal(img3.pixel(5, 3), img3.array[3, 5, :])
 
 
 class TestImagePointFeatures(unittest.TestCase):
@@ -135,31 +122,26 @@ class TestImagePointFeatures(unittest.TestCase):
         """Test SIFT feature detection"""
         img = Image.Read("monalisa.png", mono=True)
 
-        try:
-            sift = img.SIFT()
-            self.assertGreater(len(sift), 0)
-        except:
-            pass
+        sift = img.SIFT()
+        self.assertGreater(len(sift), 0)
 
+    @unittest.skip(
+        "Image.SURF() is not implemented, and SURF is non-free in pip OpenCV "
+        "builds; see https://github.com/petercorke/machinevision-toolbox-python/issues/113"
+    )
     def test_surf(self):
         """Test SURF feature detection"""
         img = Image.Read("flowers1.png", mono=True)
 
-        try:
-            surf = img.SURF()
-            self.assertGreater(len(surf), 0)
-        except:
-            pass
+        surf = img.SURF()
+        self.assertGreater(len(surf), 0)
 
     def test_orb(self):
         """Test ORB feature detection"""
         img = Image.Read("monalisa.png", mono=True)
 
-        try:
-            orb = img.ORB()
-            self.assertGreater(len(orb), 0)
-        except:
-            pass
+        orb = img.ORB()
+        self.assertGreater(len(orb), 0)
 
     def test_match_orb_auto_metric(self):
         """match() must auto-select hamming distance for binary (ORB)
@@ -187,15 +169,12 @@ class TestImagePointFeatures(unittest.TestCase):
         m_sift_l2 = sift1.match(sift2, metric="L2")
         self.assertEqual(len(m_sift_auto), len(m_sift_l2))
 
-    def test_corners(self):
-        """Test corner detection"""
+    def test_harris(self):
+        """Test Harris corner detection"""
         img = Image.Read("monalisa.png", mono=True)
 
-        try:
-            corners = img.corners()
-            self.assertGreater(len(corners), 0)
-        except:
-            pass
+        corners = img.Harris()
+        self.assertGreater(len(corners), 0)
 
     def test_draw2(self):
         """draw2() with a named color and a colorized (colororder-bearing)
@@ -212,21 +191,16 @@ class TestImagePointFeatures(unittest.TestCase):
     def test_features_list_operations(self):
         """Test feature list operations"""
         img = Image.Read("monalisa.png", mono=True)
+        sift = img.SIFT()
+        self.assertGreater(len(sift), 5)
 
-        try:
-            sift = img.SIFT()
+        # Test slicing
+        slice_sift = sift[:5]
+        self.assertEqual(len(slice_sift), 5)
 
-            # Test slicing
-            if len(sift) > 5:
-                slice_sift = sift[:5]
-                self.assertEqual(len(slice_sift), 5)
-
-            # Test indexing
-            if len(sift) > 0:
-                first_feature = sift[0]
-                self.assertIsNotNone(first_feature)
-        except:
-            pass
+        # Test indexing
+        first_feature = sift[0]
+        self.assertEqual(len(first_feature), 1)
 
     def test_gridify_scalar_nbins(self):
         """gridify() with a scalar nbins must not raise (regression: numpy
@@ -266,20 +240,19 @@ class TestImagePointFeatures(unittest.TestCase):
     def test_feature_properties(self):
         """Test feature properties"""
         img = Image.Read("monalisa.png", mono=True)
+        sift = img.SIFT()
+        n = len(sift)
+        self.assertGreater(n, 0)
 
-        try:
-            sift = img.SIFT()
+        # coordinates: u, v are per-feature lists, p is a 2xN array
+        self.assertEqual(len(sift.u), n)
+        self.assertEqual(len(sift.v), n)
+        self.assertEqual(sift.p.shape, (2, n))
+        nt.assert_array_equal(sift.p[0, :], sift.u)
+        nt.assert_array_equal(sift.p[1, :], sift.v)
 
-            if len(sift) > 0:
-                # Get properties
-                uv = sift.uv
-                self.assertIsNotNone(uv)
-
-                # Get strength
-                strength = sift.strength
-                self.assertIsNotNone(strength)
-        except:
-            pass
+        # strength
+        self.assertEqual(len(sift.strength), n)
 
 
 if __name__ == "__main__":
