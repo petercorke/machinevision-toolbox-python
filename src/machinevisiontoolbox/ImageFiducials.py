@@ -429,14 +429,22 @@ class FiducialCollection:
         # -------------------------------------------------------------------
         ids = ids.reshape(-1) if ids is not None else ids
 
-        # filter tags by ID
-        cornerss = [
-            corners.T.squeeze()
-            for corners, id in zip(cornerss, ids)
-            if id in self._ids
-        ]
-        ids = [id for corners, id in zip(cornerss, ids) if id in self._ids]
-        # ids = np.reshape(ids, (-1, 1))
+        # filter tags by ID, keeping each marker's corners and id together in
+        # a single pass so the two lists cannot get out of step (detectMarkers
+        # returns ids=None when it finds nothing)
+        matches = (
+            []
+            if ids is None
+            else [
+                (corners.T.squeeze(), id)
+                for corners, id in zip(cornerss, ids)
+                if id in self._ids
+            ]
+        )
+        if not matches:
+            raise ValueError("no markers belonging to this board were detected")
+        cornerss = [corners for corners, _ in matches]
+        ids = [id for _, id in matches]
 
         # match the markers to the board
         # print(f"{len(ids)} markers found")
