@@ -138,7 +138,6 @@ imtool = "machinevisiontoolbox.bin.imtool:main"
 tagtool = "machinevisiontoolbox.bin.tagtool:main"
 ocrtool = "machinevisiontoolbox.bin.ocrtool:main"
 bagtool = "machinevisiontoolbox.bin.bagtool:main"
-labeltool = "machinevisiontoolbox.bin.labeltool:main"
 
 [build-system]
 requires = ["hatchling"]
