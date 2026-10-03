@@ -1,5 +1,23 @@
 # Changelog
 
+## [2.4.1](https://github.com/petercorke/machinevision-toolbox-python/compare/v2.4.0...v2.4.1) (2026-10-03)
+
+
+### Bug Fixes
+
+* estimatePose misaligned ids and corners when other markers are in view ([43c5980](https://github.com/petercorke/machinevision-toolbox-python/commit/43c5980c94b42c861b1f6b441df3b39733412414))
+* FiducialCollection.estimatePose() misaligned ids and corners ([#52](https://github.com/petercorke/machinevision-toolbox-python/issues/52)) ([c054867](https://github.com/petercorke/machinevision-toolbox-python/commit/c0548678c81b2ba46b279946e00a5276a2f9e2ae))
+* remove labeltool console script that points at a module that was never committed ([#117](https://github.com/petercorke/machinevision-toolbox-python/issues/117)) ([ef39fa9](https://github.com/petercorke/machinevision-toolbox-python/commit/ef39fa96b89ac7f9723442230baf27e1a5b6140e))
+* remove labeltool console script whose module was never committed ([30b5c6a](https://github.com/petercorke/machinevision-toolbox-python/commit/30b5c6a9ad19b1b73ad969897abee61c0ad556a5))
+
+
+### Documentation
+
+* add a script and README for the block icons ([1185da9](https://github.com/petercorke/machinevision-toolbox-python/commit/1185da946260c675561405c4c6059eeace2d1d6d))
+* add a script and README for the block icons ([2206b53](https://github.com/petercorke/machinevision-toolbox-python/commit/2206b532e03af6ea8a6cf85c0a0855fcb95b2a52))
+* add Codacy grade badge to README ([f91ed2c](https://github.com/petercorke/machinevision-toolbox-python/commit/f91ed2c8a74daf8baf01632548d3d3c23fc06293))
+* add CONTRIBUTING.md ([1885fc1](https://github.com/petercorke/machinevision-toolbox-python/commit/1885fc153bf885fa317473cb5b1f7d887cbe0f97))
+
 ## [2.4.0](https://github.com/petercorke/machinevision-toolbox-python/compare/v2.3.0...v2.4.0) (2026-08-25)
 
 
