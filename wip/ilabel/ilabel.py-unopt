@@ -1,0 +1,271 @@
+import numpy as np
+from machinevisiontoolbox import Image
+
+# ilabel.c from MVTB for MATLAB converted to Python by CoPilot
+#
+# Copyright (C) 1995-2009, by Peter I. Corke
+
+
+UNKNOWN = 0
+TERMINAL = 0x8000000
+THRESH = 0
+import time
+
+
+def pprint(array, before=None, width=1):
+    s10 = " " * 5
+    s1 = " " * 5
+    sep = " " * 5
+    s = ""
+    fmt = f" {{:{width}d}}"
+    for col in range(array.shape[1]):
+        if col // 10 == 0:
+            s10 += " " * (width + 1)
+        else:
+            s10 += fmt.format(col // 10)
+        s1 += fmt.format(col % 10)
+        sep += " " * width + "-"
+    s = s10 + "\n" + s1 + "\n" + sep + "\n"
+
+    for row in range(array.shape[0]):
+        s += f"{row:3d}: "
+        for col in range(array.shape[1]):
+            s += fmt.format(array[row, col])
+        s += "\n"
+
+    if before is not None:
+        # horizontal join
+        return "\n".join(
+            [x + " |" + y[5:] for x, y in zip(before.splitlines(), s.splitlines())]
+        )
+    else:
+        return s
+
+
+# def lresolve(label, lmap):
+#     # i = label
+#     # while i in lmap:
+#     #     i = lmap[i]
+#     # return i
+#     return lmap[label]
+
+
+def ilabel(im, connectivity=4, minsize=0):
+
+    def merge(label1, label2):
+
+        # merge label1 and label2 (maybe indirected)
+        # print(f"merge: {label1}, {label2}")
+        label2 = lmap[label2]
+        # choose which label to keep
+        if label1 > label2:
+            label1, label2 = label2, label1
+        # label1 dominates
+        # print(
+        #     f"merge ({row}, {col}): {label2}({blobsize[label2]}) -> {label1}({blobsize[label1]})"
+        # )
+        # print(limage)
+        # print(lmap)
+        # print()
+        lmap[label2] = label1
+        blobsize[label1] += blobsize[label2]
+
+        return label1
+
+    tstart = time.time()
+
+    height, width = im.shape
+    # im0 = im.ravel()
+    # W = -1
+    # N = -height
+    # PIX_NW = -height - 1
+
+    maxlabel = width * height
+    # lmap = np.zeros(maxlabel, dtype=int)
+    lmap = {}
+    blobsize = {}
+    parent = {}
+    color = {}
+    edge = {}
+    limage = np.zeros((height, width), dtype=int)
+
+    newlabel = 0
+    for row in range(height):
+        prevlab = UNKNOWN
+        for col in range(width):
+            # print(row, col)
+
+            ## assign current label based on already labelled neighbours to
+            ## west or row above that have the same color
+            curpix = im[row, col]
+            curlab = UNKNOWN
+            if col == 0:
+                # if pix is the first pixel in the row, then the label is the same as the pixel above
+                if curpix == im[row - 1, col]:
+                    curlab = limage[row - 1, col]  # inherit label from the north
+            else:
+                # if pix is the same as the previous pixel, then the label is the same
+                if curpix == im[row, col - 1]:
+                    curlab = limage[row, col - 1]  # inherit label from the west
+                elif row > 0 and curpix == im[row - 1, col]:
+                    curlab = lmap[limage[row - 1, col]]
+                    # )  # inherit label from the north
+                # add 8-way stuff here
+
+            if curlab == UNKNOWN:
+                newlabel += 1
+                curlab = newlabel
+                color[curlab] = curpix
+                edge[curlab] = None
+                lmap[curlab] = curlab
+                blobsize[curlab] = 0
+
+            if row > 0:
+                # if not the first row, we can check the pixel above
+
+                # if the pixel above is the same as the current pixel, but the label is different
+                if im[row - 1, col] == curpix:
+                    if lmap[limage[row - 1, col]] != curlab:
+                        # we have a merge to the N
+                        curlab = merge(curlab, limage[row - 1, col])
+
+                    elif im[row, col - 1] == curpix and im[row - 1, col - 1] != curpix:
+                        # then we have an enclosure
+                        # print(f"enclosure at ({row}, {col})")
+                        parent[lmap[limage[row - 1, col - 1]]] = curlab
+                        edge[lmap[limage[row - 1, col - 1]]] = (
+                            row - 1,
+                            col - 1,
+                        )
+                elif connectivity == 8:
+                    # for 8-way connectivity, if the pixel above and to the left is the same as the current pixel, but the label is different
+
+                    if (
+                        col > 0
+                        and im[row - 1, col - 1] == curpix
+                        and lmap[limage[row - 1, col - 1]] != curlab
+                    ):
+                        # we have a merge to the NW
+                        curlab = merge(curlab, limage[row - 1, col - 1])
+                    # for 8-way connectivity, if the pixel above and to the right is the same as the current pixel, but the label is different
+                    elif (
+                        col < (width - 1)
+                        and im[row - 1, col + 1] == curpix
+                        and lmap[limage[row - 1, col + 1]] != curlab
+                    ):
+                        # we have a merge to the NE
+                        curlab = merge(curlab, limage[row - 1, col + 1])
+
+            blobsize[curlab] += 1
+            limage[row, col] = curlab
+            # prevlab = curlab
+
+    tc = time.time()
+
+    lmap2 = {}
+    ulabels = set(lmap.values())
+    for i, u in enumerate(ulabels):
+        lmap2[u] = i
+    # print(lmap2)
+
+    lmap3 = {old: lmap2[new] for (old, new) in lmap.items()}
+    # print(lmap3)
+    limage2 = np.vectorize(lambda oldlabel: lmap3[oldlabel])(limage)
+    # print(limage2)
+
+    parent = {lmap3[child]: lmap3[parent] for (child, parent) in parent.items()}
+    color = {
+        lmap3[oldlabel]: color
+        for (oldlabel, color) in color.items()
+        if oldlabel in lmap2
+    }
+    edge = {
+        lmap3[oldlabel]: edge for (oldlabel, edge) in edge.items() if oldlabel in lmap2
+    }
+    blobsize = {
+        lmap3[oldlabel]: size
+        for (oldlabel, size) in blobsize.items()
+        if oldlabel in lmap2
+    }
+
+    tf = time.time()
+    print(f"tc: {tc - tstart}, tf: {tf - tc}")
+    return len(lmap2), limage2, parent, blobsize, edge, color
+
+
+# im = Image(
+#     r"""
+#             ..........
+#             ..........
+#             ..........
+#             ....##....
+#             ....##....
+#             ..........
+#             ..........
+#             ..........
+#             ..........
+#             ..........
+#             """,
+#     binary=True,
+# )
+# im = Image(
+#     r"""
+#             ..#.......
+#             ..........
+#             ..........
+#             ...####...
+#             ...#..#...
+#             ...####...
+#             ..........
+#             ..........
+#             ..........
+#             ..........
+#             """,
+#     binary=True,
+# )
+# im = Image(
+#     r"""
+#             ..........
+#             ..........
+#             .#.#.#.#..
+#             .#.#.#.#..
+#             .#.#.#.#..
+#             .########.
+#             ..#.#.#.#.
+#             ..#.#.#.#.
+#             ..........
+#             ..........
+#             """,
+#     binary=True,
+# )
+# im = Image(
+#     r"""
+#             ............
+#             ............
+#             .########...
+#             ..#.........
+#             ..#.........
+#             ............
+#             ............
+#             """,
+#     binary=True,
+# )
+# z = False
+# print(f"{'T' if z else 'F'}")
+# fmt = "{'T' if z else 'F'}"
+# fmt.format(True)
+# aa = pprint(im.A)
+im = Image.Read("multiblobs.png")
+# time execution
+
+nlabels, limage, parent, blobsize, edge, color = ilabel(im.A, 4, 0)
+
+
+print(f"{nlabels} labels")
+# print(pprint(limage, before=aa))
+Image(limage).disp(block=True)
+print(f"parents: {parent}")
+print(f"blobsize: {blobsize}")
+print(im.size, sum(parent.values()))
+print(f"edge: {edge}")
+print(f"color: {color}")
