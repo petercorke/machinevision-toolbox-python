@@ -1812,7 +1812,8 @@ class EarthView(ImageSource):
     """
     Iterate images from GoogleEarth
 
-    :param key: Google API key, defaults to None
+    :param key: Google Maps API key, defaults to None (read from the
+        environment, see note below)
     :type key: str
     :param type: type of map (API ``maptype``): 'satellite' [default], 'map', 'roads', 'hybrid', and 'terrain'.
     :type type: str, optional
@@ -1855,9 +1856,15 @@ class EarthView(ImageSource):
         `Getting started <https://developers.google.com/maps/documentation/maps-static>`_
 
     .. note::
-        - If the key is not passed in, a value is sought from the
-            environment variable ``GOOGLE_API_KEY``.
-        - Uses the `Google Maps Static API <https://developers.google.com/maps/documentation/maps-static/start>`_
+        - If ``key`` is not passed in, it is read from the environment
+          variable ``GOOGLE_MAPS_API_KEY``, or failing that from
+          ``GOOGLE_API_KEY``. Prefer ``GOOGLE_MAPS_API_KEY``: Google's Gemini
+          libraries also read ``GOOGLE_API_KEY``, so using that name for a
+          Maps key can hand the wrong key to one or the other.
+        - Uses the `Google Maps Static API <https://developers.google.com/maps/documentation/maps-static/start>`_.
+          Restrict the key to that API only (Google Cloud console, *APIs &
+          Services → Credentials*), so a leaked key can't be used for
+          anything else, and consider a daily request quota to bound costs.
 
     :references:
         - |RVC3|, Section 11.1.6.
@@ -1883,7 +1890,9 @@ class EarthView(ImageSource):
     ) -> None:
 
         if key is None:
-            self.key = os.getenv("GOOGLE_API_KEY")
+            # GOOGLE_MAPS_API_KEY first; GOOGLE_API_KEY kept for backward
+            # compatibility (it's also the name Gemini libraries read)
+            self.key = os.getenv("GOOGLE_MAPS_API_KEY") or os.getenv("GOOGLE_API_KEY")
         else:
             self.key = key
 
