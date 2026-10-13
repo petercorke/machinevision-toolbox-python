@@ -92,6 +92,10 @@ browser tab running Jupyter lite.
 Troubleshooting JupyterLite
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+JupyterLite is a powerful capability, running a full Python environment inside your
+browser, but it can sometimes get tripped up by what the browser has stored from
+an earlier visit.
+
 If the page loads but the JupyterLab interface is broken, or the console shows many
 ``Plugin '...' failed to activate`` / ``Invalid response: 404`` errors, your browser is
 most likely holding files from an earlier version of the site.  Any one of these fixes
