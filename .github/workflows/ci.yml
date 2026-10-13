@@ -47,9 +47,46 @@ jobs:
           MPLBACKEND: Agg
         run: python -m pytest --timeout=50 --timeout-method=thread
 
+  pgraph-compat:
+    # BundleAdjust is the only pgraph user and pgraph 1.0 changed API (keyword-only
+    # graph constructors, UVertex -> Vertex, edges() a list).  The main matrix
+    # installs whatever pip resolves, so run the pgraph-touching tests against
+    # both the 0.6 series and the newest release explicitly.
+    name: pgraph compat (${{ matrix.pgraph }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        pgraph: ["pgraph-python<1", "pgraph-python"]
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Install libegl
+        run: sudo apt-get update && sudo apt-get install -y libegl1 libgl1
+
+      - name: Install package
+        run: |
+          pip install .[dev,tool]
+          cd packages/mvtb-data && pip install .
+
+      - name: Install requested pgraph
+        run: |
+          pip install --upgrade "${{ matrix.pgraph }}"
+          pip show pgraph-python | grep -i '^version'
+
+      - name: Run pgraph tests
+        env:
+          MPLBACKEND: Agg
+        run: python -m pytest tests/test_bundleadjust.py --timeout=50 --timeout-method=thread
+
   all-tests-passed:
     name: All tests passed
-    needs: test
+    needs: [test, pgraph-compat]
     runs-on: ubuntu-latest
     if: always()
     steps:
@@ -57,6 +94,10 @@ jobs:
         run: |
           if [ "${{ needs.test.result }}" != "success" ]; then
             echo "test matrix did not succeed: ${{ needs.test.result }}"
+            exit 1
+          fi
+          if [ "${{ needs.pgraph-compat.result }}" != "success" ]; then
+            echo "pgraph compat did not succeed: ${{ needs.pgraph-compat.result }}"
             exit 1
           fi
 
