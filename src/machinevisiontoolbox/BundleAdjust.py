@@ -11,6 +11,10 @@ from scipy import sparse
 try:
     import pgraph
 
+    # pgraph 1.0 has a single Vertex class and deprecates UVertex; 0.6.x has only
+    # UVertex.  A vertex has no direction of its own in 1.0, so they are equivalent.
+    _Vertex = getattr(pgraph, "Vertex", None) or pgraph.UVertex
+
     pgraph_installed = True
 except ImportError:
     print("pgraph not installed")
@@ -62,7 +66,7 @@ if pgraph_installed:
             """
             return self._fixed
 
-    class ViewPoint(pgraph.UVertex, _Common):
+    class ViewPoint(_Vertex, _Common):
         def __init__(
             self, x: np.ndarray, fixed: bool = False, color: str | None = None
         ) -> None:
@@ -80,7 +84,7 @@ if pgraph_installed:
             the camera is not ``fixed`` it will be adjusted during the
             optimization.
 
-            :seealso: :class:`PGraph.UVertex`
+            :seealso: :class:`pgraph.Vertex`
             """
             super().__init__()
 
@@ -101,7 +105,7 @@ if pgraph_installed:
 
             return SE3(t) * UnitQuaternion.Vec3(qv).SE3()
 
-    class Landmark(pgraph.UVertex, _Common):
+    class Landmark(_Vertex, _Common):
         def __init__(self, P: np.ndarray, fixed: bool = False) -> None:
             """
             Create new landmark point
@@ -114,7 +118,7 @@ if pgraph_installed:
             Represent a world point in the bundle adjustment problem.  If the
             point is not ``fixed`` it will be adjusted during the optimization.
 
-            :seealso: :meth:`pgraph.UVertex`
+            :seealso: :class:`pgraph.Vertex`
             """
             super().__init__()
             self._P = P
@@ -379,7 +383,7 @@ if pgraph_installed:
             self.g.add_vertex(l)
             self.landmarks.append(l)
             if fixed:
-                self.fixedlandmarks.append(c)
+                self.fixedlandmarks.append(l)
             l.ba = self  # back reference to the BA problem
             self.index_valid = False
             return l

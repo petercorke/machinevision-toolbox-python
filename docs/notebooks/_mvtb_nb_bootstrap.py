@@ -25,14 +25,28 @@ async def ensure_installed() -> bool:
         await micropip.install(
             [
                 "opencv-python",
-                "spatialmath-python",
-                "pgraph-python",
                 "ansitable",
                 "mvtb-data",
                 "tqdm",
                 "requests",
                 "ipywidgets",
+                # runtime dependencies of spatialmath-python and pgraph-python,
+                # listed here because those two are installed with deps=False below
+                "numpy",
+                "scipy",
+                "matplotlib",
+                "typing_extensions",
             ]
+        )
+        # spatialmath-python <= 1.1.18 lists pre-commit (a dev tool) as a runtime
+        # dependency; its virtualenv requires packaging>=26.3, which conflicts with
+        # the packaging 24.2 built into Pyodide, so a normal resolve fails.
+        # pgraph-python depends on spatialmath-python, so it needs the same
+        # treatment.  Remove once a spatialmath release without that dependency is
+        # out (rai-opensource/spatialmath-python#250) and install both normally.
+        await micropip.install(
+            ["spatialmath-python", "pgraph-python"],
+            deps=False,
         )
         import cv2  # noqa: F401 - force cv2 into module registry before toolbox import
 
