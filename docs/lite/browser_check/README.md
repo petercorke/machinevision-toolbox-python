@@ -11,7 +11,7 @@ a browser or JupyterLab.
 
 | Where | When |
 |---|---|
-| `docs.yml`, after `jupyter lite build` | every publish (`push` to main, `workflow_dispatch`), not pull requests; blocks the deploy on failure |
+| `docs.yml`, after `jupyter lite build` | every publish (`push` to main, `workflow_dispatch`), not pull requests; informational (`continue-on-error`) until it has run green once on main, then it blocks the deploy |
 | `lite-smoke.yml` | after each Docs Publish on main, weekly, or manually; checks the live site and can only alert |
 
 Run it yourself:
