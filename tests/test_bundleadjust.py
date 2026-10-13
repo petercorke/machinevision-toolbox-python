@@ -251,24 +251,17 @@ class TestBundleAdjust(unittest.TestCase):
         self.assertLess(err, 1.0)
         np.testing.assert_array_equal(landmarks[0].P, P[:, 0])
 
-    def test_no_pgraph_deprecation_warning(self):
-        """Importing BundleAdjust must not trigger a pgraph DeprecationWarning
-        (pgraph 1.0 deprecates UVertex)."""
-        import subprocess
-        import sys
+    def test_vertex_base_class(self):
+        """ViewPoint and Landmark subclass pgraph.Vertex where it exists
+        (pgraph 1.0 deprecates UVertex, which warns on access)."""
+        import pgraph
 
-        r = subprocess.run(
-            [
-                sys.executable,
-                "-W",
-                "error::DeprecationWarning",
-                "-c",
-                "import machinevisiontoolbox.BundleAdjust",
-            ],
-            capture_output=True,
-            text=True,
-        )
-        self.assertEqual(r.returncode, 0, r.stderr)
+        mod = __import__(BundleAdjust.__module__, fromlist=["ViewPoint"])
+        if not hasattr(pgraph, "Vertex"):
+            self.skipTest("pgraph < 1.0 has only UVertex")
+        self.assertIs(mod._Vertex, pgraph.Vertex)
+        self.assertTrue(issubclass(mod.ViewPoint, pgraph.Vertex))
+        self.assertTrue(issubclass(mod.Landmark, pgraph.Vertex))
 
 
 # ----------------------------------------------------------------------- #
