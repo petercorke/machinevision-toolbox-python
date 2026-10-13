@@ -161,6 +161,37 @@ jobs:
           pip install jupyterlite-core "jupyterlite-pyodide-kernel==0.6.1" jupyter-server
           cd docs/lite && jupyter lite build --output-dir ../build/html/lite
 
+      # Real browsers, pre-deploy: gates publishing, so skipped for pull_request
+      # (which only builds).  The Node/Pyodide check above covers dependency
+      # drift; this covers JupyterLab itself starting (before any kernel exists)
+      # and the kernel running the bootstrap cell, in Chromium and WebKit.
+      - name: Install browsers for the JupyterLite browser check
+        if: github.event_name != 'pull_request'
+        run: |
+          pip install playwright
+          playwright install --with-deps chromium webkit
+
+      - name: Check the built JupyterLite site starts in a real browser
+        if: github.event_name != 'pull_request'
+        # Informational until it has run green once on main (it is skipped for
+        # pull requests, so its first real CI run is on a publish).  Then delete
+        # this line so a failure blocks the deploy.
+        continue-on-error: true
+        run: |
+          python -m http.server 8000 --directory docs/build/html &
+          sleep 3
+          python docs/lite/browser_check/check_lite_in_browser.py \
+            --base-url http://localhost:8000/lite \
+            --retries 1 --screenshot-dir browser-check-screenshots
+
+      - name: Upload browser-check screenshots
+        if: failure() && github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v7
+        with:
+          name: lite-browser-check-screenshots
+          path: browser-check-screenshots
+          if-no-files-found: ignore
+
       - name: Package notebooks zip
         run: |
           rm -f docs/build/html/mvtb_notebooks.zip
