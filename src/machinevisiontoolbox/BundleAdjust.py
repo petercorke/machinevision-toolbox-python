@@ -205,7 +205,7 @@ if pgraph_installed:
             #  - Observation for edges representing the observation of a landmark by
             #    a view
             #
-            self.g = pgraph.UGraph(6)  # initialize the graph, nodes have 6D coordinates
+            self.g = pgraph.UGraph()  # views have 6D coordinates, landmarks 3D
 
             self._nviews = 0  # number of cameras
             self._nlandmarks = 0  # number of landmark points
