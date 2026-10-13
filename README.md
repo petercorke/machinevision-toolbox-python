@@ -10,6 +10,8 @@
 [![JupyterLite](https://img.shields.io/badge/Try_it_Now-JupyterLite-orange?style=for-the-badge&logo=jupyter)](https://petercorke.github.io/machinevision-toolbox-python/lite/lab?path=index.ipynb)
   [![PyPI version](https://img.shields.io/pypi/v/machinevision-toolbox-python?style=for-the-badge&color=blue)](https://pypi.org/project/machinevision-toolbox-python/)
   [![Documentation](https://img.shields.io/badge/Docs-View_Online-blue?style=for-the-badge)](https://petercorke.github.io/machinevision-toolbox-python/)
+  <br>
+  <sub><a href="https://petercorke.github.io/machinevision-toolbox-python/jupyter-notebooks.html#troubleshooting-jupyterlite">Troubleshooting JupyterLite</a></sub>
 
   <p>
     <a href="https://github.com/petercorke/machinevision-toolbox-python">GitHub</a> •

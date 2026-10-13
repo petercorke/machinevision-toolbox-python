@@ -89,23 +89,24 @@ installing anything on your local machine.  To use it, just click the "Launch in
 Lite" button at the top of each notebook page, and it will open the notebook in a new
 browser tab running Jupyter lite.
 
-.. admonition:: If Jupyter lite does not start
+Troubleshooting JupyterLite
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-    If the page loads but the JupyterLab interface is broken, or the console shows many
-    ``Plugin '...' failed to activate`` / ``Invalid response: 404`` errors, your browser is
-    most likely holding files from an earlier version of the site.  Any one of these fixes
-    it, quickest first:
+If the page loads but the JupyterLab interface is broken, or the console shows many
+``Plugin '...' failed to activate`` / ``Invalid response: 404`` errors, your browser is
+most likely holding files from an earlier version of the site.  Any one of these fixes
+it, quickest first:
 
-    * Open the link in a **private / incognito window**, which starts with no stored site data.
-    * **Clear the site's data** for ``petercorke.github.io`` and reload.  In Safari this is
-      *Settings* |rarr| *Privacy* |rarr| *Manage Website Data*; in Chrome and Edge it is the
-      icon at the left of the address bar |rarr| *Site settings* |rarr| *Clear data*; in
-      Firefox it is the padlock |rarr| *Clear cookies and site data*.
-    * Do a **hard reload** (Shift-click the reload button, or Ctrl/Cmd-Shift-R).
-    * Try another browser, or use Colab or a local install instead.
+* Open the link in a **private / incognito window**, which starts with no stored site data.
+* **Clear the site's data** for ``petercorke.github.io`` and reload.  In Safari this is
+  *Settings* |rarr| *Privacy* |rarr| *Manage Website Data*; in Chrome and Edge it is the
+  icon at the left of the address bar |rarr| *Site settings* |rarr| *Clear data*; in
+  Firefox it is the padlock |rarr| *Clear cookies and site data*.
+* Do a **hard reload** (Shift-click the reload button, or Ctrl/Cmd-Shift-R).
+* Try another browser, or use Colab or a local install instead.
 
-    Your own notebooks in Jupyter lite are stored in the same browser data, so clearing the site's data
-    deletes them.  Download any notebooks you want to keep first.
+Your own notebooks in Jupyter lite are stored in the same browser data, so clearing the site's data
+deletes them.  Download any notebooks you want to keep first.
 
 
 In the cloud using Google Colab
