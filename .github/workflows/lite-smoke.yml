@@ -1,0 +1,56 @@
+name: JupyterLite smoke test
+
+# Opens the *live* JupyterLite site in real browsers and runs a notebook's
+# bootstrap cell.  Complements the pre-deploy check in docs.yml:
+#   - after every Docs Publish run on main that deployed, and
+#   - weekly, because breakage arrives from PyPI (a dependency changing its
+#     requirements) with no commit in this repo.
+# It cannot block a deploy; a failure fails the run and notifies.  Never runs
+# for pull requests.
+
+on:
+  workflow_run:
+    workflows: ["Docs Publish"]
+    types: [completed]
+    branches: [main]
+  schedule:
+    - cron: "17 21 * * 1" # Mondays 21:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  live-site:
+    runs-on: ubuntu-latest
+    if: >-
+      github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event != 'pull_request')
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Install Playwright and browsers
+        run: |
+          pip install playwright
+          playwright install --with-deps chromium webkit
+
+      - name: Check the live JupyterLite site
+        # retries: GitHub Pages can take a minute or two to serve a new deploy
+        run: |
+          python docs/lite/browser_check/check_lite_in_browser.py \
+            --base-url https://petercorke.github.io/machinevision-toolbox-python/lite \
+            --retries 4 --retry-wait 60 --screenshot-dir browser-check-screenshots
+
+      - name: Upload screenshots
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: lite-browser-check-screenshots
+          path: browser-check-screenshots
+          if-no-files-found: ignore
