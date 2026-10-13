@@ -602,7 +602,8 @@ class VideoCamera(ImageSource):
         attached video camera.  On a Mac running 13.0 (Ventura) or later and
         an iPhone with iOS 16 or later, the Continuity Camera feature allows
         the phone camera to be used as a local video camera, and it will
-        appear as a separate camera with its own ID.
+        appear as a separate camera with its own ID.  Other phones, and cameras
+        on the network, can be used through :class:`WebCam`.
 
         OpenCV does not expose a portable API for mapping integer ``id``
         values to human-readable camera names.  Use :meth:`list` to
@@ -612,7 +613,7 @@ class VideoCamera(ImageSource):
     :references:
         - |RVC3|, Section 11.1.3.
 
-    :seealso: :meth:`list` :func:`~machinevisiontoolbox.base.imageio.convert`
+    :seealso: :meth:`list` :class:`WebCam` :func:`~machinevisiontoolbox.base.imageio.convert`
         `cv2.VideoCapture <https://docs.opencv.org/4.x/d8/dfe/classcv_1_1VideoCapture.html#a57c0e81e83e60f36c83027dc2a188e80>`_
     """
 
@@ -1729,15 +1730,24 @@ class WebCam(ImageSource):
                     pass
 
 
-    .. note:: Manu webcameras accept a query string in the URL to specify
+    .. note:: Many webcameras accept a query string in the URL to specify
         image resolution, image format, codec and other parameters. There
         is no common standard for this, see the manufacturer's datasheet
         for details.
 
+    .. note:: The ``url`` is passed to ``cv2.VideoCapture``, so it can be
+        anything that OpenCV can open, for example a still-image URL, a
+        live HTTP (MJPEG) stream or an RTSP stream.  A phone can be used as a
+        networked camera in this way: many IP-camera apps for iOS and Android
+        publish a live stream at a URL.  Which stream types and URL formats are
+        supported depends on the app and on how your OpenCV was built.  On a Mac
+        with an iPhone, Continuity Camera makes the phone appear as a local
+        camera instead, see :class:`VideoCamera`.
+
     :references:
         - |RVC3|, Section 11.1.5.
 
-    :seealso: :func:`~machinevisiontoolbox.base.imageio.convert`
+    :seealso: :class:`VideoCamera` :func:`~machinevisiontoolbox.base.imageio.convert`
         `cv2.VideoCapture <https://docs.opencv.org/4.x/d8/dfe/classcv_1_1VideoCapture.html#a57c0e81e83e60f36c83027dc2a188e80>`_
     """
 
