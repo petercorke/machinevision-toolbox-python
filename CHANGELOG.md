@@ -1,5 +1,31 @@
 # Changelog
 
+## [2.4.1](https://github.com/petercorke/machinevision-toolbox-python/compare/v2.4.0...v2.4.1) (2026-10-13)
+
+
+### Bug Fixes
+
+* BundleAdjust fixed landmarks and pgraph 1.0 Vertex ([1467091](https://github.com/petercorke/machinevision-toolbox-python/commit/14670915f109ea1b57ea3f3adc2d2f3805e53296))
+* BundleAdjust fixed landmarks and pgraph 1.0 Vertex ([195e895](https://github.com/petercorke/machinevision-toolbox-python/commit/195e895aa8240c722472fbd31a3be4b91ca9524d))
+* **docs:** install spatialmath and pgraph with deps=False in JupyterLite ([201f234](https://github.com/petercorke/machinevision-toolbox-python/commit/201f23487f9f7628d0df2b0cef386175740972a2))
+* **docs:** install spatialmath and pgraph with deps=False in JupyterLite ([5615b3b](https://github.com/petercorke/machinevision-toolbox-python/commit/5615b3b7d147e44ae1f2d032deec13bfc69f548a))
+* don't pass a positional argument to pgraph.UGraph ([f5590e0](https://github.com/petercorke/machinevision-toolbox-python/commit/f5590e03b6d35d2bcbf62519c1de82d231790169))
+* don't pass a positional argument to pgraph.UGraph ([6fb62e5](https://github.com/petercorke/machinevision-toolbox-python/commit/6fb62e50a8d79dd748fab62cbd3054e98af57375))
+* estimatePose misaligned ids and corners when other markers are in view ([43c5980](https://github.com/petercorke/machinevision-toolbox-python/commit/43c5980c94b42c861b1f6b441df3b39733412414))
+* FiducialCollection.estimatePose() misaligned ids and corners ([#52](https://github.com/petercorke/machinevision-toolbox-python/issues/52)) ([c054867](https://github.com/petercorke/machinevision-toolbox-python/commit/c0548678c81b2ba46b279946e00a5276a2f9e2ae))
+* remove labeltool console script that points at a module that was never committed ([#117](https://github.com/petercorke/machinevision-toolbox-python/issues/117)) ([ef39fa9](https://github.com/petercorke/machinevision-toolbox-python/commit/ef39fa96b89ac7f9723442230baf27e1a5b6140e))
+* remove labeltool console script whose module was never committed ([30b5c6a](https://github.com/petercorke/machinevision-toolbox-python/commit/30b5c6a9ad19b1b73ad969897abee61c0ad556a5))
+
+
+### Documentation
+
+* add a script and README for the block icons ([1185da9](https://github.com/petercorke/machinevision-toolbox-python/commit/1185da946260c675561405c4c6059eeace2d1d6d))
+* add a script and README for the block icons ([2206b53](https://github.com/petercorke/machinevision-toolbox-python/commit/2206b532e03af6ea8a6cf85c0a0855fcb95b2a52))
+* add Codacy grade badge to README ([f91ed2c](https://github.com/petercorke/machinevision-toolbox-python/commit/f91ed2c8a74daf8baf01632548d3d3c23fc06293))
+* add CONTRIBUTING.md ([1885fc1](https://github.com/petercorke/machinevision-toolbox-python/commit/1885fc153bf885fa317473cb5b1f7d887cbe0f97))
+* note how to use a phone as a camera in WebCam and VideoCamera ([76cea5e](https://github.com/petercorke/machinevision-toolbox-python/commit/76cea5e6f035b558330c0aab1bf7a036100dbf92))
+* note how to use a phone as a camera in WebCam and VideoCamera ([72ca04b](https://github.com/petercorke/machinevision-toolbox-python/commit/72ca04b30f0f87af1118659d74e59b32978902d0))
+
 ## [2.4.0](https://github.com/petercorke/machinevision-toolbox-python/compare/v2.3.0...v2.4.0) (2026-08-25)
 
 
