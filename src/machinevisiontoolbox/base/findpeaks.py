@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+import warnings
+
 import numpy as np
 import scipy as sp
 import spatialmath.base as base
@@ -116,10 +118,13 @@ def findpeaks(
                 poly, *_ = Polynomial.fit(
                     x[i - n2 : i + n2 + 1], y[i - n2 : i + n2 + 1], interp, full=True
                 )
-            except:
-                # handle situation where neighbourhood falls off the data
-                # vector
-                print(f"Peak at {x[i]} couldn't be fitted, skipping")
+            except (ValueError, np.linalg.LinAlgError):
+                # A neighbourhood near the boundary can contain too few samples.
+                warnings.warn(
+                    f"Peak at {x[i]} couldn't be fitted, skipping",
+                    RuntimeWarning,
+                    stacklevel=2,
+                )
                 continue
 
             # find the roots of the polynomial closest to the coarse peak
