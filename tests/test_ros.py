@@ -17,10 +17,12 @@ from __future__ import annotations
 import asyncio
 import base64
 import json
+import struct
 import threading
 import time
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 import numpy as np
@@ -276,6 +278,115 @@ class TestRosBagRos2(unittest.TestCase):
         for m in self._bag(msgfilter="Imu"):
             self.assertTrue(hasattr(m, "topic"))
             self.assertTrue(hasattr(m, "timestamp"))
+
+
+@_skip_import
+@pytest.mark.parametrize("wire", ["ros1", "cdr_le", "cdr_be"])
+@pytest.mark.parametrize("release", ["explicit", "auto"])
+@pytest.mark.parametrize("first_frame", [0, 1, 2])
+def test_rosbag_image_trailers(wire: str, release: str, first_frame: int) -> None:
+    """Preserve pixels and decode trailers independently for each message."""
+    from rosbags.typesys import Stores, get_typestore
+
+    is_cdr = wire != "ros1"
+    store = get_typestore(Stores.ROS2_HUMBLE if is_cdr else Stores.ROS1_NOETIC)
+    stamp = store.types["builtin_interfaces/msg/Time"](sec=42, nanosec=123)
+    header_args = dict(stamp=stamp, frame_id="camera_optical_frame")
+    if not is_cdr:
+        header_args["seq"] = 0
+    header = store.types["std_msgs/msg/Header"](**header_args)
+    image_type = "sensor_msgs/msg/Image"
+    string_type = "std_msgs/msg/String"
+    connection = SimpleNamespace(msgtype=image_type, topic="/camera/raw")
+    other_connection = SimpleNamespace(msgtype=string_type, topic="/status")
+    pixels = np.arange(18, dtype=np.uint8).reshape(2, 3, 3)
+    depth = np.array([[0, 1, 255], [256, 1000, 65535]], dtype=np.uint16)
+    frames = [
+        (pixels, "rgb8", None),
+        (pixels, "rgb8", 0.0),
+        (depth, "16UC1", 0.001),
+        (pixels, "rgb8", None),
+    ]
+
+    frames = frames[first_frame:] + frames[:first_frame]
+
+    def serialize(msg: object, msgtype: str) -> bytes:
+        if is_cdr:
+            return bytes(
+                store.serialize_cdr(msg, msgtype, little_endian=wire == "cdr_le")
+            )
+        return bytes(store.serialize_ros1(msg, msgtype))
+
+    messages = []
+    for data, encoding, units in frames:
+        msg = store.types[image_type](
+            header=header,
+            height=2,
+            width=3,
+            encoding=encoding,
+            is_bigendian=0,
+            step=data.strides[0],
+            data=np.frombuffer(data.tobytes(), dtype=np.uint8),
+        )
+        raw = serialize(msg, image_type)
+        if units is not None:
+            raw += struct.pack(">f" if wire == "cdr_be" else "<f", units)
+        messages.append((connection, STAMP0, raw))
+        status = store.types[string_type](data="still intact")
+        messages.append((other_connection, STAMP0, serialize(status, string_type)))
+
+    bag = ROSBag(
+        "unused.bag",
+        release="auto" if release == "auto" else ("humble" if is_cdr else "noetic"),
+        msgfilter=None,
+    )
+    reader = MagicMock(spec=_sources._RosBagReader1)
+    reader.connections = []
+    reader.messages.return_value = iter(messages)
+    bag.reader = reader
+    bag._is_realsense = True
+    bag._is_ros2 = is_cdr
+    result = list(iter(bag))
+    assert len(result) == 8
+    for frame, status, (expected, _, units) in zip(result[::2], result[1::2], frames):
+        np.testing.assert_array_equal(frame.array, expected)
+        assert frame.depth_units == (None if units is None else pytest.approx(units))
+        assert frame.topic == "/camera/raw"
+        assert frame.timestamp == 42_000_000_123
+        assert status.data == "still intact"
+    reader.close.assert_called_once()
+
+
+@_skip_import
+@pytest.mark.parametrize("release", ["noetic", "auto"])
+@pytest.mark.parametrize("trailer", [b"x", b"xx", b"xxx", b"12345678"])
+def test_rosbag_unknown_image_trailer(release: str, trailer: bytes) -> None:
+    """Reject unknown trailers rather than silently dropping bytes."""
+    from rosbags.typesys import Stores, get_typestore
+
+    store = get_typestore(Stores.ROS1_NOETIC)
+    stamp = store.types["builtin_interfaces/msg/Time"](sec=42, nanosec=0)
+    header = store.types["std_msgs/msg/Header"](seq=0, stamp=stamp, frame_id="")
+    msgtype = "sensor_msgs/msg/Image"
+    msg = store.types[msgtype](
+        header=header,
+        height=1,
+        width=2,
+        encoding="mono8",
+        is_bigendian=0,
+        step=2,
+        data=np.array([17, 29], dtype=np.uint8),
+    )
+    raw = bytes(store.serialize_ros1(msg, msgtype)) + trailer
+    connection = SimpleNamespace(msgtype=msgtype, topic="/camera/raw")
+    bag = ROSBag("unused.bag", release=release)
+    reader = MagicMock()
+    reader.connections = []
+    reader.messages.return_value = iter([(connection, STAMP0, raw)])
+    bag.reader = reader
+    with pytest.raises(ValueError, match="Unexpected Image trailer.*expected CDR alignment padding"):
+        list(iter(bag))
+    reader.close.assert_called_once()
 
 
 # ---------------------------------------------------------------------------
@@ -1027,3 +1138,335 @@ class TestRosTopicLive(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+@_skip_import
+@pytest.mark.parametrize("wire", ["ros1", "cdr_le", "cdr_be"])
+@pytest.mark.parametrize("trailer", [False, True])
+@pytest.mark.parametrize("other_trailer", [0, 4, 8])
+def test_realsense_bag(
+    tmp_path: Path, wire: str, trailer: bool, other_trailer: int
+) -> None:
+    """StreamInfo must not cause valid image bytes to be trimmed."""
+    from create_ros_fixture import make_realsense
+
+    path = tmp_path / "realsense.bag"
+    make_realsense(path, trailer, wire=wire, other_trailer=other_trailer, option=None)
+    bag = ROSBag(path, release="auto", msgfilter=None)
+    with bag:
+        assert bag._is_realsense
+        samples = list(bag)
+    assert len(samples) == 4
+    assert samples[0].fps == 30
+    assert samples[1].width == 2
+    depth, color = samples[2:]
+    np.testing.assert_array_equal(depth.array, [[0, 100]])
+    assert depth.array.dtype == np.uint16
+    assert depth.depth_units == pytest.approx(0.002 if trailer else 0.001)
+    np.testing.assert_array_equal(color.array, np.arange(6).reshape(1, 2, 3))
+    assert color.depth_units == (0.0 if trailer else None)
+
+
+@_skip_import
+@pytest.mark.parametrize("wire", ["ros1", "cdr_le", "cdr_be"])
+@pytest.mark.parametrize("mode", [None, "auto", 0.004])
+@pytest.mark.parametrize("invalid_is_nan", [False, True])
+@pytest.mark.parametrize(
+    "encoding,trailer,option,expected",
+    [
+        ("16UC1", True, 0.003, 0.002),
+        ("16UC1", False, 0.003, 0.003),
+        ("16UC1", False, None, 0.001),
+        ("32FC1", False, None, 1.0),
+        ("mono16", False, None, None),
+    ],
+)
+def test_depth_units_api(
+    tmp_path: Path,
+    wire: str,
+    mode,
+    invalid_is_nan: bool,
+    encoding: str,
+    trailer: bool,
+    option,
+    expected,
+) -> None:
+    """Scale precedence and conversion are independent of the recording SDK."""
+    from create_ros_fixture import make_realsense
+
+    path = tmp_path / "depth.bag"
+    make_realsense(path, trailer, encoding=encoding, option=option, wire=wire)
+    bag = ROSBag(
+        path,
+        release="auto",
+        depth_units=mode,
+        invalid_is_nan=invalid_is_nan,
+        topicfilter="/camera/depth",
+    )
+    units = mode if isinstance(mode, float) else expected
+    if units is None and mode is not None:
+        with pytest.raises(ValueError, match="Unknown depth units"):
+            list(bag)
+        return
+    (frame,) = list(bag)
+    assert frame.depth_units == (None if units is None else pytest.approx(units))
+    if mode is None:
+        np.testing.assert_array_equal(frame.array, [[0, 100]])
+        assert frame.array.dtype == (np.float32 if encoding == "32FC1" else np.uint16)
+    else:
+        assert frame.array.dtype == np.float32
+        assert frame.array[0, 1] == pytest.approx(100 * units)
+        if invalid_is_nan:
+            assert np.isnan(frame.array[0, 0])
+        else:
+            assert frame.array[0, 0] == 0
+
+
+@_skip_import
+@pytest.mark.parametrize("wire", ["ros1", "cdr_le", "cdr_be"])
+@pytest.mark.parametrize("msgtype", ["Image", "CompressedImage"])
+@pytest.mark.parametrize("footer", [b"", struct.pack("<f", 0.0)])
+def test_image_layout_parser(wire: str, msgtype: str, footer: bytes) -> None:
+    """Both layouts locate the array end without consulting generated internals."""
+    from rosbags.typesys import Stores, get_typestore
+
+    store = get_typestore(Stores.ROS1_NOETIC if wire == "ros1" else Stores.ROS2_HUMBLE)
+    args = dict(stamp=store.types["builtin_interfaces/msg/Time"](42, 0), frame_id="ab")
+    if wire == "ros1":
+        args["seq"] = 0
+    header = store.types["std_msgs/msg/Header"](**args)
+    fulltype = "sensor_msgs/msg/" + msgtype
+    data = np.arange(6, dtype=np.uint8)
+    args = dict(header=header, data=data)
+    if msgtype == "Image":
+        args.update(height=2, width=3, encoding="mono8", is_bigendian=0, step=3)
+    else:
+        args["format"] = "jpeg"
+    msg = store.types[fulltype](**args)
+
+    def serialize(message: object) -> bytes:
+        return bytes(
+            store.serialize_ros1(message, fulltype)
+            if wire == "ros1"
+            else store.serialize_cdr(message, fulltype, little_endian=wire == "cdr_le")
+        )
+
+    decoded, actual_footer = ROSBag._deserialize_message(
+        store, serialize(msg) + footer, fulltype, wire != "ros1"
+    )
+    np.testing.assert_array_equal(decoded.data, data)
+    assert actual_footer == footer
+    with pytest.raises((ValueError, struct.error), match="Truncated|buffer"):
+        ROSBag._deserialize_message(
+            store, serialize(msg)[:-1], fulltype, wire != "ros1"
+        )
+    if msgtype == "Image":
+        msg.step = 4
+        with pytest.raises(ValueError, match="height \\* step"):
+            ROSBag._deserialize_message(store, serialize(msg), fulltype, wire != "ros1")
+
+
+@_skip_import
+@pytest.mark.parametrize("units", [0.0, -0.001, float("nan"), float("inf"), "bad", True])
+def test_invalid_depth_units(units) -> None:
+    """Reject invalid user scales before opening a bag."""
+    with pytest.raises(ValueError, match="depth_units"):
+        ROSBag("unused.bag", depth_units=units)
+
+
+@_skip_import
+@pytest.mark.parametrize("mode", [None, "auto", 0.005])
+def test_depth_conversion_leaves_color_unchanged(tmp_path: Path, mode) -> None:
+    """Depth scale options never convert color images."""
+    from create_ros_fixture import make_realsense
+
+    path = tmp_path / "color.bag"
+    make_realsense(path)
+    color, = list(ROSBag(path, topicfilter="/camera/color", depth_units=mode))
+    np.testing.assert_array_equal(color.array, np.arange(6).reshape(1, 2, 3))
+    assert color.array.dtype == np.uint8
+    assert color.depth_units == 0.0
+
+
+@_skip_import
+@pytest.mark.parametrize("little_endian", [False, True])
+@pytest.mark.parametrize("msgtype", ["Image", "CompressedImage"])
+@pytest.mark.parametrize("padding", [0, 1, 2, 3])
+@pytest.mark.parametrize("trailer_kind", ["padding", "nonzero", "misaligned", "footer"])
+def test_cdr_image_padding(tmp_path, little_endian, msgtype, padding, trailer_kind) -> None:
+    """Final CDR padding is not depth metadata, including three-pixel mono8."""
+    from rosbags.rosbag2 import Writer
+    from rosbags.typesys import Stores, get_typestore
+
+    store = get_typestore(Stores.ROS2_HUMBLE)
+    header = store.types["std_msgs/msg/Header"](
+        store.types["builtin_interfaces/msg/Time"](42, 0), "camera"
+    )
+    pixels = np.arange(4 - padding, dtype=np.uint8).reshape(1, -1)
+    fulltype = "sensor_msgs/msg/" + msgtype
+    if msgtype == "Image":
+        msg = store.types[fulltype](header, 1, pixels.size, "mono8", 0, pixels.size, pixels.ravel())
+    else:
+        import cv2
+
+        ok, data = cv2.imencode(".png", pixels)
+        assert ok
+        # PNG decoders permit bytes after IEND; vary array length to exercise
+        # every alignment independently of the compression implementation.
+        data = np.concatenate((data, np.zeros((-padding - data.size) % 4, np.uint8)))
+        msg = store.types[fulltype](header, "png", data)
+    raw = bytes(store.serialize_cdr(msg, fulltype, little_endian=little_endian))
+    assert (-len(raw)) % 4 == padding
+    path = tmp_path / "padded"
+    with Writer(path, version=9) as writer:
+        conn = writer.add_connection("/camera/image", fulltype, typestore=store)
+        trailer = {
+            "padding": b"\0" * padding,
+            "nonzero": b"\1" * max(1, padding),
+            "misaligned": b"\0" * ((padding + 1) % 4 or 1),
+            "footer": struct.pack("<f", 0.002),
+        }[trailer_kind]
+        writer.write(conn, STAMP0, raw + trailer)
+    if trailer_kind != "padding":
+        with pytest.raises(ValueError, match="Unexpected Image trailer"):
+            list(ROSBag(path, release="humble"))
+        return
+    (frame,) = list(ROSBag(path, release="humble"))
+    np.testing.assert_array_equal(frame.array, pixels)
+    assert frame.depth_units is None
+
+
+@_skip_import
+@pytest.mark.parametrize("release", ["auto", "humble"])
+@pytest.mark.parametrize("filtered", [False, True])
+@pytest.mark.parametrize("dependency", ["none", "custom", "conflicting_builtin"])
+def test_ros2_idl_connection(tmp_path, release, filtered, dependency) -> None:
+    """IDL definitions are registered only when selected and use the IDL parser."""
+    from rosbags.rosbag2 import Writer
+    from rosbags.typesys import Stores, get_types_from_idl, get_typestore
+
+    store = get_typestore(Stores.ROS2_HUMBLE)
+    msgtype = "custom_msgs/msg/Status"
+    dependencies = {
+        "none": "",
+        "custom": "module custom_msgs { module msg { struct Detail { long code; }; }; };\n",
+        "conflicting_builtin": (
+            "module std_msgs { module msg { struct Header { "
+            "string frame_id; builtin_interfaces::msg::Time stamp; }; }; };\n"
+        ),
+    }[dependency]
+    fields = {
+        "none": "long value;",
+        "custom": "custom_msgs::msg::Detail detail; long value;",
+        "conflicting_builtin": "std_msgs::msg::Header header; long value;",
+    }[dependency]
+    definition = (
+        "=" * 80 + "\nIDL: custom_msgs/msg/Status\n"
+        + "module custom_msgs { module msg { struct Status { " + fields + " }; }; };\n"
+    )
+    if dependencies:
+        definition += "=" * 80 + "\nIDL: dependency\n" + dependencies
+    types = get_types_from_idl(definition.split("\n", 2)[2].split("=" * 80)[0])
+    if dependency == "custom":
+        types.update(get_types_from_idl(dependencies))
+    store.register(types)
+    header = store.types["std_msgs/msg/Header"](
+        store.types["builtin_interfaces/msg/Time"](42, 0), "camera"
+    )
+    image_type = "sensor_msgs/msg/Image"
+    msg = store.types[image_type](header, 1, 3, "mono8", 0, 3, np.arange(3, dtype=np.uint8))
+    path = tmp_path / "idl"
+    with Writer(path, version=9) as writer:
+        image_conn = writer.add_connection("/camera/image", image_type, typestore=store)
+        conn = writer.add_connection(
+            "/status", msgtype, msgdef=definition, rihs01=store.hash_rihs01(msgtype)
+        )
+        writer.write(image_conn, STAMP0, store.serialize_cdr(msg, image_type))
+        if dependency == "custom":
+            status = store.types[msgtype](store.types["custom_msgs/msg/Detail"](23), 7)
+        elif dependency == "conflicting_builtin":
+            status = store.types[msgtype](header, 7)
+        else:
+            status = store.types[msgtype](7)
+        writer.write(conn, STAMP0 + 1, store.serialize_cdr(status, msgtype))
+    bag = ROSBag(path, release=release, msgfilter=None, topicfilter="/camera" if filtered else None)
+    samples = list(bag)
+    np.testing.assert_array_equal(samples[0].array, [[0, 1, 2]])
+    assert (msgtype in bag.typestore.types) == (not filtered)
+    if not filtered:
+        assert len(samples) == 2
+        assert samples[1].value == 7
+        if dependency == "custom":
+            assert samples[1].detail.code == 23
+            assert "custom_msgs/msg/Detail" in bag.typestore.types
+        elif dependency == "conflicting_builtin":
+            assert samples[1].header.frame_id == "camera"
+
+
+@_skip_import
+@pytest.mark.parametrize("release", ["auto", "humble"])
+def test_bad_definition_preserves_readable_connections(tmp_path, release) -> None:
+    """One malformed definition must not block images or later custom types."""
+    from rosbags.rosbag2 import Writer
+    from rosbags.typesys import Stores, get_types_from_msg, get_typestore
+
+    store = get_typestore(Stores.ROS2_HUMBLE)
+    msgtype = "custom_msgs/msg/Status"
+    store.register(get_types_from_msg("int32 value", msgtype))
+    path = tmp_path / "bad_definition"
+    with Writer(path, version=9) as writer:
+        writer.add_connection(
+            "/broken", "custom_msgs/msg/Broken",
+            msgdef="invalid definition", rihs01="0" * 64,
+        )
+        header = store.types["std_msgs/msg/Header"](
+            store.types["builtin_interfaces/msg/Time"](42, 0), "camera"
+        )
+        image_type = "sensor_msgs/msg/Image"
+        image = store.types[image_type](header, 1, 1, "mono8", 0, 1, np.array([9], dtype=np.uint8))
+        image_conn = writer.add_connection("/image", image_type, typestore=store)
+        writer.write(image_conn, STAMP0 - 1, store.serialize_cdr(image, image_type))
+        conn = writer.add_connection("/status", msgtype, typestore=store)
+        writer.write(conn, STAMP0, store.serialize_cdr(store.types[msgtype](7), msgtype))
+    samples = list(ROSBag(path, release=release, msgfilter=None))
+    assert len(samples) == 2
+    np.testing.assert_array_equal(samples[0].array, [[9]])
+    assert samples[1].value == 7
+
+
+@_skip_import
+def test_autodetect_propagates_unexpected_errors() -> None:
+    """Programming failures must not be reported as a typestore mismatch."""
+    bag = ROSBag("unused.bag", release="auto")
+    with patch.object(bag, "_register_bag_types", side_effect=RuntimeError("sentinel")):
+        with pytest.raises(RuntimeError, match="sentinel"):
+            bag._autodetect_typestore(b"", "sensor_msgs/msg/Image")
+
+
+@_skip_import
+@pytest.mark.parametrize("release", ["auto", "noetic"])
+@pytest.mark.parametrize("bad_option", ["truncated", "non_numeric"])
+def test_unreadable_depth_option_is_ignored(tmp_path, release, bad_option) -> None:
+    """Optional metadata must not prevent readable images being returned."""
+    from rosbags.rosbag1 import Writer
+    from rosbags.typesys import Stores, get_typestore
+
+    store = get_typestore(Stores.ROS1_NOETIC)
+    header = store.types["std_msgs/msg/Header"](
+        0, store.types["builtin_interfaces/msg/Time"](42, 0), "camera"
+    )
+    msgtype = "sensor_msgs/msg/Image"
+    msg = store.types[msgtype](header, 1, 1, "16UC1", 0, 2, np.array([1, 0], dtype=np.uint8))
+    path = tmp_path / "bad_option.bag"
+    with Writer(path) as writer:
+        conn = writer.add_connection("/depth", msgtype, typestore=store)
+        writer.write(conn, STAMP0, store.serialize_ros1(msg, msgtype))
+        option_type = "std_msgs/msg/String"
+        option = writer.add_connection("/camera/option/Depth_Units/value", option_type, typestore=store)
+        raw = store.serialize_ros1(store.types[option_type]("not a number"), option_type)
+        writer.write(option, STAMP0 + 1, raw[:2] if bad_option == "truncated" else raw)
+    bag = ROSBag(path, release=release)
+    (sample,) = list(bag)
+    assert bag._bag_depth_units is None
+    assert sample.depth_units == 0.001
+    np.testing.assert_array_equal(sample.array, [[1]])
