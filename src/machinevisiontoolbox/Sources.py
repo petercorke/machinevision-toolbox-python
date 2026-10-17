@@ -7,6 +7,7 @@ from __future__ import annotations
 import fnmatch
 import io
 import json
+import logging
 import base64
 import pathlib
 import shutil
@@ -2883,6 +2884,9 @@ class ROSBag(ImageSource):
     :param colororder: override the color-plane order for all image, or by topic
         ``{topic: colororder}``
     :type colororder: str or dict or None
+    :param depth_units: ``None`` preserves native pixels, ``"auto"`` converts
+        depth to metres, or a positive float supplies metres per unit
+    :param invalid_is_nan: replace raw zero depth with NaN during conversion
     :param kwargs: options applied to image frames, see
         :func:`~machinevisiontoolbox.base.imageio.convert`
     :raises ImportError: if the ``rosbags`` package is not installed
@@ -2895,6 +2899,21 @@ class ROSBag(ImageSource):
 
     Each yielded object carries a ``timestamp`` attribute (ROS nanosecond
     epoch from the message header) and a ``topic`` attribute (the topic on which it was published).
+
+    Image frames carry ``depth_units`` metadata in metres per native unit.
+    The scale precedence is a user float, a per-message footer, the bag's
+    ``.../option/Depth_Units/value`` topic, REP 118 encoding (``16UC1`` is
+    0.001 and ``32FC1`` is 1.0), then unknown (``None``). Color footers
+    are reported as 0.0 and never scale color pixels.
+
+    With ``depth_units=None`` the native dtype and values are preserved.
+    With ``"auto"`` or a float, depth pixels become float32 metres and raw
+    zeros become NaN when ``invalid_is_nan`` is true. An unknown scale
+    raises :class:`ValueError` when conversion is requested. For ``32FC1``
+    a user scale acts as a gain. This metres-per-unit convention is the
+    reciprocal of Open3D and TUM RGB-D ``depth_scale`` in units per metre
+    so 1000 corresponds to 0.001 and 5000 corresponds to 0.0002.
+    Unknown image trailer lengths raise :class:`ValueError`.
 
     **Filters**
 
@@ -2969,6 +2988,8 @@ class ROSBag(ImageSource):
         dtype: np.dtype | str | dict | None = None,
         colororder: str | dict | None = None,
         verbose: bool = False,
+        depth_units: Literal["auto"] | float | None = None,
+        invalid_is_nan: bool = True,
         **kwargs: Any,
     ) -> None:
         if not _rosbags_available:
@@ -2977,6 +2998,19 @@ class ROSBag(ImageSource):
                 "Install it with: pip install rosbags "
                 "or pip install machinevision-toolbox-python[ros]"
             )
+        if depth_units is not None and depth_units != "auto":
+            if (
+                isinstance(depth_units, (str, bool))
+                or not np.isfinite(depth_units)
+                or depth_units <= 0
+            ):
+                raise ValueError(
+                    "depth_units must be None, 'auto', or a positive finite scale"
+                )
+            depth_units = float(depth_units)
+        self.depth_units = depth_units
+        self.invalid_is_nan = invalid_is_nan
+        self._bag_depth_units = None
         self.filename = filename
         self.release = release
         self._topic_filter = topicfilter
@@ -2990,7 +3024,6 @@ class ROSBag(ImageSource):
         self.args = kwargs
         self._tmpfile: str | None = None
         self._is_ros2: bool = False
-        self._trim_bytes: int = 0  # trailing bytes to strip (e.g. RealSense SDK footer)
         self._is_realsense: bool = False
 
     def __repr__(self) -> str:
@@ -3131,7 +3164,7 @@ class ROSBag(ImageSource):
             if self._tmpfile is None:
                 with tempfile.NamedTemporaryFile(suffix=".bag", delete=False) as tmp:
                     self._tmpfile = tmp.name
-                print(f"Downloading {filename} ...")
+                logging.getLogger(__name__).info(f"Downloading {filename} ...")
                 urllib.request.urlretrieve(filename, self._tmpfile)
             path = self._tmpfile
         else:
@@ -3159,13 +3192,15 @@ class ROSBag(ImageSource):
         )
         if self.verbose:
             all_conns = list(self.reader.connections)
-            print(
+            logging.getLogger(__name__).info(
                 f"  bag: {len(all_conns)} total connections, {len(self.connections)} pass filter "
                 f"(topicfilter={self._topic_filter!r}, msgfilter={self._msgfilter!r})"
             )
             for c in all_conns:
                 mark = "✓" if self._allowed(c) else "✗"
-                print(f"    {mark} {c.topic!r}  [{c.msgtype}]")
+                logging.getLogger(__name__).info(
+                    f"    {mark} {c.topic!r}  [{c.msgtype}]"
+                )
         return self.reader
 
     def topics(self) -> dict[str, str]:
@@ -3344,6 +3379,144 @@ class ROSBag(ImageSource):
         "ROS2_DASHING",
     ]
 
+    @staticmethod
+    def _deserialize_message(
+        store: Any, rawdata: bytes, msgtype: str, is_cdr: bool
+    ) -> tuple[Any, bytes]:
+        """Deserialize a message and retain any Image trailer.
+
+        :param store: typestore defining the message
+        :param rawdata: serialized message bytes
+        :param msgtype: ROS message type
+        :param is_cdr: whether the message uses CDR encoding
+        :returns: message and bytes following its Image data array
+        """
+        from rosbags.serde import SerdeError
+
+        deserialize = store.deserialize_cdr if is_cdr else store.deserialize_ros1
+        if msgtype not in {"sensor_msgs/msg/Image", "sensor_msgs/msg/CompressedImage"}:
+            # Probe each message independently, including StreamInfo and CameraInfo.
+            for trim in (0, 4, 8):
+                try:
+                    return deserialize(
+                        rawdata[:-trim] if trim else rawdata, msgtype
+                    ), b""
+                except (AssertionError, SerdeError):
+                    if trim == 8:
+                        raise
+
+        origin = 4 if is_cdr else 0
+        byteorder = "<"
+        if is_cdr:
+            if len(rawdata) < 4 or bytes(rawdata[:2]) not in {b"\x00\x00", b"\x00\x01"}:
+                raise ValueError("Invalid or unsupported CDR encapsulation")
+            byteorder = "<" if rawdata[1] else ">"
+        pos = origin
+
+        def skip(size: int) -> None:
+            nonlocal pos
+            pos += size
+            if pos > len(rawdata):
+                raise ValueError("Truncated Image layout or data array")
+
+        def uint32() -> int:
+            nonlocal pos
+            if is_cdr:
+                skip((-(pos - origin)) % 4)
+            value = struct.unpack_from(byteorder + "I", rawdata, pos)[0]
+            skip(4)
+            return value
+
+        def string() -> None:
+            skip(uint32())  # CDR length includes the terminating NUL.
+
+        # ROS 1 Header has a sequence number; ROS 2 Header does not.
+        if not is_cdr:
+            uint32()
+        uint32()  # stamp seconds
+        uint32()  # stamp nanoseconds
+        string()  # frame_id
+        if msgtype == "sensor_msgs/msg/Image":
+            height = uint32()
+            uint32()  # width
+            string()  # encoding
+            skip(1)  # is_bigendian
+            step = uint32()
+            n = uint32()
+            if n != height * step:
+                raise ValueError("Image data length does not equal height * step")
+        else:
+            string()  # compression format
+            n = uint32()
+        skip(n)
+        trailer = bytes(rawdata[pos:])
+        # Some CDR encoders pad the final array to a four-byte boundary.
+        if is_cdr and len(trailer) == (-pos) % 4 and not any(trailer):
+            trailer = b""
+        return deserialize(rawdata[:pos], msgtype), trailer
+
+    def _register_bag_types(self, store: Any) -> None:
+        """Register selected types and depth-unit metadata using their definition format."""
+        from rosbags.interfaces import MessageDefinitionFormat
+        from rosbags.typesys import TypesysError, get_types_from_idl, get_types_from_msg
+
+        for connection in getattr(self.reader, "connections", ()):
+            if not (
+                self._allowed(connection)
+                or connection.topic.endswith("/option/Depth_Units/value")
+            ):
+                continue
+            if connection.msgtype not in store.types and connection.msgdef.data:
+                try:
+                    if connection.msgdef.format == MessageDefinitionFormat.IDL:
+                        definition = connection.msgdef.data
+                        separator = "=" * 80 + "\n"
+                        types = {}
+                        if definition.startswith(separator + "IDL: "):
+                            for part in definition.split(separator)[1:]:
+                                _, idl = part.split("\n", 1)
+                                types.update(get_types_from_idl(idl))
+                        else:
+                            types = get_types_from_idl(definition)
+                    elif connection.msgdef.format == MessageDefinitionFormat.MSG:
+                        types = get_types_from_msg(connection.msgdef.data, connection.msgtype)
+                    else:
+                        continue
+                    store.register({
+                        name: definition
+                        for name, definition in types.items()
+                        if name not in store.types
+                    })
+                except (TypesysError, ValueError) as exc:
+                    logging.getLogger(__name__).warning(
+                        "Could not register %s on %r: %s",
+                        connection.msgtype, connection.topic, exc,
+                    )
+
+    def _depth_image(
+        self, pixels: np.ndarray, encoding: str, topic: str, footer: float | None
+    ) -> tuple[np.ndarray, float | None]:
+        """Attach a native scale and optionally convert depth pixels to metres."""
+        is_depth = encoding in {"16UC1", "32FC1"} or (
+            pixels.ndim == 2
+            and ("depth" in topic.lower() or (footer is not None and footer > 0))
+        )
+        if not is_depth:
+            return pixels, 0.0 if footer is not None else None
+        units = self.depth_units if isinstance(self.depth_units, float) else footer
+        if units is None or units <= 0:
+            units = self._bag_depth_units
+        if units is None:
+            units = {"16UC1": 0.001, "32FC1": 1.0}.get(encoding)
+        if self.depth_units is not None:
+            if units is None:
+                raise ValueError(f"Unknown depth units for {topic!r}")
+            converted = pixels.astype(np.float32) * np.float32(units)
+            if self.invalid_is_nan:
+                converted[pixels == 0] = np.nan
+            pixels = converted
+        return pixels, units
+
     def _autodetect_typestore(self, rawdata: bytes, msgtype: str) -> bool:
         """Try all known typestores and keep the first one that works.
 
@@ -3351,101 +3524,117 @@ class ROSBag(ImageSource):
         (standard ROS 1 bag wire format).
 
         Second pass: tries ROS 2 stores with ``deserialize_cdr`` (CDR wire
-        format).  This handles bags recorded by the Intel RealSense SDK, which
-        use a ROS 1 ``.bag`` container but CDR-encoded messages with ROS
-        2-style type names (e.g. ``sensor_msgs/msg/Image``).  When CDR is
+        format), including CDR messages in a ROS 1 container. When CDR is
         detected ``self._is_ros2`` is set to ``True`` so that all subsequent
         messages are decoded with ``deserialize_cdr``.
 
         :return: ``True`` if a matching store was found, ``False`` otherwise
         :rtype: bool
         """
+        from rosbags.serde import SerdeError
+        from rosbags.typesys import TypesysError
+
         assert _Stores is not None
         assert _get_typestore is not None
         available = {s.name for s in _Stores}
 
         # First pass: ROS 1 wire format (ros1 and ros2 typestores).
-        # RealSense SDK bags are positively identified by their realsense_msgs
-        # connection types, so the 4-byte trailer is certain — no need to probe
-        # other trim amounts.
-        trim_order = (4,) if self._is_realsense else (0, 4, 8)
         for name in self._ROS1_STORES_ORDERED + self._ROS2_STORES_ORDERED:
             if name not in available:
                 continue
             store = _get_typestore(next(s for s in _Stores if s.name == name))
-            for trim in trim_order:
-                raw = rawdata if trim == 0 else rawdata[:-trim]
-                try:
-                    store.deserialize_ros1(raw, msgtype)
-                    self.typestore = store
-                    self.release = name
-                    self._trim_bytes = trim
-                    suffix = f", {trim}-byte trailer stripped" if trim else ""
-                    print(f"  auto-detect: {name} (ros1 encoding{suffix})")
-                    return True
-                except AssertionError:
-                    # rosbags raises AssertionError when trailing bytes remain
-                    # after parsing (assert pos == len(rawdata)).  Try the next
-                    # trim amount.
-                    continue
-                except (KeyError, UnicodeDecodeError, struct.error) as e:
-                    if self.verbose:
-                        print(
-                            f"  auto-detect: {name} (ros1) failed: {type(e).__name__}: {e}"
-                        )
-                    break  # wrong store entirely; move on
-                except Exception as e:
-                    if self.verbose:
-                        print(
-                            f"  auto-detect: {name} (ros1) UNEXPECTED {type(e).__name__}: {e}"
-                        )
-                    break
-            else:
-                # All trim amounts exhausted with AssertionError (trailing bytes)
+            try:
+                self._register_bag_types(store)
+                self._deserialize_message(store, rawdata, msgtype, False)
+                self.typestore = store
+                self.release = name
+                self._is_ros2 = False
+                logging.getLogger(__name__).info(
+                    f"  auto-detect: {name} (ros1 encoding)"
+                )
+                return True
+            except (
+                AssertionError, SerdeError, TypesysError, KeyError,
+                UnicodeDecodeError, struct.error, ValueError,
+            ) as e:
                 if self.verbose:
-                    print(
-                        f"  auto-detect: {name} (ros1) failed: AssertionError (trailing bytes)"
+                    logging.getLogger(__name__).info(
+                        f"  auto-detect: {name} (ros1) failed: {type(e).__name__}: {e}"
                     )
 
         # Second pass: CDR wire format (ROS 2 stores only).
-        # Handles RealSense SDK bags: .bag container but CDR-encoded messages.
+        # Also supports CDR-encoded messages in a ROS 1 container.
         for name in self._ROS2_STORES_ORDERED:
             if name not in available:
                 continue
             store = _get_typestore(next(s for s in _Stores if s.name == name))
             try:
-                store.deserialize_cdr(rawdata, msgtype)
+                self._register_bag_types(store)
+                self._deserialize_message(store, rawdata, msgtype, True)
                 self.typestore = store
                 self.release = name
                 self._is_ros2 = True  # use CDR for all subsequent messages
-                self._trim_bytes = 0
-                print(f"  auto-detect: {name} (CDR encoding)")
+                logging.getLogger(__name__).info(
+                    f"  auto-detect: {name} (CDR encoding)"
+                )
                 return True
-            except (AssertionError, KeyError, UnicodeDecodeError, struct.error) as e:
+            except (
+                AssertionError, SerdeError, TypesysError, KeyError,
+                UnicodeDecodeError, struct.error, ValueError,
+            ) as e:
                 if self.verbose:
-                    print(
+                    logging.getLogger(__name__).info(
                         f"  auto-detect: {name} (CDR) failed: {type(e).__name__}: {e}"
-                    )
-                continue
-            except Exception as e:
-                if self.verbose:
-                    print(
-                        f"  auto-detect: {name} (CDR) UNEXPECTED {type(e).__name__}: {e}"
                     )
                 continue
 
         if self.verbose:
-            print(f"  auto-detect: rawdata[:16] = {rawdata[:16].hex()}")
-        print(
+            logging.getLogger(__name__).info(
+                f"  auto-detect: rawdata[:16] = {rawdata[:16].hex()}"
+            )
+        logging.getLogger(__name__).info(
             f"  auto-detect: FAILED for msgtype={msgtype!r} — no matching typestore found"
         )
         return False
 
     def __iter__(self) -> Iterator[Any]:
+        from rosbags.serde import SerdeError
+
         self._open_reader()
         assert self.reader is not None
         _auto = self.typestore is None  # release='auto'
         try:
+            if self.typestore is not None:
+                self._register_bag_types(self.typestore)
+            self._bag_depth_units = None
+            options = [
+                c
+                for c in self.reader.connections
+                if c.topic.endswith("/option/Depth_Units/value")
+            ]
+            if options and _auto:
+                # A scalar CDR option can also look like a ROS 1 scalar plus
+                # a footer. Determine the wire layout from an image first.
+                images = [c for c in self.reader.connections
+                          if c.msgtype in {"sensor_msgs/msg/Image", "sensor_msgs/msg/CompressedImage"}]
+                if images:
+                    for conn, _, raw in self.reader.messages(connections=images):
+                        if self._autodetect_typestore(raw, conn.msgtype):
+                            _auto = False
+                            break
+            if options and not _auto:
+                for conn, _, raw in self.reader.messages(connections=options):
+                    try:
+                        option, _ = self._deserialize_message(
+                            self.typestore, raw, conn.msgtype, self._is_ros2
+                        )
+                        value = float(option.data)
+                    except (AssertionError, SerdeError, KeyError, UnicodeDecodeError,
+                            struct.error, ValueError, TypeError, AttributeError):
+                        continue
+                    if np.isfinite(value) and value > 0:
+                        self._bag_depth_units = value
+                        break
             for connection, timestamp, rawdata in self.reader.messages(
                 connections=self.connections
             ):
@@ -3454,32 +3643,40 @@ class ROSBag(ImageSource):
                         # probe until we find a typestore that works
                         if not self._autodetect_typestore(rawdata, connection.msgtype):
                             if self.verbose:
-                                print(
+                                logging.getLogger(__name__).info(
                                     f"{self.format_local_time(timestamp)} Could not auto-detect release for "
                                     f"{connection.msgtype} on {connection.topic!r} — skipping"
                                 )
                             continue
                         _auto = False  # found it, use for all subsequent messages
-                    _deser = (
-                        self.typestore.deserialize_cdr
-                        if self._is_ros2
-                        else self.typestore.deserialize_ros1
+                    msg, trailer = self._deserialize_message(
+                        self.typestore, rawdata, connection.msgtype, self._is_ros2
                     )
-                    _raw = (
-                        rawdata
-                        if self._trim_bytes == 0
-                        else rawdata[: -self._trim_bytes]
-                    )
-                    msg = cast(Any, _deser(_raw, connection.msgtype))
+                    depth_units = None
+                    if trailer:
+                        if not (
+                            len(trailer) == 4
+                            and self._is_realsense
+                            and isinstance(self.reader, _RosBagReader1)
+                            and connection.msgtype == "sensor_msgs/msg/Image"
+                        ):
+                            raise ValueError(
+                                f"Unexpected Image trailer on {connection.topic!r}: "
+                                f"{len(trailer)} bytes; expected CDR alignment padding "
+                                "or a 4-byte RealSense ROS1 Image footer"
+                            )
+                        # librealsense appends a float32 after the Image data array.
+                        byteorder = ">" if self._is_ros2 and rawdata[1] == 0 else "<"
+                        depth_units = struct.unpack(byteorder + "f", trailer)[0]
                 except KeyError as e:
                     if self.verbose:
-                        print(
+                        logging.getLogger(__name__).info(
                             f"{self.format_local_time(timestamp)} Error occurred while deserializing message: {e}"
                         )
                     continue
                 except AssertionError:
                     if self.verbose:
-                        print(
+                        logging.getLogger(__name__).info(
                             f"{self.format_local_time(timestamp)} Could not deserialize {connection.msgtype} on {connection.topic!r} "
                             f"using release '{self.release}' — try --release auto or a specific release (melodic, noetic, …)"
                         )
@@ -3511,6 +3708,15 @@ class ROSBag(ImageSource):
                     else:
                         colororder = self.colororder
 
+                    img_array, depth_units = self._depth_image(
+                        img_array,
+                        getattr(
+                            msg, "encoding", getattr(msg, "format", "").split(";")[0]
+                        ),
+                        connection.topic,
+                        depth_units,
+                    )
+
                     if colororder is not None and not _wants_mono(self.args):
                         img = _make_image(
                             img_array,
@@ -3518,14 +3724,21 @@ class ROSBag(ImageSource):
                             **self.args,
                         )
                     else:
-                        img = _make_image(img_array, **self.args)
+                        img = _make_image(
+                            img_array,
+                            dtype=True
+                            if (depth_units is not None and depth_units > 0)
+                            or "depth" in connection.topic.lower()
+                            else None,
+                            **self.args,
+                        )
                     _set_sample_metadata(
                         img, self._stamp_to_ns(msg.header.stamp), connection.topic
                     )
+                    img.depth_units = depth_units
                     yield img
 
                 elif connection.msgtype.endswith("Image"):
-
                     if hasattr(msg, "encoding"):
                         encoding = msg.encoding
                         if encoding not in self._ROS_ENCODING_MAP:
@@ -3563,6 +3776,15 @@ class ROSBag(ImageSource):
                     else:
                         img_array = data.reshape((msg.height, msg.width))
 
+                    img_array, depth_units = self._depth_image(
+                        img_array,
+                        getattr(
+                            msg, "encoding", getattr(msg, "format", "").split(";")[0]
+                        ),
+                        connection.topic,
+                        depth_units,
+                    )
+
                     if colororder is not None and not _wants_mono(self.args):
                         img = _make_image(
                             img_array,
@@ -3570,10 +3792,18 @@ class ROSBag(ImageSource):
                             **self.args,
                         )
                     else:
-                        img = _make_image(img_array, **self.args)
+                        img = _make_image(
+                            img_array,
+                            dtype=True
+                            if (depth_units is not None and depth_units > 0)
+                            or "depth" in connection.topic.lower()
+                            else None,
+                            **self.args,
+                        )
                     _set_sample_metadata(
                         img, self._stamp_to_ns(msg.header.stamp), connection.topic
                     )
+                    img.depth_units = depth_units
                     yield img
 
                 elif connection.msgtype.endswith("PointCloud2"):

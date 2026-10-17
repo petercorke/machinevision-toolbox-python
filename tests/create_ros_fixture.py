@@ -10,6 +10,8 @@ Creates:
 
     tests/data/test_ros1.bag   – ROS 1 Noetic bag
     tests/data/test_ros2/      – ROS 2 Humble bag directory
+    tests/data/test_realsense_trailer.bag – RealSense-style 4-byte footers
+    tests/data/test_realsense_plain.bag   – RealSense-style without footers
 
 Contents (both bags carry the same messages):
 
@@ -29,6 +31,7 @@ from __future__ import annotations
 
 import io
 import shutil
+import struct
 from pathlib import Path
 
 import numpy as np
@@ -36,7 +39,7 @@ from PIL import Image as PILImage
 
 from rosbags.rosbag1 import Writer as Writer1
 from rosbags.rosbag2 import Writer as Writer2
-from rosbags.typesys import Stores, get_typestore
+from rosbags.typesys import Stores, get_typestore, get_types_from_msg
 
 HERE = Path(__file__).parent
 DATADIR = HERE / "data"
@@ -50,7 +53,7 @@ W, H = 8, 6  # image width, height (pixels)
 
 
 def _jpeg_bytes(frame_idx: int) -> bytes:
-    """Return JPEG bytes for a small colour test image."""
+    """Return JPEG bytes for a small color test image."""
     arr = np.zeros((H, W, 3), dtype=np.uint8)
     arr[:, :, 0] = frame_idx * 40  # vary red channel per frame
     arr[:, :, 1] = 128
@@ -232,10 +235,135 @@ def _make_ros2() -> None:
             )
 
 
+def make_realsense(
+    path: Path,
+    trailer: bool = True,
+    *,
+    encoding: str = "16UC1",
+    footer: float = 0.002,
+    option: float | None = 0.003,
+    wire: str = "ros1",
+    other_trailer: int = 0,
+) -> None:
+    """Write a tiny RealSense-style bag with depth, color and metadata.
+
+    :param path: new bag path
+    :param trailer: append a float32 footer to image messages
+    :param encoding: depth image encoding
+    :param footer: per-message metres per unit
+    :param option: recorded depth-unit option, or None
+    :param wire: ros1, cdr_le or cdr_be
+    :param other_trailer: trailing bytes for non-image messages
+    """
+    ts = get_typestore(Stores.ROS1_NOETIC if wire == "ros1" else Stores.ROS2_HUMBLE)
+    info_type = "realsense_msgs/msg/StreamInfo"
+    ts.register(get_types_from_msg("uint32 fps\nstring encoding\n", info_type))
+    stamp = ts.types["builtin_interfaces/msg/Time"](sec=42, nanosec=123)
+    header_args = dict(stamp=stamp, frame_id="camera")
+    if wire == "ros1":
+        header_args["seq"] = 0
+    header = ts.types["std_msgs/msg/Header"](**header_args)
+
+    with Writer1(path) as writer:
+
+        def write(topic: str, msgtype: str, msg: object, extra: bytes = b"") -> None:
+            conn = writer.add_connection(topic, msgtype, typestore=ts)
+            raw = (
+                ts.serialize_ros1(msg, msgtype)
+                if wire == "ros1"
+                else ts.serialize_cdr(msg, msgtype, little_endian=wire == "cdr_le")
+            )
+            writer.write(conn, STAMP0_NS, bytes(raw) + extra)
+
+        write(
+            "/camera/info",
+            info_type,
+            ts.types[info_type](fps=30, encoding=encoding),
+            b"\0" * other_trailer,
+        )
+        camera_type = "sensor_msgs/msg/CameraInfo"
+        camera = (
+            ts.types[camera_type](
+                header=header,
+                height=1,
+                width=2,
+                distortion_model="plumb_bob",
+                D=np.zeros(5),
+                K=np.eye(3).ravel(),
+                R=np.eye(3).ravel(),
+                P=np.zeros(12),
+                binning_x=0,
+                binning_y=0,
+                roi=ts.types["sensor_msgs/msg/RegionOfInterest"](0, 0, 0, 0, False),
+            )
+            if wire == "ros1"
+            else ts.types[camera_type](
+                header=header,
+                height=1,
+                width=2,
+                distortion_model="plumb_bob",
+                d=np.zeros(5),
+                k=np.eye(3).ravel(),
+                r=np.eye(3).ravel(),
+                p=np.zeros(12),
+                binning_x=0,
+                binning_y=0,
+                roi=ts.types["sensor_msgs/msg/RegionOfInterest"](0, 0, 0, 0, False),
+            )
+        )
+        write("/camera/calibration", camera_type, camera, b"\0" * other_trailer)
+        # Write the option after the images to exercise the independent scan.
+        for topic, enc, data in [
+            (
+                "/camera/depth",
+                encoding,
+                np.array(
+                    [[0, 100]],
+                    dtype={
+                        "16UC1": np.uint16,
+                        "32FC1": np.float32,
+                        "mono16": np.uint16,
+                    }[encoding],
+                ),
+            ),
+            ("/camera/color", "rgb8", np.arange(6, dtype=np.uint8).reshape(1, 2, 3)),
+        ]:
+            msgtype = "sensor_msgs/msg/Image"
+            msg = ts.types[msgtype](
+                header=header,
+                height=1,
+                width=2,
+                encoding=enc,
+                is_bigendian=0,
+                step=data.nbytes,
+                data=np.frombuffer(data.tobytes(), np.uint8),
+            )
+            extra = (
+                struct.pack(
+                    ">f" if wire == "cdr_be" else "<f",
+                    footer if "depth" in topic else 0.0,
+                )
+                if trailer
+                else b""
+            )
+            write(topic, msgtype, msg, extra)
+        if option is not None:
+            msgtype = "std_msgs/msg/Float32"
+            write(
+                "/camera/option/Depth_Units/value",
+                msgtype,
+                ts.types[msgtype](data=option),
+            )
+
+
 if __name__ == "__main__":
     DATADIR.mkdir(exist_ok=True)
     print(f"Writing ROS1 bag  → {ROS1_BAG}")
     _make_ros1()
     print(f"Writing ROS2 bag  → {ROS2_BAG}/")
     _make_ros2()
+    for suffix, trailer in [("trailer", True), ("plain", False)]:
+        path = DATADIR / f"test_realsense_{suffix}.bag"
+        if not path.exists():
+            make_realsense(path, trailer)
     print("Done.")
