@@ -90,58 +90,58 @@ class TestColor(unittest.TestCase):
 
         self.assertAlmostEqual(np.max(r), 1.0, delta=1e-3)
         self.assertAlmostEqual(np.min(r), 0.0, delta=1e-3)
-    
+
     def test_cmfrgb(self):
         """Test RGB color matching functions"""
         # Single wavelength
         rgb = color.cmfrgb(550e-9)
         self.assertEqual(len(rgb), 3)
-        
+
         # Multiple wavelengths
         λ = np.array([450e-9, 550e-9, 650e-9])
         rgb = color.cmfrgb(λ)
         self.assertEqual(rgb.shape[0], 3)
         self.assertEqual(rgb.shape[1], 3)
-        
+
         # With intensity spectrum
         e = np.array([1.0, 1.5, 1.0])
         rgb_weighted = color.cmfrgb(λ, e)
         self.assertIsNotNone(rgb_weighted)
-    
+
     def test_lambda2rg(self):
         """Test wavelength to rg chromaticity conversion"""
         # Single wavelength
         rg = color.lambda2rg(550e-9)
         self.assertEqual(len(rg), 2)
-        
+
         # Multiple wavelengths
         rg_multi = color.lambda2rg([450e-9, 550e-9, 650e-9])
         self.assertEqual(rg_multi.shape[1], 2)
-    
+
     def test_lambda2xy(self):
         """Test wavelength to xy chromaticity conversion"""
         # Single wavelength
         xy = color.lambda2xy(550e-9)
         self.assertEqual(len(xy), 2)
-        
+
         # Multiple wavelengths
         xy_multi = color.lambda2xy([450e-9, 550e-9, 650e-9])
         self.assertEqual(xy_multi.shape[1], 2)
-    
+
     def test_name2color(self):
         """Test named color lookup"""
         # Basic colors
         red = color.name2color('red')
         self.assertEqual(len(red), 3)
         self.assertEqual(red[0], 1)
-        
+
         blue = color.name2color('blue')
         self.assertEqual(blue[2], 1)
-        
+
         # Short names
         r = color.name2color('r')
         self.assertEqual(r[0], 1)
-        
+
         # Test different color spaces
         g_xy = color.name2color('g', 'xy')
         self.assertEqual(len(g_xy), 2)
@@ -160,15 +160,11 @@ class TestColor(unittest.TestCase):
         nt.assert_array_almost_equal(red_bgr, [0, 0, 1])
 
     def test_colorname(self):
-        """Test color to name conversion"""
-        # Test basic lookup
-        try:
+        """Check the deprecated lookup without hiding assertion failures."""
+        with self.assertWarns(DeprecationWarning):
             name = color.colorname([1, 0, 0])
-            self.assertIsInstance(name, str)
-        except:
-            # Function might not be implemented
-            pass
-    
+        self.assertEqual(name, "red")
+
     def test_tristim2cc(self):
         """Test tristimulus to chromaticity coordinates"""
         # Simple white
@@ -177,45 +173,43 @@ class TestColor(unittest.TestCase):
         # White point should be around [1/3, 1/3]
         self.assertAlmostEqual(cc[0], 1/3, delta=0.01)
         self.assertAlmostEqual(cc[1], 1/3, delta=0.01)
-        
+
         # Pure red
         red = np.array([1, 0, 0])
         cc_red = color.tristim2cc(red)
         self.assertEqual(cc_red[0], 1.0)
         self.assertEqual(cc_red[1], 0.0)
-        
+
         # Image input
         im = np.ones((5, 5, 3))
         cc_im = color.tristim2cc(im)
         self.assertEqual(cc_im.shape, (5, 5, 2))
-    
+
     def test_ccxyz(self):
-        """Test CIE XYZ color matching function"""
-        try:
-            xyz = color.ccxyz(color='r')
-            self.assertEqual(len(xyz), 3)
-            
-            xyz_green = color.ccxyz(color='g')
-            self.assertEqual(len(xyz_green), 3)
-        except:
-            # Function might not be available
-            pass
-    
+        """Check spectral chromaticities at two tabulated wavelengths."""
+        wavelengths = np.array([500e-9, 600e-9])
+        xyz = color.ccxyz(wavelengths)
+        expected = np.array(
+            [
+                [0.008168028, 0.538423071, 0.453408901],
+                [0.627036600, 0.372491145, 0.000472255],
+            ]
+        )
+        self.assertEqual(xyz.shape, (2, 3))
+        nt.assert_allclose(xyz, expected, atol=1e-6, rtol=0)
+        nt.assert_allclose(xyz.sum(axis=1), 1.0, atol=1e-12, rtol=0)
+        nt.assert_allclose(color.ccxyz(500e-9), expected[:1], atol=1e-6, rtol=0)
+
     def test_color_conversion_functions(self):
-        """Test various color space conversion functions"""
-        # Test RGB to HSV and back
-        try:
-            rgb = np.array([0.5, 0.3, 0.8])
-            # Many color conversion functions exist in OpenCV
-            # Just verify basic functionality exists
-            self.assertIsNotNone(rgb)
-        except:
-            pass
+        """Convert RGB to known HSV values and recover the input."""
+        rgb = np.array([[[0.5, 0.3, 0.8]]], dtype=np.float32)
+        hsv = color.colorspace_convert(rgb, "rgb", "hsv")
+        nt.assert_allclose(hsv, [[[264.0, 0.625, 0.8]]], atol=1e-4, rtol=0)
+        restored = color.colorspace_convert(hsv, "hsv", "rgb")
+        nt.assert_allclose(restored, rgb, atol=1e-6, rtol=0)
 
 
 # ---------------------------------------------------------------------------#
 if __name__ == '__main__':
 
     unittest.main()
-
-

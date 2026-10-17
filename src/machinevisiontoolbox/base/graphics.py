@@ -1014,6 +1014,7 @@ def mpl_styling(
         marker_match = re.search(marker_pattern, working_fmt)
         if marker_match:
             res["marker"] = marker_match.group(0)
+            working_fmt = working_fmt.replace(res["marker"], "", 1)
 
         if len(working_fmt.strip()) > 0:
             raise ValueError(
