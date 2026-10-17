@@ -40,12 +40,19 @@ from machinevisiontoolbox.Sources import (
 
 HERE = Path(__file__).parent
 ROS1_BAG = HERE / "data" / "test_ros1.bag"
+ROS1_REALSENSE_BAG = HERE / "data" / "test_ros1_realsense.bag"
+ROS1_REALSENSE_NOTRAILER_BAG = HERE / "data" / "test_ros1_realsense_notrailer.bag"
 ROS2_BAG = HERE / "data" / "test_ros2"
 
 _rosbags_available = ROS1_BAG.exists() and ROS2_BAG.exists()
 _skip_bags = pytest.mark.skipif(
     not _rosbags_available,
     reason="ROS bag fixtures missing – run tests/create_ros_fixture.py first",
+)
+
+_skip_realsense_bags = pytest.mark.skipif(
+    not (ROS1_REALSENSE_BAG.exists() and ROS1_REALSENSE_NOTRAILER_BAG.exists()),
+    reason="RealSense bag fixtures missing – run tests/create_ros_fixture.py first",
 )
 
 _rosbags_importable = bool(getattr(_sources, "_rosbags_available", False))
@@ -233,6 +240,74 @@ class TestRosBagRos1(unittest.TestCase):
         s = ROSBag.format_local_time(STAMP0)
         self.assertIsInstance(s, str)
         self.assertIn("2023", s)
+
+
+# ---------------------------------------------------------------------------
+# ROSBag – RealSense recordings (4-byte depth-units trailer)
+# ---------------------------------------------------------------------------
+
+
+@_skip_import
+@_skip_realsense_bags
+class TestRosBagRealSense(unittest.TestCase):
+    """RealSense SDK bags append a 4-byte footer to every image message.
+
+    The footer holds the depth scale in metres, stored as a little-endian
+    float.  Its position depends on the message layout, so it must be found
+    rather than assumed: other recordings of the same topics carry no footer
+    at all and would lose four bytes of pixel data if one were stripped.
+    """
+
+    DEPTH_TOPIC = "/camera/depth/image_rect_raw"
+    COLOR_TOPIC = "/camera/color/image_raw"
+    DEPTH_UNITS = 0.001
+
+    def _bag(self, path=ROS1_REALSENSE_BAG, **kwargs):
+        return ROSBag(str(path), release="noetic", **kwargs)
+
+    # --- auto-detection and decoding ---
+
+    def test_topics_are_detected(self):
+        topics = self._bag(msgfilter=None).topics()
+        self.assertIn(self.DEPTH_TOPIC, topics)
+        self.assertIn(self.COLOR_TOPIC, topics)
+
+    def test_depth_images_decoded(self):
+        imgs = list(self._bag(topicfilter=self.DEPTH_TOPIC))
+        self.assertEqual(len(imgs), N_FRAMES)
+        for img in imgs:
+            self.assertEqual(img.shape, (H, W))
+
+    def test_color_images_decoded(self):
+        imgs = list(self._bag(topicfilter=self.COLOR_TOPIC))
+        self.assertEqual(len(imgs), N_FRAMES)
+        for img in imgs:
+            self.assertEqual(img.shape, (H, W, 3))
+
+    # --- footer handling ---
+
+    def test_depth_units_read_from_footer(self):
+        for img in self._bag(topicfilter=self.DEPTH_TOPIC):
+            self.assertTrue(hasattr(img, "depth_units"))
+            self.assertAlmostEqual(img.depth_units, self.DEPTH_UNITS, places=7)
+
+    def test_footer_of_colour_stream_is_zero(self):
+        for img in self._bag(topicfilter=self.COLOR_TOPIC):
+            self.assertEqual(img.depth_units, 0.0)
+
+    # --- recordings whose messages are self-contained ---
+
+    def test_untrailered_images_decoded(self):
+        bag = self._bag(ROS1_REALSENSE_NOTRAILER_BAG, topicfilter=self.DEPTH_TOPIC)
+        imgs = list(bag)
+        self.assertEqual(len(imgs), N_FRAMES)
+        for img in imgs:
+            self.assertEqual(img.shape, (H, W))
+
+    def test_untrailered_images_have_no_depth_units(self):
+        bag = self._bag(ROS1_REALSENSE_NOTRAILER_BAG, topicfilter=self.DEPTH_TOPIC)
+        for img in bag:
+            self.assertFalse(hasattr(img, "depth_units"))
 
 
 # ---------------------------------------------------------------------------
