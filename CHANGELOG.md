@@ -1,5 +1,21 @@
 # Changelog
 
+## [2.4.2](https://github.com/petercorke/machinevision-toolbox-python/compare/v2.4.1...v2.4.2) (2026-10-17)
+
+
+### Bug Fixes
+
+* consume Matplotlib format markers ([#144](https://github.com/petercorke/machinevision-toolbox-python/issues/144)) ([bcf63e4](https://github.com/petercorke/machinevision-toolbox-python/commit/bcf63e40384758ff35271b995c9abd425b65825b))
+* narrow file picker data fallback errors ([#146](https://github.com/petercorke/machinevision-toolbox-python/issues/146)) ([77a3da9](https://github.com/petercorke/machinevision-toolbox-python/commit/77a3da9cda0d87eab9c88b213fc26f993c993664))
+* narrow window title exception handling ([#141](https://github.com/petercorke/machinevision-toolbox-python/issues/141)) ([715af60](https://github.com/petercorke/machinevision-toolbox-python/commit/715af60cf0c081b2bf32a3f3a9843143877dd097))
+* preserve unexpected peak refinement failures ([#140](https://github.com/petercorke/machinevision-toolbox-python/issues/140)) ([ca5ee04](https://github.com/petercorke/machinevision-toolbox-python/commit/ca5ee047c72b6873a23482e2a8351dc1c3409283))
+* report valid color lookup values clearly ([#138](https://github.com/petercorke/machinevision-toolbox-python/issues/138)) ([637a787](https://github.com/petercorke/machinevision-toolbox-python/commit/637a787d2dc459ac6f3186998dd625e7aad5f677))
+
+
+### Documentation
+
+* JupyterLite troubleshooting section, linked from the README ([#134](https://github.com/petercorke/machinevision-toolbox-python/issues/134)) ([97c3eb3](https://github.com/petercorke/machinevision-toolbox-python/commit/97c3eb348f41f745b2dd60a90b041a32a8df90f3))
+
 ## [2.4.1](https://github.com/petercorke/machinevision-toolbox-python/compare/v2.4.0...v2.4.1) (2026-10-13)
 
 
