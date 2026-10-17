@@ -54,7 +54,7 @@ def _pick_imagefile() -> Path:
     """
     try:
         initialdir = mvtb_path_to_datafile("images")
-    except Exception:
+    except (ModuleNotFoundError, ValueError):
         initialdir = Path.home()
 
     try:
