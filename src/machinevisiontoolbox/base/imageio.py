@@ -54,7 +54,7 @@ def _pick_imagefile() -> Path:
     """
     try:
         initialdir = mvtb_path_to_datafile("images")
-    except Exception:
+    except (ModuleNotFoundError, ValueError):
         initialdir = Path.home()
 
     try:
@@ -1030,7 +1030,8 @@ def _idisp_opencv(
 def set_window_title(title: str) -> None:
     try:
         _plt().gcf().canvas.manager.set_window_title(title)  # for 3.4 onward
-    except:
+    except (AttributeError, RuntimeError):
+        # Some noninteractive backends do not have a usable window manager.
         pass
 
 

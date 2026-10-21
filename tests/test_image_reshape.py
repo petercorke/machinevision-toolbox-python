@@ -435,24 +435,64 @@ class TestImageReshape(unittest.TestCase):
         nt.assert_array_equal(Vc, V)
 
     def test_warp(self):
-        # Add test cases for the decimate method
-        pass
+        """Sample an analytic ramp at half-pixel coordinates."""
+        v, u = np.mgrid[:8, :10]
+        im = Image((2 * u + 3 * v).astype(np.float32))
+        U, V = np.meshgrid(np.arange(7) + 0.5, np.arange(5) + 0.5)
+        result = im.warp(U, V)
+        self.assertEqual(result.shape, U.shape)
+        nt.assert_allclose(result.array, 2 * U + 3 * V, atol=0.1, rtol=0)
 
     def test_warp_affine(self):
-        # Add test cases for the decimate method
-        pass
+        """Translate a ramp and check the inverse mapping and border."""
+        data = np.arange(48, dtype=np.float32).reshape(6, 8)
+        im = Image(data)
+        M = np.array([[1.0, 0.0, 2.0], [0.0, 1.0, 1.0]])
+        result = im.warp_affine(M, bgcolor=-1)
+        nt.assert_allclose(result.array[1:, 2:], data[:-1, :-2], atol=0.1, rtol=0)
+        nt.assert_allclose(result.array[0, :], -1, atol=0.1, rtol=0)
+        nt.assert_allclose(result.array[:, :2], -1, atol=0.1, rtol=0)
+        inverse = im.warp_affine(M, inverse=True)
+        nt.assert_allclose(inverse.array[:-1, :-2], data[1:, 2:], atol=0.1, rtol=0)
 
     def test_warp_perspective(self):
-        # Add test cases for the decimate method
-        pass
+        """Check a non-affine homography against an analytic ramp."""
+        v, u = np.mgrid[:20, :24]
+        im = Image((u + 2 * v).astype(np.float32))
+        H = np.array([[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.01, 0.02, 1.0]])
+        result = im.warp_perspective(H, size=(10, 8))
+        vo, uo = np.mgrid[:8, :10]
+        denominator = 1 - 0.01 * uo - 0.02 * vo
+        expected = (uo + 2 * vo) / denominator
+        self.assertEqual(result.shape, expected.shape)
+        nt.assert_allclose(result.array, expected, atol=0.1, rtol=0)
+        inverse = im.warp_perspective(np.linalg.inv(H), inverse=True, size=(10, 8))
+        nt.assert_allclose(inverse.array, expected, atol=0.1, rtol=0)
 
     def test_undistort(self):
-        # Add test cases for the decimate method
-        pass
+        """Check nonzero radial distortion on a synthetic intensity ramp."""
+        v, u = np.mgrid[:41, :41]
+        im = Image((u + 2 * v).astype(np.float32))
+        K = np.array([[30.0, 0.0, 20.0], [0.0, 30.0, 20.0], [0.0, 0.0, 1.0]])
+        result = im.undistort(K, np.array([0.2, 0.0, 0.0, 0.0, 0.0]))
+        x, y = (u - 20) / 30, (v - 20) / 30
+        radial = 1 + 0.2 * (x**2 + y**2)
+        expected = 20 + 30 * x * radial + 2 * (20 + 30 * y * radial)
+        nt.assert_allclose(
+            result.array[8:33, 8:33], expected[8:33, 8:33], atol=0.1, rtol=0
+        )
+        identity = im.undistort(K, np.zeros(5))
+        nt.assert_allclose(identity.array, im.array, atol=0.1, rtol=0)
 
     def test_interp2d(self):
-        # Add test cases for the decimate method
-        pass
+        """Interpolate a plane in pixel coordinates and an explicit domain."""
+        v, u = np.mgrid[:6, :8]
+        im = Image((2 * u + 3 * v).astype(np.float32))
+        U, V = np.meshgrid(np.arange(6) + 0.25, np.arange(4) + 0.5)
+        nt.assert_allclose(im.interp2d(U, V).array, 2 * U + 3 * V, atol=1e-6, rtol=0)
+        Ud, Vd = 10 + 2 * u, -5 + 3 * v
+        result = im.interp2d(10 + 2 * U, -5 + 3 * V, Ud=Ud, Vd=Vd)
+        nt.assert_allclose(result.array, 2 * U + 3 * V, atol=1e-6, rtol=0)
 
     def test_tile(self):
         ims = []
