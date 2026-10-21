@@ -1893,7 +1893,6 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             :func:`~machinevisiontoolbox.base.graphics.plot_labelbox`
         """
         options = mpl_styling(fmt, dict(color="yellow", linewidth=2), kwargs)
-        print(options)
         for blob in self:
             plot_labelbox(
                 text=label.format(blob.id), fmt=fmt, lrbt=blob.bbox, **options
