@@ -1883,7 +1883,9 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
             from machinevisiontoolbox import Image
 
-            im = Image.Read("sharks.png") im.disp() blobs = im.blobs()
+            im = Image.Read("sharks.png")
+            im.disp()
+            blobs = im.blobs()
             blobs[:3].plot_labelbox(color="yellow")
             blobs[3].plot_labelbox(color="lightblue", linewidth=2, label="3")
 
