@@ -271,6 +271,18 @@ class Image(
             the encapsulated Numpy array is, by default, a *reference* to the passed image data.
             Use the option ``copy=True`` if you want to copy the data.
 
+        .. note:: **Contiguous pixel data.**  Images read from file with :meth:`Read`
+            always have C-contiguous pixel data, that is, the pixels are in one ordinary
+            row-by-row block of memory.  An image created from an array that you supply
+            keeps that array as it is, so if it is a transposed or reversed view of
+            another array then it is not contiguous.  That makes no difference to most
+            methods, but the methods that draw into the image in place
+            (:meth:`draw_line`, :meth:`draw_circle`, :meth:`draw_box`,
+            :meth:`draw_labelbox`, :meth:`draw_text`, :meth:`draw_point`, and the
+            ``draw`` methods of feature and fiducial objects) need it, because OpenCV
+            requires it, and raise a ``ValueError`` if it is not.  ``copy=True`` always
+            gives a C-contiguous copy, so use ``Image(array, copy=True)`` to fix it.
+
         """
         self._name = None
         self._colororder = None
@@ -3973,6 +3985,9 @@ class Image(
             for each color plane. For a color image ``color`` can be
             a string color name.
 
+        .. warning:: The image is drawn into in place, see :meth:`draw_box` for the
+            requirement that the pixel data is C-contiguous.
+
         :seealso: :func:`~machinevisiontoolbox.base.graphics.draw_line`
         """
         draw_line(self._A, start, end, **kwargs)
@@ -4026,6 +4041,9 @@ class Image(
             for each color plane. For a color image ``color`` can be
             a string color name.
 
+        .. warning:: The image is drawn into in place, see :meth:`draw_box` for the
+            requirement that the pixel data is C-contiguous.
+
         :seealso: :func:`~machinevisiontoolbox.base.graphics.draw_circle`
         """
         if center is not None and centre is None:
@@ -4064,6 +4082,12 @@ class Image(
             for each color plane. For a color image ``color`` can be
             a string color name.
 
+        .. warning:: The image is drawn into in place.  OpenCV requires that its pixel
+            data is C-contiguous, otherwise a ``ValueError`` is raised.  Images read
+            from file are, but an image created from a transposed or reversed array
+            might not be: create it with ``Image(array, copy=True)`` to get a
+            contiguous copy.  See :class:`Image`.
+
         :seealso: :func:`~machinevisiontoolbox.base.graphics.draw_box`
         """
         draw_box(self._A, **kwargs)
@@ -4101,6 +4125,9 @@ class Image(
             for each color plane. For a color image ``color`` can be
             a string color name.
 
+        .. warning:: The image is drawn into in place, see :meth:`draw_box` for the
+            requirement that the pixel data is C-contiguous.
+
         :seealso: :func:`~machinevisiontoolbox.base.graphics.draw_labelbox`
         """
         draw_labelbox(self._A, text, **kwargs)
@@ -4137,6 +4164,9 @@ class Image(
             of elements as the image has planes. If it is a scalar that value is used
             for each color plane. For a color image ``color`` can be
             a string color name.
+
+        .. warning:: The image is drawn into in place, see :meth:`draw_box` for the
+            requirement that the pixel data is C-contiguous.
 
         :seealso: :func:`~machinevisiontoolbox.base.graphics.draw_text`
         """
@@ -4182,6 +4212,9 @@ class Image(
             of elements as the image has planes. If it is a scalar that value is used
             for each color plane. For a color image ``color`` can be
             a string color name.
+
+        .. warning:: The image is drawn into in place, see :meth:`draw_box` for the
+            requirement that the pixel data is C-contiguous.
 
         :seealso: :func:`~machinevisiontoolbox.base.graphics.draw_text`
         """

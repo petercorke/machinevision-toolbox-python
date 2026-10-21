@@ -99,6 +99,9 @@ class ImageIOMixin(_ImageBase if TYPE_CHECKING else object):
             to the current directory, and if not found, it is searched for in
             the ``images`` folder of the `mvtb_data package <https://github.com/petercorke/machinevision-toolbox-python/tree/master/packages/mvtb-data>`_.
 
+        .. note:: The image data is a C-contiguous array of pixels, so the ``draw_*``
+            methods and OpenCV functions can operate on it directly.
+
         .. warning:: In an ipython environment, eg. ``mvtbtool``, the file-browser dialogue may not work.  In this case, specify the filename as a string.
 
         :seealso: :func:`~machinevisiontoolbox.base.imageio.iread` :func:`~machinevisiontoolbox.base.imageio.convert`  `cv2.imread <https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56>`_

@@ -1123,6 +1123,7 @@ def iread(
         - A color image is returned as an :math:`H \times W \times P` array,
           typically :math:`P=3` for an RGB or BGR image or :math:`P=4` if there
           is an alpha plane, eg. RGBA.
+        - The returned array is a C-contiguous array of pixels, see :func:`convert`.
         - For wildcards this is an "eager" function, all images are read and returned in a list.  If you want to read images one at a time, use the lazy companion function :func:`iread_iter`.
         - Wildcard lookup is done using pathlib ``Path.glob()`` and supports
           recursive globbing with the ``**`` pattern, as well as the usual ``*``, ``?``
@@ -1203,9 +1204,11 @@ def iread_iter(
     For wildcard patterns, file paths are sorted before iteration to preserve
     deterministic order compatible with :func:`iread`.
 
-    .. note::Wildcard lookup is done using pathlib ``Path.glob()`` and supports
-        recursive globbing with the ``**`` pattern, as well as the usual ``*``, ``?``
-        and ``[abc]`` patterns. Hidden files (those starting with a dot) are included in the search results.
+    .. note::
+        - Each returned image is a C-contiguous array of pixels, see :func:`convert`.
+        - Wildcard lookup is done using pathlib ``Path.glob()`` and supports
+          recursive globbing with the ``**`` pattern, as well as the usual ``*``, ``?``
+          and ``[abc]`` patterns. Hidden files (those starting with a dot) are included in the search results.
 
     :seealso: :func:`iread` :func:`convert` `cv2.imread <https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56>`_
     """
@@ -1315,6 +1318,11 @@ def convert(
     image is already greyscale.  Note that this conversions requires knowledge of the color
     plane order specified by ``colororder``.  The planes are inverted by ``invertplanes`` before
     this step.
+
+    .. note:: The returned array is always a C-contiguous array of pixels, which OpenCV
+        (5.0 and later) requires for functions that draw into an image.  A copy is made
+        only if necessary, for example after ``reduce`` or ``roi``, which otherwise
+        give a strided view of the input.
     """
     if grey:
         warnings.warn(
@@ -1329,7 +1337,10 @@ def convert(
     image_original = image
 
     # handle color plane order and alpha channel
-    # note that Torch doesn't like views of arrays with non-standard strides, so we use fancy indexing which implicitly makes a copy
+    # Note that Torch and OpenCV (>= 5.0) don't like arrays with non-standard strides,
+    # so the result must be a C-contiguous copy.  Fancy indexing (image[:, :, [2, 1, 0]])
+    # makes a copy but NumPy does not guarantee it is C-contiguous (it returns a planar
+    # layout), so use np.take, and np.ascontiguousarray for the slice that drops alpha.
 
     if image.ndim == 3 and image.shape[2] in (3, 4):
         # color image, convert to RGB order if requested, otherwise leave in BGR order
@@ -1337,11 +1348,11 @@ def convert(
             # RGB order is more common in Python, but OpenCV reads in BGR order, so convert to RGB
             if alpha and image.shape[2] == 4:
                 # BGRA→RGBA
-                image = image[:, :, [2, 1, 0, 3]]  # BGRA → RGBA
+                image = np.take(image, [2, 1, 0, 3], axis=2)
                 colororder = "RGBA"
             else:
                 # BGR→RGB
-                image = image[:, :, [2, 1, 0]]
+                image = np.take(image, [2, 1, 0], axis=2)
                 colororder = "RGB"
         else:
             # leave in BGR order, which is more efficient for OpenCV processing, but less common in Python
@@ -1349,7 +1360,7 @@ def convert(
                 colororder = "BGRA"
             else:
                 # BGRA→BGR
-                image = image[:, :, :3]  # BGRA → BGR
+                image = np.ascontiguousarray(image[:, :, :3])  # BGRA → BGR
                 colororder = "BGR"
 
     mono = mono or gray or grey
@@ -1388,7 +1399,10 @@ def convert(
     if image is not image_original and copy:
         image = image.copy()
 
-    return image
+    # guarantee a C-contiguous result: ``reduce`` and ``roi`` return strided views and
+    # NumPy fancy indexing does not promise a contiguous layout.  A no-op (no copy) if
+    # the array is already contiguous.
+    return np.ascontiguousarray(image)
 
 
 def iwrite(
