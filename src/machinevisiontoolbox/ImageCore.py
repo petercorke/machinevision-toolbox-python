@@ -2138,7 +2138,7 @@ class Image(
             >>> img
             >>> type(img)
             >>> type(img.A)
-            >>> img.A = np.zeros((50,50))
+            >>> img = Image(np.zeros((50,50)))  # new image with a different array
             >>> img
 
         .. deprecated:: 2.0.0
@@ -2343,8 +2343,8 @@ class Image(
             >>> img.array_as('uint8')
             >>> img = Image([[False, True], [True, False]])
             >>> img
-            >>> img.array_int('uint8')
-            >>> img.array_int('float')
+            >>> img.array_as('uint8')
+            >>> img.array_as('float')
 
         .. note:: Works for greyscale or color (arbitrary number of planes) image
 

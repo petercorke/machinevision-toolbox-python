@@ -819,7 +819,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> im = Image.Read('shark2.png')
             >>> blobs = im.blobs()
             >>> blobs[0].vc
-            >>> blobs.v
+            >>> blobs.vc
 
         :seealso:  :meth:`u` :meth:`centroid`
         """

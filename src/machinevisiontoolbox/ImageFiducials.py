@@ -112,8 +112,8 @@ class ImageFiducialsMixin(_ImageBase if TYPE_CHECKING else object):
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> img = Image.Read('tags.png')
-            >>> fiducials = img.fiducial('5x5_50')
+            >>> img = Image.Read('apriltag12.png')
+            >>> fiducials = img.fiducial('36h11')
             >>> fiducials
             >>> fiducials[0].corners
 
