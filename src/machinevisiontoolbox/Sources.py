@@ -555,6 +555,7 @@ class VideoFile(ImageSource):
     :param filename: Path to video file
     :type filename: str
     :param kwargs: options applied to image frames, see :func:`~machinevisiontoolbox.base.imageio.convert`
+    :raises ValueError: if the video cannot be opened or its first frame cannot be read
 
     The resulting object is an iterator over the frames of the video file.
     The iterator returns :class:`~machinevisiontoolbox.Image` objects where:
@@ -609,12 +610,20 @@ class VideoFile(ImageSource):
         # get the number of frames in the video
         #  not sure it's always correct
         cap = cv2.VideoCapture(self.filename)
-        ret, frame = cap.read()
-        self.nframes = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-        self.shape = frame.shape
-        self.fps = int(cap.get(cv2.CAP_PROP_FPS))
+        try:
+            if not cap.isOpened():
+                raise ValueError(f"Cannot open video file {self.filename!r}")
+            ret, frame = cap.read()
+            if not ret or frame is None:
+                raise ValueError(
+                    f"Cannot read the first frame of video file {self.filename!r}"
+                )
+            self.nframes = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+            self.shape = frame.shape
+            self.fps = int(cap.get(cv2.CAP_PROP_FPS))
+        finally:
+            cap.release()
         self.args = kwargs
-        cap.release()
         self.cap = None
         self.i = 0
 
@@ -1929,7 +1938,8 @@ class EarthView(ImageSource):
     """
     Iterate images from GoogleEarth
 
-    :param key: Google API key, defaults to None
+    :param key: Google Maps API key, defaults to None (read from the
+        environment, see note below)
     :type key: str
     :param type: type of map (API ``maptype``): 'satellite' [default], 'map', 'roads', 'hybrid', and 'terrain'.
     :type type: str, optional
@@ -1972,9 +1982,15 @@ class EarthView(ImageSource):
         `Getting started <https://developers.google.com/maps/documentation/maps-static>`_
 
     .. note::
-        - If the key is not passed in, a value is sought from the
-            environment variable ``GOOGLE_API_KEY``.
-        - Uses the `Google Maps Static API <https://developers.google.com/maps/documentation/maps-static/start>`_
+        - If ``key`` is not passed in, it is read from the environment
+          variable ``GOOGLE_MAPS_API_KEY``, or failing that from
+          ``GOOGLE_API_KEY``. Prefer ``GOOGLE_MAPS_API_KEY``: Google's Gemini
+          libraries also read ``GOOGLE_API_KEY``, so using that name for a
+          Maps key can hand the wrong key to one or the other.
+        - Uses the `Google Maps Static API <https://developers.google.com/maps/documentation/maps-static/start>`_.
+          Restrict the key to that API only (Google Cloud console, *APIs &
+          Services → Credentials*), so a leaked key can't be used for
+          anything else, and consider a daily request quota to bound costs.
 
     :references:
         - |RVC3|, Section 11.1.6.
@@ -2000,7 +2016,9 @@ class EarthView(ImageSource):
     ) -> None:
 
         if key is None:
-            self.key = os.getenv("GOOGLE_API_KEY")
+            # GOOGLE_MAPS_API_KEY first; GOOGLE_API_KEY kept for backward
+            # compatibility (it's also the name Gemini libraries read)
+            self.key = os.getenv("GOOGLE_MAPS_API_KEY") or os.getenv("GOOGLE_API_KEY")
         else:
             self.key = key
 

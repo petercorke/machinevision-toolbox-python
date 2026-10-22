@@ -166,7 +166,7 @@ class ImageTensorMixin(_ImageBase if TYPE_CHECKING else object):
         For batches where ``B > 1`` use :class:`TensorStack` which creates an
         image iterator for the batch.
 
-        .. runblock:: pycon
+        .. code-block:: pycon
 
             >>> from machinevisiontoolbox import Image
             >>> import torch
