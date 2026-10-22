@@ -49,15 +49,24 @@ from machinevisiontoolbox.base.imageio import convert, iread, iread_iter, safe_p
 try:
     from rosbags.rosbag1 import Reader as _RosBagReader1
     from rosbags.rosbag2 import Reader as _RosBagReader2
+    from rosbags.serde import SerdeError as _SerdeError
     from rosbags.typesys import Stores as _Stores, get_typestore as _get_typestore
 
     _rosbags_available = True
 except ImportError:
     _RosBagReader1 = None
     _RosBagReader2 = None
+    _SerdeError = None
     _Stores = None
     _get_typestore = None
     _rosbags_available = False
+
+# What rosbags raises when a serialized message is not exactly the length its type
+# says, eg. there are extra bytes after it.  Older versions raise AssertionError,
+# newer ones SerdeError.
+_LENGTH_ERRORS: tuple[type[BaseException], ...] = (
+    (AssertionError,) if _SerdeError is None else (AssertionError, _SerdeError)
+)
 
 try:
     import roslibpy
@@ -106,10 +115,108 @@ def _make_image(*args: Any, **kwargs: Any) -> Image:
     return Image(*args, **kwargs)  # pyright: ignore[reportAbstractUsage]
 
 
-def _set_sample_metadata(sample: Any, timestamp: int, topic: str) -> None:
+def _set_sample_metadata(
+    sample: Any, timestamp: int, topic: str, depth_units: float | None = None
+) -> None:
     """Attach dynamic timestamp/topic metadata used by stream sources."""
     setattr(sample, "timestamp", timestamp)
     setattr(sample, "topic", topic)
+    if depth_units is not None:
+        setattr(sample, "depth_units", depth_units)
+
+
+def _wire_byteorder(raw: bytes, cdr: bool) -> str:
+    """Struct byte order of a serialized ROS message.
+
+    ROS 1 messages are always little-endian.  A CDR message says which it is in the
+    second byte of its 4-byte encapsulation header (0x01 is little-endian).
+    """
+    return "<" if not cdr or (len(raw) > 1 and raw[1] & 0x01) else ">"
+
+
+def _image_payload_end(raw: bytes, msgtype: str, cdr: bool = False) -> int | None:
+    """Find where the data array of a serialized image message ends
+
+    :param raw: serialized ``sensor_msgs/Image`` or ``sensor_msgs/CompressedImage``
+    :param msgtype: ROS message type, ending in ``Image`` or ``CompressedImage``
+    :param cdr: ``raw`` is CDR (ROS 2) encoded, otherwise ROS 1 encoded
+    :return: offset of the first byte after the data array, or ``None`` if ``raw`` does
+        not have the layout of an image message
+    :rtype: int or None
+
+    An image message is self-describing: every field before the data array is fixed
+    size or carries its own length, so the end of the pixel data is computed from the
+    bytes, not guessed.  Anything after it is not part of the message.  The Intel
+    RealSense SDK, for example, appends a 4-byte ``float32`` depth scale to every
+    image message it records.
+    """
+    order = _wire_byteorder(raw, cdr)
+    origin = 4 if cdr else 0  # CDR has a 4-byte encapsulation header
+    pos = origin
+
+    def u32() -> int:
+        nonlocal pos
+        if cdr:
+            pos += (-(pos - origin)) % 4  # CDR aligns fields to their size
+        if pos + 4 > len(raw):
+            raise ValueError("truncated")
+        value = struct.unpack_from(order + "I", raw, pos)[0]
+        pos += 4
+        return value
+
+    def skip(n: int) -> None:
+        nonlocal pos
+        pos += n
+        if pos > len(raw):
+            raise ValueError("truncated")
+
+    try:
+        if cdr:
+            u32()  # stamp.sec
+            u32()  # stamp.nanosec
+        else:
+            u32()  # header.seq (ROS 1 only)
+            u32()  # stamp.sec
+            u32()  # stamp.nsec
+        skip(u32())  # frame_id, the length of a CDR string includes its NUL
+        if msgtype.endswith("CompressedImage"):
+            skip(u32())  # format
+            skip(u32())  # data
+        else:
+            height = u32()
+            u32()  # width
+            skip(u32())  # encoding
+            skip(1)  # is_bigendian
+            step = u32()
+            length = u32()
+            if length != height * step:
+                return None
+            skip(length)
+    except (ValueError, struct.error):
+        return None
+    return pos
+
+
+def _footer_depth_units(footer: bytes, order: str = "<") -> float | None:
+    """Decode trailing bytes of an image message as a depth scale, if they could be one
+
+    :param footer: the bytes after the data array of an image message
+    :param order: struct byte order of the message
+    :return: metres per depth unit, or ``None`` if ``footer`` is not a positive,
+        finite ``float32``
+    :rtype: float or None
+
+    This is only a plausibility test, not a validation.  Roughly half of all 4-byte
+    patterns are a positive, finite ``float32``, so passing it says nothing about
+    where the bytes came from.  What justifies treating them as a depth scale is the
+    context, which is up to the caller: the bag was recorded by the RealSense SDK,
+    and the bytes are in the place where the SDK puts its scale (see
+    :meth:`ROSBag._image_depth_units`).
+    """
+    if len(footer) != 4:
+        return None
+    value = struct.unpack(order + "f", footer)[0]
+    return float(value) if np.isfinite(value) and value > 0 else None
 
 
 class ImageSource(ABC):
@@ -2914,6 +3021,33 @@ class ROSBag(ImageSource):
     Each yielded object carries a ``timestamp`` attribute (ROS nanosecond
     epoch from the message header) and a ``topic`` attribute (the topic on which it was published).
 
+    **Intel RealSense bags**
+
+    The RealSense SDK records a ROS 1 bag in which every image message is followed
+    by 4 bytes that are not part of ``sensor_msgs/Image``: a ``float32`` holding the
+    depth scale, in metres per unit, for a depth image and ``0.0`` for a color image.
+    A message type defines its own length, so a reader that does not know about the
+    extra bytes cannot decode the images.
+
+    The end of the pixel data is found from the layout of the image message, whose
+    data array must be ``height * step`` bytes long.  The extra bytes are therefore
+    never mistaken for pixels, and bags without them (such as Intel's own sample
+    bags) are read correctly too.  The pixel values are never changed.
+
+    The extra bytes are interpreted as a depth scale only if the bag is recognised as
+    coming from the RealSense SDK (it has a ``realsense_msgs`` connection) and they
+    are a positive, finite ``float32``.  The second test alone would prove nothing,
+    since about half of all 4-byte patterns pass it, so it is the first that
+    justifies it.  A depth image carrying a scale has a ``depth_units`` attribute,
+    for example 0.001 for pixels in millimetres.  Other images do not have the
+    attribute.
+
+    Any other bytes after an image are ignored, and a ``RuntimeWarning`` is issued,
+    once for each topic.  This covers bytes in a bag that is not recognised as
+    RealSense, and bytes in one that are not a positive 4-byte scale or ``0.0``.  We
+    do not guess what they are.  All other message types must be exactly as long as
+    their type says.
+
     **Filters**
 
     The message and topic filters can be a single string, or a list of strings.
@@ -3008,8 +3142,9 @@ class ROSBag(ImageSource):
         self.args = kwargs
         self._tmpfile: str | None = None
         self._is_ros2: bool = False
-        self._trim_bytes: int = 0  # trailing bytes to strip (e.g. RealSense SDK footer)
         self._is_realsense: bool = False
+        # connections for which unexpected bytes after an image have been reported
+        self._warned_footers: set[int] = set()
 
     def __repr__(self) -> str:
         return (
@@ -3383,46 +3518,30 @@ class ROSBag(ImageSource):
         available = {s.name for s in _Stores}
 
         # First pass: ROS 1 wire format (ros1 and ros2 typestores).
-        # RealSense SDK bags are positively identified by their realsense_msgs
-        # connection types, so the 4-byte trailer is certain — no need to probe
-        # other trim amounts.
-        trim_order = (4,) if self._is_realsense else (0, 4, 8)
+        # For an image the end of the message is computed from its layout, so any
+        # trailing bytes (eg. the RealSense SDK footer) are ignored.
+        end = _image_payload_end(rawdata, msgtype) if msgtype.endswith("Image") else None
+        raw = rawdata if end is None else rawdata[:end]
         for name in self._ROS1_STORES_ORDERED + self._ROS2_STORES_ORDERED:
             if name not in available:
                 continue
             store = _get_typestore(next(s for s in _Stores if s.name == name))
-            for trim in trim_order:
-                raw = rawdata if trim == 0 else rawdata[:-trim]
-                try:
-                    store.deserialize_ros1(raw, msgtype)
-                    self.typestore = store
-                    self.release = name
-                    self._trim_bytes = trim
-                    suffix = f", {trim}-byte trailer stripped" if trim else ""
-                    print(f"  auto-detect: {name} (ros1 encoding{suffix})")
-                    return True
-                except AssertionError:
-                    # rosbags raises AssertionError when trailing bytes remain
-                    # after parsing (assert pos == len(rawdata)).  Try the next
-                    # trim amount.
-                    continue
-                except (KeyError, UnicodeDecodeError, struct.error) as e:
-                    if self.verbose:
-                        print(
-                            f"  auto-detect: {name} (ros1) failed: {type(e).__name__}: {e}"
-                        )
-                    break  # wrong store entirely; move on
-                except Exception as e:
-                    if self.verbose:
-                        print(
-                            f"  auto-detect: {name} (ros1) UNEXPECTED {type(e).__name__}: {e}"
-                        )
-                    break
-            else:
-                # All trim amounts exhausted with AssertionError (trailing bytes)
+            try:
+                store.deserialize_ros1(raw, msgtype)
+                self.typestore = store
+                self.release = name
+                print(f"  auto-detect: {name} (ros1 encoding)")
+                return True
+            except (*_LENGTH_ERRORS, KeyError, UnicodeDecodeError, struct.error) as e:
+                # wrong store, or the message is the wrong length for it
                 if self.verbose:
                     print(
-                        f"  auto-detect: {name} (ros1) failed: AssertionError (trailing bytes)"
+                        f"  auto-detect: {name} (ros1) failed: {type(e).__name__}: {e}"
+                    )
+            except Exception as e:
+                if self.verbose:
+                    print(
+                        f"  auto-detect: {name} (ros1) UNEXPECTED {type(e).__name__}: {e}"
                     )
 
         # Second pass: CDR wire format (ROS 2 stores only).
@@ -3432,14 +3551,25 @@ class ROSBag(ImageSource):
                 continue
             store = _get_typestore(next(s for s in _Stores if s.name == name))
             try:
-                store.deserialize_cdr(rawdata, msgtype)
+                cdr_end = (
+                    _image_payload_end(rawdata, msgtype, cdr=True)
+                    if msgtype.endswith("Image")
+                    else None
+                )
+                store.deserialize_cdr(
+                    rawdata if cdr_end is None else rawdata[:cdr_end], msgtype
+                )
                 self.typestore = store
                 self.release = name
                 self._is_ros2 = True  # use CDR for all subsequent messages
-                self._trim_bytes = 0
                 print(f"  auto-detect: {name} (CDR encoding)")
                 return True
-            except (AssertionError, KeyError, UnicodeDecodeError, struct.error) as e:
+            except (
+                *_LENGTH_ERRORS,
+                KeyError,
+                UnicodeDecodeError,
+                struct.error,
+            ) as e:
                 if self.verbose:
                     print(
                         f"  auto-detect: {name} (CDR) failed: {type(e).__name__}: {e}"
@@ -3458,6 +3588,97 @@ class ROSBag(ImageSource):
             f"  auto-detect: FAILED for msgtype={msgtype!r} — no matching typestore found"
         )
         return False
+
+    def _image_depth_units(
+        self, connection: Any, rawdata: bytes, footer: bytes
+    ) -> float | None:
+        """Interpret the bytes after an image message
+
+        :param connection: bag connection the message was read from
+        :param rawdata: serialized message, including ``footer``
+        :param footer: the bytes after the data array of the image
+        :return: depth scale in metres per unit, or ``None`` if there is none
+        :rtype: float or None
+
+        A serialization format cannot have fields that change length, so bytes after
+        an image are not part of the message.  The RealSense SDK adds a 4-byte
+        ``float32`` to every image it records, though, and we need to know what to
+        make of it.  Whether 4 bytes are a valid scale cannot be decided from the
+        bytes, since about half of all patterns are a positive, finite ``float32``.
+        The context is what decides:
+
+        - no footer: ``None``;
+        - up to 3 zero bytes in a ROS 2 (CDR) message: padding to a 4-byte boundary,
+          ``None``;
+        - the bag is recognised as RealSense (it has a ``realsense_msgs``
+          connection) and the footer is 4 zero bytes: ``0.0`` is what the SDK writes
+          for a color image, which has no scale, ``None``;
+        - the bag is recognised as RealSense and the footer is a positive, finite
+          ``float32``: that is the depth scale;
+        - anything else, including 4 bytes in a bag not recognised as RealSense:
+          not understood, so ignored with a ``RuntimeWarning``, issued once for each
+          connection.  We do not guess.
+        """
+        if not footer:
+            return None
+        if self._is_ros2 and len(footer) < 4 and not any(footer):
+            return None  # CDR alignment padding
+        if self._is_realsense and len(footer) == 4:
+            if not any(footer):
+                return None  # 0.0, a color image
+            units = _footer_depth_units(
+                footer, _wire_byteorder(rawdata, self._is_ros2)
+            )
+            if units is not None:
+                return units
+        if connection.id not in self._warned_footers:
+            self._warned_footers.add(connection.id)
+            warnings.warn(
+                f"ROSBag: ignoring {len(footer)} unexpected byte(s) "
+                f"({footer[:8].hex()}) after the image data on {connection.topic!r}: "
+                + (
+                    "not a RealSense depth scale"
+                    if self._is_realsense
+                    else "the bag is not recognised as recorded by the RealSense SDK"
+                ),
+                RuntimeWarning,
+                stacklevel=2,
+            )
+        return None
+
+    def _decode(self, connection: Any, rawdata: bytes) -> tuple[Any, bytes]:
+        """Deserialize a message and return it with any bytes that follow it
+
+        :param connection: bag connection the message was read from
+        :param rawdata: serialized message
+        :raises SerdeError: the message cannot be decoded (or ``AssertionError`` with
+            older versions of ``rosbags``)
+        :return: message, bytes after the message
+        :rtype: tuple(message, bytes)
+
+        For an image message the end of the pixel data is computed from the layout of
+        the message, so whatever follows is returned as the second element, rather
+        than being guessed.  The RealSense SDK, for example, follows every image with
+        a 4-byte ``float32`` depth scale.  Any other message, or an image that does
+        not have the expected layout, must be exactly the length its type says, and
+        nothing follows it.
+        """
+        assert self.typestore is not None
+        deserialize = (
+            self.typestore.deserialize_cdr
+            if self._is_ros2
+            else self.typestore.deserialize_ros1
+        )
+        msgtype = connection.msgtype
+
+        if msgtype.endswith("Image"):
+            end = _image_payload_end(rawdata, msgtype, self._is_ros2)
+            if end is not None:
+                return cast(Any, deserialize(rawdata[:end], msgtype)), bytes(
+                    rawdata[end:]
+                )
+
+        return cast(Any, deserialize(rawdata, msgtype)), b""
 
     def __iter__(self) -> Iterator[Any]:
         self._open_reader()
@@ -3478,24 +3699,15 @@ class ROSBag(ImageSource):
                                 )
                             continue
                         _auto = False  # found it, use for all subsequent messages
-                    _deser = (
-                        self.typestore.deserialize_cdr
-                        if self._is_ros2
-                        else self.typestore.deserialize_ros1
-                    )
-                    _raw = (
-                        rawdata
-                        if self._trim_bytes == 0
-                        else rawdata[: -self._trim_bytes]
-                    )
-                    msg = cast(Any, _deser(_raw, connection.msgtype))
+                    msg, footer = self._decode(connection, rawdata)
+                    depth_units = self._image_depth_units(connection, rawdata, footer)
                 except KeyError as e:
                     if self.verbose:
                         print(
                             f"{self.format_local_time(timestamp)} Error occurred while deserializing message: {e}"
                         )
                     continue
-                except AssertionError:
+                except _LENGTH_ERRORS:
                     if self.verbose:
                         print(
                             f"{self.format_local_time(timestamp)} Could not deserialize {connection.msgtype} on {connection.topic!r} "
@@ -3538,7 +3750,10 @@ class ROSBag(ImageSource):
                     else:
                         img = _make_image(img_array, **self.args)
                     _set_sample_metadata(
-                        img, self._stamp_to_ns(msg.header.stamp), connection.topic
+                        img,
+                        self._stamp_to_ns(msg.header.stamp),
+                        connection.topic,
+                        depth_units=depth_units,
                     )
                     yield img
 
@@ -3590,7 +3805,10 @@ class ROSBag(ImageSource):
                     else:
                         img = _make_image(img_array, **self.args)
                     _set_sample_metadata(
-                        img, self._stamp_to_ns(msg.header.stamp), connection.topic
+                        img,
+                        self._stamp_to_ns(msg.header.stamp),
+                        connection.topic,
+                        depth_units=depth_units,
                     )
                     yield img
 
