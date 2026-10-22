@@ -1,5 +1,28 @@
 # Changelog
 
+## [2.4.2](https://github.com/petercorke/machinevision-toolbox-python/compare/v2.4.1...v2.4.2) (2026-10-22)
+
+
+### Bug Fixes
+
+* consume Matplotlib format markers ([#144](https://github.com/petercorke/machinevision-toolbox-python/issues/144)) ([bcf63e4](https://github.com/petercorke/machinevision-toolbox-python/commit/bcf63e40384758ff35271b995c9abd425b65825b))
+* EarthView reads GOOGLE_MAPS_API_KEY first ([#149](https://github.com/petercorke/machinevision-toolbox-python/issues/149)) ([d48a8df](https://github.com/petercorke/machinevision-toolbox-python/commit/d48a8df64eab61281ea3a585914b50342112501d))
+* Image.Read returns C-contiguous pixels; drawing into a strided image raises ([#162](https://github.com/petercorke/machinevision-toolbox-python/issues/162)) ([dee5e1b](https://github.com/petercorke/machinevision-toolbox-python/commit/dee5e1b385cd985f50ba06c7718136720d484927))
+* narrow file picker data fallback errors ([#146](https://github.com/petercorke/machinevision-toolbox-python/issues/146)) ([77a3da9](https://github.com/petercorke/machinevision-toolbox-python/commit/77a3da9cda0d87eab9c88b213fc26f993c993664))
+* narrow window title exception handling ([#141](https://github.com/petercorke/machinevision-toolbox-python/issues/141)) ([715af60](https://github.com/petercorke/machinevision-toolbox-python/commit/715af60cf0c081b2bf32a3f3a9843143877dd097))
+* preserve unexpected peak refinement failures ([#140](https://github.com/petercorke/machinevision-toolbox-python/issues/140)) ([ca5ee04](https://github.com/petercorke/machinevision-toolbox-python/commit/ca5ee047c72b6873a23482e2a8351dc1c3409283))
+* report valid color lookup values clearly ([#138](https://github.com/petercorke/machinevision-toolbox-python/issues/138)) ([637a787](https://github.com/petercorke/machinevision-toolbox-python/commit/637a787d2dc459ac6f3186998dd625e7aad5f677))
+* report video file initialisation failures ([#153](https://github.com/petercorke/machinevision-toolbox-python/issues/153)) ([0138f72](https://github.com/petercorke/machinevision-toolbox-python/commit/0138f720a1f41d51699ae02e9aa06ed8a15129b6))
+* ROSBag detects the ROS release by default (release="auto") ([#164](https://github.com/petercorke/machinevision-toolbox-python/issues/164)) ([60ef838](https://github.com/petercorke/machinevision-toolbox-python/commit/60ef838a9341cd31a72903ffdca762fcc427e648))
+* ROSBag finds the end of image data from the message layout, not a guess ([#163](https://github.com/petercorke/machinevision-toolbox-python/issues/163)) ([20c6efe](https://github.com/petercorke/machinevision-toolbox-python/commit/20c6efe383a929c3651fa8524862b5027a4c3c7a))
+* **sources:** read EarthView key from GOOGLE_MAPS_API_KEY first ([d48a8df](https://github.com/petercorke/machinevision-toolbox-python/commit/d48a8df64eab61281ea3a585914b50342112501d))
+
+
+### Documentation
+
+* fix broken runblock examples; showwindow defaults to current axes ([#161](https://github.com/petercorke/machinevision-toolbox-python/issues/161)) ([d770ddd](https://github.com/petercorke/machinevision-toolbox-python/commit/d770dddb02f885f0e0f7724618c42cc8d706ad9f))
+* JupyterLite troubleshooting section, linked from the README ([#134](https://github.com/petercorke/machinevision-toolbox-python/issues/134)) ([97c3eb3](https://github.com/petercorke/machinevision-toolbox-python/commit/97c3eb348f41f745b2dd60a90b041a32a8df90f3))
+
 ## [2.4.1](https://github.com/petercorke/machinevision-toolbox-python/compare/v2.4.0...v2.4.1) (2026-10-13)
 
 
