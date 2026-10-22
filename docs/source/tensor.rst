@@ -24,7 +24,7 @@ Image → tensor
 
 Use the :meth:`tensor` method to convert an :class:`Image` to a tensor.  For example:
 
-.. runblock:: pycon
+.. code-block:: pycon
 
     >>> from machinevisiontoolbox import Image
     >>> im = Image.Read("eiffel-1.png")
@@ -41,7 +41,7 @@ tensor → Image
 
 Use the constructor :meth:`Tensor` method to create an :class:`Image` from a tensor.  For example:
 
-.. runblock:: pycon
+.. code-block:: pycon
 
     >>> from machinevisiontoolbox import Image
     >>> from torch import rand
