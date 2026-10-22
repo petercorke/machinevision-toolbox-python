@@ -2994,7 +2994,7 @@ class ROSBag(ImageSource):
 
     :param filename: path to a ``.bag`` file, or an ``http(s)://`` URL
     :type filename: str or Path
-    :param release: ROS release name (or unique substring), e.g. ``"noetic"``, defaults to ``"ROS1_NOETIC"``; controls the message definitions used to parse the bag file
+    :param release: ROS release (distribution) whose message definitions are used to parse the bag file, a name or unique substring such as ``"noetic"`` or ``"humble"``, or ``"auto"`` to detect it, defaults to ``"auto"``
     :type release: str
     :param topicfilter: only yield messages from this topic or list of topics;
         ``None`` accepts all topics
@@ -3095,12 +3095,20 @@ class ROSBag(ImageSource):
         referenced by their bare name, e.g. ``ROSBag("forest.bag")``.
 
     .. note::
-        The ``release`` argument controls the ROS message definitions used to
-        parse the bag file.  This is important because message definitions can
-        change between ROS releases, and using the wrong definitions can lead to
-        incorrect parsing of the data.  The ``release`` string is matched
-        case-insensitively against the member names of :class:`~rosbags.typesys.Stores`,
-        so short names such as ``"noetic"`` or ``"humble"`` are accepted in addition to the full enum name (e.g. ``"ROS1_NOETIC"``).
+        The ``release`` argument selects the ROS release (distribution) whose
+        message definitions are used to parse the bag file.  Message definitions
+        can change between releases, and using the wrong ones can lead to
+        incorrect parsing of the data.
+
+        The default ``"auto"`` tries the known releases on the first message of the
+        bag and keeps the first that decodes it, for both ROS 1 and ROS 2 (CDR)
+        encoded messages.  The choice is then available as the ``release``
+        attribute.  Pass ``verbose=True`` to see what was tried.
+
+        Alternatively name a release.  The string is matched case-insensitively
+        against the member names of :class:`~rosbags.typesys.Stores`, so short names
+        such as ``"noetic"`` or ``"humble"`` are accepted in addition to the full
+        enum name (e.g. ``"ROS1_NOETIC"``).
 
     """
 
@@ -3115,7 +3123,7 @@ class ROSBag(ImageSource):
     def __init__(
         self,
         filename: str,
-        release: str = "ROS1_NOETIC",
+        release: str = "auto",
         topicfilter: str | list[str] | None = None,
         msgfilter: str | list[str] | None = "Image",
         dtype: np.dtype | str | dict | None = None,
@@ -3530,7 +3538,8 @@ class ROSBag(ImageSource):
                 store.deserialize_ros1(raw, msgtype)
                 self.typestore = store
                 self.release = name
-                print(f"  auto-detect: {name} (ros1 encoding)")
+                if self.verbose:
+                    print(f"  auto-detect: {name} (ros1 encoding)")
                 return True
             except (*_LENGTH_ERRORS, KeyError, UnicodeDecodeError, struct.error) as e:
                 # wrong store, or the message is the wrong length for it
@@ -3562,7 +3571,8 @@ class ROSBag(ImageSource):
                 self.typestore = store
                 self.release = name
                 self._is_ros2 = True  # use CDR for all subsequent messages
-                print(f"  auto-detect: {name} (CDR encoding)")
+                if self.verbose:
+                    print(f"  auto-detect: {name} (CDR encoding)")
                 return True
             except (
                 *_LENGTH_ERRORS,
