@@ -67,6 +67,27 @@ def _roundvec(x: np.ndarray | list[Any] | tuple[Any, ...]) -> tuple[int, ...]:
     return tuple(y)
 
 
+def _require_c_contiguous(image: np.ndarray) -> None:
+    """Check that an image can be drawn into by OpenCV
+
+    :param image: image to be drawn into
+    :type image: ndarray(H,W), ndarray(H,W,P)
+    :raises ValueError: the pixel data is not C-contiguous
+
+    OpenCV's drawing functions write into the image in place, and refuse to do so if
+    its pixel data is not C-contiguous.  That can happen if the image was created from
+    a transposed or reversed array.  This is checked before anything is drawn so that
+    the image is never left partly drawn.
+    """
+    if not image.flags["C_CONTIGUOUS"]:
+        raise ValueError(
+            "cannot draw into this image because its pixel data is not C-contiguous, "
+            "which OpenCV requires.  This can happen if the image was created from a "
+            "transposed or reversed array.  Create the image with "
+            "Image(array, copy=True) to get a contiguous copy."
+        )
+
+
 def draw_box(
     image: np.ndarray,
     l: int | None = None,
@@ -193,8 +214,12 @@ def draw_box(
         for each color plane. For a color image ``color`` can be
         a string color name.
 
+    .. warning:: The image is drawn into in place, and ``image`` must be C-contiguous
+        which OpenCV requires, otherwise a ``ValueError`` is raised.
+
     :seealso: :func:`~smtb.base.graphics.plot_box`  `opencv.rectangle <https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga07d2f74cadcf8e305e810ce8eed13bc9>`_
     """
+    _require_c_contiguous(image)
 
     # test for various 4-coordinate versions
     if lbwh is not None:
@@ -462,8 +487,12 @@ def draw_labelbox(
         for each color plane. For a color image ``color`` can be
         a string color name.
 
+    .. warning:: The image is drawn into in place, and ``image`` must be C-contiguous
+        which OpenCV requires, otherwise a ``ValueError`` is raised.
+
     :seealso: :func:`draw_box`, :func:`draw_text`
     """
+    _require_c_contiguous(image)
 
     if fontheight is not None:
         fontsize = cv2.getFontScaleFromHeight(
@@ -595,8 +624,13 @@ def draw_text(
           for each color plane. For a color image ``color`` can be
           a string color name.
 
+    .. warning:: The image is drawn into in place, and ``image`` must be C-contiguous
+        which OpenCV requires, otherwise a ``ValueError`` is raised.
+
     :seealso: :func:`~spatialmath.base.graphics.plot_text` `opencv.putText <https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga5126f47f883d730f633d74f07456c576>`_
     """
+    _require_c_contiguous(image)
+
     if fontheight is not None:
         fontsize = cv2.getFontScaleFromHeight(
             _fontdict[font], fontheight, fontthickness
@@ -720,8 +754,12 @@ def draw_point(
         idisp(img)
 
 
+    .. warning:: The image is drawn into in place, and ``image`` must be C-contiguous
+        which OpenCV requires, otherwise a ``ValueError`` is raised.
+
     :seealso: :func:`~spatialmath.base.graphics.plot_point` `opencv.putText <https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga5126f47f883d730f633d74f07456c576>`_
     """
+    _require_c_contiguous(image)
 
     if fontheight is not None:
         fontsize = cv2.getFontScaleFromHeight(
@@ -845,8 +883,12 @@ def draw_line(
           for each color plane. For a color image ``color`` can be
           a string color name.
 
+    .. warning:: The image is drawn into in place, and ``image`` must be C-contiguous
+        which OpenCV requires, otherwise a ``ValueError`` is raised.
+
     :seealso: :func:`~spatialmath.base.graphics.plot_line` `opencv.line <https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga7078a9fae8c7e7d13d24dac2520ae4a2>`_
     """
+    _require_c_contiguous(image)
     color = _color(image, color)
 
     if antialias:
@@ -917,8 +959,12 @@ def draw_circle(
           for each color plane. For a color image ``color`` can be
           a string color name.
 
+    .. warning:: The image is drawn into in place, and ``image`` must be C-contiguous
+        which OpenCV requires, otherwise a ``ValueError`` is raised.
+
     :seealso: :func:`~spatialmath.base.graphics.plot_circle` `opencv.circle <https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#gaf10604b069374903dbd0f0488cb43670>`_
     """
+    _require_c_contiguous(image)
     color = _color(image, color)
 
     if antialias:
