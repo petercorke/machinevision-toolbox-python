@@ -448,6 +448,7 @@ class VideoFile(ImageSource):
     :param filename: Path to video file
     :type filename: str
     :param kwargs: options applied to image frames, see :func:`~machinevisiontoolbox.base.imageio.convert`
+    :raises ValueError: if the video cannot be opened or its first frame cannot be read
 
     The resulting object is an iterator over the frames of the video file.
     The iterator returns :class:`~machinevisiontoolbox.Image` objects where:
@@ -502,12 +503,20 @@ class VideoFile(ImageSource):
         # get the number of frames in the video
         #  not sure it's always correct
         cap = cv2.VideoCapture(self.filename)
-        ret, frame = cap.read()
-        self.nframes = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-        self.shape = frame.shape
-        self.fps = int(cap.get(cv2.CAP_PROP_FPS))
+        try:
+            if not cap.isOpened():
+                raise ValueError(f"Cannot open video file {self.filename!r}")
+            ret, frame = cap.read()
+            if not ret or frame is None:
+                raise ValueError(
+                    f"Cannot read the first frame of video file {self.filename!r}"
+                )
+            self.nframes = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+            self.shape = frame.shape
+            self.fps = int(cap.get(cv2.CAP_PROP_FPS))
+        finally:
+            cap.release()
         self.args = kwargs
-        cap.release()
         self.cap = None
         self.i = 0
 
