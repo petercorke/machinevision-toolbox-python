@@ -1053,17 +1053,23 @@ def _isnotebook() -> bool:
     """
     Determine if code is being run from a Jupyter notebook
 
-    ``_isnotebook`` is True if running Jupyter notebook, else False
+    ``_isnotebook`` is True if running Jupyter notebook, JupyterLite, Google Colab,
+    or similar, else False
 
     :references:
 
         - https://stackoverflow.com/questions/15411967/how-can-i-check-if-code-
           is-executed-in-the-ipython-notebook/39662359#39662359
     """
+    # JupyterLite runs in the browser, and Colab's shell is google.colab._shell.Shell
+    # rather than a ZMQInteractiveShell; neither is recognised by the shell test below
+    if sys.platform == "emscripten" or "google.colab" in sys.modules:
+        return True
+
     try:
         shell = get_ipython().__class__.__name__  # type: ignore[name-defined]
-        if shell in ("Shell", "ZMQInteractiveShell"):
-            return True  # Jupyter notebook or qtconsole or CoLab
+        if shell == "ZMQInteractiveShell":
+            return True  # Jupyter notebook or qtconsole
         elif shell == "TerminalInteractiveShell":
             return False  # Terminal running IPython
         else:
