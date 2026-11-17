@@ -7,7 +7,7 @@
 The toolbox provides a variety of sources for these objects.  They can be obtained from
 files, from cameras, from ROS topics and bag files, from the web, and from other
 sources.  The toolbox provides a convenient interface to these sources, and the objects
-they produce are instances of the :class:`~machinevisiontoolbox.ImageCore.Image` and
+they produce are instances of the :class:`~machinevisiontoolbox.Image` and
 :class:`~machinevisiontoolbox.PointCloudCore.PointCloud` classes, which have a large
 number of methods for processing and displaying them.   
 
@@ -84,7 +84,7 @@ tensor.  For example, to read a video file and display each frame::
 Image Sources
 -------------
 
-:class:`~machinevisiontoolbox.ImageCore.Image` objects can be conveniently obtained from a variety of sources:
+:class:`~machinevisiontoolbox.Image` objects can be conveniently obtained from a variety of sources:
 
 .. autosummary::
    :toctree: stubs

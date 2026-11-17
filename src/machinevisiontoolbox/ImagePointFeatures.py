@@ -238,7 +238,7 @@ class BaseFeature2D:
         Each row is in the table includes: the index in the feature vector,
         centroid coordinate, feature strength, feature scale and image id.
 
-        :seealso: :meth:`str`
+        :seealso: ``str``
         """
         columns = [
             Column("#"),

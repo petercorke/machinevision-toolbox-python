@@ -14,6 +14,7 @@ import datetime
 import os
 import sys
 import inspect
+from sphinx.ext import intersphinx
 import importlib
 from pathlib import Path
 from importlib.metadata import version as _pkg_version
@@ -156,6 +157,10 @@ nitpick_ignore_regex = [
     ("py:(class|meth|attr)", r"(Graph|UGraph|DGraph|PGraph|Edge|Vertex)(\..+)?"),
     # NumPy private typing aliases leak into signatures
     ("py:class", r"numpy\._typing\..*"),
+    ("py:class", r"Dtype"),  # type alias used in signatures
+    ("py:class", r"(machinevisiontoolbox\.Camera\.)?CameraBase"),  # undocumented base
+    ("py:class", r"\d+[A-Z]"),  # shape such as 2N
+    ("py:(class|meth|func|attr)", r"pgraph\..*"),
     # OpenCV publishes no Sphinx inventory
     ("py:(class|obj|func|meth)", r"(opencv|cv2)\..*"),
 ]
@@ -401,7 +406,11 @@ def _resolve_toolbox_names(app, env, node, contnode):
     if target.startswith("machinevisiontoolbox."):
         return None
     py = env.get_domain("py")
-    for prefix in ("machinevisiontoolbox.", "machinevisiontoolbox.Image."):
+    for prefix in (
+        "machinevisiontoolbox.",
+        "machinevisiontoolbox.Image.",
+        "machinevisiontoolbox.PointCloud.",
+    ):
         ref = py.resolve_xref(
             env,
             node.get("refdoc", ""),
@@ -411,6 +420,20 @@ def _resolve_toolbox_names(app, env, node, contnode):
             node,
             contnode,
         )
+        if ref is not None:
+            return ref
+    # spatialmath names (SE3, Polygon2, plot_line, ...), via its inventory
+    for prefix in (
+        "spatialmath.",
+        "spatialmath.pose3d.",
+        "spatialmath.pose2d.",
+        "spatialmath.geom2d.",
+        "spatialmath.base.",
+        "spatialmath.base.graphics.",
+    ):
+        newnode = node.copy()
+        newnode["reftarget"] = prefix + target
+        ref = intersphinx.resolve_reference_in_inventory(env, "smtb", newnode, contnode)
         if ref is not None:
             return ref
     return None
