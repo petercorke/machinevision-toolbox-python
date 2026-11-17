@@ -153,10 +153,5 @@ exclude = ["/packages", "/docs", "/tests", "/.git", "/.github"]
 ignore-words-list = "nd,enew,nin,inports"
 skip = "*.pyc,htmlcov"
 
-[tool.black]
-line-length = 88
-target-version = ['py311', 'py312', 'py313', 'py314']
-exclude = "camera_derivatives.py"
-
 [tool.coverage.run]
 omit = ["src/machinevisiontoolbox/blocks/*", "src/machinevision/blocks/*"]
