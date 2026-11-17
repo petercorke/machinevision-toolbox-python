@@ -224,7 +224,7 @@ class ImageSpatialMixin(_ImageBase if TYPE_CHECKING else object):
         Image convolution
 
         :param K: convolution kernel
-        :type K: :class:`~.Kernel` or ndarray, optional
+        :type K: :class:`~machinevisiontoolbox.Kernel.Kernel` or ndarray, optional
         :param mode: option for convolution, defaults to 'same'
         :type mode: str, optional
         :param border: option for boundary handling, defaults to 'reflect'
@@ -290,7 +290,7 @@ class ImageSpatialMixin(_ImageBase if TYPE_CHECKING else object):
         .. important:: Uses OpenCV functions ``cv2.filter2D`` and ``cv2.copyMakeBorder`` which accept multiple-channel, CV_8U, CV_16U, CV_16S, CV_32F or CV_64F images.
 
         :seealso:
-            :class:`~.Kernel`
+            :class:`~machinevisiontoolbox.Kernel.Kernel`
             :meth:`~smooth`
             `cv2.filter2D <https://docs.opencv.org/4.x/d4/d86/group__imgproc__filter.html#ga27c049795ce870216ddfb366086b5a04>`_
             `cv2.copyMakeBorder <https://docs.opencv.org/4.x/d2/de8/group__core__array.html#ga2ac1049c2c3dd25c2b41bffe17658a36>`_
@@ -376,7 +376,7 @@ class ImageSpatialMixin(_ImageBase if TYPE_CHECKING else object):
         Compute horizontal and vertical gradients
 
         :param K: derivative kernel, defaults to Sobel
-        :type K: :class:`~machinevisiontoolbox.ImageSpatial.Kernel` or ndarray, optional
+        :type K: :class:`~machinevisiontoolbox.Kernel.Kernel` or ndarray, optional
         :param mode: option for convolution, see :meth:`convolve`, defaults to 'same'
         :type mode: str, optional
         :param border: option for boundary handling, see :meth:`convolve`, defaults to 'reflect'
@@ -399,7 +399,7 @@ class ImageSpatialMixin(_ImageBase if TYPE_CHECKING else object):
         :references:
             - |RVC3|, Section 11.5.1.3.
 
-        :seealso: :class:`~machinevisiontoolbox.ImageSpatial.Kernel`
+        :seealso: :class:`~machinevisiontoolbox.Kernel.Kernel`
         """
         if K is None:
             K = Kernel.Sobel()

@@ -264,6 +264,11 @@ We can model a standard central-perspective camera using its known parameters:
 
 	camera = mvtb.CentralCamera(f=0.015, rho=10e-6, imagesize=[1280, 1024], pp=[640, 512], name="mycamera")
 	print(camera)
+
+which displays
+
+.. code-block:: text
+
 				Name: mycamera [CentralCamera]
 		focal length: (array([0.015]), array([0.015]))
 		  pixel size: 1e-05 x 1e-05

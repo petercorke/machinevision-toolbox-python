@@ -1013,7 +1013,7 @@ def mpl_styling(
     to specify styling in a compact format string, while still allowing for more
     detailed styling through keyword arguments with decent defaults.
 
-    .. code-block:: python
+    .. code-block:: text
 
         def function(*fmt, ..., **kwargs):
             options = mpl_styling(fmt, defaults={color='red', marker='o'}, kwargs=kwargs)

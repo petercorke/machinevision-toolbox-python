@@ -1428,8 +1428,10 @@ def iwrite(
 
         .. code-block:: python
 
-            from machinevisiontoolbox import iwrite import numpy as np image =
-            np.zeros((20,20))  # 20x20 black image iwrite(image, "black.png")
+            from machinevisiontoolbox import iwrite
+            import numpy as np
+            image = np.zeros((20,20))  # 20x20 black image
+            iwrite(image, "black.png")
 
 
     .. note::
