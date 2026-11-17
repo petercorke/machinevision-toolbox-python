@@ -1120,7 +1120,7 @@ class BaseFeature2D:
         :type handthickness: int, optional
         :param handalpha: transparency of clock hand, defaults to 1
         :type handalpha: int, optional
-        :param kwargs: options passed to :obj:`matplotlib.Circle` such as color,
+        :param kwargs: options passed to :class:`matplotlib.patches.Circle` such as color,
             alpha, edgecolor, etc.
         :type kwargs: dict
 
@@ -1193,7 +1193,7 @@ class BaseFeature2D:
         :type handthickness: int, optional
         :param handalpha: transparency of clock hand, defaults to 1
         :type handalpha: int, optional
-        :param kwargs: options passed to :obj:`matplotlib.Circle` such as color,
+        :param kwargs: options passed to :class:`matplotlib.patches.Circle` such as color,
             alpha, edgecolor, etc.
         :type kwargs: dict
 

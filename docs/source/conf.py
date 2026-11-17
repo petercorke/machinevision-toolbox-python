@@ -121,6 +121,7 @@ primary_domain = "py"
 
 # -- Cross-project links -----------------------------------------------------
 intersphinx_mapping = {
+    "python": ("https://docs.python.org/3", None),
     "numpy": ("https://numpy.org/doc/stable/", None),
     "scipy": ("https://docs.scipy.org/doc/scipy/", None),
     "matplotlib": ("https://matplotlib.org/stable/", None),
@@ -151,6 +152,12 @@ nitpick_ignore_regex = [
     ("py:class", r"N-tuple"),
     ("py:class", r".* subclass"),
     ("py:class", r"scalar|string|callable|axes|_type_"),
+    # pgraph's inherited docstrings use names relative to the pgraph package
+    ("py:(class|meth|attr)", r"(Graph|UGraph|DGraph|PGraph|Edge|Vertex)(\..+)?"),
+    # NumPy private typing aliases leak into signatures
+    ("py:class", r"numpy\._typing\..*"),
+    # OpenCV publishes no Sphinx inventory
+    ("py:(class|obj|func|meth)", r"(opencv|cv2)\..*"),
 ]
 # maybe issues with cv2 https://stackoverflow.com/questions/30939867/how-to-properly-write-cross-references-to-external-documentation-with-intersphin
 
@@ -382,7 +389,36 @@ Documenter.sort_members = _sort_members_ci
 
 
 # -- Sphinx application hooks ------------------------------------------------
+def _resolve_toolbox_names(app, env, node, contnode):
+    """Resolve a bare name such as ``Image`` or ``CameraBase`` to this package.
+
+    Docstrings refer to toolbox classes without their full path.  When Sphinx
+    cannot find the name as written, try it under ``machinevisiontoolbox``.
+    """
+    if node.get("refdomain") != "py":
+        return None
+    target = node.get("reftarget", "")
+    if target.startswith("machinevisiontoolbox."):
+        return None
+    py = env.get_domain("py")
+    for prefix in ("machinevisiontoolbox.", "machinevisiontoolbox.Image."):
+        ref = py.resolve_xref(
+            env,
+            node.get("refdoc", ""),
+            app.builder,
+            node["reftype"],
+            prefix + target,
+            node,
+            contnode,
+        )
+        if ref is not None:
+            return ref
+    return None
+
+
 def setup(app):
+    app.connect("missing-reference", _resolve_toolbox_names)
+
     # Custom stylesheet for docs/site-level overrides.
     app.add_css_file("custom.css")
 
