@@ -4,13 +4,12 @@ version = "2.4.1"
 authors = [{ name = "Peter Corke", email = "rvc@petercorke.com" }]
 description = "Object-oriented machine vision for Python."
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     # Indicate who your project is intended for
     "Intended Audience :: Developers",
     # Specify the Python versions you support here.
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
@@ -156,7 +155,7 @@ skip = "*.pyc,htmlcov"
 
 [tool.black]
 line-length = 88
-target-version = ['py310', 'py311', 'py312', 'py313']
+target-version = ['py311', 'py312', 'py313', 'py314']
 exclude = "camera_derivatives.py"
 
 [tool.coverage.run]
