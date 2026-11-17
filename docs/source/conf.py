@@ -139,6 +139,19 @@ nitpick_ignore = [
     ("py:class", "H"),
     ("py:class", "numpy._typing.DTypeLike"),
 ]
+# Shape annotations such as ``ndarray(N,2)`` and prose types such as "2-tuple" or
+# "Vertex subclass" are split into words by Sphinx and treated as class names.
+nitpick_ignore_regex = [
+    ("py:class", r"ndarray"),
+    ("py:class", r"\d+"),  # dimensions: 2, 3, 4, ...
+    ("py:class", r"[A-Z]\d?"),  # symbolic dimensions: N, M, N1, N2, ...
+    ("py:class", r"n"),
+    ("py:class", r"N elements"),
+    ("py:class", r"\d+-tuple"),
+    ("py:class", r"N-tuple"),
+    ("py:class", r".* subclass"),
+    ("py:class", r"scalar|string|callable|axes|_type_"),
+]
 # maybe issues with cv2 https://stackoverflow.com/questions/30939867/how-to-properly-write-cross-references-to-external-documentation-with-intersphin
 
 
