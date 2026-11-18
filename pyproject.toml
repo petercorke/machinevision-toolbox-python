@@ -68,7 +68,7 @@ dependencies = [
 #  ocr - OCR support via pytesseract
 #  tool - dependencies for the mvtbtool interactive shell
 
-dev = ["pytest", "pytest-timeout", "pytest-xvfb", "coverage", "ruff", "nbmake"]
+dev = ["pytest", "pytest-timeout", "pytest-xvfb", "coverage", "ruff", "nbmake", "mypy"]
 
 ros = ["rosbags", "roslibpy", "websockets"]
 
@@ -128,9 +128,11 @@ known-first-party = ["machinevisiontoolbox"]
 # honours this file).
 exclude_dirs = ["tests"]
 
-[tool.pyright]
-include = ["src"]
-ignore = ["docs", "tests", "examples"]
+[tool.mypy]
+mypy_path = "src"
+files = ["src/machinevisiontoolbox"]
+ignore_missing_imports = true
+warn_unused_ignores = true
 
 [project.scripts]
 mvtbtool = "machinevisiontoolbox.bin.mvtbtool:main"
