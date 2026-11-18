@@ -189,7 +189,7 @@ class HoughFeature:
         if lines.shape[1] == 2:
             # Hough lines
             theta, rho = lines.T
-            homlines = np.row_stack((np.cos(theta), np.sin(theta), -rho))
+            homlines = np.vstack((np.cos(theta), np.sin(theta), -rho))
             base.plot_homline(homlines, *args, **kwargs)
         else:
             for line in lines:

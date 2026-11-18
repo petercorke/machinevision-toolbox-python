@@ -4,6 +4,7 @@ PyTorch tensor conversion and integration for Image objects.
 
 from __future__ import annotations
 
+import sys
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
@@ -11,6 +12,11 @@ if TYPE_CHECKING:
     from machinevisiontoolbox._image_typing import _ImageBase
 
 import numpy as np
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
 from machinevisiontoolbox._image_typing import ImageMixinBase
 
 try:
@@ -129,7 +135,7 @@ class ImageTensorMixin(ImageMixinBase):
         logits: bool = False,
         colororder: str | None = None,
         dtype: Any = None,
-    ) -> "Image":
+    ) -> Self:
         """Create an Image from a PyTorch tensor.
 
         :param data: tensor input, either a ``torch.Tensor`` of shape

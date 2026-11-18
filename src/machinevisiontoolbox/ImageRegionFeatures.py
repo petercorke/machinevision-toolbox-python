@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING, Any
 
 from machinevisiontoolbox._image_typing import ImageMixinBase
 from machinevisiontoolbox.decorators import array_result
-from machinevisiontoolbox.base import plot_labelbox
+from machinevisiontoolbox.base.graphics import plot_labelbox
 
 try:
     import pytesseract as _pytesseract
@@ -162,7 +162,7 @@ class MSERFeature:
         """
 
         if image is not None:
-            detector = cv2.MSER_create(**kwargs)
+            detector = cv2.MSER.create(**kwargs)
             msers, bboxes = detector.detectRegions(image._A)
 
             # msers is a tuple of ndarray(M,2), each row is (u,v)

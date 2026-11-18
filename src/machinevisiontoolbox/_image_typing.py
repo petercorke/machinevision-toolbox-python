@@ -40,6 +40,10 @@ class _ImageBase(Protocol):
 
     # ---- pixel data --------------------------------------------------
     _A: np.ndarray
+    _stats: dict[str, Any] | None
+
+    @staticmethod
+    def _plane_stats(plane: np.ndarray) -> dict[str, float | int]: ...
 
     @property
     def A(self) -> np.ndarray: ...

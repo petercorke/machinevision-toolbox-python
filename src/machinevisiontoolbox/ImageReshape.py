@@ -969,7 +969,9 @@ class ImageReshapeMixin(ImageMixinBase):
 
     @classinstancemethod
     def meshgrid(
-        self: type[Self] | Self, width: int | None = None, height: int | None = None
+        self: "type[ImageReshapeMixin] | ImageReshapeMixin",
+        width: int | None = None,
+        height: int | None = None,
     ) -> tuple[np.ndarray, np.ndarray]:
         """
         Coordinate arrays for image

@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     from machinevisiontoolbox._image_typing import _ImageBase
 
 from machinevisiontoolbox._image_typing import ImageMixinBase
-from machinevisiontoolbox.base import findpeaks, findpeaks2d
+from machinevisiontoolbox.base.findpeaks import findpeaks, findpeaks2d
 from machinevisiontoolbox.base.imageio import safe_plt_show, set_window_title
 from machinevisiontoolbox.mvtb_types import *
 

@@ -24,7 +24,8 @@ from spatialmath.base import islistof, isscalar
 
 # from numpy.lib.arraysetops import isin
 from machinevisiontoolbox._image_typing import ImageMixinBase
-from machinevisiontoolbox.base import DTYPE_ALIASES, float_image, int_image, name2color
+from machinevisiontoolbox.base.color import name2color
+from machinevisiontoolbox.base.types import DTYPE_ALIASES, float_image, int_image
 from machinevisiontoolbox.base.imageio import convert, idisp, iread, iwrite
 from machinevisiontoolbox.Kernel import Kernel
 from machinevisiontoolbox.mvtb_types import Dtype
