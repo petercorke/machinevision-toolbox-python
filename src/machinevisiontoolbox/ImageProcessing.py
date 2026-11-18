@@ -21,8 +21,7 @@ from spatialmath.base import argcheck, e2h, getvector, h2e, transl2
 
 from machinevisiontoolbox._image_typing import ImageMixinBase
 from machinevisiontoolbox.base.color import name2color
-from machinevisiontoolbox.base.imageio import iread, iwrite, safe_plt_show
-from machinevisiontoolbox.base.types import int_image
+from machinevisiontoolbox.base.imageio import iwrite, safe_plt_show
 
 if TYPE_CHECKING:
     from machinevisiontoolbox.ImageCore import Image

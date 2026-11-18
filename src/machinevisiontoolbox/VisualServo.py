@@ -1243,7 +1243,6 @@ class IBVS_e(VisualServo):
         """
 
         status = 0
-        Z_est: list[Any] = []
 
         # compute feature vector
         f = np.r_[
@@ -1395,7 +1394,6 @@ class IBVS_sph(VisualServo):
         :seealso: :meth:`run` :meth:`VisualServo.run`
         """
         status = 0
-        Z_est: list[Any] = []
 
         # compute image plane error as a column
         p = self.camera.project_point(self.P)  # (phi, theta)
