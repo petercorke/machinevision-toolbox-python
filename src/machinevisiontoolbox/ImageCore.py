@@ -2696,7 +2696,7 @@ class Image(
             if self.colororder is None:
                 raise ValueError("plane names require colororder")
             iplanes = []
-            colororder = {}
+            colororder: dict[str, Any] = {}
             if ":" in planes:
                 planes = planes.split(":")
                 planes = [p for p in planes if p != ""]
@@ -2710,7 +2710,7 @@ class Image(
         elif isinstance(planes, (tuple, list)):
             if self.colororder is None:
                 raise ValueError("plane names require colororder")
-            colororder = {}
+            colororder: dict[str, Any] = {}
             for plane in planes:
                 if not isinstance(plane, int) or plane < 0 or plane >= self.nplanes:
                     raise ValueError("plane index invalid or out of range")
