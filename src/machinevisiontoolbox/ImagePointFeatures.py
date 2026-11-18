@@ -21,6 +21,7 @@ from machinevisiontoolbox.base import (
     name2color,
     safe_plt_show,
 )
+from machinevisiontoolbox.base.graphics import _require_c_contiguous
 from machinevisiontoolbox.decorators import (
     array_result,
     array_result2,
@@ -1200,8 +1201,12 @@ class BaseFeature2D:
         Orientation, if applicable, is indicated by a radial line from the circle centre
         to the circumference, like a clock hand.
 
+        .. warning:: The image is drawn into in place.  OpenCV requires that its pixel
+            data is C-contiguous, otherwise a ``ValueError`` is raised.  See
+            :class:`~machinevisiontoolbox.Image` for how to create such an image.
         """
         img = image._A  # Draw features into image
+        _require_c_contiguous(img)
         if filled:
             for kp in self:
                 centre = kp.p.flatten()
@@ -1233,7 +1238,26 @@ class BaseFeature2D:
             draw_point(img, self.p, *args, fontsize=0.6, **kwargs)
 
     def draw2(self, image: Any, color: Any = "y", type: str = "point") -> Any:
+        """
+        Draw features into image using OpenCV keypoint drawing
+
+        :param image: image to draw into
+        :type image: :class:`~machinevisiontoolbox.Image`
+        :param color: color of the features, defaults to 'y'
+        :type color: str, array_like or tuple, optional
+        :param type: style, one of 'point' [default], 'rich' (size and orientation) or
+            'not' (omit single points)
+        :type type: str, optional
+        :raises ValueError: image pixel data is not C-contiguous
+        :return: the image drawn into
+        :rtype: :class:`~machinevisiontoolbox.Image`
+
+        .. warning:: The image is drawn into in place.  OpenCV requires that its pixel
+            data is C-contiguous, otherwise a ``ValueError`` is raised.  See
+            :class:`~machinevisiontoolbox.Image` for how to create such an image.
+        """
         img = image._A  # Draw features into image
+        _require_c_contiguous(img)
         if isinstance(color, str):
             color_ndarray: np.ndarray = name2color(
                 color, dtype=image.dtype, colororder=image.colororder

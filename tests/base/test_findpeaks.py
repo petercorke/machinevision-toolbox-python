@@ -1,12 +1,33 @@
 import unittest
+from unittest.mock import patch
 
 import numpy as np
+from numpy.polynomial import Polynomial
 
 from machinevisiontoolbox import findpeaks, findpeaks2d, findpeaks3d
 
 
 class TestFindpeaks(unittest.TestCase):
     """Test cases for 1D peak finding"""
+
+    def test_failed_refinement_warns_and_skips(self):
+        """Warn when the fit neighbourhood extends beyond the signal."""
+        y = np.array([0, 2, 0, 0, 0, 0, 0], dtype=float)
+        with self.assertWarnsRegex(
+            RuntimeWarning, "Peak at 1 couldn't be fitted, skipping"
+        ):
+            x, ymax = findpeaks(y, interp=6, npeaks=1)
+        self.assertEqual(x.size, 0)
+        self.assertEqual(ymax.size, 0)
+
+    def test_refinement_preserves_unexpected_exceptions(self):
+        """Let unrelated failures and user interrupts reach the caller."""
+        y = np.array([0, 1, 2, 1, 0], dtype=float)
+        for error in (RuntimeError("unexpected failure"), KeyboardInterrupt()):
+            with self.subTest(error=type(error).__name__):
+                with patch.object(Polynomial, "fit", side_effect=error):
+                    with self.assertRaises(type(error)):
+                        findpeaks(y, interp=True)
 
     def test_simple_peak(self):
         """Test detection of simple peak"""

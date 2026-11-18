@@ -819,7 +819,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> im = Image.Read('shark2.png')
             >>> blobs = im.blobs()
             >>> blobs[0].vc
-            >>> blobs.v
+            >>> blobs.vc
 
         :seealso:  :meth:`u` :meth:`centroid`
         """
@@ -1883,7 +1883,9 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
             from machinevisiontoolbox import Image
 
-            im = Image.Read("sharks.png") im.disp() blobs = im.blobs()
+            im = Image.Read("sharks.png")
+            im.disp()
+            blobs = im.blobs()
             blobs[:3].plot_labelbox(color="yellow")
             blobs[3].plot_labelbox(color="lightblue", linewidth=2, label="3")
 
@@ -1891,7 +1893,6 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             :func:`~machinevisiontoolbox.base.graphics.plot_labelbox`
         """
         options = mpl_styling(fmt, dict(color="yellow", linewidth=2), kwargs)
-        print(options)
         for blob in self:
             plot_labelbox(
                 text=label.format(blob.id), fmt=fmt, lrbt=blob.bbox, **options

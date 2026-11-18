@@ -99,6 +99,9 @@ class ImageIOMixin(_ImageBase if TYPE_CHECKING else object):
             to the current directory, and if not found, it is searched for in
             the ``images`` folder of the `mvtb_data package <https://github.com/petercorke/machinevision-toolbox-python/tree/master/packages/mvtb-data>`_.
 
+        .. note:: The image data is a C-contiguous array of pixels, so the ``draw_*``
+            methods and OpenCV functions can operate on it directly.
+
         .. warning:: In an ipython environment, eg. ``mvtbtool``, the file-browser dialogue may not work.  In this case, specify the filename as a string.
 
         :seealso: :func:`~machinevisiontoolbox.base.imageio.iread` :func:`~machinevisiontoolbox.base.imageio.convert`  `cv2.imread <https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56>`_
@@ -450,13 +453,14 @@ class ImageIOMixin(_ImageBase if TYPE_CHECKING else object):
         plt.draw()
         return ax
 
-    def showwindow(self, h, ax, **kwargs: Any) -> Any:
+    def showwindow(self, h, ax=None, **kwargs: Any) -> Any:
         """Superimpose a colored window on the image.
 
         :param h: The half-width of the window, so the total window size is
             (2h+1)x(2h+1)
         :type h: int
-        :param ax: The axes on which to display the window
+        :param ax: The axes on which to display the window, defaults to the
+            current axes
         :return: The window instance
         :rtype: Any
 
@@ -495,18 +499,9 @@ class ImageIOMixin(_ImageBase if TYPE_CHECKING else object):
             >>> from machinevisiontoolbox import Image
             >>> img = Image.Random(size=10)
             >>> img.showpixels()
-            >>> img.showwindow(h=1)  # with 3x3 window
+            >>> window = img.showwindow(h=1)  # with 3x3 window
             >>> W = window.move(2,3) # position window at (2,3)
             >>> print(W) # print the pixel values in the window
-
-        .. plot::
-
-            from machinevisiontoolbox import Image
-            img = Image.Random(size=10)
-            img.showpixels()
-            img.showwindow(h=1)  # with 3x3 window
-            W = window.move(2,3) # position window at (2,3)
-
 
         .. plot::
 
@@ -545,7 +540,7 @@ class ImageIOMixin(_ImageBase if TYPE_CHECKING else object):
                 v: int | float,
                 wincolor: Any = None,
                 winalpha: float = 0.9,
-            ) -> None:
+            ) -> np.ndarray | None:
 
                 self.patch.set_x(u - self.h - 0.5)
                 self.patch.set_y(v - self.h - 0.5)

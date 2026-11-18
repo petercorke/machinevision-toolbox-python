@@ -607,5 +607,36 @@ class TestLabelMeReader(unittest.TestCase):
             self.assertEqual(shapes[1].flags, {"hard": False})
 
 
+class TestEarthViewKey(unittest.TestCase):
+    """How EarthView finds its API key (no network access needed)."""
+
+    def _earthview(self, env: dict[str, str], **kwargs):
+        from machinevisiontoolbox import EarthView
+
+        clean = {
+            k: v
+            for k, v in os.environ.items()
+            if k not in ("GOOGLE_MAPS_API_KEY", "GOOGLE_API_KEY")
+        }
+        with patch.dict(os.environ, {**clean, **env}, clear=True):
+            return EarthView(**kwargs)
+
+    def test_maps_key_preferred(self):
+        ev = self._earthview({"GOOGLE_MAPS_API_KEY": "maps", "GOOGLE_API_KEY": "other"})
+        self.assertEqual(ev.key, "maps")
+
+    def test_google_api_key_fallback(self):
+        ev = self._earthview({"GOOGLE_API_KEY": "legacy"})
+        self.assertEqual(ev.key, "legacy")
+
+    def test_explicit_key_wins(self):
+        ev = self._earthview({"GOOGLE_MAPS_API_KEY": "maps"}, key="explicit")
+        self.assertEqual(ev.key, "explicit")
+
+    def test_no_key(self):
+        ev = self._earthview({})
+        self.assertIsNone(ev.key)
+
+
 if __name__ == "__main__":
     unittest.main()

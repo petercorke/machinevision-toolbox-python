@@ -2,21 +2,32 @@
 Visual Bag of Words model for image classification and retrieval.
 """
 
+from __future__ import annotations
+
 from collections import Counter
-from typing import Any
+from collections.abc import Iterable, Iterator
+from typing import Any, Protocol
 
 import cv2
 import numpy as np
 
-from machinevisiontoolbox.ImagePointFeatures import BaseFeature2D
 from machinevisiontoolbox import Image
+from machinevisiontoolbox.ImagePointFeatures import BaseFeature2D
+
+
+class _ImageQueries(Protocol):
+    """Finite image queries, including lists and lazy file collections."""
+
+    def __len__(self) -> int: ...
+
+    def __iter__(self) -> Iterator[Image]: ...
 
 
 # TODO: remove top N% and bottom M% of words by frequency
 class BagOfWords:
     def __init__(
         self,
-        images,
+        images: Iterable[Image] | BaseFeature2D | None,
         k: int = 2_000,
         nstopwords: int = 0,
         attempts: int = 1,
@@ -372,7 +383,7 @@ class BagOfWords:
         # rearrange the cluster centroids
         self._centroids = self._centroids[map]
 
-    def similarity(self, query) -> np.ndarray:
+    def similarity(self, query: Image | _ImageQueries | np.ndarray) -> np.ndarray:
         """
         Compute similarity between bag of words and query
 
@@ -450,7 +461,7 @@ class BagOfWords:
             sim = sim[0, :]
         return sim
 
-    def retrieve(self, images) -> tuple[int, float]:
+    def retrieve(self, images: Image | _ImageQueries | np.ndarray) -> tuple[int, float]:
 
         S = self.similarity(images).ravel()
         k = np.argmax(S)
@@ -483,7 +494,7 @@ class BagOfWords:
         return np.sum(self.words == word)
 
     @staticmethod
-    def _word_freq_vector(words, maxwords: int) -> np.ndarray:
+    def _word_freq_vector(words: np.ndarray | list[int], maxwords: int) -> np.ndarray:
         # create columns of the W
         unique, unique_counts = np.unique(words, return_counts=True)
         # [w,f] = count_unique(words)

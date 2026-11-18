@@ -963,20 +963,20 @@ def XYZ2RGBxform(
     if isinstance(white, str):
         try:
             white_xy = np.array(_whites[white.lower()])
-        except:
+        except KeyError as exc:
             raise ValueError(
-                "unknown white value, must be one of" ", ".join(_whites.keys())
-            )
+                f"unknown white value, must be one of {', '.join(_whites)}"
+            ) from exc
     else:
         white_xy = smb.getvector(white, 2)
 
     if isinstance(primaries, str):
         try:
             primary_xy = _xy_primaries[primaries.lower()]
-        except:
+        except KeyError as exc:
             raise ValueError(
-                "unknown primary value, must be one of" ", ".join(_xy_primaries.keys())
-            )
+                f"unknown primary value, must be one of {', '.join(_xy_primaries)}"
+            ) from exc
     else:
         primary_xy = smb.getmatrix(primaries, (3, 2))
 

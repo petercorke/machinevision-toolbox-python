@@ -15,6 +15,7 @@ import numpy as np
 from ansitable import ANSITable, Column
 from spatialmath import SE3
 
+from machinevisiontoolbox.base.graphics import _require_c_contiguous
 from machinevisiontoolbox.ImagePointFeatures import BaseFeature2D
 
 # https://docs.opencv.org/4.4.0/d7/d60/classcv_1_1SIFT.html
@@ -112,8 +113,8 @@ class ImageFiducialsMixin(_ImageBase if TYPE_CHECKING else object):
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> img = Image.Read('tags.png')
-            >>> fiducials = img.fiducial('5x5_50')
+            >>> img = Image.Read('apriltag12.png')
+            >>> fiducials = img.fiducial('36h11')
             >>> fiducials
             >>> fiducials[0].corners
 
@@ -284,14 +285,19 @@ class Fiducial:
         :type length: int, optional
         :param thick: axis thickness in pixels, defaults to 2
         :type thick: int, optional
-        :raises ValueError: image must have BGR color order
+        :raises ValueError: image must have BGR color order, and C-contiguous pixel data
 
         Draws a coordinate frame into the image representing the pose of the
         marker.  The x-, y- and z-axes are drawn as red, green and blue line
         segments.
+
+        .. warning:: The image is drawn into in place.  OpenCV requires that its pixel
+            data is C-contiguous, otherwise a ``ValueError`` is raised.  See
+            :class:`~machinevisiontoolbox.Image` for how to create such an image.
         """
         if not image.isbgr:
             raise ValueError("image must have BGR color order")
+        _require_c_contiguous(image._A)
         cv2.drawFrameAxes(
             image=image._A,
             cameraMatrix=self.K,
@@ -539,7 +545,7 @@ class FiducialCollection:
         :type length: float, optional
         :param thick: axis thickness in pixels, defaults to 2
         :type thick: int, optional
-        :raises ValueError: image must have BGR color order
+        :raises ValueError: image must have BGR color order, and C-contiguous pixel data
 
         Draws a coordinate frame into the image representing the pose of the
         board.  The x-, y- and z-axes are drawn as red, green and blue line
@@ -547,9 +553,14 @@ class FiducialCollection:
 
         .. note:: the ``length`` is specified in the same units as focal length and
             pixel size of the camera, and the marker dimensions, typically meters.
+
+        .. warning:: The image is drawn into in place.  OpenCV requires that its pixel
+            data is C-contiguous, otherwise a ``ValueError`` is raised.  See
+            :class:`~machinevisiontoolbox.Image` for how to create such an image.
         """
         if not image.isbgr:
             raise ValueError("image must have BGR color order")
+        _require_c_contiguous(image._A)
         cv2.drawFrameAxes(
             image=image._A,
             cameraMatrix=camera.K,

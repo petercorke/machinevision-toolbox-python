@@ -73,21 +73,12 @@ class TestCamera(unittest.TestCase):
         self.assertEqual(c.v0, 300)
         nt.assert_array_almost_equal(c.pp, (200, 300))
 
-        # Test setting focal length
+        # Setters must update both components, not silently fail.
         c = CentralCamera(f=0.015)
-        try:
-            c.f = 0.02
-            self.assertAlmostEqual(c.f[0], 0.02)
-        except:
-            pass
-
-        # Test setting principal point
-        try:
-            c.pp = (400, 300)
-            self.assertEqual(c.pp[0], 400)
-            self.assertEqual(c.pp[1], 300)
-        except:
-            pass
+        c.f = 0.02
+        nt.assert_allclose(c.f, [0.02, 0.02])
+        c.pp = (400, 300)
+        nt.assert_array_equal(c.pp, [400, 300])
 
     def test_pose(self):
 
@@ -106,25 +97,16 @@ class TestCamera(unittest.TestCase):
         self.assertTrue(c.pose == y)
 
     def test_project_point(self):
-        """Test projecting 3D points to image plane"""
+        """Check pinhole projection with points stored in columns."""
         c = CentralCamera(f=0.015, rho=10e-6, imagesize=[1280, 1024])
+        p = c.project_point([0.1, 0.2, 3.0])
+        self.assertEqual(p.shape, (2, 1))
+        nt.assert_allclose(p, [[690], [612]])
 
-        # Project a single point
-        try:
-            P = np.array([0.1, 0.2, 3.0])
-            p = c.project_point(P)
-            self.assertEqual(p.shape, (2,))
-        except:
-            # Method might not exist
-            pass
-
-        # Project multiple points
-        try:
-            P_multi = np.array([[0.1, 0.2, 0.3], [0.2, 0.3, 0.4], [3.0, 3.0, 3.0]]).T
-            p_multi = c.project_point(P_multi)
-            self.assertEqual(p_multi.shape[1], 3)
-        except:
-            pass
+        P = np.array([[0.1, 0.2, 0.3], [0.2, 0.3, 0.4], [3.0, 3.0, 3.0]])
+        p = c.project_point(P)
+        self.assertEqual(p.shape, (2, 3))
+        nt.assert_allclose(p, [[690, 740, 790], [612, 662, 712]])
 
     def test_K_matrix(self):
         """Test camera calibration matrix"""
@@ -155,50 +137,33 @@ class TestCamera(unittest.TestCase):
         c_persp = CentralCamera(f=0.015)
         self.assertEqual(c_persp.camtype, "perspective")
 
-        # Test camera with distortion parameters
-        try:
-            c_dist = CentralCamera(f=0.015, distortion=[0.1, 0.01])
-            self.assertIsNotNone(c_dist.distortion)
-        except:
-            pass
+        c_dist = CentralCamera(f=0.015, distortion=[0.1, 0.01])
+        nt.assert_array_equal(c_dist.distortion, [0.1, 0.01])
 
     def test_ray_direction(self):
-        """Test computing ray directions"""
-        c = CentralCamera(f=0.015, rho=10e-6, imagesize=[1280, 1024])
+        """Rays contain the camera centre and follow the pixel direction."""
+        c = CentralCamera(f=0.015, rho=10e-6, imagesize=[1280, 1024], pose=SE3(1, 2, 3))
+        for pixel, direction in [([640, 512], [0, 0, 1]), ([790, 512], [0.1, 0, 1])]:
+            with self.subTest(pixel=pixel):
+                ray = c.ray(pixel)
+                self.assertEqual(len(ray), 1)
+                nt.assert_allclose(ray.w / ray.w[2], direction, atol=1e-12)
+                self.assertTrue(ray.contains(c.centre))
+                self.assertTrue(ray.contains(c.centre + np.array(direction)))
 
-        try:
-            # Test getting ray for a pixel
-            ray = c.ray([640, 512])
-            if ray is not None:
-                self.assertEqual(len(ray), 3)
-        except:
-            # Method might not exist
-            pass
-
-    @unittest.skip("move method doesn't work as expected")
     def test_move_camera(self):
-        """Test moving camera in space"""
-        c = CentralCamera()
-
-        # Move camera
-        T = SE3(1, 2, 3)
-        try:
-            c.move(T)
-            # Check that pose was updated
-            self.assertIsNotNone(c.pose)
-        except:
-            # Method might not exist, just verify basic functionality
-            pass
-        c = CentralCamera(pose=x)
-        self.assertTrue(c.pose == x)
-
-        c.pose = y
-        self.assertTrue(c.pose == y)
-
-        c = CentralCamera()
-        c2 = c.move(x)
-        self.assertIsNot(c, c2)
-        self.assertTrue(c2.pose == x)
+        """Move returns a new camera and leaves the original pose unchanged."""
+        original_pose = SE3(1, 2, 3)
+        c = CentralCamera(f=0.015, pose=original_pose)
+        T = SE3(0.5, 0.25, 0)
+        moved = c.move(T)
+        self.assertIsNot(c, moved)
+        nt.assert_allclose(moved.pose.A, T.A)
+        nt.assert_allclose(c.pose.A, original_pose.A)
+        nt.assert_allclose(moved.f, c.f)
+        relative = c.move(T, relative=True)
+        nt.assert_allclose(relative.pose.A, (original_pose * T).A)
+        nt.assert_allclose(c.pose.A, original_pose.A)
 
     def test_str(self):
         c = CentralCamera(f=0.123, imagesize=(2000, 3000), name="fred")
@@ -341,41 +306,25 @@ class TestCamera(unittest.TestCase):
         self.assertTrue(c.pose == new_pose)
 
     def test_camera_matrix_access(self):
-        """Test accessing camera matrices"""
-        c = CentralCamera(f=0.015, rho=10e-6, pp=(640, 512))
-
-        try:
-            # K matrix
-            K = c.K
-            self.assertEqual(K.shape, (3, 3))
-            self.assertEqual(K[2, 2], 1.0)
-        except:
-            pass
-
-        try:
-            # C matrix
-            C = c.C()
-            self.assertEqual(C.shape, (3, 4))
-        except:
-            pass
-
-        try:
-            # P matrix
-            P = c.P()
-            self.assertEqual(P.shape, (3, 4))
-        except:
-            pass
+        """Check calibration and extrinsics against an analytic matrix."""
+        c = CentralCamera(f=0.015, rho=10e-6, pp=(640, 512), pose=SE3(1, 2, 3))
+        K = np.array([[1500, 0, 640], [0, 1500, 512], [0, 0, 1]])
+        nt.assert_allclose(c.K, K)
+        C = np.array([[1500, 0, 640, -3420], [0, 1500, 512, -4536], [0, 0, 1, -3]])
+        nt.assert_allclose(c.C(), C)
+        # C is the projection matrix; there is no separate P() API.
+        P = np.array([1.1, 2.2, 6, 1])
+        projected = C @ P
+        nt.assert_allclose(c.project_point(P[:3]).ravel(), projected[:2] / projected[2])
 
     def test_camera_clone_methods(self):
-        """Test camera cloning/copying"""
+        """A separately constructed camera can reuse a pose without sharing it."""
         c = CentralCamera(f=0.015, pose=SE3(1, 2, 3))
-
-        try:
-            # Some way to clone the camera
-            c_copy = CentralCamera(f=0.015, pose=c.pose)
-            self.assertTrue(c_copy.pose == c.pose)
-        except:
-            pass
+        c_copy = CentralCamera(f=0.015, pose=c.pose)
+        self.assertIsNot(c, c_copy)
+        nt.assert_allclose(c_copy.pose.A, c.pose.A)
+        c_copy.pose = SE3(4, 5, 6)
+        nt.assert_allclose(c.pose.t, [1, 2, 3])
 
     def test_images2C(self):
         """Checkerboard calibration end-to-end (regression: OpenCV 5's
