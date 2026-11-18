@@ -22,7 +22,7 @@ from spatialmath import SE2
 import spatialmath.base as smb
 
 from machinevisiontoolbox._image_typing import ImageMixinBase
-from machinevisiontoolbox.base import plot_labelbox, mpl_styling
+from machinevisiontoolbox.base.graphics import plot_labelbox, mpl_styling
 from machinevisiontoolbox.decorators import array_result, scalar_result
 
 if TYPE_CHECKING:
@@ -95,7 +95,7 @@ class Blob:
 
 
 class Blobs(UserList):  # lgtm[py/missing-equals]
-    _image = []  # keep image saved for each Blobs object
+    _image: list[Any] = []  # keep image saved for each Blobs object
 
     def __init__(
         self,
@@ -636,7 +636,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         if not mask:
             return self[:]
-        m: np.ndarray = np.array(mask).all(axis=0)  # type: ignore[assignment]
+        m: np.ndarray = np.array(mask).all(axis=0)
 
         return self[m.flatten()]
 
@@ -1796,15 +1796,15 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         # assert(numrows(r1) == numrows(r2), 'r1 and r2 must have same number of rows');
 
-        R = []
+        Rlist = []
         for i in range(len(self)):
             # get the radius profile
             r, _ = self[i].polar()
             # normalize to zero mean and unit variance
             r -= r.mean()
             r /= np.std(r)
-            R.append(r)
-        R = np.array(R)  # on row per blob boundary
+            Rlist.append(r)
+        R = np.array(Rlist)  # on row per blob boundary
         n = R.shape[1]
 
         # get the target profile
@@ -2612,7 +2612,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
                 dot_stream = open(filename, "r")
             else:
                 f.seek(0)
-                dot_stream = f
+                dot_stream = f  # type: ignore[assignment]
 
             pdffile = tempfile.NamedTemporaryFile(suffix=".pdf", delete=False)
             subprocess.run(

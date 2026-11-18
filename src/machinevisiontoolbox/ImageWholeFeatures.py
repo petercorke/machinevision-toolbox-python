@@ -4,7 +4,7 @@ Whole-image feature computation: moments, Hu invariants, histograms, and entropy
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, Literal, cast
 import warnings
 
 import cv2
@@ -267,7 +267,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
         :seealso: :meth:`printstats` :meth:`hist` :meth:`min` :meth:`max` :meth:`mean` :meth:`std` :meth:`median`
         """
 
-        if self._stats is None:
+        if getattr(self, "_stats", None) is None:
             if self.iscolor and self.colororder is not None:
                 self._stats = {
                     k: self._plane_stats(plane._A)
@@ -275,7 +275,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
                 }
             else:
                 self._stats = self._plane_stats(self._A)
-        return self._stats
+        return cast(dict[str, Any], self._stats)
 
     def printstats(self) -> None:
         """
