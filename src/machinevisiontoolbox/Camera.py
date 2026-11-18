@@ -8,7 +8,7 @@ import copy
 from abc import ABC, abstractmethod
 from collections import namedtuple
 from math import cos, pi, sin, sqrt, tan
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any, Callable, cast
 
 import cv2
 import matplotlib.pyplot as plt
@@ -23,10 +23,14 @@ from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from spatialmath import SE3, Line3
 
 from machinevisiontoolbox import Image
-from machinevisiontoolbox.base import idisp
-from machinevisiontoolbox.base.imageio import _isnotebook, safe_plt_show
+from machinevisiontoolbox.base.imageio import _isnotebook, idisp, safe_plt_show
 from machinevisiontoolbox.ImagePointFeatures import FeatureMatch
 from machinevisiontoolbox.mvtb_types import ArrayLike
+
+# spatialmath's argcheck helpers are annotated as returning a union of ndarray,
+# list and tuple, but they always return an ndarray unless out="sequence" is given
+_getvector = cast(Callable[..., np.ndarray], smb.getvector)
+_getmatrix = cast(Callable[..., np.ndarray], smb.getmatrix)
 
 # from machinevisiontoolbox.classes import Image
 # import CameraVisualizer as CamVis
@@ -110,7 +114,7 @@ class CameraBase(ABC):
         else:
             self.imagesize = imagesize
             if pp is None:
-                self.pp = [x / 2 for x in self.imagesize]
+                self.pp = [x / 2 for x in self.imagesize]  # type: ignore[union-attr]
             else:
                 self.pp = pp
 
@@ -121,7 +125,7 @@ class CameraBase(ABC):
             self._rhou = sensorsize[0] / self._imagesize[0]
             self._rhov = sensorsize[1] / self._imagesize[1]
         else:
-            rho = smb.getvector(rho)
+            rho = _getvector(rho)
             if len(rho) == 1:
                 self._rhou = rho[0]
                 self._rhov = rho[0]
@@ -143,7 +147,7 @@ class CameraBase(ABC):
 
         self.pose0 = self.pose
 
-        self._noise = noise
+        self._noise = noise  # type: ignore[assignment]
 
         self._image = None
 
@@ -199,9 +203,9 @@ class CameraBase(ABC):
             return f"({x[0]:{spec}}, {x[1]:{spec}})"
 
         s = f"{self.__class__.__name__}(name='{self.name}'"
-        s += f", pixel_size={fmt(self.rho)}"
+        s += f", pixel_size={fmt(self.rho)}"  # type: ignore[arg-type]
         if self.imagesize is not None:
-            s += f", image_size={fmt(self._imagesize, spec='d')}"
+            s += f", image_size={fmt(self._imagesize, spec='d')}"  # type: ignore[arg-type]
         s += f", pose=[{self.pose.strline()}]"
         return s + ")"
 
@@ -321,7 +325,7 @@ class CameraBase(ABC):
 
         :seealso: :meth:`width` :meth:`height` :meth:`nu` :meth:`nv`
         """
-        npix = smb.getvector(npix, dtype="int")
+        npix = _getvector(npix, dtype="int")
         if len(npix) == 1:
             self._imagesize = np.r_[npix[0], npix[0]]
         elif len(npix) in (2, 3):
@@ -449,7 +453,7 @@ class CameraBase(ABC):
 
         :seealso: :meth:`pp` :meth:`u0` :meth:`v0`
         """
-        pp = smb.getvector(pp)
+        pp = _getvector(pp)
         if len(pp) == 1:
             self._pp = np.r_[pp[0], pp[0]]
         elif len(pp) == 2:
@@ -641,7 +645,7 @@ class CameraBase(ABC):
 
     @noise.setter
     def noise(self, noise: float | None) -> None:
-        self._noise = noise
+        self._noise = noise  # type: ignore[assignment]
 
     @property
     def distortion(self) -> np.ndarray | None:
@@ -674,7 +678,7 @@ class CameraBase(ABC):
 
     @distortion.setter
     def distortion(self, distortion: np.ndarray | None) -> None:
-        self._distortion = distortion
+        self._distortion = distortion  # type: ignore[assignment]
 
     def move(
         self, T: SE3, name: str | None = None, relative: bool = False
@@ -756,7 +760,7 @@ class CameraBase(ABC):
             fig, ax = plt.subplots()  # TODO *args, **kwargs?
         # TODO elif ax is a plot handle, else raise ValueError
         self._ax = ax
-        self._fig = fig
+        self._fig = fig  # type: ignore[assignment]
         return False
 
     def _init_imageplane(
@@ -792,8 +796,8 @@ class CameraBase(ABC):
                 ax.set_xlim(0, self.nu)
                 ax.set_ylim(0, self.nv)
             else:
-                ax.set_xlim(self.limits[0], self.limits[1])
-                ax.set_ylim(self.limits[2], self.limits[3])
+                ax.set_xlim(self.limits[0], self.limits[1])  # type: ignore[index]
+                ax.set_ylim(self.limits[2], self.limits[3])  # type: ignore[index]
             ax.autoscale(False)
             ax.set_aspect("equal")
             ax.invert_yaxis()
@@ -891,10 +895,10 @@ class CameraBase(ABC):
 
         :seealso: :meth:`plot_line2` :meth:`plot_line3` :meth:`plot_wireframe` :meth:`clf`
         """
-        self._init_imageplane(ax)
+        self._init_imageplane(ax)  # type: ignore[arg-type]
 
         if not isinstance(P, np.ndarray):
-            P = smb.getvector(P)
+            P = _getvector(P)
 
         if P.shape[0] == 3:
             # plot world points
@@ -909,7 +913,7 @@ class CameraBase(ABC):
 
         defaults = dict(markersize=6, color="k")
         if len(fmt) == 0:
-            fmt = ["o"]
+            fmt = ["o"]  # type: ignore[assignment]
             kwargs = {**defaults, **kwargs}
 
         assert self._ax is not None
@@ -918,7 +922,7 @@ class CameraBase(ABC):
             safe_plt_show(block=False)
 
         if return_artist:
-            return p, artist[0]
+            return p, artist[0]  # type: ignore[return-value]
         else:
             return p
 
@@ -1141,7 +1145,7 @@ class CameraBase(ABC):
         plt.autoscale(False)
 
     def plot(
-        self=None,
+        self=None,  # type: ignore[assignment]
         pose: SE3 | None = None,
         scale: float = 1,
         shape: str = "camera",
@@ -1222,7 +1226,7 @@ class CameraBase(ABC):
         # Matplotlib >=3.10 can raise while autoscaling ragged 3D line
         # collections (eg. from cuboid/cylinder helper primitives). Disable
         # autoscale only for these collection additions.
-        _orig_add_collection3d = ax.add_collection3d
+        _orig_add_collection3d = ax.add_collection3d  # type: ignore[union-attr]
 
         def _add_collection3d_compat(collection, *args, **kwargs):
             kwargs.setdefault("autolim", False)
@@ -1233,7 +1237,7 @@ class CameraBase(ABC):
                 kwargs.pop("autolim", None)
                 return _orig_add_collection3d(collection, *args, **kwargs)
 
-        ax.add_collection3d = _add_collection3d_compat
+        ax.add_collection3d = _add_collection3d_compat  # type: ignore[union-attr]
 
         try:
             # draw camera-like object:
@@ -1253,7 +1257,7 @@ class CameraBase(ABC):
             elif frame is not False:
                 pose.plot(**frame)
         finally:
-            ax.add_collection3d = _orig_add_collection3d
+            ax.add_collection3d = _orig_add_collection3d  # type: ignore[union-attr]
 
         return ax
 
@@ -1300,7 +1304,7 @@ class CameraBase(ABC):
             np.array([b3, b0, t0, t3]),  # -y face
         ]
         poly = Poly3DCollection(points, facecolors=["r", "g", "r", "y"], alpha=alpha)
-        ax.add_collection3d(poly)
+        ax.add_collection3d(poly)  # type: ignore[attr-defined]
 
     @staticmethod
     def _plot_camera_icon(
@@ -1347,7 +1351,7 @@ class CameraBase(ABC):
         if label:
             ax.set_xlabel("X")
             ax.set_ylabel("Y")
-            ax.set_zlabel("Z")
+            ax.set_zlabel("Z")  # type: ignore[attr-defined]
 
     def _add_noise_distortion(self, uv: np.ndarray) -> np.ndarray:
         """
@@ -1399,7 +1403,7 @@ class CentralCamera(CameraBase):
 
     _fu: float
     _fv: float
-    _distortion: np.ndarray | None
+    _distortion: np.ndarray | None  # type: ignore[assignment]
 
     def __init__(
         self, f: ArrayLike = 1, distortion: np.ndarray | None = None, **kwargs
@@ -1547,7 +1551,7 @@ class CentralCamera(CameraBase):
             if P.ndim == 1:
                 P = P.reshape((-1, 1))  # make it a column
         else:
-            P = smb.getvector(P, out="col")
+            P = _getvector(P, out="col")
 
         if P.shape[0] == 3:
             P = smb.e2h(P)  # make it homogeneous
@@ -1584,7 +1588,7 @@ class CentralCamera(CameraBase):
                     & (x[1, :] < self.nv)
                 )
 
-                return x, visible
+                return x, visible  # type: ignore[return-value]
             else:
                 return x
         else:
@@ -1833,7 +1837,7 @@ class CentralCamera(CameraBase):
         Mi = np.linalg.inv(C[:3, :3])
         v = C[:, 3]
         lines = []
-        for point in smb.getmatrix(points, (2, None)).T:
+        for point in _getmatrix(points, (2, None)).T:
             lines.append(Line3.PointDir(-Mi @ v, Mi @ smb.e2h(point)))
         return Line3(lines)
 
@@ -2027,7 +2031,7 @@ class CentralCamera(CameraBase):
         :type f: scalar or array_like(2)
         :raises ValueError: incorrect length of ``f``
         """
-        f = smb.getvector(f)
+        f = _getvector(f)
 
         if len(f) == 1:
             self._fu = f[0]
@@ -2293,7 +2297,7 @@ class CentralCamera(CameraBase):
                 )
                 valid.append(i)
 
-        ret, C, distortion, rvecs, tvecs = cv2.calibrateCamera(  # type: ignore[call-overload]
+        ret, C, distortion, rvecs, tvecs = cv2.calibrateCamera(
             objectPoints=objpoints,
             imagePoints=imgpoints,
             imageSize=grey.shape[::-1],
@@ -2456,7 +2460,7 @@ class CentralCamera(CameraBase):
         if d < 0:
             raise ValueError(d, "plane distance d must be > 0")
 
-        n = smb.getvector(n)
+        n = _getvector(n)
         if n[2] < 0:
             raise ValueError(n, "normal must be away from camera (n[2] >= 0)")
 
@@ -2596,7 +2600,7 @@ class CentralCamera(CameraBase):
             # not quite proper SO(3) values
             pose = SE3.Rt(smb.trnorm(R), t).inv()
             T.append(pose)
-        return T, normals
+        return T, normals  # type: ignore[return-value]
 
         # if K is None:
         #     K = np.identity(3)
@@ -2815,9 +2819,9 @@ class CentralCamera(CameraBase):
         # add various return values
         retval = [F]
         if residual:
-            e = smb.e2h(p2[:, mask]).T @ F @ smb.e2h(p1[:, mask])
+            e = smb.e2h(p2[:, mask]).T @ F @ smb.e2h(p1[:, mask])  # type: ignore[misc]
             resid = np.linalg.norm(np.diagonal(e))
-            retval.append(resid)
+            retval.append(resid)  # type: ignore[arg-type]
         if method in ("ransac", "lmeds"):
             retval.append(mask)
 
@@ -3030,7 +3034,7 @@ class CentralCamera(CameraBase):
             if smb.isvector(P, 3):
                 for Rt in possibles:
                     pose = SE3.Rt(Rt[0], Rt[1]).inv()
-                    p = self.project_point(P, pose=pose, behind=True)
+                    p = self.project_point(P, pose=pose, behind=True)  # type: ignore[arg-type]
                     # check if point is projected behind the camera, indicated
                     # by nan values
                     if not np.isnan(p[0]):
@@ -3090,10 +3094,10 @@ class CentralCamera(CameraBase):
         :seealso: :meth:`flowfield` :meth:`visjac_p_polar` :meth:`visjac_l` :meth:`visjac_e`
         """
 
-        uv = smb.getmatrix(uv, (2, None))
+        uv = _getmatrix(uv, (2, None))
         Z = depth
 
-        Z = smb.getvector(Z)
+        Z = _getvector(Z)
         if len(Z) == 1:
             Z = np.repeat(Z, uv.shape[1])
         elif len(Z) != uv.shape[1]:
@@ -3168,13 +3172,12 @@ class CentralCamera(CameraBase):
         """
 
         J = []
-        p = smb.getmatrix(p, (2, None))
+        p = _getmatrix(p, (2, None))
         f = self.f[0]
 
-        if smb.isscalar(Z):
-            Z = [Z] * p.shape[1]
+        Zs = [Z] * p.shape[1] if smb.isscalar(Z) else Z
 
-        for (phi, r), Zk in zip(p.T, Z):
+        for (phi, r), Zk in zip(p.T, Zs):  # type: ignore[arg-type]
             # k = (f**2 + r**2) / f
             # k2 = f / (r * Zk)
 
@@ -3273,9 +3276,9 @@ class CentralCamera(CameraBase):
         :seealso: :meth:`visjac_p` :meth:`visjac_p_polar` :meth:`visjac_e`
         """
 
-        a, b, c, d = plane
+        a, b, c, d = _getvector(plane)
 
-        lines = smb.getmatrix(lines, (2, None))
+        lines = _getmatrix(lines, (2, None))
         jac = []
         for theta, rho in lines.T:
             sth = np.sin(theta)
@@ -3362,6 +3365,8 @@ class CentralCamera(CameraBase):
         :seealso: :meth:`visjac_p` :meth:`visjac_p_polar` :meth:`visjac_l`
         """
 
+        E = _getvector(E)
+        plane = _getvector(plane)
         a = -plane[0] / plane[3]
         b = -plane[1] / plane[3]
         c = -plane[2] / plane[3]
@@ -3435,7 +3440,7 @@ class CentralCamera(CameraBase):
 
         :seealso: :meth:`visjac_p`
         """
-        vel = smb.getvector(vel, 6)
+        vel = _getvector(vel, 6)
 
         u = np.arange(0, self.nu, 50)
         v = np.arange(0, self.nv, 50)
@@ -3481,7 +3486,7 @@ class CentralCamera(CameraBase):
 
         Kp = [self.f[0], self.rhou, self.rhov, self.u0, self.v0]
 
-        return cameraModel(*x, *P, *Kp)
+        return cameraModel(*x, *P, *Kp)  # type: ignore[misc]
 
     def estpose(
         self,
@@ -3645,7 +3650,7 @@ class FishEyeCamera(CameraBase):
         s += self.fmt.format("k", self.k, fmt="{:.4g}")
         return s
 
-    def project_point(
+    def project_point(  # type: ignore[override]
         self,
         P: np.ndarray | ArrayLike,
         pose: SE3 | None = None,
@@ -3695,7 +3700,7 @@ class FishEyeCamera(CameraBase):
         :seealso: :meth:`plot_point`
         """
 
-        P = smb.getmatrix(P, (3, None))
+        P = _getmatrix(P, (3, None))
 
         if pose is not None:
             T = self.pose.inv()
@@ -3817,7 +3822,7 @@ class CatadioptricCamera(CameraBase):
         s += self.fmt.format("k", self.k, fmt="{:.4g}")
         return s
 
-    def project_point(
+    def project_point(  # type: ignore[override]
         self,
         P: np.ndarray | ArrayLike,
         pose: SE3 | None = None,
@@ -3853,7 +3858,7 @@ class CatadioptricCamera(CameraBase):
 
         :seealso: :meth:`plot_point`
         """
-        P = smb.getmatrix(P, (3, None))
+        P = _getmatrix(P, (3, None))
 
         if pose is not None:
             T = self.pose.inv()
@@ -3906,7 +3911,7 @@ class SphericalCamera(CameraBase):
         super().__init__(
             camtype="spherical",
             limits=[-pi, pi, 0, pi],
-            labels=["Longitude φ (rad)", "Colatitude θ (rad)"],
+            labels=["Longitude φ (rad)", "Colatitude θ (rad)"],  # type: ignore[arg-type]
             **kwargs,
         )
 
@@ -3923,7 +3928,7 @@ class SphericalCamera(CameraBase):
         """
         return [2 * pi, 2 * pi]
 
-    def project_point(
+    def project_point(  # type: ignore[override]
         self,
         P: np.ndarray | ArrayLike,
         pose: SE3 | None = None,
@@ -3958,7 +3963,7 @@ class SphericalCamera(CameraBase):
 
         :seealso: :meth:`plot_point`
         """
-        P = smb.getmatrix(P, (3, None))
+        P = _getmatrix(P, (3, None))
 
         if pose is None:
             pose = self.pose
@@ -4012,11 +4017,10 @@ class SphericalCamera(CameraBase):
         """
 
         J = []
-        if smb.isscalar(depth):
-            depth = [depth] * p.shape[1]
-        assert depth is not None
+        depths = [depth] * p.shape[1] if smb.isscalar(depth) else depth  # type: ignore[union-attr]
+        assert depths is not None
 
-        for (phi, theta), R in zip(p.T, depth):
+        for (phi, theta), R in zip(p.T, depths):  # type: ignore[union-attr, arg-type]
             sp = np.sin(phi)
             cp = np.cos(phi)
             st = np.sin(theta)
@@ -4031,7 +4035,7 @@ class SphericalCamera(CameraBase):
             J.append(Jk)
         return np.vstack(J)
 
-    def plot(self, frame: bool = False, **kwargs: Any) -> None:
+    def plot(self, frame: bool = False, **kwargs: Any) -> None:  # type: ignore[override]
         smb.plot_sphere(
             radius=1,
             filled=True,
@@ -4151,7 +4155,7 @@ class SphericalCamera(CameraBase):
 #             if P.ndim == 1:
 #                 P = P.reshape((-1, 1))  # make it a column
 #         else:
-#             P = smb.getvector(P, out='col')
+#             P = _getvector(P, out='col')
 
 #         # make it homogeneous if not already
 #         if P.shape[0] == 3:
