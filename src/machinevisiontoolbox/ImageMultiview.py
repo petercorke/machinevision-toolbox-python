@@ -202,26 +202,26 @@ class ImageMultiviewMixin(ImageMixinBase):
         """
         DSI_flat = DSI.reshape((-1, DSI.shape[2]))
 
-        YP = []
-        Y = []
-        YN = []
+        yp: list[float] = []
+        y: list[float] = []
+        yn: list[float] = []
 
         disparity = np.argmax(DSI, axis=2)
         if drange is None:
             drange = (int(disparity.min()), int(disparity.max()))
         for i, d in enumerate(disparity.ravel()):
             if drange[0] < d < drange[1]:
-                YP.append(DSI_flat[i, d - 1])
-                Y.append(DSI_flat[i, d])
-                YN.append(DSI_flat[i, d + 1])
+                yp.append(DSI_flat[i, d - 1])
+                y.append(DSI_flat[i, d])
+                yn.append(DSI_flat[i, d + 1])
             else:
-                YP.append(np.nan)
-                Y.append(np.nan)
-                YN.append(np.nan)
+                yp.append(np.nan)
+                y.append(np.nan)
+                yn.append(np.nan)
 
-        YP = np.array(YP).reshape(DSI.shape[:2])
-        Y = np.array(Y).reshape(DSI.shape[:2])
-        YN = np.array(YN).reshape(DSI.shape[:2])
+        YP = np.array(yp).reshape(DSI.shape[:2])
+        Y = np.array(y).reshape(DSI.shape[:2])
+        YN = np.array(yn).reshape(DSI.shape[:2])
 
         A = YP + YN - 2 * Y
         B = YN - YP

@@ -10,7 +10,7 @@ import urllib
 import xml.etree.ElementTree as ET
 from collections.abc import Iterable
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Sequence
+from typing import TYPE_CHECKING, Any, Sequence, cast
 
 if TYPE_CHECKING:
     from typing import Self
@@ -504,13 +504,14 @@ class ImageConstantsMixin(ImageMixinBase):
         shape = _getshape(cls, None, None, colororder, size)
         dtype = np.dtype(dtype)
 
+        im: np.ndarray
         if pdf is None:
             if np.issubdtype(dtype, np.integer):
                 if maxval is None:
                     maxval = np.iinfo(dtype).max
                 else:
                     maxval = int(maxval)
-                im = np.random.randint(0, maxval, size=shape, dtype=dtype)
+                im = np.random.randint(0, maxval, size=shape, dtype=cast(Any, dtype))
             elif np.issubdtype(dtype, np.floating):
                 if maxval is None:
                     maxval = 1.0
@@ -989,6 +990,7 @@ class ImageConstantsMixin(ImageMixinBase):
         )
         dtype = np.dtype(dtype)
 
+        maxval: float
         if np.issubdtype(dtype, np.integer):
             maxval = np.iinfo(dtype).max
         else:
@@ -1095,9 +1097,9 @@ class ImageConstantsMixin(ImageMixinBase):
         height, width = shape[:2]
 
         if isinstance(color, Iterable):
-            if len(color) != len(polygons):
+            colors = list(color)
+            if len(colors) != len(polygons):
                 raise ValueError("fill must have same length as number of polygons")
-            colors = color
         else:
             colors = [color] * len(polygons)
 

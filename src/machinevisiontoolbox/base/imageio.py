@@ -175,7 +175,7 @@ def safe_plt_show(block: bool | None = False) -> None:
 
 def idisp(
     im: np.ndarray,
-    colororder: str = "RGB",
+    colororder: str | None = "RGB",
     matplotlib: bool = True,
     block: bool | float | None = None,
     fps: float | None = None,

@@ -352,7 +352,6 @@ class ImageColorMixin(ImageMixinBase):
         # options gamma, on by default if to is RGB or BGR
         # options white on by default
 
-        out = []
         # print('converting from', src, 'to', dst)
 
         out = color.colorspace_convert(self._A, src, dst)
