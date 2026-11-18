@@ -77,6 +77,8 @@ add_function_parentheses = False
 autorun_languages = {}
 autorun_languages["pycon_output_encoding"] = "UTF-8"
 autorun_languages["pycon_input_encoding"] = "UTF-8"
+# a failing example fails the docs build, instead of publishing its traceback
+autorun_languages["pycon_fail_on_error"] = True
 autorun_languages[
     "pycon_runfirst"
 ] = """
@@ -123,9 +125,9 @@ intersphinx_mapping = {
     "scipy": ("https://docs.scipy.org/doc/scipy/", None),
     "matplotlib": ("https://matplotlib.org/stable/", None),
     "open3d": ("https://www.open3d.org/docs/release/", None),
-    "smtb": ("https://github.com/rai-opensource/spatialmath-python", None),
+    "smtb": ("https://rai-opensource.github.io/spatialmath-python/", None),
     "pgraph": ("https://petercorke.github.io/pgraph-python/", None),
-    "torch": ("https://pytorch.org/docs/stable/", None),
+    "torch": ("https://docs.pytorch.org/docs/stable/", None),
 }
 
 # Ignore pseudo-types emitted in autodoc signatures/docstrings under nitpicky mode.
