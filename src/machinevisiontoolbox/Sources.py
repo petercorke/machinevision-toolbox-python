@@ -54,11 +54,11 @@ try:
 
     _rosbags_available = True
 except ImportError:
-    _RosBagReader1 = None
-    _RosBagReader2 = None
-    _SerdeError = None
-    _Stores = None
-    _get_typestore = None
+    _RosBagReader1 = None  # type: ignore[misc,assignment]
+    _RosBagReader2 = None  # type: ignore[misc,assignment]
+    _SerdeError = None  # type: ignore[misc,assignment]
+    _Stores = None  # type: ignore[misc,assignment]
+    _get_typestore = None  # type: ignore[assignment]
     _rosbags_available = False
 
 # What rosbags raises when a serialized message is not exactly the length its type
@@ -81,7 +81,7 @@ try:
 
     _open3d_available = True
 except ImportError:
-    o3d = None
+    o3d = None  # type: ignore[assignment]
     _open3d_available = False
 
 try:
@@ -1011,7 +1011,7 @@ class VideoCamera(ImageSource):
 
         def _names_linux() -> dict[int, str]:
             """Read /sys/class/video4linux/videoN/name on Linux."""
-            result = {}
+            result: dict[int, str] = {}
             sysfs = pathlib.Path("/sys/class/video4linux")
             if not sysfs.exists():
                 return result
@@ -1727,18 +1727,19 @@ class FileArchive(ImageSource):
             else:
                 raise StopIteration
 
-        im = self._read(self.i)
-        if isinstance(im, np.ndarray):
-            if im.ndim == 3 and not _wants_mono(self.args):
+        raw = self._read(self.i)
+        im: Any = raw
+        if isinstance(raw, np.ndarray):
+            if raw.ndim == 3 and not _wants_mono(self.args):
                 im = _make_image(
-                    im,
+                    raw,
                     id=self.i,
                     name=self.files[self.i],
                     colororder="BGR",
                     **self.args,
                 )
             else:
-                im = _make_image(im, id=self.i, name=self.files[self.i], **self.args)
+                im = _make_image(raw, id=self.i, name=self.files[self.i], **self.args)
         self.i += 1
         return im
 
@@ -2592,7 +2593,7 @@ class ROSTopic(ImageSource):
             }
             dtype, channels = _enc.get(encoding, (np.uint8, 3))
             arr = np.frombuffer(img_data, dtype=dtype)
-            frame = (
+            frame: Any = (
                 arr.reshape((h, w, channels)) if channels > 1 else arr.reshape((h, w))
             )
             # Normalise to BGR uint8 for consistency with the compressed path
@@ -2927,8 +2928,8 @@ class SyncROSStreams:
         self.tolerance = tolerance
         self._tol_ns = int(round(tolerance * 1_000_000_000))
 
-        self._iters = []
-        self._buffers = []
+        self._iters: list[Any] = []
+        self._buffers: list[Any] = []
 
     @staticmethod
     def _timestamp_ns(item: Any) -> int:
@@ -3142,8 +3143,8 @@ class ROSBag(ImageSource):
         self._topic_filter = topicfilter
         self._msgfilter = msgfilter
         self.verbose = verbose
-        self.reader = None
-        self.connections = []
+        self.reader: Any = None
+        self.connections: list[Any] = []
         self.typestore = _resolve_typestore(release)
         self.dtype = dtype
         self.colororder = colororder
@@ -3303,7 +3304,7 @@ class ROSBag(ImageSource):
         # Resolve via mvtb_path_to_datafile: returns path unchanged if the file
         # exists locally, otherwise searches the mvtb-data companion package.
         try:
-            path = mvtb_path_to_datafile("data", path)
+            path = str(mvtb_path_to_datafile("data", path))
         except (ValueError, ModuleNotFoundError):
             pass  # fall through; rosbags will raise a clear error on open
 
@@ -3541,7 +3542,7 @@ class ROSBag(ImageSource):
                 if self.verbose:
                     print(f"  auto-detect: {name} (ros1 encoding)")
                 return True
-            except (*_LENGTH_ERRORS, KeyError, UnicodeDecodeError, struct.error) as e:
+            except (*_LENGTH_ERRORS, KeyError, UnicodeDecodeError, struct.error) as e:  # type: ignore[misc]
                 # wrong store, or the message is the wrong length for it
                 if self.verbose:
                     print(
@@ -3579,7 +3580,7 @@ class ROSBag(ImageSource):
                 KeyError,
                 UnicodeDecodeError,
                 struct.error,
-            ) as e:
+            ) as e:  # type: ignore[misc]
                 if self.verbose:
                     print(
                         f"  auto-detect: {name} (CDR) failed: {type(e).__name__}: {e}"
@@ -3788,7 +3789,7 @@ class ROSBag(ImageSource):
                         if isinstance(self.dtype, dict):
                             dtype = self.dtype.get(connection.topic, "uint8")
                         else:
-                            dtype = self.dtype or "uint8"
+                            dtype = self.dtype or "uint8"  # type: ignore[assignment]
 
                     if self.colororder is not None:
                         # command line override
@@ -3856,7 +3857,7 @@ class ROSBag(ImageSource):
                         offsets.append(field.offset)
 
                     # itemsize must match point_step to handle potential padding bytes
-                    dtype = np.dtype(
+                    dtype = np.dtype(  # type: ignore[assignment]
                         {
                             "names": names,
                             "formats": formats,
@@ -4074,7 +4075,7 @@ class PointCloudSequence:
             shown_first = True
 
         if animate:
-            state = {
+            state: dict[str, Any] = {
                 "fps": max(1.0, float(fps)),
                 "paused": False,
                 "quit": False,
