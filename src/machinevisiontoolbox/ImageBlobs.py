@@ -21,6 +21,7 @@ from ansitable import ANSITable, Column
 from spatialmath import SE2
 import spatialmath.base as smb
 
+from machinevisiontoolbox._image_typing import ImageMixinBase
 from machinevisiontoolbox.base import plot_labelbox, mpl_styling
 from machinevisiontoolbox.decorators import array_result, scalar_result
 
@@ -2627,7 +2628,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
                 dot_stream.close()
 
 
-class ImageBlobsMixin(_ImageBase if TYPE_CHECKING else object):
+class ImageBlobsMixin(ImageMixinBase):
     def blobs(self, **kwargs) -> Blobs:
         """
         Find and describe blobs in image

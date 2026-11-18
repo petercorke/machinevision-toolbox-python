@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, Any
 import cv2
 import numpy as np
 from spatialmath.base import argcheck, e2h, getvector, h2e, transl2
+from machinevisiontoolbox._image_typing import ImageMixinBase
 
 if sys.version_info >= (3, 11):
     from typing import Self
@@ -21,7 +22,7 @@ if TYPE_CHECKING:
     from machinevisiontoolbox._image_typing import _ImageBase
 
 
-class ImageMultiviewMixin(_ImageBase if TYPE_CHECKING else object):
+class ImageMultiviewMixin(ImageMixinBase):
     # ======================= stereo ================================== #
 
     def stereo_simple(

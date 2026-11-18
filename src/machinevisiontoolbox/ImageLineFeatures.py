@@ -11,12 +11,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipy as sp
 from spatialmath import base
+from machinevisiontoolbox._image_typing import ImageMixinBase
 
 if TYPE_CHECKING:
     from machinevisiontoolbox._image_typing import _ImageBase
 
 
-class ImageLineFeaturesMixin(_ImageBase if TYPE_CHECKING else object):
+class ImageLineFeaturesMixin(ImageMixinBase):
     """
     Line features are common in in many human-built environments.
 

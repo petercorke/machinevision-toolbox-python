@@ -11,6 +11,7 @@ from ansitable import ANSITable, Column
 from spatialmath import SE3
 from typing import TYPE_CHECKING, Any
 
+from machinevisiontoolbox._image_typing import ImageMixinBase
 from machinevisiontoolbox.decorators import array_result
 from machinevisiontoolbox.base import plot_labelbox
 
@@ -26,7 +27,7 @@ if TYPE_CHECKING:
     from machinevisiontoolbox._image_typing import _ImageBase
 
 
-class ImageRegionFeaturesMixin(_ImageBase if TYPE_CHECKING else object):
+class ImageRegionFeaturesMixin(ImageMixinBase):
     def MSER(self, **kwargs: Any) -> "MSERFeature":
         """
         Find MSER features in image

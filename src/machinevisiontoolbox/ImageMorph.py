@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING, Any
 import cv2
 import numpy as np
 import scipy as sp
+from machinevisiontoolbox._image_typing import ImageMixinBase
 from machinevisiontoolbox.Kernel import Kernel
 
 if sys.version_info >= (3, 11):
@@ -23,7 +24,7 @@ if TYPE_CHECKING:
     from machinevisiontoolbox._image_typing import _ImageBase
 
 
-class ImageMorphMixin(_ImageBase if TYPE_CHECKING else object):
+class ImageMorphMixin(ImageMixinBase):
     """
     Image processing morphological operations on the Image class
     """

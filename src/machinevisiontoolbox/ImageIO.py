@@ -31,6 +31,7 @@ from spatialmath.base import argcheck, getvector
 if TYPE_CHECKING:
     from machinevisiontoolbox._image_typing import _ImageBase
 
+from machinevisiontoolbox._image_typing import ImageMixinBase
 from machinevisiontoolbox.base import (
     colorname,
     float_image,
@@ -50,7 +51,7 @@ from machinevisiontoolbox.mvtb_types import Dtype
 # from numpy.lib.arraysetops import isin
 
 
-class ImageIOMixin(_ImageBase if TYPE_CHECKING else object):
+class ImageIOMixin(ImageMixinBase):
     # ======================= image i/io ================================== #
 
     @classmethod

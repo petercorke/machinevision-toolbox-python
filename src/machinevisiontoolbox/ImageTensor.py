@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from machinevisiontoolbox._image_typing import _ImageBase
 
 import numpy as np
+from machinevisiontoolbox._image_typing import ImageMixinBase
 
 try:
     import torch
@@ -23,7 +24,7 @@ except ImportError:
 # TODO need a resizing option for the torch() method, to allow scaling to a fixed size for model input
 
 
-class ImageTensorMixin(_ImageBase if TYPE_CHECKING else object):
+class ImageTensorMixin(ImageMixinBase):
     """
     PyTorch integration methods for the Image class.
 

@@ -15,6 +15,7 @@ import numpy as np
 from ansitable import ANSITable, Column
 from spatialmath import SE3
 
+from machinevisiontoolbox._image_typing import ImageMixinBase
 from machinevisiontoolbox.base.graphics import _require_c_contiguous
 from machinevisiontoolbox.ImagePointFeatures import BaseFeature2D
 
@@ -56,7 +57,7 @@ def _fiducial_dict(dict="4x4_1000"):
         return dict
 
 
-class ImageFiducialsMixin(_ImageBase if TYPE_CHECKING else object):
+class ImageFiducialsMixin(ImageMixinBase):
     def fiducial(
         self,
         dict: str = "4x4_1000",

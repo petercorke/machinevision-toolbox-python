@@ -13,6 +13,7 @@ import numpy as np
 import spatialmath.base as smb
 from ansitable import ANSITable, Column
 
+from machinevisiontoolbox._image_typing import ImageMixinBase
 from machinevisiontoolbox.base import (
     draw_circle,
     draw_line,
@@ -2068,7 +2069,7 @@ def _resolve_feature_create(name: str) -> Any:
 # -------------------------------------------------------------------------
 
 
-class ImagePointFeaturesMixin(_ImageBase if TYPE_CHECKING else object):
+class ImagePointFeaturesMixin(ImageMixinBase):
     def _image2feature(
         self,
         cls,

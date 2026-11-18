@@ -9,13 +9,14 @@ import spatialmath.base.argcheck as argcheck
 import warnings
 from typing import TYPE_CHECKING, Any, Callable
 
+from machinevisiontoolbox._image_typing import ImageMixinBase
 from machinevisiontoolbox.Kernel import Kernel
 
 if TYPE_CHECKING:
     from machinevisiontoolbox._image_typing import _ImageBase
 
 
-class ImageSpatialMixin(_ImageBase if TYPE_CHECKING else object):
+class ImageSpatialMixin(ImageMixinBase):
     @classmethod
     def Gauss(cls, sigma: float, h: int | None = None) -> Kernel:
         return Kernel.Gauss(sigma=sigma, h=h)

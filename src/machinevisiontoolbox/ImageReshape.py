@@ -23,6 +23,7 @@ from spatialmath import base as smb
 
 import machinevisiontoolbox.base as mvb
 from typing import TYPE_CHECKING
+from machinevisiontoolbox._image_typing import ImageMixinBase
 
 if TYPE_CHECKING:
     from machinevisiontoolbox._image_typing import _ImageBase
@@ -51,7 +52,7 @@ class classinstancemethod:
         return _bound
 
 
-class ImageReshapeMixin(_ImageBase if TYPE_CHECKING else object):
+class ImageReshapeMixin(ImageMixinBase):
     def trim(
         self, left: int = 0, right: int = 0, top: int = 0, bottom: int = 0
     ) -> Self:
