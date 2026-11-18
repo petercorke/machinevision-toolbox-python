@@ -97,7 +97,7 @@ class BagOfWords:
             features = images
         else:
             # passed images, compute the features
-            features = []
+            features = []  # type: ignore[assignment]
             for image in images:
                 features += image.SIFT()
         features.sort(by="scale", inplace=True)
@@ -117,7 +117,7 @@ class BagOfWords:
         if seed is not None:
             cv2.setRNGSeed(seed)
 
-        ret, labels, centroids = cv2.kmeans(
+        ret, labels, centroids = cv2.kmeans(  # type: ignore[call-overload]
             data=features._descriptor,
             K=k,
             bestLabels=None,
@@ -131,7 +131,7 @@ class BagOfWords:
         self._words = labels.ravel()
         self._labels = labels.ravel()
         self._centroids = centroids
-        self._word_freq_vectors = None
+        self._word_freq_vectors: np.ndarray | None = None
 
         self._nstopwords = nstopwords
         if nstopwords > 0:
@@ -141,7 +141,7 @@ class BagOfWords:
 
         maxwords = self.k - self.nstopwords
 
-        W = []
+        Wcols = []
         id = np.array(self._features.id)
         for i in range(self.nimages):
             # get the words associated with image i
@@ -149,8 +149,8 @@ class BagOfWords:
 
             # create columns of the W
             v = BagOfWords._word_freq_vector(words, maxwords)
-            W.append(v)
-        W = np.column_stack(W)
+            Wcols.append(v)
+        W = np.column_stack(Wcols)
 
         N = self.nimages
 
@@ -200,12 +200,13 @@ class BagOfWords:
         .. note:: The word vector is expensive to compute so a lazy evaluation
             is performed on the first call to this method.
         """
+        assert self._word_freq_vectors is not None
         if i is not None:
             v = self._word_freq_vectors[:, i]
             if v.ndim == 1:
                 return np.c_[v]
-        else:
-            return self._word_freq_vectors
+            return v
+        return self._word_freq_vectors
 
     @property
     def nimages(self) -> int:
@@ -465,7 +466,7 @@ class BagOfWords:
 
         S = self.similarity(images).ravel()
         k = np.argmax(S)
-        return k, S[k]
+        return int(k), float(S[k])
 
     def features(self, word: int) -> BaseFeature2D:
         """
@@ -587,7 +588,7 @@ class BagOfWords:
         from machinevisiontoolbox import Image
 
         exemplars = []
-        count = Counter()
+        count: Counter[Any] = Counter()
         if images is None:
             images = self._images
         for feature in self.features(word):
