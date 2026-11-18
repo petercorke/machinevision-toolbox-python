@@ -26,6 +26,7 @@ from machinevisiontoolbox.mvtb_types import *
 
 
 class ImageWholeFeaturesMixin(ImageMixinBase):
+    _stats: dict[str, Any] | None
 
     # ------------------ scalar statistics ----------------------------- #
 
