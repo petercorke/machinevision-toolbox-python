@@ -4018,7 +4018,8 @@ class SphericalCamera(CameraBase):
 
         J = []
         depths = [depth] * p.shape[1] if smb.isscalar(depth) else depth  # type: ignore[union-attr]
-        assert depths is not None
+        if depths is None:
+            raise ValueError("depth must be given")
 
         for (phi, theta), R in zip(p.T, depths):  # type: ignore[union-attr, arg-type]
             sp = np.sin(phi)

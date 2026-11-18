@@ -988,7 +988,6 @@ class IBVS_l(VisualServo):
         :seealso: :meth:`run` :meth:`VisualServo.run`
         """
         status = 0
-        Z_est: list[Any] = []
 
         # compute the lines
         f = self.getlines(self.camera.pose)
@@ -1083,7 +1082,8 @@ class IBVS_l(VisualServo):
         # % See also Hough.
 
         ax = camera._ax
-        assert ax is not None
+        if ax is None:
+            raise RuntimeError("image plane has not been initialised")
         x = np.r_[ax.get_xlim()]
         y = np.r_[ax.get_ylim()]
 
@@ -1660,7 +1660,6 @@ class IBVS_polar(VisualServo):
 
     def step(self, t: float) -> int:
         status = 0
-        Zest: list[Any] = []
 
         hist = self._history()
 

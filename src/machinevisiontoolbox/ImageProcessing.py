@@ -20,9 +20,9 @@ from scipy import interpolate
 from spatialmath.base import argcheck, e2h, getvector, h2e, transl2
 
 from machinevisiontoolbox._image_typing import ImageMixinBase
-from machinevisiontoolbox.base.color import colorname, name2color
-from machinevisiontoolbox.base.imageio import idisp, iread, iwrite, safe_plt_show
-from machinevisiontoolbox.base.types import float_image, int_image
+from machinevisiontoolbox.base.color import name2color
+from machinevisiontoolbox.base.imageio import iread, iwrite, safe_plt_show
+from machinevisiontoolbox.base.types import int_image
 
 if TYPE_CHECKING:
     from machinevisiontoolbox.ImageCore import Image

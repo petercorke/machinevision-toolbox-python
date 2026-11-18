@@ -200,7 +200,8 @@ class BagOfWords:
         .. note:: The word vector is expensive to compute so a lazy evaluation
             is performed on the first call to this method.
         """
-        assert self._word_freq_vectors is not None
+        if self._word_freq_vectors is None:
+            raise ValueError("word frequency vectors have not been computed")
         if i is not None:
             v = self._word_freq_vectors[:, i]
             if v.ndim == 1:
