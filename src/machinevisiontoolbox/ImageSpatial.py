@@ -88,39 +88,6 @@ class ImageSpatialMixin(ImageMixinBase):
         except KeyError:
             raise ValueError(border, "border is not a valid option")
 
-    # border options:
-    _border_opt = {
-        "constant": cv2.BORDER_CONSTANT,
-        "replicate": cv2.BORDER_REPLICATE,
-        "reflect": cv2.BORDER_REFLECT,
-        "mirror": cv2.BORDER_REFLECT_101,
-        "wrap": cv2.BORDER_WRAP,
-        "pad": cv2.BORDER_CONSTANT,
-        "none": cv2.BORDER_ISOLATED,
-    }
-
-    @staticmethod
-    def _border_args_cv(
-        border: str | int | float,
-        morpho: bool = False,
-        allow: list[str] | tuple[str, ...] | None = None,
-        disallow: list[str] | tuple[str, ...] | None = None,
-    ) -> dict[str, Any]:
-        if disallow is not None and border in disallow:
-            raise ValueError(f"border option {border} not supported")
-        if allow is not None and border not in allow:
-            raise ValueError(f"border option {border} not supported")
-
-        if isinstance(border, str):
-            # given as string, convert to OpenCV flag value
-            try:
-                return dict(borderType=_border_opt[border])
-            except KeyError:
-                raise ValueError(border, "border is not a valid option")
-        elif isinstance(border, int) or isinstance(border, float):
-            # given as a numeric value, assume 'pad'
-            return dict(bordertype=_border_opt["pad"], borderValu=border_value)
-
     @staticmethod
     def _bordertype_sp(
         border: str, exclude: list[str] | tuple[str, ...] | None = None
@@ -326,24 +293,28 @@ class ImageSpatialMixin(ImageMixinBase):
             self._A, "multiple-channel", "CV_8U", "CV_16U", "CV_16S", "CV_32F", "CV_64F"
         )
         img = self._A
-        if border == "pad" and value != 0:
+        crop = False
+        if border == "pad" and bordervalue != 0 and mode == "same":
+            # OpenCV can only pad with zero, so pad explicitly, filter, then
+            # crop back to the original size
             img = cv2.copyMakeBorder(
-                src=a,
-                top=kv,
-                bottom=kv,
-                left=kh,
-                right=kh,
+                src=img,
+                top=kh,
+                bottom=kh,
+                left=kw,
+                right=kw,
                 borderType=cv2.BORDER_CONSTANT,
                 value=bordervalue,
             )
+            crop = True
         elif mode == "full":
             img = cv2.copyMakeBorder(
-                src=a,
-                top=kv,
-                bottom=kv,
-                left=kh,
-                right=kh,
-                borderType=self._bordertype_cv(border),
+                src=img,
+                top=kh,
+                bottom=kh,
+                left=kw,
+                right=kw,
+                borderType=cv2.BORDER_CONSTANT,
                 value=bordervalue,
             )
 
@@ -351,11 +322,11 @@ class ImageSpatialMixin(ImageMixinBase):
             src=img, ddepth=-1, kernel=K, borderType=self._bordertype_cv(border)
         )
 
-        if mode == "valid":
+        if mode == "valid" or crop:
             if out.ndim == 2:
-                out = out[kh:-kh, kw:-kw]
+                out = out[kh : out.shape[0] - kh, kw : out.shape[1] - kw]
             else:
-                out = out[kh:-kh, kw:-kw, :]
+                out = out[kh : out.shape[0] - kh, kw : out.shape[1] - kw, :]
         return self.__class__(out, colororder=self.colororder)
 
     # def sobel(self, kernel=None):
@@ -733,7 +704,7 @@ class ImageSpatialMixin(ImageMixinBase):
             if impyr.shape[0] == 1 or impyr.shape[1] == 1:
                 break
             impyr = cv2.pyrDown(
-                src=impyr, borderType=self._bordertype_cv(border, exclude="constant")
+                src=impyr, borderType=self._bordertype_cv(border, exclude=("constant",))
             )
             pyr.append(impyr)
 
@@ -889,7 +860,10 @@ class ImageSpatialMixin(ImageMixinBase):
             w = 2 * h + 1
             footprint = np.ones((w, w))
 
-        n = np.sum(footprint)
+        if footprint is None:
+            raise ValueError("either footprint or h must be given")
+
+        n = int(np.sum(footprint))
 
         if isinstance(rank, str):
             if rank in ("min", "minimum"):
@@ -898,6 +872,8 @@ class ImageSpatialMixin(ImageMixinBase):
                 rank = 0
             elif rank in ("med", "median"):
                 rank = n // 2
+            else:
+                raise ValueError(rank, "unknown rank name")
         elif not isinstance(rank, int):
             raise TypeError(rank, "rank must be int or str")
 
@@ -1104,22 +1080,20 @@ class ImageSpatialMixin(ImageMixinBase):
             :meth:`labels_MSER`
         """
         if not (connectivity in [4, 8]):
-            raise ValueError(conn, "connectivity must be 4 or 8")
+            raise ValueError(connectivity, "connectivity must be 4 or 8")
 
         self._opencv_type_check(self._A, "single-channel", "CV_8U")
         # make labels uint32s, unique and never recycled?
         # set ltype to default to cv2.CV_32S
         if ltype == "int32":
-            ltype = cv2.CV_32S
-            dtype = np.int32
+            cvtype = cv2.CV_32S
         elif ltype == "uint16":
-            ltype = cv2.CV_16U
-            dtype = np.uint16
+            cvtype = cv2.CV_16U
         else:
             raise TypeError(ltype, "ltype must be either int32 or uint16")
 
         retval, labels = cv2.connectedComponents(
-            image=self.array_as("uint8"), connectivity=connectivity, ltype=ltype
+            image=self.array_as("uint8"), connectivity=connectivity, ltype=cvtype
         )
         return self.__class__(labels), retval
 
@@ -1164,19 +1138,16 @@ class ImageSpatialMixin(ImageMixinBase):
             `opencv.MSER_create <https://docs.opencv.org/4.x/d3/d28/classcv_1_1MSER.html>`_
         """
 
-        mser = cv2.MSER_create(**kwargs)
+        mser = cv2.MSER.create(**kwargs)
         regions, _ = mser.detectRegions(self.array_as("uint8"))
 
-        if len(regions) < 256:
-            dtype = np.uint8
-        else:
-            dtype = np.uint32
-
+        dtype: Any = np.uint8 if len(regions) < 256 else np.uint32
         out = np.zeros(self.shape, dtype=dtype)
 
         for i, points in enumerate(regions):
             # print('region ', i, points.shape[0])
-            out[points[:, 1], points[:, 0]] = i
+            pts = np.asarray(points)
+            out[pts[:, 1], pts[:, 0]] = i
 
         return self.__class__(out, dtype=dtype), len(regions)
 
@@ -1217,7 +1188,7 @@ class ImageSpatialMixin(ImageMixinBase):
         )
         out = segmenter.processImage(self.array_as("uint8"))
 
-        return self.__class__(out), np.max(out) + 1
+        return self.__class__(out), int(np.max(out)) + 1
 
     # -------------------- similarity operations -------------------------- #
 

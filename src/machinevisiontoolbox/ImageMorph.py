@@ -141,7 +141,7 @@ class ImageMorphMixin(ImageMixinBase):
             src=img_array,
             kernel=self._getse(se),
             iterations=n,
-            borderType=self._bordertype_cv(border, exclude=("wrap")),
+            borderType=self._bordertype_cv(border, exclude=("wrap",)),
             borderValue=bordervalue,
             **kwargs,
         )
@@ -234,7 +234,7 @@ class ImageMorphMixin(ImageMixinBase):
             src=img_array,
             kernel=self._getse(se),
             iterations=n,
-            borderType=self._bordertype_cv(border, exclude=("wrap")),
+            borderType=self._bordertype_cv(border, exclude=("wrap",)),
             borderValue=bordervalue,
             **kwargs,
         )
