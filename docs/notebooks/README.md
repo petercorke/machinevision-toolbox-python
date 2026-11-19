@@ -95,9 +95,9 @@ Every notebook here has to work in three different environments, each of which n
 
 **All three cases are handled by one file: `_mvtb_nb_bootstrap.py`.** It detects which environment it's in and does whatever that environment needs, ending with a one-line sanity check so a broken environment-detection is obvious at a glance rather than failing mysteriously three cells later:
 ```
-Running locally using MVTB v2.2.0
-Running on Colab using MVTB v2.2.0
-Running in browser using MVTB v2.2.0
+Running locally using machinevision-toolbox-python v2.2.0
+Running on Colab using machinevision-toolbox-python v2.2.0
+Running in browser using machinevision-toolbox-python v2.2.0
 ```
 
 Every notebook's first code cell is a copy of that file's content, marked with a `# MVTB_BOOTSTRAP_CELL` comment. It's a *copy*, not an import — Colab can't see sibling files, so the cell has to be fully self-contained, the same way Colab notebooks in this space normally are (this is deliberate; a fancier design that fetched the shared code over the network at runtime was considered and rejected — it would have made every notebook depend on GitHub being reachable just to install itself, which is a worse failure mode than a bit of duplication).
