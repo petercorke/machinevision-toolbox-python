@@ -240,7 +240,7 @@ class BaseFeature2D:
         Each row is in the table includes: the index in the feature vector,
         centroid coordinate, feature strength, feature scale and image id.
 
-        :seealso: :meth:`str`
+        :seealso: ``str``
         """
         columns = [
             Column("#"),
@@ -1123,7 +1123,7 @@ class BaseFeature2D:
         :type handthickness: int, optional
         :param handalpha: transparency of clock hand, defaults to 1
         :type handalpha: int, optional
-        :param kwargs: options passed to :obj:`matplotlib.Circle` such as color,
+        :param kwargs: options passed to :class:`matplotlib.patches.Circle` such as color,
             alpha, edgecolor, etc.
         :type kwargs: dict
 
@@ -1196,7 +1196,7 @@ class BaseFeature2D:
         :type handthickness: int, optional
         :param handalpha: transparency of clock hand, defaults to 1
         :type handalpha: int, optional
-        :param kwargs: options passed to :obj:`matplotlib.Circle` such as color,
+        :param kwargs: options passed to :class:`matplotlib.patches.Circle` such as color,
             alpha, edgecolor, etc.
         :type kwargs: dict
 

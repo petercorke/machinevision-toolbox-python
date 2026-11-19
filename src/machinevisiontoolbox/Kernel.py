@@ -25,8 +25,6 @@ class Kernel:
         processing operations. They are created by a number of class
         methods that generate common kernels such as Gaussian, Laplacian, etc.
 
-        :class:`ImageCore.Image` :class:`machinevisiontoolbox.ImageCore.Image`  :class:`machinevisiontoolbox.Image`
-
         :seealso: :meth:`Gauss` :meth:`Laplace` :meth:`Sobel` :meth:`DoG` :meth:`LoG` :meth:`DGauss` :meth:`Circle` :meth:`Box`
         """
         if not isinstance(K, np.ndarray) and K.ndim != 2:

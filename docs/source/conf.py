@@ -14,6 +14,7 @@ import datetime
 import os
 import sys
 import inspect
+from sphinx.ext import intersphinx
 import importlib
 from pathlib import Path
 from importlib.metadata import version as _pkg_version
@@ -121,6 +122,7 @@ primary_domain = "py"
 
 # -- Cross-project links -----------------------------------------------------
 intersphinx_mapping = {
+    "python": ("https://docs.python.org/3", None),
     "numpy": ("https://numpy.org/doc/stable/", None),
     "scipy": ("https://docs.scipy.org/doc/scipy/", None),
     "matplotlib": ("https://matplotlib.org/stable/", None),
@@ -138,6 +140,29 @@ nitpick_ignore = [
     ("py:class", "W"),
     ("py:class", "H"),
     ("py:class", "numpy._typing.DTypeLike"),
+]
+# Shape annotations such as ``ndarray(N,2)`` and prose types such as "2-tuple" or
+# "Vertex subclass" are split into words by Sphinx and treated as class names.
+nitpick_ignore_regex = [
+    ("py:class", r"ndarray"),
+    ("py:class", r"\d+"),  # dimensions: 2, 3, 4, ...
+    ("py:class", r"[A-Z]\d?"),  # symbolic dimensions: N, M, N1, N2, ...
+    ("py:class", r"n"),
+    ("py:class", r"N elements"),
+    ("py:class", r"\d+-tuple"),
+    ("py:class", r"N-tuple"),
+    ("py:class", r".* subclass"),
+    ("py:class", r"scalar|string|callable|axes|_type_"),
+    # pgraph's inherited docstrings use names relative to the pgraph package
+    ("py:(class|meth|attr)", r"(Graph|UGraph|DGraph|PGraph|Edge|Vertex)(\..+)?"),
+    # NumPy private typing aliases leak into signatures
+    ("py:class", r"numpy\._typing\..*"),
+    ("py:class", r"Dtype"),  # type alias used in signatures
+    ("py:class", r"(machinevisiontoolbox\.Camera\.)?CameraBase"),  # undocumented base
+    ("py:class", r"\d+[A-Z]"),  # shape such as 2N
+    ("py:(class|meth|func|attr)", r"pgraph\..*"),
+    # OpenCV publishes no Sphinx inventory
+    ("py:(class|obj|func|meth)", r"(opencv|cv2)\..*"),
 ]
 # maybe issues with cv2 https://stackoverflow.com/questions/30939867/how-to-properly-write-cross-references-to-external-documentation-with-intersphin
 
@@ -369,7 +394,54 @@ Documenter.sort_members = _sort_members_ci
 
 
 # -- Sphinx application hooks ------------------------------------------------
+def _resolve_toolbox_names(app, env, node, contnode):
+    """Resolve a bare name such as ``Image`` or ``CameraBase`` to this package.
+
+    Docstrings refer to toolbox classes without their full path.  When Sphinx
+    cannot find the name as written, try it under ``machinevisiontoolbox``.
+    """
+    if node.get("refdomain") != "py":
+        return None
+    target = node.get("reftarget", "")
+    if target.startswith("machinevisiontoolbox."):
+        return None
+    py = env.get_domain("py")
+    for prefix in (
+        "machinevisiontoolbox.",
+        "machinevisiontoolbox.Image.",
+        "machinevisiontoolbox.PointCloud.",
+    ):
+        ref = py.resolve_xref(
+            env,
+            node.get("refdoc", ""),
+            app.builder,
+            node["reftype"],
+            prefix + target,
+            node,
+            contnode,
+        )
+        if ref is not None:
+            return ref
+    # spatialmath names (SE3, Polygon2, plot_line, ...), via its inventory
+    for prefix in (
+        "spatialmath.",
+        "spatialmath.pose3d.",
+        "spatialmath.pose2d.",
+        "spatialmath.geom2d.",
+        "spatialmath.base.",
+        "spatialmath.base.graphics.",
+    ):
+        newnode = node.copy()
+        newnode["reftarget"] = prefix + target
+        ref = intersphinx.resolve_reference_in_inventory(env, "smtb", newnode, contnode)
+        if ref is not None:
+            return ref
+    return None
+
+
 def setup(app):
+    app.connect("missing-reference", _resolve_toolbox_names)
+
     # Custom stylesheet for docs/site-level overrides.
     app.add_css_file("custom.css")
 

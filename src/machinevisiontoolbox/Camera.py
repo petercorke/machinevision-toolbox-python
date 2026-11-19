@@ -733,7 +733,7 @@ class CameraBase(ABC):
         :param fig: Matplotlib figure number, defaults to ``None``
         :type fig: int, optional
         :param ax: Matplotlob axes, defaults to ``None``
-        :type ax: :class:`matplotlib.axes`, optional
+        :type ax: :class:`~matplotlib.axes.Axes`, optional
         :return: whether virtual image plane exists
         :rtype: bool
 
@@ -858,10 +858,10 @@ class CameraBase(ABC):
         :param pose: pose of the camera, defaults to ``None``
         :type pose: :class:`~spatialmath.pose3d.SE3`, optional
         :param ax: axes to plot into
-        :type ax: :class:`matplotlib.axes`
+        :type ax: :class:`~matplotlib.axes.Axes`
         :param kwargs: additional arguments passed to :obj:`~matplotlib.pyplot.plot`
         :return: Matplotlib line objects
-        :rtype: list of :class:`~matplotlib.lines.Line2d`
+        :rtype: list of :class:`~matplotlib.lines.Line2D`
 
         3D world points are first projected to the image plane and then
         plotted on the camera's virtual image plane.
@@ -1177,11 +1177,11 @@ class CameraBase(ABC):
         :param projection: projection model for new axes, defaults to 'ortho'
         :type projection: str, optional
         :param ax: axes to draw in, defaults to current 3D axes
-        :type ax: :class:`~matplotlib.Axes3D`, optional
+        :type ax: :class:`~mpl_toolkits.mplot3d.axes3d.Axes3D`, optional
         :raises ValueError: called unbound (eg. ``CentralCamera.plot(...)``)
             without a ``pose``
         :return: axes drawn into
-        :rtype: :class:`~matplotlib.Axes3D`
+        :rtype: :class:`~mpl_toolkits.mplot3d.axes3d.Axes3D`
 
         Plot a 3D icon representing the pose of a camera into a 3D Matplotlib
         plot.  Two icons are supported: the traditional frustum, and a

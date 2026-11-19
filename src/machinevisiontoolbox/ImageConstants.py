@@ -152,6 +152,7 @@ class ImageConstantsMixin(ImageMixinBase):
         :type dtype: str or NumPy dtype, optional
 
         |dtype_aliases|
+
         :param like: template image supplying default ``size`` and ``colororder``
             when those are not given explicitly
         :type like: :class:`Image` or None, optional
@@ -211,6 +212,7 @@ class ImageConstantsMixin(ImageMixinBase):
         :type dtype: str or NumPy dtype, optional
 
         |dtype_aliases|
+
         :param like: template image supplying default ``size``, ``dtype`` and
             ``colororder`` when those are not given explicitly
         :type like: :class:`Image` or None, optional
@@ -417,6 +419,7 @@ class ImageConstantsMixin(ImageMixinBase):
         :type dtype: str or NumPy dtype, optional
 
         |dtype_aliases|
+
         :param maxval: maximum value for random values, defaults to None
         :type maxval: same as ``dtype``, optional
         :param pdf: probability density function for pixel values, defaults to None
@@ -576,6 +579,7 @@ class ImageConstantsMixin(ImageMixinBase):
         :type dtype: str or NumPy dtype, optional
 
         |dtype_aliases|
+
         :param colororder: color plane names for the output image, defaults to None
         :type colororder: str or None, optional
         :param like: template image supplying default ``size``, ``dtype`` and
@@ -670,6 +674,7 @@ class ImageConstantsMixin(ImageMixinBase):
         :type dtype: str or NumPy dtype, optional
 
         |dtype_aliases|
+
         :param colororder: color plane names for the output image, defaults to None
         :type colororder: str or None, optional
         :param like: template image supplying default ``size``, ``dtype`` and
@@ -764,6 +769,7 @@ class ImageConstantsMixin(ImageMixinBase):
         :type dtype: str or NumPy dtype, optional
 
         |dtype_aliases|
+
         :param colororder: color plane names for the output image, defaults to None
         :type colororder: str or None, optional
         :param like: template image supplying default ``size``, ``dtype`` and
@@ -862,6 +868,7 @@ class ImageConstantsMixin(ImageMixinBase):
         :type dtype: str or NumPy dtype, optional
 
         |dtype_aliases|
+
         :param colororder: color plane names for the output image, defaults to None
         :type colororder: str or None, optional
         :param like: template image supplying default ``size``, ``dtype`` and
@@ -944,6 +951,7 @@ class ImageConstantsMixin(ImageMixinBase):
         :type dtype: str or NumPy dtype, optional
 
         |dtype_aliases|
+
         :param colororder: color plane names for the output image, defaults to None
         :type colororder: str or None, optional
         :param like: template image supplying default ``size``, ``dtype`` and
@@ -1037,6 +1045,7 @@ class ImageConstantsMixin(ImageMixinBase):
         :type dtype: str or NumPy dtype, optional
 
         |dtype_aliases|
+
         :param colororder: color plane names for the output image, defaults to None
         :type colororder: str or None, optional
         :param like: template image supplying default ``size``, ``dtype`` and
