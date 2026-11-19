@@ -28,6 +28,12 @@ Part of the RVC ecosystem. **Read [rvc-ecosystem/AGENTS.md](https://github.com/p
 - Codacy is wired in (badge + automated PR comments); grade A is the aspiration. Real backlog
   exists, tracked via `tech-debt`-labelled issues (including a "mypy not in CI" entry) — see
   ecosystem `AGENTS.md` §5 for how that target is framed.
+- Type checking: `mypy` (config in `pyproject.toml` under `[tool.mypy]`; run it from the repo
+  root with no arguments). The package passes with zero errors and must stay that way. It is
+  not yet run in CI (tracked as Issue 40), so run it yourself before opening a PR. Write
+  ignores as `# type: ignore[code]` with the specific error code; unused ignores are reported.
+  Import from the defining submodule (for example `machinevisiontoolbox.base.graphics`), not
+  through the package's star imports, which mypy cannot follow.
 
 ## If you are an AI assistant preparing a contribution
 
