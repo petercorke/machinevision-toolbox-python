@@ -34,6 +34,16 @@ Part of the RVC ecosystem. **Read [rvc-ecosystem/AGENTS.md](https://github.com/p
   ignores as `# type: ignore[code]` with the specific error code; unused ignores are reported.
   Import from the defining submodule (for example `machinevisiontoolbox.base.graphics`), not
   through the package's star imports, which mypy cannot follow.
+- New and changed code uses modern annotation syntax: `X | Y`, `X | None`, `list[X]`,
+  `dict[K, V]`, not `Union`, `Optional`, `List` or `Dict`. For array arguments use `ArrayLike`
+  (or `ArrayLike2` for a 2-element value) from `machinevisiontoolbox.mvtb_types`, and put the
+  shape in the docstring (`:type:`) only where it adds information.
+- New and changed docstrings are reST with `:param:` first. An example is a `>>>` block under
+  `.. runblock:: pycon`, headed `.. rubric:: Examples` (always plural), and cross-references
+  are `.. seealso:: :meth:`other``, not the `:seealso:` field. A `.. versionadded::`,
+  `.. versionchanged::` or `.. deprecated::` names the release it ships in. Much existing code
+  still uses `Example:` and `:seealso:`; it is being migrated gradually, so follow the new
+  style in anything you touch rather than rewriting whole files.
 
 ## If you are an AI assistant preparing a contribution
 
