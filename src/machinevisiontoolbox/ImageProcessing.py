@@ -7,7 +7,7 @@ from __future__ import annotations
 import os.path
 from collections import namedtuple
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any, Callable, Self
 import warnings
 
 import cv2
@@ -19,26 +19,19 @@ import scipy as sp
 from scipy import interpolate
 from spatialmath.base import argcheck, e2h, getvector, h2e, transl2
 
-from machinevisiontoolbox.base import (
-    colorname,
-    float_image,
-    idisp,
-    int_image,
-    iread,
-    iwrite,
-    name2color,
-    safe_plt_show,
-)
+from machinevisiontoolbox._image_typing import ImageMixinBase
+from machinevisiontoolbox.base.color import name2color
+from machinevisiontoolbox.base.imageio import iwrite, safe_plt_show
 
 if TYPE_CHECKING:
     from machinevisiontoolbox.ImageCore import Image
     from machinevisiontoolbox._image_typing import _ImageBase
 
 
-class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
+class ImageProcessingMixin(ImageMixinBase):
     # ======================= image processing ============================= #
 
-    def LUT(self, lut: Any, colororder: str | dict[str, Any] | None = None) -> "Image":
+    def LUT(self, lut: Any, colororder: str | dict[str, Any] | None = None) -> Self:
         """
         Apply lookup table
 
@@ -95,7 +88,7 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
 
     def apply(
         self, func: Callable[..., Any], vectorize: bool = False, **kwargs
-    ) -> "Image":
+    ) -> Self:
         """
         Apply a function to an image
 
@@ -160,7 +153,7 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
         func: Callable[..., Any],
         vectorize: bool = False,
         **kwargs,
-    ) -> "Image":
+    ) -> Self:
         """
         Apply a function to two images
 
@@ -221,7 +214,7 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
             func = np.vectorize(func)
         return self.__class__(func(self._A, other._A), colororder=self.colororder)
 
-    def clip(self, min: int | float, max: int | float) -> "Image":
+    def clip(self, min: int | float, max: int | float) -> Self:
         """
         Clip pixel values
 
@@ -253,7 +246,7 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
         rv: int = 0,
         dx: int | None = None,
         dy: int | None = None,
-    ) -> "Image":
+    ) -> Self:
         """
         Roll image by row or column
 
@@ -284,7 +277,7 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
 
         return self.__class__(np.roll(self._A, (ru, rv), (1, 0)))
 
-    def normhist(self) -> "Image":
+    def normhist(self) -> Self:
         """
         Histogram normalisaton
 
@@ -320,7 +313,7 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
 
     def stretch(
         self, max: int | float = 1, range: Any = None, clip: bool = True
-    ) -> "Image":
+    ) -> Self:
         """
         Image normalisation
 
@@ -530,7 +523,7 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
         if as_bool:
             false_value: bool | int = False
             true_value: bool | int = True
-            binary_dtype = np.bool_
+            binary_dtype: Any = np.bool_
         else:
             false_value = 0
             true_value = 255
@@ -722,14 +715,14 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
                 layout=widgets.Layout(width="80%"),
             )
 
-            def update(change):
+            def update_widget(change):
                 val = change["new"]
                 im.set_data(apply_mode(val))
                 lower_limit_line.set_xdata([val, val])
                 fig.canvas.draw_idle()
                 thresh_holder[0] = val
 
-            slider.observe(update, names="value")
+            slider.observe(update_widget, names="value")
             safe_plt_show(block=False)
             display(slider)
             return self.cast(thresh_holder[0])
@@ -766,7 +759,7 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
         h: int = 3,
         method: str = "mean",
         blocksize: int | None = None,
-    ) -> "Image":
+    ) -> Self:
         r"""
         Adaptive threshold
 
@@ -985,7 +978,7 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
         beta: float | None = None,
         gamma: float = 0,
         dtype: str | None = None,
-    ) -> "Image":
+    ) -> Self:
         r"""
         Image blending
 
@@ -1034,11 +1027,11 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
             raise ValueError("images must be both int or both floating type")
 
         if dtype is None:
-            dtype = -1
+            cvdepth = -1
         elif dtype in ("float", "float32"):
-            dtype = cv2.CV_32F
+            cvdepth = cv2.CV_32F
         elif dtype in ("double", "float64"):
-            dtype = cv2.CV_64F
+            cvdepth = cv2.CV_64F
         else:
             raise ValueError("dtype must be 'float', 'double', 'float32', or 'float64'")
 
@@ -1053,11 +1046,11 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
             src2=image2._A,
             beta=beta,
             gamma=gamma,
-            dtype=dtype,
+            dtype=cvdepth,
         )
         return self.__class__(out, colororder=self.colororder)
 
-    def choose(self, image2: Any, mask: Any) -> "Image":
+    def choose(self, image2: Any, mask: Any) -> Self:
         r"""
         Pixel-wise image merge
 
@@ -1142,7 +1135,7 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
                 # possible color value
                 if isinstance(image2, str):
                     # it's a colorname, look it up
-                    color = self.like(name2color(image2))
+                    color = self.like(name2color(image2))  # type: ignore[arg-type]
                 else:
                     try:
                         color = argcheck.getvector(image2, 3)
@@ -1178,7 +1171,7 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
         position: str = "topleft",
         copy: bool = False,
         zero: bool = True,
-    ) -> "Image":
+    ) -> Self:
         """
         Paste an image into an image
 
@@ -1339,12 +1332,12 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
 
             # only fg is valid
             fg_mask = cv2.bitwise_and(
-                src1=fg_set, src2=cv2.bitwise_xor(src1=bg_set, src2=1)
+                src1=fg_set, src2=cv2.bitwise_xor(src1=bg_set, src2=1)  # type: ignore[call-overload]
             )
 
             # only bg is valid
             bg_mask = cv2.bitwise_and(
-                src1=cv2.bitwise_xor(src1=fg_set, src2=1), src2=bg_set
+                src1=cv2.bitwise_xor(src1=fg_set, src2=1), src2=bg_set  # type: ignore[call-overload]
             )
 
             # merge them
@@ -1360,7 +1353,7 @@ class ImageProcessingMixin(_ImageBase if TYPE_CHECKING else object):
 
         return self.__class__(o, copy=True, colororder=colororder)
 
-    def invert(self) -> "Image":
+    def invert(self) -> Self:
         r"""
         Invert image
 

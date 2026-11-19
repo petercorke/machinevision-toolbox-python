@@ -18,6 +18,7 @@ else:
 
 from scipy import interpolate
 
+from machinevisiontoolbox._image_typing import ImageMixinBase
 from machinevisiontoolbox.base import color, imageio, name2color
 
 if TYPE_CHECKING:
@@ -25,7 +26,7 @@ if TYPE_CHECKING:
     from machinevisiontoolbox._image_typing import _ImageBase
 
 
-class ImageColorMixin(_ImageBase if TYPE_CHECKING else object):
+class ImageColorMixin(ImageMixinBase):
     """
     Image processing color operations on the Image class
     """
@@ -351,7 +352,6 @@ class ImageColorMixin(_ImageBase if TYPE_CHECKING else object):
         # options gamma, on by default if to is RGB or BGR
         # options white on by default
 
-        out = []
         # print('converting from', src, 'to', dst)
 
         out = color.colorspace_convert(self._A, src, dst)

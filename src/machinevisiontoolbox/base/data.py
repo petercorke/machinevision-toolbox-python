@@ -46,7 +46,7 @@ def mvtb_load_matfile(filename: str) -> dict[str, Any]:
     for key, value in data.items():
         if isinstance(value, mat_struct):  # scipy private API # type: ignore[arg-type]
             # print("fixing")
-            nt = namedtuple("matstruct", value._fieldnames)
+            nt = namedtuple("matstruct", value._fieldnames)  # type: ignore[misc]  # field names are only known at run time
             data[key] = nt(*[getattr(value, n) for n in value._fieldnames])
 
     return data

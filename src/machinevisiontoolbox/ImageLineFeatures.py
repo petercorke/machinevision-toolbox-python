@@ -11,12 +11,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipy as sp
 from spatialmath import base
+from machinevisiontoolbox._image_typing import ImageMixinBase
 
 if TYPE_CHECKING:
     from machinevisiontoolbox._image_typing import _ImageBase
 
 
-class ImageLineFeaturesMixin(_ImageBase if TYPE_CHECKING else object):
+class ImageLineFeaturesMixin(ImageMixinBase):
     """
     Line features are common in in many human-built environments.
 
@@ -188,7 +189,7 @@ class HoughFeature:
         if lines.shape[1] == 2:
             # Hough lines
             theta, rho = lines.T
-            homlines = np.row_stack((np.cos(theta), np.sin(theta), -rho))
+            homlines = np.vstack((np.cos(theta), np.sin(theta), -rho))
             base.plot_homline(homlines, *args, **kwargs)
         else:
             for line in lines:

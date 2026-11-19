@@ -22,10 +22,14 @@ from machinevisiontoolbox.base.imageio import safe_plt_show
 
 # pgraph 1.0 has a single Vertex class and deprecates UVertex; 0.6.x has only
 # UVertex.  A vertex has no direction of its own in 1.0, so they are equivalent.
-_Vertex = getattr(pgraph, "Vertex", None) or pgraph.UVertex
+_Vertex: Any = getattr(pgraph, "Vertex", None) or pgraph.UVertex
 
 
 class _Common:
+    _index: int
+    _index2: int
+    _fixed: bool
+
     @property
     def index(self) -> int:
         """
@@ -209,11 +213,11 @@ class BundleAdjust:
         self._nlandmarks = 0  # number of landmark points
         self._nvarstate = 0
 
-        self.views = []  # list of view nodes
-        self.landmarks = []  # list of landmark nodes
+        self.views: list[Any] = []  # list of view nodes
+        self.landmarks: list[Any] = []  # list of landmark nodes
 
-        self.fixedviews = []  # list of view nodes that are fixed
-        self.fixedlandmarks = []  # list of landmark nodes that are fixed
+        self.fixedviews: list[Any] = []  # list of view nodes that are fixed
+        self.fixedlandmarks: list[Any] = []  # list of landmark nodes that are fixed
 
         self.index_valid = False
 
@@ -595,9 +599,8 @@ class BundleAdjust:
         print(f"Bundle adjustment cost {self.errors(x0):.3g} -- initial")
         for i in range(iterations):
             if animate:
-                if not retain:
-                    plt.clf()
-                g2.plot()
+                plt.clf()
+                self.plot(block=False)
                 plt.pause(0.5)
 
             ta = time.perf_counter()

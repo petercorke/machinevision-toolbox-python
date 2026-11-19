@@ -261,8 +261,8 @@ class PointCloud:
         if parts and parts[0] == "data":
             filename = str(Path(*parts[1:])) if len(parts) > 1 else ""
 
-        filename = mvtb_path_to_datafile("data", filename, string=True)
-        pcd = o3d.io.read_point_cloud(filename, *args, **kwargs)
+        path = mvtb_path_to_datafile("data", filename, string=True)
+        pcd = o3d.io.read_point_cloud(str(path), *args, **kwargs)  # type: ignore[arg-type]  # stubs say PathLike
         return cls(pcd)
 
     @classmethod
@@ -346,7 +346,7 @@ class PointCloud:
 
         The file format is determined by the file extension.
         """
-        return o3d.io.write_point_cloud(filename, self._pcd)
+        return o3d.io.write_point_cloud(str(filename), self._pcd)  # type: ignore[arg-type]
 
     def disp(self, block: bool = False, file: str | None = None, **kwargs: Any) -> None:
         """
@@ -398,7 +398,7 @@ class PointCloud:
 
             # save to file if requested
             if file is not None:
-                vis.capture_screen_image(str(file), do_render=False)
+                vis.capture_screen_image(str(file), do_render=False)  # type: ignore[arg-type]
 
     def __rmul__(self, T: SE3) -> "PointCloud":
         """
@@ -521,7 +521,7 @@ class PointCloud:
             np.random.seed(seed)
         n = len(self)
         ind = np.random.choice(n, int(fraction * n), replace=False)
-        return self.__class__(self._pcd.select_by_index(ind))
+        return self.__class__(self._pcd.select_by_index(ind.tolist()))
 
     def estimate_normals(self, **kwargs: Any) -> None:
         """
@@ -622,10 +622,10 @@ class PointCloud:
 
         """
         if callable(ind):
-            ind = np.where(np.apply_along_axis(ind, axis=0, arr=self.points))[0]
+            idx = np.where(np.apply_along_axis(ind, axis=0, arr=self.points))[0]
         else:
-            ind = np.array(ind)
-        return self.__class__(self._pcd.select_by_index(ind, invert=invert))
+            idx = np.array(ind)
+        return self.__class__(self._pcd.select_by_index(idx.tolist(), invert=invert))
 
     def paint(self, color: Any) -> "PointCloud":
         """
@@ -708,7 +708,7 @@ class VoxelGrid:
 
         :seealso: :obj:`open3d.io.write_voxel_grid`
         """
-        o3d.io.write_voxel_grid(filename, self._voxels)
+        o3d.io.write_voxel_grid(str(filename), self._voxels)  # type: ignore[arg-type]
 
     def disp(self, block: bool = True, file: str | None = None, **kwargs: Any) -> None:
         """
@@ -749,7 +749,7 @@ class VoxelGrid:
 
             # save to file if requested
             if file is not None:
-                vis.capture_screen_image(str(file), do_render=False)
+                vis.capture_screen_image(str(file), do_render=False)  # type: ignore[arg-type]
 
 
 if __name__ == "__main__":

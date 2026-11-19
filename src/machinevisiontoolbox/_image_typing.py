@@ -14,7 +14,7 @@ instantiated and adds nothing to the MRO.
 from __future__ import annotations
 
 import sys
-from typing import Any, Protocol
+from typing import TYPE_CHECKING, Any, Protocol
 
 if sys.version_info >= (3, 11):
     from typing import Self
@@ -40,6 +40,10 @@ class _ImageBase(Protocol):
 
     # ---- pixel data --------------------------------------------------
     _A: np.ndarray
+    _stats: dict[str, Any] | None
+
+    @staticmethod
+    def _plane_stats(plane: np.ndarray) -> dict[str, float | int]: ...
 
     @property
     def A(self) -> np.ndarray: ...
@@ -205,3 +209,12 @@ class _ImageBase(Protocol):
     def __ixor__(self, other: Any) -> Self: ...
     def __ilshift__(self, other: Any) -> Self: ...
     def __irshift__(self, other: Any) -> Self: ...
+
+
+# Base class for the Image mixins: the Protocol for type checkers, plain
+# ``object`` at run time.  mypy cannot evaluate a conditional expression in a
+# base-class list, so the choice is made once here.
+if TYPE_CHECKING:
+    ImageMixinBase = _ImageBase
+else:
+    ImageMixinBase = object

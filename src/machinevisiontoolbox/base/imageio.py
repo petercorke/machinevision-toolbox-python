@@ -146,7 +146,7 @@ def _plt():
     return plt
 
 
-def safe_plt_show(block: bool | None = False) -> None:
+def safe_plt_show(block: bool | float | None = False) -> None:
     """Call :func:`matplotlib.pyplot.show` while ignoring benign headless warnings.
 
     In documentation builds and other headless contexts Matplotlib can use a
@@ -170,12 +170,12 @@ def safe_plt_show(block: bool | None = False) -> None:
             message=r"FigureCanvas.* is non-interactive, and thus cannot be shown",
             category=UserWarning,
         )
-        plt.show(block=block)
+        plt.show(block=bool(block))
 
 
 def idisp(
     im: np.ndarray,
-    colororder: str = "RGB",
+    colororder: str | None = "RGB",
     matplotlib: bool = True,
     block: bool | float | None = None,
     fps: float | None = None,
@@ -499,7 +499,7 @@ def idisp(
 
 def _idisp_matplotlib(
     im: np.ndarray,
-    colororder: str = "RGB",
+    colororder: str | None = "RGB",
     block: bool | float | None = None,
     fps: float | None = None,
     fig: Any = None,
@@ -660,8 +660,8 @@ def _idisp_matplotlib(
         fig.set_figheight(height / 25.4)  # inches
 
     ## Create the colormap and normalizer
-    norm = None
-    cmap = None
+    norm: Any = None
+    cmap: Any = None
     if colormap == "invert":
         cmap = "Greys"
     elif colormap == "signed":
@@ -686,7 +686,7 @@ def _idisp_matplotlib(
             norm = mpl.colors.CenteredNorm()
     elif colormap == "invsigned":
         # inverse signed color map, red is negative, blue is positive, zero is black
-        cdict = {
+        cdict: Any = {
             "red": [(0, 1, 1), (0.5, 0, 0), (1, 0, 0)],
             "green": [(0, 0, 0), (1, 0, 0)],
             "blue": [(0, 0, 0), (0.5, 0, 0), (1, 1, 1)],
@@ -793,6 +793,7 @@ def _idisp_matplotlib(
     if len(im.shape) == 3:
         # color image, display in RGB or RGBA order; imshow handles alpha
         # natively for both uint8 (0-255) and float (0.0-1.0) arrays
+        colororder = colororder or "RGB"
         target = "RGBA" if "A" in colororder else "RGB"
         idx = [colororder.find(c) for c in target if colororder.find(c) >= 0]
         im_rgb = im[:, :, idx]  # reorder planes → RGB or RGBA
@@ -900,12 +901,12 @@ def _idisp_matplotlib(
                 if colororder == "BGR":
                     x = x[::-1]
                 if np.issubdtype(x.dtype, np.integer):
-                    val = [f"{_:d}" for _ in x]
+                    vals = [f"{_:d}" for _ in x]
                 elif np.issubdtype(x.dtype, np.floating):
-                    val = [f"{_:.3f}" for _ in x]
+                    vals = [f"{_:.3f}" for _ in x]
                 else:
-                    val = [str(_) for _ in x]
-                val = "[" + ", ".join(val) + "]"
+                    vals = [str(_) for _ in x]
+                val = "[" + ", ".join(vals) + "]"
 
                 return f"({u}, {v}): {val} {colororder}, {x.dtype}"
 
@@ -966,7 +967,7 @@ def _idisp_matplotlib(
 
 def _idisp_opencv(
     im: np.ndarray,
-    colororder: str = "RGB",
+    colororder: str | None = "RGB",
     title: str | None = None,
     block: bool | float | None = None,
     fps: float | None = None,
@@ -998,6 +999,7 @@ def _idisp_opencv(
 
     if im.ndim == 3:
         # color image, display in BGR order, but allow user to specify color order of input image
+        colororder = colororder or "RGB"
         idx = []
         for c in "BGR":
             j = colororder.find(c)
@@ -1503,6 +1505,7 @@ def pickpoints(
 
         # wait for a key to be pressed to exit
         cv2.waitKey(0)
+        return None
 
 
 if __name__ == "__main__":

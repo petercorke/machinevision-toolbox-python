@@ -4,7 +4,7 @@ Whole-image feature computation: moments, Hu invariants, histograms, and entropy
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, Literal, cast
 import warnings
 
 import cv2
@@ -19,12 +19,14 @@ from spatialmath import SE3, base
 if TYPE_CHECKING:
     from machinevisiontoolbox._image_typing import _ImageBase
 
-from machinevisiontoolbox.base import findpeaks, findpeaks2d
+from machinevisiontoolbox._image_typing import ImageMixinBase
+from machinevisiontoolbox.base.findpeaks import findpeaks, findpeaks2d
 from machinevisiontoolbox.base.imageio import safe_plt_show, set_window_title
 from machinevisiontoolbox.mvtb_types import *
 
 
-class ImageWholeFeaturesMixin(_ImageBase if TYPE_CHECKING else object):
+class ImageWholeFeaturesMixin(ImageMixinBase):
+    _stats: dict[str, Any] | None
 
     # ------------------ scalar statistics ----------------------------- #
 
@@ -266,7 +268,7 @@ class ImageWholeFeaturesMixin(_ImageBase if TYPE_CHECKING else object):
         :seealso: :meth:`printstats` :meth:`hist` :meth:`min` :meth:`max` :meth:`mean` :meth:`std` :meth:`median`
         """
 
-        if self._stats is None:
+        if getattr(self, "_stats", None) is None:
             if self.iscolor and self.colororder is not None:
                 self._stats = {
                     k: self._plane_stats(plane._A)
@@ -274,7 +276,7 @@ class ImageWholeFeaturesMixin(_ImageBase if TYPE_CHECKING else object):
                 }
             else:
                 self._stats = self._plane_stats(self._A)
-        return self._stats
+        return cast(dict[str, Any], self._stats)
 
     def printstats(self) -> None:
         """
@@ -1378,9 +1380,9 @@ class Histogram:
             # Ensure one y-limit per plotted plane, even if maxy is a NumPy scalar.
             maxy_arr = np.asarray(maxy)
             if maxy_arr.ndim == 0:
-                maxy = np.repeat(float(maxy_arr), self.nplanes)
+                maxy_planes = np.repeat(float(maxy_arr), self.nplanes)
             else:
-                maxy = maxy_arr.reshape(-1)
+                maxy_planes = maxy_arr.reshape(-1)
 
         hist_counts = self.h
         if self.nplanes == 1:
@@ -1419,7 +1421,7 @@ class Histogram:
             for i, ax in enumerate(axes):
                 bin_width = x[1] - x[0]
                 ax.stairs(
-                    y[:, i], np.append(x, x[-1] + bin_width), fill=filled, **kwargs
+                    y[:, i], np.append(x, x[-1] + bin_width), fill=bool(filled), **kwargs
                 )
                 ax.grid()
                 if n == 1:
@@ -1427,7 +1429,7 @@ class Histogram:
                 else:
                     ax.set_ylabel(ylabel1 + " (" + colors[i] + ")")
                 ax.set_xlim(*xrange)
-                ax.set_ylim(0, maxy[i])
+                ax.set_ylim(0, maxy_planes[i])
                 ax.yaxis.set_major_formatter(
                     ScalarFormatter(useOffset=False, useMathText=True)
                 )
@@ -1570,7 +1572,7 @@ class Histogram:
                         label="median",
                     )
             ax.set_xlim(*xrange)
-            ax.set_ylim(0, maxy)
+            ax.set_ylim(0, float(np.max(maxy)))
             ax.yaxis.set_major_formatter(
                 ScalarFormatter(useOffset=False, useMathText=True)
             )

@@ -19,6 +19,8 @@ import numpy as np
 
 # Set by figure keypress callback when the user requests immediate exit.
 exit_requested = False
+cs_image: np.ndarray  # image in the display colorspace, set by main()
+colorspace: str  # name of that colorspace, set by main()
 
 
 def getargs():
@@ -213,12 +215,12 @@ def format_coord(u: float, v: float) -> str:
             # color image
             x = cs_image[v, u, :]
             if np.issubdtype(x.dtype, np.integer):
-                val = [f"{_:d}" for _ in x]
+                parts = [f"{_:d}" for _ in x]
             elif np.issubdtype(x.dtype, np.floating):
-                val = [f"{_:.3f}" for _ in x]
+                parts = [f"{_:.3f}" for _ in x]
             else:
-                val = [str(_) for _ in x]
-            val = "[" + ", ".join(val) + "]"
+                parts = [str(_) for _ in x]
+            val = "[" + ", ".join(parts) + "]"
 
             return f"({u}, {v}): {val} {colorspace}, {x.dtype}"
     except Exception as e:

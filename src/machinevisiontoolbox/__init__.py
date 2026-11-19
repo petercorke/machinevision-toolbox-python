@@ -62,6 +62,12 @@ from machinevisiontoolbox.VisualServo import (
     IBVS_polar,
 )
 
+from machinevisiontoolbox.base.findpeaks import (  # noqa: F401
+    findpeaks,
+    findpeaks2d,
+    findpeaks3d,
+)
+from machinevisiontoolbox.base.meshgrid import meshgrid, spherical_rotate  # noqa: F401
 from machinevisiontoolbox.base import (
     blackbody,
     loadspectrum,
@@ -102,11 +108,6 @@ from machinevisiontoolbox.base import (
     mksphere,
     mkcylinder,
     mkgrid,
-    meshgrid,
-    spherical_rotate,
-    findpeaks,
-    findpeaks2d,
-    findpeaks3d,
     mvtb_version,
     mpl_styling,
 )

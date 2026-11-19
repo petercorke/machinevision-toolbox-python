@@ -11,6 +11,7 @@ import warnings
 from collections.abc import Iterator, Sequence
 from math import nan
 from pathlib import Path
+from typing import Any
 
 import cv2
 import numpy as np
@@ -19,17 +20,15 @@ from spatialmath import Polygon2
 from spatialmath.base import islistof, isscalar
 
 # from numpy.lib.arraysetops import isin
-from machinevisiontoolbox.base import (
-    DTYPE_ALIASES,
+from machinevisiontoolbox.base.graphics import (
     draw_box,
     draw_circle,
     draw_labelbox,
     draw_line,
     draw_point,
     draw_text,
-    float_image,
-    int_image,
 )
+from machinevisiontoolbox.base.types import DTYPE_ALIASES, float_image, int_image
 from machinevisiontoolbox.base.imageio import convert, idisp, iread, iwrite
 from machinevisiontoolbox.ImageBlobs import ImageBlobsMixin
 from machinevisiontoolbox.ImageColor import ImageColorMixin
@@ -284,8 +283,8 @@ class Image(
             gives a C-contiguous copy, so use ``Image(array, copy=True)`` to fix it.
 
         """
-        self._name = None
-        self._colororder = None
+        self._name: str | None = None
+        self._colororder: dict[str, int] | None = None
         self.id = id
         self.domain = domain
 
@@ -299,7 +298,7 @@ class Image(
             # Image instance
             name = image.name
             colororder = image.colororder
-            image = image._A
+            image = image._A  # type: ignore[has-type]
 
         elif isinstance(image, list):
             # list of lists
@@ -335,7 +334,7 @@ class Image(
         # rescaled 0..255).
         defer_dtype_to_convert = dtype_given and bool(kwargs)
         if dtype is not None and not defer_dtype_to_convert:
-            image = image.astype(dtype, copy=False)
+            image = image.astype(dtype, copy=False)  # type: ignore[call-arg]
 
         self.name = name
 
@@ -351,7 +350,7 @@ class Image(
             image = image[:, :, 0]  # squeeze out singleton plane
 
         if kwargs:
-            image = convert(image, dtype=dtype if defer_dtype_to_convert else None, **kwargs)
+            image = convert(image, dtype=dtype if defer_dtype_to_convert else None, **kwargs)  # type: ignore[arg-type]
 
         # assign the image to the object, copying if requested
         if copy:
@@ -371,7 +370,7 @@ class Image(
         else:
             self.colororder = color_dict
 
-        self._stats = None
+        self._stats: dict[str, Any] | None = None
 
         self.name = name
 
@@ -415,7 +414,7 @@ class Image(
             except TypeError:
                 raise ValueError("bad dtype argument passed to Image constructor")
 
-        return dtype
+        return dtype  # type: ignore[return-value]
 
     def _reshape_to_size(
         self, image: np.ndarray, size: tuple | list | None
@@ -781,9 +780,9 @@ class Image(
         if stats is not None:
             # self._stats is None if the image is mutable, so skip stats in that case
             if self.iscolor and self.colororder is not None:
-                colororder = self.colororder
-                for k in sorted(stats.keys(), key=lambda x: colororder[x]):
-                    s += f"\n  {k:s}: {self._format_stats(stats[k])}"
+                corder = self.colororder
+                for plane_name in sorted(stats.keys(), key=lambda x: corder[x]):
+                    s += f"\n  {plane_name:s}: {self._format_stats(stats[plane_name])}"
             else:
                 s += f"\n  {self._format_stats(stats)}"
 
@@ -2685,6 +2684,8 @@ class Image(
         :seealso: :meth:`red` :meth:`green` :meth:`blue` :meth:``__getitem__``
         """
 
+        colororder: dict[str, Any] | None
+        iplanes: Any
         if isinstance(planes, int):
             if planes == 0 and self.nplanes == 1:
                 return self
@@ -2850,7 +2851,7 @@ class Image(
             if out.ndim == 3:
                 # 3 slices, select uv-region and planes
                 color_names = (self.colororder_str or "").split(":")
-                plane_key = keys[2]  # type: ignore[index]
+                plane_key = keys[2]  # type: ignore[misc]
                 if isinstance(plane_key, slice):
                     selected_planes = color_names[plane_key]
                 else:
@@ -3629,7 +3630,7 @@ class Image(
     # __eq__ and __ne__ intentionally return Image (pixel-wise result) rather than bool.
     # Unlike __add__ etc., these two are defined on object with return type bool, so
     # pyright flags the override as incompatible — the ignore is justified here.
-    def __eq__(  # pyright: ignore[reportIncompatibleMethodOverride]
+    def __eq__(  # type: ignore[override]  # pyright: ignore[reportIncompatibleMethodOverride]
         self, other
     ) -> "Image":
         """
@@ -3702,7 +3703,7 @@ class Image(
 
         return bool(np.all((self == other).A))
 
-    def __ne__(  # pyright: ignore[reportIncompatibleMethodOverride]  # same reason as __eq__
+    def __ne__(  # type: ignore[override]  # pyright: ignore[reportIncompatibleMethodOverride]  # same reason as __eq__
         self, other
     ) -> "Image":
         """

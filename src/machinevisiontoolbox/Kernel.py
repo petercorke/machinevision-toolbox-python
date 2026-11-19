@@ -709,9 +709,9 @@ class Kernel:
 
         # check valid input:
         if not argcheck.isscalar(radius):  # r.shape[1] > 1:
-            radius = argcheck.getvector(radius)
-            rmax = radius.max()
-            rmin = radius.min()
+            rvec = argcheck.getvector(radius)
+            rmax = rvec.max()
+            rmin = rvec.min()
         else:
             rmax = radius
 
@@ -734,7 +734,7 @@ class Kernel:
             # annulus case
             x = np.arange(w) - c
             X, Y = np.meshgrid(x, x)
-            ll = np.where(np.round((X**2 + Y**2 - radius**2) <= 0))
+            ll = np.where(np.round((X**2 + Y**2 - radius**2) <= 0))  # type: ignore[operator]
             s[ll] = 1
 
         if normalize:

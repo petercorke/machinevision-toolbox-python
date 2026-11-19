@@ -2,6 +2,7 @@
 Detection and matching of keypoint and descriptor features (SIFT, ORB, etc.) in images.
 """
 
+import builtins
 import math
 from typing import TYPE_CHECKING, Any, Iterator
 
@@ -13,15 +14,16 @@ import numpy as np
 import spatialmath.base as smb
 from ansitable import ANSITable, Column
 
-from machinevisiontoolbox.base import (
+from machinevisiontoolbox._image_typing import ImageMixinBase
+from machinevisiontoolbox.base.color import name2color
+from machinevisiontoolbox.base.findpeaks import findpeaks2d
+from machinevisiontoolbox.base.graphics import (
+    _require_c_contiguous,
     draw_circle,
     draw_line,
     draw_point,
-    findpeaks2d,
-    name2color,
-    safe_plt_show,
 )
-from machinevisiontoolbox.base.graphics import _require_c_contiguous
+from machinevisiontoolbox.base.imageio import safe_plt_show
 from machinevisiontoolbox.decorators import (
     array_result,
     array_result2,
@@ -282,7 +284,7 @@ class BaseFeature2D:
         """
 
         try:  # Sort features into grid
-            nw, nh = nbins
+            nw, nh = nbins  # type: ignore[misc]
         except (TypeError, ValueError):
             nw = nbins
             nh = nbins
@@ -306,7 +308,7 @@ class BaseFeature2D:
 
         return self.__class__(keep)
 
-    def __add__(self, other: "BaseFeature2D | list | None") -> "BaseFeature2D":
+    def __add__(self, other: "BaseFeature2D | builtins.list | None") -> "BaseFeature2D":
         """
         Add feature sets
 
@@ -393,7 +395,7 @@ class BaseFeature2D:
 
     @property
     @scalar_result
-    def u(self) -> "list[float]":  # Horizontal coordinate of feature point
+    def u(self) -> "builtins.list[float]":  # Horizontal coordinate of feature point
         """
         Horizontal coordinate of feature point
 
@@ -415,7 +417,7 @@ class BaseFeature2D:
 
     @property
     @scalar_result
-    def v(self) -> "list[float]":  # Vertical coordinate of feature point
+    def v(self) -> "builtins.list[float]":  # Vertical coordinate of feature point
         """
         Vertical coordinate of feature point
 
@@ -436,7 +438,7 @@ class BaseFeature2D:
 
     @property
     @scalar_result
-    def id(self) -> "list[int]":  # Image id for feature point
+    def id(self) -> "builtins.list[int]":  # Image id for feature point
         """
         Image id for feature point
 
@@ -460,7 +462,7 @@ class BaseFeature2D:
 
     @property
     @scalar_result
-    def orientation(self) -> "list[float]":  # Orientation of feature
+    def orientation(self) -> "builtins.list[float]":  # Orientation of feature
         """
         Orientation of feature
 
@@ -482,7 +484,7 @@ class BaseFeature2D:
 
     @property
     @scalar_result
-    def scale(self) -> "list[float]":  # Scale of feature
+    def scale(self) -> "builtins.list[float]":  # Scale of feature
         """
         Scale of feature
 
@@ -503,7 +505,7 @@ class BaseFeature2D:
 
     @property
     @scalar_result
-    def strength(self) -> "list[float]":  # Strength of feature
+    def strength(self) -> "builtins.list[float]":  # Strength of feature
         """
         Strength of feature
 
@@ -524,7 +526,7 @@ class BaseFeature2D:
 
     @property
     @scalar_result
-    def octave(self) -> "list[int]":  # Octave of feature
+    def octave(self) -> "builtins.list[int]":  # Octave of feature
         """
         Octave of feature
 
@@ -870,6 +872,7 @@ class BaseFeature2D:
                 new._descriptor = np.take(self._descriptor, sorted_index, axis=0)
             new._feature_type = self._feature_type
             return new
+        return None
 
     def support(self, images: Any, N: int = 50) -> Any:
         """
@@ -1235,7 +1238,8 @@ class BaseFeature2D:
         else:
             if len(args) == 0 and len(kwargs) == 0:
                 kwargs = dict(marker="+y")
-            draw_point(img, self.p, *args, fontsize=0.6, **kwargs)
+            kwargs.setdefault("fontsize", 0.6)
+            draw_point(img, self.p, *args, **kwargs)
 
     def draw2(self, image: Any, color: Any = "y", type: str = "point") -> Any:
         """
@@ -1259,7 +1263,7 @@ class BaseFeature2D:
         img = image._A  # Draw features into image
         _require_c_contiguous(img)
         if isinstance(color, str):
-            color_ndarray: np.ndarray = name2color(
+            color_ndarray: Any = name2color(
                 color, dtype=image.dtype, colororder=image.colororder
             )
             color_scalar: tuple[float, float, float, float] = (
@@ -1338,8 +1342,8 @@ class FeatureMatch:
         self._kp1 = fv1
         self._kp2 = fv2
         self._inliers = inliers
-        self._inverse_dict1 = None
-        self._inverse_dict2 = None
+        self._inverse_dict1: dict[int, int] | None = None
+        self._inverse_dict2: dict[int, int] | None = None
 
     def __getitem__(self, i) -> "FeatureMatch":
         """
@@ -1461,15 +1465,14 @@ class FeatureMatch:
         """
         if self._inverse_dict1 is None:
             # first call, build a dict for efficient mapping
-            d = {}
+            d: dict[int, int] = {}
             for k, m in enumerate(self._matches):
                 d[m[0]] = k
             self._inverse_dict1 = d
-        else:
-            try:
-                return self[self._inverse_dict1[id]]
-            except KeyError:
-                return None
+        try:
+            return self[self._inverse_dict1[id]]
+        except KeyError:
+            return None
 
     def by_id2(self, i: int) -> "FeatureMatch | None":
         """
@@ -1499,15 +1502,14 @@ class FeatureMatch:
         """
         if self._inverse_dict2 is None:
             # first call, build a dict for efficient mapping
-            d = {}
+            d: dict[int, int] = {}
             for k, m in enumerate(self._matches):
-                d[m[0]] = k
+                d[m[1]] = k
             self._inverse_dict2 = d
-        else:
-            try:
-                return self[self._inverse_dict2[i]]
-            except KeyError:
-                return None
+        try:
+            return self[self._inverse_dict2[i]]
+        except KeyError:
+            return None
 
     def __str__(self) -> str:
         """
@@ -1762,7 +1764,7 @@ class FeatureMatch:
 
     @property
     @scalar_result
-    def distance(self) -> "list[float]":
+    def distance(self) -> "builtins.list[float]":
         """
         Distance between corresponding features
 
@@ -1784,7 +1786,7 @@ class FeatureMatch:
 
     @property
     @array_result2
-    def p1(self) -> "list[np.ndarray]":
+    def p1(self) -> "builtins.list[np.ndarray]":
         """
         Feature coordinate in first image
 
@@ -1806,7 +1808,7 @@ class FeatureMatch:
 
     @property
     @array_result2
-    def p2(self) -> "list[np.ndarray]":
+    def p2(self) -> "builtins.list[np.ndarray]":
         """
         Feature coordinate in second image
 
@@ -1828,7 +1830,7 @@ class FeatureMatch:
 
     @property
     @array_result
-    def descriptor1(self) -> "list[np.ndarray]":
+    def descriptor1(self) -> "builtins.list[np.ndarray]":
         """
         Feature descriptor in first image
 
@@ -1850,7 +1852,7 @@ class FeatureMatch:
 
     @property
     @array_result
-    def descriptor2(self) -> "list[np.ndarray]":
+    def descriptor2(self) -> "builtins.list[np.ndarray]":
         """
         Feature descriptor in second image
 
@@ -1872,7 +1874,7 @@ class FeatureMatch:
 
     @property
     @scalar_result
-    def id1(self) -> "list[int]":
+    def id1(self) -> "builtins.list[int]":
         """
         Feature id in first image
 
@@ -1894,7 +1896,7 @@ class FeatureMatch:
 
     @property
     @scalar_result
-    def id2(self) -> "list[int]":
+    def id2(self) -> "builtins.list[int]":
         """
         Feature id in second image
 
@@ -2068,7 +2070,7 @@ def _resolve_feature_create(name: str) -> Any:
 # -------------------------------------------------------------------------
 
 
-class ImagePointFeaturesMixin(_ImageBase if TYPE_CHECKING else object):
+class ImagePointFeaturesMixin(ImageMixinBase):
     def _image2feature(
         self,
         cls,
@@ -2078,7 +2080,7 @@ class ImagePointFeaturesMixin(_ImageBase if TYPE_CHECKING else object):
         scale=False,
         orient=False,
         **kwargs,
-    ) -> BaseFeature2D:
+    ) -> Any:
         # https://datascience.stackexchange.com/questions/43213/freak-feature-extraction-opencv
         algorithms: dict[str, Any] = {
             "SIFT": getattr(cv2, "SIFT_create"),
@@ -2367,12 +2369,12 @@ class ImagePointFeaturesMixin(_ImageBase if TYPE_CHECKING else object):
         }
 
         descriptors = {
-            "BOOST": (cv2.xfeatures2d.BoostDesc_create, BOOSTFeature),
-            "BRIEF": (cv2.xfeatures2d.BriefDescriptorExtractor_create, BRIEFFeature),
-            "DAISY": (cv2.xfeatures2d.BriefDescriptorExtractor_create, DAISYFeature),
-            "FREAK": (cv2.xfeatures2d.BriefDescriptorExtractor_create, FREAKFeature),
-            "LATCH": (cv2.xfeatures2d.BriefDescriptorExtractor_create, LATCHFeature),
-            "LUCID": (cv2.xfeatures2d.BriefDescriptorExtractor_create, LUCIDFeature),
+            "BOOST": (cv2.xfeatures2d.BoostDesc_create, BOOSTFeature),  # type: ignore[attr-defined]
+            "BRIEF": (cv2.xfeatures2d.BriefDescriptorExtractor_create, BRIEFFeature),  # type: ignore[attr-defined]
+            "DAISY": (cv2.xfeatures2d.BriefDescriptorExtractor_create, DAISYFeature),  # type: ignore[attr-defined]
+            "FREAK": (cv2.xfeatures2d.BriefDescriptorExtractor_create, FREAKFeature),  # type: ignore[attr-defined]
+            "LATCH": (cv2.xfeatures2d.BriefDescriptorExtractor_create, LATCHFeature),  # type: ignore[attr-defined]
+            "LUCID": (cv2.xfeatures2d.BriefDescriptorExtractor_create, LUCIDFeature),  # type: ignore[attr-defined]
         }
         # eg. Feature2D('FAST', 'FREAK')
         if detector in detectors:
@@ -2383,6 +2385,8 @@ class ImagePointFeaturesMixin(_ImageBase if TYPE_CHECKING else object):
             kp = detector(self._A, **det_opts)
         else:
             raise ValueError("unknown detector")
+
+        raise NotImplementedError("ComboFeature is a work in progress")
 
 
 class _Harris_create:

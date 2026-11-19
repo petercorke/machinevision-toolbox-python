@@ -69,7 +69,7 @@ def tex_icon(
     scale = size * (1 - 2 * margin) / max(ink.size)
     ink = ink.resize(
         (max(1, round(ink.width * scale)), max(1, round(ink.height * scale))),
-        Image.LANCZOS,
+        Image.Resampling.LANCZOS,
     )
 
     canvas = Image.new("L", (size, size), 0)

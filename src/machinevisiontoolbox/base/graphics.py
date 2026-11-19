@@ -60,6 +60,7 @@ def _roundvec(x: np.ndarray | list[Any] | tuple[Any, ...]) -> tuple[int, ...]:
     :return: rounded vector
     :rtype: tuple
     """
+    y: Any
     if isinstance(x, np.ndarray):
         y = x.round(0).flatten().astype(int)
     else:
@@ -643,7 +644,7 @@ def draw_text(
     else:
         lt = cv2.LINE_8
     cv2.putText(
-        image, text, _roundvec(pos), _fontdict[font], fontsize, color, fontthickness, lt
+        image, text or "", _roundvec(pos), _fontdict[font], fontsize, color, fontthickness, lt
     )
     return image
 
@@ -766,12 +767,14 @@ def draw_point(
             _fontdict[font], fontheight, fontthickness
         )
 
+    x: Any
+    y: Any
     if isinstance(pos, np.ndarray) and pos.shape[0] == 2:
         x = pos[0, :]
         y = pos[1, :]
     elif isinstance(pos, (tuple, list)):
         if smb.islistof(pos, (tuple, list)):
-            pairs = [tuple(z) for z in pos]
+            pairs = [tuple(z) for z in pos]  # type: ignore[arg-type]
             x = [pair[0] for pair in pairs]
             y = [pair[1] for pair in pairs]
         else:
@@ -976,7 +979,7 @@ def draw_circle(
 
 
 def mpl_styling(
-    fmt: str | tuple[str] | None = None, defaults: dict = None, kwargs: dict = None
+    fmt: str | tuple[str] | None = None, defaults: dict | None = None, kwargs: dict | None = None
 ):
     """Merge Matplotlib style options
 
@@ -1041,7 +1044,7 @@ def mpl_styling(
         # Markers: Standard Matplotlib marker symbols
         marker_pattern = r"[.,ov^<>12348spP*hH+xXDd|_]"
 
-        res = {"color": None, "marker": None, "linestyle": None}
+        res: dict[str, Any] = {"color": None, "marker": None, "linestyle": None}
         working_fmt = fmt
 
         # 2. Extract Linestyle first (prevents '.' in '-.' being seen as a marker)
@@ -1084,14 +1087,12 @@ def mpl_styling(
         res = parse_matplotlib_fmt(fmt)
 
     # Override with defaults if not specified in fmt
-    options = defaults | res | kwargs
+    options = (defaults or {}) | res | (kwargs or {})
     return {k: v for k, v in options.items() if v is not None}
 
 
 if __name__ == "__main__":
     import numpy as np
-
-    from machinevisiontoolbox.base import draw_box, idisp
 
 
 #     import numpy as np
