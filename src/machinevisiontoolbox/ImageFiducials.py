@@ -15,6 +15,7 @@ import numpy as np
 from ansitable import ANSITable, Column
 from spatialmath import SE3
 
+from machinevisiontoolbox._image_typing import ImageMixinBase
 from machinevisiontoolbox.base.graphics import _require_c_contiguous
 from machinevisiontoolbox.ImagePointFeatures import BaseFeature2D
 
@@ -56,7 +57,7 @@ def _fiducial_dict(dict="4x4_1000"):
         return dict
 
 
-class ImageFiducialsMixin(_ImageBase if TYPE_CHECKING else object):
+class ImageFiducialsMixin(ImageMixinBase):
     def fiducial(
         self,
         dict: str = "4x4_1000",
@@ -141,7 +142,7 @@ class ImageFiducialsMixin(_ImageBase if TYPE_CHECKING else object):
         # raises IndexError: invalid index to scalar variable.
         # -------------------------------------------------------------------
 
-        fiducials = []
+        fiducials: list[Fiducial] = []
         if ids is None or len(ids) == 0:
             return fiducials  # no markers found
         ids = ids.reshape(-1)
@@ -225,6 +226,7 @@ class Fiducial:
         self.rvec = rvec
         self.tvec = tvec
         self.p3d = p3d
+        self.stats: Any = None
 
     def __str__(self) -> str:
         """
@@ -298,6 +300,8 @@ class Fiducial:
         if not image.isbgr:
             raise ValueError("image must have BGR color order")
         _require_c_contiguous(image._A)
+        if self.K is None or self.rvec is None or self.tvec is None:
+            raise ValueError("fiducial has no camera intrinsics or pose to draw")
         cv2.drawFrameAxes(
             image=image._A,
             cameraMatrix=self.K,
@@ -422,7 +426,7 @@ class FiducialCollection:
                     setattr(arucoParams, key, item)
 
         detector = cv2.aruco.ArucoDetector(self._dict, arucoParams)
-        cornerss, ids, rejected = detector.detectMarkers(image=image.mono()._A)
+        cornerss, ids, rejected = detector.detectMarkers(image=image.mono()._A)  # type: ignore[has-type]
 
         # corners is a list of ndarray(1,4,2) of marker corners
         # rejected is a list of rejected corners from tags whose inner code is incorrectly coded
@@ -450,11 +454,11 @@ class FiducialCollection:
         if not matches:
             raise ValueError("no markers belonging to this board were detected")
         cornerss = [corners for corners, _ in matches]
-        ids = [id for _, id in matches]
+        ids = [id for _, id in matches]  # type: ignore[assignment]
 
         # match the markers to the board
         # print(f"{len(ids)} markers found")
-        objPoints, imgPoints = self.matchImagePoints(cornerss, ids)
+        objPoints, imgPoints = self.matchImagePoints(cornerss, ids)  # type: ignore[arg-type]
 
         # objPoints is ndarray(N,1,3) of 3D points in the board frame
         # imgPoints is ndarray(N,1,2) of 2D points in the image frame
@@ -711,8 +715,8 @@ class ArUcoBoard(FiducialCollection):
         else:
             from PIL import Image as PILImage
 
-            img = PILImage.fromarray(img)
-            img.save(filename, dpi=(dpi, dpi))
+            pil_img = PILImage.fromarray(img)
+            pil_img.save(filename, dpi=(dpi, dpi))
             return None
 
 

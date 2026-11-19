@@ -22,6 +22,7 @@ import numpy as np
 from matplotlib import image
 import cv2
 from spatialmath import *  # lgtm [py/polluting-import]
+from spatialmath import SE3
 from spatialmath.base import *  # lgtm [py/polluting-import]
 
 from machinevisiontoolbox import *  # lgtm [py/unused-import]

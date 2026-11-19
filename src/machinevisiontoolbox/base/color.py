@@ -84,7 +84,7 @@ def _loaddata(filename: str, verbose: bool = False, **kwargs: Any) -> np.ndarray
     return data
 
 
-_spectra = {}
+_spectra: dict[Any, Any] = {}
 
 
 def loadspectrum(
@@ -288,7 +288,7 @@ def lambda2rg(
         rgb = cmfrgb(λ, **kwargs)
     else:
         e = smb.getvector(e)
-        if len(e) != len(λ):
+        if len(e) != len(λ):  # type: ignore[arg-type]
             raise ValueError("number of wavelengths and intensities must match")
         rgb = cmfrgb(λ, e, **kwargs)
 
@@ -352,7 +352,7 @@ def cmfrgb(λ: ArrayLike, e: ArrayLike | None = None, **kwargs: Any) -> np.ndarr
     # assume steps are equal sized
     if e is not None:
         e = smb.getvector(e, out="row")  # e is a vector Nx1
-        dλ = λ[1] - λ[0]
+        dλ = λ[1] - λ[0]  # type: ignore[index]
         ret = (e @ cmf) / cmf.shape[0] * dλ
     else:
         ret = cmf
@@ -537,7 +537,7 @@ def cmfxyz(
 
     if e is not None:
         # approximate rectangular integration
-        dλ = λ[1] - λ[0]
+        dλ = λ[1] - λ[0]  # type: ignore[index]
         XYZ = smb.getvector(e) @ cmfxyz * dλ
         return XYZ
     else:
@@ -676,7 +676,7 @@ def ccxyz(λ: np.ndarray | float, e: np.ndarray | float | None = None) -> np.nda
     else:
         e = smb.getvector(e)
         xyz = xyz / (e * np.ones((1, 3)))
-        xyz = np.sum(xyz)
+        xyz = np.sum(xyz)  # type: ignore[assignment]
         cc = xyz / (np.sum(xyz) * np.ones((1, 3)))
 
     return cc
@@ -713,7 +713,7 @@ def _loadrgbdict(fname: str) -> dict[str, np.ndarray]:
 
     # result is an ndarray of tuples
     # convert data to a dictionary
-    rgbdict = {}
+    rgbdict: dict[str, Any] = {}
     for *rgb, name in data:
         rgbdict[str(name).lower()] = [x / 255.0 for x in rgb]
 
@@ -909,7 +909,7 @@ def colorname(
         stacklevel=2,
     )
     if isinstance(arg, str):
-        return name2color(arg, colorspace)
+        return name2color(arg, colorspace)  # type: ignore[return-value]
     else:
         return color2name(arg, colorspace)
 
@@ -1231,7 +1231,7 @@ def plot_spectral_locus(
 
         # well-spaced points around the locus
         if lambda_ticks is None:
-            λ = np.arange(460, 550, 10)
+            λ = np.arange(460, 550, 10)  # type: ignore[assignment]
             λ = np.hstack((λ, np.arange(560, 620, 20)))
         else:
             λ = np.asarray(lambda_ticks)
@@ -1337,7 +1337,7 @@ def colorspace_convert(image: ArrayLike, src: str, dst: str) -> np.ndarray:
     else:
         # not an image, see if it's Nx3
         image = smb.getmatrix(image, (None, 3), dtype=np.float32)
-        image = image.reshape((-1, 1, 3))
+        image = image.reshape((-1, 1, 3))  # type: ignore[union-attr]
         converted = cv2.cvtColor(image, code=operation)
         if converted.shape[0] == 1:
             return converted.flatten().astype(np.float64)

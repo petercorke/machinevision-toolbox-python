@@ -21,7 +21,7 @@ from PIL.ExifTags import TAGS
 import cv2
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
-from matplotlib.colors import LinearSegmentedColormap
+from matplotlib.colors import Colormap, LinearSegmentedColormap
 import matplotlib.patheffects as path_effects
 import numpy as np
 import scipy as sp
@@ -31,6 +31,7 @@ from spatialmath.base import argcheck, getvector
 if TYPE_CHECKING:
     from machinevisiontoolbox._image_typing import _ImageBase
 
+from machinevisiontoolbox._image_typing import ImageMixinBase
 from machinevisiontoolbox.base import (
     colorname,
     float_image,
@@ -50,7 +51,7 @@ from machinevisiontoolbox.mvtb_types import Dtype
 # from numpy.lib.arraysetops import isin
 
 
-class ImageIOMixin(_ImageBase if TYPE_CHECKING else object):
+class ImageIOMixin(ImageMixinBase):
     # ======================= image i/io ================================== #
 
     @classmethod
@@ -126,7 +127,7 @@ class ImageIOMixin(_ImageBase if TYPE_CHECKING else object):
             if image_arr.ndim > 2:
                 colororder = "RGB" if rgb else "BGR"
             if alpha and image_arr.shape[2] == 4:
-                colororder += "A"
+                colororder = (colororder or "") + "A"
             return cls(
                 image_arr, name=name, colororder=colororder
             )  # OpenCV file read order)
@@ -308,7 +309,7 @@ class ImageIOMixin(_ImageBase if TYPE_CHECKING else object):
         self,
         fmt: str | None = None,
         ax: Any = None,
-        cmap: str = None,
+        cmap: str | Colormap | None = None,
         grid: int | None = 2,
         badcolor: str | None = None,
         **kwargs: Any,
@@ -404,6 +405,8 @@ class ImageIOMixin(_ImageBase if TYPE_CHECKING else object):
             plt.clf()
             ax = plt.gca()
 
+        if isinstance(cmap, str):
+            cmap = plt.get_cmap(cmap)
         if badcolor is not None:
             cmap.set_bad(color=badcolor)
         ax.imshow(image, cmap=cmap, zorder=1)

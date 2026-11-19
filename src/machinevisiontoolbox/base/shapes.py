@@ -55,27 +55,27 @@ def mkgrid(
         ``pose`` argument can be used to transform all the points.
 
     """
-    side = smb.getvector(side)
-    if len(side) == 1:
-        sx = side[0]
-        sy = side[0]
-    elif len(side) == 2:
-        sx = side[0]
-        sy = side[1]
+    sidev = smb.getvector(side)
+    if len(sidev) == 1:
+        sx = sidev[0]
+        sy = sidev[0]
+    elif len(sidev) == 2:
+        sx = sidev[0]
+        sy = sidev[1]
     else:
         raise ValueError("bad s")
 
-    n = smb.getvector(n)
-    if len(n) == 1:
-        nx = n[0]
-        ny = n[0]
-    elif len(n) == 2:
-        nx = n[0]
-        ny = n[1]
+    nv = smb.getvector(n)
+    if len(nv) == 1:
+        nx = nv[0]
+        ny = nv[0]
+    elif len(nv) == 2:
+        nx = nv[0]
+        ny = nv[1]
     else:
         raise ValueError("bad number of points")
 
-    if n[0] == 2:
+    if nv[0] == 2:
         # special case, we want the points in specific order
         P = (
             np.array(

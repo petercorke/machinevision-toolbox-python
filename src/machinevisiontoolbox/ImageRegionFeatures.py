@@ -11,8 +11,9 @@ from ansitable import ANSITable, Column
 from spatialmath import SE3
 from typing import TYPE_CHECKING, Any
 
+from machinevisiontoolbox._image_typing import ImageMixinBase
 from machinevisiontoolbox.decorators import array_result
-from machinevisiontoolbox.base import plot_labelbox
+from machinevisiontoolbox.base.graphics import plot_labelbox
 
 try:
     import pytesseract as _pytesseract
@@ -26,7 +27,7 @@ if TYPE_CHECKING:
     from machinevisiontoolbox._image_typing import _ImageBase
 
 
-class ImageRegionFeaturesMixin(_ImageBase if TYPE_CHECKING else object):
+class ImageRegionFeaturesMixin(ImageMixinBase):
     def MSER(self, **kwargs: Any) -> "MSERFeature":
         """
         Find MSER features in image
@@ -160,8 +161,10 @@ class MSERFeature:
         :seealso: :meth:`bbox` :meth:`points`
         """
 
+        self._points: list[np.ndarray] = []
+        self._bboxes: np.ndarray = np.zeros((0, 4), dtype=int)
         if image is not None:
-            detector = cv2.MSER_create(**kwargs)
+            detector = cv2.MSER.create(**kwargs)
             msers, bboxes = detector.detectRegions(image._A)
 
             # msers is a tuple of ndarray(M,2), each row is (u,v)
@@ -171,7 +174,7 @@ class MSERFeature:
             # https://www.toptal.com/machine-learning/real-time-object-detection-using-mser-in-ios
 
             self._points = [
-                mser.T for mser in msers
+                np.asarray(mser).T for mser in msers
             ]  # transpose point arrays to be Nx2
             # --- OpenCV 4/5 compat ---------------------------------------
             # When no regions are found, OpenCV 5's detectRegions() returns
@@ -187,10 +190,13 @@ class MSERFeature:
             # change. Logged as its own issue (#54), not something this
             # compat fix can address.
             # -----------------------------------------------------------------
-            if len(bboxes) == 0:
-                bboxes = np.zeros((0, 4), dtype=int)
-            bboxes[:, 2:] = bboxes[:, 0:2] + bboxes[:, 2:]  # convert to lrtb
-            self._bboxes = bboxes
+            lrtb = (
+                np.zeros((0, 4), dtype=int)
+                if len(bboxes) == 0
+                else np.array(bboxes)
+            )
+            lrtb[:, 2:] = lrtb[:, 0:2] + lrtb[:, 2:]  # convert to lrtb
+            self._bboxes = lrtb
 
     def __len__(self) -> int:
         """
@@ -240,7 +246,7 @@ class MSERFeature:
         new = self.__class__()
 
         if isinstance(i, int):
-            new._points = self._points[i]
+            new._points = self._points[i]  # type: ignore[assignment]
             new._bboxes = self._bboxes[np.newaxis, i, :]  # result is 2D
         elif isinstance(i, slice):
             new._points = self._points[i]

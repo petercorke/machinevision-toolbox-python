@@ -11,14 +11,20 @@ import matplotlib.pyplot as plt
 import numpy as np
 import spatialmath.base as smbase
 from spatialmath import SE3
+from spatialmath.base import Animate
 
 from machinevisiontoolbox import CentralCamera
-from machinevisiontoolbox.base import mkgrid
+from machinevisiontoolbox.base.shapes import mkgrid
 
 
 class VisualServo(ABC):
     class _history:
-        pass
+        # a bag of per-step quantities, which differ between the subclasses
+        def __getattr__(self, name: str) -> Any:
+            raise AttributeError(name)
+
+        def __setattr__(self, name: str, value: Any) -> None:
+            object.__setattr__(self, name, value)
 
     def __init__(
         self,
@@ -77,7 +83,7 @@ class VisualServo(ABC):
         """
 
         self.camera = camera
-        self.history = []
+        self.history: list[Any] = []
 
         self.niter = niter
 
@@ -89,12 +95,12 @@ class VisualServo(ABC):
 
         self.pose_0 = pose_0
 
-        self.P = P
+        self.P: Any = P
         if P is not None:
             self.npoints = P.shape[1]
         if p_d is None:
-            p_d = camera.project_point(P, pose=pose_d)
-        self.p_star = p_d
+            p_d = camera.project_point(P, pose=pose_d)  # type: ignore[arg-type]
+        self.p_star: Any = p_d
 
         # self.ax = smbase.plotvol3(plotvol)
         self.movie = movie
@@ -126,7 +132,12 @@ class VisualServo(ABC):
             self.ax_3dview.set_facecolor("#f0f0f0")
 
             if title is not None:
-                self.fig.canvas.manager.set_window_title(title)
+                if self.fig.canvas.manager is not None:
+                    self.fig.canvas.manager.set_window_title(title)
+
+    def step(self, t: float) -> int:
+        """Compute one timestep of the simulation, implemented by subclasses."""
+        raise NotImplementedError
 
     def init(self) -> None:
         """
@@ -264,7 +275,7 @@ class VisualServo(ABC):
             )
 
         if isinstance(self, PBVS):
-            p = self.camera.project_point(self.P, pose=self.pose_d.inv())
+            p = self.camera.project_point(self.P, pose=self.pose_d.inv())  # type: ignore[union-attr]
             smbase.plot_polygon(
                 p,
                 "k*:",
@@ -399,7 +410,7 @@ class VisualServo(ABC):
         """
 
         if len(self.history) == 0:
-            return
+            return None
 
         e = np.array([h.e for h in self.history])
         if self.type == "point":
@@ -407,9 +418,9 @@ class VisualServo(ABC):
             plt.plot(e[:, 1::2], "b")
             plt.ylabel("Feature error (pixel)")
 
-            plt.legend("u", "v")
+            plt.legend(["u", "v"])
         else:
-            plot(e)
+            plt.plot(e)
             plt.ylabel("Feature error")
 
         plt.grid(True)
@@ -435,13 +446,13 @@ class VisualServo(ABC):
         self.plot_vel()
 
         plt.figure()
-        self.plotpose()
+        self.plot_pose()
 
         plt.figure()
         self.plot_error()
 
         # optional plots depending on what history was recorded
-        if hasattr(history[0], "Z_est"):
+        if hasattr(self.history[0], "Z_est"):
             plt.figure()
             self.plot_z()
 
@@ -472,11 +483,12 @@ class VisualServo(ABC):
         return self.camera.plot_point(*args, **kwargs)
 
     def plot(self, *args: Any, **kwargs: Any) -> Any:
-        return self.camera.plot(*args, ax=self.ax_3dview, **kwargs)
+        kwargs.setdefault("ax", self.ax_3dview)
+        return self.camera.plot(*args, **kwargs)
 
     def clear_3dview(self) -> None:
         for child in self.ax_3dview.get_children():  # ax.lines:
-            if __class__.__name__ == "Line3DCollection":
+            if child.__class__.__name__ == "Line3DCollection":
                 child.remove()
 
 
@@ -529,7 +541,7 @@ class PBVS(VisualServo):
         super().__init__(camera, type="point", title="PBVS simulation", **kwargs)
 
         self.eterm = eterm
-        self.lmbda = lmbda
+        self.lmbda: Any = lmbda
 
         if self.pose_d is None:
             self.pose_d = SE3(0, 0, 1)
@@ -562,7 +574,7 @@ class PBVS(VisualServo):
         Te_C_G = self.camera.estpose(self.P, uv, frame="camera")
 
         # estimate motion to desired relative pose
-        T_delta = Te_C_G * self.pose_d.inv()
+        T_delta = Te_C_G * self.pose_d.inv()  # type: ignore[union-attr]
 
         # update the camera pose
         Td = T_delta.interp1(self.lmbda)
@@ -682,8 +694,8 @@ class IBVS(VisualServo):
         # initialize the vservo variables
         super().init()
 
-        self.vel_prev = None
-        self.uv_prev = None
+        self.vel_prev: Any = None
+        self.uv_prev: Any = None
         self.e0 = None
 
     def step(self, t: float) -> int:
@@ -976,7 +988,6 @@ class IBVS_l(VisualServo):
         :seealso: :meth:`run` :meth:`VisualServo.run`
         """
         status = 0
-        Z_est = []
 
         # compute the lines
         f = self.getlines(self.camera.pose)
@@ -1071,6 +1082,8 @@ class IBVS_l(VisualServo):
         # % See also Hough.
 
         ax = camera._ax
+        if ax is None:
+            raise RuntimeError("image plane has not been initialised")
         x = np.r_[ax.get_xlim()]
         y = np.r_[ax.get_ylim()]
 
@@ -1230,7 +1243,6 @@ class IBVS_e(VisualServo):
         """
 
         status = 0
-        Z_est = []
 
         # compute feature vector
         f = np.r_[
@@ -1254,7 +1266,7 @@ class IBVS_e(VisualServo):
 
         if self.verbose:
             # print(f"{cond=}, {v=}")
-            self.pose.printline()
+            self.camera.pose.printline()
 
         # update the history variables
         hist = self._history()
@@ -1382,7 +1394,6 @@ class IBVS_sph(VisualServo):
         :seealso: :meth:`run` :meth:`VisualServo.run`
         """
         status = 0
-        Z_est = []
 
         # compute image plane error as a column
         p = self.camera.project_point(self.P)  # (phi, theta)
@@ -1400,7 +1411,7 @@ class IBVS_sph(VisualServo):
             P_C = self.camera.pose.inv() * self.P
             J = self.camera.visjac_p(p, P_C[2, :])
         else:
-            J = self.camera.visjac_p(pt, self.depth)
+            J = self.camera.visjac_p(p, self.depth)
 
         # compute the velocity of camera in camera frame
         try:
@@ -1581,14 +1592,14 @@ class IBVS_polar(VisualServo):
         # monkey patch the plot setup for the CentralCamera object
         import types
 
-        camera._init_imageplane = types.MethodType(self._init_imageplane, camera)
-        camera._project_point = camera.project_point
-        camera.project_point = types.MethodType(self._project_polar, camera)
+        camera._init_imageplane = types.MethodType(self._init_imageplane, camera)  # type: ignore[method-assign]
+        camera._project_point = camera.project_point  # type: ignore[attr-defined]
+        camera.project_point = types.MethodType(self._project_polar, camera)  # type: ignore[method-assign]
 
         # invoke superclass constructor
         super().__init__(camera, type="point", **kwargs)
 
-        self.lmbda = lmbda
+        self.lmbda: Any = lmbda
         self.eterm = eterm
         self.depth = depth
 
@@ -1647,7 +1658,6 @@ class IBVS_polar(VisualServo):
 
     def step(self, t: float) -> int:
         status = 0
-        Zest = []
 
         hist = self._history()
 

@@ -10,7 +10,7 @@ import urllib
 import xml.etree.ElementTree as ET
 from collections.abc import Iterable
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Sequence
+from typing import TYPE_CHECKING, Any, Sequence, cast
 
 if TYPE_CHECKING:
     from typing import Self
@@ -23,7 +23,9 @@ from spatialmath import base as smb
 from spatialmath.base import islistof, isscalar
 
 # from numpy.lib.arraysetops import isin
-from machinevisiontoolbox.base import DTYPE_ALIASES, float_image, int_image, name2color
+from machinevisiontoolbox._image_typing import ImageMixinBase
+from machinevisiontoolbox.base.color import name2color
+from machinevisiontoolbox.base.types import DTYPE_ALIASES
 from machinevisiontoolbox.base.imageio import convert, idisp, iread, iwrite
 from machinevisiontoolbox.Kernel import Kernel
 from machinevisiontoolbox.mvtb_types import Dtype
@@ -127,7 +129,7 @@ def _pattern_image(cls, image: np.ndarray, colororder: str | None):
     return cls(image, colororder=colororder, dtype=True)
 
 
-class ImageConstantsMixin(_ImageBase if TYPE_CHECKING else object):
+class ImageConstantsMixin(ImageMixinBase):
     # ======================= patterns ================================== #
 
     @classmethod
@@ -505,13 +507,14 @@ class ImageConstantsMixin(_ImageBase if TYPE_CHECKING else object):
         shape = _getshape(cls, None, None, colororder, size)
         dtype = np.dtype(dtype)
 
+        im: np.ndarray
         if pdf is None:
             if np.issubdtype(dtype, np.integer):
                 if maxval is None:
                     maxval = np.iinfo(dtype).max
                 else:
                     maxval = int(maxval)
-                im = np.random.randint(0, maxval, size=shape, dtype=dtype)
+                im = np.random.randint(0, maxval, size=shape, dtype=cast(Any, dtype))
             elif np.issubdtype(dtype, np.floating):
                 if maxval is None:
                     maxval = 1.0
@@ -995,6 +998,7 @@ class ImageConstantsMixin(_ImageBase if TYPE_CHECKING else object):
         )
         dtype = np.dtype(dtype)
 
+        maxval: float
         if np.issubdtype(dtype, np.integer):
             maxval = np.iinfo(dtype).max
         else:
@@ -1102,9 +1106,9 @@ class ImageConstantsMixin(_ImageBase if TYPE_CHECKING else object):
         height, width = shape[:2]
 
         if isinstance(color, Iterable):
-            if len(color) != len(polygons):
+            colors = list(color)
+            if len(colors) != len(polygons):
                 raise ValueError("fill must have same length as number of polygons")
-            colors = color
         else:
             colors = [color] * len(polygons)
 
