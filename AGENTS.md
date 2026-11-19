@@ -28,3 +28,21 @@ Part of the RVC ecosystem. **Read [rvc-ecosystem/AGENTS.md](https://github.com/p
 - Codacy is wired in (badge + automated PR comments); grade A is the aspiration. Real backlog
   exists, tracked via `tech-debt`-labelled issues (including a "mypy not in CI" entry) — see
   ecosystem `AGENTS.md` §5 for how that target is framed.
+
+## If you are an AI assistant preparing a contribution
+
+- **Check for existing work before you write code.** Several agents often work on the same
+  open Issue at once. Search first: `gh pr list --state open --search "#<issue>"`, and check
+  the Issue's linked pull requests and assignee. If a PR exists or the Issue is assigned to
+  someone else, comment on it rather than opening a competing PR, and comment on the Issue to
+  claim it before you start.
+- **Say so in the PR.** If an AI assistant wrote or substantially helped with the change,
+  state that, and which tool, in the PR description. You, the human, remain responsible and
+  should have read the diff.
+- **Sign the commits.** An AI-assisted commit ends with a `Co-Authored-By:` trailer naming
+  the tool and model, and the PR description ends with the tool's attribution line. The
+  repository squash-merges, so the PR description is what survives; keep the disclosure there
+  too.
+- Branch names are `type/short-description` (`fix/`, `feat/`, `docs/`, `chore/`, `refactor/`,
+  `test/`). The required checks are `All tests passed` and the PR title.
+- Keep the PR to the one Issue or fix, and say what you ran and what you could not run.
