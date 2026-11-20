@@ -1,4 +1,11 @@
 # isort: skip_file
+# before anything uses cv2: a clear error for OpenCV contrib modules that are not installed
+import cv2 as _cv2
+from machinevisiontoolbox import _cv2_contrib
+
+_cv2_contrib.install(_cv2)
+del _cv2
+
 # classes
 from machinevisiontoolbox.ImageCore import Image
 from machinevisiontoolbox.PointCloud import PointCloud

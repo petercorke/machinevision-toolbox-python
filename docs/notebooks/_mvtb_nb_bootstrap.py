@@ -1,64 +1,143 @@
-"""Environment bootstrap for machinevision-toolbox-python's Jupyter notebooks.
+"""Environment bootstrap for a toolbox's Jupyter notebooks: the canonical template.
 
-Installs the toolbox (and reports how) across the three environments a notebook in
-this folder might run in: a local Jupyter/VS Code install, Google Colab, and
-JupyterLite (Pyodide/WASM, in-browser).
+Installs the toolbox (and reports how) across the three environments a notebook
+might run in: a local Jupyter/VS Code install, Google Colab, and JupyterLite
+(Pyodide/WASM, in-browser).
 
-This file is the single source of truth for that logic. Every notebook's own
-bootstrap cell is a generated copy of this file's content, produced by
-sync_bootstrap.py -- see docs/notebooks/README.md for the full explanation.
+This is the reference copy for the big 3 (RTB, MVTB, bdsim).  A repo keeps its own
+copy as ``docs/notebooks/_<nickname>_nb_bootstrap.py``, changes only the constants
+under "Repo-specific" below, and uses ``sync_bootstrap.py`` to paste it into every
+notebook as a generated cell, because Colab fetches only the single .ipynb it is
+opened from and cannot see sibling files.  See ``notebooks.md`` section 3.
+
+Derived from RTB's ``_rtb_nb_bootstrap.py`` (2026-11-02, with the Colab backend-list fix, RTB#922), which is the one that has
+been tested in a real JupyterLite site and on Colab.  MVTB's differs, see
+petercorke/machinevision-toolbox-python#160; bdsim has no bootstrap yet.
 """
 
-import subprocess
+import subprocess  # nosec B404 - only to run pip, below
 import sys
-from pathlib import Path
+
+# --- Repo-specific: the only part a repo should change -----------------------------
+
+# the PyPI name of the toolbox, and the name it is imported under
+PACKAGE = "machinevision-toolbox-python"
+IMPORT_NAME = "machinevisiontoolbox"
+
+# Where the development version lives, for a notebook that needs more than the release on
+# PyPI has (see ``min_version``).  None if the repo has no such fallback.
+GIT_URL: str | None = "https://github.com/petercorke/machinevision-toolbox-python"
+
+# JupyterLite only: packages installed, with their dependencies, before the toolbox.
+# Everything the notebooks' plotting needs that Pyodide does not already have.
+JL_PACKAGES = [
+    "numpy",
+    "scipy",
+    "matplotlib",
+    "pillow",
+    "typing_extensions",
+    "opencv-python",
+    "ansitable",
+    "mvtb-data",
+    "tqdm",
+    "requests",
+    "ipywidgets",
+    "spatialmath-python",
+    "pgraph-python",
+]
+
+# JupyterLite only: packages installed with deps=False before everything else, for a
+# dependency whose normal resolution fails in Pyodide.  Empty now: spatialmath-python
+# <= 1.1.18 listed pre-commit, a dev tool, as a runtime dependency, which needs a
+# newer packaging than Pyodide's, and had to be listed here
+# (rai-opensource/spatialmath-python#250).  1.1.19 fixed it, so a repo that requires
+# spatialmath-python>=1.1.19 needs no entry.
+JL_NO_DEPS: list[str] = []
+
+# JupyterLite only: install the toolbox itself with deps=False, for a toolbox with a
+# dependency that Pyodide does not have (MVTB's opencv-contrib-python).  Everything it
+# needs must then be listed in JL_PACKAGES, since nothing is resolved for it.  Leave
+# False unless the toolbox cannot be installed with its dependencies.
+JL_PACKAGE_NO_DEPS = True
+
+# extras of the toolbox that need more than Pyodide has, installed in JupyterLite as
+# these packages instead of through the extra: extra name -> packages
+JL_EXTRAS: dict[str, list[str]] = {}
+
+# Colab only: packages installed with the toolbox.  Colab does not ship ipympl,
+# which the notebooks select with %matplotlib ipympl.
+COLAB_PACKAGES: list[str] = []
+
+# ---------------------------------------------------------------------------------
 
 
-async def ensure_installed() -> bool:
-    """Install machinevision-toolbox-python if needed, and report the environment.
+def _version_of(package: str, module) -> str:
+    """The installed version of the package: its metadata, else its ``__version__``."""
+    import importlib.metadata
 
+    try:
+        return importlib.metadata.version(package)
+    except importlib.metadata.PackageNotFoundError:
+        return str(getattr(module, "__version__", "unknown"))
+
+
+def _older(version: str, required: str) -> bool:
+    """True if ``version`` is older than ``required``; False if they cannot be compared."""
+    try:
+        from packaging.version import InvalidVersion, Version
+
+        return Version(version) < Version(required)
+    except (ImportError, InvalidVersion):
+        return False
+
+
+async def ensure_installed(
+    extras: tuple[str, ...] | list[str] = (),
+    packages: tuple[str, ...] | list[str] = (),
+    min_version: str | None = None,
+) -> bool:
+    """Install the toolbox if needed, and report the environment.
+
+    The arguments are set per notebook in its metadata (``<nickname>_bootstrap``) and
+    passed here by the generated cell.
+
+    :param extras: toolbox extras the notebook needs, for example ``["ik"]``
+    :param packages: other packages the notebook needs, for example ``["control"]`` or
+        another toolbox.  Installed in JupyterLite and on Colab; locally the cell only
+        says which are missing
+    :param min_version: the oldest version of the toolbox the notebook works with.  On
+        Colab, if the release on PyPI is older (a notebook that uses what the next
+        release will have) the cell installs the development version from ``GIT_URL``
+        instead and says so.  Locally it says what to run.  In JupyterLite there is no
+        check, since the site's wheel was built from the same commit as the notebook
     :returns: True if running on Google Colab, False otherwise.
     """
     if sys.platform == "emscripten":
-        import micropip
+        # In JupyterLite, piplite looks in this site's own package index first, so the
+        # toolbox it installs is the wheel that was built with the site.  micropip
+        # alone cannot see that index and would install the last release from PyPI.
+        # (There is no /pypi folder in the kernel to glob for a wheel.)  Outside
+        # JupyterLite, for example a test under Node, there is no piplite.
+        try:
+            import piplite
 
-        await micropip.install(
-            [
-                "opencv-python",
-                "ansitable",
-                "mvtb-data",
-                "tqdm",
-                "requests",
-                "ipywidgets",
-                # runtime dependencies of spatialmath-python and pgraph-python,
-                # listed here because those two are installed with deps=False below
-                "numpy",
-                "scipy",
-                "matplotlib",
-                "typing_extensions",
-            ]
-        )
-        # spatialmath-python <= 1.1.18 lists pre-commit (a dev tool) as a runtime
-        # dependency; its virtualenv requires packaging>=26.3, which conflicts with
-        # the packaging 24.2 built into Pyodide, so a normal resolve fails.
-        # pgraph-python depends on spatialmath-python, so it needs the same
-        # treatment.  Remove once a spatialmath release without that dependency is
-        # out (rai-opensource/spatialmath-python#250) and install both normally.
-        await micropip.install(
-            ["spatialmath-python", "pgraph-python"],
-            deps=False,
-        )
-        import cv2  # noqa: F401 - force cv2 into module registry before toolbox import
+            install = piplite.install
+        except ImportError:
+            import micropip
 
-        wheels = sorted(Path("/pypi").glob("machinevision_toolbox_python-*.whl"))
-        if wheels:
-            # Prefer the wheel bundled with this JupyterLite site. Relative,
-            # not absolute: a leading slash resolves against the origin, not
-            # this site's own base URL (a GitHub Pages project subpath).
-            await micropip.install(f"pypi/{wheels[-1].name}", deps=False)
-        else:
-            # Fall back to PyPI when running outside the published site layout.
-            await micropip.install("machinevision-toolbox-python", deps=False)
+            install = micropip.install
+
+        print(f"Installing {PACKAGE}, this takes a short time...", flush=True)
+        for name in JL_NO_DEPS:
+            await install(name, deps=False)
+        for name in JL_PACKAGES:
+            await install(name)
+        for extra in extras:
+            for name in JL_EXTRAS.get(extra, []):
+                await install(name)
+        for name in packages:
+            await install(name)
+        await install(PACKAGE, deps=not JL_PACKAGE_NO_DEPS)
         where, colab = "in browser", False
     else:
         try:
@@ -66,25 +145,93 @@ async def ensure_installed() -> bool:
         except ImportError:
             where, colab = "locally", False
         else:
-            print("Installing machinevision-toolbox-python...")
-            subprocess.run(
-                [
-                    sys.executable,
-                    "-m",
-                    "pip",
-                    "install",
-                    "-q",
-                    "machinevision-toolbox-python",
-                ],
+            print(f"Installing {PACKAGE}, this takes a short time...", flush=True)
+            requirement = PACKAGE
+            if extras:
+                requirement += "[" + ",".join(extras) + "]"
+            # sys.executable is this kernel, so pip installs into it and not into whatever
+            # "pip" is first on PATH.  extras and packages are the notebook's own metadata,
+            # as with "!pip install"; pip also reads its own PIP_* settings.
+            subprocess.run(  # nosec B603  # nosemgrep: python.lang.security.audit.dangerous-subprocess-use-audit.dangerous-subprocess-use-audit
+                [sys.executable, "-m", "pip", "install", "-q", requirement]
+                + list(packages)
+                + COLAB_PACKAGES,
                 check=True,
             )
+            # matplotlib renames the module://ipympl... backend to "widget", and looks
+            # it up in a list of backends that it builds once, from the installed
+            # packages, the first time it needs it.  Colab imported matplotlib before
+            # ipympl was installed, so %matplotlib ipympl is rejected ("... is not a
+            # valid value for backend") until the session restarts.  Make matplotlib
+            # build the list again.  Clearing the registry is what its own tests do,
+            # and it is needed: only resetting the flag registers the backends that
+            # were already there (matplotlib-inline's) twice, which is an error.
+            # _clear is private, hence the guards.
+            try:
+                from matplotlib.backends import backend_registry
+            except ImportError:
+                pass  # an older matplotlib has no registry to refresh
+            else:
+                clear = getattr(backend_registry, "_clear", None)
+                if clear is not None:
+                    clear()
+
+            # ipympl figures need Colab's custom widget manager, enabled before the
+            # first figure is created.
+            from google.colab import output
+
+            output.enable_custom_widget_manager()
             where, colab = "on Colab", True
 
-    import cv2
+    import importlib
 
-    import machinevisiontoolbox
+    module = importlib.import_module(IMPORT_NAME)
+    version = _version_of(PACKAGE, module)
 
-    version = getattr(machinevisiontoolbox, "__version__", "unknown")
-    opencv_version = getattr(cv2, "__version__", "unknown")
-    print(f"Running {where} using MVTB v{version} with OpenCV {opencv_version}")
+    if colab and min_version is not None and _older(version, min_version) and GIT_URL:
+        # The release on PyPI is older than this notebook needs.  The package is pure
+        # Python in the repos that use this, so installing from GitHub is quick.  Its
+        # dependencies are in already.  Reinstall even if the version number is the
+        # same, since the development version often has the number of the last release.
+        print(
+            f"{PACKAGE} {version} on PyPI is older than {min_version}, installing from GitHub..."
+        )
+        # This runs whatever is on GIT_URL's main branch: the point of the fallback, and a
+        # choice of trust.
+        subprocess.run(  # nosec B603  # nosemgrep: python.lang.security.audit.dangerous-subprocess-use-audit.dangerous-subprocess-use-audit
+            [
+                sys.executable,
+                "-m",
+                "pip",
+                "install",
+                "-q",
+                "--force-reinstall",
+                "--no-deps",
+                f"{PACKAGE} @ git+{GIT_URL}@main",
+            ],
+            check=True,
+        )
+        importlib.invalidate_caches()
+        version = _version_of(PACKAGE, module)
+        where += ", development version from GitHub"
+
+    if not colab and where == "locally":
+        import importlib.metadata
+
+        for name in packages:
+            try:
+                importlib.metadata.version(name)
+            except importlib.metadata.PackageNotFoundError:
+                print(f"This notebook needs {name}: pip install {name}")
+
+    if (
+        min_version is not None
+        and where in ("locally", "on Colab")
+        and _older(version, min_version)
+    ):
+        print(
+            f"This notebook needs {PACKAGE} {min_version} or later: pip install -U {PACKAGE}"
+        )
+
+    print(f"Running {where} using {PACKAGE} v{version}")
     return colab

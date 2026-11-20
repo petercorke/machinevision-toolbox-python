@@ -3,7 +3,7 @@
 
 Opens a notebook in a fresh browser context, waits for the Pyodide kernel, runs the
 notebook's bootstrap cell (the first code cell) and requires its status line
-``Running in browser using MVTB v...`` to appear.  Also fails if JupyterLab itself
+``Running in browser using machinevision-toolbox-python v...`` to appear.  Also fails if JupyterLab itself
 could not start (``Plugin '...' failed to activate`` console errors), which happens
 before any kernel exists and which the Node/Pyodide install check cannot see.
 
@@ -26,7 +26,7 @@ from playwright.sync_api import Error as PlaywrightError
 from playwright.sync_api import TimeoutError as PlaywrightTimeout
 from playwright.sync_api import sync_playwright
 
-SUCCESS_TEXT = "Running in browser using MVTB"
+SUCCESS_TEXT = "Running in browser using machinevision-toolbox-python"
 APP_FAILURE_MARKERS = ("failed to activate", "No setting registry")
 
 

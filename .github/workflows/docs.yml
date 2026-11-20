@@ -40,10 +40,12 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Check notebook bootstrap cells and outputs are in sync
+      # the hooks of .pre-commit-config.yaml, from rvc-ecosystem: notebook outputs are
+      # cleared, the generated bootstrap cell is current, the first cell is well formed
+      - name: Check the notebooks
         run: |
-          python docs/notebooks/sync_bootstrap.py --check
-          python docs/notebooks/clear_outputs.py --check
+          python -m pip install pre-commit
+          pre-commit run --all-files --show-diff-on-failure
 
       - name: Install system dependencies
         run: sudo apt-get install -y graphviz
@@ -139,27 +141,22 @@ jobs:
           PY
 
       - name: Build JupyterLite site
-        # jupyterlite-pyodide-kernel is pinned deliberately -- NOT for wasm-ABI
-        # matching (MVTB is pure Python, unlike RTB's compiled-extension pin of
-        # the same version, for a different reason). Newer kernel releases bundle
-        # Pyodide >=0.27.7, which turned WebAssembly JSPI ("stack switching") on
-        # by default for run_until_complete(). Browsers without JSPI support
-        # (Safari has none as of 2026-08; Firefox only behind a flag) either
-        # crash the kernel outright or, with the enableRunUntilComplete: false
-        # workaround, turn run_until_complete into a fire-and-forget no-op --
-        # letting a cell's package/import machinery run before an install has
-        # actually finished landing (confirmed live on bdsim: intermittent
-        # ModuleNotFoundError despite a successful-looking install cell).
-        # jupyterlite-pyodide-kernel==0.6.1 bundles Pyodide 0.27.6, genuinely
-        # predating this whole mechanism -- matches RTB's and bdsim's existing
-        # pins. Installing jupyterlite-core directly rather than the jupyterlite
-        # metapackage: the metapackage requires jupyterlite-core>=0.8.1, which
-        # conflicts with this pin's jupyterlite-core<0.7.0 requirement.
-        # Once Safari (and Firefox out-of-flag) ship JSPI, revisit this pin --
-        # and docs/lite/wasm_check/package.json's matching pyodide npm pin.
+        # jupyterlite-pyodide-kernel is a floor, not an exact pin.  It was pinned to
+        # 0.6.1 (Pyodide 0.27.6) while Safari had no WebAssembly JSPI ("stack
+        # switching"), which newer Pyodide's run_until_complete() needs.  Safari 27
+        # ships JSPI, and the old Pyodide then misbehaved there (the kernel never
+        # finished starting).  A browser with no JSPI (Safari before 27; Firefox
+        # before 153) is now told so by a banner, added below, not supported by a pin.
+        # Installing jupyterlite-core directly rather than the jupyterlite metapackage.
+        # Keep docs/lite/wasm_check/package.json's pyodide in step with the Pyodide
+        # that the kernel bundles (0.8.7 bundles 314.0.6).
         run: |
-          pip install jupyterlite-core "jupyterlite-pyodide-kernel==0.6.1" jupyter-server
+          pip install jupyterlite-core "jupyterlite-pyodide-kernel>=0.8.7" jupyter-server
           cd docs/lite && jupyter lite build --output-dir ../build/html/lite
+
+      - name: Add the browser capability check to JupyterLite
+        # a banner, before the kernel starts, if the browser has no WebAssembly JSPI
+        run: python docs/lite/inject_jspi_check.py docs/build/html/lite
 
       # Real browsers, pre-deploy: gates publishing, so skipped for pull_request
       # (which only builds).  The Node/Pyodide check above covers dependency

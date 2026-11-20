@@ -54,15 +54,17 @@ sys.path.insert(0, "/")
 import micropip
 import _mvtb_nb_bootstrap as bootstrap
 
-# Test-only scaffolding: redirect the one HTTP/relative-URL install call to
-# the wheel already mounted in Pyodide's own virtual filesystem, so this
-# check doesn't need to fake a browser Web Worker's base URL (see this
-# file's module docstring for why that's out of scope here). Everything
-# else -- the seed-package installs, which is what this check actually
-# exists to catch drift in -- runs completely unmodified.
+# Test-only scaffolding: in JupyterLite the bootstrap installs the toolbox with
+# piplite, which finds the wheel built with the site.  Node has no piplite, so the
+# bootstrap falls back to micropip, which would install the last release from PyPI.
+# Redirect that one install to the wheel already mounted in Pyodide's own virtual
+# filesystem, so the check tests the wheel just built and doesn't need to fake a
+# browser Web Worker's base URL (see this file's module docstring for why that's out
+# of scope here). Everything else -- the seed-package installs, which is what this
+# check actually exists to catch drift in -- runs completely unmodified.
 _real_install = micropip.install
 async def _redirect_wheel_install(requirements, **kwargs):
-    if isinstance(requirements, str) and requirements.startswith("pypi/"):
+    if requirements == bootstrap.PACKAGE:
         requirements = "emfs:/${wheelName}"
     return await _real_install(requirements, **kwargs)
 micropip.install = _redirect_wheel_install

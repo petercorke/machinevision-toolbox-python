@@ -41,7 +41,7 @@ dependencies = [
     "pillow",
     "opencv-python>=4.5,<6.0.0",
     "opencv-contrib-python>=4.5,<6.0.0",
-    "spatialmath-python",
+    "spatialmath-python>=1.1.19",
     "pgraph-python>=0.6.4",
     "ansitable",
     "mvtb-data",
