@@ -381,7 +381,7 @@ class TestIdisp(unittest.TestCase):
             idisp(im, matplotlib=False, reuse=True)
             idisp(im, matplotlib=False, reuse=True)
         finally:
-            cv_destroy_window("idisp", block=False)
+            cv_destroy_window("Machine Vision Toolbox for Python", block=False)
 
     def test_idisp_float_image(self):
         """Test idisp with float image"""

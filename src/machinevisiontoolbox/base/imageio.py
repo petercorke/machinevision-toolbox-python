@@ -41,6 +41,9 @@ from spatialmath.base import set_window_title as _set_window_title
 __last_windowname: str | None = None
 __last_window_number: int = 0
 
+# window title used when the caller supplies none (both display backends)
+DEFAULT_WINDOW_TITLE = "Machine Vision Toolbox for Python"
+
 
 def _pick_imagefile() -> Path:
     """
@@ -259,7 +262,8 @@ def idisp(
     :param overcolor: name of color to display when value is less than colormap maximum
     :type overcolor: str, optional
 
-    :param title: title of figure in figure window
+    :param title: title of the figure window (Matplotlib) or the window name (OpenCV),
+        defaults to "Machine Vision Toolbox for Python" for both backends
     :type title: str, optional
     :param grid: display grid lines over image, default False
     :type gui: bool, optional
@@ -560,7 +564,7 @@ def _idisp_matplotlib(
     #     # else just plot the regular image - only one channel
 
     if title is None:
-        title = "Machine Vision Toolbox for Python"
+        title = DEFAULT_WINDOW_TITLE
 
     if len(plt.get_fignums()) == 0:
         # there are no figures, create one
@@ -985,13 +989,15 @@ def _idisp_opencv(
     global __last_window_number
 
     if title is None:
-        if reuse:
-            # fixed name (no counter) so repeated calls in an
-            # animation loop share the same window
-            title = "idisp"
+        if reuse or __last_window_number == 0:
+            # the same default as the Matplotlib backend; with reuse repeated
+            # calls in an animation loop share the one window
+            title = DEFAULT_WINDOW_TITLE
         else:
-            # create a unique window name for each call
-            title = "idisp." + str(__last_window_number)
+            # HighGUI identifies a window by its name, so later windows need
+            # a distinct name
+            title = f"{DEFAULT_WINDOW_TITLE} ({__last_window_number + 1})"
+        if not reuse:
             __last_window_number += 1
 
     # At this point title is guaranteed to be a string
