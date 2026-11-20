@@ -9,7 +9,8 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
-from machinevisiontoolbox import Image, set_window_title
+from machinevisiontoolbox import Image
+from spatialmath.base import set_window_title
 
 parser = argparse.ArgumentParser(
     description="Demonstration of morphological operations."
@@ -80,7 +81,7 @@ result = Image.Constant(np.nan, size=img.size, dtype="float")
 
 # create two adjacent subplots, and display the input image on the left
 fig, (input, output) = plt.subplots(1, 2, figsize=(10, 5))
-set_window_title("Morphological operation demonstration")
+set_window_title(fig, "Morphological operation demonstration")
 
 img.showpixels(ax=input)  # display the input image and get a window annotator
 window = img.showwindow(

@@ -128,7 +128,6 @@ from machinevisiontoolbox.base.imageio import (
     iwrite,
     convert,
     cv_destroy_window,
-    set_window_title,
     pickpoints,
 )
 

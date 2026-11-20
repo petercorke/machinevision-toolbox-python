@@ -21,7 +21,7 @@ from matplotlib.figure import Figure
 # from mpl_toolkits.mplot3d import Axes3D, art3d
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from spatialmath import SE3, Line3
-from spatialmath.base import isnotebook
+from spatialmath.base import isnotebook, set_window_title
 
 from machinevisiontoolbox import Image
 from machinevisiontoolbox.base.imageio import idisp, safe_plt_show
@@ -812,13 +812,8 @@ class CameraBase(ABC):
             ax.set_title(self.name)
             ax.set_facecolor("lightyellow")
 
-            try:
-                ax.figure.canvas.manager.set_window_title(  # type: ignore[union-attr]
-                    "Machine Vision Toolbox for Python"
-                )
-            except AttributeError:
-                # can happen during unit test without GUI
-                pass
+            # does nothing on a backend with no window, as in a unit test
+            set_window_title(ax.figure, "Machine Vision Toolbox for Python")
 
         # TODO figure out axes ticks, etc
         return ax  # likely this return is not necessary

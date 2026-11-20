@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import spatialmath.base as smbase
 from spatialmath import SE3
-from spatialmath.base import Animate
+from spatialmath.base import Animate, set_window_title
 
 from machinevisiontoolbox import CentralCamera
 from machinevisiontoolbox.base.shapes import mkgrid
@@ -132,8 +132,7 @@ class VisualServo(ABC):
             self.ax_3dview.set_facecolor("#f0f0f0")
 
             if title is not None:
-                if self.fig.canvas.manager is not None:
-                    self.fig.canvas.manager.set_window_title(title)
+                set_window_title(self.fig, title)
 
     def step(self, t: float) -> int:
         """Compute one timestep of the simulation, implemented by subclasses."""
@@ -1795,10 +1794,7 @@ class IBVS_polar(VisualServo):
 
         ax.set_title(self.name)
         ax.set_facecolor("lightyellow")
-        try:
-            ax.figure.canvas.set_window_title("Machine Vision Toolbox for Python")
-        except AttributeError:
-            pass
+        set_window_title(ax.figure, "Machine Vision Toolbox for Python")
 
         # TODO figure out axes ticks, etc
         return ax  # likely this return is not necessary

@@ -36,6 +36,7 @@ except ImportError:
 # import pyautogui  # requires pip install pyautogui
 
 from spatialmath.base import islistof
+from spatialmath.base import set_window_title as _set_window_title
 
 __last_windowname: str | None = None
 __last_window_number: int = 0
@@ -579,7 +580,7 @@ def _idisp_matplotlib(
                     c.set_data(im)
                     updated = True
             if updated:
-                set_window_title(title)
+                _set_window_title(ax.figure, title)
 
                 if fps is not None:
                     # print("pausing", 1.0 / fps)
@@ -599,7 +600,7 @@ def _idisp_matplotlib(
     if fig is None:
         fig = ax.figure
 
-    set_window_title(title)
+    _set_window_title(fig, title)
     # aspect ratio:
     if not square:
         mpl.rcParams["image.aspect"] = "auto"
@@ -1027,14 +1028,6 @@ def _idisp_opencv(
 
     # TODO fig, ax equivalent for OpenCV? how to print/plot to the same
     # window/set of axes?
-
-
-def set_window_title(title: str) -> None:
-    try:
-        _plt().gcf().canvas.manager.set_window_title(title)  # for 3.4 onward
-    except (AttributeError, RuntimeError):
-        # Some noninteractive backends do not have a usable window manager.
-        pass
 
 
 def cv_destroy_window(title: str | None = None, block: bool = True) -> None:

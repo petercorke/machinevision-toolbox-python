@@ -10,6 +10,7 @@ histogram display onto any matplotlib figure that is showing an
 import faulthandler
 import matplotlib.pyplot as plt
 from matplotlib.patches import Circle, Rectangle
+from spatialmath.base import set_window_title
 import numpy as np
 
 # Enable C-level crash tracebacks (SIGSEGV, SIGBUS, etc.)
@@ -252,8 +253,7 @@ class ImageInteractor:
 
         arr = image.array
         pfig, pax = plt.subplots()
-        if pfig.canvas.manager is not None:
-            pfig.canvas.manager.set_window_title("Intensity profile")
+        set_window_title(pfig, "Intensity profile")
 
         if arr.ndim == 2:
             pax.plot(arr[vi, ui])
@@ -428,8 +428,7 @@ class ImageInteractor:
                 kwargs["type"] = "cdf"
             roi.hist().plot(**kwargs)
             fig = plt.gcf()
-            if fig.canvas.manager is not None:
-                fig.canvas.manager.set_window_title(title)
+            set_window_title(fig, title)
             fig.canvas.draw_idle()  # safe from event callbacks – just schedules NSTimer
             self._popup_figs.append(
                 fig
