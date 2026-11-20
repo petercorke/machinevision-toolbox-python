@@ -1249,7 +1249,8 @@ class Histogram:
         :type cursor: bool, optional
         :param alpha: transparency for overlay plot, defaults to 0.5
         :type alpha: float, optional
-        :param title: plot title, defaults to None
+        :param title: window title, defaults to "Image Histogram" (not applied when
+            ``ax`` is given)
         :type title: str, optional
         :param log: use logarithmic y-axis, defaults to False
         :type log: bool, optional
@@ -1360,6 +1361,9 @@ class Histogram:
 
         if type not in ("frequency", "pdf"):
             stats = False  # only show stats for frequency and pdf plot
+
+        if title is None and ax is None:
+            title = "Image Histogram"  # we create the figure, so we name it
 
         if ax is not None and self.nplanes > 1:
             # if an axis is provided, we must plot all planes on the same axis
