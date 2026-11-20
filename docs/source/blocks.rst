@@ -1,4 +1,4 @@
-.. image:: https://raw.githubusercontent.com/petercorke/bdsim/master/figs/BDSimLogo_NoBackgnd@2x.png
+.. image:: https://raw.githubusercontent.com/petercorke/bdsim/main/docs/figs/bdsim_logo.png
     :width: 400
 
 .. |bdsim| replace:: ``bdsim``
