@@ -3059,7 +3059,8 @@ class ROSBag(ImageSource):
     (``32FC1``, where NaN means no measurement) or, as a camera driver publishes it
     before conversion, ``uint16`` in millimetres (``16UC1``, where 0 means no
     measurement).  With ``depth_units="auto"`` an image in either form is returned as
-    ``float32`` metres, since the standard says what the unit is.
+    ``float32`` metres, since the standard says what the unit is, and an integer image
+    has its zeros replaced by NaN, so that "no measurement" means the same in both.
 
     By default a depth image is returned as recorded.  With ``depth_units`` it is
     returned as ``float32`` in metres, so that the value of a pixel does not depend on
@@ -3081,8 +3082,8 @@ class ROSBag(ImageSource):
     An image is taken to be a depth image if it has a footer scale, or if it is
     ``16UC1``, ``mono16`` or ``32FC1`` and its topic name contains ``depth``, in any
     case.  Other images are never converted.  A converted image has ``depth_units``
-    set to 1.0, since it is now in metres.  Pixels that are zero, the value for no
-    measurement, stay zero.
+    set to 1.0, since it is now in metres.  In a converted integer image, pixels that
+    are 0 become NaN.  A ``32FC1`` image already uses NaN, so only its scale changes.
 
     The extra bytes are interpreted as a depth scale only if the bag is recognised as
     coming from the RealSense SDK (it has a ``realsense_msgs`` connection) and they
@@ -3901,7 +3902,12 @@ class ROSBag(ImageSource):
                     )
                     if scale is not None:
                         # a depth image, returned in metres
-                        data = data.astype(np.float32) * np.float32(scale)
+                        metres = data.astype(np.float32) * np.float32(scale)
+                        if np.issubdtype(data.dtype, np.integer):
+                            # 0 means no measurement in an integer depth image, and NaN
+                            # does in a float one (REP 118), so convert that too
+                            metres[data == 0] = np.nan
+                        data = metres
                         depth_units = 1.0
 
                     # Reshape to (H, W, C) or (H, W)

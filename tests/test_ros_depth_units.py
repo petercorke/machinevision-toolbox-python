@@ -25,6 +25,13 @@ from create_ros_fixture import (
 from machinevisiontoolbox import ROSBag
 
 
+def metres(units: np.ndarray, scale: float) -> np.ndarray:
+    """Expected metres from integer pixels: scaled, with 0 (no measurement) as NaN."""
+    out = units.astype(np.float32) * np.float32(scale)
+    out[units == 0] = np.nan
+    return out
+
+
 def read(path, **kwargs):
     """Depth and color images of a bag, and the RuntimeWarnings issued."""
     with warnings.catch_warnings(record=True) as caught:
@@ -58,7 +65,7 @@ def test_auto_uses_the_footer_of_a_realsense_bag(tmp_path):
     for k, im in enumerate(depth):
         assert im.array.dtype == np.float32
         np.testing.assert_allclose(
-            im.array, realsense_depth_frame(k) * RS_DEPTH_UNITS, rtol=1e-6
+            im.array, metres(realsense_depth_frame(k), RS_DEPTH_UNITS), rtol=1e-6
         )
         assert im.depth_units == 1.0  # now in metres
     # the color stream is never touched
@@ -69,17 +76,20 @@ def test_auto_uses_the_footer_of_a_realsense_bag(tmp_path):
     assert not caught
 
 
-def test_zero_stays_zero(tmp_path):
+def test_zero_is_no_measurement_and_becomes_nan(tmp_path):
     make_realsense_bag(tmp_path / "rs.bag")
+    raw, _, _ = read(tmp_path / "rs.bag")
     depth, _, _ = read(tmp_path / "rs.bag", depth_units="auto")
-    assert depth[0].array[0, 0] == 0.0  # frame 0 starts at 0
+    assert raw[0].array[0, 0] == 0  # frame 0 starts with a pixel with no measurement
+    assert np.isnan(depth[0].array[0, 0])
+    assert np.isnan(depth[0].array).sum() == 1  # and only that one
 
 
 def test_a_number_overrides_the_footer(tmp_path):
     make_realsense_bag(tmp_path / "rs.bag")
     depth, _, _ = read(tmp_path / "rs.bag", depth_units=0.01)
     np.testing.assert_allclose(
-        depth[1].array, realsense_depth_frame(1) * 0.01, rtol=1e-6
+        depth[1].array, metres(realsense_depth_frame(1), 0.01), rtol=1e-6
     )
 
 
@@ -98,7 +108,9 @@ def test_mono16_without_a_footer_has_no_known_scale(tmp_path):
 def test_a_number_converts_mono16_without_a_footer(tmp_path):
     make_realsense_bag(tmp_path / "rs.bag", footer=False)
     depth, _, caught = read(tmp_path / "rs.bag", depth_units=0.001)
-    np.testing.assert_allclose(depth[2].array, realsense_depth_frame(2) * 0.001, rtol=1e-6)
+    np.testing.assert_allclose(
+        depth[2].array, metres(realsense_depth_frame(2), 0.001), rtol=1e-6
+    )
     assert not caught
 
 
@@ -107,11 +119,13 @@ def test_16uc1_is_in_millimetres_by_rep_118(tmp_path):
     depth, _, caught = read(tmp_path / "rs.bag", depth_units="auto")
     for k, im in enumerate(depth):
         assert im.array.dtype == np.float32
-        np.testing.assert_allclose(im.array, realsense_depth_frame(k) * 0.001, rtol=1e-6)
+        np.testing.assert_allclose(
+            im.array, metres(realsense_depth_frame(k), 0.001), rtol=1e-6
+        )
     assert not caught
 
 
-def test_32fc1_is_already_metres_and_a_number_is_a_gain(tmp_path):
+def test_32fc1_is_left_alone_apart_from_its_scale(tmp_path):
     make_realsense_bag(tmp_path / "rs.bag", footer=False, depth_encoding="32FC1")
     auto, _, _ = read(tmp_path / "rs.bag", depth_units="auto")
     gain, _, _ = read(tmp_path / "rs.bag", depth_units=2.0)
@@ -145,21 +159,22 @@ def _first_depth(name: str, **kwargs):
 
 def test_real_realsense_bag_in_metres():
     raw = _first_depth("20260430_125558.bag")
-    metres = _first_depth("20260430_125558.bag", depth_units="auto")
-    assert metres.array.dtype == np.float32
-    np.testing.assert_allclose(metres.array, raw.array * np.float32(0.001), rtol=1e-6)
+    converted = _first_depth("20260430_125558.bag", depth_units="auto")
+    assert converted.array.dtype == np.float32
+    np.testing.assert_allclose(converted.array, metres(raw.array, 0.001), rtol=1e-6)
+    assert np.isnan(converted.array).sum() == (raw.array == 0).sum()  # zero is NaN
 
 
 def test_real_ros_driver_bag_is_millimetres_by_rep_118():
     raw = _first_depth("2024-12-03-05-40-15.bag")  # 16UC1, no footer
-    metres = _first_depth("2024-12-03-05-40-15.bag", depth_units="auto")
-    np.testing.assert_allclose(metres.array, raw.array * np.float32(0.001), rtol=1e-6)
+    converted = _first_depth("2024-12-03-05-40-15.bag", depth_units="auto")
+    np.testing.assert_allclose(converted.array, metres(raw.array, 0.001), rtol=1e-6)
 
 
 def test_real_tum_bag_is_already_metres():
-    raw = _first_depth("rgbd_dataset_freiburg1_desk2.bag")  # 32FC1
-    metres = _first_depth("rgbd_dataset_freiburg1_desk2.bag", depth_units="auto")
-    np.testing.assert_array_equal(metres.array, raw.array)  # NaN where equal
+    raw = _first_depth("rgbd_dataset_freiburg1_desk2.bag")  # 32FC1, NaN already
+    converted = _first_depth("rgbd_dataset_freiburg1_desk2.bag", depth_units="auto")
+    np.testing.assert_array_equal(converted.array, raw.array)  # NaN where equal
 
 
 def test_real_intel_sample_bag_scale_is_not_guessed():
