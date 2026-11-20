@@ -26,8 +26,10 @@ def test_using_a_stand_in_says_why():
     contrib.install(cv2)
     with pytest.raises(contrib.ContribNotAvailableError) as info:
         cv2.ximgproc.segmentation.createGraphSegmentation()
-    assert "opencv-contrib-python" in str(info.value)
-    assert "ximgproc" in str(info.value)
+    message = str(info.value)
+    assert "ximgproc" in message and "not installed" in message
+    assert "pip install opencv-contrib-python" in message
+    assert "JupyterLite" in message
 
 
 def test_the_error_is_an_attribute_error_so_hasattr_still_works():

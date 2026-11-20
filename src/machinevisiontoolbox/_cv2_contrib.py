@@ -61,9 +61,11 @@ class _MissingContrib(types.ModuleType):
         if name.startswith("__") and name.endswith("__"):
             raise AttributeError(name)  # not a use of the module: copy, pickle, ...
         raise ContribNotAvailableError(
-            f"cv2.{self.__name__}.{name} is not available: {self.__name__} is one of "
-            "OpenCV's contrib modules, which need opencv-contrib-python.  It is not "
-            "installed here; JupyterLite, for one, has only plain OpenCV."
+            f"cv2.{self.__name__}.{name} is not available: OpenCV's contrib modules "
+            f"are not installed, and {self.__name__} is one of them.  On a desktop, "
+            "install them with:  pip install opencv-contrib-python.  They cannot be "
+            "installed in JupyterLite, which has only plain OpenCV, so this feature "
+            "is not available there."
         )
 
 
