@@ -2,7 +2,7 @@
 
 Opens the JupyterLite site in real browsers (Playwright: Chromium and WebKit, the
 engine behind Safari), waits for the Pyodide kernel, runs `intro.ipynb`'s bootstrap
-cell, and requires its `Running in browser using MVTB v...` line.  It also fails if
+cell, and requires its `Running in browser using machinevision-toolbox-python v...` line.  It also fails if
 JupyterLab itself does not start (`Plugin '...' failed to activate`), which happens
 before any kernel exists.
 

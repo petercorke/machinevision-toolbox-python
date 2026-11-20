@@ -40,10 +40,12 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Check notebook bootstrap cells and outputs are in sync
+      # the hooks of .pre-commit-config.yaml, from rvc-ecosystem: notebook outputs are
+      # cleared, the generated bootstrap cell is current, the first cell is well formed
+      - name: Check the notebooks
         run: |
-          python docs/notebooks/sync_bootstrap.py --check
-          python docs/notebooks/clear_outputs.py --check
+          python -m pip install pre-commit
+          pre-commit run --all-files --show-diff-on-failure
 
       - name: Install system dependencies
         run: sudo apt-get install -y graphviz
