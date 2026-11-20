@@ -1704,6 +1704,7 @@ class FeatureMatch:
         ax: Any = None,
         width: Any = None,
         block: bool = False,
+        title: str | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -1715,6 +1716,9 @@ class FeatureMatch:
         :type width: float, optional
         :param block: Matplotlib figure blocks until window closed, defaults to False
         :type block: bool, optional
+        :param title: window title, passed to :meth:`Image.disp`, defaults to
+            "Machine Vision Toolbox for Python"
+        :type title: str, optional
 
         Displays the original pair of images side by side, as greyscale images,
         and overlays the matches.
@@ -1728,7 +1732,7 @@ class FeatureMatch:
 
         combo, u = im1.__class__.Hstack((im1.mono(), im2.mono()), return_offsets=True)
         if ax is None:
-            combo.disp(darken=darken, width=width, block=None)
+            combo.disp(darken=darken, width=width, block=None, title=title)
         else:
             plt.sca(ax)
 

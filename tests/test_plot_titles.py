@@ -144,3 +144,45 @@ def test_pointcloud_disp_passes_title_to_open3d(block, monkeypatch):
     pc.disp(block=block)
     pc.disp(block=block, title="mine")
     assert names == ["Point Cloud", "mine"]
+
+
+def test_hough_accumulator_titles():
+    import numpy as np
+
+    from machinevisiontoolbox import Image
+
+    a = np.zeros((40, 40), dtype="uint8")
+    a[10:30, 20] = 255
+    im = Image(a)
+    h = im.Hough()
+    h.plot_accumulator()
+    assert window_title() == "Hough Accumulator"
+    h.plot_accumulator(title="mine")
+    assert window_title() == "mine"
+    # an existing axes is drawn into, and its window left alone
+    fig, ax = plt.subplots()
+    h.plot_accumulator(ax=ax)
+    assert ax.get_xlabel() != ""
+    assert window_title(fig) != "Hough Accumulator"
+
+
+def test_thin_animate_default_title():
+    import numpy as np
+
+    from machinevisiontoolbox import Image
+
+    a = np.zeros((20, 20), dtype="uint8")
+    a[5:15, 5:15] = 1
+    im = Image(a)
+    im.thin_animate(delay=0)
+    assert window_title() == "Animation of Morphological Skeletonization"
+
+
+def test_feature_match_plot_passes_title():
+    from machinevisiontoolbox import Image
+
+    im = Image.Read("eiffel-1.png")
+    sf = im.SIFT()
+    matches = sf.match(sf)
+    matches.plot(title="mine")
+    assert window_title() == "mine"

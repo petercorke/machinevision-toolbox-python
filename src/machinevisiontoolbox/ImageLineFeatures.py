@@ -11,9 +11,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipy as sp
 from spatialmath import base
+from spatialmath.base import set_window_title
 from machinevisiontoolbox._image_typing import ImageMixinBase
 
 if TYPE_CHECKING:
+    from matplotlib.axes import Axes
+
     from machinevisiontoolbox._image_typing import _ImageBase
 
 
@@ -254,10 +257,17 @@ class HoughFeature:
         self.A = np.histogram2d(theta, rho, bins=(theta_bins, rho_bins))[0].T
         self.votes = votes
 
-    def plot_accumulator(self, **kwargs: Any) -> None:
+    def plot_accumulator(
+        self, ax: Axes | None = None, title: str | None = None, **kwargs: Any
+    ) -> None:
         r"""
         Plot the Hough accumulator array
 
+        :param ax: Matplotlib axes to plot into, defaults to a new figure
+        :type ax: matplotlib.axes.Axes, optional
+        :param title: window title, defaults to "Hough Accumulator" (not applied
+            when ``ax`` is given, unless a title is passed explicitly)
+        :type title: str, optional
         :param kwargs: options passed to :func:`~matplotlib.pyplot.imshow`
 
         The Hough accumulator is computed, if not already existing, and the displayed
@@ -270,7 +280,14 @@ class HoughFeature:
             self.accumulator()
         assert self.A is not None and self.extent is not None
 
-        plt.imshow(
+        if ax is None:
+            _, ax = plt.subplots()
+            if title is None:
+                title = "Hough Accumulator"
+        if title is not None:
+            set_window_title(ax.figure, title)
+
+        ax.imshow(
             self.A,
             aspect="auto",
             interpolation="nearest",
@@ -279,10 +296,10 @@ class HoughFeature:
             **kwargs,
         )
 
-        plt.xlabel(r"$\theta$ (radians)")
-        plt.xlim(0, np.pi)
-        plt.ylabel(r"$\rho$ (pixels)")
-        plt.grid(True)
+        ax.set_xlabel(r"$\theta$ (radians)")
+        ax.set_xlim(0, np.pi)
+        ax.set_ylabel(r"$\rho$ (pixels)")
+        ax.grid(True)
 
 
 if __name__ == "__main__":
