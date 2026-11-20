@@ -98,3 +98,49 @@ def test_stdisp_titles():
     right._name = "/some/dir/right.png"
     left.stdisp(right, interactive=False)
     assert window_title() == "left.png / right.png"
+
+
+def test_chromaticity_titles():
+    from machinevisiontoolbox import plot_chromaticity_diagram, plot_spectral_locus
+
+    plot_chromaticity_diagram(N=20, block=None)
+    assert window_title() == "Chromaticity Diagram"
+    # drawing the locus onto the diagram leaves the window title alone
+    plot_spectral_locus(ax=plt.gca())
+    assert window_title() == "Chromaticity Diagram"
+
+    plt.figure()
+    plot_spectral_locus()
+    assert window_title() == "Spectral Locus"
+    plt.figure()
+    plot_spectral_locus(title="mine")
+    assert window_title() == "mine"
+
+
+@pytest.mark.parametrize("block", [True, False])
+def test_pointcloud_disp_passes_title_to_open3d(block, monkeypatch):
+    import numpy as np
+    import open3d as o3d
+
+    from machinevisiontoolbox import PointCloud
+
+    names = []
+    monkeypatch.setattr(
+        o3d.visualization,
+        "draw_geometries",
+        lambda geoms, window_name="Open3D", **kw: names.append(window_name),
+    )
+
+    class FakeVis:
+        def create_window(self, window_name="Open3D", **kw):
+            names.append(window_name)
+
+        def __getattr__(self, name):
+            return lambda *a, **kw: None
+
+    monkeypatch.setattr(o3d.visualization, "Visualizer", FakeVis)
+
+    pc = PointCloud(np.random.rand(3, 10))
+    pc.disp(block=block)
+    pc.disp(block=block, title="mine")
+    assert names == ["Point Cloud", "mine"]
