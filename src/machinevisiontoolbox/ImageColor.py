@@ -5,7 +5,7 @@ Color space conversions and color-plane operations for Image objects.
 from __future__ import annotations
 
 import sys
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import cv2
 import numpy as np
@@ -267,7 +267,9 @@ class ImageColorMixin(ImageMixinBase):
 
         if k is not None:
             # perform clustering
-            ret, label, centres = cv2.kmeans(  # type: ignore[call-overload]
+            # OpenCV's stubs for kmeans differ between releases, so call it untyped
+            kmeans: Any = cv2.kmeans
+            ret, label, centres = kmeans(
                 data=data,
                 K=k,
                 bestLabels=None,

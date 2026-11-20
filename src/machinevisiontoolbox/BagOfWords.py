@@ -117,7 +117,9 @@ class BagOfWords:
         if seed is not None:
             cv2.setRNGSeed(seed)
 
-        ret, labels, centroids = cv2.kmeans(  # type: ignore[call-overload]
+        # OpenCV's stubs for kmeans differ between releases, so call it untyped
+        kmeans: Any = cv2.kmeans
+        ret, labels, centroids = kmeans(
             data=features._descriptor,
             K=k,
             bestLabels=None,
