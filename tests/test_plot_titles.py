@@ -120,7 +120,8 @@ def test_chromaticity_titles():
 @pytest.mark.parametrize("block", [True, False])
 def test_pointcloud_disp_passes_title_to_open3d(block, monkeypatch):
     import numpy as np
-    import open3d as o3d
+
+    o3d = pytest.importorskip("open3d")
 
     from machinevisiontoolbox import PointCloud
 
