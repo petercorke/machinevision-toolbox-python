@@ -197,6 +197,15 @@ def _image_payload_end(raw: bytes, msgtype: str, cdr: bool = False) -> int | Non
     return pos
 
 
+# The unit of a depth image by its encoding, in metres per unit, from REP 118
+# (https://www.ros.org/reps/rep-0118.html): 16-bit depth is in millimetres, and
+# 32-bit float depth is in metres.
+_REP118_DEPTH_UNITS = {"16UC1": 0.001, "32FC1": 1.0}
+# the encodings of a depth image: the RealSense SDK writes ``mono16``, whose unit is
+# not defined by REP 118 and is found only from the footer
+_DEPTH_ENCODINGS = ("16UC1", "mono16", "32FC1")
+
+
 def _footer_depth_units(footer: bytes, order: str = "<") -> float | None:
     """Decode trailing bytes of an image message as a depth scale, if they could be one
 
@@ -3009,9 +3018,16 @@ class ROSBag(ImageSource):
     :param colororder: override the color-plane order for all image, or by topic
         ``{topic: colororder}``
     :type colororder: str or dict or None
+    :param verbose: print progress and decoding problems, defaults to ``False``
+    :type verbose: bool
+    :param depth_units: convert depth images to ``float32`` metres, see below;
+        ``None`` leaves them as recorded, ``"auto"`` finds the scale, a number is the
+        scale in metres per unit, defaults to ``None``
+    :type depth_units: None, ``"auto"`` or float
     :param kwargs: options applied to image frames, see
         :func:`~machinevisiontoolbox.base.imageio.convert`
     :raises ImportError: if the ``rosbags`` package is not installed
+    :raises ValueError: if ``depth_units`` is not ``None``, ``"auto"`` or a positive number
 
     The resulting object is an iterator that yields:
 
@@ -3033,7 +3049,40 @@ class ROSBag(ImageSource):
     The end of the pixel data is found from the layout of the image message, whose
     data array must be ``height * step`` bytes long.  The extra bytes are therefore
     never mistaken for pixels, and bags without them (such as Intel's own sample
-    bags) are read correctly too.  The pixel values are never changed.
+    bags) are read correctly too.  The pixel values are not changed unless
+    ``depth_units`` is given, see below.
+
+    **Depth in metres**
+
+    ROS has a standard for depth images, `REP 118 <https://www.ros.org/reps/rep-0118.html>`_
+    (a ROS Enhancement Proposal).  A depth image is either ``float32`` in metres
+    (``32FC1``, where NaN means no measurement) or, as a camera driver publishes it
+    before conversion, ``uint16`` in millimetres (``16UC1``, where 0 means no
+    measurement).  With ``depth_units="auto"`` an image in either form is returned as
+    ``float32`` metres, since the standard says what the unit is.
+
+    By default a depth image is returned as recorded.  With ``depth_units`` it is
+    returned as ``float32`` in metres, so that the value of a pixel does not depend on
+    the camera or driver that recorded it.  ``depth_units`` is the scale in metres per
+    unit, as in librealsense, for example 0.001 for millimetres.  Note that this is the
+    reciprocal of the ``depth_scale`` of Open3D and TUM RGB-D, which are units per
+    metre: 1000 and 5000 respectively.
+
+    - a number is used as the scale for every depth image.  A ``32FC1`` image is
+      already in metres, so the number is then a gain
+    - ``"auto"`` finds the scale for each image: the footer of a RealSense bag if it
+      has one, otherwise the unit that REP 118 gives for the encoding, which is 0.001
+      for ``16UC1`` and 1.0 for ``32FC1``.  The RealSense SDK writes depth as
+      ``mono16``, which REP 118 does not cover, so without a footer (Intel's sample
+      bags have none) the scale is not known.  The image is then returned as recorded,
+      with a ``RuntimeWarning`` once for the topic, rather than guess: give the number
+      instead
+
+    An image is taken to be a depth image if it has a footer scale, or if it is
+    ``16UC1``, ``mono16`` or ``32FC1`` and its topic name contains ``depth``, in any
+    case.  Other images are never converted.  A converted image has ``depth_units``
+    set to 1.0, since it is now in metres.  Pixels that are zero, the value for no
+    measurement, stay zero.
 
     The extra bytes are interpreted as a depth scale only if the bag is recognised as
     coming from the RealSense SDK (it has a ``realsense_msgs`` connection) and they
@@ -3118,6 +3167,7 @@ class ROSBag(ImageSource):
     dtype: np.dtype | str | dict | None
     colororder: str | dict | None
     verbose: bool
+    depth_units: str | float | None
     args: dict
     _is_realsense: bool
 
@@ -3130,8 +3180,19 @@ class ROSBag(ImageSource):
         dtype: np.dtype | str | dict | None = None,
         colororder: str | dict | None = None,
         verbose: bool = False,
+        depth_units: str | float | None = None,
         **kwargs: Any,
     ) -> None:
+        if depth_units is not None and depth_units != "auto":
+            if (
+                isinstance(depth_units, (str, bool))
+                or not np.isfinite(depth_units)
+                or depth_units <= 0
+            ):
+                raise ValueError(
+                    f"depth_units must be None, 'auto' or a positive number, "
+                    f"not {depth_units!r}"
+                )
         if not _rosbags_available:
             raise ImportError(
                 "rosbags is required for ROS bag support. "
@@ -3148,12 +3209,15 @@ class ROSBag(ImageSource):
         self.typestore = _resolve_typestore(release)
         self.dtype = dtype
         self.colororder = colororder
+        self.depth_units = depth_units
         self.args = kwargs
         self._tmpfile: str | None = None
         self._is_ros2: bool = False
         self._is_realsense: bool = False
         # connections for which unexpected bytes after an image have been reported
         self._warned_footers: set[int] = set()
+        # topics whose depth unit is not known, reported once each
+        self._warned_depth: set[str] = set()
 
     def __repr__(self) -> str:
         return (
@@ -3600,6 +3664,38 @@ class ROSBag(ImageSource):
         )
         return False
 
+    def _depth_scale(
+        self, topic: str, encoding: str | None, footer_units: float | None
+    ) -> float | None:
+        """Scale to convert an image to metres, or ``None`` to leave it as recorded.
+
+        :param topic: the topic the image was published on
+        :param encoding: the ``encoding`` of the message, if it has one
+        :param footer_units: the scale in the footer of the message, if it has one
+        :return: metres per unit, or ``None`` if the image is not converted
+        """
+        if self.depth_units is None or encoding not in _DEPTH_ENCODINGS:
+            return None
+        if footer_units is None and "depth" not in topic.lower():
+            return None  # not known to be a depth image
+        if self.depth_units != "auto":
+            return float(self.depth_units)
+        if footer_units is not None:
+            return footer_units
+        if encoding in _REP118_DEPTH_UNITS:
+            return _REP118_DEPTH_UNITS[encoding]
+        # mono16 depth with no footer: the unit is not recorded, so do not guess
+        if topic not in self._warned_depth:
+            self._warned_depth.add(topic)
+            warnings.warn(
+                f"ROSBag: the depth unit of {topic!r} ({encoding}) is not recorded in "
+                "the bag, so it is returned as recorded.  Give depth_units= as a "
+                "number of metres per unit, for example 0.001 for millimetres.",
+                RuntimeWarning,
+                stacklevel=2,
+            )
+        return None
+
     def _image_depth_units(
         self, connection: Any, rawdata: bytes, footer: bytes
     ) -> float | None:
@@ -3800,6 +3896,13 @@ class ROSBag(ImageSource):
 
                     # Use frombuffer for zero-copy efficiency where possible
                     data = np.frombuffer(msg.data, dtype=dtype)
+                    scale = self._depth_scale(
+                        connection.topic, getattr(msg, "encoding", None), depth_units
+                    )
+                    if scale is not None:
+                        # a depth image, returned in metres
+                        data = data.astype(np.float32) * np.float32(scale)
+                        depth_units = 1.0
 
                     # Reshape to (H, W, C) or (H, W)
                     if channels > 1:

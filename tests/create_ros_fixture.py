@@ -244,6 +244,12 @@ def realsense_depth_frame(i: int) -> np.ndarray:
     return (np.arange(RS_H * RS_W, dtype=np.uint16).reshape(RS_H, RS_W) * 7 + 100 * i)
 
 
+def depth_pixels(i: int, encoding: str) -> np.ndarray:
+    """Pixels of depth frame ``i`` as recorded with depth encoding ``encoding``."""
+    frame = realsense_depth_frame(i)
+    return frame.astype(np.float32) / 1000 if encoding == "32FC1" else frame
+
+
 def realsense_color_frame(i: int) -> np.ndarray:
     """Expected pixels of color frame ``i`` in a bag from :func:`make_realsense_bag`."""
     return (np.arange(RS_H * RS_W * 3, dtype=np.uint8).reshape(RS_H, RS_W, 3) + 10 * i)
@@ -256,6 +262,7 @@ def make_realsense_bag(
     wire: str = "ros1",
     streaminfo: bool = True,
     n: int = 3,
+    depth_encoding: str = "mono16",
 ) -> None:
     """Write a small bag like those recorded by the Intel RealSense SDK
 
@@ -268,6 +275,10 @@ def make_realsense_bag(
     :param streaminfo: include a ``realsense_msgs/msg/StreamInfo`` connection, which
         is how the reader recognises a RealSense bag
     :param n: number of frames in each of the depth and color streams
+    :param depth_encoding: encoding of the depth stream: ``"mono16"`` as the SDK
+        writes it, ``"16UC1"`` as a ROS driver does (the pixels are the same), or
+        ``"32FC1"`` for depth in metres (the pixels are those of
+        :func:`realsense_depth_frame` divided by 1000)
 
     The topics, the ``mono16`` depth encoding and the layout match a real SDK
     recording (`bags/20260430_125558.bag`); the images are tiny.  The expected pixels
@@ -316,7 +327,7 @@ def make_realsense_bag(
                 else Header(stamp=stamp, frame_id="")
             )
             for conn, enc, pixels, scale in [
-                (conn_depth, "mono16", realsense_depth_frame(i), RS_DEPTH_UNITS),
+                (conn_depth, depth_encoding, depth_pixels(i, depth_encoding), RS_DEPTH_UNITS),
                 (conn_color, "rgb8", realsense_color_frame(i), 0.0),
             ]:
                 msg = Image(
