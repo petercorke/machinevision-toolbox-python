@@ -94,11 +94,13 @@ jobs:
         with:
           python-version: "3.12"
 
+      # open3d and the ros extra are installed so that mypy sees their types: a
+      # "type: ignore" for one of them is unused, and so an error, where it is missing
       - name: Install package and development dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -e .[dev]
-          pip install build
+          pip install -e .[dev,ros]
+          pip install open3d build
 
       # configuration is in pyproject.toml, [tool.mypy]; the package must stay at zero errors
       - name: Run mypy
