@@ -84,9 +84,43 @@ jobs:
           MPLBACKEND: Agg
         run: python -m pytest tests/test_bundleadjust.py --timeout=50 --timeout-method=thread
 
+  typecheck:
+    name: typecheck and build wheel
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Install package and development dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .[dev]
+          pip install build
+
+      # configuration is in pyproject.toml, [tool.mypy]; the package must stay at zero errors
+      - name: Run mypy
+        run: mypy
+
+      - name: Build wheel and verify typed marker
+        run: |
+          python -m build --wheel
+          python - <<'PY'
+          from pathlib import Path
+          from zipfile import ZipFile
+
+          wheel = next(Path("dist").glob("machinevision_toolbox_python-*.whl"))
+          with ZipFile(wheel) as archive:
+              assert "machinevisiontoolbox/py.typed" in archive.namelist(), (
+                  f"{wheel.name} is missing machinevisiontoolbox/py.typed"
+              )
+          PY
+
   all-tests-passed:
     name: All tests passed
-    needs: [test, pgraph-compat]
+    needs: [test, pgraph-compat, typecheck]
     runs-on: ubuntu-latest
     if: always()
     steps:
@@ -98,6 +132,10 @@ jobs:
           fi
           if [ "${{ needs.pgraph-compat.result }}" != "success" ]; then
             echo "pgraph compat did not succeed: ${{ needs.pgraph-compat.result }}"
+            exit 1
+          fi
+          if [ "${{ needs.typecheck.result }}" != "success" ]; then
+            echo "typecheck did not succeed: ${{ needs.typecheck.result }}"
             exit 1
           fi
 
