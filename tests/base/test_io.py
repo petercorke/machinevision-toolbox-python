@@ -902,15 +902,19 @@ import warnings
 class TestHelperFunctions(unittest.TestCase):
     """Test helper functions in imageio"""
 
-    def test_isnotebook(self):
-        """Test _isnotebook function"""
-        from machinevisiontoolbox.base.imageio import _isnotebook
+    def test_camera_isnotebook(self):
+        """Camera decides how to reuse its image plane with spatialmath's isnotebook"""
+        import importlib
+        import sys
+        from unittest import mock
 
-        result = _isnotebook()
-        # Should return a boolean
-        self.assertIsInstance(result, bool)
-        # In test environment, should be False
-        self.assertFalse(result)
+        isnotebook = importlib.import_module("machinevisiontoolbox.Camera").isnotebook
+
+        # In the test environment, should be False
+        self.assertFalse(isnotebook())
+        # JupyterLite (Pyodide) is a notebook, though it is not a ZMQ shell
+        with mock.patch.object(sys, "platform", "emscripten"):
+            self.assertTrue(isnotebook())
 
 
 class TestIdisp_matplotlib_paths(unittest.TestCase):

@@ -21,9 +21,10 @@ from matplotlib.figure import Figure
 # from mpl_toolkits.mplot3d import Axes3D, art3d
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from spatialmath import SE3, Line3
+from spatialmath.base import isnotebook
 
 from machinevisiontoolbox import Image
-from machinevisiontoolbox.base.imageio import _isnotebook, idisp, safe_plt_show
+from machinevisiontoolbox.base.imageio import idisp, safe_plt_show
 from machinevisiontoolbox.ImagePointFeatures import FeatureMatch
 from machinevisiontoolbox.mvtb_types import ArrayLike
 
@@ -740,7 +741,7 @@ class CameraBase(ABC):
         If this camera already has a virtual image plane, return ``True``.
         Otherwise, create an axes, and optionally a figure, and return ``False``.
         """
-        if _isnotebook():
+        if isnotebook():
             ax = plt.gca()  # return current or create new
             if self._ax is None or self._ax is not ax:
                 self._ax = ax
