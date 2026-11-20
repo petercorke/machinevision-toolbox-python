@@ -17,6 +17,11 @@ from machinevisiontoolbox import CentralCamera
 from machinevisiontoolbox.base.shapes import mkgrid
 
 
+def _name_window(title: str) -> None:
+    """Give the current figure window a title (no effect without a window)"""
+    set_window_title(plt.gcf(), title)
+
+
 class VisualServo(ABC):
     class _history:
         # a bag of per-step quantities, which differ between the subclasses
@@ -106,7 +111,6 @@ class VisualServo(ABC):
         self.movie = movie
         self.type = type
         if graphics:
-
             fig = plt.figure(figsize=plt.figaspect(0.5))
             self.fig = fig
 
@@ -160,7 +164,6 @@ class VisualServo(ABC):
 
         # do graphics setup
         if self.graphics:
-
             # show the initial image plane projections as circles
             self.camera.clf()
             self.camera.plot_point(
@@ -200,7 +203,6 @@ class VisualServo(ABC):
 
         alpha_min = 0.1
         for step in range(niter):
-
             status = self.step(step)
 
             if self.graphics:
@@ -245,6 +247,8 @@ class VisualServo(ABC):
         if self.type != "point":
             print("Can only plot image plane trajectories for point-based IBVS")
             return
+
+        _name_window("Image Feature Trajectories")
 
         # result is a vector with row per time step, each row is u1, v1, u2, v2 ...
         for i in range(self.npoints):
@@ -308,6 +312,7 @@ class VisualServo(ABC):
         if len(self.history) == 0:
             return
 
+        _name_window("Camera Velocity")
         vel = np.array([h.vel for h in self.history])
         plt.plot(vel[:, :3], "-")
         plt.plot(vel[:, 3:], "--")
@@ -333,6 +338,7 @@ class VisualServo(ABC):
         if len(self.history) == 0:
             return
 
+        _name_window("Camera Pose")
         # Cartesian camera position vs timestep
         T = SE3([h.pose for h in self.history])
 
@@ -364,6 +370,7 @@ class VisualServo(ABC):
         if len(self.history) == 0:
             return
 
+        _name_window("Image Jacobian Condition")
         Jcond = [h.jcond for h in self.history]
         # Image Jacobian condition number vs time
         plt.plot(Jcond)
@@ -388,6 +395,7 @@ class VisualServo(ABC):
             print("Z-estimator data only computed for point-based IBVS")
             return
 
+        _name_window("Feature Depth")
         Z_est = np.array([h.Z_est for h in self.history])
         Z_true = np.array([h.Z_true for h in self.history])
         plt.plot(Z_true, "-", label="true")
@@ -411,6 +419,7 @@ class VisualServo(ABC):
         if len(self.history) == 0:
             return None
 
+        _name_window("Feature Error")
         e = np.array([h.e for h in self.history])
         if self.type == "point":
             plt.plot(e[:, 0::2], "r")
@@ -1368,7 +1377,6 @@ class IBVS_sph(VisualServo):
         # self.T0 = transl(-1,-0.1,-3);%*trotx(0.2)
 
     def init(self) -> None:
-
         super().init()
 
         # final pose is specified in terms of a camera-target pose
@@ -1449,6 +1457,8 @@ class IBVS_sph(VisualServo):
         return status
 
     def plot_p(self) -> None:
+        _name_window("Image Feature Trajectories")
+
         # result is a vector with row per time step, each row is u1, v1, u2, v2 ...
         for i in range(self.npoints):
             u = [h.p[0, i] for h in self.history]  # get data for i'th point
@@ -1603,7 +1613,6 @@ class IBVS_polar(VisualServo):
         self.depth = depth
 
     def init(self) -> None:
-
         # initialize the vservo variables
         super().init()
 
@@ -1715,6 +1724,8 @@ class IBVS_polar(VisualServo):
         return status
 
     def plot_p(self) -> None:
+        _name_window("Image Feature Trajectories")
+
         # result is a vector with row per time step, each row is u1, v1, u2, v2 ...
         for i in range(self.npoints):
             u = [h.p[0, i] for h in self.history]  # get data for i'th point
@@ -1794,7 +1805,7 @@ class IBVS_polar(VisualServo):
 
         ax.set_title(self.name)
         ax.set_facecolor("lightyellow")
-        set_window_title(ax.figure, "Machine Vision Toolbox for Python")
+        set_window_title(ax.figure, self._imageplane_title())
 
         # TODO figure out axes ticks, etc
         return ax  # likely this return is not necessary

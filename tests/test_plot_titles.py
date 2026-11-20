@@ -41,3 +41,36 @@ def test_threshold_interactive_given_title():
         title="mine", block=False
     )
     assert window_title() == "mine"
+
+
+def test_camera_image_plane_title():
+    from machinevisiontoolbox import CentralCamera
+
+    camera = CentralCamera.Default(name="mycam")
+    camera.plot_point([[0], [0], [1]], "o")
+    assert window_title() == "Camera Simulator: mycam Image Plane"
+
+
+def test_visual_servo_plot_titles():
+    import numpy as np
+    from spatialmath import SE3
+
+    from machinevisiontoolbox import CentralCamera, IBVS
+
+    camera = CentralCamera.Default(pose=SE3.Trans(1, 1, -3) * SE3.Rz(0.6))
+    P = np.array([[-1, 1, 1, -1], [-1, -1, 1, 1], [0, 0, 0, 0]])
+    p_star = np.array([[462, 562, 562, 462], [362, 362, 662, 662]])
+    ibvs = IBVS(camera, P=P, p_d=p_star, graphics=False)
+    ibvs.run(20)
+
+    expected = {
+        "plot_p": "Image Feature Trajectories",
+        "plot_vel": "Camera Velocity",
+        "plot_pose": "Camera Pose",
+        "plot_jcond": "Image Jacobian Condition",
+        "plot_error": "Feature Error",
+    }
+    for method, title in expected.items():
+        plt.figure()
+        getattr(ibvs, method)()
+        assert window_title() == title, method
