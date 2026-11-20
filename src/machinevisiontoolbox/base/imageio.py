@@ -1051,29 +1051,6 @@ def cv_destroy_window(title: str | None = None, block: bool = True) -> None:
     cv2.waitKey(1)  # run the event loop
 
 
-def _isnotebook() -> bool:
-    """
-    Determine if code is being run from a Jupyter notebook
-
-    ``_isnotebook`` is True if running Jupyter notebook, else False
-
-    :references:
-
-        - https://stackoverflow.com/questions/15411967/how-can-i-check-if-code-
-          is-executed-in-the-ipython-notebook/39662359#39662359
-    """
-    try:
-        shell = get_ipython().__class__.__name__  # type: ignore[name-defined]
-        if shell in ("Shell", "ZMQInteractiveShell"):
-            return True  # Jupyter notebook or qtconsole or CoLab
-        elif shell == "TerminalInteractiveShell":
-            return False  # Terminal running IPython
-        else:
-            return False  # Other type (?)
-    except NameError:
-        return False  # Probably standard Python interpreter
-
-
 def iread(
     filename: str | Path, *args: Any, **kwargs: Any
 ) -> tuple[np.ndarray, str] | tuple[list[np.ndarray], list[str]]:
