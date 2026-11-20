@@ -3054,23 +3054,29 @@ class ROSBag(ImageSource):
 
     **Depth in metres**
 
-    A depth image is recorded as ``uint16`` (``16UC1``) in some unit, usually
-    millimetres, or as ``float32`` (``32FC1``) in metres.  By default it is returned
-    as recorded.  With ``depth_units`` it is returned as ``float32`` in metres, so
-    that the value of a pixel does not depend on the camera or driver that recorded it.
-    ``depth_units`` is the scale in metres per unit, as in librealsense, for example
-    0.001 for millimetres.  Note that this is the reciprocal of the ``depth_scale`` of
-    Open3D and TUM RGB-D, which are units per metre: 1000 and 5000 respectively.
+    ROS has a standard for depth images, `REP 118 <https://www.ros.org/reps/rep-0118.html>`_
+    (a ROS Enhancement Proposal).  A depth image is either ``float32`` in metres
+    (``32FC1``, where NaN means no measurement) or, as a camera driver publishes it
+    before conversion, ``uint16`` in millimetres (``16UC1``, where 0 means no
+    measurement).  With ``depth_units="auto"`` an image in either form is returned as
+    ``float32`` metres, since the standard says what the unit is.
+
+    By default a depth image is returned as recorded.  With ``depth_units`` it is
+    returned as ``float32`` in metres, so that the value of a pixel does not depend on
+    the camera or driver that recorded it.  ``depth_units`` is the scale in metres per
+    unit, as in librealsense, for example 0.001 for millimetres.  Note that this is the
+    reciprocal of the ``depth_scale`` of Open3D and TUM RGB-D, which are units per
+    metre: 1000 and 5000 respectively.
 
     - a number is used as the scale for every depth image.  A ``32FC1`` image is
       already in metres, so the number is then a gain
     - ``"auto"`` finds the scale for each image: the footer of a RealSense bag if it
-      has one, otherwise the unit that `REP 118 <https://www.ros.org/reps/rep-0118.html>`_
-      gives for the encoding, which is 0.001 for ``16UC1`` and 1.0 for ``32FC1``.  The
-      RealSense SDK writes depth as ``mono16``, which REP 118 does not cover, so
-      without a footer (Intel's sample bags have none) the scale is not known.  The
-      image is then returned as recorded, with a ``RuntimeWarning`` once for the
-      topic, rather than guess: give the number instead
+      has one, otherwise the unit that REP 118 gives for the encoding, which is 0.001
+      for ``16UC1`` and 1.0 for ``32FC1``.  The RealSense SDK writes depth as
+      ``mono16``, which REP 118 does not cover, so without a footer (Intel's sample
+      bags have none) the scale is not known.  The image is then returned as recorded,
+      with a ``RuntimeWarning`` once for the topic, rather than guess: give the number
+      instead
 
     An image is taken to be a depth image if it has a footer scale, or if it is
     ``16UC1``, ``mono16`` or ``32FC1`` and its topic name contains ``depth``, in any
