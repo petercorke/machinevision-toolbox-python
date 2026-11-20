@@ -15,13 +15,14 @@ from matplotlib.axes import Axes
 from matplotlib.patches import Polygon
 from matplotlib.ticker import ScalarFormatter
 from spatialmath import SE3, base
+from spatialmath.base import set_window_title
 
 if TYPE_CHECKING:
     from machinevisiontoolbox._image_typing import _ImageBase
 
 from machinevisiontoolbox._image_typing import ImageMixinBase
 from machinevisiontoolbox.base.findpeaks import findpeaks, findpeaks2d
-from machinevisiontoolbox.base.imageio import safe_plt_show, set_window_title
+from machinevisiontoolbox.base.imageio import safe_plt_show
 from machinevisiontoolbox.mvtb_types import *
 
 
@@ -1589,7 +1590,7 @@ class Histogram:
             raise ValueError("unknown style")
 
         if title is not None:
-            set_window_title(title)
+            set_window_title(plt.gcf(), title)
         safe_plt_show(block=block)
 
     def _compute_plot_series(

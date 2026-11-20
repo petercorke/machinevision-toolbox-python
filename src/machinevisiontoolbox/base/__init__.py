@@ -50,7 +50,6 @@ __all__ = [
     "iwrite",
     "convert",
     "cv_destroy_window",
-    "set_window_title",
     "pickpoints",
     "safe_plt_show",
     # types

@@ -17,7 +17,14 @@ import numpy as np
 # from numpy.lib.arraysetops import isin
 import scipy as sp
 from scipy import interpolate
-from spatialmath.base import argcheck, e2h, getvector, h2e, transl2
+from spatialmath.base import (
+    argcheck,
+    e2h,
+    getvector,
+    h2e,
+    set_window_title,
+    transl2,
+)
 
 from machinevisiontoolbox._image_typing import ImageMixinBase
 from machinevisiontoolbox.base.color import name2color
@@ -675,11 +682,8 @@ class ImageProcessingMixin(ImageMixinBase):
 
         fig, axs = plt.subplots(1, 2, figsize=(10, 5))
         plt.subplots_adjust(bottom=0.1 if _use_ipywidgets else 0.25)
-        try:
-            if title is not None and fig.canvas.manager is not None:
-                fig.canvas.manager.set_window_title(title)  # for 3.4 onward
-        except Exception:
-            pass
+        if title is not None:
+            set_window_title(fig, title)
 
         im = axs[0].imshow(apply_mode(t), cmap="gray")
         if mode == "binary":
