@@ -74,3 +74,27 @@ def test_visual_servo_plot_titles():
         plt.figure()
         getattr(ibvs, method)()
         assert window_title() == title, method
+
+
+def test_kernel_disp3d_titles():
+    from machinevisiontoolbox import Kernel
+
+    Kernel.Gauss(2).disp3d()
+    assert window_title() == "Image Kernel: Gaussian σ=2"
+    Kernel.Gauss(2).disp3d(title="mine")
+    assert window_title() == "mine"
+    Kernel(Kernel.Gauss(2).K).disp3d()
+    assert window_title() == "Image Kernel"
+
+
+def test_stdisp_titles():
+    left = Image.Random(size=(8, 6))
+    right = Image.Random(size=(8, 6))
+    left.stdisp(right, interactive=False)
+    assert window_title() == "Stereo Pair"
+    left.stdisp(right, interactive=False, title="mine")
+    assert window_title() == "mine"
+    left._name = "/some/dir/left.png"
+    right._name = "/some/dir/right.png"
+    left.stdisp(right, interactive=False)
+    assert window_title() == "left.png / right.png"

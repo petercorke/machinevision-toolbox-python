@@ -26,7 +26,7 @@ import matplotlib.patheffects as path_effects
 import numpy as np
 import scipy as sp
 from scipy import interpolate
-from spatialmath.base import argcheck, getvector
+from spatialmath.base import argcheck, getvector, set_window_title
 
 if TYPE_CHECKING:
     from machinevisiontoolbox._image_typing import _ImageBase
@@ -655,7 +655,12 @@ class ImageIOMixin(ImageMixinBase):
             colordict[colors[1]]
         )
 
-    def stdisp(self, right: Self, interactive: bool = True) -> None:
+    def stdisp(
+        self,
+        right: Self,
+        interactive: bool = True,
+        title: str | None = None,
+    ) -> None:
         """
         Interactive display of stereo image pair
 
@@ -663,6 +668,9 @@ class ImageIOMixin(ImageMixinBase):
         :type right: :class:`Image`
         :param interactive: if True, clicking in the left image shows the disparity at the corresponding point in the right image, defaults to True
         :type interactive: bool, optional
+        :param title: window title, defaults to the names of the left and right image
+            files, or "Stereo Pair" if they are not both known
+        :type title: str, optional
         :raises ValueError: images are not the same size
         :return: None
 
@@ -769,8 +777,15 @@ class ImageIOMixin(ImageMixinBase):
 
         fig, (ax1, ax2) = plt.subplots(ncols=2, sharey=True)
 
-        self.disp(ax=ax1, grid=True)
-        right.disp(ax=ax2, grid=True)
+        self.disp(ax=ax1, grid=True, title=False)
+        right.disp(ax=ax2, grid=True, title=False)
+
+        if title is None:
+            if self.name is not None and right.name is not None:
+                title = f"{os.path.basename(self.name)} / {os.path.basename(right.name)}"
+            else:
+                title = "Stereo Pair"
+        set_window_title(fig, title)
 
         if interactive:
             cursor = Cursor(ax1, ax2)

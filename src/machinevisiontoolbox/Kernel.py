@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import spatialmath.base.argcheck as argcheck
 from matplotlib import cm
+from spatialmath.base import set_window_title
 
 from machinevisiontoolbox.mvtb_types import ArrayLike, Dtype
 
@@ -74,11 +75,14 @@ class Kernel:
         """
         return str(self)
 
-    def disp3d(self, block: bool = False, **kwargs) -> None:
+    def disp3d(self, block: bool = False, title: str | None = None, **kwargs) -> None:
         """Show kernel as a 3D surface plot
 
         :param block: block until plot is dismissed, defaults to False
         :type block: bool, optional
+        :param title: window title, defaults to "Image Kernel", followed by ": name"
+            if the kernel has a name
+        :type title: str, optional
 
         .. runblock:: pycon
 
@@ -93,6 +97,11 @@ class Kernel:
             K.disp3d()
         """
         fig = plt.figure()
+        if title is None:
+            title = "Image Kernel"
+            if self.name is not None:
+                title += f": {self.name}"
+        set_window_title(fig, title)
         ax = fig.add_subplot(111, projection="3d")
         h = self.K.shape[0] // 2
         x = np.arange(-h, h + 1)
