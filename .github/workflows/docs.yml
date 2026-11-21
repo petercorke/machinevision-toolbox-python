@@ -109,32 +109,6 @@ jobs:
               meta.setdefault("language_info", {})
               meta["language_info"]["name"] = "python"
 
-              for cell in nb.get("cells", []):
-                  if cell.get("cell_type") != "code":
-                      continue
-                  source = cell.get("source", [])
-                  if isinstance(source, str):
-                      lines = source.splitlines(keepends=True)
-                  else:
-                      lines = source
-
-                  new_lines = []
-                  changed = False
-                  for line in lines:
-                      if line.strip() in ("%matplotlib ipympl", "%matplotlib widget"):
-                          newline = "\n" if line.endswith("\n") else ""
-                          new_lines.append(f"%matplotlib inline{newline}")
-                          changed = True
-                      else:
-                          new_lines.append(line)
-
-                  if changed:
-                      cell["source"] = (
-                          new_lines
-                          if not isinstance(source, str)
-                          else "".join(new_lines)
-                      )
-
               with nb_path.open("w", encoding="utf-8") as f:
                   json.dump(nb, f, indent=1)
                   f.write("\n")
@@ -147,11 +121,13 @@ jobs:
         # ships JSPI, and the old Pyodide then misbehaved there (the kernel never
         # finished starting).  A browser with no JSPI (Safari before 27; Firefox
         # before 153) is now told so by a banner, added below, not supported by a pin.
+        # ipympl is installed here so that the site carries the jupyter-matplotlib
+        # extension, which the notebooks' %matplotlib ipympl needs in the browser.
         # Installing jupyterlite-core directly rather than the jupyterlite metapackage.
         # Keep docs/lite/wasm_check/package.json's pyodide in step with the Pyodide
         # that the kernel bundles (0.8.7 bundles 314.0.6).
         run: |
-          pip install jupyterlite-core "jupyterlite-pyodide-kernel>=0.8.7" jupyter-server
+          pip install jupyterlite-core "jupyterlite-pyodide-kernel>=0.8.7" jupyter-server ipympl
           cd docs/lite && jupyter lite build --output-dir ../build/html/lite
 
       - name: Add the browser capability check to JupyterLite

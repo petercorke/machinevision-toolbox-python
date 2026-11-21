@@ -34,6 +34,7 @@ JL_PACKAGES = [
     "numpy",
     "scipy",
     "matplotlib",
+    "ipympl",
     "pillow",
     "typing_extensions",
     "opencv-python",
