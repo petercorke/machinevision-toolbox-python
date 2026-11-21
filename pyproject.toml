@@ -112,6 +112,8 @@ addopts = "--tb=short"
 
 [tool.ruff]
 line-length = 120
+# the notebooks that reproduce the book code have a bare except in their setup cell
+extend-exclude = ["tests/RVC"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I"]
