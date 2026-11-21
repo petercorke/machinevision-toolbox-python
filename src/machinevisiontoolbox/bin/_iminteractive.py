@@ -165,7 +165,8 @@ class ImageInteractor:
         try:
             mode = str(self._fig.canvas.manager.toolbar.mode)
             return bool(mode)
-        except Exception:
+        except AttributeError:
+            # the backend has no toolbar (or no window manager)
             return False
 
     def _norm_rect(self):
@@ -409,7 +410,7 @@ class ImageInteractor:
         def _fire():
             try:
                 fn()
-            except Exception:
+            except Exception:  # noqa: BLE001 - never let an error escape into the GUI event loop
                 import traceback
 
                 traceback.print_exc()
@@ -435,7 +436,7 @@ class ImageInteractor:
             )  # keep Python Figure alive (timer closure guard)
             _guard_popup_close(fig)
             fig.show()
-        except Exception:
+        except Exception:  # noqa: BLE001 - never let an error escape into the GUI event loop
             import traceback
 
             traceback.print_exc()
@@ -450,7 +451,7 @@ class ImageInteractor:
             )  # keep Python Figure alive (timer closure guard)
             _guard_popup_close(fig)
             fig.show()
-        except Exception:
+        except Exception:  # noqa: BLE001 - never let an error escape into the GUI event loop
             import traceback
 
             traceback.print_exc()

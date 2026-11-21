@@ -740,7 +740,7 @@ class FakeRosBridge:
 
         try:
             self._loop.run_until_complete(_serve())
-        except Exception:
+        except Exception:  # noqa: BLE001 - fake server: any startup failure just unblocks the caller
             self._ready.set()  # unblock caller if startup failed
 
     # --- message builders ------------------------------------------------
@@ -817,7 +817,7 @@ class FakeRosBridge:
                     topic = msg.get("topic", "")
                     if t := tasks.pop(topic, None):
                         t.cancel()
-        except Exception:
+        except Exception:  # noqa: BLE001 - fake server: a client disconnect ends the handler quietly
             pass
         finally:
             for task in tasks.values():
@@ -840,7 +840,7 @@ class FakeRosBridge:
                 await asyncio.sleep(interval)
         except asyncio.CancelledError:
             pass
-        except Exception:
+        except Exception:  # noqa: BLE001 - fake server: a client disconnect ends the loop quietly
             pass
 
 
@@ -913,7 +913,7 @@ class TestRosTopicLive(unittest.TestCase):
             try:
                 if stream.client.is_connected:
                     stream.client.close()
-            except Exception:
+            except Exception:  # noqa: BLE001 - test cleanup must not fail whatever state the client is in
                 pass
 
         stream.client.terminate = _safe_terminate
