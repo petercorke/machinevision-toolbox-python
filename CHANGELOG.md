@@ -1,5 +1,54 @@
 # Changelog
 
+## [2.5.0](https://github.com/petercorke/machinevision-toolbox-python/compare/v2.4.1...v2.5.0) (2026-11-21)
+
+
+### Features
+
+* depth_units turns 0 into NaN in an integer depth image ([#188](https://github.com/petercorke/machinevision-toolbox-python/issues/188)) ([4150231](https://github.com/petercorke/machinevision-toolbox-python/commit/4150231d7f330e8e9ed49c99c11dc29b426da4a7)), closes [#151](https://github.com/petercorke/machinevision-toolbox-python/issues/151)
+* iwrite creates missing folders in the output path ([#200](https://github.com/petercorke/machinevision-toolbox-python/issues/200)) ([eb34023](https://github.com/petercorke/machinevision-toolbox-python/commit/eb34023ac2f819d2a32279d597a2507f0a777609))
+* ROSBag depth_units returns depth images as float32 metres ([#187](https://github.com/petercorke/machinevision-toolbox-python/issues/187)) ([156d787](https://github.com/petercorke/machinevision-toolbox-python/commit/156d787e0a9c77766b0b69a05248a41cf3ade54c))
+* use spatialmath's set_window_title and remove MVTB's own ([#190](https://github.com/petercorke/machinevision-toolbox-python/issues/190)) ([df755a4](https://github.com/petercorke/machinevision-toolbox-python/commit/df755a45d101462ee30929697b48f8745061b84e)), closes [#147](https://github.com/petercorke/machinevision-toolbox-python/issues/147)
+* window titles for plotting functions ([#191](https://github.com/petercorke/machinevision-toolbox-python/issues/191)) ([14d0fb3](https://github.com/petercorke/machinevision-toolbox-python/commit/14d0fb3c88a49599e113b275fcf984ac83ff7b5c))
+
+
+### Bug Fixes
+
+* add py.typed marker and make the package pass mypy ([#176](https://github.com/petercorke/machinevision-toolbox-python/issues/176)) ([49f4606](https://github.com/petercorke/machinevision-toolbox-python/commit/49f4606e6c1446ffbe10602b652ef64abc40b9a3))
+* Camera recognises JupyterLite using spatialmath's isnotebook ([#185](https://github.com/petercorke/machinevision-toolbox-python/issues/185)) ([bbe8342](https://github.com/petercorke/machinevision-toolbox-python/commit/bbe83421d1fbf0a5f01b5401245b125ef1ea2e59)), closes [#166](https://github.com/petercorke/machinevision-toolbox-python/issues/166)
+* consume Matplotlib format markers ([#144](https://github.com/petercorke/machinevision-toolbox-python/issues/144)) ([bcf63e4](https://github.com/petercorke/machinevision-toolbox-python/commit/bcf63e40384758ff35271b995c9abd425b65825b))
+* drop Python 3.10 (end of life Oct 2026) ([#174](https://github.com/petercorke/machinevision-toolbox-python/issues/174)) ([8eb814f](https://github.com/petercorke/machinevision-toolbox-python/commit/8eb814fed5649825f9d5fb9407a68052ceb369f1))
+* EarthView reads GOOGLE_MAPS_API_KEY first ([#149](https://github.com/petercorke/machinevision-toolbox-python/issues/149)) ([d48a8df](https://github.com/petercorke/machinevision-toolbox-python/commit/d48a8df64eab61281ea3a585914b50342112501d))
+* fetch the monalisa example image from GitHub ([#197](https://github.com/petercorke/machinevision-toolbox-python/issues/197)) ([de3cb1c](https://github.com/petercorke/machinevision-toolbox-python/commit/de3cb1c464adef921b0a7f1532a84bcc391ab05b))
+* Image.Read returns C-contiguous pixels; drawing into a strided image raises ([#162](https://github.com/petercorke/machinevision-toolbox-python/issues/162)) ([dee5e1b](https://github.com/petercorke/machinevision-toolbox-python/commit/dee5e1b385cd985f50ba06c7718136720d484927))
+* JupyterLite bootstrap installs the bundled wheel, using the shared template ([#180](https://github.com/petercorke/machinevision-toolbox-python/issues/180)) ([f0584af](https://github.com/petercorke/machinevision-toolbox-python/commit/f0584af9fcfa87dcb71aa8b110c10ef6dfe86efc))
+* make morphdemo work with immutable images and Image.Random(size=) ([#195](https://github.com/petercorke/machinevision-toolbox-python/issues/195)) ([586b78b](https://github.com/petercorke/machinevision-toolbox-python/commit/586b78b8bb90550c4980479e4692a66d9287ea8d))
+* narrow file picker data fallback errors ([#146](https://github.com/petercorke/machinevision-toolbox-python/issues/146)) ([77a3da9](https://github.com/petercorke/machinevision-toolbox-python/commit/77a3da9cda0d87eab9c88b213fc26f993c993664))
+* narrow window title exception handling ([#141](https://github.com/petercorke/machinevision-toolbox-python/issues/141)) ([715af60](https://github.com/petercorke/machinevision-toolbox-python/commit/715af60cf0c081b2bf32a3f3a9843143877dd097))
+* preserve unexpected peak refinement failures ([#140](https://github.com/petercorke/machinevision-toolbox-python/issues/140)) ([ca5ee04](https://github.com/petercorke/machinevision-toolbox-python/commit/ca5ee047c72b6873a23482e2a8351dc1c3409283))
+* report valid color lookup values clearly ([#138](https://github.com/petercorke/machinevision-toolbox-python/issues/138)) ([637a787](https://github.com/petercorke/machinevision-toolbox-python/commit/637a787d2dc459ac6f3186998dd625e7aad5f677))
+* report video file initialisation failures ([#153](https://github.com/petercorke/machinevision-toolbox-python/issues/153)) ([0138f72](https://github.com/petercorke/machinevision-toolbox-python/commit/0138f720a1f41d51699ae02e9aa06ed8a15129b6))
+* ROSBag detects the ROS release by default (release="auto") ([#164](https://github.com/petercorke/machinevision-toolbox-python/issues/164)) ([60ef838](https://github.com/petercorke/machinevision-toolbox-python/commit/60ef838a9341cd31a72903ffdca762fcc427e648))
+* ROSBag finds the end of image data from the message layout, not a guess ([#163](https://github.com/petercorke/machinevision-toolbox-python/issues/163)) ([20c6efe](https://github.com/petercorke/machinevision-toolbox-python/commit/20c6efe383a929c3651fa8524862b5027a4c3c7a))
+* say why an OpenCV contrib module is missing ([#182](https://github.com/petercorke/machinevision-toolbox-python/issues/182)) ([e7c2ae5](https://github.com/petercorke/machinevision-toolbox-python/commit/e7c2ae57a0c9aee3b8ddf76077e164dc6653a5f5))
+* **sources:** read EarthView key from GOOGLE_MAPS_API_KEY first ([d48a8df](https://github.com/petercorke/machinevision-toolbox-python/commit/d48a8df64eab61281ea3a585914b50342112501d))
+* undefined names in IBVS_sph.Example and the camera block ([#198](https://github.com/petercorke/machinevision-toolbox-python/issues/198)) ([ab53a94](https://github.com/petercorke/machinevision-toolbox-python/commit/ab53a94065c91a09d9d2f26b009dd072b0122897))
+* unpin the Pyodide kernel and warn browsers that lack JSPI ([#181](https://github.com/petercorke/machinevision-toolbox-python/issues/181)) ([1e935a1](https://github.com/petercorke/machinevision-toolbox-python/commit/1e935a1e99292cd4e0ae2c0d8d897e428945f1f9)), closes [#170](https://github.com/petercorke/machinevision-toolbox-python/issues/170)
+
+
+### Documentation
+
+* bring AGENTS.md in line with RTB's ([#179](https://github.com/petercorke/machinevision-toolbox-python/issues/179)) ([5e2e6d1](https://github.com/petercorke/machinevision-toolbox-python/commit/5e2e6d1bd44fd22cb589b0bac58174ccb590e344))
+* explain the JupyterLite sidebar and that its files are volatile ([#184](https://github.com/petercorke/machinevision-toolbox-python/issues/184)) ([f73b3cb](https://github.com/petercorke/machinevision-toolbox-python/commit/f73b3cbfe84e874c97898b70eaffb5d88c055d88)), closes [#168](https://github.com/petercorke/machinevision-toolbox-python/issues/168) [#173](https://github.com/petercorke/machinevision-toolbox-python/issues/173)
+* fail the docs build when a runblock example fails ([#175](https://github.com/petercorke/machinevision-toolbox-python/issues/175)) ([3f6897f](https://github.com/petercorke/machinevision-toolbox-python/commit/3f6897f453832cc887fd38e74f781e916e05b216)), closes [#159](https://github.com/petercorke/machinevision-toolbox-python/issues/159)
+* fix broken runblock examples; showwindow defaults to current axes ([#161](https://github.com/petercorke/machinevision-toolbox-python/issues/161)) ([d770ddd](https://github.com/petercorke/machinevision-toolbox-python/commit/d770dddb02f885f0e0f7724618c42cc8d706ad9f))
+* fix Sphinx warnings and resolve cross-references ([#177](https://github.com/petercorke/machinevision-toolbox-python/issues/177)) ([8f265d9](https://github.com/petercorke/machinevision-toolbox-python/commit/8f265d950d7d86b1d73dd2a2d3273331cf242bd6))
+* fix the broken bdsim logo on the blocks page ([#183](https://github.com/petercorke/machinevision-toolbox-python/issues/183)) ([7e7b736](https://github.com/petercorke/machinevision-toolbox-python/commit/7e7b7365739631ac171dfcf6a9799fb260c36443)), closes [#169](https://github.com/petercorke/machinevision-toolbox-python/issues/169)
+* JupyterLite troubleshooting section, linked from the README ([#134](https://github.com/petercorke/machinevision-toolbox-python/issues/134)) ([97c3eb3](https://github.com/petercorke/machinevision-toolbox-python/commit/97c3eb348f41f745b2dd60a90b041a32a8df90f3))
+* remove black from CONTRIBUTING, it is no longer configured ([#178](https://github.com/petercorke/machinevision-toolbox-python/issues/178)) ([5c57843](https://github.com/petercorke/machinevision-toolbox-python/commit/5c57843001b17d82b63dc3d7863f96ba4af6920d))
+* tidy the notebooks index logo and copyright line ([#189](https://github.com/petercorke/machinevision-toolbox-python/issues/189)) ([fd5e3a4](https://github.com/petercorke/machinevision-toolbox-python/commit/fd5e3a449ce83bb7af83d52005d48893a8a2ef97))
+* uniform notebook header and Bootstrap alert boxes ([#192](https://github.com/petercorke/machinevision-toolbox-python/issues/192)) ([d0ac8da](https://github.com/petercorke/machinevision-toolbox-python/commit/d0ac8da40b80131796f9f140a107b143deb2b055))
+
 ## [2.4.1](https://github.com/petercorke/machinevision-toolbox-python/compare/v2.4.0...v2.4.1) (2026-10-13)
 
 
