@@ -284,8 +284,8 @@ class ImagePlane(GraphicsBlock):
                 plug = wire.start  # start plug for input wire
 
                 # append to the watchlist, bdsim.run() will do the rest
-                state.watchlist.append(plug)
-                state.watchnamelist.append(str(plug))
+                simstate.watchlist.append(plug)
+                simstate.watchnamelist.append(str(plug))
 
     def step(self, t, inports):
         # inputs are set
