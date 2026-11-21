@@ -841,7 +841,9 @@ class CameraBase(ABC):
             for artist in self._ax.get_children():
                 try:
                     artist.remove()
-                except Exception:
+                except (NotImplementedError, ValueError):
+                    # axes furniture (spines, axes, text, patches) cannot be removed,
+                    # and an artist that was already removed raises ValueError
                     pass
 
     def plot_point(
