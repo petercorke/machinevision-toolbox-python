@@ -345,7 +345,9 @@ class ImageColorMixin(ImageMixinBase):
               float32.  An integer type cannot be the source or destination.
 
         .. versionchanged:: 2.5.0
-            Added the ``dtype`` argument.
+            Added the ``dtype`` argument.  The result has the type of the image, as
+            before, except as noted above.  Previously an 8-bit image converted to
+            HSV, L*a*b* or XYZ had OpenCV's 8-bit encoding of those spaces.
 
         :references:
             - |RVC3|, Section 10.2.7, 10.4.1.

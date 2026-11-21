@@ -1402,7 +1402,11 @@ def colorspace_convert(
         * Case is ignored in color space names, so 'RGB' and 'rgb' are treated as the same color space.
 
     .. versionchanged:: 2.5.0
-        Added the ``dtype`` argument.
+        Added the ``dtype`` argument.  Integer values in a 3-vector or Nx3 array are now
+        scaled to 0 to 1, where before they were treated as floats.  An 8-bit image
+        converted to HSV, XYZ or L*a*b* used to have OpenCV's 8-bit encoding of those
+        spaces, and now gives float32 in natural units.  ``float64`` and ``uint16``
+        images are accepted for every conversion.
 
     :seealso: :func:`gamma_decode` `cv2.cvtColor <https://docs.opencv.org/4.x/d8/d01/group__imgproc__color__conversions.html#ga397ae87e1288a81d2363b61574eb8cab>`_
     """
@@ -1586,7 +1590,9 @@ def gamma_encode(
         - |RVC3|, Section 10.1.
 
     .. versionchanged:: 2.5.0
-        Added the ``dtype`` argument.
+        Added the ``dtype`` argument.  A 1D array is accepted with the sRGB mapping,
+        and an integer image gives an integer result of the same type, where it
+        could be float32 or ``uint8``.
 
     :seealso: :func:`gamma_decode` :func:`colorspace_convert`
     """
@@ -1644,7 +1650,9 @@ def gamma_decode(
         - |RVC3|, Section 10.1.
 
     .. versionchanged:: 2.5.0
-        Added the ``dtype`` argument.
+        Added the ``dtype`` argument.  A 1D array is accepted with the sRGB mapping,
+        and the result has the type of the input, where 16-bit and float64 data could
+        become ``uint8`` and float32.
 
     :seealso: :func:`gamma_encode`
     """
