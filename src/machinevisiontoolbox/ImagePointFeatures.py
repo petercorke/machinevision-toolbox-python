@@ -1932,6 +1932,16 @@ class SIFTFeature(BaseFeature2D):
     """
 
 
+class SURFFeature(BaseFeature2D):
+    """
+    Create set of SURF point features
+
+    .. inheritance-diagram:: machinevisiontoolbox.ImagePointFeatures.SURFFeature
+        :top-classes: machinevisiontoolbox.ImagePointFeatures.BaseFeature2D
+        :parts: 1
+    """
+
+
 class ORBFeature(BaseFeature2D):
     """
     Create set of ORB point features
@@ -2071,6 +2081,27 @@ def _resolve_feature_create(name: str) -> Any:
     raise AttributeError(f"{name}_create not found in cv2 or cv2.xfeatures2d")
 
 
+def _SURF_create(**kwargs: Any) -> Any:
+    """Create an OpenCV SURF detector, or explain why it is not available.
+
+    SURF is patented.  It is in the contrib modules (``cv2.xfeatures2d``), and even
+    then only when OpenCV was built with ``OPENCV_ENABLE_NONFREE``, which the
+    ``opencv-contrib-python`` wheels on PyPI are not.
+    """
+    try:
+        # without the contrib modules, this raises ContribNotAvailableError,
+        # whose message explains what to install
+        return cv2.xfeatures2d.SURF_create(**kwargs)  # type: ignore[attr-defined]
+    except cv2.error as e:
+        raise RuntimeError(
+            "SURF is not available in this OpenCV: it is patented and is left out of "
+            "standard builds, including the opencv-contrib-python wheels on PyPI.  "
+            "Use a build of OpenCV with its contrib modules and the CMake option "
+            "OPENCV_ENABLE_NONFREE=ON, or use another detector such as SIFT, ORB, "
+            "BRISK or AKAZE."
+        ) from e
+
+
 # -------------------------------------------------------------------------
 
 
@@ -2088,10 +2119,13 @@ class ImagePointFeaturesMixin(ImageMixinBase):
         # https://datascience.stackexchange.com/questions/43213/freak-feature-extraction-opencv
         algorithms: dict[str, Any] = {
             "SIFT": getattr(cv2, "SIFT_create"),
+            "SURF": _SURF_create,
             "ORB": getattr(cv2, "ORB_create"),
             "Harris": _Harris_create,
-            "BRISK": _resolve_feature_create("BRISK"),
-            "AKAZE": _resolve_feature_create("AKAZE"),
+            # resolved only when used, so that a detector missing from this OpenCV
+            # (OpenCV 5 without the contrib modules) does not break the others
+            "BRISK": lambda **kw: _resolve_feature_create("BRISK")(**kw),
+            "AKAZE": lambda **kw: _resolve_feature_create("AKAZE")(**kw),
             # 'FREAK': (cv2.FREAK_create, FREAKFeature),
             # 'DAISY': (cv2.DAISY_create, DAISYFeature),
         }
@@ -2177,6 +2211,50 @@ class ImagePointFeaturesMixin(ImageMixinBase):
         """
 
         return self._image2feature(SIFTFeature, scale=True, orient=True, **kwargs)
+
+    def SURF(self, **kwargs: Any) -> "SURFFeature":
+        """
+        Find SURF features in image
+
+        .. inheritance-diagram:: machinevisiontoolbox.ImagePointFeatures.SURFFeature
+            :top-classes: machinevisiontoolbox.ImagePointFeatures.BaseFeature2D
+            :parts: 1
+
+        :param kwargs: arguments passed to OpenCV, for example ``hessianThreshold``
+        :return: set of 2D point features
+        :rtype: :class:`SURFFeature`
+        :raises RuntimeError: SURF is not available in this OpenCV
+        :raises AttributeError: OpenCV's contrib modules are not installed
+
+        Returns an iterable and sliceable object that contains SURF features and
+        descriptors.
+
+        .. warning:: SURF is patented, so it is excluded from standard OpenCV builds.
+            It needs OpenCV's contrib modules and a build with the CMake option
+            ``OPENCV_ENABLE_NONFREE=ON``, which the ``opencv-contrib-python`` wheels on
+            PyPI are not.  If it is not available this method raises an exception that
+            says so.  :meth:`SIFT` is a freely available alternative.
+
+        Example:
+
+        .. code-block:: python
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read("eiffel-1.png")
+            >>> surf = img.SURF()
+            >>> len(surf)  # number of features
+
+        :references:
+            - SURF: Speeded up robust features.
+              Herbert Bay, Tinne Tuytelaars, and Luc Van Gool.
+              In European Conference on Computer Vision (ECCV), 2006.
+            - |RVC3|, Section 14.1.
+
+        :seealso: :class:`SURFFeature` :meth:`SIFT` `cv2.xfeatures2d.SURF_create <https://docs.opencv.org/4.x/d5/df7/classcv_1_1xfeatures2d_1_1SURF.html>`_
+
+        .. versionadded:: 2.5.0
+        """
+        return self._image2feature(SURFFeature, scale=True, orient=True, **kwargs)
 
     def ORB(self, scoreType: str = "harris", **kwargs: Any) -> "ORBFeature":
         """
