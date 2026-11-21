@@ -6,8 +6,6 @@ from __future__ import annotations
 
 import copy
 import glob
-import sys
-import time
 import urllib.error
 import urllib.request
 import warnings
@@ -35,7 +33,6 @@ except ImportError:
 # for getting screen resolution
 # import pyautogui  # requires pip install pyautogui
 
-from spatialmath.base import islistof
 from spatialmath.base import set_window_title as _set_window_title
 
 __last_windowname: str | None = None

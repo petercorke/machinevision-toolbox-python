@@ -31,7 +31,7 @@ from machinevisiontoolbox.decorators import (
 )
 
 if TYPE_CHECKING:
-    from machinevisiontoolbox._image_typing import _ImageBase
+    pass
 
 # TODO, either subclass SIFTFeature(BaseFeature2D) or just use BaseFeature2D
 # directly

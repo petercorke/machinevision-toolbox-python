@@ -4,35 +4,24 @@ Spatial filtering, convolution, edge detection, and general image processing ope
 
 from __future__ import annotations
 
-import os.path
-from collections import namedtuple
-from pathlib import Path
 from typing import TYPE_CHECKING, Any, Callable, Self
 import warnings
 
 import cv2
-import matplotlib.pyplot as plt
 import numpy as np
 
 # from numpy.lib.arraysetops import isin
-import scipy as sp
-from scipy import interpolate
 from spatialmath.base import (
     argcheck,
-    e2h,
-    getvector,
-    h2e,
     set_window_title,
-    transl2,
 )
 
 from machinevisiontoolbox._image_typing import ImageMixinBase
 from machinevisiontoolbox.base.color import name2color
-from machinevisiontoolbox.base.imageio import iwrite, safe_plt_show
+from machinevisiontoolbox.base.imageio import safe_plt_show
 
 if TYPE_CHECKING:
     from machinevisiontoolbox.ImageCore import Image
-    from machinevisiontoolbox._image_typing import _ImageBase
 
 
 class ImageProcessingMixin(ImageMixinBase):
@@ -1419,9 +1408,8 @@ class ImageProcessingMixin(ImageMixinBase):
 
 
 if __name__ == "__main__":
-    from pathlib import Path
 
-    import pytest
+    pass
 
     # tests = Path(__file__).parent.parent.parent / "tests"
     # pytest.main(

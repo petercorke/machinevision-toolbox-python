@@ -4,20 +4,15 @@ Core Image class providing pixel storage, arithmetic operators, and color-plane 
 
 from __future__ import annotations
 
-import os
-import os.path
-import urllib
 import warnings
 from collections.abc import Iterator, Sequence
-from math import nan
 from pathlib import Path
 from typing import Any
 
-import cv2
 import numpy as np
 import spatialmath.base as smb
 from spatialmath import Polygon2
-from spatialmath.base import islistof, isscalar
+from spatialmath.base import isscalar
 
 # from numpy.lib.arraysetops import isin
 from machinevisiontoolbox.base.graphics import (
@@ -29,7 +24,7 @@ from machinevisiontoolbox.base.graphics import (
     draw_text,
 )
 from machinevisiontoolbox.base.types import DTYPE_ALIASES, float_image, int_image
-from machinevisiontoolbox.base.imageio import convert, idisp, iread, iwrite
+from machinevisiontoolbox.base.imageio import convert
 from machinevisiontoolbox.ImageBlobs import ImageBlobsMixin
 from machinevisiontoolbox.ImageColor import ImageColorMixin
 from machinevisiontoolbox.ImageConstants import ImageConstantsMixin
@@ -44,7 +39,6 @@ from machinevisiontoolbox.ImageProcessing import ImageProcessingMixin
 from machinevisiontoolbox.ImageRegionFeatures import ImageRegionFeaturesMixin
 from machinevisiontoolbox.ImageReshape import ImageReshapeMixin
 from machinevisiontoolbox.ImageSpatial import ImageSpatialMixin
-from machinevisiontoolbox.Kernel import Kernel
 from machinevisiontoolbox.ImageWholeFeatures import ImageWholeFeaturesMixin
 from machinevisiontoolbox.mvtb_types import Array2d, Array3d, Dtype
 

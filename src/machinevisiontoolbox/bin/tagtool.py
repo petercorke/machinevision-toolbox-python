@@ -12,7 +12,6 @@ import json
 
 import matplotlib.pyplot as plt
 import numpy as np
-from colored import Fore, Style
 from spatialmath import Polygon2
 from spatialmath.base import plot_point, plot_text
 
@@ -20,7 +19,6 @@ from ansitable import ANSITable, Column
 from machinevisiontoolbox import CentralCamera, Image
 from machinevisiontoolbox.bin._bintools import (
     CustomDefaultsHelpFormatter,
-    MVTB_LINK,
 )
 
 

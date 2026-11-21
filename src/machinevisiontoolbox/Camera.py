@@ -7,8 +7,8 @@ from __future__ import annotations
 import copy
 from abc import ABC, abstractmethod
 from collections import namedtuple
-from math import cos, pi, sin, sqrt, tan
-from typing import TYPE_CHECKING, Any, Callable, cast
+from math import pi, sin, tan
+from typing import Any, Callable, cast
 
 import cv2
 import matplotlib.pyplot as plt

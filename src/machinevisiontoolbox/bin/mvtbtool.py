@@ -16,10 +16,8 @@ import shlex
 import sys
 import textwrap
 from importlib.metadata import PackageNotFoundError, version
-from math import pi  # lgtm [py/unused-import]
 
 import numpy as np
-from matplotlib import image
 import cv2
 from spatialmath import *  # lgtm [py/polluting-import]
 from spatialmath import SE3

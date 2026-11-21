@@ -12,7 +12,7 @@ import argparse
 from colored import Fore, Style
 
 from machinevisiontoolbox import Image
-from machinevisiontoolbox.bin._bintools import CustomDefaultsHelpFormatter, MVTB_LINK
+from machinevisiontoolbox.bin._bintools import CustomDefaultsHelpFormatter
 from ansitable import ANSITable, Column
 import matplotlib
 import numpy as np
