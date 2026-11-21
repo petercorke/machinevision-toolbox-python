@@ -116,6 +116,12 @@ line-length = 120
 [tool.ruff.lint]
 select = ["E", "F", "I"]
 
+[tool.ruff.lint.per-file-ignores]
+# these files re-export their submodules with star imports on purpose, so that
+# users can write `from machinevisiontoolbox.base import idisp`
+"src/machinevisiontoolbox/base/__init__.py" = ["F403", "F405"]
+"src/machinevisiontoolbox/blocks/__init__.py" = ["F403", "F405"]
+
 [tool.ruff.lint.isort]
 known-first-party = ["machinevisiontoolbox"]
 

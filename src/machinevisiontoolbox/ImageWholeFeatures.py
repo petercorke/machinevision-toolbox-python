@@ -23,7 +23,6 @@ if TYPE_CHECKING:
 from machinevisiontoolbox._image_typing import ImageMixinBase
 from machinevisiontoolbox.base.findpeaks import findpeaks, findpeaks2d
 from machinevisiontoolbox.base.imageio import safe_plt_show
-from machinevisiontoolbox.mvtb_types import *
 
 
 class ImageWholeFeaturesMixin(ImageMixinBase):

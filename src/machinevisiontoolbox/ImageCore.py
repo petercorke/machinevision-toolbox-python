@@ -46,7 +46,7 @@ from machinevisiontoolbox.ImageReshape import ImageReshapeMixin
 from machinevisiontoolbox.ImageSpatial import ImageSpatialMixin
 from machinevisiontoolbox.Kernel import Kernel
 from machinevisiontoolbox.ImageWholeFeatures import ImageWholeFeaturesMixin
-from machinevisiontoolbox.mvtb_types import *
+from machinevisiontoolbox.mvtb_types import Array2d, Array3d, Dtype
 
 # import spatialmath.base.argcheck as argcheck
 
