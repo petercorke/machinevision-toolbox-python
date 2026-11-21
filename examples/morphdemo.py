@@ -65,7 +65,7 @@ morph_op = {
 }
 
 if args.operation in ("min", "max"):
-    img = Image.Random(10)
+    img = Image.Random(size=10)
 else:
     arr = np.zeros((16, 15), dtype="uint8")
     arr[3:6, 3:6] = 255  # 3x3 block in the top-left corner
@@ -77,7 +77,8 @@ else:
     img = Image(arr)
 
 # we use a float image for the output so that we can show the "empty" pixels as NaN, which appear as white in the display
-result = Image.Constant(np.nan, size=img.size, dtype="float")
+# an Image is immutable, so we accumulate the result in a NumPy array and wrap it in an Image to display it
+result = np.full(img.shape[:2], np.nan)
 
 # create two adjacent subplots, and display the input image on the left
 fig, (input, output) = plt.subplots(1, 2, figsize=(10, 5))
@@ -88,7 +89,7 @@ window = img.showwindow(
     h=1, ax=input
 )  # display the input image and get a window annotator
 
-result.showpixels(
+Image(result).showpixels(
     ax=output, fmt="{:.0f}", badcolor="#FFFF00"
 )  # pixels are displayed as integers with no decimal places, so the NaN pixels appear as blank
 
@@ -129,13 +130,13 @@ for v in range(1, img.shape[0] - 1):
         W = window.move(u, v)  # highlight the window
 
         # window is the 3x3 window centered on (u,v)
-        result.array[v, u] = morph_op[args.operation](
+        result[v, u] = morph_op[args.operation](
             W
         )  # perform the morphological operation
 
         # update the display of the output image
         output.cla()
-        result.showpixels(ax=output, fmt="{:.0f}", badcolor="#FFFF00")
+        Image(result).showpixels(ax=output, fmt="{:.0f}", badcolor="#FFFF00")
 
         save_frame()
 
