@@ -18,6 +18,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import spatialmath.base as smb
 from spatialmath import Polygon2
+from spatialmath.base import set_window_title
 from scipy import interpolate
 
 # import io as io
@@ -1104,6 +1105,7 @@ def plot_chromaticity_diagram(
     N: int = 500,
     alpha: float = 1,
     block: bool = False,
+    title: str | None = None,
 ) -> np.ndarray:
     """
     Display chromaticity diagram
@@ -1118,6 +1120,8 @@ def plot_chromaticity_diagram(
     :type alpha: float, optional
     :param block: block until plot is dismissed, defaults to False
     :type block: bool
+    :param title: window title, defaults to "Chromaticity Diagram"
+    :type title: str, optional
     :return: chromaticity diagram as an image
     :rtype: ndarray(N,N,3)
 
@@ -1160,6 +1164,8 @@ def plot_chromaticity_diagram(
     else:
         raise ValueError("bad colorspace")
 
+    set_window_title(plt.gcf(), "Chromaticity Diagram" if title is None else title)
+
     if plt.isinteractive() and block is not None:
         print("plt.show")
         _safe_show(block=block)
@@ -1172,6 +1178,7 @@ def plot_spectral_locus(
     ax: Any | None = None,
     block: bool = False,
     lambda_ticks: ArrayLike | None = None,
+    title: str | None = None,
 ) -> None:
     r"""
     Plot spectral locus
@@ -1186,6 +1193,9 @@ def plot_spectral_locus(
     :type block: bool, optional
     :param lambda_ticks: interval between wavelength labels, defaults to None
     :type lambda_ticks: array_like, optional
+    :param title: window title, defaults to "Spectral Locus" when no axes are given
+        (otherwise the existing window title is left alone)
+    :type title: str, optional
     :raises ValueError: unknown `colorspace`
 
     Plot, using Matplotlib, the boundary of the "horseshoe" in the chromaticity
@@ -1223,6 +1233,10 @@ def plot_spectral_locus(
 
     if ax is None:
         ax = plt.subplot(1, 1, 1)
+        if title is None:
+            title = "Spectral Locus"
+    if title is not None:
+        set_window_title(ax.figure, title)
 
     ax.plot(locus[:, 0], locus[:, 1])
 

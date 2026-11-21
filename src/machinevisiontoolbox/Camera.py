@@ -764,6 +764,10 @@ class CameraBase(ABC):
         self._fig = fig  # type: ignore[assignment]
         return False
 
+    def _imageplane_title(self) -> str:
+        """Window title for the virtual image plane"""
+        return f"Camera Simulator: {self.name} Image Plane"
+
     def _init_imageplane(
         self, fig: Figure | None = None, ax: Axes | None = None
     ) -> Axes:
@@ -791,7 +795,13 @@ class CameraBase(ABC):
 
         if self._image is not None:
             # if camera has an image, display said image
-            idisp(self._image, fig=fig, ax=ax, title=self._name, drawonly=True)
+            idisp(
+                self._image,
+                fig=fig,
+                ax=ax,
+                title=self._imageplane_title(),
+                drawonly=True,
+            )
         else:
             if self.limits is None:
                 ax.set_xlim(0, self.nu)
@@ -813,7 +823,7 @@ class CameraBase(ABC):
             ax.set_facecolor("lightyellow")
 
             # does nothing on a backend with no window, as in a unit test
-            set_window_title(ax.figure, "Machine Vision Toolbox for Python")
+            set_window_title(ax.figure, self._imageplane_title())
 
         # TODO figure out axes ticks, etc
         return ax  # likely this return is not necessary

@@ -662,12 +662,17 @@ class ImageMorphMixin(ImageMixinBase):
 
         return self.__class__(o, dtype=self.dtype)
 
-    def thin_animate(self, delay: float = 0.5, **kwargs: Any) -> Self:
+    def thin_animate(
+        self, delay: float = 0.5, title: str | None = None, **kwargs: Any
+    ) -> Self:
         """
         Morphological skeletonization with animation
 
         :param delay: time in seconds between each iteration of display, default to 0.5
         :type delay: float, optional
+        :param title: window title, defaults to "Animation of Morphological
+            Skeletonization"
+        :type title: str, optional
         :param kwargs: options passed to :meth:`hitormiss`
         :return: Image
         :rtype: :class:`Image` instance
@@ -702,7 +707,9 @@ class ImageMorphMixin(ImageMixinBase):
 
         im = self.to("uint8")
         o = im
-        h = im.disp()
+        if title is None:
+            title = "Animation of Morphological Skeletonization"
+        h = im.disp(title=title)
         while True:
             for i in range(4):
                 r = im.hitormiss(sa)

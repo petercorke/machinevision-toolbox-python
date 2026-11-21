@@ -610,7 +610,7 @@ class ImageProcessingMixin(ImageMixinBase):
         r"""
         Interactive thresholding
 
-        :param title: title for the window, defaults to ``None``
+        :param title: title for the window, defaults to "Interactive Image Threshold"
         :type title: str, optional
         :param mode: threshold display mode, one of ``'binary'`` or ``'tozero'``,
             defaults to ``'binary'``
@@ -682,8 +682,9 @@ class ImageProcessingMixin(ImageMixinBase):
 
         fig, axs = plt.subplots(1, 2, figsize=(10, 5))
         plt.subplots_adjust(bottom=0.1 if _use_ipywidgets else 0.25)
-        if title is not None:
-            set_window_title(fig, title)
+        set_window_title(
+            fig, "Interactive Image Threshold" if title is None else title
+        )
 
         im = axs[0].imshow(apply_mode(t), cmap="gray")
         if mode == "binary":

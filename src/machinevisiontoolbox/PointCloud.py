@@ -348,12 +348,20 @@ class PointCloud:
         """
         return o3d.io.write_point_cloud(str(filename), self._pcd)  # type: ignore[arg-type]
 
-    def disp(self, block: bool = False, file: str | None = None, **kwargs: Any) -> None:
+    def disp(
+        self,
+        block: bool = False,
+        file: str | None = None,
+        title: str = "Point Cloud",
+        **kwargs: Any,
+    ) -> None:
         """
         Display point cloud using Open3D
 
         :param block: block until window dismissed, defaults to False
         :type block: bool, optional
+        :param title: window title, defaults to "Point Cloud"
+        :type title: str, optional
         :param file: save display as an image, defaults to None
         :type file: str, optional
         :param front: set front vector
@@ -372,11 +380,11 @@ class PointCloud:
         :seealso: :class:`open3d.visualization.ViewControl`
         """
         if block:
-            o3d.visualization.draw_geometries([self._pcd], **kwargs)
+            o3d.visualization.draw_geometries([self._pcd], window_name=title, **kwargs)
         else:
             # nonblocking display
             vis = o3d.visualization.Visualizer()
-            vis.create_window()
+            vis.create_window(window_name=title)
             vis.add_geometry(self._pcd)
 
             # get object to control viewpoint
@@ -710,21 +718,31 @@ class VoxelGrid:
         """
         o3d.io.write_voxel_grid(str(filename), self._voxels)  # type: ignore[arg-type]
 
-    def disp(self, block: bool = True, file: str | None = None, **kwargs: Any) -> None:
+    def disp(
+        self,
+        block: bool = True,
+        file: str | None = None,
+        title: str = "Voxel Grid",
+        **kwargs: Any,
+    ) -> None:
         """
         Display voxel grid
 
         :param block: block until window is dismissed, defaults to True
         :type block: bool, optional
+        :param title: window title, defaults to "Voxel Grid"
+        :type title: str, optional
         :param file: save display to this filename, defaults to None
         :type file: str, optional
         """
         if block:
-            o3d.visualization.draw_geometries([self._voxels], **kwargs)
+            o3d.visualization.draw_geometries(
+                [self._voxels], window_name=title, **kwargs
+            )
         else:
             # nonblocking display
             vis = o3d.visualization.Visualizer()
-            vis.create_window()
+            vis.create_window(window_name=title)
             vis.add_geometry(self._voxels)
 
             # get object to control viewpoint
