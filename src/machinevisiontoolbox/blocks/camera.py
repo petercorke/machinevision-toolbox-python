@@ -267,7 +267,6 @@ class ImagePlane(GraphicsBlock):
 
         self.ax.set_title(self.name_tex)
 
-        print("@@@@@@", self.args, self.kwargs)
         (self.line,) = self.ax.plot(self.u_data, self.v_data, *self.args, **self.kwargs)
 
         # grid control
