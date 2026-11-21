@@ -525,5 +525,113 @@ class TestImageWholeFeatures(unittest.TestCase):
         plt.close("all")
 
 
+class TestHistogramCompare(unittest.TestCase):
+    @staticmethod
+    def _hist(seed, size=(40, 40), planes=None, **kwargs):
+        rng = np.random.default_rng(seed)
+        shape = size if planes is None else (*size, planes)
+        # a different skew for each seed so that the histograms differ
+        a = (rng.random(shape) ** (1 + seed) * 255).astype(np.uint8)
+        return Image(a).hist(**kwargs)
+
+    def test_identical(self):
+        h = self._hist(1)
+        expect = {
+            "correlation": 1,
+            "chisqr": 0,
+            "intersection": 1,
+            "bhattacharyya": 0,
+            "chisqr_alt": 0,
+            "kl_div": 0,
+            "emd": 0,
+        }
+        for method, value in expect.items():
+            with self.subTest(method=method):
+                self.assertAlmostEqual(h.compare(h, method), value, places=5)
+
+    def test_returns_float(self):
+        h1, h2 = self._hist(1), self._hist(2)
+        for method in ("correlation", "chisqr", "intersection", "bhattacharyya", "chisqr_alt", "kl_div", "emd"):
+            with self.subTest(method=method):
+                self.assertIsInstance(h1.compare(h2, method), float)
+
+    def test_default_is_correlation(self):
+        h1, h2 = self._hist(1), self._hist(2)
+        self.assertEqual(h1.compare(h2), h1.compare(h2, "correlation"))
+
+    def test_emd_is_distance_in_bins(self):
+        h1 = Image(np.zeros((5, 5), dtype=np.uint8)).hist()
+        h2 = Image(np.full((5, 5), 3, dtype=np.uint8)).hist()
+        self.assertAlmostEqual(h1.compare(h2, "emd"), 3.0)
+        self.assertAlmostEqual(h2.compare(h1, "emd"), 3.0)
+        self.assertAlmostEqual(h1.compare(h2, "intersection"), 0.0)
+
+    def test_asymmetry(self):
+        h1, h2 = self._hist(1), self._hist(3)
+        for method in ("chisqr", "kl_div"):
+            with self.subTest(method=method):
+                self.assertNotAlmostEqual(h1.compare(h2, method), h2.compare(h1, method), places=3)
+        for method in ("correlation", "intersection", "bhattacharyya", "chisqr_alt", "emd"):
+            with self.subTest(method=method):
+                self.assertAlmostEqual(h1.compare(h2, method), h2.compare(h1, method), places=5)
+
+    def test_image_size_does_not_matter(self):
+        small = Image(np.tile(np.arange(256, dtype=np.uint8), (4, 1)))
+        large = Image(np.tile(np.arange(256, dtype=np.uint8), (16, 1)))
+        self.assertAlmostEqual(small.hist().compare(large.hist(), "correlation"), 1.0, places=5)
+        self.assertAlmostEqual(small.hist().compare(large.hist(), "emd"), 0.0, places=5)
+
+    def test_abbreviations(self):
+        h1, h2 = self._hist(1), self._hist(2)
+        self.assertEqual(h1.compare(h2, "CORR"), h1.compare(h2, "correlation"))
+        self.assertEqual(h1.compare(h2, "Inter"), h1.compare(h2, "intersection"))
+        self.assertEqual(h1.compare(h2, "kl"), h1.compare(h2, "kl_div"))
+        self.assertEqual(h1.compare(h2, "e"), h1.compare(h2, "emd"))
+        # both names for the same calculation
+        self.assertEqual(h1.compare(h2, "b"), h1.compare(h2, "bhattacharyya"))
+        self.assertEqual(h1.compare(h2, "h"), h1.compare(h2, "bhattacharyya"))
+        # an exact name wins over a longer name it is the start of
+        self.assertEqual(h1.compare(h2, "chisqr"), h1.compare(h2, "CHISQR"))
+        self.assertNotEqual(h1.compare(h2, "chisqr"), h1.compare(h2, "chisqr_alt"))
+
+    def test_bad_method(self):
+        h1, h2 = self._hist(1), self._hist(2)
+        with self.assertRaisesRegex(ValueError, "ambiguous"):
+            h1.compare(h2, "chi")
+        with self.assertRaisesRegex(ValueError, "ambiguous"):
+            h1.compare(h2, "c")
+        with self.assertRaisesRegex(ValueError, "unknown"):
+            h1.compare(h2, "bogus")
+
+    def test_color_returns_list(self):
+        h1 = self._hist(1, planes=3)
+        h2 = self._hist(2, planes=3)
+        result = h1.compare(h2, "correlation")
+        self.assertIsInstance(result, list)
+        self.assertEqual(len(result), 3)
+        self.assertTrue(all(isinstance(r, float) for r in result))
+        for r in h1.compare(h1, "correlation"):
+            self.assertAlmostEqual(r, 1.0, places=5)
+
+    def test_planes_compared_in_order(self):
+        # plane k of one against plane k of the other, equal to the greyscale answer
+        rng = np.random.default_rng(5)
+        a = rng.integers(0, 256, (30, 30, 3), dtype=np.uint8)
+        b = rng.integers(0, 128, (30, 30, 3), dtype=np.uint8)
+        result = Image(a).hist().compare(Image(b).hist(), "emd")
+        for k in range(3):
+            single = Image(a[:, :, k]).hist().compare(Image(b[:, :, k]).hist(), "emd")
+            self.assertAlmostEqual(result[k], single, places=5)
+
+    def test_mismatched_histograms(self):
+        h1 = self._hist(1)
+        with self.assertRaisesRegex(ValueError, "bins"):
+            h1.compare(self._hist(1, nbins=64))
+        with self.assertRaisesRegex(ValueError, "planes"):
+            h1.compare(self._hist(1, planes=3))
+        with self.assertRaises(TypeError):
+            h1.compare(h1.pdf)  # type: ignore[arg-type]
+
+
 if __name__ == "__main__":
     unittest.main()
