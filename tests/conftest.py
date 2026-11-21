@@ -45,7 +45,7 @@ def _suppress_gui(monkeypatch):
             monkeypatch.setattr(cv2, "destroyWindow", lambda *args, **kwargs: None)
         if hasattr(cv2, "destroyAllWindows"):
             monkeypatch.setattr(cv2, "destroyAllWindows", lambda *args, **kwargs: None)
-    except Exception:
+    except ImportError:
         pass
 
     try:
@@ -55,5 +55,5 @@ def _suppress_gui(monkeypatch):
         import matplotlib.pyplot as plt
 
         monkeypatch.setattr(plt, "show", lambda *args, **kwargs: None)
-    except Exception:
+    except ImportError:
         pass

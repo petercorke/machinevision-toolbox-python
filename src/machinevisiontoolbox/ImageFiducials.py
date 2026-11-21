@@ -10,21 +10,17 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
 import cv2
-import matplotlib.pyplot as plt
 import numpy as np
-from ansitable import ANSITable, Column
 from spatialmath import SE3
 
 from machinevisiontoolbox._image_typing import ImageMixinBase
 from machinevisiontoolbox.base.graphics import _require_c_contiguous
-from machinevisiontoolbox.ImagePointFeatures import BaseFeature2D
 
 # https://docs.opencv.org/4.4.0/d7/d60/classcv_1_1SIFT.html
 
 
 if TYPE_CHECKING:
     from machinevisiontoolbox.ImageCore import Image
-    from machinevisiontoolbox._image_typing import _ImageBase
 
 
 def _fiducial_dict(dict="4x4_1000"):

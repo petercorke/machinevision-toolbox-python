@@ -4,11 +4,10 @@
 
 from __future__ import annotations
 
-from math import cos, pi, sin
+from math import pi
 from typing import Any, Sequence
 
 import numpy as np
-import scipy
 import spatialmath.base as smb
 from spatialmath import SE3
 

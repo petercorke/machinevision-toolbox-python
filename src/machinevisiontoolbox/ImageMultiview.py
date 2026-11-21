@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING, Any
 
 import cv2
 import numpy as np
-from spatialmath.base import argcheck, e2h, getvector, h2e, transl2
 from machinevisiontoolbox._image_typing import ImageMixinBase
 
 if sys.version_info >= (3, 11):
@@ -19,7 +18,6 @@ else:
 
 if TYPE_CHECKING:
     from machinevisiontoolbox.ImageCore import Image
-    from machinevisiontoolbox._image_typing import _ImageBase
 
 
 class ImageMultiviewMixin(ImageMixinBase):

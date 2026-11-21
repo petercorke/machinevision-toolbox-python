@@ -7,8 +7,8 @@ from __future__ import annotations
 import copy
 from abc import ABC, abstractmethod
 from collections import namedtuple
-from math import cos, pi, sin, sqrt, tan
-from typing import TYPE_CHECKING, Any, Callable, cast
+from math import pi, sin, tan
+from typing import Any, Callable, cast
 
 import cv2
 import matplotlib.pyplot as plt
@@ -841,7 +841,9 @@ class CameraBase(ABC):
             for artist in self._ax.get_children():
                 try:
                     artist.remove()
-                except Exception:
+                except (NotImplementedError, ValueError):
+                    # axes furniture (spines, axes, text, patches) cannot be removed,
+                    # and an artist that was already removed raises ValueError
                     pass
 
     def plot_point(

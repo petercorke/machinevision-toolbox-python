@@ -12,7 +12,7 @@ import argparse
 from colored import Fore, Style
 
 from machinevisiontoolbox import Image
-from machinevisiontoolbox.bin._bintools import CustomDefaultsHelpFormatter, MVTB_LINK
+from machinevisiontoolbox.bin._bintools import CustomDefaultsHelpFormatter
 from ansitable import ANSITable, Column
 import matplotlib
 import numpy as np
@@ -209,6 +209,7 @@ def format_coord(u: float, v: float) -> str:
                 val = f"{x}"
             else:
                 print(f"unknown pixel type {type(x)}")
+                val = str(x)
 
             return f"({u}, {v}): {val}"
         else:
@@ -223,7 +224,8 @@ def format_coord(u: float, v: float) -> str:
             val = "[" + ", ".join(parts) + "]"
 
             return f"({u}, {v}): {val} {colorspace}, {x.dtype}"
-    except Exception as e:
+    except IndexError:
+        # the cursor is outside the image
         return "bad"
 
 

@@ -1,12 +1,7 @@
-import time
 
-import matplotlib.pyplot as plt
-import numpy as np
-from bdsim.components import FunctionBlock, SourceBlock, TransferBlock
+from bdsim.components import FunctionBlock
 from bdsim.graphics import GraphicsBlock
-from spatialmath import SE3, base
 
-from machinevisiontoolbox import mkgrid
 
 """
 Machine Vision blocks:
@@ -267,7 +262,6 @@ class ImagePlane(GraphicsBlock):
 
         self.ax.set_title(self.name_tex)
 
-        print("@@@@@@", self.args, self.kwargs)
         (self.line,) = self.ax.plot(self.u_data, self.v_data, *self.args, **self.kwargs)
 
         # grid control
@@ -284,8 +278,8 @@ class ImagePlane(GraphicsBlock):
                 plug = wire.start  # start plug for input wire
 
                 # append to the watchlist, bdsim.run() will do the rest
-                state.watchlist.append(plug)
-                state.watchnamelist.append(str(plug))
+                simstate.watchlist.append(plug)
+                simstate.watchnamelist.append(str(plug))
 
     def step(self, t, inports):
         # inputs are set

@@ -2,7 +2,6 @@
 Detection and description of 2D blob (connected region) features in images.
 """
 
-import copy
 import io
 import json
 import subprocess
@@ -26,7 +25,7 @@ from machinevisiontoolbox.base.graphics import plot_labelbox, mpl_styling
 from machinevisiontoolbox.decorators import array_result, scalar_result
 
 if TYPE_CHECKING:
-    from machinevisiontoolbox._image_typing import _ImageBase
+    pass
 
 """
 NOTES

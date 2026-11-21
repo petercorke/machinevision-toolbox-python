@@ -54,6 +54,7 @@ Point features
     ~ImagePointFeatures.BaseFeature2D
     ~ImagePointFeatures.FeatureMatch
     ~ImagePointFeatures.SIFTFeature
+    ~ImagePointFeatures.SURFFeature
     ~ImagePointFeatures.ORBFeature
     ~ImagePointFeatures.BRISKFeature
     ~ImagePointFeatures.AKAZEFeature
@@ -67,6 +68,7 @@ Point features
 
 
 .. inheritance-diagram:: ImagePointFeatures.SIFTFeature
+      ImagePointFeatures.SURFFeature
       ImagePointFeatures.ORBFeature
       ImagePointFeatures.BRISKFeature
       ImagePointFeatures.AKAZEFeature

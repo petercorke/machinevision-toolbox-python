@@ -9,11 +9,12 @@ except ImportError:
 
 import unittest
 
+import numpy as np
 import numpy.testing as nt
 from spatialmath import SE3
 
 from machinevisiontoolbox import CentralCamera, mkcube
-from machinevisiontoolbox.blocks import *
+from machinevisiontoolbox.blocks import Camera, EstPose_p, ImagePlane, Visjac_p
 
 
 @unittest.skipIf(not _bdsim, reason="bdsim is not installed")
