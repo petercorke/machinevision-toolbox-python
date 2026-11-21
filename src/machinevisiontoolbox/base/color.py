@@ -1590,9 +1590,9 @@ def gamma_encode(
         - |RVC3|, Section 10.1.
 
     .. versionchanged:: 2.5.0
-        Added the ``dtype`` argument.  A 1D array is accepted with the sRGB mapping,
-        and an integer image gives an integer result of the same type, where it
-        could be float32 or ``uint8``.
+        Added the ``dtype`` argument.  The result now has the type of the input,
+        where an integer image gave float32 or ``uint8``.  A 1D array is now
+        accepted with the sRGB mapping.
 
     :seealso: :func:`gamma_decode` :func:`colorspace_convert`
     """
@@ -1650,9 +1650,9 @@ def gamma_decode(
         - |RVC3|, Section 10.1.
 
     .. versionchanged:: 2.5.0
-        Added the ``dtype`` argument.  A 1D array is accepted with the sRGB mapping,
-        and the result has the type of the input, where 16-bit and float64 data could
-        become ``uint8`` and float32.
+        Added the ``dtype`` argument.  The result now has the type of the input,
+        where ``uint16`` data gave ``uint8`` and ``float64`` data gave float32.  A 1D
+        array is now accepted with the sRGB mapping.
 
     :seealso: :func:`gamma_encode`
     """
