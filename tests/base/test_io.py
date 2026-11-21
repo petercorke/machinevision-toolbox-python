@@ -731,18 +731,15 @@ class TestIwriteEdgeCases(unittest.TestCase):
         im = np.random.randint(0, 256, (20, 20), dtype=np.uint8)
         filename = "./temp_test_dir/test.png"
 
+        import shutil
+
         try:
             result = iwrite(im, filename)
-            if result:
-                self.assertTrue(os.path.isfile(filename))
-                # Cleanup
-                import shutil
-
-                if os.path.isdir("./temp_test_dir"):
-                    shutil.rmtree("./temp_test_dir")
-        except Exception:
-            # If directory creation fails, that's acceptable
-            pass
+            self.assertTrue(result)
+            self.assertTrue(os.path.isfile(filename))
+        finally:
+            if os.path.isdir("./temp_test_dir"):
+                shutil.rmtree("./temp_test_dir")
 
 
 class TestIdisp2D3D(unittest.TestCase):

@@ -1418,9 +1418,16 @@ def iwrite(
           OpenCV order: BGR or BGRA. For example, if ``colororder`` is "GRBA", the planes
           are reordered to "BGRA" for writing.  If ``colororder`` is "BGR" or "BGRA", no reordering is done.
 
+    .. versionchanged:: 2.5.0
+        Any missing folders in the path of ``filename`` are created.  Previously
+        ``cv2.imwrite`` returned ``False`` and wrote nothing.
+
     :seealso: :func:`iread` `cv2.imwrite
         <https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html#gabbc7ef1aa2edfaa87772f1202d67e0ce>`_
     """
+    # cv2.imwrite does not create folders, it just returns False
+    Path(filename).parent.mkdir(parents=True, exist_ok=True)
+
     if im.ndim > 2:
         # color image, convert to OpenCV BGR order for writing
         if im.shape[2] not in (3, 4):
