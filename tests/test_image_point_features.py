@@ -125,15 +125,63 @@ class TestImagePointFeatures(unittest.TestCase):
         sift = img.SIFT()
         self.assertGreater(len(sift), 0)
 
-    @unittest.skip(
-        "Image.SURF() is not implemented, and SURF is non-free in pip OpenCV "
-        "builds; see https://github.com/petercorke/machinevision-toolbox-python/issues/113"
-    )
     def test_surf(self):
-        """Test SURF feature detection"""
+        """SURF works if this OpenCV has it, otherwise the error says why"""
+        import cv2
+
         img = Image.Read("flowers1.png", mono=True)
+        try:
+            cv2.xfeatures2d.SURF_create()
+        except (cv2.error, AttributeError):
+            # not available (patented, or no contrib modules): expect a clear error
+            with self.assertRaises((RuntimeError, AttributeError)) as cm:
+                img.SURF()
+            self.assertTrue(str(cm.exception))  # the message says why
+            return
 
         surf = img.SURF()
+        self.assertGreater(len(surf), 0)
+
+    def test_surf_nonfree_message(self):
+        """A build of OpenCV without the non-free algorithms gives a helpful message"""
+        import cv2
+        from unittest import mock
+
+        img = Image.Read("flowers1.png", mono=True)
+        err = cv2.error("(-213:The function/feature is not implemented) patented")
+        with mock.patch.object(cv2.xfeatures2d, "SURF_create", side_effect=err, create=True):
+            with self.assertRaises(RuntimeError) as cm:
+                img.SURF()
+        self.assertIn("OPENCV_ENABLE_NONFREE", str(cm.exception))
+        self.assertIn("SIFT", str(cm.exception))
+
+    def test_surf_without_contrib(self):
+        """Without the contrib modules the error says to install them"""
+        import cv2
+        from unittest import mock
+
+        from machinevisiontoolbox._cv2_contrib import _MissingContrib
+
+        img = Image.Read("flowers1.png", mono=True)
+        with mock.patch.object(cv2, "xfeatures2d", _MissingContrib("xfeatures2d"), create=True):
+            with self.assertRaises(AttributeError) as cm:
+                img.SURF()
+        self.assertIn("opencv-contrib-python", str(cm.exception))
+
+    def test_surf_features(self):
+        """SURF returns SURFFeature objects (detector stood in for by SIFT, which is free)"""
+        import cv2
+        from unittest import mock
+
+        from machinevisiontoolbox.ImagePointFeatures import SURFFeature
+
+        img = Image.Read("flowers1.png", mono=True)
+        with mock.patch.object(
+            cv2.xfeatures2d, "SURF_create", side_effect=lambda **kw: cv2.SIFT_create(**kw), create=True
+        ):
+            surf = img.SURF()
+        self.assertIsInstance(surf, SURFFeature)
+        self.assertEqual(surf._feature_type, "SURF")
         self.assertGreater(len(surf), 0)
 
     def test_orb(self):
