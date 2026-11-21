@@ -1133,7 +1133,7 @@ class ImageProcessingMixin(ImageMixinBase):
                 else:
                     try:
                         color = argcheck.getvector(image2, 3)
-                    except Exception:
+                    except (TypeError, ValueError):
                         raise ValueError("expecting a scalar, string or 3-vector")
                 if self.isbgr:
                     color = color[::-1]
