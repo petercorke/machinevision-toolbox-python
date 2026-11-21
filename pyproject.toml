@@ -116,7 +116,7 @@ line-length = 120
 extend-exclude = ["tests/RVC"]
 
 [tool.ruff.lint]
-select = ["E", "F", "I"]
+select = ["E", "F", "I", "BLE"]
 
 [tool.ruff.lint.per-file-ignores]
 # these files re-export their submodules with star imports on purpose, so that
