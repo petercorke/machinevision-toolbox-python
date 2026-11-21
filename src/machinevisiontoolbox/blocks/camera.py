@@ -1,12 +1,7 @@
-import time
 
-import matplotlib.pyplot as plt
-import numpy as np
-from bdsim.components import FunctionBlock, SourceBlock, TransferBlock
+from bdsim.components import FunctionBlock
 from bdsim.graphics import GraphicsBlock
-from spatialmath import SE3, base
 
-from machinevisiontoolbox import mkgrid
 
 """
 Machine Vision blocks:

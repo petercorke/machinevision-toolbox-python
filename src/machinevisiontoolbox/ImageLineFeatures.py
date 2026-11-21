@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING, Any
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
-import scipy as sp
 from spatialmath import base
 from spatialmath.base import set_window_title
 from machinevisiontoolbox._image_typing import ImageMixinBase

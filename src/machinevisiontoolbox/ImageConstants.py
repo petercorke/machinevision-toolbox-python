@@ -4,29 +4,21 @@ Factory class methods for constructing Image objects with common pixel patterns.
 
 from __future__ import annotations
 
-import os
-import os.path
-import urllib
-import xml.etree.ElementTree as ET
 from collections.abc import Iterable
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Sequence, cast
 
 if TYPE_CHECKING:
     from typing import Self
-    from machinevisiontoolbox._image_typing import _ImageBase
 
 import cv2
 import numpy as np
 from spatialmath import Polygon2
-from spatialmath import base as smb
-from spatialmath.base import islistof, isscalar
 
 # from numpy.lib.arraysetops import isin
 from machinevisiontoolbox._image_typing import ImageMixinBase
 from machinevisiontoolbox.base.color import name2color
 from machinevisiontoolbox.base.types import DTYPE_ALIASES
-from machinevisiontoolbox.base.imageio import convert, idisp, iread, iwrite
 from machinevisiontoolbox.Kernel import Kernel
 from machinevisiontoolbox.mvtb_types import Dtype
 

@@ -10,15 +10,13 @@ import warnings
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
-import scipy as sp
 from matplotlib.axes import Axes
 from matplotlib.patches import Polygon
 from matplotlib.ticker import ScalarFormatter
-from spatialmath import SE3, base
 from spatialmath.base import set_window_title
 
 if TYPE_CHECKING:
-    from machinevisiontoolbox._image_typing import _ImageBase
+    pass
 
 from machinevisiontoolbox._image_typing import ImageMixinBase
 from machinevisiontoolbox.base.findpeaks import findpeaks, findpeaks2d

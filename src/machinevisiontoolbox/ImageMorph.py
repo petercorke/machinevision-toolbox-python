@@ -10,7 +10,6 @@ from typing import TYPE_CHECKING, Any
 
 import cv2
 import numpy as np
-import scipy as sp
 from machinevisiontoolbox._image_typing import ImageMixinBase
 from machinevisiontoolbox.Kernel import Kernel
 
@@ -20,8 +19,7 @@ else:
     from typing_extensions import Self
 
 if TYPE_CHECKING:
-    from machinevisiontoolbox.ImageCore import Image
-    from machinevisiontoolbox._image_typing import _ImageBase
+    pass
 
 
 class ImageMorphMixin(ImageMixinBase):

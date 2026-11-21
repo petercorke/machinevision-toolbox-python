@@ -10,10 +10,8 @@ from typing import Iterable as TypingIterable
 import re
 
 import cv2
-import matplotlib.pyplot as plt
 import numpy as np
 import spatialmath.base as smb
-from ansitable import ANSITable, Column
 from matplotlib.patches import Rectangle
 
 from machinevisiontoolbox.base import name2color

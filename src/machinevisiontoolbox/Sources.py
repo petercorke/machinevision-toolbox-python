@@ -16,7 +16,6 @@ import sys
 import tarfile
 import threading
 from dataclasses import dataclass
-from http import client
 import os
 import tempfile
 import time
@@ -44,7 +43,7 @@ from spatialmath import Polygon2
 from machinevisiontoolbox.ImageCore import Image
 from machinevisiontoolbox.PointCloud import PointCloud
 from machinevisiontoolbox.base import mvtb_path_to_datafile
-from machinevisiontoolbox.base.imageio import convert, iread, iread_iter, safe_plt_show
+from machinevisiontoolbox.base.imageio import iread, iread_iter, safe_plt_show
 
 try:
     from rosbags.rosbag1 import Reader as _RosBagReader1

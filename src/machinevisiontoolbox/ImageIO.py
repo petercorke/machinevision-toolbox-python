@@ -2,12 +2,9 @@
 Image file and URL reading/writing, and image-sequence iteration.
 """
 
-import fnmatch
 import os
 import os.path
 import sys
-import zipfile
-from collections import namedtuple
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, SupportsFloat, cast
 
@@ -18,29 +15,19 @@ else:
 
 import PIL.Image
 from PIL.ExifTags import TAGS
-import cv2
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 from matplotlib.colors import Colormap, LinearSegmentedColormap
 import matplotlib.patheffects as path_effects
 import numpy as np
-import scipy as sp
-from scipy import interpolate
-from spatialmath.base import argcheck, getvector, set_window_title
+from spatialmath.base import set_window_title
 
 if TYPE_CHECKING:
-    from machinevisiontoolbox._image_typing import _ImageBase
+    pass
 
 from machinevisiontoolbox._image_typing import ImageMixinBase
-from machinevisiontoolbox.base import (
-    colorname,
-    float_image,
-    int_image,
-    mvtb_path_to_datafile,
-)
 from machinevisiontoolbox.base.imageio import (
     _pick_imagefile,
-    convert,
     idisp,
     iread,
     safe_plt_show,

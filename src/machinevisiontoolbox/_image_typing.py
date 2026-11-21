@@ -22,7 +22,7 @@ else:
     from typing_extensions import Self
 import numpy as np
 
-from machinevisiontoolbox.mvtb_types import Array2d, Array3d, Dtype
+from machinevisiontoolbox.mvtb_types import Array2d, Dtype
 
 
 class _ImageBase(Protocol):
