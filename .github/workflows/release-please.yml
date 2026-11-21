@@ -37,11 +37,16 @@ jobs:
       # `${{ steps.release.outputs.releases_created }}` is truthy on every
       # push, not just when a release was actually created. Must compare
       # explicitly against the string 'true'.
-      - name: Trigger PyPI publish
+      #
+      # The same goes for the zips of the examples and notebooks: assets.yml is
+      # dispatched with the tag.  It runs from main, since it has no environment
+      # rule to satisfy, and builds the zips from the tag.
+      - name: Trigger PyPI publish and the release zips
         if: ${{ steps.release.outputs.releases_created == 'true' }}
         run: |
           tag=$(gh release list --repo "$GH_REPO" --limit 1 --json tagName -q '.[0].tagName')
           gh workflow run release.yml --repo "$GH_REPO" --ref "$tag"
+          gh workflow run assets.yml --repo "$GH_REPO" --ref main -f tag="$tag"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
