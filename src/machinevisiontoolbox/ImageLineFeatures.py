@@ -115,7 +115,9 @@ class HoughFeature:
         lines = cv2.HoughLines(
             image=self.image, rho=self.drho, theta=self.dtheta, threshold=minvotes
         )
-        if lines is None:
+        # OpenCV 4 and 5.0 return None when there are no lines, 5.1 returns an
+        # empty array
+        if lines is None or len(lines) == 0:
             return np.zeros((0, 2))
         else:
             return np.array((lines[:, 0, 1], lines[:, 0, 0])).T
@@ -158,7 +160,7 @@ class HoughFeature:
             minLineLength=minlinelength,
             maxLineGap=maxlinegap,
         )
-        if lines is None:
+        if lines is None or len(lines) == 0:
             return np.zeros((0, 4))
         # --- OpenCV 4/5 compat -----------------------------------------
         # OpenCV 5's HoughLinesP returns a true (N,4) array; OpenCV 4
@@ -233,8 +235,9 @@ class HoughFeature:
                 image=self.image, rho=self.drho, theta=self.dtheta, threshold=t
             )
 
-            if lines is None:
-                # no lines found at this threshold, bail out
+            if lines is None or len(lines) == 0:
+                # no lines found at this threshold, bail out.  OpenCV 5.1
+                # returns an empty array, not None, so test for both.
                 self.t = t - 1
                 break
 
