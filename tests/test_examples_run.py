@@ -12,6 +12,7 @@ new example is tested by default.
 """
 
 import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -33,6 +34,9 @@ SKIP = {
 NETWORK = {"monalisa.py"}
 NETWORK_ERRORS = ("URLError", "ConnectionError", "TimeoutError", "HTTPError", "gaierror")
 
+# examples that run an external program: skipped when it is not installed
+NEEDS_PROGRAM = {"blobs2.py": "dot"}  # Graphviz
+
 ARGS = {"morphdemo.py": ["--delay", "0"]}
 
 
@@ -40,6 +44,8 @@ ARGS = {"morphdemo.py": ["--delay", "0"]}
 def test_example_runs(script):
     if script in SKIP:
         pytest.skip(SKIP[script])
+    if script in NEEDS_PROGRAM and shutil.which(NEEDS_PROGRAM[script]) is None:
+        pytest.skip(f"needs {NEEDS_PROGRAM[script]} on the PATH")
 
     env = dict(os.environ, MPLBACKEND="Agg")
     result = subprocess.run(
