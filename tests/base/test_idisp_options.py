@@ -9,6 +9,8 @@ use stand-ins for ``pyclip`` and ``cv2``, since a real clipboard and real window
 depend on the machine the tests run on.
 """
 
+import contextlib
+import io
 import unittest
 from unittest.mock import patch
 
@@ -278,6 +280,73 @@ class TestClipboardKeys(_Agg):
             "key_press_event", KeyEvent("key_press_event", canvas, "c", -50, -50)
         )
         self.assertEqual(self.clip.text, "")
+
+
+class TestKeyHelp(_Agg):
+    """The ``?`` key prints the list of keys, which depends on whether pyclip is installed."""
+
+    def press(self, key, x=None, y=None):
+        h = self.show(np.zeros((4, 4), dtype=np.uint8))
+        canvas = h.axes.figure.canvas
+        if x is None:
+            x, y = h.axes.transData.transform((2, 1))
+        stream = io.StringIO()
+        with contextlib.redirect_stdout(stream):
+            canvas.callbacks.process(
+                "key_press_event", KeyEvent("key_press_event", canvas, key, x, y)
+            )
+        return stream.getvalue()
+
+    def with_clipboard(self, available):
+        patches = [
+            patch.object(imageio, "_pyclip", available),
+            patch.object(
+                imageio, "pyclip", _FakeClipboard() if available else None, create=True
+            ),
+        ]
+        for p in patches:
+            p.start()
+            self.addCleanup(p.stop)
+
+    def test_help_with_clipboard_keys(self):
+        self.with_clipboard(True)
+        text = self.press("?")
+        for line in (
+            "?  show this help",
+            "q  close the window",
+            "c  copy",
+            "C  append",
+            "v  copy",
+            "V  append",
+            "x  clear",
+        ):
+            self.assertIn(line, text)
+        self.assertNotIn("need pyclip", text)
+
+    def test_help_without_clipboard_keys(self):
+        self.with_clipboard(False)
+        text = self.press("?")
+        self.assertIn("?  show this help", text)
+        self.assertIn("need pyclip", text)
+        # the individual clipboard keys are not listed
+        self.assertNotIn("append the pixel position", text)
+
+    def test_help_works_with_the_cursor_outside_the_image(self):
+        self.with_clipboard(True)
+        self.assertIn("idisp keys:", self.press("?", -50, -50))
+
+    def test_other_keys_print_nothing(self):
+        self.with_clipboard(True)
+        self.assertEqual(self.press("z"), "")
+
+    def test_help_text_is_concise(self):
+        for available in (True, False):
+            lines = imageio._idisp_key_help(available).splitlines()
+            self.assertLessEqual(len(lines), 12)
+            self.assertTrue(all(len(line) < 80 for line in lines))
+
+    def test_help_lists_matplotlib_keys(self):
+        self.assertIn("h home", imageio._idisp_key_help(False))
 
 
 class TestOpenCVWindows(unittest.TestCase):
