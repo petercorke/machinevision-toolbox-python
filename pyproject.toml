@@ -88,7 +88,9 @@ jupyter = ["ipywidgets", "ipympl"]
 
 open3d = ["open3d"]
 
-torch = ["torch"]
+torch = ["torch", "torchvision"]
+
+ultralytics = ["torch", "torchvision", "ultralytics"]
 
 ocr = ["pytesseract"]
 
@@ -97,6 +99,8 @@ all = [
     "ipympl",
     "open3d",
     "torch",
+    "torchvision",
+    "ultralytics",
     "pytesseract",
     "rosbags",
     "roslibpy",
