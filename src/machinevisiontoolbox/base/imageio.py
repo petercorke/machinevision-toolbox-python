@@ -429,6 +429,11 @@ def idisp(
           U1,V1\nU2,V2
         - The clipboard keys require that ``pyclip`` is installed.
 
+    .. versionchanged:: 2.5.0
+        The ``v`` and ``V`` keys copy plain numbers, for example ``2,1,(10, 20, 30)``.
+        On NumPy 2 they used to copy ``2,1,(np.uint8(10), np.uint8(20), np.uint8(30))``,
+        and raised an error for a monochrome image.
+
     :references:
         - |RVC3|, Section 10.1.
 
@@ -915,6 +920,15 @@ def _idisp_matplotlib(
         except IndexError:
             return ""
 
+    def pixel_text(u: int, v: int) -> str:
+        # the value of pixel (u, v) as plain Python numbers: "6" for a monochrome
+        # image, "(10, 20, 30)" for a color image.  NumPy 2 would show a scalar
+        # as "np.uint8(10)", which is no use pasted into a script or a spreadsheet.
+        val = im[v, u, ...]
+        if val.ndim == 0:
+            return str(val.item())
+        return str(tuple(val.tolist()))
+
     def key_press(event: Any) -> None:
         if not _pyclip:
             return
@@ -939,14 +953,12 @@ def _idisp_matplotlib(
         elif event.key == "x":
             pyclip.copy("")
         elif event.key == "v":
-            val = im[v, u, ...]
-            pyclip.copy(f"{u},{v},{tuple(val)}")
+            pyclip.copy(f"{u},{v},{pixel_text(u, v)}")
         elif event.key == "V":
-            val = im[v, u, ...]
             prev = pyclip.paste()
             if isinstance(prev, bytes):
                 prev = prev.decode()
-            pyclip.copy(f"{prev}\n{u},{v},{tuple(val)}")
+            pyclip.copy(f"{prev}\n{u},{v},{pixel_text(u, v)}")
 
     fig.canvas.mpl_connect("key_press_event", key_press)
 
