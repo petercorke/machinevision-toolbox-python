@@ -607,6 +607,27 @@ class TestLabelMeReader(unittest.TestCase):
             self.assertEqual(shapes[1].flags, {"hard": False})
 
 
+class TestLabelMeReaderErrors(unittest.TestCase):
+    """A LabelMe file that cannot be read raises, it does not return a half-built reader."""
+
+    def test_missing_file_raises(self):
+        from machinevisiontoolbox import LabelMeReader
+
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaises(FileNotFoundError):
+                LabelMeReader(os.path.join(tmp, "missing.json"))
+
+    def test_invalid_json_raises(self):
+        from machinevisiontoolbox import LabelMeReader
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "bad.json")
+            with open(path, "w", encoding="utf-8") as f:
+                f.write("{ this is not json")
+            with self.assertRaises(json.JSONDecodeError):
+                LabelMeReader(path)
+
+
 class TestEarthViewKey(unittest.TestCase):
     """How EarthView finds its API key (no network access needed)."""
 
