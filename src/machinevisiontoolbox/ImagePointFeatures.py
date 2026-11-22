@@ -546,13 +546,12 @@ class BaseFeature2D:
         return [kp.octave for kp in self._kp]
 
     @property
-    @array_result
     def descriptor(self) -> np.ndarray | None:  # Descriptor of feature
         """
         Descriptor of feature
 
-        :return: Descriptor
-        :rtype: ndarray(N,M)
+        :return: Descriptor, or None if the features have no descriptors
+        :rtype: ndarray(N,M) or None
 
         Example:
 
@@ -566,8 +565,17 @@ class BaseFeature2D:
             >>> orb[:5].descriptor.shape
 
         .. note:: For single feature return a 1D array vector, for multiple features return a set of column vectors.
+
+        .. versionchanged:: 2.5.0
+            Returns None, instead of raising ``TypeError``, if the features have
+            no descriptors.
         """
-        return self._descriptor
+        des = self._descriptor
+        if des is None:
+            return None
+        # a single feature gives a 1D vector, as array_result does for the
+        # other properties
+        return des[0] if len(des) == 1 else des
 
     @property
     @array_result
@@ -731,8 +739,13 @@ class BaseFeature2D:
         # sorting
         # return
 
+        des1 = self.descriptor
+        des2 = other.descriptor
+        if des1 is None or des2 is None:
+            raise ValueError("features have no descriptors")
+
         if metric is None:
-            metric = "hamming" if self.descriptor.dtype == np.uint8 else "L2"
+            metric = "hamming" if des1.dtype == np.uint8 else "L2"
 
         metricdict = {
             "L1": cv2.NORM_L1,
@@ -755,7 +768,7 @@ class BaseFeature2D:
         else:
             k = 2
 
-        matches0 = bf.knnMatch(self.descriptor, other.descriptor, k=k)
+        matches0 = bf.knnMatch(des1, des2, k=k)
 
         # the elements of matches are:
         #  queryIdx: first feature set (self)
@@ -1837,7 +1850,7 @@ class FeatureMatch:
 
     @property
     @array_result
-    def descriptor1(self) -> "builtins.list[np.ndarray]":
+    def descriptor1(self) -> "builtins.list[np.ndarray | None]":
         """
         Feature descriptor in first image
 
@@ -1859,7 +1872,7 @@ class FeatureMatch:
 
     @property
     @array_result
-    def descriptor2(self) -> "builtins.list[np.ndarray]":
+    def descriptor2(self) -> "builtins.list[np.ndarray | None]":
         """
         Feature descriptor in second image
 
