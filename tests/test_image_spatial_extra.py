@@ -380,7 +380,8 @@ class TestLabels:
         assert labels.array.max() <= n - 1
 
     @pytest.mark.skipif(
-        not hasattr(cv2, "ximgproc"), reason="needs opencv-contrib-python"
+        not hasattr(getattr(cv2, "ximgproc", None), "segmentation"),
+        reason="needs opencv-contrib-python with ximgproc.segmentation",
     )
     def test_graph_segmentation(self, square):
         labels, n = square.labels_graphseg()
