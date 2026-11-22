@@ -51,13 +51,6 @@ class TestRead:
         with pytest.raises(ValueError, match="wildcard"):
             Image.Read("no-such-images-*.png")
 
-    @pytest.mark.xfail(
-        strict=True,
-        raises=AssertionError,
-        reason="iread() returns (list of images, list of paths) for a wildcard, "
-        "which Image.Read() mistakes for a single image, so its own "
-        "'wildcard read not supported' ValueError is never reached",
-    )
     def test_wildcard_that_matches_files_is_refused(self):
         with pytest.raises(ValueError, match="wildcard"):
             Image.Read(str(DATA / "stripes*.png"))
@@ -316,12 +309,6 @@ class TestStdisp:
         x, y = ax.transData.transform((u, v))
         return MouseEvent(name, fig.canvas, x, y, button=1)
 
-    @pytest.mark.xfail(
-        strict=True,
-        raises=RuntimeError,
-        reason="the click handler passes a scalar to Line2D.set_xdata/set_ydata, "
-        "which Matplotlib 3.11 refuses: 'y must be a sequence'",
-    )
     def test_clicking_places_the_cross_hairs_and_dragging_measures_disparity(
         self, pair, monkeypatch
     ):
@@ -377,13 +364,6 @@ class TestStdisp:
         assert seen["after"] == ["d=-4.00"]
         assert seen["dashed"] == pytest.approx(14)
 
-    @pytest.mark.xfail(
-        strict=True,
-        raises=AssertionError,
-        reason="stdisp() keeps its cursor object only in a local variable, and "
-        "Matplotlib holds callbacks weakly, so when plt.show() does not block "
-        "(a notebook, or a non-interactive backend) the clicks do nothing",
-    )
     def test_cursor_survives_when_show_does_not_block(self, pair):
         left, right = pair
         left.stdisp(right, interactive=True)

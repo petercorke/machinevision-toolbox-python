@@ -84,13 +84,12 @@ class TestMSERIndexing:
         assert len(msers.points) == 3
         assert msers.bbox.shape == (3, 4)
 
-    @pytest.mark.xfail(
-        strict=True,
-        reason="an int index leaves the region's 2 x N point array in _points, "
-        "so len() of the result is 2, not 1",
-    )
     def test_integer_index_is_one_region(self, msers):
-        assert len(msers[0]) == 1
+        one = msers[0]
+        assert len(one) == 1
+        nt.assert_array_equal(one.bbox, [1, 2, 5, 6])
+        nt.assert_array_equal(one.points, [[1, 3, 5], [2, 4, 6]])
+        assert str(one) == "MSER feature: u: 1 - 5, v: 2 - 6"
 
 
 class TestMSERPrinting:
@@ -101,13 +100,8 @@ class TestMSERPrinting:
     def test_single(self, msers):
         assert str(msers[2:]) == "MSER feature: u: 0 - 1, v: 0 - 1"
 
-    @pytest.mark.xfail(
-        strict=True,
-        raises=IndexError,
-        reason="str() of an object with no regions looks up the first bounding box",
-    )
     def test_empty(self):
-        str(MSERFeature())
+        assert str(MSERFeature()) == "MSER features, 0 regions"
 
 
 class TestMSERDetection:
