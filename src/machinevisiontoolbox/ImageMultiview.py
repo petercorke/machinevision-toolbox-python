@@ -50,7 +50,7 @@ class ImageMultiviewMixin(ImageMixinBase):
           the strength of the stereo match.  This is a ZNCC measure where 1 is a
           perfect match, greater than 0.8 is a decent match.
         - the disparity space image, a 3D array, whose first two dimensions are
-          the same size as the input imagesm and whose third dimension is the
+          the same size as the input images and whose third dimension is the
           number of disparities.  Each fibre DSI[v,u,:] is window similarity
           versus disparity.
 
@@ -65,10 +65,27 @@ class ImageMultiviewMixin(ImageMixinBase):
 
         .. note:: The images are assumed to be epipolar aligned.
 
+        .. note:: The disparity and similarity images, and each plane of the DSI,
+            have a band of ``hw`` NaN valued pixels along the top, bottom and right
+            edges, where the window extends beyond the image.  The band along the
+            left edge is ``hw + drange[0]`` wide for the disparity and similarity
+            images, and ``hw + drange[0] + d`` wide for the DSI plane of
+            disparity ``d`` (counting from 0), since the shifted window in the
+            right image must also lie within the image.
+
         :references:
             - |RVC3|, Section 14.4.
 
         .. warning:: Not fast.
+
+        .. versionchanged:: 2.5.0
+            The outputs are the same size as the input images, as documented.
+            Previously they were larger by ``2*hw`` in each direction, with
+            the result for pixel (u, v) at (u+hw, v+hw).  The disparity at a
+            pixel is now the best of its valid disparities, and NaN only if
+            none are valid, and an integer image is padded with NaN instead
+            of 0, so windows that extend beyond the image are invalid for
+            every image type.
 
         :seealso: :meth:`DSI_refine` :meth:`stereo_BM` :meth:`stereo_SGBM`
         """
@@ -91,15 +108,20 @@ class ImageMultiviewMixin(ImageMixinBase):
                             constant_values=np.nan,
                         )
                     )
-            return np.dstack(stack)
+            # each padded plane is 2*hw larger than the image in each direction,
+            # keep the part whose windows are centred on the image's pixels
+            h, w_img = image.shape
+            return np.dstack(stack)[hw : hw + h, hw : hw + w_img, :]
 
         if isinstance(drange, int):
             drange = (0, drange)
 
         # left = self.mono().image.astype(np.float32)
         # right = right.mono().image.astype(np.float32)
-        left_arr = self.mono()._A
-        right_arr = right.mono()._A
+        # work in float32 for any image type, so that the window stack can be
+        # padded with NaN (it cannot in an integer array, where it becomes 0)
+        left_arr = self.mono()._A.astype(np.float32)
+        right_arr = right.mono()._A.astype(np.float32)
 
         # convert to window stacks
         left_arr = window_stack(left_arr, hw)
@@ -125,9 +147,7 @@ class ImageMultiviewMixin(ImageMixinBase):
         #  - NaN 0 / 0  invalid value encountered in true_divide
         # - inf  x / 0  divide by zero encountered in true_divide
         with np.errstate(divide="ignore", invalid="ignore"):
-
             for d in np.arange(drange[1] - drange[0]):  # lgtm[py/unused-loop-variable]
-
                 # compute the ZNCC
                 sumLL = np.sum(left_arr**2, axis=2)
                 sumRR = np.sum(right_arr**2, axis=2)
@@ -154,17 +174,21 @@ class ImageMultiviewMixin(ImageMixinBase):
         # stack the similarity images at each disparity into the 3D DSI
         dsi = np.dstack(similarities)
 
-        # disparity is the index of the maxima in the disparity direction
-        disparity = np.argmax(dsi, axis=2).astype(np.float32) + drange[0]
+        # disparity is the index of the maxima in the disparity direction.  A
+        # NaN similarity means that disparity is not valid for that pixel, for
+        # example the window would extend beyond the image, so ignore it.  A
+        # pixel with no valid disparity at all is NaN.
+        invalid = np.isnan(dsi)
+        filled = np.where(invalid, -np.inf, dsi)
+        disparity = np.argmax(filled, axis=2).astype(np.float32) + drange[0]
 
         # maxima is the maximum similarity in the disparity direction
-        maxima = np.max(dsi, axis=2)
+        maxima = np.max(filled, axis=2)
 
-        # wherever maxima is nan set disparity to nan, similarity will be
-        # done for border regions
-        disparity = np.where(np.isnan(maxima), np.nan, disparity)
-
-        disparity[:, : drange[0]] = np.nan
+        # wherever there is no valid disparity, the disparity and similarity are NaN
+        none_valid = invalid.all(axis=2)
+        disparity = np.where(none_valid, np.nan, disparity).astype(np.float32)
+        maxima = np.where(none_valid, np.nan, maxima)
 
         return self.__class__(disparity, dtype=np.float32), self.__class__(maxima), dsi
 
