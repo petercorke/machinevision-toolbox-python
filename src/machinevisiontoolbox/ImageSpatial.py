@@ -1312,7 +1312,8 @@ class ImageSpatialMixin(ImageMixinBase):
         # for im in self:
         # m = np.abs(im._A - image2._A)
         # out.append(np.sum(m))
-        m = np.abs(image1._A - image2._A)
+        # convert first: subtracting uint8 arrays would wrap around at 256
+        m = np.abs(image1._A.astype(float) - image2._A)
         out = np.sum(m)
         return out
 
@@ -1357,7 +1358,8 @@ class ImageSpatialMixin(ImageMixinBase):
 
         if not np.all(image1.shape == image2.shape):
             raise ValueError("image2 shape is not equal to image1")
-        m = np.power((image1._A - image2._A), 2)
+        # convert first: subtracting uint8 arrays would wrap around at 256
+        m = np.power(image1._A.astype(float) - image2._A, 2)
         return np.sum(m)
 
     def ncc(
@@ -1403,12 +1405,15 @@ class ImageSpatialMixin(ImageMixinBase):
         if not np.all(image1.shape == image2.shape):
             raise ValueError("image2 shape is not equal to image1")
 
-        denom = np.sqrt(np.sum(image1._A**2) * np.sum(image2._A**2))
+        # convert first: squaring uint8 arrays would wrap around at 256
+        a = image1._A.astype(float)
+        b = image2._A.astype(float)
+        denom = np.sqrt(np.sum(a**2) * np.sum(b**2))
 
         if denom < 1e-10:
             return 0
         else:
-            return np.sum(image1._A * image2._A) / denom
+            return np.sum(a * b) / denom
 
     def zsad(
         image1: Any, image2: Any
@@ -1619,8 +1624,11 @@ class ImageSpatialMixin(ImageMixinBase):
         im = self._A
         T_im = T._A
         if metric[0] == "z":
-            T_im -= np.mean(T_im)  # remove offset from template
-            im = im - np.mean(im)  # remove offset from image
+            # remove the offset from the template and from the image, into new
+            # float32 arrays: the template belongs to the caller, and an 8-bit
+            # image cannot be changed in place by a float mean
+            T_im = T_im.astype(np.float32) - np.mean(T_im, dtype=np.float32)
+            im = im.astype(np.float32) - np.mean(im, dtype=np.float32)
 
         try:
             out = cv2.matchTemplate(image=im, templ=T_im, method=metricdict[metric])

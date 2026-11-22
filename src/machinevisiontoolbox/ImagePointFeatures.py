@@ -672,7 +672,6 @@ class BaseFeature2D:
                 else:
                     d = np.linalg.norm(des1[i, :] - des2[j, :], ord=metric_dict[metric])
                 D[i, j] = d
-                D[j, i] = d
         return D
 
     def match(
@@ -1243,8 +1242,8 @@ class BaseFeature2D:
                     )
                     draw_line(
                         img,
-                        (centre[0], circum[0]),
-                        (centre[1], circum[1]),
+                        centre,
+                        circum,
                         color=handcolor,
                         thickness=handthickness,
                     )
