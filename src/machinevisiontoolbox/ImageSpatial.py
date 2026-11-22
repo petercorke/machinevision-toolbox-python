@@ -1239,7 +1239,8 @@ class ImageSpatialMixin(ImageMixinBase):
         # for im in self:
         # m = np.abs(im._A - image2._A)
         # out.append(np.sum(m))
-        m = np.abs(image1._A - image2._A)
+        # convert first: subtracting uint8 arrays would wrap around at 256
+        m = np.abs(image1._A.astype(float) - image2._A)
         out = np.sum(m)
         return out
 
@@ -1284,7 +1285,8 @@ class ImageSpatialMixin(ImageMixinBase):
 
         if not np.all(image1.shape == image2.shape):
             raise ValueError("image2 shape is not equal to image1")
-        m = np.power((image1._A - image2._A), 2)
+        # convert first: subtracting uint8 arrays would wrap around at 256
+        m = np.power(image1._A.astype(float) - image2._A, 2)
         return np.sum(m)
 
     def ncc(
@@ -1330,12 +1332,15 @@ class ImageSpatialMixin(ImageMixinBase):
         if not np.all(image1.shape == image2.shape):
             raise ValueError("image2 shape is not equal to image1")
 
-        denom = np.sqrt(np.sum(image1._A**2) * np.sum(image2._A**2))
+        # convert first: squaring uint8 arrays would wrap around at 256
+        a = image1._A.astype(float)
+        b = image2._A.astype(float)
+        denom = np.sqrt(np.sum(a**2) * np.sum(b**2))
 
         if denom < 1e-10:
             return 0
         else:
-            return np.sum(image1._A * image2._A) / denom
+            return np.sum(a * b) / denom
 
     def zsad(
         image1: Any, image2: Any
