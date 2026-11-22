@@ -1936,6 +1936,60 @@ class Histogram:
     #     # plt.show()
 
 
+class CannyHistogram(Histogram):
+    """
+    Histogram of the gradient magnitude used by Canny edge detection
+
+    :param image: gradient magnitude image
+    :param th0: lower hysteresis threshold that was used
+    :param th1: upper hysteresis threshold that was used
+    :param nbins: number of histogram bins, defaults to 256
+
+    This is a :class:`Histogram` of the gradient magnitude, with the lower and
+    upper hysteresis thresholds that :meth:`~machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.canny`
+    applied, as attributes ``th0`` and ``th1``.  The :meth:`plot` method draws
+    them as vertical lines.
+
+    .. seealso:: :meth:`~machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.canny`
+    """
+
+    th0: float
+    th1: float
+
+    def __init__(
+        self,
+        image: ImageWholeFeaturesMixin,
+        th0: float,
+        th1: float,
+        nbins: int = 256,
+    ) -> None:
+        super().__init__(
+            image,
+            nbins=nbins,
+            span=(0.0, max(float(np.max(image._A)), float(th1), 1.0)),
+        )
+        self.th0 = th0
+        self.th1 = th1
+
+    def plot(  # type: ignore[override]
+        self, type: Any = "frequency", block: bool = False, **kwargs: Any
+    ) -> None:
+        """
+        Plot the histogram, with the thresholds marked
+
+        The arguments are those of :meth:`Histogram.plot`.  The lower and upper
+        thresholds are drawn as vertical lines.
+        """
+        ax = kwargs.get("ax")
+        super().plot(type, False, **kwargs)
+        if ax is None:
+            ax = plt.gca()
+        ax.axvline(self.th0, color="k", linestyle=":", label=f"th0 = {self.th0:.4g}")
+        ax.axvline(self.th1, color="k", linestyle="--", label=f"th1 = {self.th1:.4g}")
+        ax.legend(loc="best")
+        safe_plt_show(block=block)
+
+
 if __name__ == "__main__":
     from pathlib import Path
 
