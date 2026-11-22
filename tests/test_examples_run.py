@@ -49,7 +49,8 @@ def test_example_runs(script):
     if script in NEEDS_PROGRAM and shutil.which(NEEDS_PROGRAM[script]) is None:
         pytest.skip(f"needs {NEEDS_PROGRAM[script]} on the PATH")
 
-    env = dict(os.environ, MPLBACKEND="Agg")
+    # UTF-8 output, since examples print maths symbols that the Windows default cannot encode
+    env = dict(os.environ, MPLBACKEND="Agg", PYTHONUTF8="1", PYTHONIOENCODING="utf-8")
     result = subprocess.run(
         [sys.executable, "-W", "error::DeprecationWarning", script, *ARGS.get(script, [])],
         cwd=EXAMPLES,
