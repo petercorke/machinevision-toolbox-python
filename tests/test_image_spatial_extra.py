@@ -413,6 +413,27 @@ class TestDistanceTransform:
         assert d.array[20, 25] == pytest.approx(5, abs=0.3)
         assert d.array[10, 20] == pytest.approx(10, abs=0.6)
 
+    @pytest.mark.parametrize("value", [1, 7, 128, 254, 255])
+    def test_any_non_zero_value_is_foreground(self, value):
+        reference = np.zeros((41, 41), dtype=np.uint8)
+        reference[20, 20] = 255
+        arr = np.zeros((41, 41), dtype=np.uint8)
+        arr[20, 20] = value
+        for invert in (False, True):
+            nt.assert_array_equal(
+                Image(arr).distance_transform(invert=invert).array,
+                Image(reference).distance_transform(invert=invert).array,
+            )
+
+    def test_foreground_pixels_have_different_values(self):
+        arr = np.zeros((21, 21), dtype=np.uint8)
+        arr[5, 5] = 3
+        arr[15, 15] = 200
+        d = Image(arr).distance_transform(norm="L1")
+        assert d.array[5, 5] == 0 and d.array[15, 15] == 0
+        assert d.array[5, 10] == pytest.approx(5)
+        assert d.array[15, 10] == pytest.approx(5)
+
     def test_distance_to_the_nearest_zero_pixel(self, binary):
         d = binary.distance_transform(invert=True)
         assert d.array[0, 0] == 0

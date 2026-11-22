@@ -322,7 +322,14 @@ class TestImageProcessingMorph(unittest.TestCase):
         img = Image(array)
         dist = img.distance_transform()
         self.assertEqual(dist.shape, img.shape)
-        self.assertGreater(dist.array[0, 0], 0)
+        # non-zero pixels are foreground, so their distance is zero
+        self.assertEqual(dist.array[0, 0], 0)
+        # the zero pixel is one pixel from the nearest non-zero pixel
+        self.assertAlmostEqual(float(dist.array[5, 5]), 1, delta=0.1)
+        # inverted, the distance is to the nearest zero pixel
+        inv = img.distance_transform(invert=True)
+        self.assertEqual(inv.array[5, 5], 0)
+        self.assertGreater(inv.array[0, 0], 0)
 
     def test_erode_bool(self):
         # bool image: erode should shrink the True region

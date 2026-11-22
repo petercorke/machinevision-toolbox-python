@@ -1055,7 +1055,8 @@ class ImageSpatialMixin(ImageMixinBase):
         :rtype: :class:`Image`
 
         Compute the distance transform. For each zero input pixel, compute its
-        distance to the nearest non-zero input pixel.
+        distance to the nearest non-zero input pixel.  Any non-zero value counts
+        as foreground, so the input need not be binary or have the values 0 and 255.
 
         Example:
 
@@ -1077,6 +1078,12 @@ class ImageSpatialMixin(ImageMixinBase):
               to zero.
             - The signed-distance function is ``image.distance_transform() - image.distance_transform(invert=True)``
 
+        .. versionchanged:: 2.5.0
+            Any non-zero pixel is treated as foreground.  Previously the image
+            was inverted as ``255 - x``, which only worked for images whose
+            pixels were 0 or 255.  For any other values there was no zero pixel
+            left, and the result was about 65000 everywhere.
+
         :references:
             - |RVC3|, Section 11.6.4.
 
@@ -1085,15 +1092,16 @@ class ImageSpatialMixin(ImageMixinBase):
         :seealso: `opencv.distanceTransform <https://docs.opencv.org/4.x/d7/d1b/group__imgproc__misc.html#ga8a0b7fdfcb7a13dde018988ba3a43042>`_
         """
         self._opencv_type_check(self._A, "single-channel", "CV_8U")
-        # OpenCV does distance to nearest zero pixel
+        # OpenCV does distance of each non-zero pixel to the nearest zero pixel
         # this function does distance to nearest non-zero pixel by default,
-        # and the OpenCV thing if invert=True
+        # and the OpenCV thing if invert=True.  Any non-zero value is
+        # foreground, so make a 0/1 image rather than inverting as 255 - x.
         if invert:
             # distance to nearest zero pixel
-            im = self.array_as("uint8")
+            im = (self._A != 0).astype(np.uint8)
         else:
-            # distance to nearest non-zero pixel, invert the image
-            im = self.invert().array_as("uint8")
+            # distance to nearest non-zero pixel
+            im = (self._A == 0).astype(np.uint8)
 
         normdict = {
             "L1": cv2.DIST_L1,

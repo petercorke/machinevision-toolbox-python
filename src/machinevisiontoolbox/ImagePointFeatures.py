@@ -314,13 +314,18 @@ class BaseFeature2D:
 
         :param other: set of features
         :type other: :class:`BaseFeature2D`
-        :raises TypeError: _description_
+        :raises TypeError: ``other`` is not a feature set, ``[]`` or ``None``, or
+            the two sets are of different feature types
         :return: set of features
         :rtype: :class:`BaseFeature2D` instance
 
         Add two feature sets to form a new feature sets.  If ``other`` is
         equal to ``None`` or ``[]`` it is interpreted as an empty feature
         set, this is useful in a loop for aggregating feature sets.
+
+        .. versionchanged:: 2.5.0
+            Adding something that is not a feature set, ``[]`` or ``None``
+            raises ``TypeError``.  It used to raise ``AssertionError``.
 
         Example:
 
@@ -342,9 +347,11 @@ class BaseFeature2D:
             isinstance(other, list) and len(other) == 0
         ):  # Add feature sets
             return self
-        assert isinstance(
-            other, BaseFeature2D
-        ), f"cannot add {type(other)} to BaseFeature2D"
+        if not isinstance(other, BaseFeature2D):
+            raise TypeError(
+                f"cannot add {type(other).__name__} to a feature set, "
+                "only another feature set, [] or None"
+            )
         if self._feature_type != other._feature_type:
             raise TypeError(
                 "can't add different feature types:",
@@ -364,13 +371,20 @@ class BaseFeature2D:
 
         :param other: set of features
         :type other: :class:`BaseFeature2D`
-        :raises TypeError: _description_
+        :raises TypeError: ``other`` is not a feature set, ``[]``, ``None`` or ``0``
         :return: set of features
         :rtype: :class:`BaseFeature2D`
 
         Add two feature sets to form a new feature sets.  If ``other`` is
-        equal to ``None`` or ``[]`` it is interpreted as an empty feature
-        set, this is useful in a loop for aggregating feature sets.
+        equal to ``None``, ``[]`` or ``0`` it is interpreted as an empty feature
+        set, this is useful in a loop for aggregating feature sets.  The ``0``
+        is the starting value of the builtin :func:`sum`, so a list of
+        feature sets can be combined by ``sum(features)``.
+
+        .. versionchanged:: 2.5.0
+            ``None`` and ``0`` are accepted, and anything else raises
+            ``TypeError`` with a message.  It used to raise ``ValueError("bad")``,
+            and ``sum()`` of feature sets did not work.
 
         Example:
 
@@ -385,13 +399,22 @@ class BaseFeature2D:
             >>> orb += img1.ORB()
             >>> orb += img2.ORB()
             >>> orb
+            >>> orb = sum([img1.ORB(), img2.ORB()])
+            >>> orb
 
         :seealso: :meth:`__add__`
         """
-        if isinstance(other, list) and len(other) == 0:  # Add feature sets
+        # an empty set, or the 0 that sum() starts with
+        if (
+            other is None
+            or (isinstance(other, list) and len(other) == 0)
+            or (isinstance(other, int) and not isinstance(other, bool) and other == 0)
+        ):
             return self
-        else:
-            raise ValueError("bad")
+        raise TypeError(
+            f"cannot add a feature set to {type(other).__name__}, "
+            "only to [], None or 0 (as the start of sum)"
+        )
 
     @property
     @scalar_result

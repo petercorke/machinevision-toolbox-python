@@ -200,10 +200,43 @@ class TestAdd:
             a + b
 
     def test_adding_other_things_is_an_error(self):
-        with pytest.raises(AssertionError):
+        with pytest.raises(TypeError, match="cannot add int to a feature set"):
             make_features(3) + 5
-        with pytest.raises(ValueError):
+        with pytest.raises(TypeError, match="cannot add a feature set to int"):
             5 + make_features(3)
+        with pytest.raises(TypeError, match="cannot add a feature set to str"):
+            "a" + make_features(3)
+        with pytest.raises(TypeError):
+            [1] + make_features(3)
+        with pytest.raises(TypeError):
+            True + make_features(3)
+
+    def test_none_and_zero_on_the_left(self):
+        a = make_features(3)
+        # None cannot be on the left of + in Python, so call the method
+        assert a.__radd__(None) is a
+        assert (0 + a) is a
+
+    def test_sum_of_feature_sets(self):
+        a, b, c = make_features(3), make_features(2), make_features(4)
+        total = sum([a, b, c])
+        assert len(total) == 9
+        assert total.descriptor.shape == (9, 4)
+        # the inputs are not changed
+        assert len(a) == 3 and len(b) == 2 and len(c) == 4
+        nt.assert_array_equal(total.u[:3], a.u)
+        nt.assert_array_equal(total.u[3:5], b.u)
+
+    def test_sum_of_one_and_of_a_generator(self):
+        a = make_features(3)
+        assert sum([a]) is a
+        assert len(sum(make_features(n) for n in (1, 2, 3))) == 6
+
+    def test_sum_of_different_types_is_an_error(self):
+        a, b = make_features(3), make_features(3)
+        b._feature_type = "ORB"
+        with pytest.raises(TypeError, match="different feature types"):
+            sum([a, b])
 
 
 class TestGridify:
