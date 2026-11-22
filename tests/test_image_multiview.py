@@ -58,11 +58,6 @@ class TestStereoSimple:
         disparity, _, _ = result
         assert np.isnan(disparity.array[:, :4]).all()
 
-    @pytest.mark.xfail(
-        strict=True,
-        reason="the docstring says the outputs are the same size as the inputs "
-        "but the window stack makes them larger by 2*hw in each direction",
-    )
     def test_output_is_the_size_of_the_input(self, pair, result):
         left, _ = pair
         disparity, similarity, dsi = result

@@ -50,7 +50,7 @@ class ImageMultiviewMixin(ImageMixinBase):
           the strength of the stereo match.  This is a ZNCC measure where 1 is a
           perfect match, greater than 0.8 is a decent match.
         - the disparity space image, a 3D array, whose first two dimensions are
-          the same size as the input imagesm and whose third dimension is the
+          the same size as the input images and whose third dimension is the
           number of disparities.  Each fibre DSI[v,u,:] is window similarity
           versus disparity.
 
@@ -69,6 +69,11 @@ class ImageMultiviewMixin(ImageMixinBase):
             - |RVC3|, Section 14.4.
 
         .. warning:: Not fast.
+
+        .. versionchanged:: 2.5.0
+            The outputs are the same size as the input images, as documented.
+            Previously they were larger by ``2*hw`` in each direction, with
+            the result for pixel (u, v) at (u+hw, v+hw).
 
         :seealso: :meth:`DSI_refine` :meth:`stereo_BM` :meth:`stereo_SGBM`
         """
@@ -91,7 +96,10 @@ class ImageMultiviewMixin(ImageMixinBase):
                             constant_values=np.nan,
                         )
                     )
-            return np.dstack(stack)
+            # each padded plane is 2*hw larger than the image in each direction,
+            # keep the part whose windows are centred on the image's pixels
+            h, w_img = image.shape
+            return np.dstack(stack)[hw : hw + h, hw : hw + w_img, :]
 
         if isinstance(drange, int):
             drange = (0, drange)
@@ -125,9 +133,7 @@ class ImageMultiviewMixin(ImageMixinBase):
         #  - NaN 0 / 0  invalid value encountered in true_divide
         # - inf  x / 0  divide by zero encountered in true_divide
         with np.errstate(divide="ignore", invalid="ignore"):
-
             for d in np.arange(drange[1] - drange[0]):  # lgtm[py/unused-loop-variable]
-
                 # compute the ZNCC
                 sumLL = np.sum(left_arr**2, axis=2)
                 sumRR = np.sum(right_arr**2, axis=2)
