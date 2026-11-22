@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 
 import unittest
+import unittest.mock
 
+import cv2
 import numpy as np
 import numpy.testing as nt
 
@@ -61,6 +63,60 @@ class TestImageLineFeatures(unittest.TestCase):
         """Test plotting detected lines"""
         # TODO: Test line visualization
         pass
+
+
+class TestHoughNoLines(unittest.TestCase):
+    """OpenCV 4 and 5.0 return None from HoughLines when nothing is found,
+    OpenCV 5.1 returns an empty array.  The accumulator used to loop forever
+    on the second."""
+
+    def setUp(self):
+        arr = np.zeros((60, 60), dtype="uint8")
+        arr[30, 10:50] = 255
+        self.hough = Image(arr).Hough()
+
+    @staticmethod
+    def as_opencv_5_1(function):
+        """Wrap a cv2 Hough function so that "no lines" is an empty array."""
+        calls = []
+
+        def wrapper(*args, **kwargs):
+            calls.append(1)
+            if len(calls) > 1000:
+                raise RuntimeError("the loop did not terminate")
+            result = function(*args, **kwargs)
+            if result is None:
+                shape = (0, 1, 4) if function is cv2.HoughLinesP else (0, 1, 2)
+                return np.zeros(shape, dtype=np.float32)
+            return result
+
+        return wrapper
+
+    def test_accumulator_stops_when_there_are_no_more_lines(self):
+        import cv2
+
+        with unittest.mock.patch.object(
+            cv2, "HoughLines", self.as_opencv_5_1(cv2.HoughLines)
+        ):
+            self.hough.accumulator()
+        self.assertIsNotNone(self.hough.A)
+        self.assertEqual(self.hough.t, 39)  # 40 votes survive a threshold of 39
+
+    def test_lines_with_an_empty_array(self):
+        import cv2
+
+        with unittest.mock.patch.object(
+            cv2, "HoughLines", self.as_opencv_5_1(cv2.HoughLines)
+        ):
+            self.assertEqual(self.hough.lines(minvotes=100).shape, (0, 2))
+
+    def test_lines_p_with_an_empty_array(self):
+        import cv2
+
+        with unittest.mock.patch.object(
+            cv2, "HoughLinesP", self.as_opencv_5_1(cv2.HoughLinesP)
+        ):
+            self.assertEqual(self.hough.lines_p(minvotes=100).shape, (0, 4))
 
 
 # ----------------------------------------------------------------------- #
