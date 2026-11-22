@@ -99,12 +99,6 @@ class TestIndexing:
         assert len(f) == 2
         assert f._descriptor is None
 
-    @pytest.mark.xfail(
-        strict=True,
-        raises=TypeError,
-        reason="descriptor is typed as ndarray | None but array_result calls "
-        "len() on it, so it raises when there are no descriptors",
-    )
     def test_descriptor_property_without_descriptors(self):
         assert make_features(descriptors=False).descriptor is None
 
@@ -338,6 +332,14 @@ class TestDistance:
     def test_different_sizes(self):
         D = make_features(3).distance(make_features(4))
         assert D.shape == (3, 4)
+
+
+class TestMatchNeedsDescriptors:
+    def test_no_descriptors_is_a_clear_error(self):
+        with pytest.raises(ValueError, match="no descriptors"):
+            make_features(descriptors=False).match(make_features())
+        with pytest.raises(ValueError, match="no descriptors"):
+            make_features().match(make_features(descriptors=False))
 
 
 class TestMatch:
