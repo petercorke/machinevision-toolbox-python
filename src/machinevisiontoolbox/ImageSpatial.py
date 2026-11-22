@@ -835,8 +835,15 @@ class ImageSpatialMixin(ImageMixinBase):
             img = img.smooth(sigma=sigma)
         gray = img.array_as("uint8")
 
-        # the same Sobel gradient and norm as cv2.Canny uses for its default
-        # apertureSize=3 and L2gradient=False
+        # We call cv2.Sobel rather than gradients() deliberately.  The thresholds
+        # are compared by cv2.Canny with its own gradient magnitude, which is the
+        # unnormalized 3x3 Sobel with the L1 norm |Gx| + |Gy| (apertureSize=3,
+        # L2gradient=False), 8 times the gain of Kernel.Sobel().  Using the same
+        # calculation means that a percentile of this gradient, and the
+        # thresholds shown in the histogram, are exactly the values that Canny
+        # applies.  gradients() would differ in scale, in border handling
+        # (reflect versus OpenCV's reflect_101), and on a uint8 image in its
+        # output type.
         gx = cv2.Sobel(gray, cv2.CV_32F, 1, 0, ksize=3)
         gy = cv2.Sobel(gray, cv2.CV_32F, 0, 1, ksize=3)
         grad = np.abs(gx) + np.abs(gy)
