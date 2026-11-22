@@ -1697,7 +1697,7 @@ def shadow_invariant(
     :type exp: bool, optional
     :param sharpen: a sharpening transform, defaults to None
     :type sharpen: ndarray(3,3), optional
-    :param primaries: camera peak filter responses (nm), defaults to None
+    :param primaries: peak wavelengths of the camera filters, in any units since only their ratios matter, defaults to None
     :type primaries: array_like(3), optional
     :return: greyscale shadow invariant image
     :rtype: ndarray(H,W)
@@ -1765,16 +1765,15 @@ def shadow_invariant(
     if θ is None:
         # compute direction from the spectral peaks of the camera filters
         if primaries is None:
-            # Planckian illumination constant
-            c2 = 1.4388e-2
-
             #  spectral peaks of the Sony ICX204 sensor used in BB2 camera
             primaries = np.array([610, 538, 460]) * 1e-9
 
-            e_r = -c2 / primaries[0]
-            e_b = -c2 / primaries[2]
-            c = np.r_[e_b, -e_r]
-            c /= np.linalg.norm(c)
+        # Planckian illumination constant
+        c2 = 1.4388e-2
+        e_r = -c2 / primaries[0]
+        e_b = -c2 / primaries[2]
+        c = np.r_[e_b, -e_r]
+        c /= np.linalg.norm(c)
     else:
         # otherwise use the provided angle
         c = np.array([np.cos(θ), np.sin(θ)])

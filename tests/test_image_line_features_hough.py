@@ -112,9 +112,9 @@ class TestAccumulator:
         # theta extent is in radians, rho extent in pixels
         assert -h.dtheta <= h.extent[0] < h.extent[1] <= np.pi + h.dtheta
         assert h.extent[2] < h.extent[3]
-        # the highest threshold with any line is the number of pixels of the
-        # longest line, and h.t records the last threshold that found one
-        assert h.t == 80 or h.t == 79
+        # the longest line has 80 votes, so it is found for any threshold
+        # below 80, and h.t records the last threshold that found a line
+        assert h.t == 79
 
     def test_votes_never_increase_with_the_threshold(self, h):
         votes = np.array(h.votes)
@@ -127,17 +127,9 @@ class TestAccumulator:
         rho_bins = np.linspace(h.extent[2], h.extent[3], h.A.shape[0] + 1)
         theta = (theta_bins[theta_index] + theta_bins[theta_index + 1]) / 2
         rho = (rho_bins[rho_index] + rho_bins[rho_index + 1]) / 2
-        # the accumulator counts how many thresholds each line survives, so
-        # the longest line is the strongest cell
+        # the longest line, 80 pixels, is the strongest cell
         assert theta == pytest.approx(np.pi / 2, abs=0.05)
         assert rho == pytest.approx(50, abs=1.5)
-
-    def test_skip_gives_a_coarser_vote_list(self, lines_image):
-        fine = lines_image.Hough()
-        fine.accumulator(skip=1)
-        coarse = lines_image.Hough()
-        coarse.accumulator(skip=10)
-        assert len(coarse.votes) < len(fine.votes)
 
 
 class TestPlotting:

@@ -445,16 +445,22 @@ class TestSimilarityMeasures:
         assert zero.ncc(zero) == 0
         assert one.zncc(one) == 0
 
-    @pytest.mark.xfail(
-        strict=True,
-        reason="sad, ssd and ncc subtract and square uint8 arrays without "
-        "converting them, so the arithmetic wraps around at 256",
-    )
     def test_uint8_images(self):
+        # subtracting or squaring uint8 values must not wrap around at 256
         a = Image(A.astype(np.uint8))
         b = Image(B.astype(np.uint8))
         assert a.sad(b) == pytest.approx(np.abs(A - B).sum())
-        assert a.ncc(b) <= 1
+        assert a.ssd(b) == pytest.approx(((A - B) ** 2).sum())
+        expected = (A * B).sum() / np.sqrt((A**2).sum() * (B**2).sum())
+        assert a.ncc(b) == pytest.approx(expected, rel=1e-5)
+
+    def test_uint8_images_with_large_differences(self):
+        # 200 - 10 wraps to 190 and 10 - 200 to 66 in uint8 arithmetic
+        a = Image(np.array([[10, 200]], dtype=np.uint8))
+        b = Image(np.array([[200, 10]], dtype=np.uint8))
+        assert a.sad(b) == 380
+        assert a.ssd(b) == 2 * 190**2
+        assert 0 <= a.ncc(b) <= 1
 
 
 class TestSimilarity:
@@ -505,25 +511,29 @@ class TestSimilarity:
         image.similarity(template, "ncc")
         nt.assert_array_equal(template.array, before)
 
-    @pytest.mark.xfail(
-        strict=True,
-        reason="the z metrics subtract the template mean in place, which "
-        "changes the caller's template",
-    )
     def test_template_is_unchanged_by_zncc(self, scene):
         image, template = scene
         before = template.array.copy()
         image.similarity(template, "zncc")
         nt.assert_array_equal(template.array, before)
 
-    @pytest.mark.xfail(
-        strict=True,
-        raises=Exception,
-        reason="the in-place mean subtraction fails on a uint8 image",
-    )
     def test_zncc_on_uint8_images(self):
         rng = np.random.default_rng(1)
         arr = rng.integers(0, 255, (20, 20), dtype=np.uint8)
         image = Image(arr)
-        out = image.similarity(Image(arr[5:8, 5:8].copy()), "zncc")
+        template = Image(arr[5:8, 5:8].copy())
+        out = image.similarity(template, "zncc")
         assert out.shape == (18, 18)
+        v, u = np.unravel_index(np.argmax(out.array), out.shape)
+        assert (u, v) == (5, 5)
+        assert out.array[v, u] == pytest.approx(1.0, abs=1e-3)
+        # neither the image nor the template is changed
+        nt.assert_array_equal(image.array, arr)
+        nt.assert_array_equal(template.array, arr[5:8, 5:8])
+
+    def test_zssd_on_uint8_images(self):
+        rng = np.random.default_rng(2)
+        arr = rng.integers(0, 255, (20, 20), dtype=np.uint8)
+        out = Image(arr).similarity(Image(arr[5:8, 5:8].copy()), "zssd")
+        v, u = np.unravel_index(np.argmin(out.array), out.shape)
+        assert (u, v) == (5, 5)
