@@ -108,6 +108,11 @@ class ImageIOMixin(ImageMixinBase):
         if isinstance(data, tuple):
             # singleton image, make it a list
             image_arr, name = data
+            if isinstance(image_arr, list):
+                # iread() returns (list of images, list of names) for a wildcard
+                raise ValueError(
+                    "wildcard read not supported, use FileCollection instead"
+                )
             assert isinstance(image_arr, np.ndarray)
             if not alpha and image_arr.ndim == 3 and image_arr.shape[2] == 4:
                 image_arr = image_arr[:, :, :3]
