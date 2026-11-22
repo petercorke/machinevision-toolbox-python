@@ -170,6 +170,3 @@ exclude = ["/packages", "/docs", "/tests", "/.git", "/.github"]
 # nd, enew = local variable names; nin, inports = BDSIM block identifiers
 ignore-words-list = "nd,enew,nin,inports"
 skip = "*.pyc,htmlcov"
-
-[tool.coverage.run]
-omit = ["src/machinevisiontoolbox/blocks/*", "src/machinevision/blocks/*"]
