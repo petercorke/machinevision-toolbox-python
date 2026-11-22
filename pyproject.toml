@@ -60,6 +60,7 @@ dependencies = [
 
 # Options:
 #  dev - development tools
+#  blocks - bdsim block diagram blocks (the machinevisiontoolbox.blocks module)
 #  docs - documentation building tools
 #  jupyter - jupyter notebook support
 #  open3d - open3d support
@@ -67,7 +68,9 @@ dependencies = [
 #  ocr - OCR support via pytesseract
 #  tool - dependencies for the mvtbtool interactive shell
 
-dev = ["pytest", "pytest-timeout", "pytest-xvfb", "coverage", "ruff", "nbmake", "mypy"]
+dev = ["pytest", "pytest-timeout", "pytest-xvfb", "coverage", "ruff", "nbmake", "mypy", "bdsim>=1.5.0"]
+
+blocks = ["bdsim>=1.5.0"]
 
 ros = ["rosbags", "roslibpy", "websockets"]
 
@@ -95,6 +98,7 @@ ultralytics = ["torch", "torchvision", "ultralytics"]
 ocr = ["pytesseract"]
 
 all = [
+    "bdsim>=1.5.0",
     "ipywidgets",
     "ipympl",
     "open3d",
