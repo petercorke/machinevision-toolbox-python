@@ -1,0 +1,60 @@
+name: Release Assets
+
+# Attaches the examples and the notebooks, as zip files, to a GitHub release.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: >-
+          Release tag to attach the zips to, such as v2.4.1.  The zips are built from
+          that tag.  Leave blank to build the artifacts only.
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          # the tag when attaching to a release, otherwise the ref that triggered this
+          ref: ${{ inputs.tag || github.ref }}
+
+      - name: Create zip artifacts
+        run: |
+          mkdir -p dist
+          rm -f dist/mvtb_examples.zip dist/mvtb_notebooks.zip
+          zip -r dist/mvtb_examples.zip examples -x '*/__pycache__/*'
+          zip -r dist/mvtb_notebooks.zip docs/notebooks -x '*/__pycache__/*'
+
+      - name: Upload workflow artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: mvtb-artifacts
+          path: |
+            dist/mvtb_examples.zip
+            dist/mvtb_notebooks.zip
+
+      # A release made by release-please does not fire the `release` event (events
+      # made with GITHUB_TOKEN start no workflows), so release-please.yml dispatches
+      # this workflow with the tag.  The `release` event still covers a release made
+      # by hand.
+      - name: Upload artifacts to release
+        if: github.event_name == 'release' || inputs.tag != ''
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ inputs.tag || github.event.release.tag_name }}
+          files: |
+            dist/mvtb_examples.zip
+            dist/mvtb_notebooks.zip
