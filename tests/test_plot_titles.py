@@ -156,9 +156,6 @@ def test_hough_accumulator_titles():
     a[10:30, 20] = 255
     im = Image(a)
     h = im.Hough()
-    # supply the accumulator, since computing it is deliberately slow
-    h.A = np.random.rand(10, 20)
-    h.extent = [0, np.pi, -20, 20]
     h.plot_accumulator()
     assert window_title() == "Hough Accumulator"
     h.plot_accumulator(title="mine")
