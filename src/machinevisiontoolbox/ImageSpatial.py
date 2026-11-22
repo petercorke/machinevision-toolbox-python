@@ -3,7 +3,7 @@ Spatial operations: distance transforms, connected components, labelling, and hi
 """
 
 import warnings
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any, Callable, Literal, overload
 
 import cv2
 import numpy as np
@@ -14,7 +14,7 @@ from machinevisiontoolbox._image_typing import ImageMixinBase
 from machinevisiontoolbox.Kernel import Kernel
 
 if TYPE_CHECKING:
-    pass
+    from machinevisiontoolbox.ImageWholeFeatures import CannyHistogram
 
 
 class ImageSpatialMixin(ImageMixinBase):
@@ -713,43 +713,105 @@ class ImageSpatialMixin(ImageMixinBase):
         pyrimlist = [self.__class__(p) for p in pyr]
         return pyrimlist
 
+    @overload
     def canny(
         self,
-        sigma: int | float = 1,
-        th0: float | int | None = None,
-        th1: float | int | None = None,
+        sigma: float | None = ...,
+        th0: float | None = ...,
+        th1: float | None = ...,
+        percentile: float = ...,
+        k: float = ...,
+        hist: Literal[False] = ...,
     ) -> Any:
-        """
+        ...
+
+    @overload
+    def canny(
+        self,
+        sigma: float | None = ...,
+        th0: float | None = ...,
+        th1: float | None = ...,
+        percentile: float = ...,
+        k: float = ...,
+        *,
+        hist: Literal[True],
+    ) -> "tuple[Any, CannyHistogram]":
+        ...
+
+    def canny(
+        self,
+        sigma: float | None = None,
+        th0: float | None = None,
+        th1: float | None = None,
+        percentile: float = 90,
+        k: float = 0.5,
+        hist: bool = False,
+    ) -> Any:
+        r"""
         Canny edge detection
 
-        :param sigma: standard deviation for Gaussian kernel smoothing, defaults to 1
-        :type sigma: float, optional
-        :param th0: lower threshold
-        :type th0: float
-        :param th1: upper threshold
-        :type th1: float
-        :return: edge image
-        :rtype: :class:`Image` instance
+        :param sigma: standard deviation of a Gaussian used to smooth the image
+            before edge detection, defaults to None (no smoothing)
+        :param th0: lower hysteresis threshold, defaults to None
+        :param th1: upper hysteresis threshold, defaults to None
+        :param percentile: percentile of the gradient magnitude used as the upper
+            threshold when no threshold is given, defaults to 90
+        :param k: ratio of the lower threshold to the upper threshold, defaults to 0.5
+        :param hist: also return a histogram of the gradient magnitude, defaults to False
+        :raises ValueError: a threshold is given as well as a non-default ``percentile``
+        :return: edge image, or edge image and gradient histogram if ``hist`` is True
 
         Computes an edge image obtained using the Canny edge detector algorithm.
         Hysteresis filtering is applied to the gradient image: edge pixels >
         ``th1`` are connected to adjacent pixels > ``th0``, those below ``th0``
         are set to zero.
 
-        Example:
+        The thresholds apply to the gradient magnitude computed by OpenCV, which
+        is :math:`|G_x| + |G_y|` where :math:`G_x` and :math:`G_y` are the
+        outputs of the 3x3 Sobel kernels applied to the image after conversion
+        to ``uint8``.  This is not normalized, so a step of height 255 gives a
+        gradient of 1020.
+
+        The thresholds are set in one of two ways:
+
+        1. Explicitly.  ``th0`` and ``th1`` are passed to OpenCV.  If only one is
+           given the other is set using ``k``: ``th0 = k * th1`` or
+           ``th1 = th0 / k``.
+        2. Automatically, if neither is given.  The upper threshold is the
+           ``percentile`` of the gradient magnitude of the (optionally smoothed)
+           image, and the lower threshold is ``k`` times that.  A percentile
+           of 80 to 90 is typical.
+
+        With ``hist=True`` the gradient magnitude, which is the quantity that
+        is thresholded, is also returned as a :class:`CannyHistogram`.  Its
+        attributes ``th0`` and ``th1`` are the thresholds that were used, and
+        its ``plot`` method shows them on the histogram.  This helps in
+        choosing thresholds.
+
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
             >>> img = Image.Read('monalisa.png')
             >>> edges = img.canny()
+            >>> edges = img.canny(sigma=2, percentile=80)
+            >>> edges = img.canny(th0=100, th1=300)
+            >>> edges, h = img.canny(hist=True)
+            >>> h.th0, h.th1
 
         .. note::
             - Produces a zero image with single pixel wide edges having
               non-zero values.
-            - Larger values correspond to stronger edges.
-            - If ``th1`` is zero then no hysteresis filtering is performed.
             - A color image is automatically converted to greyscale first.
+
+        .. versionchanged:: 2.5.0
+            ``sigma``, ``th0`` and ``th1`` now take effect.  Previously they
+            were ignored and the thresholds were always set from the mean of
+            the image.  ``sigma`` now defaults to None, no smoothing.  The
+            automatic thresholds are now set from the ``percentile`` of the
+            gradient magnitude and ``k``.  The arguments ``percentile``,
+            ``k`` and ``hist`` are new.
 
         :references:
             - "A Computational Approach To Edge Detection", J. Canny,
@@ -757,46 +819,57 @@ class ImageSpatialMixin(ImageMixinBase):
               8(6):679–698, 1986.
             - |RVC3|, Section 11.5.1.3.
 
+        .. seealso:: :meth:`smooth` :meth:`~machinevisiontoolbox.ImageWholeFeatures.Histogram`
         """
+        if not 0 < percentile < 100:
+            raise ValueError("percentile must be in the range (0, 100)")
+        if not 0 < k <= 1:
+            raise ValueError("k must be in the range (0, 1]")
+        explicit = th0 is not None or th1 is not None
+        if explicit and percentile != 90:
+            raise ValueError("percentile cannot be used when a threshold is given")
 
-        # convert to greyscale:
+        # convert to greyscale, and smooth if requested
         img = self.mono()
+        if sigma is not None and sigma > 0:
+            img = img.smooth(sigma=sigma)
+        gray = img.array_as("uint8")
 
-        # set defaults (eg thresholds, eg one as a function of the other)
-        if th0 is None:
-            if np.issubdtype(th0, np.floating):
-                th0 = 0.1
-            else:
-                # isint
-                th0 = np.round(0.1 * np.iinfo(img.dtype).max)
-        if th1 is None:
-            th1 = 1.5 * th0
+        # We call cv2.Sobel rather than gradients() deliberately.  The thresholds
+        # are compared by cv2.Canny with its own gradient magnitude, which is the
+        # unnormalized 3x3 Sobel with the L1 norm |Gx| + |Gy| (apertureSize=3,
+        # L2gradient=False), 8 times the gain of Kernel.Sobel().  Using the same
+        # calculation means that a percentile of this gradient, and the
+        # thresholds shown in the histogram, are exactly the values that Canny
+        # applies.  gradients() would differ in scale, in border handling
+        # (reflect versus OpenCV's reflect_101), and on a uint8 image in its
+        # output type.
+        gx = cv2.Sobel(gray, cv2.CV_32F, 1, 0, ksize=3)
+        gy = cv2.Sobel(gray, cv2.CV_32F, 0, 1, ksize=3)
+        grad = np.abs(gx) + np.abs(gy)
 
-        # compute gradients Ix, Iy using gaussian kernel
-        dg = Kernel.DGauss(sigma)
-
-        sigma = 0.3333
-
-        Ix = self.convolve(dg.K)
-        Iy = self.convolve(dg.K.T)
-
-        # Ix, Iy must be 16-bit input image
-        Ix = np.array(Ix._A, dtype=np.int16)
-        Iy = np.array(Iy._A, dtype=np.int16)
-
-        v = np.mean(self._A)
-        # apply automatic Canny edge detection using the computed median
-        lower = max(0, (1.0 - sigma) * v)
-        upper = min(1, (1.0 + sigma) * v)
+        if explicit:
+            if th0 is None:
+                th0 = k * th1  # type: ignore[operator]
+            elif th1 is None:
+                th1 = th0 / k
+        else:
+            th1 = float(np.percentile(grad, percentile))
+            th0 = k * th1
 
         out = cv2.Canny(
-            image=self.array_as("uint8"),
-            threshold1=lower,
-            threshold2=upper,
+            image=gray,
+            threshold1=float(th0),
+            threshold2=float(th1),  # type: ignore[arg-type]
             L2gradient=False,
         )
+        edges = self.__class__(out)
 
-        return self.__class__(out)
+        if hist:
+            from machinevisiontoolbox.ImageWholeFeatures import CannyHistogram
+
+            return edges, CannyHistogram(self.__class__(grad), float(th0), float(th1))  # type: ignore[arg-type]
+        return edges
 
     def rankfilter(
         self,

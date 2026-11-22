@@ -1042,7 +1042,9 @@ class ImageProcessingMixin(ImageMixinBase):
             gamma=gamma,
             dtype=cvdepth,
         )
-        return self.__class__(out, colororder=self.colororder)
+        # keep the type OpenCV gave: Image(out) alone would narrow float64 to
+        # float32, and a uint16 image that fits to uint8
+        return self.__class__(out, dtype=out.dtype, colororder=self.colororder)
 
     def choose(self, image2: Any, mask: Any) -> Self:
         r"""
