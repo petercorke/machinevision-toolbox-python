@@ -65,6 +65,14 @@ class ImageMultiviewMixin(ImageMixinBase):
 
         .. note:: The images are assumed to be epipolar aligned.
 
+        .. note:: The disparity and similarity images, and each plane of the DSI,
+            have a band of ``hw`` NaN valued pixels along the top, bottom and right
+            edges, where the window extends beyond the image.  The band along the
+            left edge is ``hw + drange[0]`` wide for the disparity and similarity
+            images, and ``hw + drange[0] + d`` wide for the DSI plane of
+            disparity ``d`` (counting from 0), since the shifted window in the
+            right image must also lie within the image.
+
         :references:
             - |RVC3|, Section 14.4.
 
@@ -181,8 +189,6 @@ class ImageMultiviewMixin(ImageMixinBase):
         none_valid = invalid.all(axis=2)
         disparity = np.where(none_valid, np.nan, disparity).astype(np.float32)
         maxima = np.where(none_valid, np.nan, maxima)
-
-        disparity[:, : drange[0]] = np.nan
 
         return self.__class__(disparity, dtype=np.float32), self.__class__(maxima), dsi
 

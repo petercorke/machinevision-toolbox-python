@@ -93,8 +93,26 @@ class TestStereoSimple:
         assert np.isnan(similarity.array[10, 4])
 
     def test_border_is_nan(self, result):
-        disparity, _, _ = result
-        assert np.isnan(disparity.array[:, :4]).all()
+        # hw = 2 and drange = [4, 12]: the band is hw on the top, bottom and
+        # right, and hw + drange[0] on the left
+        disparity, similarity, dsi = result
+        for a in (disparity.array, similarity.array):
+            assert np.isnan(a[:2, :]).all() and np.isnan(a[-2:, :]).all()
+            assert np.isnan(a[:, -2:]).all()
+            assert np.isnan(a[:, :6]).all()
+            # the first column outside the band is valid
+            assert not np.isnan(a[2:-2, 6]).any()
+            assert not np.isnan(a[2:-2, -3]).any()
+
+    def test_each_plane_of_the_dsi_has_its_own_left_band(self, result):
+        _, _, dsi = result
+        for d in range(dsi.shape[2]):
+            plane = dsi[:, :, d]
+            # hw + drange[0] + d = 6 + d
+            assert np.isnan(plane[:, : 6 + d]).all()
+            assert not np.isnan(plane[2:-2, 6 + d : -2]).any()
+            assert np.isnan(plane[:, -2:]).all()
+            assert np.isnan(plane[:2, :]).all() and np.isnan(plane[-2:, :]).all()
 
     def test_output_is_the_size_of_the_input(self, pair, result):
         left, _ = pair
