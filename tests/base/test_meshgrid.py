@@ -1,43 +1,9 @@
-import sys
 import unittest
-from pathlib import Path
 
 import numpy as np
 import numpy.testing as nt
 
-# Load meshgrid module directly without importing the whole package
-meshgrid_file = (
-    Path(__file__).parent.parent.parent
-    / "src"
-    / "machinevisiontoolbox"
-    / "base"
-    / "meshgrid.py"
-)
-
-
-def load_meshgrid_module():
-    """Load meshgrid module by reading and executing its source code."""
-    with open(meshgrid_file, "r") as f:
-        source_code = f.read()
-
-    # Create a namespace with numpy imported as np
-    namespace = {
-        "__file__": str(meshgrid_file),
-        "__name__": "meshgrid_module",
-        "np": np,
-    }
-
-    try:
-        exec(source_code, namespace)
-    except Exception as e:  # noqa: BLE001 - whatever goes wrong, report it as a failure to load
-        raise ImportError(f"Failed to load meshgrid module: {e}") from e
-
-    return namespace
-
-
-mesh_namespace = load_meshgrid_module()
-meshgrid = mesh_namespace["meshgrid"]
-spherical_rotate = mesh_namespace["spherical_rotate"]
+from machinevisiontoolbox.base.meshgrid import meshgrid, spherical_rotate
 
 try:
     from spatialmath.pose3d import SO3
