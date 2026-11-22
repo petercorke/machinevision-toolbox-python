@@ -50,11 +50,15 @@ jobs:
       # made with GITHUB_TOKEN start no workflows), so release-please.yml dispatches
       # this workflow with the tag.  The `release` event still covers a release made
       # by hand.
+      #
+      # Uploads with `gh release upload` rather than softprops/action-gh-release, which
+      # also updates the release itself and was refused ("Resource not accessible by
+      # integration") when run for an existing release.  Uploading only adds the files.
       - name: Upload artifacts to release
         if: github.event_name == 'release' || inputs.tag != ''
-        uses: softprops/action-gh-release@v3
-        with:
-          tag_name: ${{ inputs.tag || github.event.release.tag_name }}
-          files: |
-            dist/mvtb_examples.zip
-            dist/mvtb_notebooks.zip
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag || github.event.release.tag_name }}
+        run: |
+          gh release upload "$TAG" dist/mvtb_examples.zip dist/mvtb_notebooks.zip \
+            --clobber --repo "$GITHUB_REPOSITORY"
