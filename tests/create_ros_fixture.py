@@ -34,7 +34,6 @@ from pathlib import Path
 
 import numpy as np
 from PIL import Image as PILImage
-
 from rosbags.rosbag1 import Writer as Writer1
 from rosbags.rosbag2 import Writer as Writer2
 from rosbags.typesys import Stores, get_types_from_msg, get_typestore

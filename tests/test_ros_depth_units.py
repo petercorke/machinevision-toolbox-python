@@ -22,6 +22,7 @@ from create_ros_fixture import (
     realsense_color_frame,
     realsense_depth_frame,
 )
+
 from machinevisiontoolbox import ROSBag
 
 

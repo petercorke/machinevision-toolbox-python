@@ -15,9 +15,9 @@ import matplotlib.path as mpath
 import matplotlib.pyplot as plt
 import numpy as np
 import spatialmath.base as smb
+from scipy import interpolate
 from spatialmath import Polygon2
 from spatialmath.base import set_window_title
-from scipy import interpolate
 
 # import io as io
 from machinevisiontoolbox.base.data import mvtb_path_to_datafile

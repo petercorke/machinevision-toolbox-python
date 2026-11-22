@@ -55,7 +55,7 @@ def test_visual_servo_plot_titles():
     import numpy as np
     from spatialmath import SE3
 
-    from machinevisiontoolbox import CentralCamera, IBVS
+    from machinevisiontoolbox import IBVS, CentralCamera
 
     camera = CentralCamera.Default(pose=SE3.Trans(1, 1, -3) * SE3.Rz(0.6))
     P = np.array([[-1, 1, 1, -1], [-1, -1, 1, 1], [0, 0, 0, 0]])

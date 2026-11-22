@@ -4,29 +4,30 @@ Video, camera, image-collection, and ZIP-archive sources for streaming images.
 
 from __future__ import annotations
 
+import base64
 import fnmatch
 import io
 import json
-import base64
+import os
 import pathlib
 import shutil
 import struct
 import subprocess
 import sys
 import tarfile
-import threading
-from dataclasses import dataclass
-import os
 import tempfile
+import threading
 import time
 import urllib.request
 import warnings
 import zipfile
 from collections import Counter, deque
 from collections.abc import Iterator
-from tqdm import tqdm
+from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, IO, Any, Literal, cast
+from typing import IO, TYPE_CHECKING, Any, Literal, cast
+
+from tqdm import tqdm
 
 if TYPE_CHECKING:
     import torch
@@ -40,16 +41,17 @@ import numpy as np
 from ansitable import ANSITable, Column
 from spatialmath import Polygon2
 
-from machinevisiontoolbox.ImageCore import Image
-from machinevisiontoolbox.PointCloud import PointCloud
 from machinevisiontoolbox.base import mvtb_path_to_datafile
 from machinevisiontoolbox.base.imageio import iread, iread_iter, safe_plt_show
+from machinevisiontoolbox.ImageCore import Image
+from machinevisiontoolbox.PointCloud import PointCloud
 
 try:
     from rosbags.rosbag1 import Reader as _RosBagReader1
     from rosbags.rosbag2 import Reader as _RosBagReader2
     from rosbags.serde import SerdeError as _SerdeError
-    from rosbags.typesys import Stores as _Stores, get_typestore as _get_typestore
+    from rosbags.typesys import Stores as _Stores
+    from rosbags.typesys import get_typestore as _get_typestore
 
     _rosbags_available = True
 except ImportError:
@@ -4528,7 +4530,9 @@ class LabelMeReader:
         import base64
         import binascii
         from io import BytesIO
-        from PIL import Image as PILImage, UnidentifiedImageError
+
+        from PIL import Image as PILImage
+        from PIL import UnidentifiedImageError
 
         imdata = self.data.get("imageData")
         array = None

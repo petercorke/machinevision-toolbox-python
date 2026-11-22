@@ -144,8 +144,9 @@ class TestImagePointFeatures(unittest.TestCase):
 
     def test_surf_nonfree_message(self):
         """A build of OpenCV without the non-free algorithms gives a helpful message"""
-        import cv2
         from unittest import mock
+
+        import cv2
 
         img = Image.Read("flowers1.png", mono=True)
         err = cv2.error("(-213:The function/feature is not implemented) patented")
@@ -157,8 +158,9 @@ class TestImagePointFeatures(unittest.TestCase):
 
     def test_surf_without_contrib(self):
         """Without the contrib modules the error says to install them"""
-        import cv2
         from unittest import mock
+
+        import cv2
 
         from machinevisiontoolbox._cv2_contrib import _MissingContrib
 
@@ -170,8 +172,9 @@ class TestImagePointFeatures(unittest.TestCase):
 
     def test_surf_features(self):
         """SURF returns SURFFeature objects (detector stood in for by SIFT, which is free)"""
-        import cv2
         from unittest import mock
+
+        import cv2
 
         from machinevisiontoolbox.ImagePointFeatures import SURFFeature
 

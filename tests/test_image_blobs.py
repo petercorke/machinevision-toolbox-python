@@ -1,6 +1,6 @@
-import unittest
 import io
 import json
+import unittest
 from pathlib import Path
 from unittest.case import skip
 
@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import numpy.testing as nt
 
-from machinevisiontoolbox import Image, Blobs
+from machinevisiontoolbox import Blobs, Image
 
 # Number of blobs produced by Image.Squares(2, ...): a 2×2 grid = 4 squares.
 _N_MULTI = 4

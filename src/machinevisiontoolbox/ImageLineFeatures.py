@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from spatialmath import base
 from spatialmath.base import set_window_title
+
 from machinevisiontoolbox._image_typing import ImageMixinBase
 
 if TYPE_CHECKING:
