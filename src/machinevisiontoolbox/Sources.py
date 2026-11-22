@@ -4444,6 +4444,12 @@ class LabelMeReader:
 
     :param filename: path to LabelMe JSON file, or an ``http(s)://`` URL
     :type filename: str
+    :raises OSError: if the file cannot be opened or the URL cannot be fetched
+    :raises json.JSONDecodeError: if the content is not valid JSON
+
+    .. versionchanged:: 2.5.0
+        An unreadable file or invalid JSON now raises, where it used to return an
+        incompletely initialised reader.
 
     LabelMe is a popular annotation tool that saves annotations in a JSON format.  This
     class reads the JSON file and extracts the image, polygonal shapes, and associated
@@ -4492,17 +4498,14 @@ class LabelMeReader:
     def __init__(self, filename: str) -> None:
         self.filename = filename
 
-        try:
-            if str(filename).startswith(("http://", "https://")):
-                import urllib.request
+        if str(filename).startswith(("http://", "https://")):
+            import urllib.request
 
-                with urllib.request.urlopen(filename) as response:  # noqa: S310
-                    self.data = json.loads(response.read().decode("utf-8"))
-            else:
-                with open(self.filename, "r", encoding="utf-8") as f:
-                    self.data = json.load(f)
-        except (OSError, json.JSONDecodeError, TypeError, ValueError):
-            return None
+            with urllib.request.urlopen(filename) as response:  # noqa: S310
+                self.data = json.loads(response.read().decode("utf-8"))
+        else:
+            with open(self.filename, "r", encoding="utf-8") as f:
+                self.data = json.load(f)
         self._nshapes = len(self.data.get("shapes", []))
         self._version = self.data.get("version")
 
