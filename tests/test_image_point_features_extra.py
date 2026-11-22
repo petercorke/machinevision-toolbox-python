@@ -289,11 +289,6 @@ class TestFilter:
         with pytest.raises(ValueError, match="unknown filter"):
             make_features().filter(colour=1)
 
-    @pytest.mark.xfail(
-        strict=True,
-        reason="minstrength keeps features weaker than the limit: the test is "
-        "written limits >= v, not v >= limits",
-    )
     def test_minstrength_keeps_the_stronger(self):
         f = make_features(5).filter(minstrength=0.25)
         nt.assert_array_equal(f.id, [2, 3, 4])

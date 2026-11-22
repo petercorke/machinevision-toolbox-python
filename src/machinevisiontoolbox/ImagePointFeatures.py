@@ -997,7 +997,7 @@ class BaseFeature2D:
                 k = (limits[0] <= v) & (v <= limits[1])
             elif filter == "minstrength":
                 v = features.strength
-                k = limits >= v
+                k = v >= limits
             elif filter == "percentstrength":
                 v = features.strength
                 vmax = v.max()
