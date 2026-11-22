@@ -73,6 +73,34 @@ class TestVisjacBlock:
             Visjac_p(None)
 
 
+class TestEstPoseBlock:
+    """EstPose_p estimates the pose of a set of points from their image projection."""
+
+    def setup_method(self):
+        self.cam = CentralCamera.Default()
+        self.P = mkcube(0.2)
+        self.T_unknown = SE3.Trans(0.1, 0.2, 1.5) * SE3.RPY(0.1, 0.2, 0.3)
+        self.p = self.cam.project_point(self.P, objpose=self.T_unknown)
+
+    def test_matches_the_camera_method(self):
+        T_est = self.cam.estpose(self.P, self.p)
+        T = EstPose_p(self.cam, self.P).test_output(self.p)[0]
+        nt.assert_array_almost_equal(T.A, T_est.A)
+
+    def test_recovers_the_true_pose(self):
+        T = EstPose_p(self.cam, self.P).test_output(self.p)[0]
+        nt.assert_array_almost_equal(T.A, self.T_unknown.A, decimal=4)
+
+    def test_method_is_passed_on(self):
+        T_est = self.cam.estpose(self.P, self.p, method="epnp")
+        T = EstPose_p(self.cam, self.P, method="epnp").test_output(self.p)[0]
+        nt.assert_array_almost_equal(T.A, T_est.A)
+
+    def test_no_camera_raises(self):
+        with pytest.raises(ValueError):
+            EstPose_p(None, self.P)
+
+
 class TestEstPoseFrame:
     """EstPose_p passes its ``frame`` argument on to ``CentralCamera.estpose``."""
 
