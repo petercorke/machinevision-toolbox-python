@@ -200,65 +200,89 @@ class HoughFeature:
             for line in lines:
                 plt.plot(line[[0, 2]], line[[1, 3]], *args, **kwargs)
 
-    def accumulator(self, skip: int = 1) -> None:
+    def accumulator(self) -> None:
         r"""
         Compute the Hough accumulator
 
-        :param skip: increment for line strength threshold, defaults to 1
-        :type skip: int, optional
+        Every set pixel :math:`(u, v)` of the image votes for all the lines that
+        pass through it, one for each quantized :math:`\theta`, with
 
-        It creates two new attributes for the instance:
+        .. math:: \rho = u \cos \theta + v \sin \theta
 
-        - ``A`` which is the Hough "accumulator" array, rows represent :math:`\rho`
-          and columns represent :math:`\theta`.
+        quantized into steps of ``drho``.  It creates the following attributes
+        for the instance:
+
+        - ``A`` is the Hough "accumulator" array of integer vote counts, rows
+          represent :math:`\rho` and columns represent :math:`\theta`.
         - ``votes`` is a list of the number of lines found versus threshold, it
-          can be used to select an optimal threshold.
+          can be used to select an optimal threshold.  Element ``t`` is the number
+          of lines that :meth:`lines` returns for ``minvotes=t``, to within
+          rounding, since a line is a cell of ``A`` that exceeds the threshold
+          and is a local maximum.
+        - ``t`` is the highest threshold at which a line is still found.
         - ``extent`` is :math:`[\theta_{\mbox{min}}, \theta_{\mbox{max}},
-          \rho_{\mbox{min}}, \rho_{\mbox{max}}]`.
+          \rho_{\mbox{min}}, \rho_{\mbox{max}}]`, the edges of the array
+          for plotting.
 
-        .. warning:: The OpenCV ``HoughLines`` function does not expose the
-            accumulator array. This method "reverse engineers" the accumulator
-            array through a costly process of computing the Hough transform
-            for all possible thresholds (increasing in steps of ``skip``). This
-            is helpful for pedagogy but very inefficient in practice.
+        .. warning:: The OpenCV ``HoughLines`` function does not expose its
+            accumulator array, so it is computed here directly by voting, with
+            the same quantization.  Unlike the lines returned by :meth:`lines`,
+            which are only the peaks, ``A`` holds the votes of every cell.
+            The peaks of ``A`` and the lines from OpenCV can differ by a very
+            few cells, where OpenCV's single-precision arithmetic rounds a
+            :math:`\rho` value differently.  This is helpful for pedagogy but
+            it is not the array that OpenCV used.
 
-        :seealso: :meth:`plot_accumulator`
+        .. versionchanged:: 2.5.0
+            The accumulator is computed directly by voting, so ``A`` is the
+            complete array and not just its peaks, and ``extent`` spans the
+            whole range of :math:`\rho`.  Previously it was reconstructed
+            from repeated calls of ``HoughLines``, which was slow.  The ``skip``
+            argument has been removed since every threshold is now counted.
+
+        .. seealso:: :meth:`plot_accumulator` :meth:`lines`
         """
 
-        self.nz = np.sum(self.image > 0)
-        t = 0
-        theta = np.empty((0,))
-        rho = np.empty((0,))
-        votes = []
-        while True:
-            lines = cv2.HoughLines(
-                image=self.image, rho=self.drho, theta=self.dtheta, threshold=t
-            )
+        image = self.image
+        height, width = image.shape[:2]
+        ntheta = int(round(np.pi / self.dtheta))
+        # the same number of bins as OpenCV: rho = 0 is in the middle row
+        nrho = int(round(((width + height) * 2 + 1) / self.drho))
+        rho0 = (nrho - 1) // 2
 
-            if lines is None or len(lines) == 0:
-                # no lines found at this threshold, bail out.  OpenCV 5.1
-                # returns an empty array, not None, so test for both.
-                self.t = t - 1
-                break
+        v, u = np.nonzero(image)
+        self.nz = len(u)
 
-            # append the found lines and votes
-            theta = np.concatenate((theta, lines[:, 0, 1].flatten()))
-            rho = np.concatenate((rho, lines[:, 0, 0].flatten()))
-            votes.append(lines.shape[0])
+        A = np.zeros((nrho, ntheta), dtype=int)
+        for n in range(ntheta):
+            theta = n * self.dtheta
+            rho = np.round((u * np.cos(theta) + v * np.sin(theta)) / self.drho)
+            A[:, n] = np.bincount(rho.astype(int) + rho0, minlength=nrho)
 
-            t += skip  # increment the line strength threshold
-
-        # now create the accumulator array
-        theta_bins = np.arange(
-            theta.min() - self.dtheta / 2, theta.max() + self.dtheta / 2, self.dtheta
+        # a line is a cell above the threshold that is a local maximum in the
+        # rho and theta directions, which is the rule OpenCV uses
+        P = np.pad(A, 1)
+        centre = P[1:-1, 1:-1]
+        peak = (
+            (centre > P[:-2, 1:-1])
+            & (centre >= P[2:, 1:-1])
+            & (centre > P[1:-1, :-2])
+            & (centre >= P[1:-1, 2:])
         )
-        rho_bins = np.arange(
-            rho.min() - self.drho / 2, rho.max() + self.drho / 2, self.drho
-        )
+        counts = np.bincount(A[peak], minlength=1)
+        # a peak of v votes is found at every threshold t < v
+        peaks_above = counts.sum() - np.cumsum(counts)
+        votes = [int(n) for n in peaks_above[: np.max(A, initial=0)]]
 
-        self.extent = (theta_bins[0], theta_bins[-1], rho_bins[0], rho_bins[-1])
-        self.A = np.histogram2d(theta, rho, bins=(theta_bins, rho_bins))[0].T
+        self.A = A
         self.votes = votes
+        self.t = len(votes) - 1
+        self.extent = (
+            -self.dtheta / 2,
+            (ntheta - 0.5) * self.dtheta,
+            (-rho0 - 0.5) * self.drho,
+            (nrho - 1 - rho0 + 0.5) * self.drho,
+        )
 
     def plot_accumulator(
         self, ax: Axes | None = None, title: str | None = None, **kwargs: Any
