@@ -1468,11 +1468,15 @@ def pickpoints(
 
     .. note:: Picked coordinates have floating point values.
 
+    .. versionchanged:: 2.5.0
+        ``pickpoints`` with ``matplotlib=True`` raised ``NameError``; it now works.
+
     :seealso: :func:`idisp`
     """
 
     if matplotlib:
-        points = plt.ginput(n)  # type: ignore[name-defined]
+        plt = _plt()
+        points = plt.ginput(n)
         return np.c_[points].T
     else:
 
