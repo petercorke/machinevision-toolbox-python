@@ -664,7 +664,6 @@ class BaseFeature2D:
                 else:
                     d = np.linalg.norm(des1[i, :] - des2[j, :], ord=metric_dict[metric])
                 D[i, j] = d
-                D[j, i] = d
         return D
 
     def match(
