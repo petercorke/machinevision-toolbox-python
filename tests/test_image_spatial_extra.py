@@ -445,16 +445,22 @@ class TestSimilarityMeasures:
         assert zero.ncc(zero) == 0
         assert one.zncc(one) == 0
 
-    @pytest.mark.xfail(
-        strict=True,
-        reason="sad, ssd and ncc subtract and square uint8 arrays without "
-        "converting them, so the arithmetic wraps around at 256",
-    )
     def test_uint8_images(self):
+        # subtracting or squaring uint8 values must not wrap around at 256
         a = Image(A.astype(np.uint8))
         b = Image(B.astype(np.uint8))
         assert a.sad(b) == pytest.approx(np.abs(A - B).sum())
-        assert a.ncc(b) <= 1
+        assert a.ssd(b) == pytest.approx(((A - B) ** 2).sum())
+        expected = (A * B).sum() / np.sqrt((A**2).sum() * (B**2).sum())
+        assert a.ncc(b) == pytest.approx(expected, rel=1e-5)
+
+    def test_uint8_images_with_large_differences(self):
+        # 200 - 10 wraps to 190 and 10 - 200 to 66 in uint8 arithmetic
+        a = Image(np.array([[10, 200]], dtype=np.uint8))
+        b = Image(np.array([[200, 10]], dtype=np.uint8))
+        assert a.sad(b) == 380
+        assert a.ssd(b) == 2 * 190**2
+        assert 0 <= a.ncc(b) <= 1
 
 
 class TestSimilarity:
