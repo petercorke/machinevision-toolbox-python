@@ -1546,8 +1546,11 @@ class ImageSpatialMixin(ImageMixinBase):
         im = self._A
         T_im = T._A
         if metric[0] == "z":
-            T_im -= np.mean(T_im)  # remove offset from template
-            im = im - np.mean(im)  # remove offset from image
+            # remove the offset from the template and from the image, into new
+            # float32 arrays: the template belongs to the caller, and an 8-bit
+            # image cannot be changed in place by a float mean
+            T_im = T_im.astype(np.float32) - np.mean(T_im, dtype=np.float32)
+            im = im.astype(np.float32) - np.mean(im, dtype=np.float32)
 
         try:
             out = cv2.matchTemplate(image=im, templ=T_im, method=metricdict[metric])
