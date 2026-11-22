@@ -610,17 +610,26 @@ class TestDrawing:
         assert xs.min() >= 28 and xs.max() <= 52
         assert ys.min() >= 28 and ys.max() <= 52
 
-    @pytest.mark.xfail(
-        strict=True,
-        reason="draw() passes the x pair and the y pair to draw_line as the "
-        "start and end points, so the hand is vertical, not along the orientation",
-    )
     def test_draw_hand_points_along_the_orientation(self, canvas, one):
         one.draw(canvas, filled=True, hand=True, color="r", handcolor="g")
         ys, xs = np.nonzero(canvas.array[:, :, 1] > 0)
-        # orientation 0 is along +u, so a horizontal line on row 40
+        # orientation 0 is along +u, so a horizontal line on row 40, from the
+        # centre (40, 40) to the circumference at (50, 40)
         assert (ys == 40).all()
-        assert xs.min() >= 40 and xs.max() <= 50
+        assert xs.min() == 40 and xs.max() == 50
+
+    def test_draw_hand_follows_a_quarter_turn(self, canvas):
+        # orientation 90 degrees is along +v: a vertical line down column 40
+        f = SIFTFeature(
+            [cv2.KeyPoint(40.0, 40.0, 10.0, 90.0, 0.5, 0, 0)],
+            np.zeros((1, 4), dtype=np.float32),
+            scale=True,
+            orient=True,
+        )
+        f.draw(canvas, filled=True, hand=True, color="r", handcolor="g")
+        ys, xs = np.nonzero(canvas.array[:, :, 1] > 0)
+        assert (xs == 40).all()
+        assert ys.min() == 40 and ys.max() == 50
 
     def test_draw_hand_is_drawn(self, canvas, one):
         one.draw(canvas, filled=True, hand=True, color="r", handcolor="g")
