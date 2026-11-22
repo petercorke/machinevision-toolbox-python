@@ -1,4 +1,4 @@
-name: Assets
+name: Release Assets
 
 # Attaches the examples and the notebooks, as zip files, to a GitHub release.
 
