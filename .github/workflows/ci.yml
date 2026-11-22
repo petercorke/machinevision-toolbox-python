@@ -165,7 +165,7 @@ jobs:
         env:
           MPLBACKEND: Agg
         run: |
-          coverage run --source=machinevisiontoolbox --omit="src/machinevisiontoolbox/blocks/*,src/machinevision/blocks/*" -m pytest --timeout=50
+          coverage run --source=machinevisiontoolbox -m pytest --timeout=50
           coverage xml
 
       - name: Upload to Codecov
