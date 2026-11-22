@@ -511,25 +511,29 @@ class TestSimilarity:
         image.similarity(template, "ncc")
         nt.assert_array_equal(template.array, before)
 
-    @pytest.mark.xfail(
-        strict=True,
-        reason="the z metrics subtract the template mean in place, which "
-        "changes the caller's template",
-    )
     def test_template_is_unchanged_by_zncc(self, scene):
         image, template = scene
         before = template.array.copy()
         image.similarity(template, "zncc")
         nt.assert_array_equal(template.array, before)
 
-    @pytest.mark.xfail(
-        strict=True,
-        raises=Exception,
-        reason="the in-place mean subtraction fails on a uint8 image",
-    )
     def test_zncc_on_uint8_images(self):
         rng = np.random.default_rng(1)
         arr = rng.integers(0, 255, (20, 20), dtype=np.uint8)
         image = Image(arr)
-        out = image.similarity(Image(arr[5:8, 5:8].copy()), "zncc")
+        template = Image(arr[5:8, 5:8].copy())
+        out = image.similarity(template, "zncc")
         assert out.shape == (18, 18)
+        v, u = np.unravel_index(np.argmax(out.array), out.shape)
+        assert (u, v) == (5, 5)
+        assert out.array[v, u] == pytest.approx(1.0, abs=1e-3)
+        # neither the image nor the template is changed
+        nt.assert_array_equal(image.array, arr)
+        nt.assert_array_equal(template.array, arr[5:8, 5:8])
+
+    def test_zssd_on_uint8_images(self):
+        rng = np.random.default_rng(2)
+        arr = rng.integers(0, 255, (20, 20), dtype=np.uint8)
+        out = Image(arr).similarity(Image(arr[5:8, 5:8].copy()), "zssd")
+        v, u = np.unravel_index(np.argmin(out.array), out.shape)
+        assert (u, v) == (5, 5)
