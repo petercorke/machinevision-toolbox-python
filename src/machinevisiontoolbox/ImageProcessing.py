@@ -543,12 +543,12 @@ class ImageProcessingMixin(ImageMixinBase):
             elif auto == "percentile":
                 autothresh = np.percentile(arr, p)
             else:
-                raise ValueError(auto, "unknown automatic threshold method")
+                raise ValueError(f"unknown automatic threshold method, got {auto!r}")
 
             threshold = autothresh
 
         if not argcheck.isscalar(threshold):
-            raise ValueError(threshold, "threshold must be a scalar")
+            raise ValueError(f"threshold must be a scalar, got {threshold!r}")
 
         if mode == "binary":
             imt = np.where(arr > threshold, true_value, false_value).astype(
@@ -565,7 +565,7 @@ class ImageProcessingMixin(ImageMixinBase):
         elif mode in ("/tozero", "tozero_inv"):
             imt = np.where(arr <= threshold, arr, 0)
         else:
-            raise ValueError(mode, "unknown threshold method")
+            raise ValueError(f"unknown threshold method, got {mode!r}")
 
         if mode in ("binary", "binary_inv"):
             out = self.__class__(imt)
@@ -639,7 +639,7 @@ class ImageProcessingMixin(ImageMixinBase):
 
         mode = mode.lower()
         if mode not in ("binary", "tozero"):
-            raise ValueError(mode, "unknown threshold mode")
+            raise ValueError(f"unknown threshold mode, got {mode!r}")
 
         img = self._A
         img_min = float(np.min(img))
@@ -1262,9 +1262,13 @@ class ImageProcessingMixin(ImageMixinBase):
         top = int(top)
 
         if (top + ph) > ch:
-            raise ValueError(ph, "pattern falls off bottom edge")
+            raise ValueError(
+                f"pattern falls off bottom edge: top {top} + height {ph} > image height {ch}"
+            )
         if (left + pw) > cw:
-            raise ValueError(pw, "pattern falls off right edge")
+            raise ValueError(
+                f"pattern falls off right edge: left {left} + width {pw} > image width {cw}"
+            )
 
         npc = pattern.nplanes
         nc = self.nplanes

@@ -177,7 +177,7 @@ class ImageColorMixin(ImageMixinBase):
         else:
             color_arr = argcheck.getvector(color).astype(self.dtype)
         if self.iscolor:
-            raise ValueError(self._A, "Image must be greyscale")
+            raise ValueError(f"image must be greyscale, got {self.nplanes} planes")
 
         out = self._A[..., np.newaxis] * color_arr
 

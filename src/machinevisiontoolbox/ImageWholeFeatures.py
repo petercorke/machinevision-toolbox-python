@@ -584,7 +584,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
         """
 
         if not isinstance(p, int) or not isinstance(q, int):
-            raise TypeError(p, "p, q must be an int")
+            raise TypeError(f"p, q must be an int, got p={p!r}, q={q!r}")
 
         im = self.mono()._A
         X, Y = self.meshgrid()
@@ -628,7 +628,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
         """
 
         if not isinstance(p, int) or not isinstance(q, int):
-            raise TypeError(p, "p, q must be an int")
+            raise TypeError(f"p, q must be an int, got p={p!r}, q={q!r}")
 
         m00 = self.mpq(0, 0)
         xc = self.mpq(1, 0) / m00
@@ -677,9 +677,11 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
         :seealso: :meth:`sum` :meth:`mpq` :meth:`upq`
         """
         if not isinstance(p, int) or not isinstance(q, int):
-            raise TypeError(p, "p, q must be an int")
+            raise TypeError(f"p, q must be an int, got p={p!r}, q={q!r}")
         if (p + q) < 2:
-            raise ValueError(p + q, "normalized moments only valid for p+q >= 2")
+            raise ValueError(
+                f"normalized moments only valid for p+q >= 2, got p+q={p + q}"
+            )
 
         g = (p + q) / 2 + 1
 
@@ -1720,7 +1722,7 @@ class Histogram:
             ax.legend(loc="best")
 
         else:
-            raise ValueError("unknown style")
+            raise ValueError(f"style must be 'stack' or 'overlay', got {style!r}")
 
         if title is not None:
             set_window_title(plt.gcf(), title)
@@ -1761,7 +1763,7 @@ class Histogram:
             ylabel1 = "CDF"
             ylabel2 = "normalized cumulative frequency"
         else:
-            raise ValueError("unknown type")
+            raise ValueError(f"unknown histogram type {type!r}")
 
         return y, maxy, ylabel1, ylabel2
 

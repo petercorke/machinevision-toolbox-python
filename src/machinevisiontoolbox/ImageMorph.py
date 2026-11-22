@@ -120,7 +120,7 @@ class ImageMorphMixin(ImageMixinBase):
         if not isinstance(n, int):
             n = int(n)
         if n <= 0:
-            raise ValueError(n, "n must be greater than 0")
+            raise ValueError(f"n must be greater than 0, got {n!r}")
 
         if self.isbool:
             img_array = self.array_as("uint8")  # convert to uint8 for opencv
@@ -213,7 +213,7 @@ class ImageMorphMixin(ImageMixinBase):
         if not isinstance(n, int):
             n = int(n)
         if n <= 0:
-            raise ValueError(n, "n must be greater than 0")
+            raise ValueError(f"n must be greater than 0, got {n!r}")
 
         if self.isbool:
             img_array = self.array_as("uint8")  # convert to uint8 for opencv
@@ -303,12 +303,12 @@ class ImageMorphMixin(ImageMixinBase):
         # can also be a scalar
 
         if not isinstance(op, str):
-            raise TypeError(op, "oper must be a string")
+            raise TypeError(f"oper must be a string, got {op!r}")
 
         if not isinstance(n, int):
             n = int(n)
         if n <= 0:
-            raise ValueError(n, "n must be greater than 0")
+            raise ValueError(f"n must be greater than 0, got {n!r}")
 
         if self.isbool:
             img_array = self.array_as("uint8")  # convert to uint8 for opencv

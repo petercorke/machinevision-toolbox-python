@@ -1401,9 +1401,11 @@ class FeatureMatch:
                 if self._inliers is not None:
                     inliers = [self._inliers[k] for k in i]
             else:
-                raise ValueError("bad index dtype")
+                raise ValueError(f"index array must be integer or bool, got {i.dtype}")
         else:
-            raise ValueError("bad index")
+            raise ValueError(
+                f"index must be an int, slice, sequence or array, got {type(i).__name__}"
+            )
         return FeatureMatch(matches, self._kp1, self._kp2, inliers)
 
     def __len__(self) -> int:
@@ -2173,7 +2175,7 @@ class ImagePointFeaturesMixin(ImageMixinBase):
             for k in kp:
                 k.class_id = id
         else:
-            raise ValueError("bad id")
+            raise ValueError(f"id must be 'image', 'index' or an int, got {id!r}")
 
         # do sorting in here
 
@@ -2481,7 +2483,9 @@ class ImagePointFeaturesMixin(ImageMixinBase):
             # call it
             kp = detector(self._A, **det_opts)
         else:
-            raise ValueError("unknown detector")
+            raise ValueError(
+                f"detector must be a callable or one of {list(detectors)}, got {detector!r}"
+            )
 
         raise NotImplementedError("ComboFeature is a work in progress")
 

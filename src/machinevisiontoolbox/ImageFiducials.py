@@ -470,7 +470,9 @@ class FiducialCollection:
         )
 
         if not retval:
-            raise ValueError("solvePnP failed")
+            raise ValueError(
+                f"solvePnP failed to find a pose from {len(objPoints)} points"
+            )
         # print(f"rotation: {rvec.T}")
         # print(f"translation: {tvec.T}")
         self._tvec = tvec
