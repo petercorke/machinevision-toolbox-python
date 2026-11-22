@@ -135,20 +135,29 @@ class EstPose_p(FunctionBlock):
         :type blockargs: dict
         :return: a ESTPOSE_P block
         :rtype: EstPose_p instance
+        :raises ValueError: if ``camera`` is None or ``frame`` is not ``"world"`` or ``"camera"``
+
+        .. versionchanged:: 2.5.0
+            ``frame`` is now passed to :meth:`~machinevisiontoolbox.Camera.CentralCamera.estpose`.
+            Previously it was accepted but ignored, so the pose was always given with
+            respect to the world frame.
 
         """
         if camera is None:
             raise ValueError("camera is not defined")
+        if frame not in ("world", "camera"):
+            raise ValueError(f"bad frame value {frame}, must be 'world' or 'camera'")
 
         super().__init__(**blockargs)
 
         self.camera = camera
         self.P = P
+        self.frame = frame
         self.method = method
 
     def output(self, t, inports, x):
         p = inports[0]
-        T = self.camera.estpose(self.P, p, method=self.method)
+        T = self.camera.estpose(self.P, p, method=self.method, frame=self.frame)
         return [T]
 
 
