@@ -1242,8 +1242,8 @@ class BaseFeature2D:
                     )
                     draw_line(
                         img,
-                        (centre[0], circum[0]),
-                        (centre[1], circum[1]),
+                        centre,
+                        circum,
                         color=handcolor,
                         thickness=handthickness,
                     )
