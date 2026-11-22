@@ -109,7 +109,7 @@ class ImageMultiviewMixin(ImageMixinBase):
         right_arr = right_arr - right_arr.mean(axis=2)[..., np.newaxis]
 
         # shift right image to the right
-        right_arr = right_arr[:, : -drange[0], :]
+        right_arr = right_arr[:, : right_arr.shape[1] - drange[0], :]
         right_arr = np.pad(
             right_arr,
             ((0, 0), (drange[0], 0), (0, 0)),

@@ -70,18 +70,24 @@ class TestStereoSimple:
         assert similarity.shape == left.shape
         assert dsi.shape[:2] == left.shape
 
-    @pytest.mark.xfail(
-        strict=True,
-        raises=ValueError,
-        reason="an integer drange becomes (0, n) and the slice right_arr[:, :-0] "
-        "is then empty, so the arrays cannot be multiplied",
-    )
-    def test_integer_range(self, pair):
+    @pytest.mark.parametrize("drange", [[0, 12], (0, 12)])
+    def test_zero_minimum_disparity(self, pair, drange):
+        # a minimum of zero used to give the empty slice right_arr[:, :-0]
         left, right = pair
         left = Image(left.array.astype(np.float32))
         right = Image(right.array.astype(np.float32))
-        disparity, _, _ = left.stereo_simple(right, hw=2, drange=12)
+        disparity, similarity, dsi = left.stereo_simple(right, hw=2, drange=drange)
+        assert dsi.shape[2] == 12
         nt.assert_array_equal(disparity.array[10:30, 30:80], DISPARITY)
+        nt.assert_allclose(similarity.array[10:30, 30:80], 1.0, atol=1e-5)
+
+    def test_zero_minimum_agrees_with_a_larger_one(self, pair):
+        left, right = pair
+        left = Image(left.array.astype(np.float32))
+        right = Image(right.array.astype(np.float32))
+        a, _, _ = left.stereo_simple(right, hw=2, drange=[0, 12])
+        b, _, _ = left.stereo_simple(right, hw=2, drange=[4, 12])
+        nt.assert_array_equal(a.array[10:30, 30:80], b.array[10:30, 30:80])
 
 
 class TestDSIRefine:
