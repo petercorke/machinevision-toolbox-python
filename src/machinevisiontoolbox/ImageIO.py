@@ -108,6 +108,11 @@ class ImageIOMixin(ImageMixinBase):
         if isinstance(data, tuple):
             # singleton image, make it a list
             image_arr, name = data
+            if isinstance(image_arr, list):
+                # iread() returns (list of images, list of names) for a wildcard
+                raise ValueError(
+                    "wildcard read not supported, use FileCollection instead"
+                )
             assert isinstance(image_arr, np.ndarray)
             if not alpha and image_arr.ndim == 3 and image_arr.shape[2] == 4:
                 image_arr = image_arr[:, :, :3]
@@ -728,7 +733,7 @@ class ImageIOMixin(ImageMixinBase):
                 if event.inaxes == self.ax2 and self.leftclicked:
                     x, y = event.xdata, event.ydata
                     # update the line positions
-                    self.vertical_line3.set_xdata(x)
+                    self.vertical_line3.set_xdata([x, x])
                     self.text.set_text("d={:.2f}".format(self.x_left - x))
                     self.ax2.figure.canvas.draw()
                 # if  event.inaxes:
@@ -754,10 +759,10 @@ class ImageIOMixin(ImageMixinBase):
                     self.set_cross_hair_visible(True)
                     x, y = event.xdata, event.ydata
                     # update the line positions
-                    self.horizontal_line.set_ydata(y)
-                    self.vertical_line.set_xdata(x)
-                    self.horizontal_line2.set_ydata(y)
-                    self.vertical_line2.set_xdata(x)
+                    self.horizontal_line.set_ydata([y, y])
+                    self.vertical_line.set_xdata([x, x])
+                    self.horizontal_line2.set_ydata([y, y])
+                    self.vertical_line2.set_xdata([x, x])
                     self.ax.figure.canvas.draw()
                     self.leftclicked = True
                     self.x_left = x
@@ -776,6 +781,10 @@ class ImageIOMixin(ImageMixinBase):
 
         if interactive:
             cursor = Cursor(ax1, ax2)
+            # Matplotlib holds bound-method callbacks weakly, so keep the cursor
+            # alive for as long as the figure, or the clicks stop working when
+            # show() does not block (a notebook, or a non-interactive backend)
+            fig._stdisp_cursor = cursor  # type: ignore[attr-defined]
             fig.canvas.mpl_connect("motion_notify_event", cursor.on_mouse_move)
             fig.canvas.mpl_connect("button_press_event", cursor.on_click)
             safe_plt_show(block=True)
