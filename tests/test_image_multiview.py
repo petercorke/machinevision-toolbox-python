@@ -81,6 +81,16 @@ class TestStereoSimple:
         nt.assert_array_equal(disparity.array[10:30, 30:80], DISPARITY)
         nt.assert_allclose(similarity.array[10:30, 30:80], 1.0, atol=1e-5)
 
+    def test_integer_range_means_zero_to_n(self, pair):
+        left, right = pair
+        left = Image(left.array.astype(np.float32))
+        right = Image(right.array.astype(np.float32))
+        a, sa, dsia = left.stereo_simple(right, hw=2, drange=12)
+        b, sb, dsib = left.stereo_simple(right, hw=2, drange=[0, 12])
+        nt.assert_array_equal(a.array, b.array)
+        nt.assert_array_equal(dsia, dsib)
+        nt.assert_array_equal(a.array[10:30, 30:80], DISPARITY)
+
     def test_zero_minimum_agrees_with_a_larger_one(self, pair):
         left, right = pair
         left = Image(left.array.astype(np.float32))

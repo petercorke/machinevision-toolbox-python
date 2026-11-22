@@ -25,7 +25,7 @@ class ImageMultiviewMixin(ImageMixinBase):
     # ======================= stereo ================================== #
 
     def stereo_simple(
-        self, right: Image, hw: int, drange: tuple[int, int] | list[int]
+        self, right: Image, hw: int, drange: tuple[int, int] | list[int] | int
     ) -> tuple[Self, Self, np.ndarray]:
         """
         Simple stereo matching
@@ -34,8 +34,9 @@ class ImageMultiviewMixin(ImageMixinBase):
         :type right: :class:`Image`
         :param hw: window half width
         :type hw: int
-        :param drange: disparity range
-        :type drange: array_like(2)
+        :param drange: disparity range (minimum, maximum), or a single integer
+            ``n`` which means ``(0, n)``
+        :type drange: array_like(2) or int
         :return: disparity image, similarity image, disparity space image
         :rtype: :class:`Image`, :class:`Image`, ndarray(H,W,D)
 
@@ -233,7 +234,7 @@ class ImageMultiviewMixin(ImageMixinBase):
         self,
         right: Image,
         hw: int,
-        drange: tuple[int, int] | list[int],
+        drange: tuple[int, int] | list[int] | int,
         speckle: tuple[int, int] | None = None,
     ) -> Self:
         """
@@ -243,8 +244,9 @@ class ImageMultiviewMixin(ImageMixinBase):
         :type right: :class:`Image`
         :param hw: window half width
         :type hw: int
-        :param drange: disparity range
-        :type drange: array_like(2)
+        :param drange: disparity range (minimum, maximum), or a single integer
+            ``n`` which means ``(0, n)``
+        :type drange: array_like(2) or int
         :param speckle: speckle filter parameters, defaults to None
         :type speckle: array_like(2), optional
         :raises ValueError: block size too small
@@ -313,7 +315,7 @@ class ImageMultiviewMixin(ImageMixinBase):
         self,
         right: Image,
         hw: int,
-        drange: tuple[int, int] | list[int],
+        drange: tuple[int, int] | list[int] | int,
         speckle: tuple[int, int] | None = None,
     ) -> Self:
         """
@@ -323,8 +325,9 @@ class ImageMultiviewMixin(ImageMixinBase):
         :type right: :class:`Image`
         :param hw: window half width
         :type hw: int
-        :param drange: disparity range
-        :type drange: array_like(2)
+        :param drange: disparity range (minimum, maximum), or a single integer
+            ``n`` which means ``(0, n)``
+        :type drange: array_like(2) or int
         :param speckle: speckle filter parameters, defaults to None
         :type speckle: array_like(2), optional
         :raises ValueError: block size too small
