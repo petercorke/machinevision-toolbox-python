@@ -490,16 +490,15 @@ class TestFeatureMatchInliers:
 
 
 class TestFeatureMatchPrinting:
-    @pytest.mark.xfail(
-        strict=True,
-        raises=IndexError,
-        reason="str() of a one-match object indexes p1[0, 0], but p1 is 1D "
-        "when there is a single match",
-    )
     def test_one_match(self, fmatch):
         s = str(fmatch[1])
-        assert "(20.0, 25.0) <--> (30.0, 30.0)" in s
+        assert s == "   1.00: (20.0, 25.0) <--> (30.0, 30.0)"
         assert repr(fmatch[1]) == s
+
+    def test_one_match_shows_whether_it_is_an_inlier(self, fmatch):
+        fmatch._inliers = np.array([True, False, True, True])
+        assert str(fmatch[0]).startswith("+")
+        assert str(fmatch[1]).startswith("-")
 
     def test_several(self, fmatch):
         assert str(fmatch) == "4 matches"
