@@ -6,9 +6,10 @@ Smoke tests for Visual Servo classes.
 import unittest
 import warnings
 
-from machinevisiontoolbox import FileCollection, BagOfWords
 import numpy as np
 import numpy.testing as nt
+
+from machinevisiontoolbox import BagOfWords, FileCollection
 
 
 class TestBagOfWords(unittest.TestCase):

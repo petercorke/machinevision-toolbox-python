@@ -4,10 +4,10 @@ Drawing primitives (boxes, circles, text) and color lookup onto OpenCV images.
 
 from __future__ import annotations
 
+import re
 from collections.abc import Iterable
 from typing import Any
 from typing import Iterable as TypingIterable
-import re
 
 import cv2
 import numpy as np

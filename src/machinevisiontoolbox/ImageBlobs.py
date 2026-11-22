@@ -16,12 +16,12 @@ import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy as sp
+import spatialmath.base as smb
 from ansitable import ANSITable, Column
 from spatialmath import SE2
-import spatialmath.base as smb
 
 from machinevisiontoolbox._image_typing import ImageMixinBase
-from machinevisiontoolbox.base.graphics import plot_labelbox, mpl_styling
+from machinevisiontoolbox.base.graphics import mpl_styling, plot_labelbox
 from machinevisiontoolbox.decorators import array_result, scalar_result
 
 if TYPE_CHECKING:

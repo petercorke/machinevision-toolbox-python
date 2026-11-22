@@ -4,8 +4,8 @@ Spatial filtering, convolution, edge detection, and general image processing ope
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Callable, Self
 import warnings
+from typing import TYPE_CHECKING, Any, Callable, Self
 
 import cv2
 import numpy as np

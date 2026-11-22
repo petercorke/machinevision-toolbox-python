@@ -8,8 +8,8 @@ Verifies that:
 - internal / third-party names are NOT polluted into the namespace
 """
 
-import unittest
 import types
+import unittest
 
 
 class TestStarImport(unittest.TestCase):

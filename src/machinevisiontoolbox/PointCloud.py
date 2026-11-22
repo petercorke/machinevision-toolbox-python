@@ -3,8 +3,8 @@ Thin wrapper around Open3D point-cloud objects with MVTB look and feel.
 """
 
 from pathlib import Path
-from warnings import warn
 from typing import Any, Callable
+from warnings import warn
 
 import numpy as np
 import spatialmath.base as smb

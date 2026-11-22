@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, Any
 
 import cv2
 import numpy as np
+
 from machinevisiontoolbox._image_typing import ImageMixinBase
 from machinevisiontoolbox.Kernel import Kernel
 

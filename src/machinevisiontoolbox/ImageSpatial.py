@@ -2,12 +2,13 @@
 Spatial operations: distance transforms, connected components, labelling, and histograms.
 """
 
+import warnings
+from typing import TYPE_CHECKING, Any, Callable
+
 import cv2
 import numpy as np
 import scipy as sp
 import spatialmath.base.argcheck as argcheck
-import warnings
-from typing import TYPE_CHECKING, Any, Callable
 
 from machinevisiontoolbox._image_typing import ImageMixinBase
 from machinevisiontoolbox.Kernel import Kernel

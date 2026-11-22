@@ -16,14 +16,14 @@ import tempfile
 from urllib.parse import urlparse
 
 import requests
-from tqdm import tqdm
 from colored import Fore, Style
+from tqdm import tqdm
 
 from machinevisiontoolbox import (
     Image,
-    ROSBag,
     ImageSequence,
     PointCloudSequence,
+    ROSBag,
 )
 from machinevisiontoolbox.bin._bintools import (
     CustomDefaultsHelpFormatter,
@@ -205,7 +205,9 @@ def _display_frames_interactive(frames, title, args) -> None:
     shortcuts.
     """
     from datetime import datetime, timezone
+
     import matplotlib.pyplot as plt
+
     from machinevisiontoolbox.bin._iminteractive import ImageInteractor
 
     _jump = {

@@ -26,8 +26,8 @@ from unittest.mock import MagicMock, patch
 import numpy as np
 import pytest
 
-from machinevisiontoolbox import Image
 import machinevisiontoolbox.Sources as _sources
+from machinevisiontoolbox import Image
 from machinevisiontoolbox.Sources import (
     ROSMessage,
     SyncROSStreams,
@@ -339,6 +339,7 @@ class TestRosTopicCallback(unittest.TestCase):
         """Build a minimal roslibpy compressed-image message dict."""
         import base64
         import io
+
         from PIL import Image as PILImg
 
         arr = np.full((4, 4, 3), [r, g, b], dtype=np.uint8)
@@ -399,6 +400,7 @@ class TestRosTopicCallback(unittest.TestCase):
         stream = _make_mock_stream(output="image")
         import base64
         import io
+
         from PIL import Image as PILImg
 
         arr = np.zeros((4, 4, 3), dtype=np.uint8)
