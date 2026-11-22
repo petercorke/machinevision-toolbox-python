@@ -12,7 +12,6 @@ new example is tested by default.
 """
 
 import os
-import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -22,6 +21,7 @@ import pytest
 EXAMPLES = Path(__file__).resolve().parents[1] / "examples"
 
 SKIP = {
+    "blobs2.py": "runs Graphviz dot and opens the resulting PDF in a browser",
     "bunny.py": "opens an Open3D window",
     "showzip.py": "opens OpenCV windows and waits for key presses",
     "randomdots.py": "interactive threshold window",
@@ -34,9 +34,6 @@ SKIP = {
 NETWORK = {"monalisa.py"}
 NETWORK_ERRORS = ("URLError", "ConnectionError", "TimeoutError", "HTTPError", "gaierror")
 
-# examples that run an external program: skipped when it is not installed
-NEEDS_PROGRAM = {"blobs2.py": "dot"}  # Graphviz
-
 # morphdemo redraws the figure for every pixel, which is slow on a CI runner; a
 # few frames exercise the same code as all of them
 ARGS = {"morphdemo.py": ["--delay", "0", "--frames", "5"]}
@@ -46,9 +43,6 @@ ARGS = {"morphdemo.py": ["--delay", "0", "--frames", "5"]}
 def test_example_runs(script):
     if script in SKIP:
         pytest.skip(SKIP[script])
-    if script in NEEDS_PROGRAM and shutil.which(NEEDS_PROGRAM[script]) is None:
-        pytest.skip(f"needs {NEEDS_PROGRAM[script]} on the PATH")
-
     # UTF-8 output, since examples print maths symbols that the Windows default cannot encode
     env = dict(os.environ, MPLBACKEND="Agg", PYTHONUTF8="1", PYTHONIOENCODING="utf-8")
     result = subprocess.run(
