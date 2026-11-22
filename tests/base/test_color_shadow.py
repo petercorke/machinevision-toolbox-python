@@ -89,14 +89,28 @@ class TestShadowInvariant:
         d = np.log(np.stack([rgb[:, 0] / denom, rgb[:, 2] / denom]))
         nt.assert_allclose(shadow_invariant(im).ravel(), d.T @ c)
 
-    @pytest.mark.xfail(
-        strict=True,
-        raises=UnboundLocalError,
-        reason="passing primaries without theta leaves the projection direction unset",
-    )
     def test_primaries_without_an_angle(self):
+        # the direction is worked out from the filters' peak wavelengths, in
+        # any units, since only their ratio matters
         im, _ = synthetic()
-        shadow_invariant(im, primaries=np.array([600, 540, 450]) * 1e-9)
+        primaries = np.array([600, 540, 450]) * 1e-9
+        out = shadow_invariant(im, primaries=primaries)
+        c = np.array([-1 / primaries[2], 1 / primaries[0]])
+        c /= np.linalg.norm(c)
+        d = shadow_invariant(im, np.arctan2(c[1], c[0]))
+        nt.assert_allclose(out, d)
+        # a different set of peaks gives a different direction
+        other = shadow_invariant(im, primaries=np.array([650, 540, 420]) * 1e-9)
+        assert not np.allclose(out, other)
+        # nanometres give the same answer as metres
+        nt.assert_allclose(shadow_invariant(im, primaries=primaries * 1e9), out)
+
+    def test_default_primaries_are_the_sony_sensor(self):
+        im, _ = synthetic()
+        nt.assert_allclose(
+            shadow_invariant(im),
+            shadow_invariant(im, primaries=np.array([610, 538, 460]) * 1e-9),
+        )
 
     def test_not_a_color_image_raises(self):
         with pytest.raises(ValueError):
