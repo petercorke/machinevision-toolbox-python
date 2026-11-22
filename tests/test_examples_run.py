@@ -37,10 +37,20 @@ NETWORK_ERRORS = ("URLError", "ConnectionError", "TimeoutError", "HTTPError", "g
 # examples that run an external program: skipped when it is not installed
 NEEDS_PROGRAM = {"blobs2.py": "dot"}  # Graphviz
 
+# examples that redraw a figure many times: slow on a CI runner, so given longer
+# than the 50 s per-test limit that CI applies to the rest of the suite
+SLOW = {"morphdemo.py": 300}
+
 ARGS = {"morphdemo.py": ["--delay", "0"]}
 
 
-@pytest.mark.parametrize("script", sorted(p.name for p in EXAMPLES.glob("*.py")))
+def _case(name):
+    if name in SLOW:
+        return pytest.param(name, marks=pytest.mark.timeout(SLOW[name]), id=name)
+    return pytest.param(name, id=name)
+
+
+@pytest.mark.parametrize("script", [_case(p.name) for p in sorted(EXAMPLES.glob("*.py"))])
 def test_example_runs(script):
     if script in SKIP:
         pytest.skip(SKIP[script])
@@ -54,7 +64,7 @@ def test_example_runs(script):
         env=env,
         capture_output=True,
         text=True,
-        timeout=120,
+        timeout=SLOW.get(script, 120) - 10,
     )
     if result.returncode != 0:
         if script in NETWORK and any(e in result.stderr for e in NETWORK_ERRORS):
