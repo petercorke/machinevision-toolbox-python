@@ -221,15 +221,98 @@ class TestCanny:
     def test_flat_image_has_no_edges(self):
         assert Image(np.full((20, 20), 80, dtype=np.uint8)).canny().array.max() == 0
 
-    @pytest.mark.xfail(
-        strict=True,
-        reason="canny() computes its thresholds from the mean of the image and "
-        "ignores sigma, th0 and th1",
-    )
     def test_thresholds_have_an_effect(self, square):
         default = (square.canny().array > 0).sum()
-        strict = (square.canny(th0=250, th1=255).array > 0).sum()
-        assert strict < default
+        strict = (square.canny(th0=5000, th1=6000).array > 0).sum()
+        assert default > 0
+        assert strict == 0
+
+    def test_thresholds_are_on_the_sobel_gradient(self, square):
+        # the step is 255 high so the Sobel gradient on an edge is 1020, and 0
+        # elsewhere
+        assert (square.canny(th0=900, th1=1000).array > 0).sum() > 0
+        assert (square.canny(th0=1100, th1=1200).array > 0).sum() == 0
+
+    def test_only_one_threshold_given(self, square):
+        # the other is set from k = 0.5, and the gradient on an edge is 1020
+        assert (square.canny(th0=400).array > 0).sum() > 0  # th1 = 800
+        assert (square.canny(th0=600).array > 0).sum() == 0  # th1 = 1200
+        assert (square.canny(th1=1000).array > 0).sum() > 0  # th0 = 500
+        assert (square.canny(th1=1200).array > 0).sum() == 0
+        assert (square.canny(th1=1000, k=0.9).array > 0).sum() > 0
+
+    def test_percentile_sets_the_automatic_thresholds(self):
+        rng = np.random.default_rng(1)
+        im = Image(rng.integers(0, 255, (64, 64), dtype=np.uint8))
+        _, h80 = im.canny(percentile=80, hist=True)
+        _, h95 = im.canny(percentile=95, hist=True)
+        assert h95.th1 > h80.th1
+        nt.assert_allclose(h80.th0, 0.5 * h80.th1)
+        _, hk = im.canny(percentile=80, k=0.25, hist=True)
+        nt.assert_allclose(hk.th0, 0.25 * hk.th1)
+
+    def test_automatic_thresholds_are_the_percentile_of_the_gradient(self):
+        import cv2
+
+        rng = np.random.default_rng(2)
+        arr = rng.integers(0, 255, (64, 64), dtype=np.uint8)
+        gx = cv2.Sobel(arr, cv2.CV_32F, 1, 0, ksize=3)
+        gy = cv2.Sobel(arr, cv2.CV_32F, 0, 1, ksize=3)
+        _, h = Image(arr).canny(percentile=85, hist=True)
+        nt.assert_allclose(h.th1, np.percentile(np.abs(gx) + np.abs(gy), 85), rtol=1e-6)
+
+    def test_threshold_with_percentile_is_an_error(self, square):
+        with pytest.raises(ValueError, match="percentile"):
+            square.canny(th0=100, percentile=80)
+        with pytest.raises(ValueError, match="percentile"):
+            square.canny(th1=100, percentile=80)
+
+    def test_bad_percentile_and_k(self, square):
+        for bad in (0, 100, -5):
+            with pytest.raises(ValueError, match="percentile"):
+                square.canny(percentile=bad)
+        for bad in (0, 1.5):
+            with pytest.raises(ValueError, match="k must"):
+                square.canny(k=bad)
+
+    def test_hist_returns_the_edges_and_a_histogram(self, square):
+        from machinevisiontoolbox import Histogram
+
+        edges, h = square.canny(th0=300, th1=800, hist=True)
+        assert isinstance(h, Histogram)
+        assert h.th0 == 300 and h.th1 == 800
+        nt.assert_array_equal(edges.array, square.canny(th0=300, th1=800).array)
+        # histogram counts every pixel, and spans 0 to at least the thresholds
+        assert h.h.sum() == square.width * square.height
+        assert h.x[-1] >= 1020
+
+    def test_hist_plot_marks_the_thresholds(self, square):
+        import matplotlib
+
+        matplotlib.use("Agg")
+        import matplotlib.pyplot as plt
+
+        _, h = square.canny(th0=300, th1=800, hist=True)
+        h.plot()
+        ax = plt.gcf().axes[0]
+        xs = sorted(l.get_xdata()[0] for l in ax.lines if len(set(l.get_xdata())) == 1)
+        assert 300 in xs and 800 in xs
+        plt.close("all")
+
+    def test_sigma_smooths_the_image(self):
+        rng = np.random.default_rng(0)
+        arr = np.full((40, 40), 60, dtype=np.uint8)
+        arr[10:30, 10:30] = 180
+        noisy = Image(
+            np.clip(arr + rng.normal(0, 12, arr.shape), 0, 255).astype(np.uint8)
+        )
+        raw = (noisy.canny().array > 0).sum()
+        smooth = (noisy.canny(sigma=2).array > 0).sum()
+        assert smooth < raw
+
+    def test_no_smoothing_by_default(self, square):
+        nt.assert_array_equal(square.canny().array, square.canny(sigma=None).array)
+        nt.assert_array_equal(square.canny().array, square.canny(sigma=0).array)
 
 
 # --------------------------------------------------------------------------- #
@@ -445,16 +528,22 @@ class TestSimilarityMeasures:
         assert zero.ncc(zero) == 0
         assert one.zncc(one) == 0
 
-    @pytest.mark.xfail(
-        strict=True,
-        reason="sad, ssd and ncc subtract and square uint8 arrays without "
-        "converting them, so the arithmetic wraps around at 256",
-    )
     def test_uint8_images(self):
+        # subtracting or squaring uint8 values must not wrap around at 256
         a = Image(A.astype(np.uint8))
         b = Image(B.astype(np.uint8))
         assert a.sad(b) == pytest.approx(np.abs(A - B).sum())
-        assert a.ncc(b) <= 1
+        assert a.ssd(b) == pytest.approx(((A - B) ** 2).sum())
+        expected = (A * B).sum() / np.sqrt((A**2).sum() * (B**2).sum())
+        assert a.ncc(b) == pytest.approx(expected, rel=1e-5)
+
+    def test_uint8_images_with_large_differences(self):
+        # 200 - 10 wraps to 190 and 10 - 200 to 66 in uint8 arithmetic
+        a = Image(np.array([[10, 200]], dtype=np.uint8))
+        b = Image(np.array([[200, 10]], dtype=np.uint8))
+        assert a.sad(b) == 380
+        assert a.ssd(b) == 2 * 190**2
+        assert 0 <= a.ncc(b) <= 1
 
 
 class TestSimilarity:
@@ -505,25 +594,29 @@ class TestSimilarity:
         image.similarity(template, "ncc")
         nt.assert_array_equal(template.array, before)
 
-    @pytest.mark.xfail(
-        strict=True,
-        reason="the z metrics subtract the template mean in place, which "
-        "changes the caller's template",
-    )
     def test_template_is_unchanged_by_zncc(self, scene):
         image, template = scene
         before = template.array.copy()
         image.similarity(template, "zncc")
         nt.assert_array_equal(template.array, before)
 
-    @pytest.mark.xfail(
-        strict=True,
-        raises=Exception,
-        reason="the in-place mean subtraction fails on a uint8 image",
-    )
     def test_zncc_on_uint8_images(self):
         rng = np.random.default_rng(1)
         arr = rng.integers(0, 255, (20, 20), dtype=np.uint8)
         image = Image(arr)
-        out = image.similarity(Image(arr[5:8, 5:8].copy()), "zncc")
+        template = Image(arr[5:8, 5:8].copy())
+        out = image.similarity(template, "zncc")
         assert out.shape == (18, 18)
+        v, u = np.unravel_index(np.argmax(out.array), out.shape)
+        assert (u, v) == (5, 5)
+        assert out.array[v, u] == pytest.approx(1.0, abs=1e-3)
+        # neither the image nor the template is changed
+        nt.assert_array_equal(image.array, arr)
+        nt.assert_array_equal(template.array, arr[5:8, 5:8])
+
+    def test_zssd_on_uint8_images(self):
+        rng = np.random.default_rng(2)
+        arr = rng.integers(0, 255, (20, 20), dtype=np.uint8)
+        out = Image(arr).similarity(Image(arr[5:8, 5:8].copy()), "zssd")
+        v, u = np.unravel_index(np.argmin(out.array), out.shape)
+        assert (u, v) == (5, 5)

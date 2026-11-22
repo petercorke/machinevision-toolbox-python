@@ -408,16 +408,26 @@ class TestBlend:
         b = Image(np.full((3, 3), 200.0, dtype=np.float32))
         assert a.blend(b, 0.5, dtype=dtype).dtype == np.float32
 
-    @pytest.mark.xfail(
-        strict=True,
-        reason="blend() builds the result with Image(out), which narrows float64 "
-        "to float32, so dtype='double' and float64 inputs lose their precision",
-    )
     @pytest.mark.parametrize("dtype", ["double", "float64"])
     def test_double_precision_output(self, dtype):
         a = Image(np.full((3, 3), 100.0), dtype="float64")
         b = Image(np.full((3, 3), 200.0), dtype="float64")
-        assert a.blend(b, 0.5, dtype=dtype).dtype == np.float64
+        out = a.blend(b, 0.5, dtype=dtype)
+        assert out.dtype == np.float64
+        assert (out.array == 150).all()
+
+    def test_double_precision_inputs_keep_their_precision(self):
+        a = Image(np.full((3, 3), 100.0), dtype="float64")
+        b = Image(np.full((3, 3), 200.0), dtype="float64")
+        assert a.blend(b, 0.5).dtype == np.float64
+
+    def test_uint16_images_stay_uint16(self):
+        # small values fit in 8 bits, but the result is still the input type
+        a = Image(np.full((3, 3), 100, dtype=np.uint16), dtype=np.uint16)
+        b = Image(np.full((3, 3), 200, dtype=np.uint16), dtype=np.uint16)
+        out = a.blend(b, 0.5)
+        assert out.dtype == np.uint16
+        assert (out.array == 150).all()
 
     def test_bad_output_type(self):
         a = Image(np.zeros((3, 3), dtype=np.float32))
