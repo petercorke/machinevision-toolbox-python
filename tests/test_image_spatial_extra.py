@@ -478,7 +478,9 @@ class TestSimilarity:
         out = image.similarity(template, "ssd")
         v, u = np.unravel_index(np.argmin(out.array), out.shape)
         assert (u, v) == (5, 5)
-        assert out.array[v, u] == pytest.approx(0, abs=1e-3)
+        # float32 sums of squares of values up to 255 carry rounding of about
+        # 1e-2, so compare with the largest value rather than with zero
+        assert out.array[v, u] <= 1e-6 * out.array.max()
 
     def test_zssd_is_zero_at_the_template(self, scene):
         image, template = scene
