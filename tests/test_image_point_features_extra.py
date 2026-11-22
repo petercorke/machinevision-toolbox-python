@@ -99,12 +99,6 @@ class TestIndexing:
         assert len(f) == 2
         assert f._descriptor is None
 
-    @pytest.mark.xfail(
-        strict=True,
-        raises=TypeError,
-        reason="descriptor is typed as ndarray | None but array_result calls "
-        "len() on it, so it raises when there are no descriptors",
-    )
     def test_descriptor_property_without_descriptors(self):
         assert make_features(descriptors=False).descriptor is None
 
@@ -295,11 +289,6 @@ class TestFilter:
         with pytest.raises(ValueError, match="unknown filter"):
             make_features().filter(colour=1)
 
-    @pytest.mark.xfail(
-        strict=True,
-        reason="minstrength keeps features weaker than the limit: the test is "
-        "written limits >= v, not v >= limits",
-    )
     def test_minstrength_keeps_the_stronger(self):
         f = make_features(5).filter(minstrength=0.25)
         nt.assert_array_equal(f.id, [2, 3, 4])
@@ -329,15 +318,43 @@ class TestDistance:
         with pytest.raises(ValueError, match="no descriptors"):
             make_features(descriptors=False).distance(make_features())
 
-    @pytest.mark.xfail(
-        strict=True,
-        raises=IndexError,
-        reason="distance() also writes D[j, i], which is out of range unless "
-        "both feature sets are the same size",
-    )
-    def test_different_sizes(self):
-        D = make_features(3).distance(make_features(4))
-        assert D.shape == (3, 4)
+    @staticmethod
+    def by_hand(a, b, ord):
+        """Distance from every descriptor of a to every descriptor of b."""
+        return np.array([[np.linalg.norm(x - y, ord=ord) for y in b] for x in a])
+
+    @pytest.mark.parametrize("sizes", [(3, 3), (3, 4), (4, 2), (1, 3), (3, 1)])
+    @pytest.mark.parametrize("metric, ord", [("L1", 1), ("L2", 2)])
+    def test_every_pair_of_different_sets(self, sizes, metric, ord):
+        # different descriptors in each set, so the matrix is not symmetric and
+        # D[i, j] must be the distance from a[i] to b[j]
+        rng = np.random.default_rng(0)
+        a = make_features(sizes[0])
+        b = make_features(sizes[1])
+        a._descriptor = rng.normal(size=(sizes[0], 5)).astype(np.float32)
+        b._descriptor = rng.normal(size=(sizes[1], 5)).astype(np.float32)
+        D = a.distance(b, metric)
+        assert D.shape == sizes
+        nt.assert_allclose(
+            D, self.by_hand(a._descriptor, b._descriptor, ord), rtol=1e-5
+        )
+
+    def test_ncc_of_different_sets(self):
+        rng = np.random.default_rng(1)
+        a, b = make_features(3), make_features(4)
+        a._descriptor = rng.normal(size=(3, 5)).astype(np.float32)
+        b._descriptor = rng.normal(size=(4, 5)).astype(np.float32)
+        nt.assert_allclose(
+            a.distance(b, "ncc"), a._descriptor @ b._descriptor.T, rtol=1e-5
+        )
+
+
+class TestMatchNeedsDescriptors:
+    def test_no_descriptors_is_a_clear_error(self):
+        with pytest.raises(ValueError, match="no descriptors"):
+            make_features(descriptors=False).match(make_features())
+        with pytest.raises(ValueError, match="no descriptors"):
+            make_features().match(make_features(descriptors=False))
 
 
 class TestMatch:
@@ -488,16 +505,15 @@ class TestFeatureMatchInliers:
 
 
 class TestFeatureMatchPrinting:
-    @pytest.mark.xfail(
-        strict=True,
-        raises=IndexError,
-        reason="str() of a one-match object indexes p1[0, 0], but p1 is 1D "
-        "when there is a single match",
-    )
     def test_one_match(self, fmatch):
         s = str(fmatch[1])
-        assert "(20.0, 25.0) <--> (30.0, 30.0)" in s
+        assert s == "   1.00: (20.0, 25.0) <--> (30.0, 30.0)"
         assert repr(fmatch[1]) == s
+
+    def test_one_match_shows_whether_it_is_an_inlier(self, fmatch):
+        fmatch._inliers = np.array([True, False, True, True])
+        assert str(fmatch[0]).startswith("+")
+        assert str(fmatch[1]).startswith("-")
 
     def test_several(self, fmatch):
         assert str(fmatch) == "4 matches"
@@ -610,17 +626,26 @@ class TestDrawing:
         assert xs.min() >= 28 and xs.max() <= 52
         assert ys.min() >= 28 and ys.max() <= 52
 
-    @pytest.mark.xfail(
-        strict=True,
-        reason="draw() passes the x pair and the y pair to draw_line as the "
-        "start and end points, so the hand is vertical, not along the orientation",
-    )
     def test_draw_hand_points_along_the_orientation(self, canvas, one):
         one.draw(canvas, filled=True, hand=True, color="r", handcolor="g")
         ys, xs = np.nonzero(canvas.array[:, :, 1] > 0)
-        # orientation 0 is along +u, so a horizontal line on row 40
+        # orientation 0 is along +u, so a horizontal line on row 40, from the
+        # centre (40, 40) to the circumference at (50, 40)
         assert (ys == 40).all()
-        assert xs.min() >= 40 and xs.max() <= 50
+        assert xs.min() == 40 and xs.max() == 50
+
+    def test_draw_hand_follows_a_quarter_turn(self, canvas):
+        # orientation 90 degrees is along +v: a vertical line down column 40
+        f = SIFTFeature(
+            [cv2.KeyPoint(40.0, 40.0, 10.0, 90.0, 0.5, 0, 0)],
+            np.zeros((1, 4), dtype=np.float32),
+            scale=True,
+            orient=True,
+        )
+        f.draw(canvas, filled=True, hand=True, color="r", handcolor="g")
+        ys, xs = np.nonzero(canvas.array[:, :, 1] > 0)
+        assert (xs == 40).all()
+        assert ys.min() == 40 and ys.max() == 50
 
     def test_draw_hand_is_drawn(self, canvas, one):
         one.draw(canvas, filled=True, hand=True, color="r", handcolor="g")

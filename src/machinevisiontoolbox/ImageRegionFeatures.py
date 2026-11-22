@@ -173,7 +173,7 @@ class MSERFeature:
 
             self._points = [
                 np.asarray(mser).T for mser in msers
-            ]  # transpose point arrays to be Nx2
+            ]  # transpose point arrays to be 2xN
             # --- OpenCV 4/5 compat ---------------------------------------
             # When no regions are found, OpenCV 5's detectRegions() returns
             # an empty tuple () for bboxes instead of an empty ndarray(0,4)
@@ -244,7 +244,7 @@ class MSERFeature:
         new = self.__class__()
 
         if isinstance(i, int):
-            new._points = self._points[i]  # type: ignore[assignment]
+            new._points = [self._points[i]]
             new._bboxes = self._bboxes[np.newaxis, i, :]  # result is 2D
         elif isinstance(i, slice):
             new._points = self._points[i]
@@ -279,7 +279,7 @@ class MSERFeature:
             >>> str(msers)
             >>> str(msers[0])
         """
-        if len(self) > 1:
+        if len(self) != 1:
             return f"MSER features, {len(self)} regions"
         else:
             s = f"MSER feature: u: {self._bboxes[0,0]} - {self._bboxes[0,2]}, v: {self._bboxes[0,1]} - {self._bboxes[0,3]}"
