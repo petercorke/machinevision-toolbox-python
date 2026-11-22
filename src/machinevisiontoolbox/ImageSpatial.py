@@ -802,7 +802,7 @@ class ImageSpatialMixin(ImageMixinBase):
         self,
         footprint: np.ndarray | None = None,
         h: int | None = None,
-        rank: int | str = -1,
+        rank: int | str = "median",
         border: str = "replicate",
         bordervalue: int | float = 0,
     ) -> Any:
@@ -813,8 +813,8 @@ class ImageSpatialMixin(ImageMixinBase):
         :type footprint: ndarray(N,M), optional
         :param h: half width of structuring element
         :type h: int, optional
-        :param rank: rank of filter
-        :type rank: int, str
+        :param rank: rank of filter, defaults to ``"median"``
+        :type rank: int, str, optional
         :param border: option for boundary handling, defaults to 'replicate'
         :type border: str, optional
         :param bordervalue: padding value, defaults to 0
@@ -854,6 +854,10 @@ class ImageSpatialMixin(ImageMixinBase):
 
         :references:
             - |RVC3|, Section 11.5.3.
+
+        .. versionchanged:: 2.5.0
+            ``rank`` now defaults to ``"median"``.  The previous default of -1
+            was always rejected, so ``rank`` had to be given.
 
         :seealso: :obj:`scipy.ndimage.rank_filter`
         """
@@ -898,7 +902,7 @@ class ImageSpatialMixin(ImageMixinBase):
         self,
         footprint: np.ndarray | None = None,
         h: int | None = None,
-        rank: int | str = -1,
+        rank: int | str = "median",
         border: str = "replicate",
         bordervalue: int | float = 0,
     ) -> Any:

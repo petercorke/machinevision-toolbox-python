@@ -264,6 +264,17 @@ class TestRankFilter:
         expected = reference(noisy.array, size=5, mode="nearest")
         nt.assert_array_equal(out.array, expected)
 
+    def test_default_rank_is_the_median(self, noisy):
+        out = noisy.rankfilter(h=2)
+        expected = ndi.median_filter(noisy.array, size=5, mode="nearest")
+        nt.assert_array_equal(out.array, expected)
+        nt.assert_array_equal(out.array, noisy.rankfilter(h=2, rank="median").array)
+
+    def test_deprecated_rank_method_has_the_same_default(self, noisy):
+        with pytest.warns(DeprecationWarning):
+            out = noisy.rank(h=1)
+        nt.assert_array_equal(out.array, noisy.rankfilter(h=1).array)
+
     def test_integer_rank_zero_is_the_maximum(self, noisy):
         # rank 0 selects the largest value of the window
         out = noisy.rankfilter(h=1, rank=0)
