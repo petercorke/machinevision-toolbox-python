@@ -73,7 +73,11 @@ class ImageMultiviewMixin(ImageMixinBase):
         .. versionchanged:: 2.5.0
             The outputs are the same size as the input images, as documented.
             Previously they were larger by ``2*hw`` in each direction, with
-            the result for pixel (u, v) at (u+hw, v+hw).
+            the result for pixel (u, v) at (u+hw, v+hw).  The disparity at a
+            pixel is now the best of its valid disparities, and NaN only if
+            none are valid, and an integer image is padded with NaN instead
+            of 0, so windows that extend beyond the image are invalid for
+            every image type.
 
         :seealso: :meth:`DSI_refine` :meth:`stereo_BM` :meth:`stereo_SGBM`
         """
@@ -106,8 +110,10 @@ class ImageMultiviewMixin(ImageMixinBase):
 
         # left = self.mono().image.astype(np.float32)
         # right = right.mono().image.astype(np.float32)
-        left_arr = self.mono()._A
-        right_arr = right.mono()._A
+        # work in float32 for any image type, so that the window stack can be
+        # padded with NaN (it cannot in an integer array, where it becomes 0)
+        left_arr = self.mono()._A.astype(np.float32)
+        right_arr = right.mono()._A.astype(np.float32)
 
         # convert to window stacks
         left_arr = window_stack(left_arr, hw)
@@ -160,15 +166,21 @@ class ImageMultiviewMixin(ImageMixinBase):
         # stack the similarity images at each disparity into the 3D DSI
         dsi = np.dstack(similarities)
 
-        # disparity is the index of the maxima in the disparity direction
-        disparity = np.argmax(dsi, axis=2).astype(np.float32) + drange[0]
+        # disparity is the index of the maxima in the disparity direction.  A
+        # NaN similarity means that disparity is not valid for that pixel, for
+        # example the window would extend beyond the image, so ignore it.  A
+        # pixel with no valid disparity at all is NaN.
+        invalid = np.isnan(dsi)
+        filled = np.where(invalid, -np.inf, dsi)
+        disparity = np.argmax(filled, axis=2).astype(np.float32) + drange[0]
 
         # maxima is the maximum similarity in the disparity direction
-        maxima = np.max(dsi, axis=2)
+        maxima = np.max(filled, axis=2)
 
-        # wherever maxima is nan set disparity to nan, similarity will be
-        # done for border regions
-        disparity = np.where(np.isnan(maxima), np.nan, disparity)
+        # wherever there is no valid disparity, the disparity and similarity are NaN
+        none_valid = invalid.all(axis=2)
+        disparity = np.where(none_valid, np.nan, disparity).astype(np.float32)
+        maxima = np.where(none_valid, np.nan, maxima)
 
         disparity[:, : drange[0]] = np.nan
 

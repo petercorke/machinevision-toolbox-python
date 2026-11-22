@@ -32,8 +32,6 @@ def interior(a, hw, margin):
 
 
 class TestStereoSimple:
-    # stereo_simple takes float images here: given a uint8 image it pads with
-    # NaN, which numpy casts to 0 with a RuntimeWarning.
     @pytest.fixture(scope="class")
     def result(self, pair):
         left, right = pair
@@ -53,6 +51,46 @@ class TestStereoSimple:
         assert dsi.shape[2] == 8
         peak = np.argmax(dsi[10:30, 30:80, :], axis=2) + 4
         nt.assert_array_equal(peak, DISPARITY)
+
+    def test_uint8_and_float_images_agree(self, pair, result):
+        # an integer image used to be padded with 0 instead of NaN
+        import warnings
+
+        left, right = pair
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            disparity, similarity, dsi = left.stereo_simple(right, hw=2, drange=[4, 12])
+        nt.assert_array_equal(disparity.array, result[0].array)
+        nt.assert_allclose(similarity.array, result[1].array, equal_nan=True)
+
+    def test_windows_beyond_the_image_are_invalid(self, result):
+        disparity, similarity, dsi = result
+        # the window centred on a border pixel extends beyond the image
+        for a in (disparity.array, similarity.array):
+            assert np.isnan(a[:2, :]).all() and np.isnan(a[-2:, :]).all()
+            assert np.isnan(a[:, :2]).all() and np.isnan(a[:, -2:]).all()
+        assert np.isnan(dsi[:2]).all() and np.isnan(dsi[-2:]).all()
+
+    def test_pixel_keeps_its_valid_disparities(self):
+        # at column 4, disparities up to 2 have a window inside the image, and
+        # larger ones do not, so the pixel has a disparity and is not NaN
+        rng = np.random.default_rng(3)
+        left = Image(rng.integers(0, 255, (20, 40), dtype=np.uint8))
+        right = Image(np.roll(left.array, -2, axis=1))
+        disparity, similarity, dsi = left.stereo_simple(right, hw=2, drange=[0, 8])
+        assert np.isnan(dsi[10, 4, 3:]).all()
+        assert not np.isnan(dsi[10, 4, :3]).any()
+        assert disparity.array[10, 4] == 2
+        assert similarity.array[10, 4] > 0.99
+
+    def test_pixel_with_no_valid_disparity_is_nan(self):
+        rng = np.random.default_rng(3)
+        left = Image(rng.integers(0, 255, (20, 40), dtype=np.uint8))
+        right = Image(np.roll(left.array, -2, axis=1))
+        disparity, similarity, _ = left.stereo_simple(right, hw=2, drange=[6, 8])
+        # column 4: every disparity in [6, 8) reaches beyond the left edge
+        assert np.isnan(disparity.array[10, 4])
+        assert np.isnan(similarity.array[10, 4])
 
     def test_border_is_nan(self, result):
         disparity, _, _ = result
