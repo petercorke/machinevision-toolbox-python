@@ -25,6 +25,13 @@ parser.add_argument(
     default=0.5,
     help="Delay between updates in seconds (default: 0.5). Set to 0 for no delay.",
 )
+parser.add_argument(
+    "-n",
+    "--frames",
+    type=int,
+    default=None,
+    help="Stop after this many updates of the output image (default: process every pixel).",
+)
 # add -m, --movie option to save the animation as a movie file
 parser.add_argument(
     "-m",
@@ -121,12 +128,18 @@ def save_frame() -> None:
 save_frame()
 
 # loop over all pixels in the input image, excluding the border
+updates = 0
 for v in range(1, img.shape[0] - 1):
     if quit_requested or not plt.fignum_exists(fig.number):
+        break
+    if args.frames is not None and updates >= args.frames:
         break
     for u in range(1, img.shape[1] - 1):
         if quit_requested or not plt.fignum_exists(fig.number):
             break
+        if args.frames is not None and updates >= args.frames:
+            break
+        updates += 1
         W = window.move(u, v)  # highlight the window
 
         # window is the 3x3 window centered on (u,v)
