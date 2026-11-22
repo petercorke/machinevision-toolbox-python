@@ -174,6 +174,32 @@ def safe_plt_show(block: bool | float | None = False) -> None:
         plt.show(block=bool(block))
 
 
+def _idisp_key_help(clipboard: bool) -> str:
+    """Text listing the keys that :func:`idisp` responds to.
+
+    :param clipboard: True if the clipboard keys are available, that is ``pyclip``
+        is installed
+    :return: the help text, one key per line
+    """
+    lines = [
+        "idisp keys:",
+        "  ?  show this help",
+        "  q  close the window",
+    ]
+    if clipboard:
+        lines += [
+            "  c  copy the pixel position u,v to the clipboard",
+            "  C  append the pixel position to the clipboard",
+            "  v  copy the pixel position and value",
+            "  V  append the pixel position and value",
+            "  x  clear the clipboard",
+        ]
+    else:
+        lines.append("  c C v V x  clipboard keys, need pyclip: pip install pyclip")
+    lines.append("Matplotlib: f full screen, g grid, h home, p pan, o zoom, s save")
+    return "\n".join(lines)
+
+
 def idisp(
     im: np.ndarray,
     colororder: str | None = "RGB",
@@ -402,6 +428,11 @@ def idisp(
     Certain keys can be pressed while the image is displayed:
 
         - ``q`` will close the window
+        - ``?`` will print this list of keys, in the terminal or the notebook output.
+          The clipboard keys are listed only if ``pyclip`` is installed.
+
+    .. versionadded:: 2.5.0
+        The ``?`` key.
 
     If ``pyclip`` is installed, the following clipboard keys are available:
 
@@ -930,6 +961,9 @@ def _idisp_matplotlib(
         return str(tuple(val.tolist()))
 
     def key_press(event: Any) -> None:
+        if event.key == "?":
+            print(_idisp_key_help(_pyclip and pyclip is not None))
+            return
         if not _pyclip:
             return
         if pyclip is None:
