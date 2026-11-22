@@ -29,8 +29,8 @@ def load_meshgrid_module():
 
     try:
         exec(source_code, namespace)
-    except Exception as e:
-        raise ImportError(f"Failed to load meshgrid module: {e}")
+    except Exception as e:  # noqa: BLE001 - whatever goes wrong, report it as a failure to load
+        raise ImportError(f"Failed to load meshgrid module: {e}") from e
 
     return namespace
 

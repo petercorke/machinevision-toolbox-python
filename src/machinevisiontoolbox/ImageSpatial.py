@@ -13,7 +13,7 @@ from machinevisiontoolbox._image_typing import ImageMixinBase
 from machinevisiontoolbox.Kernel import Kernel
 
 if TYPE_CHECKING:
-    from machinevisiontoolbox._image_typing import _ImageBase
+    pass
 
 
 class ImageSpatialMixin(ImageMixinBase):

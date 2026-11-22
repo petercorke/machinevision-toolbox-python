@@ -8,8 +8,7 @@ import sys
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from machinevisiontoolbox.ImageCore import Image
-    from machinevisiontoolbox._image_typing import _ImageBase
+    pass
 
 import numpy as np
 

@@ -56,7 +56,6 @@ class PointCloud:
                 " ** Note that Open3d typically does not run on the latest Python version(s)"
             )
 
-        from machinevisiontoolbox import Image
 
         if not _open3d:
             raise RuntimeError(

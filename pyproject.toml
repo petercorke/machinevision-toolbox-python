@@ -88,7 +88,9 @@ jupyter = ["ipywidgets", "ipympl"]
 
 open3d = ["open3d"]
 
-torch = ["torch"]
+torch = ["torch", "torchvision"]
+
+ultralytics = ["torch", "torchvision", "ultralytics"]
 
 ocr = ["pytesseract"]
 
@@ -97,6 +99,8 @@ all = [
     "ipympl",
     "open3d",
     "torch",
+    "torchvision",
+    "ultralytics",
     "pytesseract",
     "rosbags",
     "roslibpy",
@@ -112,9 +116,17 @@ addopts = "--tb=short"
 
 [tool.ruff]
 line-length = 120
+# the notebooks that reproduce the book code have a bare except in their setup cell
+extend-exclude = ["tests/RVC"]
 
 [tool.ruff.lint]
-select = ["E", "F", "I"]
+select = ["E", "F", "I", "BLE", "S110"]
+
+[tool.ruff.lint.per-file-ignores]
+# these files re-export their submodules with star imports on purpose, so that
+# users can write `from machinevisiontoolbox.base import idisp`
+"src/machinevisiontoolbox/base/__init__.py" = ["F403", "F405"]
+"src/machinevisiontoolbox/blocks/__init__.py" = ["F403", "F405"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["machinevisiontoolbox"]

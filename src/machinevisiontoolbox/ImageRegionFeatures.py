@@ -5,10 +5,7 @@ Detection and description of region-based features (Harris corners, FAST, etc.) 
 # https://docs.opencv.org/4.4.0/d7/d60/classcv_1_1SIFT.html
 
 import cv2
-import matplotlib.pyplot as plt
 import numpy as np
-from ansitable import ANSITable, Column
-from spatialmath import SE3
 from typing import TYPE_CHECKING, Any
 
 from machinevisiontoolbox._image_typing import ImageMixinBase
@@ -24,7 +21,7 @@ except ImportError:
     _pytesseract_available = False
 
 if TYPE_CHECKING:
-    from machinevisiontoolbox._image_typing import _ImageBase
+    pass
 
 
 class ImageRegionFeaturesMixin(ImageMixinBase):

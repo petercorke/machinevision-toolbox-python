@@ -16,10 +16,8 @@ import shlex
 import sys
 import textwrap
 from importlib.metadata import PackageNotFoundError, version
-from math import pi  # lgtm [py/unused-import]
 
 import numpy as np
-from matplotlib import image
 import cv2
 from spatialmath import *  # lgtm [py/polluting-import]
 from spatialmath import SE3
@@ -297,7 +295,7 @@ def run_smoke_test() -> bool:
             smoothed.array, img.array
         )
         checks.append(("Image.Read + smooth() (OpenCV-backed)", ok))
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 - a self-check reports any failure, it must not crash
         checks.append((f"Image.Read + smooth() (OpenCV-backed): {e}", False))
 
     try:
@@ -312,7 +310,7 @@ def run_smoke_test() -> bool:
             voxels = bunny.voxel_grid(voxel_size=0.01)
             ok = len(bunny) > 0 and len(voxels._voxels.get_voxels()) > 0
             checks.append(("PointCloud.Read('bunny.ply') + voxel_grid() (Open3D-backed)", ok))
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001 - a self-check reports any failure, it must not crash
             checks.append(
                 (f"PointCloud.Read('bunny.ply') + voxel_grid() (Open3D-backed): {e}", False)
             )
@@ -428,7 +426,7 @@ def main():
                 print(Fore.yellow)
             print(f"%run -i {args.run}")
             code.append(f"%run -i '{args.run}'")
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 - report any failure and fall back to a bare IPython session
         if _colored:
             print(Fore.red)
         print(f"Error loading images or running script: {e}")

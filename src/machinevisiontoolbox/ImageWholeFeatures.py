@@ -10,20 +10,17 @@ import warnings
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
-import scipy as sp
 from matplotlib.axes import Axes
 from matplotlib.patches import Polygon
 from matplotlib.ticker import ScalarFormatter
-from spatialmath import SE3, base
 from spatialmath.base import set_window_title
 
 if TYPE_CHECKING:
-    from machinevisiontoolbox._image_typing import _ImageBase
+    pass
 
 from machinevisiontoolbox._image_typing import ImageMixinBase
 from machinevisiontoolbox.base.findpeaks import findpeaks, findpeaks2d
 from machinevisiontoolbox.base.imageio import safe_plt_show
-from machinevisiontoolbox.mvtb_types import *
 
 
 class ImageWholeFeaturesMixin(ImageMixinBase):
@@ -872,6 +869,41 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
         return ret[:, -1], ret[:, :2].T
 
 
+# Histogram comparison methods.  hellinger is another name for bhattacharyya, which is
+# the same calculation in OpenCV.  emd has no OpenCV constant: it is computed directly.
+_HISTOGRAM_COMPARE_METHODS: dict[str, int | None] = {
+    "correlation": cv2.HISTCMP_CORREL,
+    "chisqr": cv2.HISTCMP_CHISQR,
+    "intersection": cv2.HISTCMP_INTERSECT,
+    "bhattacharyya": cv2.HISTCMP_BHATTACHARYYA,
+    "hellinger": cv2.HISTCMP_BHATTACHARYYA,
+    "chisqr_alt": cv2.HISTCMP_CHISQR_ALT,
+    "kl_div": cv2.HISTCMP_KL_DIV,
+    "emd": None,
+}
+
+
+def _resolve_compare_method(method: str) -> str:
+    """Map a method name, or a unique abbreviation of one, to its full name.
+
+    An exact match wins, so ``"chisqr"`` is not ambiguous with ``"chisqr_alt"``.
+    Otherwise the abbreviation must match the start of exactly one method, or of
+    several names for the same method (``"b"``, ``"h"``).
+    """
+    name = method.lower()
+    if name in _HISTOGRAM_COMPARE_METHODS:
+        return name
+    matches = [m for m in _HISTOGRAM_COMPARE_METHODS if m.startswith(name)]
+    if matches and len({_HISTOGRAM_COMPARE_METHODS[m] for m in matches}) == 1:
+        return matches[0]
+    choices = ", ".join(_HISTOGRAM_COMPARE_METHODS)
+    if matches:
+        raise ValueError(
+            f"ambiguous comparison method {method!r}, it could be: {', '.join(matches)}"
+        )
+    raise ValueError(f"unknown comparison method {method!r}, choose from: {choices}")
+
+
 class Histogram:
     def __init__(
         self,
@@ -1210,6 +1242,103 @@ class Histogram:
             stacklevel=2,
         )
         return self.cdf
+
+    def compare(self, other: "Histogram", method: str = "correlation") -> float | list[float]:
+        """
+        Compare with another histogram
+
+        :param other: histogram to compare with
+        :param method: comparison method, see below, case insensitive and can be
+            abbreviated to any unique prefix, defaults to "correlation"
+        :raises ValueError: the histograms have a different number of bins or planes
+        :raises ValueError: unknown or ambiguous method
+        :return: comparison metric, a list if the histograms have more than one plane
+        :rtype: float or list of float
+
+        Compares each plane of this histogram with the same plane of ``other``,
+        using the histogram counts.  Both are first normalized to sum to one, see
+        :meth:`pdf`, so the histograms can come from images of different sizes.
+        The histograms must have the same number of bins.
+
+        The methods are the six of OpenCV's ``compareHist`` and the earth mover's
+        distance.  For a pair of histograms :math:`H_1` (this one) and :math:`H_2`
+        (``other``):
+
+        - ``"correlation"``: Pearson correlation coefficient, from -1 to 1. A larger
+          value means more similar.
+        - ``"chisqr"``: chi-squared distance, normalized by :math:`H_1`.  A smaller
+          value means more similar.
+        - ``"intersection"``: sum of the smaller of each pair of bins, from 0 to 1.
+          A larger value means more similar.
+        - ``"bhattacharyya"``: Bhattacharyya distance, from 0 to 1, also called
+          ``"hellinger"``.  A smaller value means more similar.
+        - ``"chisqr_alt"``: alternative chi-squared distance, which is symmetric.  A
+          smaller value means more similar.
+        - ``"kl_div"``: Kullback-Leibler divergence of :math:`H_2` from :math:`H_1`.
+          A smaller value means more similar.
+        - ``"emd"``: earth mover's distance (L1), in units of bins.  A smaller value
+          means more similar.
+
+        .. note:: ``h1.compare(h2)`` is not always the same as ``h2.compare(h1)``.
+            ``"chisqr"`` and ``"kl_div"`` are not symmetric in the two histograms.
+            The other methods are.
+
+        .. note:: The earth mover's distance is the minimum amount of "work" needed
+            to turn one histogram into the other, where moving a fraction of the
+            pixels by one bin costs that fraction.  For 1D histograms it is the sum
+            of the absolute differences of the two cumulative distributions.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> h1 = Image.Read("flowers1.png", mono=True).hist()
+            >>> h2 = Image.Read("flowers2.png", mono=True).hist()
+            >>> h1.compare(h2, "correlation")
+            >>> h1.compare(h2, "kl")  # abbreviation of "kl_div"
+            >>> h2.compare(h1, "kl")  # not the same
+
+        :seealso: :meth:`pdf` :meth:`cdf` `cv2.compareHist <https://docs.opencv.org/4.x/d6/dc7/group__imgproc__hist.html#gaf4190090efa5c47cb367cf97a9a519bd>`_
+
+        .. versionadded:: 2.5.0
+        """
+        name = _resolve_compare_method(method)
+
+        if not isinstance(other, Histogram):
+            raise TypeError("can only compare with another Histogram")
+        if self.nplanes != other.nplanes:
+            raise ValueError(
+                f"histograms have different numbers of planes: {self.nplanes} and {other.nplanes}"
+            )
+        if len(self._x) != len(other._x):
+            raise ValueError(
+                f"histograms have different numbers of bins: {len(self._x)} and {len(other._x)}"
+            )
+        if np.any(np.sum(self._h, axis=0) == 0) or np.any(np.sum(other._h, axis=0) == 0):
+            raise ValueError("cannot compare an empty histogram")
+
+        # one column per plane, normalized to sum to one
+        p1 = self.pdf.reshape(len(self._x), -1)
+        p2 = other.pdf.reshape(len(other._x), -1)
+
+        cvmethod = _HISTOGRAM_COMPARE_METHODS[name]
+        result: list[float] = []
+        for k in range(p1.shape[1]):
+            if cvmethod is None:
+                # earth mover's distance (L1) for 1D histograms, in units of bins
+                d = float(np.sum(np.abs(np.cumsum(p1[:, k] - p2[:, k]))))
+            else:
+                d = float(
+                    cv2.compareHist(
+                        np.ascontiguousarray(p1[:, k], dtype=np.float32),
+                        np.ascontiguousarray(p2[:, k], dtype=np.float32),
+                        cvmethod,
+                    )
+                )
+            result.append(d)
+
+        return result[0] if self.nplanes == 1 else result
 
     def plot(
         self,

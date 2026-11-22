@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pgraph
 from scipy import sparse
-from spatialmath import SE3, SO3, UnitQuaternion, base
+from spatialmath import SE3, UnitQuaternion, base
 
 from machinevisiontoolbox import CentralCamera
 from machinevisiontoolbox.base.imageio import safe_plt_show

@@ -25,6 +25,13 @@ parser.add_argument(
     default=0.5,
     help="Delay between updates in seconds (default: 0.5). Set to 0 for no delay.",
 )
+parser.add_argument(
+    "-n",
+    "--frames",
+    type=int,
+    default=None,
+    help="Stop after this many updates of the output image (default: process every pixel).",
+)
 # add -m, --movie option to save the animation as a movie file
 parser.add_argument(
     "-m",
@@ -65,7 +72,7 @@ morph_op = {
 }
 
 if args.operation in ("min", "max"):
-    img = Image.Random(10)
+    img = Image.Random(size=10)
 else:
     arr = np.zeros((16, 15), dtype="uint8")
     arr[3:6, 3:6] = 255  # 3x3 block in the top-left corner
@@ -77,7 +84,8 @@ else:
     img = Image(arr)
 
 # we use a float image for the output so that we can show the "empty" pixels as NaN, which appear as white in the display
-result = Image.Constant(np.nan, size=img.size, dtype="float")
+# an Image is immutable, so we accumulate the result in a NumPy array and wrap it in an Image to display it
+result = np.full(img.shape[:2], np.nan)
 
 # create two adjacent subplots, and display the input image on the left
 fig, (input, output) = plt.subplots(1, 2, figsize=(10, 5))
@@ -88,7 +96,7 @@ window = img.showwindow(
     h=1, ax=input
 )  # display the input image and get a window annotator
 
-result.showpixels(
+Image(result).showpixels(
     ax=output, fmt="{:.0f}", badcolor="#FFFF00"
 )  # pixels are displayed as integers with no decimal places, so the NaN pixels appear as blank
 
@@ -120,22 +128,28 @@ def save_frame() -> None:
 save_frame()
 
 # loop over all pixels in the input image, excluding the border
+updates = 0
 for v in range(1, img.shape[0] - 1):
     if quit_requested or not plt.fignum_exists(fig.number):
+        break
+    if args.frames is not None and updates >= args.frames:
         break
     for u in range(1, img.shape[1] - 1):
         if quit_requested or not plt.fignum_exists(fig.number):
             break
+        if args.frames is not None and updates >= args.frames:
+            break
+        updates += 1
         W = window.move(u, v)  # highlight the window
 
         # window is the 3x3 window centered on (u,v)
-        result.array[v, u] = morph_op[args.operation](
+        result[v, u] = morph_op[args.operation](
             W
         )  # perform the morphological operation
 
         # update the display of the output image
         output.cla()
-        result.showpixels(ax=output, fmt="{:.0f}", badcolor="#FFFF00")
+        Image(result).showpixels(ax=output, fmt="{:.0f}", badcolor="#FFFF00")
 
         save_frame()
 

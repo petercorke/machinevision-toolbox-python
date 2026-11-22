@@ -5,11 +5,9 @@ Colour science functions: spectral data, color matching, and colorimetric conver
 from __future__ import annotations
 
 import re
-import urllib.request
 import warnings
-from collections import namedtuple
 from pathlib import Path
-from typing import Any, Callable, Iterable, Literal
+from typing import Any, Literal
 
 import cv2
 import matplotlib.colors as colors

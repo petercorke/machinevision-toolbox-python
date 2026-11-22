@@ -13,7 +13,7 @@ import spatialmath.base as smbase
 from spatialmath import SE3
 from spatialmath.base import Animate, set_window_title
 
-from machinevisiontoolbox import CentralCamera
+from machinevisiontoolbox import CentralCamera, SphericalCamera
 from machinevisiontoolbox.base.shapes import mkgrid
 
 
@@ -1365,16 +1365,21 @@ class IBVS_sph(VisualServo):
         self.depth = depth
 
     @classmethod
-    def Example(cls):
+    def Example(cls, camera: SphericalCamera | None = None, **kwargs: Any) -> "IBVS_sph":
         # run a canned example
         print("canned example, spherical IBVS with 4 points")
         if camera is None:
-            camera = SphericalCamera.Default(name="")
-        self = cls(camera, **kwargs)
-        self.P = mkgrid(2, side=1.5, pose=SE3(0, 0, 0.5))
-        self.pose_d = SE3(0, 0, -1.5) * SE3.Rz(1)
-        self.pose_0 = SE3(0.3, 0.3, -2) * SE3.Rz(0.2)
-        # self.T0 = transl(-1,-0.1,-3);%*trotx(0.2)
+            camera = SphericalCamera(name="")
+
+        self = cls(
+            camera,
+            P=mkgrid(2, side=1.5, pose=SE3(0, 0, 0.5)),
+            pose_d=SE3(0, 0, -1.5) * SE3.Rz(1),
+            pose_0=SE3(0.3, 0.3, -2) * SE3.Rz(0.2),
+            **kwargs,
+        )
+
+        return self
 
     def init(self) -> None:
         super().init()

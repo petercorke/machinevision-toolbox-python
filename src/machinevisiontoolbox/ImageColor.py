@@ -16,14 +16,12 @@ if sys.version_info >= (3, 11):
 else:
     from typing_extensions import Self
 
-from scipy import interpolate
 
 from machinevisiontoolbox._image_typing import ImageMixinBase
-from machinevisiontoolbox.base import color, imageio, name2color
+from machinevisiontoolbox.base import color, name2color
 
 if TYPE_CHECKING:
     from machinevisiontoolbox.ImageCore import Image
-    from machinevisiontoolbox._image_typing import _ImageBase
 
 
 class ImageColorMixin(ImageMixinBase):
