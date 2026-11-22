@@ -9,7 +9,6 @@ use stand-ins for ``pyclip`` and ``cv2``, since a real clipboard and real window
 depend on the machine the tests run on.
 """
 
-import re
 import unittest
 from unittest.mock import patch
 
@@ -225,10 +224,6 @@ class TestClipboardKeys(_Agg):
         self.h = self.show(self.im)
         self.ax = self.h.axes
 
-    def copied(self):
-        # NumPy 2 prints a scalar as np.uint8(10); accept that as well as plain 10
-        return re.sub(r"np\.\w+\((\d+)\)", r"\1", self.clip.text)
-
     def press(self, key, u=2, v=1):
         canvas = self.ax.figure.canvas
         x, y = self.ax.transData.transform((u, v))
@@ -250,6 +245,20 @@ class TestClipboardKeys(_Agg):
         self.press("x")
         self.assertEqual(self.clip.text, "")
 
+    def test_v_and_V_with_a_monochrome_image(self):
+        # the value is a plain number
+        self.press("v", 2, 1)
+        self.assertEqual(self.clip.text, "2,1,6")
+        self.press("V", 3, 3)
+        self.assertEqual(self.clip.text, "2,1,6\n3,3,15")
+
+    def test_v_with_a_float_image(self):
+        plt.close("all")
+        im = np.full((4, 4), 0.25, dtype=np.float32)
+        self.ax = self.show(im).axes
+        self.press("v", 2, 1)
+        self.assertEqual(self.clip.text, "2,1,0.25")
+
     def test_v_and_V_with_a_color_image(self):
         plt.close("all")
         im = np.zeros((4, 4, 3), dtype=np.uint8)
@@ -257,9 +266,9 @@ class TestClipboardKeys(_Agg):
         im[3, 3] = (1, 2, 3)
         self.ax = self.show(im).axes
         self.press("v", 2, 1)
-        self.assertEqual(self.copied(), "2,1,(10, 20, 30)")
+        self.assertEqual(self.clip.text, "2,1,(10, 20, 30)")
         self.press("V", 3, 3)
-        self.assertEqual(self.copied(), "2,1,(10, 20, 30)\n3,3,(1, 2, 3)")
+        self.assertEqual(self.clip.text, "2,1,(10, 20, 30)\n3,3,(1, 2, 3)")
 
     def test_other_keys_and_outside_clicks_do_nothing(self):
         self.press("z")
