@@ -1535,9 +1535,12 @@ class FeatureMatch:
         """
 
         if len(self) == 1:
+            # p1 and p2 are 1D arrays when there is a single match
+            p1 = np.ravel(self.p1)
+            p2 = np.ravel(self.p2)
             return (
-                f"{self.status} {self.distance:6.2f}: ({self.p1[0, 0]:.1f},"
-                f" {self.p1[1, 0]:.1f}) <--> ({self.p2[0, 0]:.1f}, {self.p2[1, 0]:.1f})"
+                f"{self.status} {self.distance:6.2f}: ({p1[0]:.1f},"
+                f" {p1[1]:.1f}) <--> ({p2[0]:.1f}, {p2[1]:.1f})"
             )
         else:
             s = f"{len(self)} matches"
