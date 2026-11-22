@@ -171,8 +171,14 @@ class TestImagePlaneInASimulation:
 
     def run_diagram(self, **imageplane_args):
         cam = CentralCamera.Default()
+        # sysargs=False: bdsim must not read pytest's command line as its own options
         sim = bdsim.BDSim(
-            animation=False, graphics=True, hold=False, progress=False, verbose=False
+            animation=False,
+            graphics=True,
+            hold=False,
+            progress=False,
+            verbose=False,
+            sysargs=False,
         )
         bd = sim.blockdiagram()
         point = bd.CONSTANT(self.P)
