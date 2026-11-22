@@ -15,7 +15,6 @@ from typing import Any, Callable, Iterator
 import cv2
 import matplotlib as mpl
 import matplotlib.cm as cm
-
 import numpy as np
 
 from machinevisiontoolbox.base.color import colorspace_convert, gamma_decode

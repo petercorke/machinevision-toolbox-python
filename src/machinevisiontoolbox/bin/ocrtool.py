@@ -8,8 +8,9 @@ Usage::
 """
 
 import argparse
-import numpy as np
+
 import matplotlib.pyplot as plt
+import numpy as np
 
 from machinevisiontoolbox import Image
 from machinevisiontoolbox.bin._bintools import CustomDefaultsHelpFormatter

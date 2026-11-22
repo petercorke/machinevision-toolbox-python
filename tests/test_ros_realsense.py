@@ -25,8 +25,6 @@ import pytest
 
 pytest.importorskip("rosbags")
 
-from rosbags.typesys import Stores, get_typestore
-
 from create_ros_fixture import (
     RS_COLOR_TOPIC,
     RS_DEPTH_TOPIC,
@@ -35,6 +33,8 @@ from create_ros_fixture import (
     realsense_color_frame,
     realsense_depth_frame,
 )
+from rosbags.typesys import Stores, get_typestore
+
 from machinevisiontoolbox import ROSBag
 from machinevisiontoolbox.Sources import (
     _LENGTH_ERRORS,

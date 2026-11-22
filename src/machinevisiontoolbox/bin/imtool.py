@@ -9,13 +9,13 @@ Usage::
 
 import argparse
 
+import matplotlib
+import numpy as np
+from ansitable import ANSITable, Column
 from colored import Fore, Style
 
 from machinevisiontoolbox import Image
 from machinevisiontoolbox.bin._bintools import CustomDefaultsHelpFormatter
-from ansitable import ANSITable, Column
-import matplotlib
-import numpy as np
 
 # Set by figure keypress callback when the user requests immediate exit.
 exit_requested = False
@@ -84,6 +84,7 @@ def getargs():
 
 def visualize_image(image, args, block):
     import matplotlib.pyplot as plt
+
     from machinevisiontoolbox.bin._iminteractive import ImageInteractor
 
     if args.verbose:
@@ -238,6 +239,7 @@ def main():
         matplotlib.use(args.backend)
 
     import matplotlib.pyplot as plt  # noqa: F401 — initialises backend, used via globals
+
     from machinevisiontoolbox.bin._iminteractive import ImageInteractor  # noqa: F401
 
     if len(args.files) > 10:

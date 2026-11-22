@@ -2,7 +2,6 @@
 from bdsim.components import FunctionBlock
 from bdsim.graphics import GraphicsBlock
 
-
 """
 Machine Vision blocks:
 - have inputs and outputs

@@ -11,6 +11,8 @@ try:
 except ImportError:
     from typing_extensions import Self
 
+from typing import TYPE_CHECKING
+
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
@@ -21,7 +23,6 @@ from spatialmath import SE2
 from spatialmath import base as smb
 
 import machinevisiontoolbox.base as mvb
-from typing import TYPE_CHECKING
 from machinevisiontoolbox._image_typing import ImageMixinBase
 
 if TYPE_CHECKING:

@@ -4,13 +4,14 @@ Detection and description of region-based features (Harris corners, FAST, etc.) 
 
 # https://docs.opencv.org/4.4.0/d7/d60/classcv_1_1SIFT.html
 
-import cv2
-import numpy as np
 from typing import TYPE_CHECKING, Any
 
+import cv2
+import numpy as np
+
 from machinevisiontoolbox._image_typing import ImageMixinBase
-from machinevisiontoolbox.decorators import array_result
 from machinevisiontoolbox.base.graphics import plot_labelbox
+from machinevisiontoolbox.decorators import array_result
 
 try:
     import pytesseract as _pytesseract

@@ -13,13 +13,13 @@ if sys.version_info >= (3, 11):
 else:
     from typing_extensions import Self
 
-import PIL.Image
-from PIL.ExifTags import TAGS
 import matplotlib.patches as mpatches
-import matplotlib.pyplot as plt
-from matplotlib.colors import Colormap, LinearSegmentedColormap
 import matplotlib.patheffects as path_effects
+import matplotlib.pyplot as plt
 import numpy as np
+import PIL.Image
+from matplotlib.colors import Colormap, LinearSegmentedColormap
+from PIL.ExifTags import TAGS
 from spatialmath.base import set_window_title
 
 if TYPE_CHECKING:
@@ -30,8 +30,8 @@ from machinevisiontoolbox.base.imageio import (
     _pick_imagefile,
     idisp,
     iread,
-    safe_plt_show,
     iwrite,
+    safe_plt_show,
 )
 from machinevisiontoolbox.mvtb_types import Dtype
 

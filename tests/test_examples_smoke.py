@@ -9,8 +9,8 @@ This catches syntax errors and merge-conflict artifacts without executing GUI,
 camera, ROS, or network code from examples.
 """
 
-from pathlib import Path
 import unittest
+from pathlib import Path
 
 
 class TestExamplesSmoke(unittest.TestCase):

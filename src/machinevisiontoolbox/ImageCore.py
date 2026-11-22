@@ -23,8 +23,8 @@ from machinevisiontoolbox.base.graphics import (
     draw_point,
     draw_text,
 )
-from machinevisiontoolbox.base.types import DTYPE_ALIASES, float_image, int_image
 from machinevisiontoolbox.base.imageio import convert
+from machinevisiontoolbox.base.types import DTYPE_ALIASES, float_image, int_image
 from machinevisiontoolbox.ImageBlobs import ImageBlobsMixin
 from machinevisiontoolbox.ImageColor import ImageColorMixin
 from machinevisiontoolbox.ImageConstants import ImageConstantsMixin
@@ -34,11 +34,11 @@ from machinevisiontoolbox.ImageLineFeatures import ImageLineFeaturesMixin
 from machinevisiontoolbox.ImageMorph import ImageMorphMixin
 from machinevisiontoolbox.ImageMultiview import ImageMultiviewMixin
 from machinevisiontoolbox.ImagePointFeatures import ImagePointFeaturesMixin
-from machinevisiontoolbox.ImageTensor import ImageTensorMixin
 from machinevisiontoolbox.ImageProcessing import ImageProcessingMixin
 from machinevisiontoolbox.ImageRegionFeatures import ImageRegionFeaturesMixin
 from machinevisiontoolbox.ImageReshape import ImageReshapeMixin
 from machinevisiontoolbox.ImageSpatial import ImageSpatialMixin
+from machinevisiontoolbox.ImageTensor import ImageTensorMixin
 from machinevisiontoolbox.ImageWholeFeatures import ImageWholeFeaturesMixin
 from machinevisiontoolbox.mvtb_types import Array2d, Array3d, Dtype
 
