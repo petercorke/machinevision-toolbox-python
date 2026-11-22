@@ -51,13 +51,6 @@ class TestRead:
         with pytest.raises(ValueError, match="wildcard"):
             Image.Read("no-such-images-*.png")
 
-    @pytest.mark.xfail(
-        strict=True,
-        raises=AssertionError,
-        reason="iread() returns (list of images, list of paths) for a wildcard, "
-        "which Image.Read() mistakes for a single image, so its own "
-        "'wildcard read not supported' ValueError is never reached",
-    )
     def test_wildcard_that_matches_files_is_refused(self):
         with pytest.raises(ValueError, match="wildcard"):
             Image.Read(str(DATA / "stripes*.png"))
