@@ -2,6 +2,7 @@ import unittest
 
 from machinevisiontoolbox.base.color import (
     XYZ2RGBxform,
+    color_names,
     name2color,
     plot_spectral_locus,
 )
@@ -43,9 +44,47 @@ class TestName2ColorErrors(unittest.TestCase):
         self.assertEqual(name2color("red", "XYZ").shape, (3,))
         self.assertEqual(name2color("red", "xy").shape, (2,))
 
-    def test_wildcard_with_unknown_colorspace_is_a_list(self):
-        # the wildcard branch returns names and does not use the colorspace
-        self.assertIsInstance(name2color(".*burnt.*", "xy"), list)
+    def test_wildcard_is_an_error_that_names_the_replacement(self):
+        for name in (".*burnt.*", "?burnt", "*coral"):
+            with self.assertRaisesRegex(ValueError, "color_names"):
+                name2color(name)
+
+
+class TestColorNames(unittest.TestCase):
+    def test_no_pattern_lists_every_name(self):
+        names = color_names()
+        self.assertIsInstance(names, list)
+        self.assertIn("red", names)
+        self.assertGreater(len(names), 100)
+        self.assertEqual(len(names), len(set(names)))
+
+    def test_pattern_is_a_regular_expression(self):
+        names = color_names(".*burnt.*")
+        self.assertGreater(len(names), 0)
+        self.assertTrue(all("burnt" in n for n in names))
+
+    def test_the_whole_name_must_match(self):
+        # "coral" alone is not a match for "light coral" or "coral"-containing names
+        self.assertEqual(color_names("coral"), ["coral"])
+        self.assertIn("lightcoral", color_names(".*coral"))
+        self.assertNotIn("lightcoral", color_names("coral"))
+
+    def test_alternatives(self):
+        self.assertEqual(
+            sorted(color_names("(red|green|blue)")), ["blue", "green", "red"]
+        )
+
+    def test_no_match_is_an_empty_list(self):
+        self.assertEqual(color_names("zzzz.*"), [])
+
+    def test_every_name_is_known_to_name2color(self):
+        for name in color_names("[a-z]+"):
+            self.assertEqual(name2color(name).shape, (3,))
+
+    def test_shell_style_wildcard_is_an_error_that_says_so(self):
+        for bad in ("*coral*", "?burnt"):
+            with self.assertRaisesRegex(ValueError, "not shell style wildcards"):
+                color_names(bad)
 
 
 class TestPlotSpectralLocusErrors(unittest.TestCase):

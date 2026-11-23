@@ -87,6 +87,7 @@ from machinevisiontoolbox.base import (
     rluminos,
     ccxyz,
     name2color,
+    color_names,
     color2name,
     colorname,
     cie_primaries,
