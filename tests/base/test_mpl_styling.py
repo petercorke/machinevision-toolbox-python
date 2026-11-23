@@ -7,12 +7,13 @@ from matplotlib.patches import Patch
 from matplotlib.text import Text
 
 from machinevisiontoolbox.base import mpl_styling
+from machinevisiontoolbox.base.graphics import parse_fmt
 
 
 @pytest.mark.parametrize(
     "fmt, expected",
     [
-        ("o", {"marker": "o"}),
+        ("o", {"marker": "o", "linestyle": "None"}),
         ("ro--", {"color": "r", "marker": "o", "linestyle": "--"}),
         ("g^:", {"color": "g", "marker": "^", "linestyle": ":"}),
         ("-.b*", {"color": "b", "marker": "*", "linestyle": "-."}),
@@ -32,7 +33,7 @@ def test_marker_formats(fmt, expected):
 
 @pytest.mark.parametrize("fmt", ["roo", "r?", "ro--?"])
 def test_unrecognized_components_still_raise(fmt):
-    with pytest.raises(ValueError, match="Unrecognized format components"):
+    with pytest.raises(ValueError, match="not a valid format string"):
         mpl_styling(fmt, {}, {})
 
 
@@ -125,3 +126,22 @@ def test_blobs_plot_box_accepts_aliases():
         assert ax.patches[0].get_linewidth() == 4
     finally:
         plt.close(fig)
+
+
+@pytest.mark.parametrize("fmt", ["--", "o", ":", "r", "b--", "g."])
+def test_defaults_not_set_by_the_string_are_kept(fmt):
+    defaults = {"color": "red", "linestyle": "-", "marker": "s", "linewidth": 2}
+    options = mpl_styling(fmt, defaults, {})
+    for key, value in parse_fmt(fmt).items():
+        assert options[key] == value  # what the string sets wins
+    for key, value in defaults.items():
+        if key not in parse_fmt(fmt):
+            assert options[key] == value  # the rest is not wiped out
+
+
+def test_dashes_keep_the_default_color():
+    # was: the string's missing color came back as None and wiped the default
+    assert mpl_styling("--", {"color": "red"}, {}) == {
+        "color": "red",
+        "linestyle": "--",
+    }
