@@ -1855,12 +1855,20 @@ class FeatureMatch:
         :param method: robust estimation method passed to ``func``, defaults to ``"ransac"``
         :param args: further options passed to ``func``
         :return: the estimate and any other values that ``func`` returns, but not
-            the inlier mask
+            the inlier mask if there is one
 
         Calls ``func(p1, p2, method=method, **args)`` with the corresponding points.
-        The last value that ``func`` returns is the inlier mask, which is kept as
-        the inlier status of the matches (see :attr:`inliers` and :attr:`outliers`)
-        and is not returned.
+        If the last value that ``func`` returns is an inlier mask, a boolean array
+        with one element per match, which the robust methods ``"ransac"`` and
+        ``"lmeds"`` return, it is kept as the inlier status of the matches (see
+        :attr:`inliers` and :attr:`outliers`) and is not returned. Otherwise, for
+        example with ``method="8p"``, everything that ``func`` returns is returned and
+        the inlier status is cleared.
+
+        .. versionchanged:: 2.5.0
+            A non-robust method used to lose its last return value (the residual, or
+            the estimate itself if there was no residual) and leave it as the inlier
+            status.
 
         Example:
 
@@ -1869,9 +1877,20 @@ class FeatureMatch:
             F, resid = matches.estimate(CentralCamera.points2F, method="ransac", confidence=0.95)
         """
         solution = func(self.p1, self.p2, method=method, **args)
-        self._inliers = solution[-1]
+        if not isinstance(solution, (tuple, list)):
+            solution = (solution,)  # a single value
 
-        return solution[:-1]
+        last = solution[-1]
+        if (
+            isinstance(last, np.ndarray)
+            and last.dtype == bool
+            and last.shape == (len(self),)
+        ):
+            self._inliers = last
+            return tuple(solution[:-1])
+        else:
+            self._inliers = None  # no mask, so any earlier one no longer applies
+            return tuple(solution)
 
     @property
     @scalar_result

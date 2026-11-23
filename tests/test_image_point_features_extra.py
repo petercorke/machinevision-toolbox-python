@@ -873,3 +873,101 @@ class TestDetectors:
 
         with pytest.raises(ValueError, match="bad algorithm"):
             checkerboard._image2feature(BogusFeature)
+
+
+class TestFeatureMatchEstimate:
+    """estimate() keeps the last value of func as the inliers only if it is a mask."""
+
+    MASK = np.array([True, False, True, True])
+
+    def test_robust_method_keeps_the_mask_and_does_not_return_it(self, fmatch):
+        result = fmatch.estimate(lambda p1, p2, method: ("F", 0.5, self.MASK))
+        assert result == ("F", 0.5)
+        nt.assert_array_equal(fmatch.inliers.id1, [0, 2, 3])
+
+    def test_mask_given_as_a_list_is_not_a_mask(self, fmatch):
+        # only a bool ndarray of one element per match is taken as the mask
+        result = fmatch.estimate(lambda p1, p2, method: ("F", [True] * 4))
+        assert result == ("F", [True] * 4)
+
+    def test_method_without_a_mask_returns_everything(self, fmatch):
+        # was: the residual was taken as the inliers and dropped from the result
+        result = fmatch.estimate(lambda p1, p2, method: ("F", 0.5))
+        assert result == ("F", 0.5)
+        with pytest.raises(ValueError, match="not been set"):
+            fmatch.inliers
+
+    def test_single_array_result_is_returned(self, fmatch):
+        # was: the estimate itself was taken as the inliers and dropped
+        F = np.eye(3)
+        (result,) = fmatch.estimate(lambda p1, p2, method: F)
+        assert result is F
+        with pytest.raises(ValueError, match="not been set"):
+            fmatch.inliers
+
+    def test_single_value_in_a_list_is_returned(self, fmatch):
+        (result,) = fmatch.estimate(lambda p1, p2, method: ["F"])
+        assert result == "F"
+
+    def test_mask_of_the_wrong_length_is_not_a_mask(self, fmatch):
+        result = fmatch.estimate(lambda p1, p2, method: ("F", np.array([True, False])))
+        assert len(result) == 2
+
+    def test_integer_array_is_not_a_mask(self, fmatch):
+        result = fmatch.estimate(lambda p1, p2, method: ("F", np.array([1, 0, 1, 1])))
+        assert len(result) == 2
+        with pytest.raises(ValueError, match="not been set"):
+            fmatch.inliers
+
+    def test_a_later_estimate_without_a_mask_clears_the_old_one(self, fmatch):
+        fmatch.estimate(lambda p1, p2, method: ("F", 0.5, self.MASK))
+        assert len(fmatch.inliers) == 3
+        fmatch.estimate(lambda p1, p2, method: ("F", 0.5))
+        with pytest.raises(ValueError, match="not been set"):
+            fmatch.inliers
+
+    def test_method_and_options_are_passed_to_func(self, fmatch):
+        seen = {}
+
+        def func(p1, p2, method, **kwargs):
+            seen.update(method=method, kwargs=kwargs, shapes=(p1.shape, p2.shape))
+            return ("F",)
+
+        fmatch.estimate(func, method="lmeds", confidence=0.9)
+        assert seen["method"] == "lmeds"
+        assert seen["kwargs"] == {"confidence": 0.9}
+        assert seen["shapes"] == ((2, 4), (2, 4))
+
+
+class TestFeatureMatchEstimateWithTheRealEstimators:
+    """The real estimators return a mask only for ransac and lmeds."""
+
+    @pytest.fixture
+    def matches(self):
+        v1 = Image.Read("eiffel-1.png", mono=True)
+        v2 = Image.Read("eiffel-2.png", mono=True)
+        return v1.ORB().match(v2.ORB())
+
+    @pytest.mark.parametrize(
+        "name, kwargs, n_returned, has_mask",
+        [
+            ("points2F", dict(method="ransac", seed=0), 2, True),
+            ("points2F", dict(method="lmeds", seed=0), 2, True),
+            ("points2F", dict(method="8p"), 2, False),
+            ("points2F", dict(method="8p", residual=False), 1, False),
+            ("points2H", dict(method="ransac", seed=0), 2, True),
+            ("points2H", dict(method="leastsquares"), 2, False),
+        ],
+    )
+    def test_estimator(self, matches, name, kwargs, n_returned, has_mask):
+        from machinevisiontoolbox import CentralCamera
+
+        result = matches.estimate(getattr(CentralCamera, name), **kwargs)
+        assert len(result) == n_returned
+        assert result[0].shape == (3, 3)  # the matrix is always returned
+        if has_mask:
+            assert 0 < len(matches.inliers) <= len(matches)
+            assert len(matches.inliers) + len(matches.outliers) == len(matches)
+        else:
+            with pytest.raises(ValueError, match="not been set"):
+                matches.inliers
