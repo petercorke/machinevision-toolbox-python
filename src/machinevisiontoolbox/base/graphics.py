@@ -453,6 +453,8 @@ def draw_labelbox(
     :type fontthickness: int, optional
     :param boxargs: arguments passed to :func:`draw_box`
     :raises TypeError: can't draw color into a greyscale image
+    :raises ValueError: if the marker string has more than one color letter, has no
+        marker character, or no color is given by ``color`` or by a letter
     :return: passed image as modified
     :rtype: ndarray(H,W), ndarray(H,W,P)
 
@@ -692,6 +694,10 @@ def draw_point(
     :return: passed image as modified
     :rtype: ndarray(H,W), ndarray(H,W,P)
 
+    .. versionchanged:: 2.5.0
+        These cases raise ``ValueError`` with a message; they raised ``TypeError``
+        or ``ValueError`` from deeper in the code.
+
     The ``text`` label is placed to the right of the marker, and vertically centred.
     The color of the marker can be different to the color of the text, the
     marker color is specified by a single letter in the marker string, eg. 'b+'.
@@ -793,6 +799,7 @@ def draw_point(
             f"got {type(pos).__name__}"
         )
 
+    marker_in = marker
     newmarker = ""
     markercolor = ""
     for m in marker:
@@ -801,6 +808,21 @@ def draw_point(
         else:
             newmarker += m
     marker = newmarker
+
+    if len(markercolor) > 1:
+        raise ValueError(
+            f"marker has more than one color letter, got {markercolor!r} in the "
+            f"marker string {marker_in!r}"
+        )
+    if marker == "":
+        raise ValueError(
+            f"marker string {marker_in!r} has no marker character, such as '+' or '*'"
+        )
+    if color is None and markercolor == "":
+        raise ValueError(
+            "no color: give color=, or a color letter in the marker string, "
+            "such as 'r+'"
+        )
 
     # get the centre of the marker, cv2.getTextSize is a very loose bounding box
     #  the code below is a bit expensive but the only way to precisely position
