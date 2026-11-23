@@ -68,6 +68,82 @@ class TestConvolve:
         nt.assert_array_equal(square.smooth(2).array, square.convolve(K).array)
 
 
+class TestConvolveDtype:
+    """The datatype of the result of convolve, and the clipping that the default has."""
+
+    @pytest.fixture
+    def falling_ramp(self):
+        # uint8, falling by 4 for each column
+        return Image(np.tile(np.arange(100, 0, -4, dtype=np.uint8), (10, 1)))
+
+    @pytest.fixture
+    def central_difference(self):
+        return np.array([[1, 0, -1]], dtype=np.float32) / 2
+
+    def test_default_keeps_the_datatype_and_clips_negatives(
+        self, falling_ramp, central_difference
+    ):
+        out = falling_ramp.convolve(central_difference)
+        assert out.dtype == np.uint8
+        # the true value is -4, which a uint8 cannot hold, so it is clipped to 0
+        assert out.array[5, 10] == 0
+
+    def test_default_clips_at_the_top(self):
+        out = Image(np.full((9, 9), 200, dtype=np.uint8)).convolve(np.ones((3, 3)))
+        # the sum is 1800: OpenCV does not overflow, it clips on the way out
+        assert out.dtype == np.uint8 and out.array[4, 4] == 255
+
+    @pytest.mark.parametrize(
+        "dtype, expected",
+        [("int16", np.int16), ("float32", np.float32), ("float64", np.float64)],
+    )
+    def test_dtype_keeps_the_sign_of_a_uint8_image(
+        self, falling_ramp, central_difference, dtype, expected
+    ):
+        out = falling_ramp.convolve(central_difference, dtype=dtype)
+        assert out.dtype == expected
+        assert out.array[5, 10] == pytest.approx(-4)
+
+    def test_dtype_holds_a_sum_beyond_uint8(self):
+        img = Image(np.full((9, 9), 200, dtype=np.uint8))
+        out = img.convolve(np.ones((3, 3)), dtype="float32")
+        assert out.array[4, 4] == pytest.approx(1800)
+
+    @pytest.mark.parametrize(
+        "array, dtype",
+        [
+            (np.ones((5, 5), dtype=np.float32), "float64"),
+            (np.ones((5, 5), dtype=np.float32), "int16"),
+            (np.ones((5, 5), dtype=np.float64), "float32"),
+            (np.ones((5, 5), dtype=np.uint16), "int16"),
+        ],
+    )
+    def test_a_result_less_precise_than_the_input_is_refused(self, array, dtype):
+        with pytest.raises(ValueError, match="is not possible for a"):
+            Image(array, dtype=array.dtype).convolve(np.ones((3, 3)), dtype=dtype)
+
+    def test_unknown_dtype(self):
+        with pytest.raises(ValueError, match="dtype must be one of"):
+            Image(np.ones((5, 5), dtype=np.float32)).convolve(
+                np.ones((3, 3)), dtype="uint8"
+            )
+
+    def test_float_input_is_unchanged_by_the_default(self):
+        out = Image(np.ones((5, 5), dtype=np.float32)).convolve(np.ones((3, 3)))
+        assert out.dtype == np.float32 and out.array[2, 2] == pytest.approx(9)
+
+    @pytest.mark.parametrize("dtype", [np.uint16, np.int16, np.float64])
+    def test_default_keeps_a_wider_datatype(self, dtype):
+        # Image() would narrow these to uint8 and float32 if not told otherwise
+        img = Image(np.ones((6, 6), dtype=dtype), dtype=dtype)
+        out = img.convolve(np.ones((3, 3)) / 9)
+        assert out.dtype == dtype
+
+    def test_smooth_still_returns_the_input_datatype(self):
+        img = Image(np.full((9, 9), 100, dtype=np.uint8))
+        assert img.smooth(1).dtype == np.uint8
+
+
 class TestGradients:
     @pytest.fixture
     def ramp(self):
@@ -84,6 +160,34 @@ class TestGradients:
     def test_custom_kernel_and_mode(self, ramp):
         Iu, Iv = ramp.gradients(Kernel.Sobel(), mode="valid")
         assert Iu.shape == (18, 18) and Iv.shape == (18, 18)
+
+    def test_uint8_image_keeps_its_negative_gradients(self):
+        # falls by 4 in each column, which is a gradient of -4
+        falling = Image(np.tile(np.arange(100, 0, -4, dtype=np.uint8), (10, 1)))
+        Iu, Iv = falling.gradients()
+        assert Iu.dtype == np.float32 and Iv.dtype == np.float32
+        assert Iu.array[5, 10] == pytest.approx(-4)
+        assert Iv.array[5, 10] == pytest.approx(0)
+
+    def test_uint8_and_float32_images_have_the_same_gradients(self):
+        rng = np.random.default_rng(1)
+        a = rng.integers(0, 256, (30, 40), dtype=np.uint8)
+        Iu8, Iv8 = Image(a).gradients()
+        Iu32, Iv32 = Image(a.astype(np.float32)).gradients()
+        nt.assert_allclose(Iu8.array, Iu32.array, atol=1e-4)
+        nt.assert_allclose(Iv8.array, Iv32.array, atol=1e-4)
+
+    def test_uint8_gradients_stay_within_the_sobel_bound(self):
+        # a step from 0 to 255 is the largest edge: (1 + 2 + 1) * 255 / 8
+        step = np.zeros((10, 10), dtype=np.uint8)
+        step[:, 5:] = 255
+        Iu, _ = Image(step).gradients()
+        assert Iu.array.max() == pytest.approx(127.5)
+        assert Iu.array.min() == pytest.approx(0)
+
+    def test_float64_image_gives_float64_gradients(self):
+        Iu, Iv = Image(np.ones((6, 6)), dtype=np.float64).gradients()
+        assert Iu.dtype == np.float64 and Iv.dtype == np.float64
 
     def test_direction(self):
         horizontal = Image(np.ones((3, 3), dtype=np.float32))

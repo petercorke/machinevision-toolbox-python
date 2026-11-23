@@ -193,21 +193,33 @@ class ImageMultiviewMixin(ImageMixinBase):
         return self.__class__(disparity, dtype=np.float32), self.__class__(maxima), dsi
 
     @classmethod
-    def DSI_refine(
-        cls, DSI: np.ndarray, drange: tuple[int, int] | None = None
-    ) -> tuple[Self, Self]:
+    def DSI_refine(cls, DSI: np.ndarray, dmin: int = 0) -> tuple[Self, Self]:
         """
         Refine disparity from disparity space image
 
         :param DSI: disparity space image
         :type DSI: ndarray(H,W,D)
-        :param drange: disparity range, defaults to span of DSI values
-        :type drange: array_like(2), optional
-        :return: refined disparity image
-        :rtype: :class:`Image`
+        :param dmin: disparity of the first plane of the DSI, defaults to 0
+        :type dmin: int, optional
+        :return: refined disparity image and the curvature at the peak
+        :rtype: 2-tuple of :class:`Image`
 
         Performs subpixel interpolation on the peaks in the DSI to provide disparity
-        estimates to a fraction of a pixel.
+        estimates to a fraction of a pixel.  A parabola is fitted to the peak and
+        the two values either side of it, and the position of the parabola's peak
+        is the refined disparity.
+
+        Each plane of the DSI is a disparity, and the first plane is the first
+        element of the ``drange`` passed to :meth:`stereo_simple`.  The DSI does
+        not record this, so by default the returned disparities are relative to
+        it: 0 is the first plane, 1 is the second, and so on, and a fraction
+        gives the position between planes.  Pass ``dmin`` equal to ``drange[0]``
+        to turn them into true disparity values.
+
+        The result is NaN where there is no valid peak: where the best disparity
+        is the first or last plane, so one neighbour is missing, where a
+        neighbour is NaN, or where every plane is NaN.  Planes that are NaN are
+        never chosen as the peak.
 
         Example:
 
@@ -216,41 +228,43 @@ class ImageMultiviewMixin(ImageMixinBase):
                 rocks_l = Image.Read("rocks2-l.png", reduce=2)
                 rocks_r = Image.Read("rocks2-r.png", reduce=2)
                 disparity, similarity, DSI = rocks_l.stereo_simple(rocks_r, hw=3, drange=[40, 90])
-                disparity = Image.DSI_refine(DSI)
+                disparity, curvature = Image.DSI_refine(DSI, dmin=40)
 
+        .. versionchanged:: 2.5.0
+            The ``drange`` argument is replaced by ``dmin``.  ``drange`` was
+            compared with plane indices, not disparities, which made it unusable
+            unless the first disparity was 0.  A DSI plane that is NaN no longer
+            gives a NaN result for a pixel that has a valid peak.
 
         :references:
             - |RVC3|, Section 14.4.1.
 
         :seealso: :meth:`stereo_simple`
         """
-        DSI_flat = DSI.reshape((-1, DSI.shape[2]))
+        invalid = np.isnan(DSI)
+        # best plane, never a NaN one (argmax would return the first NaN)
+        peak = np.argmax(np.where(invalid, -np.inf, DSI), axis=2)
 
-        yp: list[float] = []
-        y: list[float] = []
-        yn: list[float] = []
+        # the peak needs a plane either side of it
+        nplanes = DSI.shape[2]
+        interior = (peak > 0) & (peak < nplanes - 1) & ~invalid.all(axis=2)
 
-        disparity = np.argmax(DSI, axis=2)
-        if drange is None:
-            drange = (int(disparity.min()), int(disparity.max()))
-        for i, d in enumerate(disparity.ravel()):
-            if drange[0] < d < drange[1]:
-                yp.append(DSI_flat[i, d - 1])
-                y.append(DSI_flat[i, d])
-                yn.append(DSI_flat[i, d + 1])
-            else:
-                yp.append(np.nan)
-                y.append(np.nan)
-                yn.append(np.nan)
+        # values at the peak and either side, wherever the peak is not interior
+        # use the peak itself, and the result is masked out below
+        def plane(offset: int) -> np.ndarray:
+            index = np.where(interior, peak + offset, peak)
+            return np.take_along_axis(DSI, index[:, :, np.newaxis], axis=2)[:, :, 0]
 
-        YP = np.array(yp).reshape(DSI.shape[:2])
-        Y = np.array(y).reshape(DSI.shape[:2])
-        YN = np.array(yn).reshape(DSI.shape[:2])
+        YP, Y, YN = plane(-1), plane(0), plane(1)
 
         A = YP + YN - 2 * Y
         B = YN - YP
 
-        d_subpix = disparity - B / (2 * A)
+        # a flat peak (A == 0) has no parabola
+        ok = interior & (A != 0)
+        d_subpix = np.full(peak.shape, np.nan)
+        d_subpix[ok] = peak[ok] - B[ok] / (2 * A[ok]) + dmin
+        A = np.where(interior, A, np.nan)
 
         return cls(d_subpix), cls(A)
 

@@ -192,6 +192,7 @@ class ImageSpatialMixin(ImageMixinBase):
         mode: str = "same",
         border: str = "reflect",
         bordervalue: int | float = 0,
+        dtype: Literal["same", "int16", "float32", "float64"] = "same",
     ) -> Any:
         """
         Image convolution
@@ -204,6 +205,9 @@ class ImageSpatialMixin(ImageMixinBase):
         :type border: str, optional
         :param bordervalue: padding value, defaults to 0
         :type bordervalue: scalar, optional
+        :param dtype: datatype of the result, defaults to ``'same'``, the datatype
+            of the input image
+        :type dtype: str, optional
         :return: input image convolved with kernel
         :rtype:
             :class:`.Image`
@@ -243,11 +247,35 @@ class ImageSpatialMixin(ImageMixinBase):
             >>> img = Image.Read('monalisa.png')
             >>> img.convolve(K=np.ones((11,11))).disp()
 
+        =============  =============================================================
+        ``dtype``      description
+        =============  =============================================================
+        ``'same'``     result has the datatype of the input image (default)
+        ``'int16'``    signed 16-bit integer, for ``uint8`` or ``int16`` input
+        ``'float32'``  single precision, for any input except ``float64``
+        ``'float64'``  double precision, for any input
+        =============  =============================================================
+
+        .. versionchanged:: 2.5.0
+            Added the ``dtype`` argument.
+
         .. note::
             - The kernel is typically square with an odd side length.
-            - The result has the same datatype as the input image.  For a kernel
-              where the results could be negative (eg. edge detection kernel)
-              this will cause issues such as value wraparound.
+            - OpenCV sums the products of kernel and pixel values in a wider
+              type than the image, so the sum itself does not overflow.  The
+              sum is then converted to the datatype of the result, and values
+              outside its range are **clipped** (saturated), not wrapped.  With
+              the default ``dtype='same'`` a ``uint8`` result is limited to 0
+              to 255, so for a kernel whose results can be negative (for
+              example an edge detection kernel) every negative result becomes 0,
+              and for a kernel that sums to more than one (for example
+              ``np.ones((11, 11))``) bright regions saturate at 255.  Use
+              ``dtype='float32'`` to keep the sign and the magnitude.
+            - A ``uint8`` image convolved to ``dtype='int16'`` keeps the sign,
+              but also clips, at -32768 and 32767, which a large kernel can
+              reach.  ``dtype='float32'`` holds the result of any realistic kernel.
+            - Only combinations OpenCV supports are allowed, a result cannot be
+              less precise than a floating point input.
             - If the image is color (has multiple planes) the kernel is
               applied to each plane, resulting in an output image with the same
               number of planes.
@@ -278,6 +306,28 @@ class ImageSpatialMixin(ImageMixinBase):
             K = K.K
 
         K = argcheck.getmatrix(K, shape=[None, None], dtype="float32")
+
+        # the output depth that cv2.filter2D accepts for each input datatype
+        ddepths = {
+            "same": -1,
+            "int16": cv2.CV_16S,
+            "float32": cv2.CV_32F,
+            "float64": cv2.CV_64F,
+        }
+        allowed = {
+            np.dtype("uint8"): ("same", "int16", "float32", "float64"),
+            np.dtype("uint16"): ("same", "float32", "float64"),
+            np.dtype("int16"): ("same", "int16", "float32", "float64"),
+            np.dtype("float32"): ("same", "float32"),
+            np.dtype("float64"): ("same", "float64"),
+        }
+        if dtype not in ddepths:
+            raise ValueError(f"dtype must be one of {list(ddepths)}, got {dtype!r}")
+        if self._A.dtype in allowed and dtype not in allowed[self._A.dtype]:
+            raise ValueError(
+                f"dtype {dtype!r} is not possible for a {self._A.dtype} image, "
+                f"must be one of {list(allowed[self._A.dtype])}"
+            )
 
         # OpenCV does correlation, not convolution, so we flip the kernel
         # to compensate.  Flip horizontally and vertically.
@@ -324,7 +374,10 @@ class ImageSpatialMixin(ImageMixinBase):
             )
 
         out = cv2.filter2D(
-            src=img, ddepth=-1, kernel=K, borderType=self._bordertype_cv(border)
+            src=img,
+            ddepth=ddepths[dtype],
+            kernel=K,
+            borderType=self._bordertype_cv(border),
         )
 
         if mode == "valid" or crop:
@@ -332,7 +385,9 @@ class ImageSpatialMixin(ImageMixinBase):
                 out = out[kh : out.shape[0] - kh, kw : out.shape[1] - kw]
             else:
                 out = out[kh : out.shape[0] - kh, kw : out.shape[1] - kw, :]
-        return self.__class__(out, colororder=self.colororder)
+        # name the datatype, otherwise Image narrows int16 and uint16 to uint8
+        # and float64 to float32
+        return self.__class__(out, colororder=self.colororder, dtype=out.dtype)
 
     # def sobel(self, kernel=None):
     #     if kernel is None:
@@ -365,6 +420,17 @@ class ImageSpatialMixin(ImageMixinBase):
 
         Compute horizontal and vertical gradient images.
 
+        The gradient images are ``float32``, or ``float64`` for a ``float64``
+        image, whatever the type of the input image, since a gradient can be
+        negative and a ``uint8`` result would clip every negative value to zero.
+        With the default Sobel kernel, which is normalised, the gradients of a
+        ``uint8`` image lie between -127.5 and 127.5.
+
+        .. versionchanged:: 2.5.0
+            The gradients of an integer image are ``float32``.  They were the
+            datatype of the image, so a ``uint8`` image lost all of its negative
+            gradients.
+
         Example:
 
         .. runblock:: pycon
@@ -381,8 +447,16 @@ class ImageSpatialMixin(ImageMixinBase):
         if K is None:
             K = Kernel.Sobel()
 
-        Iu = self.convolve(K, mode=mode, border=border, bordervalue=bordervalue)
-        Iv = self.convolve(K.T, mode=mode, border=border, bordervalue=bordervalue)
+        # a gradient is signed, so do not let it be clipped to the input datatype
+        dtype: Literal["float32", "float64"] = (
+            "float64" if self._A.dtype == np.float64 else "float32"
+        )
+        Iu = self.convolve(
+            K, mode=mode, border=border, bordervalue=bordervalue, dtype=dtype
+        )
+        Iv = self.convolve(
+            K.T, mode=mode, border=border, bordervalue=bordervalue, dtype=dtype
+        )
         return Iu, Iv
 
     def direction(
