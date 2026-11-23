@@ -75,6 +75,21 @@ class TestDataLoaders(unittest.TestCase):
         nt.assert_array_equal(data["s"].b, [0, 1, 2])
         nt.assert_array_equal(data["x"], np.eye(2))
 
+    def test_matfile_struct_gives_no_deprecation_warning(self):
+        # the mat_struct class used to be imported from scipy.io.matlab.mio5_params,
+        # which is deprecated and will be removed in SciPy 2.0
+        import warnings
+
+        from scipy.io import savemat
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "s.mat")
+            savemat(path, {"s": {"a": 1.5}})
+            with warnings.catch_warnings():
+                warnings.simplefilter("error", DeprecationWarning)
+                data = mvtb_load_matfile(path)
+        self.assertEqual(data["s"].a, 1.5)
+
     def test_jsonfile(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = os.path.join(tmp, "d.json")

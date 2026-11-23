@@ -94,6 +94,13 @@ class Blob:
 
 
 class Blobs(UserList):  # lgtm[py/missing-equals]
+    """
+    A list of the blobs found in an image
+
+    Created by :meth:`Image.blobs`.  It can be indexed, sliced and iterated over, and
+    has properties for the area, centroid, perimeter and other features of each blob.
+    """
+
     _image: list[Any] = []  # keep image saved for each Blobs object
 
     def __init__(
@@ -1814,11 +1821,11 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         idx = np.argmax(out, axis=1)
         return [out[k, idx[k]] for k in range(len(self))], idx / n
 
-    def plot_box(self, *args, **kwargs: Any) -> None:
+    def plot_box(self, *args: Any, **kwargs: Any) -> None:
         """
         Plot a bounding box for the blob using Matplotlib
 
-        :param arg:
+        :param args: optional Matplotlib format string, such as ``"r--"``
         :param kwargs: arguments passed to ``plot_box``
 
         Plot the bounding box of a blob or blobs on the current Matplotlib axes.
@@ -1855,10 +1862,13 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         for blob in self:
             smb.plot_box(lrbt=blob.bbox, **options)
 
-    def plot_labelbox(self, fmt=None, label: str = "{:d}", **kwargs: Any) -> None:
+    def plot_labelbox(
+        self, fmt: str | None = None, label: str = "{:d}", **kwargs: Any
+    ) -> None:
         """
         Plot a labelled bounding box of blobs using Matplotlib
 
+        :param fmt: Matplotlib format string, passed to ``plot_labelbox``
         :param label: label to be displayed on the bounding box, defaults to blob id
         :type label: str or bool, optional
         :param kwargs: arguments passed to ``plot_labelbox``
@@ -1898,12 +1908,13 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
                 text=label.format(blob.id), fmt=fmt, lrbt=blob.bbox, **options
             )
 
-    def plot_centroid(self, *args, label: bool = False, **kwargs: Any) -> None:
+    def plot_centroid(self, *args: Any, label: bool = False, **kwargs: Any) -> None:
         """
         Plot the centroid of blobs using Matplotlib
 
         :param label: add a sequential numeric label to each point, defaults to False
         :type label: bool
+        :param args: optional marker, such as ``'bx'``, which sets ``marker`` in ``kwargs``
         :param kwargs: other arguments passed to ``plot_point``
 
                 Plot the major and minor axes of a blob or blobs on the current Matplotlib axes.
@@ -1952,7 +1963,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
     def plot_perimeter(
         self,
-        *args,
+        *args: Any,
         show: str = "full",
         epsilon: int | None = None,
         clockwise: bool = True,
@@ -1967,6 +1978,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         :type epsilon: int  (only for ``show="approx"``)
         :param clockwise: direction of travel for computing the hull, defaults to clockwise
         :type clockwise: bool (only for ``show="hull"``)
+        :param args: optional Matplotlib format string, such as ``"r--"``
         :param kwargs: line style parameters passed to ``plot``
 
         Plots the perimeter of blob or blobs on the current Matplotlib axes.
@@ -2013,10 +2025,11 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         for perim in perims:
             plt.plot(perim[0], perim[1], **options)
 
-    def plot_ellipse(self, *args, **kwargs: Any) -> None:
+    def plot_ellipse(self, *args: Any, **kwargs: Any) -> None:
         """
         Plot the equivalent ellipses of blobs using Matplotlib
 
+        :param args: optional Matplotlib format string, such as ``"r--"``
         :param kwargs: line style parameters passed to ``plot``
 
         Plots the equivalent ellipses of blob or blobs on the current
@@ -2086,10 +2099,11 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             frames.append(SE2(blob.uc, blob.vc, blob.orientation))
         return frames
 
-    def plot_axes(self, *args, **kwargs: Any) -> None:
+    def plot_axes(self, *args: Any, **kwargs: Any) -> None:
         """
         Plot equivalent ellipse axes of blobs using Matplotlib
 
+        :param args: optional Matplotlib format string, such as ``"r--"``
         :param kwargs: line style parameters passed to ``plot``
 
         Plot the major and minor axes of a blob or blobs on the current Matplotlib axes.
@@ -2196,10 +2210,11 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         return boxes
 
-    def plot_aligned_box(self, *args, **kwargs: Any) -> None:
+    def plot_aligned_box(self, *args: Any, **kwargs: Any) -> None:
         """
         Plot aligned rectangles of blobs using Matplotlib
 
+        :param args: optional Matplotlib format string, such as ``"r--"``
         :param kwargs: line style parameters passed to ``plot``
 
         Compute the minimal enclosing box whose sides are parallel to the axes of the
@@ -2241,10 +2256,11 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         for box in boxes:
             smb.plot_polygon(box[2], *args, close=True, **options)
 
-    def plot_MEC(self, *args, **kwargs: Any) -> None:
+    def plot_MEC(self, *args: Any, **kwargs: Any) -> None:
         """
         Plot minimum enclosing circles of blobs using Matplotlib
 
+        :param args: optional Matplotlib format string, such as ``"r--"``
         :param kwargs: line style parameters passed to ``plot``
 
         Plots the minimum enclosing circles of blob or blobs on the current
@@ -2284,10 +2300,11 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         for mec in mecs:
             smb.plot_circle(mec[2], mec[:2], *args, **options)
 
-    def plot_MER(self, *args, **kwargs: Any) -> None:
+    def plot_MER(self, *args: Any, **kwargs: Any) -> None:
         """
         Plot minimum enclosing rectangles of blobs using Matplotlib
 
+        :param args: optional Matplotlib format string, such as ``"r--"``
         :param kwargs: line style parameters passed to ``plot``
 
         Plots the minimum enclosing rectangles of blob or blobs on the current
@@ -2628,7 +2645,11 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
 
 class ImageBlobsMixin(ImageMixinBase):
-    def blobs(self, **kwargs) -> Blobs:
+    """
+    Methods of :class:`Image` that find blobs
+    """
+
+    def blobs(self, **kwargs: Any) -> Blobs:
         """
         Find and describe blobs in image
 

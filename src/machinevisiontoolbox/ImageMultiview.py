@@ -4,7 +4,6 @@ Multi-view geometry operations: homography, stereo, and epipolar methods.
 
 from __future__ import annotations
 
-import sys
 from typing import TYPE_CHECKING, Any
 
 import cv2
@@ -12,10 +11,7 @@ import numpy as np
 
 from machinevisiontoolbox._image_typing import ImageMixinBase
 
-if sys.version_info >= (3, 11):
-    from typing import Self
-else:
-    from typing_extensions import Self
+from typing import Self
 
 if TYPE_CHECKING:
     from machinevisiontoolbox.ImageCore import Image
