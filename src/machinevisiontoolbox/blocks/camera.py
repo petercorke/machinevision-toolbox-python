@@ -245,16 +245,18 @@ class ImagePlane(GraphicsBlock):
         self.init = init
         self.retain = retain
 
-        super().__init__(nin=1, **blockargs)
+        # watch is passed to the base class, which adds the input signals to the
+        # watchlist when the simulation starts
+        super().__init__(nin=1, watch=watch, **blockargs)
 
         self.grid = grid
-
-        self.watch = watch
 
         # TODO, wire width
         # inherit names from wires, block needs to be able to introspect
 
     def start(self, simstate):
+        # the base class creates the figure and axes, and registers the input
+        # signals for watching if watch=True
         super().start(simstate)
 
         # init the arrays that hold the data
@@ -262,9 +264,10 @@ class ImagePlane(GraphicsBlock):
         self.v_data = []
         self.t_data = []
 
-        # create the figures
-        self.fig = self.create_figure(simstate)
-        self.ax = self.fig.add_subplot(111)
+        if not self._enabled:
+            # graphics are turned off for this run
+            return
+
         self.camera._init_imageplane(ax=self.ax)
 
         self.ax.set_title(self.name_tex)
@@ -280,16 +283,11 @@ class ImagePlane(GraphicsBlock):
         if self.init is not None:
             self.init(self.camera)
 
-        if self.watch:
-            for wire in self.inports:
-                plug = wire.start  # start plug for input wire
-
-                # append to the watchlist, bdsim.run() will do the rest
-                simstate.watchlist.append(plug)
-                simstate.watchnamelist.append(str(plug))
-
-    def step(self, t, inports):
-        # inputs are set
+    def record(self, t, inports):
+        # called for every accepted sample, whereas step() may be called less often
+        # just to refresh the display
+        if not self._enabled:
+            return
         self.t_data.append(t)
         u, v = inports[0]
 
@@ -299,6 +297,10 @@ class ImagePlane(GraphicsBlock):
         else:
             self.u_data = u
             self.v_data = v
+
+    def step(self, t, inports):
+        if not self._enabled:
+            return
 
         self.line.set_data(self.u_data, self.v_data)
 
