@@ -1,6 +1,3 @@
-from bdsim.components import FunctionBlock
-from bdsim.graphics import GraphicsBlock
-
 """
 Machine Vision blocks:
 - have inputs and outputs
@@ -8,6 +5,15 @@ Machine Vision blocks:
 - are a subclass of ``TransferBlock`` |rarr| ``Block`` for dynamics and have states
 
 """
+
+from typing import Any, Callable
+
+import numpy as np
+from bdsim.components import FunctionBlock, SimulationState
+from bdsim.graphics import GraphicsBlock
+
+from machinevisiontoolbox.Camera import CameraBase, CentralCamera
+
 # The constructor of each class ``MyClass`` with a ``@block`` decorator becomes a method ``MYCLASS()`` of the BlockDiagram instance.
 
 
@@ -24,12 +30,17 @@ class Camera(FunctionBlock):
     inlabels = ("P", "ξ")
     outlabels = ("p",)
 
-    def __init__(self, camera=None, args={}, **blockargs):
+    def __init__(
+        self,
+        camera: CameraBase | None = None,
+        args: dict[str, Any] = {},
+        **blockargs: Any,
+    ) -> None:
         """
-        :param camera: Camera model, defaults to None
-        :type camera: Camera subclass, optional
+        :param camera: camera model, a subclass of :class:`~machinevisiontoolbox.Camera.CameraBase`
+        :param args: not used
         :param blockargs: Additional options for the block, passed as a dictionary
-        :type blockargs: dict
+        :raises ValueError: if ``camera`` is None
         :return: a CAMERA block
         :rtype: Camera instance
 
@@ -37,8 +48,8 @@ class Camera(FunctionBlock):
 
         **Block ports**
 
-            :input pose: Camera pose as an SE3 object.
             :input P: world points as ndarray(3,N)
+            :input ξ: camera pose as an SE3 object
 
             :output p: image plane points as ndarray(2,N)
         """
@@ -49,7 +60,7 @@ class Camera(FunctionBlock):
 
         self.camera = camera
 
-    def output(self, t, inports, x):
+    def output(self, t: float, inports: list[Any], x: np.ndarray) -> list[Any]:
         return [self.camera.project_point(inports[0], pose=inports[1])]
 
 
@@ -68,24 +79,34 @@ class Visjac_p(FunctionBlock):
     inlabels = ("p",)
     outlabels = ("J",)
 
-    def __init__(self, camera, depth=1, depthest=False, **blockargs):
+    def __init__(
+        self,
+        camera: CentralCamera,
+        depth: float | np.ndarray = 1,
+        depthest: bool = False,
+        **blockargs: Any,
+    ) -> None:
         """
-        :param camera: Camera model, defaults to None
-        :type camera: Camera subclass, optional
-        :param depth: Point depth
-        :type depth: float or ndarray
+        :param camera: camera model
+        :param depth: point depth, a scalar or one value per point
+        :type depth: float or ndarray(N)
         :param depthest: use depth estimation, not implemented so it must be
             False (the default).  Give the depth with ``depth``.
-        :type depthest: bool, optional
         :param blockargs: Additional options for the block, passed as a dictionary
-        :type blockargs: dict
-        :return: a VISJAC_P block
-        :rtype: Visjac_p instance
         :raises ValueError: if ``camera`` is None
         :raises NotImplementedError: if ``depthest`` is True
+        :return: a VISJAC_P block
+        :rtype: Visjac_p instance
 
         Computes the image Jacobian (interaction matrix) of the image plane
-        points on its input, using the same ``depth`` for every point.
+        points on its input, using the same ``depth`` for every point, see
+        :meth:`~machinevisiontoolbox.Camera.CentralCamera.visjac_p`.
+
+        **Block ports**
+
+            :input p: image plane points as ndarray(2,N)
+
+            :output J: image Jacobian as ndarray(2N,6)
 
         .. versionchanged:: 2.5.0
             ``depthest=True`` raises :class:`NotImplementedError`.  It was
@@ -108,7 +129,7 @@ class Visjac_p(FunctionBlock):
         self.depthest = depthest
         self.depth = depth
 
-    def output(self, t, inports, x):
+    def output(self, t: float, inports: list[Any], x: np.ndarray) -> list[Any]:
         J = self.camera.visjac_p(inports[0], self.depth)
         return [J]
 
@@ -128,18 +149,21 @@ class EstPose_p(FunctionBlock):
     inlabels = ("p",)
     outlabels = ("ξ",)
 
-    def __init__(self, camera, P, frame="world", method="iterative", **blockargs):
+    def __init__(
+        self,
+        camera: CentralCamera,
+        P: np.ndarray,
+        frame: str = "world",
+        method: str = "iterative",
+        **blockargs: Any,
+    ) -> None:
         """
-        :param camera: Camera model, defaults to None
-        :type camera: Camera subclass, optional
-        :param P: World point coordinates
-        :type P: ndarray(2,N)
+        :param camera: camera model
+        :param P: world point coordinates
+        :type P: ndarray(3,N)
         :param frame: return pose of points with respect to reference frame which is one of: 'world' [default] or 'camera'
-        :type frame: str, optional
         :param method: pose estimation algorithm one of: 'iterative' [default], 'epnp', 'p3p', 'ap3p', 'ippe', 'ippe-square'
-        :type method: str, optional
         :param blockargs: Additional options for the block, passed as a dictionary
-        :type blockargs: dict
         :return: a ESTPOSE_P block
         :rtype: EstPose_p instance
         :raises ValueError: if ``camera`` is None or ``frame`` is not ``"world"`` or ``"camera"``
@@ -162,7 +186,7 @@ class EstPose_p(FunctionBlock):
         self.frame = frame
         self.method = method
 
-    def output(self, t, inports, x):
+    def output(self, t: float, inports: list[Any], x: np.ndarray) -> list[Any]:
         p = inports[0]
         T = self.camera.estpose(self.P, p, method=self.method, frame=self.frame)
         return [T]
@@ -183,48 +207,51 @@ class ImagePlane(GraphicsBlock):
 
     def __init__(
         self,
-        camera,
-        style=None,
-        labels=None,
-        grid=True,
-        retain=False,
-        watch=False,
-        init=None,
-        **blockargs,
-    ):
+        camera: CameraBase,
+        style: str | dict[str, Any] | None = None,
+        labels: Any = None,
+        grid: bool | list[Any] | tuple[Any, ...] = True,
+        retain: bool = False,
+        watch: bool = False,
+        init: Callable[[CameraBase], None] | None = None,
+        **blockargs: Any,
+    ) -> None:
         """
         Create a block that plots image plane coordinates.
 
-        :param camera: a camera model
-        :type camera: Camera instance
-        :param style: styles for each point to be plotted
-        :type style: str or dict, list of strings or dicts; one per line, optional
-        :param grid: draw a grid, defaults to True. Can be boolean or a tuple of
-                     options for grid()
-        :type grid: bool or sequence
+        :param camera: camera model, which draws the image plane
+        :param style: style for the points to be plotted, a dict of Matplotlib
+            line properties which is added to the default style, or a format
+            string such as ``"r*"``
+        :param labels: not used
+        :param grid: draw a grid, defaults to True.  Can be a bool or a tuple of
+            options for ``grid()``
         :param retain: keep previous image plane points, defaults to False
-        :type retain: bool, optional
-        :param watch: add these signals to the watchlist, defaults to False
-        :type watch: bool, optional
-        :param init: function to initialize the graphics, defaults to None
-        :type init: callable, optional
+        :param watch: add the input signal to the watchlist, defaults to False
+        :param init: function to initialize the graphics, called once with the
+            camera when the simulation starts, defaults to None
         :param blockargs: Additional options for the block, passed as a dictionary
-        :type blockargs: dict
+        :raises ValueError: if ``camera`` is None or ``style`` is not a str or dict
         :return: An IMAGEPLANE block
         :rtype: ImagePlane instance
 
         Create a block that plots points on a camera object's virtual image plane.
 
+        **Block ports**
+
+            :input p: image plane points as ndarray(2,N)
+
         Examples::
 
-            SCOPE()
-            SCOPE(nin=2)
-            SCOPE(nin=2, scale=[-1,2])
-            SCOPE(styles='k--')
-            SCOPE(styles=[{'color': 'blue'}, {'color': 'red', 'linestyle': '--'}])
-            SCOPE(styles=['k', 'r--'])
+            IMAGEPLANE(camera)
+            IMAGEPLANE(camera, style="r*")
+            IMAGEPLANE(camera, style=dict(marker="s", markersize=9), retain=True)
+            IMAGEPLANE(camera, grid=False)
 
-
+        .. versionchanged:: 2.5.0
+            Works with the graphics block interface of bdsim 1.5: ``watch=True``
+            no longer fails, only one figure is opened, and nothing is drawn when
+            graphics are turned off.
         """
         if camera is None:
             raise ValueError("camera is not defined")
@@ -241,8 +268,8 @@ class ImagePlane(GraphicsBlock):
                 markeredgecolor="black",
                 markerfacecolor="black",
             )
-            self.kwargs = {**default_style, **style}
-            self.args = []
+            self.kwargs: dict[str, Any] = {**default_style, **style}
+            self.args: list[str] = []
         elif isinstance(style, str):
             self.args = [style]
             self.kwargs = {}
@@ -263,15 +290,15 @@ class ImagePlane(GraphicsBlock):
         # TODO, wire width
         # inherit names from wires, block needs to be able to introspect
 
-    def start(self, simstate):
+    def start(self, simstate: SimulationState) -> None:
         # the base class creates the figure and axes, and registers the input
         # signals for watching if watch=True
         super().start(simstate)
 
         # init the arrays that hold the data
-        self.u_data = []
-        self.v_data = []
-        self.t_data = []
+        self.u_data: Any = []
+        self.v_data: Any = []
+        self.t_data: list[float] = []
 
         if not self._enabled:
             # graphics are turned off for this run
@@ -292,7 +319,7 @@ class ImagePlane(GraphicsBlock):
         if self.init is not None:
             self.init(self.camera)
 
-    def record(self, t, inports):
+    def record(self, t: float, inports: list[Any]) -> None:
         # called for every accepted sample, whereas step() may be called less often
         # just to refresh the display
         if not self._enabled:
@@ -307,7 +334,7 @@ class ImagePlane(GraphicsBlock):
             self.u_data = u
             self.v_data = v
 
-    def step(self, t, inports):
+    def step(self, t: float, inports: list[Any]) -> None:
         if not self._enabled:
             return
 

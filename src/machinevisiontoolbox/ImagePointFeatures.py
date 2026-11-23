@@ -4,6 +4,7 @@ Detection and matching of keypoint and descriptor features (SIFT, ORB, etc.) in 
 
 import builtins
 import math
+from collections.abc import Sequence
 from typing import TYPE_CHECKING, Any, Iterator
 
 import cv2
@@ -109,12 +110,14 @@ class BaseFeature2D:
         """
         return len(self._kp)  # Number of features (base method)
 
-    def __getitem__(self, i) -> "BaseFeature2D":
+    def __getitem__(
+        self, i: int | slice | Sequence[int] | np.ndarray
+    ) -> "BaseFeature2D":
         """
         Get item from point feature object (base method)
 
         :param i: index
-        :type i: int or slice
+        :type i: int, slice, sequence of int, or ndarray of int or bool
         :raises IndexError: index out of range
         :return: subset of point features
         :rtype: BaseFeature2D instance
@@ -365,7 +368,9 @@ class BaseFeature2D:
             new._descriptor = np.vstack((self._descriptor, other._descriptor))
         return new
 
-    def __radd__(self, other) -> "BaseFeature2D":
+    def __radd__(
+        self, other: "BaseFeature2D | builtins.list | int | None"
+    ) -> "BaseFeature2D":
         """
         Add feature sets
 
@@ -1343,7 +1348,21 @@ class BaseFeature2D:
 
 
 class FeatureMatch:
-    def __init__(self, m, fv1: BaseFeature2D, fv2: BaseFeature2D, inliers=None) -> None:
+    """
+    A set of matches between two sets of point features
+
+    Returned by :meth:`BaseFeature2D.match`.  It can be indexed, sliced and
+    iterated over, and has the corresponding points ``p1`` and ``p2`` and the
+    match ``distance``.  Inlier and outlier status is set by :meth:`estimate`.
+    """
+
+    def __init__(
+        self,
+        m: list[tuple[int, int, float]],
+        fv1: BaseFeature2D,
+        fv2: BaseFeature2D,
+        inliers: Sequence[bool] | np.ndarray | None = None,
+    ) -> None:
         """
         Create feature match object
 
@@ -1380,12 +1399,14 @@ class FeatureMatch:
         self._inverse_dict1: dict[int, int] | None = None
         self._inverse_dict2: dict[int, int] | None = None
 
-    def __getitem__(self, i) -> "FeatureMatch":
+    def __getitem__(
+        self, i: int | slice | Sequence[int] | np.ndarray
+    ) -> "FeatureMatch":
         """
         Get matches from feature match object
 
         :param i: match subset
-        :type i: int or Slice
+        :type i: int, slice, sequence of int, or ndarray of int or bool
         :raises IndexError: index out of range
         :return: subset of matches
         :rtype: Match instance
@@ -1429,7 +1450,9 @@ class FeatureMatch:
             raise ValueError(
                 f"index must be an int, slice, sequence or array, got {type(i).__name__}"
             )
-        return FeatureMatch(matches, self._kp1, self._kp2, inliers)
+        # an int index leaves a bare bool in inliers, and a bool or int array index
+        # leaves a list, which later fail in outliers: to be fixed separately
+        return FeatureMatch(matches, self._kp1, self._kp2, inliers)  # type: ignore[arg-type]
 
     def __len__(self) -> int:
         """
@@ -1715,7 +1738,7 @@ class FeatureMatch:
         """
         if self._inliers is None:
             raise ValueError("inlier status has not been set")
-        return self[~self._inliers]
+        return self[~self._inliers]  # type: ignore[operator]  # a list after fancy indexing
 
     def subset(self, N: int = 100) -> "FeatureMatch":
         """
@@ -1788,6 +1811,18 @@ class FeatureMatch:
     def plot_correspondence(
         self, *arg: Any, offset: tuple[int | float, int | float] = (0, 0), **kwargs: Any
     ) -> None:
+        """
+        Plot lines joining corresponding points
+
+        :param arg: line style passed to Matplotlib, for example ``"g"``
+        :param offset: offset (u,v) added to the points of the second set, for example
+            the width of the first image when the two are shown side by side,
+            defaults to (0, 0)
+        :param kwargs: options passed to :func:`matplotlib.pyplot.plot`
+
+        Draws a line from each point in the first set to its match in the second
+        set, in the current figure.
+        """
         p1 = self.p1
         p2 = self.p2
         plt.plot(
@@ -1801,6 +1836,28 @@ class FeatureMatch:
     def estimate(
         self, func: Any, method: str = "ransac", **args: Any
     ) -> tuple[Any, ...]:
+        """
+        Estimate a geometric relationship from the matches
+
+        :param func: estimation function, for example
+            :meth:`~machinevisiontoolbox.Camera.CentralCamera.points2F` or
+            :meth:`~machinevisiontoolbox.Camera.CentralCamera.points2H`
+        :param method: robust estimation method passed to ``func``, defaults to ``"ransac"``
+        :param args: further options passed to ``func``
+        :return: the estimate and any other values that ``func`` returns, but not
+            the inlier mask
+
+        Calls ``func(p1, p2, method=method, **args)`` with the corresponding points.
+        The last value that ``func`` returns is the inlier mask, which is kept as
+        the inlier status of the matches (see :attr:`inliers` and :attr:`outliers`)
+        and is not returned.
+
+        Example:
+
+        .. code-block:: python
+
+            F, resid = matches.estimate(CentralCamera.points2F, method="ransac", confidence=0.95)
+        """
         solution = func(self.p1, self.p2, method=method, **args)
         self._inliers = solution[-1]
 
@@ -2146,15 +2203,19 @@ def _SURF_create(**kwargs: Any) -> Any:
 
 
 class ImagePointFeaturesMixin(ImageMixinBase):
+    """
+    Methods of :class:`Image` that find point features, such as SIFT, ORB and Harris
+    """
+
     def _image2feature(
         self,
-        cls,
-        sortby=None,
-        nfeat=None,
-        id="image",
-        scale=False,
-        orient=False,
-        **kwargs,
+        cls: type[BaseFeature2D],
+        sortby: str | None = None,
+        nfeat: int | None = None,
+        id: str | int = "image",
+        scale: bool = False,
+        orient: bool = False,
+        **kwargs: Any,
     ) -> Any:
         # https://datascience.stackexchange.com/questions/43213/freak-feature-extraction-opencv
         algorithms: dict[str, Any] = {
