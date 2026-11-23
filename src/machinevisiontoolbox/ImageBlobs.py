@@ -2270,7 +2270,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         if not isinstance(boxes, list):
             boxes = [boxes]
         for box in boxes:
-            smb.plot_polygon(box[2], *args, close=True, **options)
+            smb.plot_polygon(box[2], close=True, **options)
 
     def plot_MEC(self, *args: Any, **kwargs: Any) -> None:
         """
@@ -2316,7 +2316,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         if not isinstance(mecs, list):
             mecs = [mecs]
         for mec in mecs:
-            smb.plot_circle(mec[2], mec[:2], *args, **options)
+            smb.plot_circle(mec[2], mec[:2], **options)
 
     def plot_MER(self, *args: Any, **kwargs: Any) -> None:
         """
@@ -2367,7 +2367,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             box = np.array([[w, h], [w, -h], [-w, -h], [-w, h], [w, h]]).T / 2.0
             T = SE2(float(mer[0]), float(mer[1]), float(np.radians(mer[4])))
             box = np.asarray(T * box)
-            smb.plot_polygon(box[:2, :], *args, **options)
+            smb.plot_polygon(box[:2, :], **options)
 
     def label_image(self, image: Any = None) -> Any:
         """
