@@ -18,6 +18,8 @@ import numpy as np
 import scipy as sp
 import spatialmath.base as smb
 from ansitable import ANSITable, Column
+from matplotlib.lines import Line2D
+from matplotlib.patches import Patch
 from spatialmath import SE2
 
 from machinevisiontoolbox._image_typing import ImageMixinBase
@@ -1858,7 +1860,9 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         :seealso: :meth:`plot_labelbox` :meth:`plot_centroid` :meth:`plot_perimeter` :func:`~machinevisiontoolbox.base.graphics.plot_box`
         """
-        options = mpl_styling(args, dict(color="yellow", linewidth=2), kwargs)
+        options = mpl_styling(
+            args, dict(color="yellow", linewidth=2), kwargs, artist=Patch
+        )
         for blob in self:
             smb.plot_box(lrbt=blob.bbox, **options)
 
@@ -1902,7 +1906,9 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         :seealso: :meth:`plot_box` :meth:`plot_centroid` :meth:`plot_perimeter`
             :func:`~machinevisiontoolbox.base.graphics.plot_labelbox`
         """
-        options = mpl_styling(fmt, dict(color="yellow", linewidth=2), kwargs)
+        options = mpl_styling(
+            fmt, dict(color="yellow", linewidth=2), kwargs, artist=Patch
+        )
         for blob in self:
             plot_labelbox(
                 text=label.format(blob.id), fmt=fmt, lrbt=blob.bbox, **options
@@ -2009,7 +2015,9 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         :seealso: :meth:`perimeter` :meth:`perimeter_approx` :meth:`perimeter_hull` :meth:`plot_box` :meth:`plot_centroid`
         """
-        options = mpl_styling(args, dict(color="yellow", linewidth=2), kwargs)
+        options = mpl_styling(
+            args, dict(color="yellow", linewidth=2), kwargs, artist=Line2D
+        )
 
         if show == "full":
             perims = self.perimeter
@@ -2061,7 +2069,9 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         :seealso: :meth:`plot_axes` :meth:`plot_box` :meth:`plot_centroid` :func:`~spatialmath.base.plot_ellipse`
         """
-        options = mpl_styling(args, dict(color="cyan", linewidth=2), kwargs)
+        options = mpl_styling(
+            args, dict(color="cyan", linewidth=2), kwargs, artist=Line2D
+        )
 
         for blob in self:
             m = blob.moments
@@ -2136,8 +2146,12 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         :seealso: :meth:`plot_ellipse` :meth:`plot_box` :meth:`plot_centroid`
         """
-        a_options = mpl_styling(args, dict(color="red", linewidth=2), kwargs)
-        b_options = mpl_styling(args, dict(color="green", linewidth=2), kwargs)
+        a_options = mpl_styling(
+            args, dict(color="red", linewidth=2), kwargs, artist=Line2D
+        )
+        b_options = mpl_styling(
+            args, dict(color="green", linewidth=2), kwargs, artist=Line2D
+        )
 
         for blob in self:
             T = SE2(blob.uc, blob.vc, blob.orientation)
@@ -2248,7 +2262,9 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         :seealso: :meth:`plot_box` :meth:`plot_MER`:meth:`plot_centroid`
         """
-        options = mpl_styling(args, dict(color="yellow", linewidth=2), kwargs)
+        options = mpl_styling(
+            args, dict(color="yellow", linewidth=2), kwargs, artist=Line2D
+        )
 
         boxes = self.aligned_box()
         if not isinstance(boxes, list):
@@ -2292,7 +2308,9 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         :seealso: :meth:`MEC` :meth:`plot_MER` :meth:`plot_box` :meth:`plot_centroid`
         """
-        options = mpl_styling(args, dict(color="yellow", linewidth=2), kwargs)
+        options = mpl_styling(
+            args, dict(color="yellow", linewidth=2), kwargs, artist=Line2D
+        )
 
         mecs = self.MEC
         if not isinstance(mecs, list):
@@ -2336,7 +2354,9 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         :seealso: :meth:`MER` :meth:`MEC` :meth:`plot_box` :meth:`plot_aligned_box` :meth:`plot_centroid`
         """
-        options = mpl_styling(args, dict(color="yellow", linewidth=2), kwargs)
+        options = mpl_styling(
+            args, dict(color="yellow", linewidth=2), kwargs, artist=Line2D
+        )
 
         mers = self.MER
         if not isinstance(mers, list):
