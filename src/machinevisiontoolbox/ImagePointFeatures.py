@@ -1395,7 +1395,10 @@ class FeatureMatch:
         self._matches = m
         self._kp1 = fv1
         self._kp2 = fv2
-        self._inliers = inliers
+        # always an ndarray of bool, or None if the status has not been set
+        self._inliers: np.ndarray | None = (
+            None if inliers is None else np.asarray(inliers, dtype=bool)
+        )
         self._inverse_dict1: dict[int, int] | None = None
         self._inverse_dict2: dict[int, int] | None = None
 
@@ -1426,33 +1429,34 @@ class FeatureMatch:
 
         :seealso: :meth:`.__len__`
         """
-        inliers = None
+        if not isinstance(i, (int, slice, np.ndarray)):
+            if isinstance(i, (str, bytes)) or not isinstance(i, Sequence):
+                raise ValueError(
+                    f"index must be an int, slice, sequence or array, got {type(i).__name__}"
+                )
+            # a list or tuple of ints or bools
+            i = np.asarray(i)
+            if i.size == 0:
+                i = i.astype(int)
+
         if isinstance(i, int):
             matches = [self._matches[i]]
-            if self._inliers is not None:
-                inliers = self._inliers[i]
+            select: Any = [i]
         elif isinstance(i, slice):
             matches = self._matches[i]
-            if self._inliers is not None:
-                inliers = self._inliers[i]
-        elif isinstance(i, np.ndarray):
-            if np.issubdtype(i.dtype, bool):
-                matches = [m for m, g in zip(self._matches, i) if g]
-                if self._inliers is not None:
-                    inliers = [m for m, g in zip(self._inliers, i) if g]
-            elif np.issubdtype(i.dtype, np.integer):
-                matches = [self._matches[k] for k in i]
-                if self._inliers is not None:
-                    inliers = [self._inliers[k] for k in i]
-            else:
-                raise ValueError(f"index array must be integer or bool, got {i.dtype}")
+            select = i
+        elif np.issubdtype(i.dtype, bool):
+            matches = [m for m, g in zip(self._matches, i) if g]
+            select = i
+        elif np.issubdtype(i.dtype, np.integer):
+            matches = [self._matches[k] for k in i]
+            select = i
         else:
-            raise ValueError(
-                f"index must be an int, slice, sequence or array, got {type(i).__name__}"
-            )
-        # an int index leaves a bare bool in inliers, and a bool or int array index
-        # leaves a list, which later fail in outliers: to be fixed separately
-        return FeatureMatch(matches, self._kp1, self._kp2, inliers)  # type: ignore[arg-type]
+            raise ValueError(f"index array must be integer or bool, got {i.dtype}")
+
+        # indexing the array keeps the inlier status an ndarray, whatever the index
+        inliers = None if self._inliers is None else self._inliers[select]
+        return FeatureMatch(matches, self._kp1, self._kp2, inliers)
 
     def __len__(self) -> int:
         """
@@ -1635,17 +1639,23 @@ class FeatureMatch:
 
     @property
     @scalar_result
-    def status(self) -> str:
+    def status(self) -> "builtins.list[str]":
         """
         Inlier status of matches
 
-        :return: inlier status of matches
-        :rtype: bool
+        :return: ``"+"`` for an inlier and ``"-"`` for an outlier, or ``""`` if the
+            status has not been set
+        :rtype: str or ndarray(N) of str
+
+        A single string for one match, otherwise an array with one string per match.
+
+        .. versionchanged:: 2.5.0
+            Works for more than one match.  It used to raise ``ValueError``.
         """
         if self._inliers is not None:
-            return "+" if self._inliers else "-"
+            return ["+" if inlier else "-" for inlier in self._inliers]
         else:
-            return ""
+            return [""] * len(self)
 
     def list(self) -> None:
         """
@@ -1738,7 +1748,7 @@ class FeatureMatch:
         """
         if self._inliers is None:
             raise ValueError("inlier status has not been set")
-        return self[~self._inliers]  # type: ignore[operator]  # a list after fancy indexing
+        return self[~self._inliers]
 
     def subset(self, N: int = 100) -> "FeatureMatch":
         """
