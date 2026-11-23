@@ -706,7 +706,7 @@ def _loadrgbdict(fname: str) -> dict[str, np.ndarray]:
     """
 
     if not isinstance(fname, str):
-        raise ValueError(fname, "file name must be a string")
+        raise ValueError(f"file name must be a string, got {fname!r}")
 
     data = _loaddata(fname, comments="#", dtype=None, encoding="ascii")
 
@@ -796,7 +796,9 @@ def name2color(
             Lab = colorspace_convert(rgb, "rgb", "lab")
             return Lab[1:]
         else:
-            raise ValueError("unknown colorspace")
+            raise ValueError(
+                f"unknown colorspace {cs!r}, must be rgb, xyz, lab, xy or ab"
+            )
 
     if any([c in ".?*" for c in name]):
         # has a wildcard
@@ -890,7 +892,9 @@ def color2name(color: np.ndarray | list[float], colorspace: str = "RGB") -> str:
         k = np.nanargmin(dist)
         return list(colors.get_named_colors_mapping())[k]
     else:
-        raise ValueError("unknown colorspace")
+        raise ValueError(
+            f"unknown colorspace {colorspace!r}, must be rgb, xyz, lab, xy or ab"
+        )
 
 
 def colorname(
@@ -1160,7 +1164,7 @@ def plot_chromaticity_diagram(
         plt.xlabel("a*")
         plt.ylabel("b*")
     else:
-        raise ValueError("bad colorspace")
+        raise ValueError(f"unknown colorspace {colorspace!r}, must be xy or ab")
 
     set_window_title(plt.gcf(), "Chromaticity Diagram" if title is None else title)
 
@@ -1257,7 +1261,7 @@ def plot_spectral_locus(
             x = rgb[:, 0] / np.sum(rgb, axis=1)
             y = rgb[:, 1] / np.sum(rgb, axis=1)
         else:
-            raise ValueError("bad colorspace")
+            raise ValueError(f"unknown colorspace {colorspace!r}, must be xy or rg")
 
         ax.plot(x, y, "ko")
 

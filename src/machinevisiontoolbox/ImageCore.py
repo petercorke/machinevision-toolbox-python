@@ -2854,7 +2854,7 @@ class Image(
             return self.__class__(out, colororder=colororder)
 
         else:
-            raise ValueError("invalid slice")
+            raise ValueError(f"invalid index or slice {keys!r}")
 
     @staticmethod
     def _lenkey(key: int | slice, max: int) -> int:
@@ -3879,7 +3879,9 @@ class Image(
                     np.stack(out, axis=2), colororder=right.colororder
                 )
             else:
-                raise ValueError("planes mismatch")
+                raise ValueError(
+                    f"images have different numbers of planes, {left.nplanes} and {right.nplanes}"
+                )
         else:
             # right is a scalar or numpy array
             return left.__class__(op(left._A, right), colororder=left.colororder)

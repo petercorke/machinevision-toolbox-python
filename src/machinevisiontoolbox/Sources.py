@@ -160,7 +160,9 @@ def _image_payload_end(raw: bytes, msgtype: str, cdr: bool = False) -> int | Non
         if cdr:
             pos += (-(pos - origin)) % 4  # CDR aligns fields to their size
         if pos + 4 > len(raw):
-            raise ValueError("truncated")
+            raise ValueError(
+                f"message truncated: need {pos + 4} bytes, have {len(raw)}"
+            )
         value = struct.unpack_from(order + "I", raw, pos)[0]
         pos += 4
         return value
@@ -169,7 +171,9 @@ def _image_payload_end(raw: bytes, msgtype: str, cdr: bool = False) -> int | Non
         nonlocal pos
         pos += n
         if pos > len(raw):
-            raise ValueError("truncated")
+            raise ValueError(
+                f"message truncated: need {pos} bytes, have {len(raw)}"
+            )
 
     try:
         if cdr:

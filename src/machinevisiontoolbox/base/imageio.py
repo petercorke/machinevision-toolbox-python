@@ -1200,7 +1200,7 @@ def iread(
     try:
         return next(iterator)
     except StopIteration as exc:
-        raise ValueError(filename, "invalid filename") from exc
+        raise ValueError(f"invalid filename, got {filename!r}") from exc
 
 
 def iread_iter(
@@ -1277,7 +1277,7 @@ def iread_iter(
         return
 
     else:
-        raise ValueError(filename, "invalid filename")
+        raise ValueError(f"invalid filename, got {filename!r}")
 
 
 def convert(

@@ -87,7 +87,9 @@ class ImageSpatialMixin(ImageMixinBase):
         try:
             return border_opt[border]
         except KeyError:
-            raise ValueError(border, "border is not a valid option")
+            raise ValueError(
+                f"border must be one of {list(border_opt)}, got {border!r}"
+            )
 
     @staticmethod
     def _bordertype_sp(
@@ -122,7 +124,9 @@ class ImageSpatialMixin(ImageMixinBase):
         try:
             return border_opt[border]
         except KeyError:
-            raise ValueError(border, "border is not a valid option")
+            raise ValueError(
+                f"border must be one of {list(border_opt)}, got {border!r}"
+            )
 
     def smooth(
         self,
@@ -175,7 +179,7 @@ class ImageSpatialMixin(ImageMixinBase):
         """
 
         if not argcheck.isscalar(sigma):
-            raise ValueError(sigma, "sigma must be a scalar")
+            raise ValueError(f"sigma must be a scalar, got {sigma!r}")
 
         # make the smoothing kernel
         K = Kernel.Gauss(sigma, h)
@@ -288,7 +292,7 @@ class ImageSpatialMixin(ImageMixinBase):
         modeopt = ["valid", "same", "full"]
 
         if mode not in modeopt:
-            raise ValueError(mode, "opt is not a valid option")
+            raise ValueError(f"mode must be one of {modeopt}, got {mode!r}")
 
         self._opencv_type_check(
             self._A, "multiple-channel", "CV_8U", "CV_16U", "CV_16S", "CV_32F", "CV_64F"
@@ -514,7 +518,7 @@ class ImageSpatialMixin(ImageMixinBase):
             raise ValueError("single channel images only")
 
         if not callable(func):
-            raise TypeError(func, "func not callable")
+            raise TypeError(f"func not callable, got {func!r}")
 
         if h is not None and se is None:
             w = 2 * h + 1
@@ -679,15 +683,14 @@ class ImageSpatialMixin(ImageMixinBase):
         )
 
         if not argcheck.isscalar(sigma):
-            raise ValueError(sigma, "sigma must be a scalar")
+            raise ValueError(f"sigma must be a scalar, got {sigma!r}")
 
         if N is None:
             N = max(im.shape)
         else:
             if (not argcheck.isscalar(N)) and (N >= 0) and (N <= max(im.shape)):
                 raise ValueError(
-                    N,
-                    "N must be a scalar and 0 <= N <= max(im.shape)",
+                    f"N must be a scalar and 0 <= N <= max(im.shape), got {N!r}",
                 )
 
         # TODO options to accept different border types,
@@ -951,9 +954,9 @@ class ImageSpatialMixin(ImageMixinBase):
             elif rank in ("med", "median"):
                 rank = n // 2
             else:
-                raise ValueError(rank, "unknown rank name")
+                raise ValueError(f"unknown rank name, got {rank!r}")
         elif not isinstance(rank, int):
-            raise TypeError(rank, "rank must be int or str")
+            raise TypeError(f"rank must be int or str, got {rank!r}")
 
         if rank < 0:
             raise ValueError("rank must be >= 0")
@@ -1166,7 +1169,7 @@ class ImageSpatialMixin(ImageMixinBase):
             :meth:`labels_MSER`
         """
         if not (connectivity in [4, 8]):
-            raise ValueError(connectivity, "connectivity must be 4 or 8")
+            raise ValueError(f"connectivity must be 4 or 8, got {connectivity!r}")
 
         self._opencv_type_check(self._A, "single-channel", "CV_8U")
         # make labels uint32s, unique and never recycled?
@@ -1176,7 +1179,7 @@ class ImageSpatialMixin(ImageMixinBase):
         elif ltype == "uint16":
             cvtype = cv2.CV_16U
         else:
-            raise TypeError(ltype, "ltype must be either int32 or uint16")
+            raise TypeError(f"ltype must be either int32 or uint16, got {ltype!r}")
 
         retval, labels = cv2.connectedComponents(
             image=self.array_as("uint8"), connectivity=connectivity, ltype=cvtype

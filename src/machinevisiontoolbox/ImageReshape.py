@@ -579,7 +579,7 @@ class ImageReshapeMixin(ImageMixinBase):
         :seealso: :meth:`replicate` :meth:`scale`
         """
         if (m - np.ceil(m)) != 0:
-            raise ValueError(m, "decimation factor m must be an integer")
+            raise ValueError(f"decimation factor m must be an integer, got {m!r}")
 
         if sigma is None:
             sigma = m / 2
@@ -779,7 +779,7 @@ class ImageReshapeMixin(ImageMixinBase):
         """
         # check inputs
         if bias < 0 or bias > 1:
-            raise ValueError(bias, "bias must be in range [0, 1]")
+            raise ValueError(f"bias must be in range [0, 1], got {bias!r}")
 
         im = self._A
 
@@ -851,7 +851,7 @@ class ImageReshapeMixin(ImageMixinBase):
         """
         # check inputs
         if not smb.isscalar(sfactor):
-            raise TypeError(sfactor, "factor is not a scalar")
+            raise TypeError(f"factor is not a scalar, got {sfactor!r}")
 
         interp: int
         if interpolation is None:
@@ -924,7 +924,7 @@ class ImageReshapeMixin(ImageMixinBase):
         # using-opencv/
 
         if not smb.isscalar(angle):
-            raise ValueError(angle, "angle is not a valid scalar")
+            raise ValueError(f"angle is not a valid scalar, got {angle!r}")
 
         if center is not None and centre is None:
             centre = center

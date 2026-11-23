@@ -62,7 +62,7 @@ def mkgrid(
         sx = sidev[0]
         sy = sidev[1]
     else:
-        raise ValueError("bad s")
+        raise ValueError(f"side must have 1 or 2 elements, got {len(sidev)}")
 
     nv = smb.getvector(n)
     if len(nv) == 1:
