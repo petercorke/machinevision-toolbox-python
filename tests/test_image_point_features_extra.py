@@ -523,6 +523,60 @@ class TestFeatureMatchInliers:
         assert len(fmatch[np.array([True, False, True, False])]) == 2
         assert len(fmatch[np.array([0, 1])]) == 2
 
+    @pytest.mark.parametrize(
+        "index",
+        [
+            1,
+            slice(1, 3),
+            np.array([True, False, True, False]),
+            np.array([0, 3]),
+            [0, 3],
+            (1, 2),
+            [True, False, True, False],
+        ],
+    )
+    def test_inlier_status_stays_an_array_whatever_the_index(self, fmatch, index):
+        # indexing by an int used to leave a bare bool, and by an index array a
+        # list, so inliers and outliers then failed
+        fmatch._inliers = np.array([True, False, True, True])
+        sub = fmatch[index]
+        assert isinstance(sub._inliers, np.ndarray)
+        assert sub._inliers.dtype == bool
+        assert len(sub._inliers) == len(sub)
+        assert len(sub.inliers) + len(sub.outliers) == len(sub)
+
+    def test_inliers_and_outliers_of_a_selection(self, fmatch):
+        fmatch._inliers = np.array([True, False, True, True])
+        sub = fmatch[np.array([1, 2, 3])]
+        nt.assert_array_equal(sub.inliers.id1, [2, 3])
+        nt.assert_array_equal(sub.outliers.id1, [1])
+
+    def test_outliers_of_one_match(self, fmatch):
+        fmatch._inliers = np.array([True, False, True, True])
+        assert len(fmatch[1].outliers) == 1
+        assert len(fmatch[1].inliers) == 0
+        assert len(fmatch[0].outliers) == 0
+
+    def test_status_of_many_matches(self, fmatch):
+        # status used to raise ValueError for more than one match
+        fmatch._inliers = np.array([True, False, True, True])
+        nt.assert_array_equal(fmatch.status, ["+", "-", "+", "+"])
+
+    def test_status_of_many_matches_when_unknown(self, fmatch):
+        nt.assert_array_equal(fmatch.status, ["", "", "", ""])
+
+    def test_inliers_given_as_a_list(self, fmatch):
+        match = FeatureMatch(
+            [(0, 3, 0.5), (1, 2, 1.0)], fmatch._kp1, fmatch._kp2, [True, False]
+        )
+        assert isinstance(match._inliers, np.ndarray)
+        assert len(match.inliers) == 1
+
+    def test_index_by_a_list_or_tuple(self, fmatch):
+        nt.assert_array_equal(fmatch[[3, 0]].id1, [3, 0])
+        nt.assert_array_equal(fmatch[(1, 2)].id1, [1, 2])
+        assert len(fmatch[[]]) == 0
+
     def test_status_is_blank_when_unknown(self, fmatch):
         assert fmatch[0].status == ""
 
