@@ -15,6 +15,7 @@ import spatialmath.base as smb
 from matplotlib import cbook, colors
 from matplotlib.artist import Artist
 from matplotlib.patches import Patch, Rectangle
+from matplotlib.text import Text
 
 from machinevisiontoolbox.base import name2color
 
@@ -316,6 +317,7 @@ def plot_labelbox(
     textcolor: Any = None,
     labelcolor: Any = None,
     position: str = "topleft",
+    text_style: dict[str, Any] | None = None,
     **boxargs: Any,
 ) -> Rectangle:
     """
@@ -325,19 +327,31 @@ def plot_labelbox(
     :type text: str
     :param fmt: format string for the simply specifying the box edge style, eg. ``"y--"`` for a dashed yellow box
     :type fmt: str, optional
-    :param textcolor: text color, defaults to None
+    :param textcolor: text color, defaults to the Matplotlib default, black
     :type textcolor: str, array_like(3), optional
-    :param labelcolor: label background color
+    :param labelcolor: label background color, defaults to the edge color of the box
     :type labelcolor: str, array_like(3), optional
     :param position: place to draw the label: 'topleft' (default), 'topright, 'bottomleft' or 'bottomright'
-    :type above: str, optional
+    :type position: str, optional
+    :param text_style: Matplotlib text options for the label, such as
+        ``dict(fontsize=12, fontweight="bold")``, defaults to None
     :param boxargs: arguments passed to :func:`plot_box`
 
     Plot a box with a label above it. The position of the box is specified using
-    the same arguments as for ``plot_box``. The label font is specified using
-    the same arguments as for ``plot_text``.  If ``labelcolor`` is specified it
-    is used as the background color for the text label, otherwise the box color
-    is used.
+    the same arguments as for ``plot_box``. The label is drawn by ``plot_text``, and
+    ``text_style`` holds any of its Matplotlib text options.
+
+    The label's text color and background each have three possible sources, and the
+    most specific one wins: ``text_style`` (``color``, ``backgroundcolor`` or the
+    ``facecolor`` of ``bbox``), then ``textcolor`` and ``labelcolor``, then the default.
+    The default background is the final edge color of the box, however that was set
+    (``color``, ``edgecolor`` or the format string). Other keys of ``bbox`` in
+    ``text_style``, such as a border or rounded corners, are merged over the default
+    borderless background.
+
+    .. versionchanged:: 2.5.0
+        Added ``text_style``, and the label background now follows the edge color
+        of the box, not only the ``color`` option.
 
     Example:
 
@@ -373,9 +387,6 @@ def plot_labelbox(
 
     bbox = rect.get_bbox()
 
-    if labelcolor is None:
-        labelcolor = boxargs.get("color")
-
     if position == "topleft":
         pos = (bbox.xmin, bbox.ymin)
         valign = "bottom"
@@ -392,15 +403,31 @@ def plot_labelbox(
         pos = (bbox.xmax, bbox.ymax)
         valign = "top"
         halign = "right"
+    else:
+        raise ValueError(
+            "position must be 'topleft', 'topright', 'bottomleft' or 'bottomright', "
+            f"got {position!r}"
+        )
 
-    smb.plot_text(
-        pos,
-        text,
-        color=textcolor,
-        verticalalignment=valign,
-        horizontalalignment=halign,
-        bbox=dict(facecolor=labelcolor, linewidth=0, edgecolor=None),
+    # the text options: the defaults, then the shorthands, then text_style, with
+    # short option names such as ``size`` and ``ha`` converted to the full names
+    style = mpl_styling(
+        None,
+        dict(verticalalignment=valign, horizontalalignment=halign, color=textcolor),
+        text_style,
+        artist=Text,
     )
+
+    # the background: the box edge color, then labelcolor, then text_style
+    background = labelcolor
+    if background is None:
+        background = rect.get_edgecolor()
+    background = style.pop("backgroundcolor", background)
+    style["bbox"] = dict(facecolor=background, linewidth=0, edgecolor=None) | style.get(
+        "bbox", {}
+    )
+
+    smb.plot_text(pos, text, **style)
 
     return rect
 
