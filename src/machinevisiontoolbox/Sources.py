@@ -22,9 +22,10 @@ import urllib.request
 import warnings
 import zipfile
 from collections import Counter, deque
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from types import TracebackType
 from typing import IO, TYPE_CHECKING, Any, Literal, cast
 
 from tqdm import tqdm
@@ -232,6 +233,15 @@ def _footer_depth_units(footer: bytes, order: str = "<") -> float | None:
 
 
 class ImageSource(ABC):
+    """
+    Abstract base class of the image sources
+
+    An image source yields images one at a time: from a video file or camera, a
+    collection of image files, an archive, a ROS bag and so on.  A subclass
+    implements ``__len__`` and ``__iter__``, and inherits :meth:`disp` to display
+    the images and :meth:`tensor` to stack them into a single PyTorch tensor.
+    """
+
     @abstractmethod
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         """Base constructor for image sources.
@@ -254,7 +264,7 @@ class ImageSource(ABC):
     def tensor(
         self,
         device: str = "cpu",
-        normalize="imagenet",
+        normalize: str | tuple[Any, Any] | None = "imagenet",
         dtype: "torch.dtype | None" = None,
     ) -> "torch.Tensor":
         """
@@ -349,7 +359,7 @@ class ImageSource(ABC):
         fps: float | None = None,
         title: str | None = None,
         loop: bool = False,
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
         """
         Display images from the source interactively.
@@ -418,14 +428,14 @@ class ImageSource(ABC):
             "d": 500,
         }
 
-        def _label(item, i):
+        def _label(item: Any, i: int) -> str:
             ts = getattr(item, "timestamp", None)
             if ts is not None:
                 dt = datetime.fromtimestamp(ts / 1e9, tz=timezone.utc).astimezone()
                 return dt.isoformat(timespec="milliseconds") + f" [{i}]"
             return f"[{i}]"
 
-        def _make_overlay(fig):
+        def _make_overlay(fig: Any) -> Any:
             return fig.text(
                 0,
                 0,
@@ -436,7 +446,7 @@ class ImageSource(ABC):
                 verticalalignment="bottom",
             )
 
-        def _win_title(item):
+        def _win_title(item: Any) -> str:
             return title or getattr(item, "topic", None) or ""
 
         fig = None
@@ -457,7 +467,7 @@ class ImageSource(ABC):
 
             state = {"fps": playback_fps, "paused": False, "quit": False}
 
-            def on_key(event, s=state):
+            def on_key(event: Any, s: dict[str, Any] = state) -> None:
                 if event.key in ("q", "x"):
                     s["quit"] = True
                 elif event.key == " ":
@@ -510,7 +520,7 @@ class ImageSource(ABC):
         else:
             view_state = {"next": False, "quit": False, "skip": 0}
 
-            def on_key(event, s=view_state):
+            def on_key(event: Any, s: dict[str, Any] = view_state) -> None:
                 if event.key == " ":
                     s["next"] = True
                 elif event.key in ("q", "x"):
@@ -678,7 +688,12 @@ class VideoFile(ImageSource):
     def __enter__(self) -> VideoFile:
         return self
 
-    def __exit__(self, exc_type, exc, tb) -> None:
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        tb: TracebackType | None,
+    ) -> None:
         if self.cap is not None:
             self.cap.release()
             self.cap = None
@@ -1088,7 +1103,12 @@ class VideoCamera(ImageSource):
     def __enter__(self) -> VideoCamera:
         return self
 
-    def __exit__(self, exc_type, exc, tb) -> None:
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        tb: TracebackType | None,
+    ) -> None:
         self.release()
 
 
@@ -1319,7 +1339,12 @@ class FileCollection(ImageSource):
         self._lazy_iter = None
         return self
 
-    def __exit__(self, exc_type, exc, tb) -> None:
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        tb: TracebackType | None,
+    ) -> None:
         # Exit lazy mode
         self._lazy = False
         self._lazy_iter = None
@@ -1378,7 +1403,7 @@ class ImageSequence(ImageSource):
     def __enter__(self) -> ImageSequence:
         return self
 
-    def __exit__(self, *_):
+    def __exit__(self, *_: Any) -> None:
         pass
 
     def __repr__(self) -> str:
@@ -1772,7 +1797,12 @@ class FileArchive(ImageSource):
     def __enter__(self) -> FileArchive:
         return self
 
-    def __exit__(self, exc_type, exc, tb) -> None:
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        tb: TracebackType | None,
+    ) -> None:
         self._archive.close()
 
 
@@ -1935,7 +1965,12 @@ class WebCam(ImageSource):
     def __enter__(self) -> WebCam:
         return self
 
-    def __exit__(self, exc_type, exc, tb) -> None:
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        tb: TracebackType | None,
+    ) -> None:
         if self.cap is not None:
             self.cap.release()
             self.cap = None
@@ -2169,7 +2204,7 @@ _PC2_DTYPE = {
 }
 
 
-def _resolve_typestore(release: str):
+def _resolve_typestore(release: str) -> Any:
     """Return a typestore for the given ROS release name.
 
     The *release* string is matched case-insensitively against
@@ -2816,7 +2851,12 @@ class ROSTopic(ImageSource):
     def __enter__(self) -> ROSTopic:
         return self
 
-    def __exit__(self, exc_type, exc, tb) -> None:
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        tb: TracebackType | None,
+    ) -> None:
         self.release()
 
     def __repr__(self) -> str:
@@ -2984,7 +3024,12 @@ class SyncROSStreams:
             stream.__enter__()
         return self
 
-    def __exit__(self, exc_type, exc, tb) -> None:
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        tb: TracebackType | None,
+    ) -> None:
         for stream in self.streams:
             stream.__exit__(exc_type, exc, tb)
 
@@ -3302,7 +3347,7 @@ class ROSBag(ImageSource):
     def msgfilter(self, msgfilter: str | list[str] | None) -> None:
         self._msgfilter = msgfilter
 
-    def _allowed(self, x) -> bool:
+    def _allowed(self, x: Any) -> bool:
         msg_ok = (
             self._msgfilter is None
             or (
@@ -3326,7 +3371,7 @@ class ROSBag(ImageSource):
         return msg_ok and topic_ok
 
     @staticmethod
-    def _stamp_to_ns(stamp) -> int:
+    def _stamp_to_ns(stamp: Any) -> int:
         """
         Robustly converts a ROS1 or ROS2 stamp to total nanoseconds as an integer.
         Handles 'sec/nanosec' (ROS2) and 'secs/nsecs' (ROS1) naming.
@@ -3444,7 +3489,10 @@ class ROSBag(ImageSource):
         return counts
 
     def print(
-        self, progress: bool = True, file=None, show_allowed: bool = True
+        self,
+        progress: bool = True,
+        file: IO[str] | None = None,
+        show_allowed: bool = True,
     ) -> None:
         """Print a summary table of topics in the ROS bag.
 
@@ -3503,7 +3551,12 @@ class ROSBag(ImageSource):
         self._open_reader()
         return self
 
-    def __exit__(self, exc_type, exc, tb) -> None:
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        tb: TracebackType | None,
+    ) -> None:
         self._close_reader()
 
     # Map of ROS encoding strings to (numpy_dtype, channels, color_plane_order)
@@ -4158,7 +4211,7 @@ class PointCloudSequence:
             "d": 500,
         }
 
-        def _label(item, i):
+        def _label(item: Any, i: int) -> str:
             ts = getattr(item, "timestamp", None)
             if ts is not None:
                 dt = datetime.fromtimestamp(ts / 1e9, tz=timezone.utc).astimezone()
@@ -4179,7 +4232,7 @@ class PointCloudSequence:
 
         shown_first = False
 
-        def _update_cloud(pcd, first=False):
+        def _update_cloud(pcd: Any, first: bool = False) -> None:
             nonlocal shown_first
             vis.clear_geometries()
             vis.add_geometry(pcd, reset_bounding_box=first)
@@ -4195,19 +4248,19 @@ class PointCloudSequence:
                 "last_t": 0.0,
             }
 
-            def _on_quit(_vis):
+            def _on_quit(_vis: Any) -> bool:
                 state["quit"] = True
                 return False
 
-            def _on_pause(_vis):
+            def _on_pause(_vis: Any) -> bool:
                 state["paused"] = not state["paused"]
                 return False
 
-            def _on_faster(_vis):
+            def _on_faster(_vis: Any) -> bool:
                 state["fps"] = state["fps"] * 1.5
                 return False
 
-            def _on_slower(_vis):
+            def _on_slower(_vis: Any) -> bool:
                 state["fps"] = max(1.0, state["fps"] / 1.5)
                 return False
 
@@ -4242,13 +4295,19 @@ class PointCloudSequence:
                 time.sleep(0.001)
 
         else:
-            view_state = {"next": True, "quit": False, "skip": 0, "i": 0, "first": True}
+            view_state: dict[str, Any] = {
+                "next": True,
+                "quit": False,
+                "skip": 0,
+                "i": 0,
+                "first": True,
+            }
 
-            def _on_quit(_vis):
+            def _on_quit(_vis: Any) -> bool:
                 view_state["quit"] = True
                 return False
 
-            def _on_next(_vis):
+            def _on_next(_vis: Any) -> bool:
                 view_state["next"] = True
                 return False
 
@@ -4257,8 +4316,8 @@ class PointCloudSequence:
             vis.register_key_callback(ord(" "), _on_next)
             for key, jump in _jump.items():
 
-                def _mk_jump(n):
-                    def _on_jump(_vis):
+                def _mk_jump(n: int) -> Callable[[Any], bool]:
+                    def _on_jump(_vis: Any) -> bool:
                         view_state["skip"] = n
                         view_state["next"] = True
                         return False
