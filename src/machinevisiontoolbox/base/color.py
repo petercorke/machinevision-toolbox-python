@@ -760,6 +760,13 @@ def name2color(
     If a Python-style regexp is passed, then the return value is a list
     of matching color names.
 
+    If the name is not a known color the return value is ``None``.  An unknown
+    ``colorspace`` raises a :class:`ValueError`.
+
+    .. versionchanged:: 2.5.0
+        An unknown ``colorspace`` raises :class:`ValueError`.  It used to return
+        ``None``, as for an unknown color name.
+
     Example:
 
     .. runblock:: pycon
@@ -800,6 +807,14 @@ def name2color(
                 f"unknown colorspace {cs!r}, must be rgb, xyz, lab, xy or ab"
             )
 
+    # check the colorspace here, so that it is not mistaken for an unknown color
+    # name by the handler below
+    cs = colorspace.lower()
+    if cs not in ("rgb", "xyz", "lab", "l*a*b*", "xy", "ab"):
+        raise ValueError(
+            f"unknown colorspace {colorspace!r}, must be rgb, xyz, lab, xy or ab"
+        )
+
     if any([c in ".?*" for c in name]):
         # has a wildcard
         return list(
@@ -810,7 +825,7 @@ def name2color(
         )
     else:
         try:
-            color = csconvert(name, colorspace.lower())
+            color = csconvert(name, cs)
             if np.issubdtype(dtype, np.integer):
                 # if dtype is an integer type, scale the color to the range [0,M]
                 color = (color * np.iinfo(dtype).max).astype(dtype)
@@ -1230,8 +1245,10 @@ def plot_spectral_locus(
 
     if colorspace in ("XY", "xy"):
         locus = ccxyz(λ)[:, :2]
-    elif colorspace in ("rg"):
+    elif colorspace == "rg":
         locus = lambda2rg(λ, method="cubic")
+    else:
+        raise ValueError(f"unknown colorspace {colorspace!r}, must be xy or rg")
 
     if ax is None:
         ax = plt.subplot(1, 1, 1)
