@@ -3568,8 +3568,9 @@ class CentralCamera(CameraBase):
         :type method: str, optional
         :param frame: estimate pose with respect to frame "world" [default] or "camera"
         :type frame: str, optional
-        :return: pose of target frame relative to the world frame
-        :rtype: :class:`~spatialmath.pose3d.SE3`
+        :return: pose of target frame relative to the world frame, or ``None`` if
+            the algorithm finds no solution
+        :rtype: :class:`~spatialmath.pose3d.SE3` or None
 
         Using a set of points defining some object with respect to its own frame {B}, and
         a set of image-plane projections, estimate the pose of {B} with respect to the world

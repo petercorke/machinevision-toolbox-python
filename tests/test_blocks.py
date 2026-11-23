@@ -287,3 +287,56 @@ class TestEstPoseFrame:
     def test_bad_frame_raises(self):
         with pytest.raises(ValueError):
             EstPose_p(self.cam, self.P, frame="robot")
+
+
+class TestEstPoseFailure:
+    """EstPose_p raises when the pose estimate fails, and does not output None."""
+
+    def setup_method(self):
+        self.cam = CentralCamera.Default()
+        self.P = mkcube(0.2)
+        # every image point at one position: IPPE finds no pose for this
+        p = self.cam.project_point(self.P, objpose=SE3.Trans(0.1, 0.2, 0.5))
+        self.p_degenerate = np.tile(p[:, :1], (1, self.P.shape[1]))
+        self.p = p
+
+    def test_the_camera_gives_none_for_the_degenerate_points(self):
+        # confirms that the points used below are a failure of the estimate
+        assert self.cam.estpose(self.P, self.p_degenerate, method="ippe") is None
+
+    def test_failure_raises_not_none(self):
+        block = EstPose_p(self.cam, self.P, method="ippe")
+        with pytest.raises(RuntimeError, match="pose estimation failed"):
+            block.test_output(self.p_degenerate)
+
+    def test_message_names_the_method_and_the_point_count(self):
+        block = EstPose_p(self.cam, self.P, method="ippe")
+        with pytest.raises(RuntimeError, match=r"'ippe'.*8 points"):
+            block.test_output(self.p_degenerate)
+
+    def test_success_is_unchanged(self):
+        T = EstPose_p(self.cam, self.P).test_output(self.p)[0]
+        assert T is not None
+
+    def test_in_a_simulation_bdsim_reports_the_block(self, capsys):
+        sim = bdsim.BDSim(
+            animation=False,
+            graphics=False,
+            hold=False,
+            progress=False,
+            verbose=False,
+            sysargs=False,
+        )
+        bd = sim.blockdiagram()
+        points = bd.CONSTANT(self.p_degenerate)
+        estpose = bd.ESTPOSE_P(self.cam, self.P, method="ippe")
+        bd.connect(points, estpose)
+        # bdsim evaluates the diagram once while it compiles, so the failure is
+        # raised there, before any simulation steps
+        with pytest.raises(RuntimeError) as raised:
+            bd.compile()
+        # bdsim reports "Fatal failure", caused by our error, and prints which
+        # block and time it came from
+        assert "pose estimation failed" in str(raised.value.__cause__)
+        shown = capsys.readouterr()
+        assert "estpose_p.0" in shown.out + shown.err

@@ -167,12 +167,18 @@ class EstPose_p(FunctionBlock):
         :return: a ESTPOSE_P block
         :rtype: EstPose_p instance
         :raises ValueError: if ``camera`` is None or ``frame`` is not ``"world"`` or ``"camera"``
+        :raises RuntimeError: when the diagram is evaluated, if the pose estimation finds
+            no solution for the points.  bdsim prints the block, the time and the input,
+            and stops the run with a "Fatal failure" error caused by this one.
 
         .. versionchanged:: 2.5.0
             ``frame`` is now passed to :meth:`~machinevisiontoolbox.Camera.CentralCamera.estpose`.
             Previously it was accepted but ignored, so the pose was always given with
             respect to the world frame.
 
+        .. versionchanged:: 2.5.0
+            A pose estimate that fails raises :class:`RuntimeError`.  It used to
+            output ``None``, which the next block received as its input.
         """
         if camera is None:
             raise ValueError("camera is not defined")
@@ -189,6 +195,13 @@ class EstPose_p(FunctionBlock):
     def output(self, t: float, inports: list[Any], x: np.ndarray) -> list[Any]:
         p = inports[0]
         T = self.camera.estpose(self.P, p, method=self.method, frame=self.frame)
+        if T is None:
+            # bdsim prints the block, the time and the input, then stops the run
+            # with a "Fatal failure" error caused by this one
+            raise RuntimeError(
+                f"pose estimation failed: method {self.method!r} found no pose "
+                f"for {p.shape[1]} points"
+            )
         return [T]
 
 
