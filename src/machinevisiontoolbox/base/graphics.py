@@ -453,8 +453,6 @@ def draw_labelbox(
     :type fontthickness: int, optional
     :param boxargs: arguments passed to :func:`draw_box`
     :raises TypeError: can't draw color into a greyscale image
-    :raises ValueError: if the marker string has more than one color letter, has no
-        marker character, or no color is given by ``color`` or by a letter
     :return: passed image as modified
     :rtype: ndarray(H,W), ndarray(H,W,P)
 
@@ -691,6 +689,8 @@ def draw_point(
     :param fontthickness: font thickness in pixels, defaults to 2
     :type fontthickness: int, optional
     :raises TypeError: can't draw color into a greyscale image
+    :raises ValueError: if the marker string has more than one color letter, has no
+        marker character, or no color is given by ``color`` or by a letter
     :return: passed image as modified
     :rtype: ndarray(H,W), ndarray(H,W,P)
 
