@@ -12,9 +12,8 @@ class TestImageWholeFeatures(unittest.TestCase):
     # hist
 
     def test_hist(self):
-        im = (
-            Image.String(
-                r"""
+        im = Image.String(
+            r"""
             123456789
             12345b789
             123a56789
@@ -22,9 +21,7 @@ class TestImageWholeFeatures(unittest.TestCase):
             123456c89
             123456789
         """
-            )
-            - ord("0")
-        )
+        ) - ord("0")
 
         h = im.hist()
 
@@ -551,7 +548,15 @@ class TestHistogramCompare(unittest.TestCase):
 
     def test_returns_float(self):
         h1, h2 = self._hist(1), self._hist(2)
-        for method in ("correlation", "chisqr", "intersection", "bhattacharyya", "chisqr_alt", "kl_div", "emd"):
+        for method in (
+            "correlation",
+            "chisqr",
+            "intersection",
+            "bhattacharyya",
+            "chisqr_alt",
+            "kl_div",
+            "emd",
+        ):
             with self.subTest(method=method):
                 self.assertIsInstance(h1.compare(h2, method), float)
 
@@ -570,15 +575,27 @@ class TestHistogramCompare(unittest.TestCase):
         h1, h2 = self._hist(1), self._hist(3)
         for method in ("chisqr", "kl_div"):
             with self.subTest(method=method):
-                self.assertNotAlmostEqual(h1.compare(h2, method), h2.compare(h1, method), places=3)
-        for method in ("correlation", "intersection", "bhattacharyya", "chisqr_alt", "emd"):
+                self.assertNotAlmostEqual(
+                    h1.compare(h2, method), h2.compare(h1, method), places=3
+                )
+        for method in (
+            "correlation",
+            "intersection",
+            "bhattacharyya",
+            "chisqr_alt",
+            "emd",
+        ):
             with self.subTest(method=method):
-                self.assertAlmostEqual(h1.compare(h2, method), h2.compare(h1, method), places=5)
+                self.assertAlmostEqual(
+                    h1.compare(h2, method), h2.compare(h1, method), places=5
+                )
 
     def test_image_size_does_not_matter(self):
         small = Image(np.tile(np.arange(256, dtype=np.uint8), (4, 1)))
         large = Image(np.tile(np.arange(256, dtype=np.uint8), (16, 1)))
-        self.assertAlmostEqual(small.hist().compare(large.hist(), "correlation"), 1.0, places=5)
+        self.assertAlmostEqual(
+            small.hist().compare(large.hist(), "correlation"), 1.0, places=5
+        )
         self.assertAlmostEqual(small.hist().compare(large.hist(), "emd"), 0.0, places=5)
 
     def test_abbreviations(self):

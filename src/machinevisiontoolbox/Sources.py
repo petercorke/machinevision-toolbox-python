@@ -3599,7 +3599,9 @@ class ROSBag(ImageSource):
         # First pass: ROS 1 wire format (ros1 and ros2 typestores).
         # For an image the end of the message is computed from its layout, so any
         # trailing bytes (eg. the RealSense SDK footer) are ignored.
-        end = _image_payload_end(rawdata, msgtype) if msgtype.endswith("Image") else None
+        end = (
+            _image_payload_end(rawdata, msgtype) if msgtype.endswith("Image") else None
+        )
         raw = rawdata if end is None else rawdata[:end]
         for name in self._ROS1_STORES_ORDERED + self._ROS2_STORES_ORDERED:
             if name not in available:
@@ -3739,9 +3741,7 @@ class ROSBag(ImageSource):
         if self._is_realsense and len(footer) == 4:
             if not any(footer):
                 return None  # 0.0, a color image
-            units = _footer_depth_units(
-                footer, _wire_byteorder(rawdata, self._is_ros2)
-            )
+            units = _footer_depth_units(footer, _wire_byteorder(rawdata, self._is_ros2))
             if units is not None:
                 return units
         if connection.id not in self._warned_footers:
@@ -3871,7 +3871,6 @@ class ROSBag(ImageSource):
                     yield img
 
                 elif connection.msgtype.endswith("Image"):
-
                     if hasattr(msg, "encoding"):
                         encoding = msg.encoding
                         if encoding not in self._ROS_ENCODING_MAP:

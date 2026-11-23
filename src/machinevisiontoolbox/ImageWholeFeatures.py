@@ -1245,7 +1245,9 @@ class Histogram:
         )
         return self.cdf
 
-    def compare(self, other: "Histogram", method: str = "correlation") -> float | list[float]:
+    def compare(
+        self, other: "Histogram", method: str = "correlation"
+    ) -> float | list[float]:
         """
         Compare with another histogram
 
@@ -1317,7 +1319,9 @@ class Histogram:
             raise ValueError(
                 f"histograms have different numbers of bins: {len(self._x)} and {len(other._x)}"
             )
-        if np.any(np.sum(self._h, axis=0) == 0) or np.any(np.sum(other._h, axis=0) == 0):
+        if np.any(np.sum(self._h, axis=0) == 0) or np.any(
+            np.sum(other._h, axis=0) == 0
+        ):
             raise ValueError("cannot compare an empty histogram")
 
         # one column per plane, normalized to sum to one
@@ -1345,7 +1349,14 @@ class Histogram:
     def plot(
         self,
         type: Literal[
-            "frequency", "pdf", "probability", "cf", "cumulative", "cdf", "normalized", "ncdf"
+            "frequency",
+            "pdf",
+            "probability",
+            "cf",
+            "cumulative",
+            "cdf",
+            "normalized",
+            "ncdf",
         ] = "frequency",
         block: bool = False,
         filled: bool | None = None,
@@ -1557,7 +1568,10 @@ class Histogram:
             for i, ax in enumerate(axes):
                 bin_width = x[1] - x[0]
                 ax.stairs(
-                    y[:, i], np.append(x, x[-1] + bin_width), fill=bool(filled), **kwargs
+                    y[:, i],
+                    np.append(x, x[-1] + bin_width),
+                    fill=bool(filled),
+                    **kwargs,
                 )
                 ax.grid()
                 if n == 1:

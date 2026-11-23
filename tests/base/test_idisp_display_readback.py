@@ -65,8 +65,12 @@ class TestIdispMatplotlibReadback(unittest.TestCase):
             idisp(im, matplotlib=True, fig=fig, ax=ax, block=None)
             lo = _mpl_pixel_rgba(fig, ax, 0, 0)
             hi = _mpl_pixel_rgba(fig, ax, 3, 3)
-            self.assertTrue(np.all(lo[:3] <= 10), f"{msg}: min-value pixel not black: {lo}")
-            self.assertTrue(np.all(hi[:3] >= 245), f"{msg}: max-value pixel not white: {hi}")
+            self.assertTrue(
+                np.all(lo[:3] <= 10), f"{msg}: min-value pixel not black: {lo}"
+            )
+            self.assertTrue(
+                np.all(hi[:3] >= 245), f"{msg}: max-value pixel not white: {hi}"
+            )
         finally:
             matplotlib.pyplot.close(fig)
 

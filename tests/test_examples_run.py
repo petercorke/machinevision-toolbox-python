@@ -32,7 +32,13 @@ SKIP = {
 
 # examples that fetch from the internet: a network failure skips, not fails
 NETWORK = {"monalisa.py"}
-NETWORK_ERRORS = ("URLError", "ConnectionError", "TimeoutError", "HTTPError", "gaierror")
+NETWORK_ERRORS = (
+    "URLError",
+    "ConnectionError",
+    "TimeoutError",
+    "HTTPError",
+    "gaierror",
+)
 
 # morphdemo redraws the figure for every pixel, which is slow on a CI runner; a
 # few frames exercise the same code as all of them
@@ -46,7 +52,13 @@ def test_example_runs(script):
     # UTF-8 output, since examples print maths symbols that the Windows default cannot encode
     env = dict(os.environ, MPLBACKEND="Agg", PYTHONUTF8="1", PYTHONIOENCODING="utf-8")
     result = subprocess.run(
-        [sys.executable, "-W", "error::DeprecationWarning", script, *ARGS.get(script, [])],
+        [
+            sys.executable,
+            "-W",
+            "error::DeprecationWarning",
+            script,
+            *ARGS.get(script, []),
+        ],
         cwd=EXAMPLES,
         env=env,
         capture_output=True,
@@ -56,4 +68,6 @@ def test_example_runs(script):
     if result.returncode != 0:
         if script in NETWORK and any(e in result.stderr for e in NETWORK_ERRORS):
             pytest.skip("network not available")
-        pytest.fail(f"{script} exited with {result.returncode}:\n{result.stderr[-2000:]}")
+        pytest.fail(
+            f"{script} exited with {result.returncode}:\n{result.stderr[-2000:]}"
+        )

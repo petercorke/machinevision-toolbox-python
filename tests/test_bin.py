@@ -14,18 +14,21 @@ import unittest
 
 try:
     import rosbags  # noqa: F401
+
     _rosbags_available = True
 except ImportError:
     _rosbags_available = False
 
 try:
     import pytesseract  # noqa: F401
+
     _pytesseract_available = True
 except ImportError:
     _pytesseract_available = False
 
 try:
     import open3d  # noqa: F401
+
     _open3d_available = True
 except ImportError:
     _open3d_available = False
@@ -47,7 +50,6 @@ def _run(args: list[str], timeout: float | None = None) -> subprocess.CompletedP
 
 
 class TestMvtbtool(unittest.TestCase):
-
     def test_help(self):
         result = _run(["machinevisiontoolbox.bin.mvtbtool", "--help"])
         self.assertEqual(result.returncode, 0, msg=result.stderr.decode())
@@ -68,7 +70,6 @@ class TestMvtbtool(unittest.TestCase):
 
 
 class TestImtool(unittest.TestCase):
-
     def test_help(self):
         result = _run(["machinevisiontoolbox.bin.imtool", "--help"])
         self.assertEqual(result.returncode, 0, msg=result.stderr.decode())
@@ -88,7 +89,6 @@ class TestImtool(unittest.TestCase):
 
 
 class TestTagtool(unittest.TestCase):
-
     def test_help(self):
         result = _run(["machinevisiontoolbox.bin.tagtool", "--help"])
         self.assertEqual(result.returncode, 0, msg=result.stderr.decode())
@@ -107,7 +107,6 @@ class TestTagtool(unittest.TestCase):
 
 @unittest.skipUnless(_rosbags_available, "rosbags not installed")
 class TestBagtool(unittest.TestCase):
-
     def test_help(self):
         result = _run(["machinevisiontoolbox.bin.bagtool", "--help"])
         self.assertEqual(result.returncode, 0, msg=result.stderr.decode())
@@ -115,7 +114,6 @@ class TestBagtool(unittest.TestCase):
 
 @unittest.skipUnless(_pytesseract_available, "pytesseract not installed")
 class TestOcrtool(unittest.TestCase):
-
     def test_help(self):
         result = _run(["machinevisiontoolbox.bin.ocrtool", "--help"])
         self.assertEqual(result.returncode, 0, msg=result.stderr.decode())

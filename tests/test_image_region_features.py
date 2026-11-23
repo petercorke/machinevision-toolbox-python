@@ -10,7 +10,6 @@ from machinevisiontoolbox import Image
 
 
 class TestImageRegionFeatures(unittest.TestCase):
-
     def test_mser_basic(self):
         """Test MSER feature detection"""
         im = Image.Read("castle.png")

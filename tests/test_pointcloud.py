@@ -11,6 +11,7 @@ from machinevisiontoolbox import CentralCamera, Image, PointCloud
 
 try:
     import open3d  # noqa: F401
+
     open3d_available = True
 except ImportError:
     open3d_available = False

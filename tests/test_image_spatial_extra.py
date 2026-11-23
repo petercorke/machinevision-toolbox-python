@@ -6,7 +6,6 @@ Test images are small synthetic arrays, and expected values are worked out
 directly with NumPy, so nothing is mocked.
 """
 
-
 import cv2
 import numpy as np
 import numpy.testing as nt

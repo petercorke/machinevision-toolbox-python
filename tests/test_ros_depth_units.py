@@ -43,7 +43,9 @@ def read(path, **kwargs):
     return depth, color, [w for w in caught if issubclass(w.category, RuntimeWarning)]
 
 
-@pytest.mark.parametrize("value", [0, -1, 0.0, float("nan"), float("inf"), "metres", True])
+@pytest.mark.parametrize(
+    "value", [0, -1, 0.0, float("nan"), float("inf"), "metres", True]
+)
 def test_depth_units_must_be_none_auto_or_a_positive_number(tmp_path, value):
     with pytest.raises(ValueError, match="depth_units"):
         ROSBag(tmp_path / "x.bag", depth_units=value)
@@ -132,7 +134,9 @@ def test_32fc1_is_left_alone_apart_from_its_scale(tmp_path):
     gain, _, _ = read(tmp_path / "rs.bag", depth_units=2.0)
     for k in range(3):
         np.testing.assert_allclose(auto[k].array, depth_pixels(k, "32FC1"), rtol=1e-6)
-        np.testing.assert_allclose(gain[k].array, 2 * depth_pixels(k, "32FC1"), rtol=1e-6)
+        np.testing.assert_allclose(
+            gain[k].array, 2 * depth_pixels(k, "32FC1"), rtol=1e-6
+        )
         assert auto[k].array.dtype == np.float32
 
 

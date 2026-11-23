@@ -11,13 +11,16 @@ from machinevisiontoolbox import Image
 
 
 class TestImageProcessingKernel(unittest.TestCase):
-
     def test_similarity(self):
 
-        a = np.array([[0.9280, 0.3879, 0.8679],
-                      [0.1695, 0.3826, 0.7415],
-                      [0.8837, 0.2715, 0.4479]])
-        a = Image(a, dtype='float64')
+        a = np.array(
+            [
+                [0.9280, 0.3879, 0.8679],
+                [0.1695, 0.3826, 0.7415],
+                [0.8837, 0.2715, 0.4479],
+            ]
+        )
+        a = Image(a, dtype="float64")
 
         eps = 1e-6
         # self.assertAlmostEqual(a.sad(a), eps)
@@ -44,11 +47,15 @@ class TestImageProcessingKernel(unittest.TestCase):
         # yet been implemented in mvt
 
     def test_window(self):
-        im = np.array([[3,     5,     8,    10,     9],
-                       [7,    10,     3,     6,     3],
-                       [7,     4,     6,     2,     9],
-                       [2,     6,     7,     2,     3],
-                       [2,     3,     9,     3,    10]])
+        im = np.array(
+            [
+                [3, 5, 8, 10, 9],
+                [7, 10, 3, 6, 3],
+                [7, 4, 6, 2, 9],
+                [2, 6, 7, 2, 3],
+                [2, 3, 9, 3, 10],
+            ]
+        )
         img = Image(im)
         se = np.ones((1, 1))
         # se must be same number of dimensions as input image for scipy
@@ -58,11 +65,15 @@ class TestImageProcessingKernel(unittest.TestCase):
         nt.assert_array_almost_equal(img.window(np.sum, se=se).A, im)
 
         se = np.array([[1, 1, 1], [1, 0, 1], [1, 1, 1]])
-        out = np.array([[43,    47,    57,    56,    59],
-                        [46,    43,    51,    50,    57],
-                        [45,   48,    40,    39,    31],
-                        [33,    40,    35,    49,    48],
-                        [22,    40,    36,    53,    44]])
+        out = np.array(
+            [
+                [43, 47, 57, 56, 59],
+                [46, 43, 51, 50, 57],
+                [45, 48, 40, 39, 31],
+                [33, 40, 35, 49, 48],
+                [22, 40, 36, 53, 44],
+            ]
+        )
         nt.assert_array_almost_equal(img.window(np.sum, se=se).A, out)
 
     # TODO
@@ -81,7 +92,5 @@ class TestImageProcessingKernel(unittest.TestCase):
 
 
 # ----------------------------------------------------------------------- #
-if __name__ == '__main__':
-
+if __name__ == "__main__":
     unittest.main()
-

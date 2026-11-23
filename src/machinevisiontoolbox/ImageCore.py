@@ -344,7 +344,11 @@ class Image(
             image = image[:, :, 0]  # squeeze out singleton plane
 
         if kwargs:
-            image = convert(image, dtype=dtype if defer_dtype_to_convert else None, **kwargs)  # type: ignore[arg-type]
+            image = convert(
+                image,
+                dtype=dtype if defer_dtype_to_convert else None,  # type: ignore[arg-type]
+                **kwargs,
+            )
 
         # assign the image to the object, copying if requested
         if copy:
@@ -497,7 +501,9 @@ class Image(
         """Iterate over image planes."""
         return self.planes()
 
-    def __array__(self, dtype: Dtype | None = None, copy: bool | None = None) -> np.ndarray:
+    def __array__(
+        self, dtype: Dtype | None = None, copy: bool | None = None
+    ) -> np.ndarray:
         """
         Convert to a plain NumPy array
 

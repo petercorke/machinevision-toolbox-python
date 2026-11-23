@@ -162,15 +162,12 @@ class TestImageConstants(unittest.TestCase):
             )
         )
 
-        im = (
-            Image.String(
-                r"""
+        im = Image.String(
+            r"""
                     001200
                     000345
                 """
-            )
-            - ord("0")
-        )
+        ) - ord("0")
 
         self.assertEqual(im.size, (6, 2))
         self.assertEqual(im.dtype, np.uint8)

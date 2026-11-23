@@ -1583,7 +1583,7 @@ class FeatureMatch:
             s = f"{len(self)} matches"
             if self._inliers is not None:
                 ninlier = sum(self._inliers)
-                s += f", with {ninlier} ({ninlier/len(self)*100:.1f}%) inliers"
+                s += f", with {ninlier} ({ninlier / len(self) * 100:.1f}%) inliers"
             return s
 
     def __repr__(self) -> str:

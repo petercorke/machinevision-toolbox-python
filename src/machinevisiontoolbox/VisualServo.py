@@ -1365,7 +1365,9 @@ class IBVS_sph(VisualServo):
         self.depth = depth
 
     @classmethod
-    def Example(cls, camera: SphericalCamera | None = None, **kwargs: Any) -> "IBVS_sph":
+    def Example(
+        cls, camera: SphericalCamera | None = None, **kwargs: Any
+    ) -> "IBVS_sph":
         # run a canned example
         print("canned example, spherical IBVS with 4 points")
         if camera is None:

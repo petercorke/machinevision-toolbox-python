@@ -671,9 +671,7 @@ class ImageProcessingMixin(ImageMixinBase):
 
         fig, axs = plt.subplots(1, 2, figsize=(10, 5))
         plt.subplots_adjust(bottom=0.1 if _use_ipywidgets else 0.25)
-        set_window_title(
-            fig, "Interactive Image Threshold" if title is None else title
-        )
+        set_window_title(fig, "Interactive Image Threshold" if title is None else title)
 
         im = axs[0].imshow(apply_mode(t), cmap="gray")
         if mode == "binary":
@@ -1332,12 +1330,14 @@ class ImageProcessingMixin(ImageMixinBase):
 
             # only fg is valid
             fg_mask = cv2.bitwise_and(
-                src1=fg_set, src2=cv2.bitwise_xor(src1=bg_set, src2=1)  # type: ignore[call-overload]
+                src1=fg_set,
+                src2=cv2.bitwise_xor(src1=bg_set, src2=1),  # type: ignore[call-overload]
             )
 
             # only bg is valid
             bg_mask = cv2.bitwise_and(
-                src1=cv2.bitwise_xor(src1=fg_set, src2=1), src2=bg_set  # type: ignore[call-overload]
+                src1=cv2.bitwise_xor(src1=fg_set, src2=1),  # type: ignore[call-overload]
+                src2=bg_set,
             )
 
             # merge them
@@ -1414,7 +1414,6 @@ class ImageProcessingMixin(ImageMixinBase):
 
 
 if __name__ == "__main__":
-
     pass
 
     # tests = Path(__file__).parent.parent.parent / "tests"

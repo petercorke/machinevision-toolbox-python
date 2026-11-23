@@ -13,7 +13,6 @@ from machinevisiontoolbox import BagOfWords, FileCollection
 
 
 class TestBagOfWords(unittest.TestCase):
-
     def test_retrieve(self):
 
         images = FileCollection("campus/*.png", mono=True)

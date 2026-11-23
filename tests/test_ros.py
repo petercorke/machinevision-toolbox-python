@@ -127,7 +127,6 @@ class TestResolveTypestore(unittest.TestCase):
 @_skip_import
 @_skip_bags
 class TestRosBagRos1(unittest.TestCase):
-
     def _bag(self, **kwargs):
         return ROSBag(str(ROS1_BAG), release="noetic", **kwargs)
 
@@ -243,7 +242,6 @@ class TestRosBagRos1(unittest.TestCase):
 @_skip_import
 @_skip_bags
 class TestRosBagRos2(unittest.TestCase):
-
     def _bag(self, **kwargs):
         return ROSBag(str(ROS2_BAG), release="humble", **kwargs)
 
@@ -284,7 +282,6 @@ class TestRosBagRos2(unittest.TestCase):
 
 
 class TestRosMessage(unittest.TestCase):
-
     def _make(self, **kwargs):
         defaults = dict(
             topic="/test",
@@ -334,7 +331,6 @@ def _make_mock_stream(output="image", message="sensor_msgs/CompressedImage"):
 
 @pytest.mark.skipif(not _roslibpy_importable, reason="roslibpy not installed")
 class TestRosTopicCallback(unittest.TestCase):
-
     def _jpeg_msg(self, r=128, g=100, b=50):
         """Build a minimal roslibpy compressed-image message dict."""
         import base64
@@ -423,7 +419,6 @@ class TestRosTopicCallback(unittest.TestCase):
 
 @pytest.mark.skipif(not _roslibpy_importable, reason="roslibpy not installed")
 class TestRosTopicValidation(unittest.TestCase):
-
     def test_invalid_output_value(self):
         with self.assertRaises(ValueError):
             _make_mock_stream(output="bad_value")
@@ -560,7 +555,6 @@ def _fake_stream(*timestamps):
 
 
 class TestSyncRosStreams(unittest.TestCase):
-
     def test_requires_two_streams(self):
         s = _fake_stream(1)
         with self.assertRaises(ValueError):

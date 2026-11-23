@@ -62,7 +62,6 @@ def _has_file(*args):
 
 
 class TestImageSources(unittest.TestCase):
-
     def test_filecollection(self):
         # single str with wild card for folder of images
         # print('test_wildcardstr')
@@ -241,7 +240,6 @@ class TestImageSources(unittest.TestCase):
 
 
 class TestZipArchiveFormats(unittest.TestCase):
-
     @staticmethod
     def _sample_members(tmpdir: Path) -> dict[str, bytes]:
         pgm = b"P5\n2 2\n255\n" + bytes([0, 255, 255, 0])
@@ -364,7 +362,6 @@ class TestZipArchiveFormats(unittest.TestCase):
 
 @unittest.skipUnless(_torch_available, "PyTorch not installed")
 class TestTensorStack(unittest.TestCase):
-
     def test_tensorstack_init_4d_rgb(self):
         """TensorStack initializes with (B, C, H, W) tensor."""
         batch = torch.randn(5, 3, 64, 64)
@@ -536,7 +533,6 @@ class TestTensorStack(unittest.TestCase):
 
 @unittest.skipUnless(_labelme_available, "labelme not installed")
 class TestLabelMeReader(unittest.TestCase):
-
     def test_labelme_read(self):
         """LabelMe returns image, polygons with attrs, and file flags."""
         from machinevisiontoolbox import LabelMeReader
@@ -551,9 +547,9 @@ class TestLabelMeReader(unittest.TestCase):
 
             import cv2 as cv
 
-            assert cv.imwrite(
-                image_path, image_data
-            ), f"cv.imwrite failed: {image_path}"
+            assert cv.imwrite(image_path, image_data), (
+                f"cv.imwrite failed: {image_path}"
+            )
 
             import base64
 

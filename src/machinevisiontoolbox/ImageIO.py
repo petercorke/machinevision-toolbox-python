@@ -774,7 +774,9 @@ class ImageIOMixin(ImageMixinBase):
 
         if title is None:
             if self.name is not None and right.name is not None:
-                title = f"{os.path.basename(self.name)} / {os.path.basename(right.name)}"
+                title = (
+                    f"{os.path.basename(self.name)} / {os.path.basename(right.name)}"
+                )
             else:
                 title = "Stereo Pair"
         set_window_title(fig, title)

@@ -13,7 +13,6 @@ import unittest
 
 
 class TestStarImport(unittest.TestCase):
-
     def setUp(self):
         """Execute the star-import in an isolated namespace."""
         self.ns = {}
