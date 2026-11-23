@@ -4,14 +4,10 @@ Image file and URL reading/writing, and image-sequence iteration.
 
 import os
 import os.path
-import sys
 from pathlib import Path
 from typing import Any, SupportsFloat, cast
 
-if sys.version_info >= (3, 11):
-    from typing import Self
-else:
-    from typing_extensions import Self
+from typing import Self
 
 import matplotlib.patches as mpatches
 import matplotlib.patheffects as path_effects
