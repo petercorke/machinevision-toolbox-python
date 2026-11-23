@@ -26,6 +26,11 @@ from machinevisiontoolbox._image_typing import ImageMixinBase
 from machinevisiontoolbox.base.graphics import mpl_styling, plot_labelbox
 from machinevisiontoolbox.decorators import array_result, scalar_result
 
+MAJOR_AXIS_STYLE: dict[str, Any] = dict(color="red", linewidth=2)
+"""Default style of the major axis drawn by :meth:`Blobs.plot_axes`"""
+MINOR_AXIS_STYLE: dict[str, Any] = dict(color="green", linewidth=2)
+"""Default style of the minor axis drawn by :meth:`Blobs.plot_axes`"""
+
 if TYPE_CHECKING:
     pass
 
@@ -1913,14 +1918,25 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             # the format string is already in options, so is not passed again
             plot_labelbox(text=label.format(blob.id), lrbt=blob.bbox, **options)
 
-    def plot_centroid(self, *args: Any, label: bool = False, **kwargs: Any) -> None:
+    def plot_centroid(
+        self,
+        *args: Any,
+        label: bool = False,
+        text_style: dict[str, Any] | None = None,
+        **kwargs: Any,
+    ) -> None:
         """
         Plot the centroid of blobs using Matplotlib
 
         :param label: add a sequential numeric label to each point, defaults to False
         :type label: bool
+        :param text_style: Matplotlib text options for the label, such as
+            ``dict(color="white", fontsize=12)``, defaults to None
         :param args: optional marker, such as ``'bx'``, which sets ``marker`` in ``kwargs``
         :param kwargs: other arguments passed to ``plot_point``
+
+        .. versionchanged:: 2.5.0
+            Added ``text_style``.
 
                 Plot the major and minor axes of a blob or blobs on the current Matplotlib axes.
 
@@ -1952,11 +1968,6 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             blobs[3].plot_centroid(marker="P", markeredgecolor="lightsteelblue", markerfacecolor="w", fillstyle="full")
         :seealso: :meth:`plot_box` :meth:`plot_perimeter` :func:`~machinevisiontoolbox.base.graphics.plot_point`
         """
-        if label:
-            text = "{:d}"
-        else:
-            text = ""
-
         if len(args) > 0:
             kwargs["marker"] = args[0]
         elif "marker" not in kwargs:
@@ -1964,7 +1975,12 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             kwargs["fillstyle"] = "none"
 
         for i, blob in enumerate(self):
-            smb.plot_point(pos=blob.centroid, text=text.format(i), **kwargs)
+            smb.plot_point(
+                pos=blob.centroid,
+                text=str(i) if label else None,
+                textargs=text_style,
+                **kwargs,
+            )
 
     def plot_perimeter(
         self,
@@ -2108,12 +2124,30 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             frames.append(SE2(blob.uc, blob.vc, blob.orientation))
         return frames
 
-    def plot_axes(self, *args: Any, **kwargs: Any) -> None:
+    def plot_axes(
+        self,
+        *args: Any,
+        major_style: dict[str, Any] | None = None,
+        minor_style: dict[str, Any] | None = None,
+        **kwargs: Any,
+    ) -> None:
         """
         Plot equivalent ellipse axes of blobs using Matplotlib
 
-        :param args: optional Matplotlib format string, such as ``"r--"``
-        :param kwargs: line style parameters passed to ``plot``
+        :param major_style: Matplotlib line options for the major axis only, such as
+            ``dict(color="orange", linestyle="--")``, defaults to None
+        :param minor_style: Matplotlib line options for the minor axis only,
+            defaults to None
+        :param args: optional Matplotlib format string, such as ``"r--"``, which
+            applies to both axes
+        :param kwargs: line style parameters passed to ``plot``, which apply to both axes
+
+        The options for each axis are merged in this order, later ones winning:
+        the defaults (:data:`MAJOR_AXIS_STYLE` and :data:`MINOR_AXIS_STYLE`), the
+        format string, ``kwargs``, and finally ``major_style`` or ``minor_style``.
+
+        .. versionchanged:: 2.5.0
+            Added ``major_style`` and ``minor_style``.
 
         Plot the major and minor axes of a blob or blobs on the current Matplotlib axes.
         These are the axes of the equivalent ellipse and the intersection point is
@@ -2146,11 +2180,11 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         :seealso: :meth:`plot_ellipse` :meth:`plot_box` :meth:`plot_centroid`
         """
         a_options = mpl_styling(
-            args, dict(color="red", linewidth=2), kwargs, artist=Line2D
-        )
+            args, MAJOR_AXIS_STYLE, kwargs, artist=Line2D
+        ) | mpl_styling(None, None, major_style, artist=Line2D)
         b_options = mpl_styling(
-            args, dict(color="green", linewidth=2), kwargs, artist=Line2D
-        )
+            args, MINOR_AXIS_STYLE, kwargs, artist=Line2D
+        ) | mpl_styling(None, None, minor_style, artist=Line2D)
 
         for blob in self:
             T = SE2(blob.uc, blob.vc, blob.orientation)
