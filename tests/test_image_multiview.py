@@ -151,36 +151,79 @@ class TestStereoSimple:
         nt.assert_array_equal(a.array[10:30, 30:80], b.array[10:30, 30:80])
 
 
+def parabolic_dsi(peaks, nplanes=8):
+    """A DSI whose fibre at each pixel is a parabola with its peak at ``peaks``."""
+    peaks = np.asarray(peaks, dtype=np.float32)
+    planes = np.arange(nplanes, dtype=np.float32)
+    return -((planes[np.newaxis, np.newaxis, :] - peaks[:, :, np.newaxis]) ** 2)
+
+
 class TestDSIRefine:
-    def test_parabola_gives_subpixel_peak(self):
-        # every fibre is an exact parabola peaking at 3.3, so the
-        # three-point fit must recover 3.3
-        k = np.arange(7)
-        dsi = np.tile(-((k - 3.3) ** 2), (4, 5, 1))
-        refined, curvature = Image.DSI_refine(dsi, drange=(0, 6))
-        assert refined.shape == (4, 5)
-        nt.assert_allclose(refined.A, 3.3)
-        # second difference of -(x^2) is -2
-        nt.assert_allclose(curvature.A, -2.0)
+    def test_recovers_the_subpixel_peak(self):
+        peaks = np.array([[2.0, 2.25, 3.5], [4.75, 5.5, 1.1]])
+        refined, curvature = Image.DSI_refine(parabolic_dsi(peaks))
+        assert refined.array.shape == (2, 3)
+        nt.assert_allclose(refined.array, peaks, atol=1e-4)
+        # for -(x - p)^2 the second difference is -2
+        nt.assert_allclose(curvature.array, -2, atol=1e-4)
 
-    def test_default_range_is_the_span_of_the_peaks(self):
-        # the peak is at index 3 everywhere, so the default range is (3, 3)
-        # and no pixel is strictly inside it: all NaN
-        k = np.arange(7)
-        dsi = np.tile(-((k - 3.3) ** 2), (2, 2, 1))
+    def test_dmin_gives_true_disparities(self):
+        peaks = np.array([[2.0, 2.25, 3.5], [4.75, 5.5, 1.1]])
+        refined, _ = Image.DSI_refine(parabolic_dsi(peaks), dmin=4)
+        nt.assert_allclose(refined.array, peaks + 4, atol=1e-4)
+
+    def test_peak_in_the_first_or_last_plane_is_nan(self):
+        refined, curvature = Image.DSI_refine(parabolic_dsi([[0.0, 7.0, 3.0]]))
+        assert np.isnan(refined.array[0, :2]).all()
+        assert np.isnan(curvature.array[0, :2]).all()
+        assert refined.array[0, 2] == pytest.approx(3.0, abs=1e-4)
+
+    def test_nan_planes_are_not_chosen_as_the_peak(self):
+        # the peak is at 2.4, but the planes from 5 on are NaN (disparities that
+        # reach beyond the image edge).  argmax returns the first NaN.
+        dsi = parabolic_dsi([[2.4]])
+        dsi[:, :, 5:] = np.nan
         refined, _ = Image.DSI_refine(dsi)
-        assert np.isnan(refined.A).all()
+        assert refined.array[0, 0] == pytest.approx(2.4, abs=1e-4)
 
-    def test_peaks_at_the_ends_are_nan(self):
-        k = np.arange(7)
-        dsi = np.zeros((1, 3, 7))
-        dsi[0, 0] = -((k - 0.2) ** 2)  # peak at 0, no neighbour below
-        dsi[0, 1] = -((k - 3.3) ** 2)  # interior peak
-        dsi[0, 2] = -((k - 5.9) ** 2)  # peak at 6, no neighbour above
-        refined, _ = Image.DSI_refine(dsi, drange=(0, 6))
-        assert np.isnan(refined.A[0, 0])
-        assert np.isnan(refined.A[0, 2])
-        nt.assert_allclose(refined.A[0, 1], 3.3)
+    def test_every_plane_nan_is_nan(self):
+        dsi = parabolic_dsi([[3.0, 3.0]])
+        dsi[:, 1, :] = np.nan
+        refined, curvature = Image.DSI_refine(dsi)
+        assert refined.array[0, 0] == pytest.approx(3.0, abs=1e-4)
+        assert np.isnan(refined.array[0, 1]) and np.isnan(curvature.array[0, 1])
+
+    def test_nan_neighbour_is_nan_without_a_warning(self):
+        import warnings
+
+        dsi = parabolic_dsi([[2.0]])
+        dsi[:, :, 3] = np.nan
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            refined, _ = Image.DSI_refine(dsi)
+        assert np.isnan(refined.array[0, 0])
+
+    def test_flat_peak_is_nan_without_a_warning(self):
+        import warnings
+
+        dsi = np.zeros((1, 1, 5), dtype=np.float32)
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            refined, _ = Image.DSI_refine(dsi)
+        assert np.isnan(refined.array[0, 0])
+
+    def test_refines_the_dsi_of_stereo_simple(self, pair):
+        # the pair has a true disparity of 8 and the DSI starts at disparity 4: the
+        # old drange handling raised IndexError here
+        left, right = pair
+        _, _, dsi = left.stereo_simple(right, hw=2, drange=[4, 12])
+        relative, _ = Image.DSI_refine(dsi)
+        true, _ = Image.DSI_refine(dsi, dmin=4)
+        window = (slice(10, 30), slice(30, 80))
+        # the neighbours of a random texture match are not symmetric, so the
+        # parabola peak is within a fifth of a pixel of the true value
+        nt.assert_allclose(relative.array[window], DISPARITY - 4, atol=0.2)
+        nt.assert_allclose(true.array[window], DISPARITY, atol=0.2)
 
 
 @pytest.mark.parametrize("method", ["stereo_BM", "stereo_SGBM"])
