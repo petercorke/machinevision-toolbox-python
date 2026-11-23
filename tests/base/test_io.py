@@ -1031,6 +1031,33 @@ class TestIdisp_matplotlib_paths(unittest.TestCase):
         result = idisp(im, matplotlib=False, badcolor="red")
         self.assertIsNone(result)
 
+    def test_idisp_extreme_colors_without_a_deprecation_warning(self):
+        """Colormap.set_under, set_over and set_bad are pending deprecation"""
+        import warnings
+
+        import matplotlib
+        import matplotlib.pyplot as plt
+
+        from machinevisiontoolbox.base.imageio import idisp
+
+        matplotlib.use("Agg")
+        im = np.random.randint(100, 200, (30, 30), dtype=np.uint8)
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", PendingDeprecationWarning)
+            idisp(
+                im,
+                undercolor="blue",
+                overcolor="yellow",
+                badcolor="red",
+                vrange=(120, 180),
+                block=False,
+            )
+        cmap = plt.gca().images[0].get_cmap()
+        np.testing.assert_allclose(cmap.get_under(), (0.0, 0.0, 1.0, 1.0))
+        np.testing.assert_allclose(cmap.get_over(), (1.0, 1.0, 0.0, 1.0))
+        np.testing.assert_allclose(cmap.get_bad(), (1.0, 0.0, 0.0, 1.0))
+        plt.close("all")
+
     def test_idisp_undercolor_overcolor(self):
         """Test idisp with undercolor and overcolor"""
         im = np.random.randint(100, 200, (30, 30), dtype=np.uint8)

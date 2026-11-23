@@ -4,7 +4,6 @@ Low-level image reading from files, URLs, and byte buffers.
 
 from __future__ import annotations
 
-import copy
 import glob
 import urllib.error
 import urllib.request
@@ -778,13 +777,18 @@ def _idisp_matplotlib(
     #
     # only works for greyscale image
     if im.ndim == 2:
-        cmap = copy.copy(cmap)
-        if undercolor is not None:
-            cmap.set_under(color=undercolor)
-        if overcolor is not None:
-            cmap.set_over(color=overcolor)
-        if badcolor is not None:
-            cmap.set_bad(color=badcolor)
+        # with_extremes returns a copy, so the caller's colormap is not changed
+        extremes = {
+            key: color
+            for key, color in (
+                ("under", undercolor),
+                ("over", overcolor),
+                ("bad", badcolor),
+            )
+            if color is not None
+        }
+        if extremes:
+            cmap = cmap.with_extremes(**extremes)
     # elif im.ndim == 3:
     #     if badcolor is not None:
     #         cmap.set_bad(color=badcolor)

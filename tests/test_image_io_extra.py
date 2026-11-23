@@ -168,6 +168,24 @@ class TestShowPixels:
         ax = im.showpixels(cmap="gray", badcolor="red")
         assert ax.images[0].get_cmap().name == "gray"
 
+    def test_bad_color_without_a_deprecation_warning(self):
+        # Colormap.set_bad is pending deprecation in Matplotlib
+        import warnings
+
+        im = Image(np.array([[1.0, np.nan]]))
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", PendingDeprecationWarning)
+            ax = im.showpixels(cmap="gray", badcolor="red")
+        nt.assert_allclose(ax.images[0].get_cmap().get_bad(), (1.0, 0.0, 0.0, 1.0))
+
+    def test_bad_color_leaves_the_callers_colormap_alone(self):
+        from matplotlib.colors import LinearSegmentedColormap
+
+        cmap = LinearSegmentedColormap.from_list("mine", ["#000000", "#ffffff"])
+        before = np.array(cmap.get_bad())
+        Image(np.array([[1.0, np.nan]])).showpixels(cmap=cmap, badcolor="red")
+        nt.assert_allclose(cmap.get_bad(), before)
+
     def test_default_colormap(self):
         ax = Image(np.zeros((2, 2), dtype=np.uint8)).showpixels()
         assert ax.images[0].get_cmap().name == "midnight"
