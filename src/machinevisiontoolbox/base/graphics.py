@@ -12,7 +12,7 @@ from typing import Iterable as TypingIterable
 import cv2
 import numpy as np
 import spatialmath.base as smb
-from matplotlib import cbook
+from matplotlib import cbook, colors
 from matplotlib.artist import Artist
 from matplotlib.patches import Rectangle
 
@@ -988,6 +988,120 @@ def draw_circle(
     return image
 
 
+# A copy of ``spatialmath.base.parse_fmt``, proposed in
+# https://github.com/rai-opensource/spatialmath-python/pull/321.  Remove it, and
+# import that one, once the spatialmath release that has it is the minimum required.
+_FMT_LINESTYLES2 = ("--", "-.")
+_FMT_LINESTYLES1 = ("-", ":")
+_FMT_MARKERS = ".,ov^<>1234sp*hH+xDd|_PX8"
+_FMT_COLORS = "bgrcmykw"
+
+
+def parse_fmt(fmt: str | tuple[str, ...] | list[str] | None) -> dict[str, str]:
+    """
+    Parse a MATLAB-style format string into Matplotlib options
+
+    :param fmt: a format string such as ``"r--"``, ``"ko"`` or ``"C2:"``, or a
+        tuple or list whose first element is one, or None
+    :type fmt: str, tuple or list of str, or None
+    :raises ValueError: if the string is not a valid format string
+    :return: the options the string sets, as ``color``, ``marker`` and
+        ``linestyle`` keys
+    :rtype: dict
+
+    The string is a color, a marker and a line style in any order, and each is
+    optional:
+
+    - color: one of ``b g r c m y k w``, a cycle color such as ``C0``, or the whole
+      string can be any Matplotlib color, such as ``"red"``, ``"0.5"`` or ``"#ff8000"``
+    - marker: one of ``. , o v ^ < > 1 2 3 4 8 s p P * h H + x X D d | _``
+    - line style: one of ``-``, ``--``, ``-.`` or ``:``
+
+    The result holds only what the string sets, so it can be merged over a dict of
+    defaults without wiping them out::
+
+        >>> parse_fmt("r--")
+        {'color': 'r', 'linestyle': '--'}
+        >>> parse_fmt("--")
+        {'linestyle': '--'}
+        >>> parse_fmt("")
+        {}
+
+    As in Matplotlib, a marker with no line style means markers only, so
+    ``linestyle`` is ``"None"``::
+
+        >>> parse_fmt("go")
+        {'color': 'g', 'marker': 'o', 'linestyle': 'None'}
+
+    This is the same parsing that ``plot`` applies to its ``fmt`` argument, except
+    that a color, marker or line style that is not in the string is left out, and
+    is not set to a default.
+
+    .. note:: The characters accepted are the same as those of ``plot``, but not
+        the unusual ones: a space, ``"None"``, or the numbers that Matplotlib
+        accepts as markers.
+    """
+    if fmt is None:
+        return {}
+    if isinstance(fmt, (tuple, list)):
+        if len(fmt) == 0:
+            return {}
+        fmt = fmt[0]
+    if not isinstance(fmt, str):
+        raise ValueError(f"format must be a string, got {type(fmt).__name__}")
+
+    res: dict[str, str] = {}
+    if fmt == "":
+        return res
+
+    # the whole string is a color, such as "red" or "#ff8000"; "0" and "1" are
+    # a gray level to colors.is_color_like, but are a marker ("1" is a tri_down)
+    if fmt not in ("0", "1") and colors.is_color_like(fmt):
+        return {"color": fmt}
+
+    def bad(why: str) -> ValueError:
+        return ValueError(f"{fmt!r} is not a valid format string ({why})")
+
+    i = 0
+    while i < len(fmt):
+        c = fmt[i]
+        if fmt[i : i + 2] in _FMT_LINESTYLES2:
+            if "linestyle" in res:
+                raise bad("two linestyle symbols")
+            res["linestyle"] = fmt[i : i + 2]
+            i += 2
+        elif c in _FMT_LINESTYLES1:
+            if "linestyle" in res:
+                raise bad("two linestyle symbols")
+            res["linestyle"] = c
+            i += 1
+        elif c in _FMT_MARKERS:
+            if "marker" in res:
+                raise bad("two marker symbols")
+            res["marker"] = c
+            i += 1
+        elif c in _FMT_COLORS:
+            if "color" in res:
+                raise bad("two color symbols")
+            res["color"] = c
+            i += 1
+        elif c == "C":
+            m = re.match(r"C\d+", fmt[i:])
+            if m is None:
+                raise bad("'C' must be followed by a number")
+            if "color" in res:
+                raise bad("two color symbols")
+            res["color"] = m[0]
+            i += len(m[0])
+        else:
+            raise bad(f"unrecognized character {c!r}")
+
+    # as for plot(): a marker without a line style means no line
+    if "marker" in res and "linestyle" not in res:
+        res["linestyle"] = "None"
+    return res
+
+
 def mpl_styling(
     fmt: str | tuple[str] | None = None,
     defaults: dict | None = None,
@@ -1051,67 +1165,8 @@ def mpl_styling(
 
     """
 
-    def parse_matplotlib_fmt(fmt: str):
-        """
-        Parses a Matplotlib format string for color, marker, and linestyle.
+    res = parse_fmt(fmt)
 
-        Args:
-            fmt (str): The format string (e.g., 'ro--', 'g^:', '-.b*').
-
-        Returns:
-            dict: {color, marker, linestyle} with None for missing components.
-        """
-        # 1. Define patterns
-        # Styles: Match longer strings first to avoid greedy partial matches
-        style_pattern = r"(--|-\.|-|:)"
-        # Colors: Standard single-letter codes
-        color_pattern = r"[bgrcmykw]"
-        # Markers: Standard Matplotlib marker symbols
-        marker_pattern = r"[.,ov^<>12348spP*hH+xXDd|_]"
-
-        res: dict[str, Any] = {"color": None, "marker": None, "linestyle": None}
-        working_fmt = fmt
-
-        # 2. Extract Linestyle first (prevents '.' in '-.' being seen as a marker)
-        style_match = re.search(style_pattern, working_fmt)
-        if style_match:
-            res["linestyle"] = style_match.group(0)
-            working_fmt = working_fmt.replace(res["linestyle"], "", 1)
-
-        # 3. Extract Color
-        color_match = re.search(color_pattern, working_fmt)
-        if color_match:
-            res["color"] = color_match.group(0)
-            working_fmt = working_fmt.replace(res["color"], "", 1)
-
-        # 4. Extract Marker (from what remains)
-        marker_match = re.search(marker_pattern, working_fmt)
-        if marker_match:
-            res["marker"] = marker_match.group(0)
-            working_fmt = working_fmt.replace(res["marker"], "", 1)
-
-        if len(working_fmt.strip()) > 0:
-            raise ValueError(
-                f"Unrecognized format components in '{fmt}': '{working_fmt}'"
-            )
-
-        return res
-
-    """
-    Process a Matplotlib format string and return its components.
-
-    Args:
-        fmt (str): The format string to process.
-    """
-    if fmt is None or len(fmt) == 0:
-        res = {}
-    else:
-        if isinstance(fmt, (tuple, list)):
-            fmt = fmt[0]
-
-        res = parse_matplotlib_fmt(fmt)
-
-    # Override with defaults if not specified in fmt
     if artist is not None:
         defaults = cbook.normalize_kwargs(defaults or {}, artist)
         kwargs = cbook.normalize_kwargs(kwargs or {}, artist)
