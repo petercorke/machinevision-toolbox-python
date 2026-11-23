@@ -890,6 +890,33 @@ class TestBlobPlotMethods(unittest.TestCase):
     def test_plot_aligned_box_kwargs(self):
         self._test_plot_adds("plot_aligned_box", self._lines, color="yellow")
 
+    # the format string is applied once, by mpl_styling: what each line looks like
+    _FMT_RESULTS = [
+        # fmt, color, linestyle, marker
+        (None, "yellow", "-", "None"),
+        ("g", "g", "-", "None"),
+        ("r--", "r", "--", "None"),
+        ("--", "yellow", "--", "None"),
+        ("r:", "r", ":", "None"),
+        ("o", "yellow", "None", "o"),  # markers only, as for plot()
+        ("r.", "r", "None", "."),
+        ("C1", "C1", "-", "None"),
+        ("orange", "orange", "-", "None"),
+    ]
+
+    def test_polygon_and_circle_methods_apply_the_format_string_once(self):
+        for method in ("plot_aligned_box", "plot_MEC", "plot_MER"):
+            for fmt, color, linestyle, marker in self._FMT_RESULTS:
+                with self.subTest(method=method, fmt=fmt):
+                    fig, ax = self._fresh_ax()
+                    getattr(self.blobs1, method)(*([] if fmt is None else [fmt]))
+                    line = ax.lines[0]
+                    plt.close(fig)
+                    self.assertEqual(line.get_color(), color)
+                    self.assertEqual(line.get_linestyle(), linestyle)
+                    self.assertEqual(line.get_marker(), marker)
+                    self.assertEqual(line.get_linewidth(), 2)
+
     # ------------------------------------------------------------------ #
     # plot_MEC  (smb.plot_circle → 1 artist per blob)
     # ------------------------------------------------------------------ #
