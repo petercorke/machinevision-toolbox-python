@@ -4,14 +4,10 @@ Image file and URL reading/writing, and image-sequence iteration.
 
 import os
 import os.path
-import sys
 from pathlib import Path
 from typing import Any, SupportsFloat, cast
 
-if sys.version_info >= (3, 11):
-    from typing import Self
-else:
-    from typing_extensions import Self
+from typing import Self
 
 import matplotlib.patches as mpatches
 import matplotlib.patheffects as path_effects
@@ -402,7 +398,8 @@ class ImageIOMixin(ImageMixinBase):
         if isinstance(cmap, str):
             cmap = plt.get_cmap(cmap)
         if badcolor is not None:
-            cmap.set_bad(color=badcolor)
+            # with_extremes returns a copy, so the caller's colormap is not changed
+            cmap = cmap.with_extremes(bad=badcolor)
         ax.imshow(image, cmap=cmap, zorder=1)
 
         # label the cells with the pixel values

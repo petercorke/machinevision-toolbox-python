@@ -4,17 +4,13 @@ Color space conversions and color-plane operations for Image objects.
 
 from __future__ import annotations
 
-import sys
 from typing import TYPE_CHECKING, Any
 
 import cv2
 import numpy as np
 import spatialmath.base.argcheck as argcheck
 
-if sys.version_info >= (3, 11):
-    from typing import Self
-else:
-    from typing_extensions import Self
+from typing import Self
 
 
 from machinevisiontoolbox._image_typing import ImageMixinBase
