@@ -8,6 +8,7 @@ import copy
 from abc import ABC, abstractmethod
 from collections import namedtuple
 from math import pi, sin, tan
+from collections.abc import Iterable
 from typing import Any, Callable, cast
 
 import cv2
@@ -38,6 +39,16 @@ _getmatrix = cast(Callable[..., np.ndarray], smb.getmatrix)
 
 
 class CameraBase(ABC):
+    """
+    Abstract base class of the camera models
+
+    A camera model has an image size, a principal point, a pixel size and a
+    pose, and projects world points to the image plane.  The subclasses are
+    :class:`CentralCamera` (perspective), :class:`FishEyeCamera`,
+    :class:`CatadioptricCamera` and :class:`SphericalCamera`.  A subclass
+    implements :meth:`project_point`.
+    """
+
     _name: str
     _camtype: str
     _imagesize: np.ndarray | None
@@ -211,13 +222,37 @@ class CameraBase(ABC):
         return s + ")"
 
     @abstractmethod
-    def project_point(self, P, **kwargs: Any) -> np.ndarray:
+    def project_point(self, P: np.ndarray | ArrayLike, **kwargs: Any) -> np.ndarray:
+        """
+        Project world points to the image plane
+
+        :param P: world points
+        :type P: array_like(3), ndarray(3,N)
+        :return: image plane points
+        :rtype: ndarray(2,N)
+
+        Implemented by each camera model.
+        """
         pass
 
     def project_line(self, *args: Any, **kwargs: Any) -> np.ndarray:
+        """
+        Project a line to the image plane
+
+        :raises NotImplementedError: for a camera model that does not support it
+
+        Implemented by the camera models that support it.
+        """
         raise NotImplementedError("not implemented for this camera model")
 
     def project_conic(self, *args: Any, **kwargs: Any) -> np.ndarray:
+        """
+        Project a conic to the image plane
+
+        :raises NotImplementedError: for a camera model that does not support it
+
+        Implemented by the camera models that support it.
+        """
         raise NotImplementedError("not implemented for this camera model")
 
     @property
@@ -851,12 +886,12 @@ class CameraBase(ABC):
     def plot_point(
         self,
         P: np.ndarray | ArrayLike,
-        *fmt,
+        *fmt: Any,
         return_artist: bool = False,
         objpose: SE3 | None = None,
         pose: SE3 | None = None,
         ax: Axes | None = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> np.ndarray:
         """
         Plot points on virtual image plane (base method)
@@ -1238,7 +1273,7 @@ class CameraBase(ABC):
         # autoscale only for these collection additions.
         _orig_add_collection3d = ax.add_collection3d  # type: ignore[union-attr]
 
-        def _add_collection3d_compat(collection, *args, **kwargs):
+        def _add_collection3d_compat(collection: Any, *args: Any, **kwargs: Any) -> Any:
             kwargs.setdefault("autolim", False)
             try:
                 return _orig_add_collection3d(collection, *args, **kwargs)
@@ -1418,7 +1453,10 @@ class CentralCamera(CameraBase):
     _distortion: np.ndarray | None  # type: ignore[assignment]
 
     def __init__(
-        self, f: ArrayLike = 1, distortion: np.ndarray | None = None, **kwargs
+        self,
+        f: ArrayLike = 1,
+        distortion: np.ndarray | None = None,
+        **kwargs: Any,
     ) -> None:
         super().__init__(camtype="perspective", **kwargs)
         # TODO some of this logic to f and pp setters
@@ -1483,7 +1521,7 @@ class CentralCamera(CameraBase):
         behind: bool = True,
         visibility: bool = False,
         retinal: bool = False,
-        **kwargs,
+        **kwargs: Any,
     ) -> np.ndarray:
         r"""
         Project 3D points to image plane
@@ -2218,8 +2256,11 @@ class CentralCamera(CameraBase):
 
     @classmethod
     def images2C(
-        cls, images, gridshape: tuple[int, int] = (7, 6), squaresize: float = 0.025
-    ) -> tuple[np.ndarray, np.ndarray, list] | None:
+        cls,
+        images: Iterable[Image],
+        gridshape: tuple[int, int] = (7, 6),
+        squaresize: float = 0.025,
+    ) -> tuple[np.ndarray, np.ndarray, list[Any]] | None:
         """
         Calibrate camera from checkerboard images
 
@@ -2309,7 +2350,7 @@ class CentralCamera(CameraBase):
                 )
                 valid.append(i)
 
-        ret, C, distortion, rvecs, tvecs = cv2.calibrateCamera(
+        rms, C, distortion, rvecs, tvecs = cv2.calibrateCamera(
             objectPoints=objpoints,
             imagePoints=imgpoints,
             imageSize=grey.shape[::-1],
@@ -2318,7 +2359,7 @@ class CentralCamera(CameraBase):
         )
 
         CalibrationFrame = namedtuple("CalibrationFrame", "image pose id")
-        if ret:
+        if rms:
             frames = []
             for rvec, tvec, corner_image, id in zip(rvecs, tvecs, corner_images, valid):
                 frame = CalibrationFrame(
@@ -2492,7 +2533,7 @@ class CentralCamera(CameraBase):
         p2: np.ndarray,
         method: str = "leastsquares",
         seed: int | None = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> tuple[np.ndarray, float] | tuple[np.ndarray, float, np.ndarray]:
         """
         Estimate homography from corresponding points
@@ -2714,8 +2755,8 @@ class CentralCamera(CameraBase):
         method: str = "8p",
         residual: bool = True,
         seed: int | None = None,
-        **kwargs,
-    ) -> list:
+        **kwargs: Any,
+    ) -> list[Any]:
         """
         Estimate fundamental matrix from corresponding points
 
@@ -2935,7 +2976,7 @@ class CentralCamera(CameraBase):
         p2: np.ndarray,
         method: str | None = None,
         K: np.ndarray | None = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> np.ndarray | tuple[np.ndarray, np.ndarray]:
         """
         Essential matrix from points
@@ -3633,7 +3674,10 @@ class FishEyeCamera(CameraBase):
     projection: str
 
     def __init__(
-        self, k: float | None = None, projection: str = "equiangular", **kwargs
+        self,
+        k: float | None = None,
+        projection: str = "equiangular",
+        **kwargs: Any,
     ) -> None:
         super().__init__(camtype="fisheye", **kwargs)
 
@@ -3798,7 +3842,7 @@ class CatadioptricCamera(CameraBase):
         k: float | None = None,
         projection: str = "equiangular",
         maxangle: float | None = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
         super().__init__(camtype="catadioptric", **kwargs)
 
