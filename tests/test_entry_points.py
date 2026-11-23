@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import importlib.util
-import re
+import tomllib
 import unittest
 from pathlib import Path
 
@@ -13,14 +13,9 @@ def console_scripts(text: str) -> list[tuple[str, str, str]]:
 
     :param text: contents of a pyproject.toml file
     :return: list of (command name, module, function) tuples
-
-    A regex is used rather than ``tomllib`` because the latter is only in the
-    standard library from Python 3.11 and this package supports 3.10.
     """
-    match = re.search(r"^\[project\.scripts\]\n(.*?)(?=^\[|\Z)", text, re.S | re.M)
-    if match is None:
-        return []
-    return re.findall(r'^([\w-]+)\s*=\s*"([\w.]+):(\w+)"', match.group(1), re.M)
+    scripts = tomllib.loads(text).get("project", {}).get("scripts", {})
+    return [(name, *target.split(":")) for name, target in scripts.items()]
 
 
 def missing_modules(text: str) -> list[str]:

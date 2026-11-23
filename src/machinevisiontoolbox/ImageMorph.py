@@ -4,7 +4,6 @@ Morphological operations on binary and greyscale images.
 
 from __future__ import annotations
 
-import sys
 import time
 from typing import TYPE_CHECKING, Any
 
@@ -14,10 +13,7 @@ import numpy as np
 from machinevisiontoolbox._image_typing import ImageMixinBase
 from machinevisiontoolbox.Kernel import Kernel
 
-if sys.version_info >= (3, 11):
-    from typing import Self
-else:
-    from typing_extensions import Self
+from typing import Self
 
 if TYPE_CHECKING:
     pass

@@ -4,14 +4,7 @@ Geometric transformations: resizing, cropping, rotation, padding, and stacking o
 
 import math
 from collections.abc import Callable
-from typing import Any, cast
-
-try:
-    from typing import Self
-except ImportError:
-    from typing_extensions import Self
-
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Self, cast
 
 import cv2
 import matplotlib.pyplot as plt
