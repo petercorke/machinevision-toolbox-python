@@ -4,7 +4,6 @@ PyTorch tensor conversion and integration for Image objects.
 
 from __future__ import annotations
 
-import sys
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
@@ -12,10 +11,7 @@ if TYPE_CHECKING:
 
 import numpy as np
 
-if sys.version_info >= (3, 11):
-    from typing import Self
-else:
-    from typing_extensions import Self
+from typing import Self
 from machinevisiontoolbox._image_typing import ImageMixinBase
 
 try:
