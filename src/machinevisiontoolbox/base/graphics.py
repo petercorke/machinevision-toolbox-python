@@ -786,7 +786,10 @@ def draw_point(
             x = [pos[0]]
             y = [pos[1]]
     else:
-        raise ValueError("bad input")
+        raise ValueError(
+            "pos must be a 2xN array, a 2-tuple or list, or a list of 2-tuples, "
+            f"got {type(pos).__name__}"
+        )
 
     newmarker = ""
     markercolor = ""

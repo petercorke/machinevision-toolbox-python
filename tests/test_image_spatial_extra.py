@@ -150,7 +150,7 @@ class TestWindow:
         assert square.window(np.mean, h=1, border=border).shape == (40, 40)
 
     def test_bad_border(self, square):
-        with pytest.raises(ValueError, match="not a valid option"):
+        with pytest.raises(ValueError, match="border must be one of"):
             square.window(np.max, h=1, border="outside")
 
 

@@ -100,11 +100,11 @@ class CameraBase(ABC):
             self._name = camtype
         else:
             if not isinstance(name, str):
-                raise TypeError(name, "name must be a string")
+                raise TypeError(f"name must be a string, got {name!r}")
             self._name = name
 
         if not isinstance(camtype, str):
-            raise TypeError(camtype, "camtype must be a string")
+            raise TypeError(f"camtype must be a string, got {camtype!r}")
         self._camtype = camtype
 
         if imagesize is None:
@@ -134,7 +134,7 @@ class CameraBase(ABC):
                 self._rhou = rho[0]
                 self._rhov = rho[1]
             else:
-                raise ValueError(rho, "rho must be a 1- or 2-element vector")
+                raise ValueError(f"rho must be a 1- or 2-element vector, got {rho!r}")
 
         if noise is not None:
             self._noise = noise
@@ -250,7 +250,7 @@ class CameraBase(ABC):
         if isinstance(newname, str):
             self._name = newname
         else:
-            raise TypeError(newname, "name must be a string")
+            raise TypeError(f"name must be a string, got {newname!r}")
 
     @property
     def camtype(self) -> str:
@@ -283,7 +283,7 @@ class CameraBase(ABC):
         if isinstance(newcamtype, str):
             self._camtype = newcamtype
         else:
-            raise TypeError(newcamtype, "camtype must be a string")
+            raise TypeError(f"camtype must be a string, got {newcamtype!r}")
 
     @property
     def imagesize(self) -> np.ndarray | None:
@@ -333,7 +333,9 @@ class CameraBase(ABC):
             # ignore color dimension in case it is given
             self._imagesize = npix[:2]
         else:
-            raise ValueError(npix, "imagesize must be a 1- or 2-element vector")
+            raise ValueError(
+                f"imagesize must be a 1- or 2-element vector, got {npix!r}"
+            )
         if self._pp is None:
             assert self._imagesize is not None
             self._pp = self._imagesize / 2
@@ -460,7 +462,7 @@ class CameraBase(ABC):
         elif len(pp) == 2:
             self._pp = pp
         else:
-            raise ValueError(pp, "pp must be a 1- or 2-element vector")
+            raise ValueError(f"pp must be a 1- or 2-element vector, got {pp!r}")
 
     @property
     def u0(self) -> float:
@@ -2050,7 +2052,7 @@ class CentralCamera(CameraBase):
             self._fu = f[0]
             self._fv = f[1]
         else:
-            raise ValueError(f, "f must be a 1- or 2-element vector")
+            raise ValueError(f"f must be a 1- or 2-element vector, got {f!r}")
 
     @property
     def fpix(self) -> np.ndarray:
@@ -2468,11 +2470,11 @@ class CentralCamera(CameraBase):
         :seealso: :meth:`points2H` :meth:`decomposeH`
         """
         if d < 0:
-            raise ValueError(d, "plane distance d must be > 0")
+            raise ValueError(f"plane distance d must be > 0, got {d!r}")
 
         n = _getvector(n)
         if n[2] < 0:
-            raise ValueError(n, "normal must be away from camera (n[2] >= 0)")
+            raise ValueError(f"normal must be away from camera (n[2] >= 0), got {n!r}")
 
         # T transform view 1 to view 2
         T = SE3(T).inv()
@@ -2701,7 +2703,9 @@ class CentralCamera(CameraBase):
             return np.linalg.inv(K2).T @ E @ np.linalg.inv(K1)
 
         else:
-            raise ValueError("bad type")
+            raise ValueError(
+                f"other must be a CentralCamera or SE3, got {type(other).__name__}"
+            )
 
     @staticmethod
     def points2F(
@@ -2918,7 +2922,10 @@ class CentralCamera(CameraBase):
             T21 = SE3(other.inv())
 
         else:
-            raise ValueError("bad type")
+            raise ValueError(
+                "other must be a CentralCamera, SE3 or a 3x3 fundamental matrix, "
+                f"got {type(other).__name__}"
+            )
 
         return smb.skew(T21.t) @ T21.R
 

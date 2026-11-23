@@ -140,7 +140,7 @@ class VisualServo(ABC):
 
     def step(self, t: float) -> int:
         """Compute one timestep of the simulation, implemented by subclasses."""
-        raise NotImplementedError
+        raise NotImplementedError(f"{type(self).__name__} must implement step()")
 
     def init(self) -> None:
         """

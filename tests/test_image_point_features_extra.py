@@ -485,9 +485,9 @@ class TestFeatureMatchAccess:
         nt.assert_array_equal(fmatch[np.array([3, 0])].id1, [3, 0])
 
     def test_bad_index(self, fmatch):
-        with pytest.raises(ValueError, match="bad index$"):
+        with pytest.raises(ValueError, match="index must be an int, slice"):
             fmatch["a"]
-        with pytest.raises(ValueError, match="bad index dtype"):
+        with pytest.raises(ValueError, match="index array must be integer or bool"):
             fmatch[np.array([0.5])]
 
     def test_by_id(self, fmatch):
@@ -810,7 +810,7 @@ class TestDetectors:
         nt.assert_array_equal(im.SIFT(nfeat=3).id, [3, 3, 3])
 
     def test_bad_id(self, checkerboard):
-        with pytest.raises(ValueError, match="bad id"):
+        with pytest.raises(ValueError, match="id must be .image., .index. or an int"):
             checkerboard.SIFT(id="name")
 
     def test_bad_algorithm(self, checkerboard):
