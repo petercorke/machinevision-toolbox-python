@@ -398,7 +398,8 @@ class ImageIOMixin(ImageMixinBase):
         if isinstance(cmap, str):
             cmap = plt.get_cmap(cmap)
         if badcolor is not None:
-            cmap.set_bad(color=badcolor)
+            # with_extremes returns a copy, so the caller's colormap is not changed
+            cmap = cmap.with_extremes(bad=badcolor)
         ax.imshow(image, cmap=cmap, zorder=1)
 
         # label the cells with the pixel values
