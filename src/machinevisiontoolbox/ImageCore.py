@@ -5,9 +5,9 @@ Core Image class providing pixel storage, arithmetic operators, and color-plane 
 from __future__ import annotations
 
 import warnings
-from collections.abc import Iterator, Sequence
+from collections.abc import Callable, Iterator, Sequence
 from pathlib import Path
-from typing import Any
+from typing import Any, TextIO, TypeAlias, cast
 
 import numpy as np
 import spatialmath.base as smb
@@ -45,10 +45,9 @@ from machinevisiontoolbox.mvtb_types import Array2d, Array3d, Dtype
 # import spatialmath.base.argcheck as argcheck
 
 
-"""
-This class encapsulates a Numpy array containing the pixel values.  The object
-supports arithmetic using overloaded operators, as well a large number of methods.
-"""
+# anything that can be the right operand of an arithmetic, logical or comparison
+# operator applied to an Image: another image, an array or a scalar
+ImageOperand: TypeAlias = "Image | np.ndarray | int | float | bool"
 
 
 class Image(
@@ -68,6 +67,14 @@ class Image(
     ImageMultiviewMixin,
     ImageTensorMixin,
 ):
+    """
+    Image class
+
+    This class encapsulates a NumPy array containing the pixel values.  The
+    object supports arithmetic using overloaded operators, as well as a large
+    number of methods.
+    """
+
     def __init__(
         self,
         image: Image | np.ndarray | None = None,
@@ -77,9 +84,9 @@ class Image(
         dtype: Dtype | bool | None = None,
         name: str | None = None,
         id: int | None = None,
-        domain=None,
+        domain: tuple[Any, Any] | None = None,
         binary: bool = False,
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
         """
         Create an Image instance
@@ -534,7 +541,9 @@ class Image(
             arr = arr.copy()
         return arr
 
-    def __array_ufunc__(self, ufunc, method: str, *inputs, **kwargs):
+    def __array_ufunc__(
+        self, ufunc: np.ufunc, method: str, *inputs: Any, **kwargs: Any
+    ) -> Any:
         """
         Support NumPy ufunc calls on image data.
 
@@ -596,7 +605,7 @@ class Image(
             self,
         )
 
-        def wrap_result(result):
+        def wrap_result(result: Any) -> Any:
             if not isinstance(result, np.ndarray):
                 return result
 
@@ -623,7 +632,13 @@ class Image(
 
         return wrap_result(result)
 
-    def __array_function__(self, func, types, args, kwargs):
+    def __array_function__(
+        self,
+        func: Callable[..., Any],
+        types: tuple[type, ...],
+        args: tuple[Any, ...],
+        kwargs: dict[str, Any],
+    ) -> Any:
         """
         Support selected high-level NumPy functions on images.
 
@@ -667,7 +682,7 @@ class Image(
         if not all(issubclass(t, (self.__class__, np.ndarray)) for t in types):
             return NotImplemented
 
-        def coerce(value):
+        def coerce(value: Any) -> Any:
             if isinstance(value, self.__class__):
                 return value._A
             if isinstance(value, tuple):
@@ -685,7 +700,7 @@ class Image(
             self,
         )
 
-        def wrap_result(value):
+        def wrap_result(value: Any) -> Any:
             if isinstance(value, tuple):
                 return tuple(wrap_result(v) for v in value)
             if isinstance(value, list):
@@ -836,7 +851,7 @@ class Image(
             s += f", u=({self.domain[0][0]:.3g},{self.domain[0][-1]:.3g}), v=({self.domain[1][0]:.3g},{self.domain[1][-1]:.3g})"
         return s + ")"
 
-    def rprint(self, **kwargs) -> "Image":
+    def rprint(self, **kwargs: Any) -> "Image":
         """
         Print image pixels in compact format and return image
 
@@ -894,7 +909,7 @@ class Image(
         separator: str = " ",
         precision: int = 2,
         header: bool = False,
-        file=None,
+        file: TextIO | None = None,
     ) -> None:
         """
         Print image pixels in compact format
@@ -990,8 +1005,6 @@ class Image(
         :return: multiline string containing formatted arrays
         :rtype: str
         :raises ValueError: if the arrays have different numbers of rows
-
-        AUTO_EDIT
 
         For image processing this is useful for displaying small test images.
 
@@ -1205,7 +1218,7 @@ class Image(
                 raise TypeError(f"OpenCV requires {type_list}, got {array.dtype}")
 
     @staticmethod
-    def colordict(colororder) -> dict[str, int]:
+    def colordict(colororder: str | dict[str, int]) -> dict[str, int]:
         """
         Parse a color order specification
 
@@ -1236,19 +1249,21 @@ class Image(
             cdict = colororder
         elif isinstance(colororder, str):
             if ":" in colororder:
-                colororder = colororder.split(":")
+                names = colororder.split(":")
             else:
-                colororder = list(colororder)
+                names = list(colororder)
 
             cdict = {}
-            for i, color in enumerate(colororder):
+            for i, color in enumerate(names):
                 cdict[color] = i
         else:
             raise ValueError("color order must be a dict or string")
         return cdict
 
     @staticmethod
-    def colororder2dict(colororder, start: int = 0) -> dict[str, int]:
+    def colororder2dict(
+        colororder: str | dict[str, int] | None, start: int = 0
+    ) -> dict[str, int]:
         """
         Parse a color order specification to a color dictionary
 
@@ -1261,8 +1276,6 @@ class Image(
         :rtype: dict
 
         The color order the value can be given in a variety of forms:
-
-        AUTO_EDIT
 
         * simple string, one plane per character, eg. ``"RGB"``
         * colon separated string, eg. ``"R:G:B"``, ``"L*:a*:b*"``
@@ -1289,12 +1302,12 @@ class Image(
                 return colororder
         elif isinstance(colororder, str):
             if ":" in colororder:
-                colororder = colororder.split(":")
+                names = colororder.split(":")
             else:
-                colororder = list(colororder)
+                names = list(colororder)
 
             cdict = {}
-            for i, color in enumerate(colororder):
+            for i, color in enumerate(names):
                 cdict[color] = i + start
             return cdict
         elif colororder is None:
@@ -1348,7 +1361,6 @@ class Image(
 
         :seealso: :meth:`colordict2list` :meth:`colororder2dict`
 
-        AUTO_EDIT
         """
         return ":".join(Image.colordict2list(cdict))
 
@@ -2642,7 +2654,7 @@ class Image(
         for i in range(self.nplanes):
             yield self.plane(i)
 
-    def plane(self, planes) -> "Image":
+    def plane(self, planes: int | str | list[int] | tuple[int, ...]) -> "Image":
         """
         Extract plane(s) from color image
 
@@ -2698,14 +2710,14 @@ class Image(
                 raise ValueError("plane names require colororder")
             iplanes = []
             colororder = {}
+            names: Sequence[str] = planes
             if ":" in planes:
-                planes = planes.split(":")
-                planes = [p for p in planes if p != ""]
-            for plane in planes:
+                names = [p for p in planes.split(":") if p != ""]
+            for name in names:
                 try:
-                    i = self.colororder[plane]
+                    i = self.colororder[name]
                     iplanes.append(i)
-                    colororder[plane] = len(colororder)  # copy to new dict
+                    colororder[name] = len(colororder)  # copy to new dict
                 except KeyError:
                     raise ValueError("bad plane name specified")
         elif isinstance(planes, (tuple, list)):
@@ -2728,7 +2740,7 @@ class Image(
 
     def __getitem__(
         self, keys: int | str | tuple[slice, slice] | tuple[slice, slice, slice]
-    ):
+    ) -> Any:
         """
         Return pixel value or slice from image
 
@@ -2949,7 +2961,7 @@ class Image(
         mask: Image | Polygon2 | list[Polygon2],
         coords: bool = False,
         return_mask: bool = False,
-    ):
+    ) -> Any:
         """
         Return pixel values at locations specified by a mask
 
@@ -3098,7 +3110,7 @@ class Image(
     # ------------------------- operators ------------------------------ #
 
     # arithmetic
-    def __mul__(self, other) -> "Image":
+    def __mul__(self, other: ImageOperand) -> "Image":
         """
         Overloaded ``*`` operator
 
@@ -3128,10 +3140,10 @@ class Image(
         """
         return self._binop(self, other, lambda x, y: x * y)
 
-    def __rmul__(self, other) -> "Image":
+    def __rmul__(self, other: ImageOperand) -> "Image":
         return self._binop(self, other, lambda x, y: y * x)
 
-    def __imul__(self, other) -> "Image":
+    def __imul__(self, other: ImageOperand) -> "Image":
         """
         Overloaded in-place ``*=`` operator
 
@@ -3145,7 +3157,7 @@ class Image(
         self._A = self._binop(self, other, lambda x, y: x * y)._A
         return self
 
-    def __pow__(self, other) -> "Image":
+    def __pow__(self, other: ImageOperand) -> "Image":
         """
         Overloaded ``**`` operator
 
@@ -3170,7 +3182,7 @@ class Image(
             raise ValueError("exponent must be a scalar")
         return self._binop(self, other, lambda x, y: x**y)
 
-    def __add__(self, other) -> "Image":
+    def __add__(self, other: ImageOperand) -> "Image":
         """
         Overloaded ``+`` operator
 
@@ -3200,10 +3212,10 @@ class Image(
         """
         return self._binop(self, other, lambda x, y: x + y)
 
-    def __radd__(self, other) -> "Image":
+    def __radd__(self, other: ImageOperand) -> "Image":
         return self._binop(self, other, lambda x, y: y + x)
 
-    def __iadd__(self, other) -> "Image":
+    def __iadd__(self, other: ImageOperand) -> "Image":
         """
         Overloaded in-place ``+=`` operator
 
@@ -3217,7 +3229,7 @@ class Image(
         self._A = self._binop(self, other, lambda x, y: x + y)._A
         return self
 
-    def __sub__(self, other) -> "Image":
+    def __sub__(self, other: ImageOperand) -> "Image":
         """
         Overloaded ``-`` operator
 
@@ -3247,10 +3259,10 @@ class Image(
         """
         return self._binop(self, other, lambda x, y: x - y)
 
-    def __rsub__(self, other) -> "Image":
+    def __rsub__(self, other: ImageOperand) -> "Image":
         return self._binop(self, other, lambda x, y: y - x)
 
-    def __isub__(self, other) -> "Image":
+    def __isub__(self, other: ImageOperand) -> "Image":
         """
         Overloaded in-place ``-=`` operator
 
@@ -3264,7 +3276,7 @@ class Image(
         self._A = self._binop(self, other, lambda x, y: x - y)._A
         return self
 
-    def __truediv__(self, other) -> "Image":
+    def __truediv__(self, other: ImageOperand) -> "Image":
         """
         Overloaded ``/`` operator
 
@@ -3293,10 +3305,10 @@ class Image(
         """
         return self._binop(self, other, lambda x, y: x / y)
 
-    def __rtruediv__(self, other) -> "Image":
+    def __rtruediv__(self, other: ImageOperand) -> "Image":
         return self._binop(self, other, lambda x, y: y / x)
 
-    def __itruediv__(self, other) -> "Image":
+    def __itruediv__(self, other: ImageOperand) -> "Image":
         """
         Overloaded in-place ``/=`` operator
 
@@ -3310,7 +3322,7 @@ class Image(
         self._A = self._binop(self, other, lambda x, y: x / y)._A
         return self
 
-    def __floordiv__(self, other) -> "Image":
+    def __floordiv__(self, other: ImageOperand) -> "Image":
         """
         Overloaded ``//`` operator
 
@@ -3337,10 +3349,10 @@ class Image(
         """
         return self._binop(self, other, lambda x, y: x // y)
 
-    def __rfloordiv__(self, other) -> "Image":
+    def __rfloordiv__(self, other: ImageOperand) -> "Image":
         return self._binop(self, other, lambda x, y: y // x)
 
-    def __ifloordiv__(self, other) -> "Image":
+    def __ifloordiv__(self, other: ImageOperand) -> "Image":
         """
         Overloaded in-place ``//=`` operator
 
@@ -3377,7 +3389,7 @@ class Image(
         return self._unop(self, lambda x: -x)
 
     # bitwise
-    def __and__(self, other) -> "Image":
+    def __and__(self, other: ImageOperand) -> "Image":
         """
         Overloaded ``&`` operator
 
@@ -3404,7 +3416,7 @@ class Image(
         """
         return self._binop(self, other, lambda x, y: x & y)
 
-    def __iand__(self, other) -> "Image":
+    def __iand__(self, other: ImageOperand) -> "Image":
         """
         Overloaded in-place ``&=`` operator
 
@@ -3418,7 +3430,7 @@ class Image(
         self._A = self._binop(self, other, lambda x, y: x & y)._A
         return self
 
-    def __or__(self, other) -> "Image":
+    def __or__(self, other: ImageOperand) -> "Image":
         """
         Overloaded ``|`` operator
 
@@ -3445,7 +3457,7 @@ class Image(
         """
         return self._binop(self, other, lambda x, y: x | y)
 
-    def __ior__(self, other) -> "Image":
+    def __ior__(self, other: ImageOperand) -> "Image":
         """
         Overloaded in-place ``|=`` operator
 
@@ -3459,7 +3471,7 @@ class Image(
         self._A = self._binop(self, other, lambda x, y: x | y)._A
         return self
 
-    def __xor__(self, other) -> "Image":
+    def __xor__(self, other: ImageOperand) -> "Image":
         """
         Overloaded ``^`` operator
 
@@ -3486,7 +3498,7 @@ class Image(
         """
         return self._binop(self, other, lambda x, y: x ^ y)
 
-    def __ixor__(self, other) -> "Image":
+    def __ixor__(self, other: ImageOperand) -> "Image":
         """
         Overloaded in-place ``^=`` operator
 
@@ -3500,7 +3512,7 @@ class Image(
         self._A = self._binop(self, other, lambda x, y: x ^ y)._A
         return self
 
-    def __lshift__(self, other) -> "Image":
+    def __lshift__(self, other: ImageOperand) -> "Image":
         """
         Overloaded ``<<`` operator
 
@@ -3522,7 +3534,7 @@ class Image(
             raise ValueError("left shift must be by integer amount")
         return self._binop(self, other, lambda x, y: x << y)
 
-    def __ilshift__(self, other) -> "Image":
+    def __ilshift__(self, other: ImageOperand) -> "Image":
         """
         Overloaded in-place ``<<=`` operator
 
@@ -3538,7 +3550,7 @@ class Image(
         self._A = self._binop(self, other, lambda x, y: x << y)._A
         return self
 
-    def __rshift__(self, other) -> "Image":
+    def __rshift__(self, other: ImageOperand) -> "Image":
         """
         Overloaded ``>>`` operator
 
@@ -3560,7 +3572,7 @@ class Image(
             raise ValueError("left shift must be by integer amount")
         return self._binop(self, other, lambda x, y: x >> y)
 
-    def __irshift__(self, other) -> "Image":
+    def __irshift__(self, other: ImageOperand) -> "Image":
         """
         Overloaded in-place ``>>=`` operator
 
@@ -3576,7 +3588,7 @@ class Image(
         self._A = self._binop(self, other, lambda x, y: x >> y)._A
         return self
 
-    def __mod__(self, other) -> "Image":
+    def __mod__(self, other: Image | int | float | bool) -> "Image":
         """
         Overloaded ``%`` operator
 
@@ -3607,9 +3619,10 @@ class Image(
         """
         if smb.isscalar(other):
             other = Image.Constant(other, size=self.size, dtype=str(self._A.dtype))
-        return self.Pstack((self, other))
+        # other is now an Image, but mypy cannot see that smb.isscalar() narrows it
+        return self.Pstack((self, cast(Image, other)))
 
-    def __imod__(self, other) -> "Image":
+    def __imod__(self, other: Image | int | float | bool) -> "Image":
         """
         Overloaded in-place ``%=`` operator
 
@@ -3623,7 +3636,7 @@ class Image(
         """
         if smb.isscalar(other):
             other = Image.Constant(other, size=self.size, dtype=str(self._A.dtype))
-        self._A = self.Pstack((self, other))._A
+        self._A = self.Pstack((self, cast(Image, other)))._A
         return self
 
     # relational
@@ -3631,7 +3644,7 @@ class Image(
     # Unlike __add__ etc., these two are defined on object with return type bool, so
     # pyright flags the override as incompatible — the ignore is justified here.
     def __eq__(  # type: ignore[override]  # pyright: ignore[reportIncompatibleMethodOverride]
-        self, other
+        self, other: ImageOperand
     ) -> "Image":
         """
         Overloaded ``==`` operator
@@ -3659,7 +3672,7 @@ class Image(
         """
         return self._binop(self, other, lambda x, y: x == y)
 
-    def sameas(self, other, colororder: bool = True) -> bool:
+    def sameas(self, other: object, colororder: bool = True) -> bool:
         """
         Compare two images for exact equality and return a scalar bool.
 
@@ -3704,7 +3717,7 @@ class Image(
         return bool(np.all((self == other).A))
 
     def __ne__(  # type: ignore[override]  # pyright: ignore[reportIncompatibleMethodOverride]  # same reason as __eq__
-        self, other
+        self, other: ImageOperand
     ) -> "Image":
         """
         Overloaded ``!=`` operator
@@ -3732,7 +3745,7 @@ class Image(
         """
         return self._binop(self, other, lambda x, y: x != y)
 
-    def __gt__(self, other) -> "Image":
+    def __gt__(self, other: ImageOperand) -> "Image":  # type: ignore[misc]  # ndarray has the reflected comparison
         """
         Overloaded ``>`` operator
 
@@ -3759,7 +3772,7 @@ class Image(
         """
         return self._binop(self, other, lambda x, y: x > y)
 
-    def __ge__(self, other) -> "Image":
+    def __ge__(self, other: ImageOperand) -> "Image":  # type: ignore[misc]  # ndarray has the reflected comparison
         """
         Overloaded ``>=`` operator
 
@@ -3786,7 +3799,7 @@ class Image(
         """
         return self._binop(self, other, lambda x, y: x >= y)
 
-    def __lt__(self, other) -> "Image":
+    def __lt__(self, other: ImageOperand) -> "Image":  # type: ignore[misc]  # ndarray has the reflected comparison
         """
         Overloaded ``<`` operator
 
@@ -3813,7 +3826,7 @@ class Image(
         """
         return self._binop(self, other, lambda x, y: x < y)
 
-    def __le__(self, other) -> "Image":
+    def __le__(self, other: ImageOperand) -> "Image":  # type: ignore[misc]  # ndarray has the reflected comparison
         """
         Overloaded ``<=`` operator
 
@@ -3865,7 +3878,12 @@ class Image(
         return self._unop(self, lambda x: ~x)
 
     @staticmethod
-    def _binop(left, right, op, logical=False) -> "Image":
+    def _binop(
+        left: "Image",
+        right: ImageOperand,
+        op: Callable[..., Any],
+        logical: bool = False,
+    ) -> "Image":
         if isinstance(right, left.__class__):
             # both images
             if left.nplanes == right.nplanes:
@@ -3893,7 +3911,9 @@ class Image(
             return left.__class__(op(left._A, right), colororder=left.colororder)
 
     @staticmethod
-    def _logicalop(left, right, op) -> "Image":
+    def _logicalop(
+        left: "Image", right: ImageOperand, op: Callable[..., Any]
+    ) -> "Image":
         true = left.cast(left.true)
         false = left.cast(left.false)
 
@@ -3906,7 +3926,7 @@ class Image(
         return left.__class__(out, colororder=left.colororder)
 
     @staticmethod
-    def _unop(left, op) -> "Image":
+    def _unop(left: "Image", op: Callable[..., Any]) -> "Image":
         return left.__class__(op(left._A), colororder=left.colororder)
 
     # ---------------------------- functions ---------------------------- #
@@ -4261,7 +4281,6 @@ class Image(
 
         :seealso: :meth:`Vstack` :meth:`Hstack`
 
-        AUTO_EDIT
         """
         nplanes = images[0].nplanes
         for image in images[1:]:

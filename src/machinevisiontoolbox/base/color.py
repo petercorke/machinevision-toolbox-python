@@ -727,7 +727,7 @@ def name2color(
     colorspace: str = "RGB",
     dtype: str | type | np.dtype = "float",
     colororder: dict[str, int] | None = None,
-) -> np.ndarray | list[str] | None:
+) -> np.ndarray | None:
     """
     Map color name to value
 
@@ -739,8 +739,9 @@ def name2color(
     :type dtype: str, type or numpy.dtype
     :param colororder: dictionary mapping color name to index
     :type colororder: dict, optional
-    :return: color tristimulus or chromaticity value; or list of matching color names
-    :rtype: ndarray(3), ndarray(2); list[str]
+    :return: color tristimulus or chromaticity value, or ``None`` if the name is not known
+    :rtype: ndarray(3), ndarray(2) or None
+    :raises ValueError: unknown ``colorspace``, or ``name`` contains a wildcard
 
     Looks up the RGB tristimulus for this color using ``matplotlib.colors`` and
     converts it to the desired ``colorspace``.
@@ -757,15 +758,18 @@ def name2color(
     to the index in the output array.  For an image, this dictionary is given by the
     :meth:`~machinevisiontoolbox.Image.colororder` method.
 
-    If a Python-style regexp is passed, then the return value is a list
-    of matching color names.
-
     If the name is not a known color the return value is ``None``.  An unknown
-    ``colorspace`` raises a :class:`ValueError`.
+    ``colorspace`` raises a :class:`ValueError`.  To find color names that match
+    a pattern use :func:`color_names`.
 
     .. versionchanged:: 2.5.0
         An unknown ``colorspace`` raises :class:`ValueError`.  It used to return
         ``None``, as for an unknown color name.
+
+    .. versionchanged:: 2.5.0
+        A name containing a wildcard (``.``, ``?`` or ``*``) raises
+        :class:`ValueError`.  It used to return a list of the matching color
+        names, which is now done by :func:`color_names`.
 
     Example:
 
@@ -777,14 +781,13 @@ def name2color(
         >>> name2color("red", colororder={"R": 2, "G": 1, "B": 0})
         >>> name2color("r", "xy")
         >>> name2color("lime green")
-        >>> name2color(".*burnt.*")
 
     .. note:: Uses color database from Matplotlib.
 
     :references:
         - |RVC3|, Section 10.1.
 
-    :seealso: :func:`~color2name`
+    :seealso: :func:`~color2name` :func:`color_names`
     """
 
     def csconvert(name: str, cs: str) -> np.ndarray:
@@ -816,28 +819,80 @@ def name2color(
         )
 
     if any([c in ".?*" for c in name]):
-        # has a wildcard
-        return list(
-            filter(
-                re.compile(name).match,
-                [key for key in colors.get_named_colors_mapping().keys()],
-            )
+        raise ValueError(
+            f"{name!r} contains a wildcard, name2color no longer matches patterns, "
+            "use color_names(pattern)"
         )
-    else:
-        try:
-            color = csconvert(name, cs)
-            if np.issubdtype(dtype, np.integer):
-                # if dtype is an integer type, scale the color to the range [0,M]
-                color = (color * np.iinfo(dtype).max).astype(dtype)
-            if colororder is not None:
-                # reorder the elements of the color if colororder is given
-                # colororder is a dict mapping plane name to index -- fancy
-                # index rather than a list comprehension, to keep the
-                # ndarray return type promised by this function's contract
-                color = color[[colororder[c] for c in colorspace]]
-            return color
-        except ValueError:
-            return None
+
+    try:
+        color = csconvert(name, cs)
+        if np.issubdtype(dtype, np.integer):
+            # if dtype is an integer type, scale the color to the range [0,M]
+            color = (color * np.iinfo(dtype).max).astype(dtype)
+        if colororder is not None:
+            # reorder the elements of the color if colororder is given
+            # colororder is a dict mapping plane name to index -- fancy
+            # index rather than a list comprehension, to keep the
+            # ndarray return type promised by this function's contract
+            color = color[[colororder[c] for c in colorspace]]
+        return color
+    except ValueError:
+        return None
+
+
+def color_names(pattern: str | None = None) -> list[str]:
+    r"""
+    List the known color names
+
+    :param pattern: Python regular expression that the whole name must match,
+        defaults to None
+    :type pattern: str, optional
+    :return: color names, all of them or those that match ``pattern``
+    :rtype: list[str]
+    :raises ValueError: ``pattern`` is not a valid regular expression
+
+    The names are those of the color database of Matplotlib, which is also used
+    by :func:`name2color` and :func:`color2name`.
+
+    If ``pattern`` is given only the names that match it are returned.
+
+    .. important::
+
+        ``pattern`` is a **Python regular expression**, as used by the
+        :mod:`re` module, **not** a shell style wildcard such as ``*.png``.
+        In a regular expression ``.*`` means any number of any characters,
+        whereas ``*`` or ``?`` at the start of a pattern is an error.  The whole
+        name must match, so to find names that contain ``coral`` use
+        ``".*coral.*"``, not ``"coral"`` or ``"*coral*"``.
+
+    Example:
+
+    .. runblock:: pycon
+
+        >>> from machinevisiontoolbox import color_names
+        >>> color_names(".*burnt.*")
+        >>> color_names("(red|green|blue)")
+        >>> len(color_names())
+
+    .. versionadded:: 2.5.0
+        Replaces the wildcard feature of :func:`name2color`.
+
+    :references:
+        - |RVC3|, Section 10.1.
+
+    :seealso: :func:`name2color` :func:`color2name` :mod:`re`
+    """
+    names = list(colors.get_named_colors_mapping().keys())
+    if pattern is None:
+        return names
+    try:
+        regexp = re.compile(pattern)
+    except re.error as e:
+        raise ValueError(
+            f"{pattern!r} is not a valid Python regular expression ({e}), "
+            "note that * and ? are not shell style wildcards, use .* for any text"
+        ) from e
+    return [name for name in names if regexp.fullmatch(name)]
 
 
 def color2name(color: np.ndarray | list[float], colorspace: str = "RGB") -> str:
@@ -864,7 +919,6 @@ def color2name(color: np.ndarray | list[float], colorspace: str = "RGB") -> str:
 
     .. note::
 
-        - Color name may contain a wildcard, eg. "?burnt"
         - Uses color database from Matplotlib
         - Tristiumuls values are [0,1]
 
