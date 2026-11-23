@@ -11,6 +11,8 @@ from typing import TYPE_CHECKING, Any, Sequence, cast
 if TYPE_CHECKING:
     from typing import Self
 
+    from machinevisiontoolbox.ImageCore import Image
+
 import cv2
 import numpy as np
 from spatialmath import Polygon2
@@ -38,7 +40,7 @@ def _getshape(
     h: int | None,
     colororder: str | None,
     size: int | Sequence[int] | None,
-):
+) -> list[int]:
     p = None
 
     if size is not None:
@@ -58,7 +60,8 @@ def _getshape(
 
     if w is None or h is None:
         raise ValueError("dimensions not specified by size, w, h")
-    shape = [h, w]
+    # h and w are ints by here, but mypy cannot see it through the Sequence option
+    shape = cast(list[int], [h, w])
 
     if size is not None and isinstance(size, Iterable) and len(size) == 3:
         p = size[2]
@@ -81,10 +84,10 @@ def _resolve_pattern_options(
     size: Any,
     dtype: Dtype | None,
     colororder: str | None,
-    like: Any,
+    like: Image | None,
     default_size: Any,
     default_dtype: Dtype,
-):
+) -> tuple[Any, Any, str | None]:
     if like is not None and not isinstance(like, cls):
         raise TypeError("like must be an Image")
 
@@ -113,7 +116,7 @@ def _resolve_pattern_options(
     return size, dtype, colororder
 
 
-def _pattern_image(cls, image: np.ndarray, colororder: str | None):
+def _pattern_image(cls, image: np.ndarray, colororder: str | None) -> Any:
     if colororder is not None:
         image = np.repeat(
             image[..., np.newaxis], len(cls.colordict(colororder)), axis=2
@@ -122,6 +125,10 @@ def _pattern_image(cls, image: np.ndarray, colororder: str | None):
 
 
 class ImageConstantsMixin(ImageMixinBase):
+    """
+    Methods of :class:`Image` that create images of constant, random or patterned pixel values
+    """
+
     # ======================= patterns ================================== #
 
     @classmethod
@@ -131,7 +138,7 @@ class ImageConstantsMixin(ImageMixinBase):
         size: int | Sequence[int] | None = None,
         colororder: str | None = None,
         dtype: Dtype | None = None,
-        like=None,
+        like: Image | None = None,
     ) -> Self:
         """
         Create image with zero value pixels
@@ -189,7 +196,7 @@ class ImageConstantsMixin(ImageMixinBase):
         colororder: str | None = None,
         dtype: Dtype | None = None,
         size: Sequence[int] | None = None,
-        like=None,
+        like: Image | None = None,
     ) -> Self:
         """
         Create image with all pixels having same value
@@ -351,7 +358,7 @@ class ImageConstantsMixin(ImageMixinBase):
         :seealso: :meth:`Constant`
         """
 
-        def str2array(s):
+        def str2array(s: str) -> list[list[int]]:
             if "|" in s:
                 pixels = []
                 for row in s.split("|"):
@@ -398,7 +405,7 @@ class ImageConstantsMixin(ImageMixinBase):
         dtype: Dtype | None = None,
         maxval: int | float | None = None,
         pdf: np.ndarray | None = None,
-        like=None,
+        like: Image | None = None,
     ) -> Self:
         """
         Create image with random pixel values
@@ -554,7 +561,7 @@ class ImageConstantsMixin(ImageMixinBase):
         bg: Any = 0,
         dtype: Dtype | None = None,
         colororder: str | None = None,
-        like=None,
+        like: Image | None = None,
     ) -> Self:
         """
         Create image containing grid of squares
@@ -649,7 +656,7 @@ class ImageConstantsMixin(ImageMixinBase):
         bg: Any = 0,
         dtype: Dtype | None = None,
         colororder: str | None = None,
-        like=None,
+        like: Image | None = None,
     ) -> Self:
         """
         Create image containing grid of circles
@@ -746,7 +753,7 @@ class ImageConstantsMixin(ImageMixinBase):
         size: int | Sequence[int] | None = None,
         dtype: Dtype | None = None,
         colororder: str | None = None,
-        like=None,
+        like: Image | None = None,
     ) -> Self:
         """
         Create image of linear ramps
@@ -845,7 +852,7 @@ class ImageConstantsMixin(ImageMixinBase):
         size: int | Sequence[int] | None = None,
         dtype: Dtype | None = None,
         colororder: str | None = None,
-        like=None,
+        like: Image | None = None,
     ) -> Self:
         """
         Create image of sinusoidal intensity pattern
@@ -931,7 +938,7 @@ class ImageConstantsMixin(ImageMixinBase):
         size: int | Sequence[int] | None = None,
         dtype: Dtype | None = None,
         colororder: str | None = None,
-        like=None,
+        like: Image | None = None,
     ) -> Self:
         """Create chequerboard pattern
 
@@ -1018,7 +1025,7 @@ class ImageConstantsMixin(ImageMixinBase):
         shift: int = 0,
         dtype: str | np.dtype = "uint8",
         colororder: str | None = None,
-        like=None,
+        like: Image | None = None,
     ) -> Self:
         """
         Create an image containing filled polygons
