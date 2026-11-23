@@ -12,6 +12,8 @@ from typing import Iterable as TypingIterable
 import cv2
 import numpy as np
 import spatialmath.base as smb
+from matplotlib import cbook
+from matplotlib.artist import Artist
 from matplotlib.patches import Rectangle
 
 from machinevisiontoolbox.base import name2color
@@ -990,7 +992,8 @@ def mpl_styling(
     fmt: str | tuple[str] | None = None,
     defaults: dict | None = None,
     kwargs: dict | None = None,
-):
+    artist: type[Artist] | None = None,
+) -> dict[str, Any]:
     """Merge Matplotlib style options
 
     :param fmt: a format string, defaults to None
@@ -999,6 +1002,12 @@ def mpl_styling(
     :type defaults: dict, optional
     :param kwargs: a dictionary of keyword arguments , defaults to None
     :type kwargs: dict, optional
+    :param artist: the Matplotlib class that the options will be passed to, such as
+        ``Line2D``, ``Patch`` or ``Text``, defaults to None
+    :type artist: type[Artist], optional
+
+    .. versionchanged:: 2.5.0
+        Added ``artist``.
 
     Matplotlib has two distinct ways of specifying styling for plots:
 
@@ -1020,6 +1029,12 @@ def mpl_styling(
     ``fmt``, the default keyword arguments ``defaults`` and the user-specified keyword
     arguments ``kwargs``.  The precedence in decreasing order is: ``kwargs``, ``fmt``,
     ``defaults``.
+
+    Matplotlib accepts many options under two names, for example ``lw`` for
+    ``linewidth`` and ``c`` for ``color``, but refuses a call that has both.  If
+    ``artist`` is given, ``defaults`` and ``kwargs`` are first converted to the
+    full option names for that class, so ``lw=4`` replaces a default of
+    ``linewidth=2``.  If ``artist`` is None the options are merged by name as given.
 
     As a convenience to users, many Toolbox functions accept a ``fmt`` argument, which
     is passed to this function to merge with the keyword arguments.  This allows users
@@ -1097,6 +1112,9 @@ def mpl_styling(
         res = parse_matplotlib_fmt(fmt)
 
     # Override with defaults if not specified in fmt
+    if artist is not None:
+        defaults = cbook.normalize_kwargs(defaults or {}, artist)
+        kwargs = cbook.normalize_kwargs(kwargs or {}, artist)
     options = (defaults or {}) | res | (kwargs or {})
     return {k: v for k, v in options.items() if v is not None}
 
