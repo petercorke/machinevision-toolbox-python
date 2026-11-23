@@ -13,13 +13,9 @@ instantiated and adds nothing to the MRO.
 
 from __future__ import annotations
 
-import sys
 from typing import TYPE_CHECKING, Any, Protocol
 
-if sys.version_info >= (3, 11):
-    from typing import Self
-else:
-    from typing_extensions import Self
+from typing import Self
 import numpy as np
 
 from machinevisiontoolbox.mvtb_types import Array2d, Dtype

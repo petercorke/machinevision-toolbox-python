@@ -4,26 +4,20 @@ Image file and URL reading/writing, and image-sequence iteration.
 
 import os
 import os.path
-import sys
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, SupportsFloat, cast
+from typing import Any, SupportsFloat, cast
 
-if sys.version_info >= (3, 11):
-    from typing import Self
-else:
-    from typing_extensions import Self
+from typing import Self
 
 import matplotlib.patches as mpatches
 import matplotlib.patheffects as path_effects
 import matplotlib.pyplot as plt
 import numpy as np
 import PIL.Image
+from matplotlib.axes import Axes
 from matplotlib.colors import Colormap, LinearSegmentedColormap
 from PIL.ExifTags import TAGS
 from spatialmath.base import set_window_title
-
-if TYPE_CHECKING:
-    pass
 
 from machinevisiontoolbox._image_typing import ImageMixinBase
 from machinevisiontoolbox.base.imageio import (
@@ -39,6 +33,10 @@ from machinevisiontoolbox.mvtb_types import Dtype
 
 
 class ImageIOMixin(ImageMixinBase):
+    """
+    Methods of :class:`Image` that read, write and display images
+    """
+
     # ======================= image i/io ================================== #
 
     @classmethod
@@ -449,12 +447,11 @@ class ImageIOMixin(ImageMixinBase):
         plt.draw()
         return ax
 
-    def showwindow(self, h, ax=None, **kwargs: Any) -> Any:
+    def showwindow(self, h: int, ax: Axes | None = None, **kwargs: Any) -> Any:
         """Superimpose a colored window on the image.
 
         :param h: The half-width of the window, so the total window size is
             (2h+1)x(2h+1)
-        :type h: int
         :param ax: The axes on which to display the window, defaults to the
             current axes
         :return: The window instance
@@ -514,7 +511,13 @@ class ImageIOMixin(ImageMixinBase):
         """
 
         class Window:
-            def __init__(self, h=1, ax=None, image=None, **kwargs: Any) -> None:
+            def __init__(
+                self,
+                h: int = 1,
+                ax: Axes | None = None,
+                image: ImageMixinBase | None = None,
+                **kwargs: Any,
+            ) -> None:
                 self.h = h
                 self.image = image
                 self.args = kwargs
@@ -702,7 +705,7 @@ class ImageIOMixin(ImageMixinBase):
             A cross hair cursor.
             """
 
-            def __init__(self, ax, ax2):
+            def __init__(self, ax: Axes, ax2: Axes) -> None:
                 self.ax = ax
                 self.ax2 = ax2
                 self.horizontal_line = ax.axhline(color="k", lw=0.8)
