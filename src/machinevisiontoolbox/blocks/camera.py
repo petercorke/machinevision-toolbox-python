@@ -74,22 +74,33 @@ class Visjac_p(FunctionBlock):
         :type camera: Camera subclass, optional
         :param depth: Point depth
         :type depth: float or ndarray
-        :param depthest: Use depth estimation, defaults to True
+        :param depthest: use depth estimation, not implemented so it must be
+            False (the default).  Give the depth with ``depth``.
         :type depthest: bool, optional
         :param blockargs: Additional options for the block, passed as a dictionary
         :type blockargs: dict
         :return: a VISJAC_P block
         :rtype: Visjac_p instance
+        :raises ValueError: if ``camera`` is None
+        :raises NotImplementedError: if ``depthest`` is True
 
-        If the Jacobian
+        Computes the image Jacobian (interaction matrix) of the image plane
+        points on its input, using the same ``depth`` for every point.
 
-
+        .. versionchanged:: 2.5.0
+            ``depthest=True`` raises :class:`NotImplementedError`.  It was
+            accepted but did nothing, so the Jacobian was computed with ``depth``.
         """
 
         # TODO allow a depth input
 
         if camera is None:
             raise ValueError("camera is not defined")
+        if depthest:
+            raise NotImplementedError(
+                "depth estimation is not implemented by the VISJAC_P block, "
+                "give the depth with the depth argument"
+            )
 
         super().__init__(**blockargs)
 
@@ -98,8 +109,6 @@ class Visjac_p(FunctionBlock):
         self.depth = depth
 
     def output(self, t, inports, x):
-        # do depth estimation here
-
         J = self.camera.visjac_p(inports[0], self.depth)
         return [J]
 
