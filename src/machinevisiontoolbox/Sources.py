@@ -171,9 +171,7 @@ def _image_payload_end(raw: bytes, msgtype: str, cdr: bool = False) -> int | Non
         nonlocal pos
         pos += n
         if pos > len(raw):
-            raise ValueError(
-                f"message truncated: need {pos} bytes, have {len(raw)}"
-            )
+            raise ValueError(f"message truncated: need {pos} bytes, have {len(raw)}")
 
     try:
         if cdr:
