@@ -7,6 +7,7 @@ from unittest.case import skip
 import matplotlib
 
 matplotlib.use("Agg")  # non-interactive backend; must precede pyplot import
+import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 import numpy as np
 import numpy.testing as nt
@@ -700,25 +701,48 @@ class TestBlobPlotMethods(unittest.TestCase):
         return len(ax.patches)
 
     # ------------------------------------------------------------------ #
-    # plot_box  — SKIPPED; positional fmt arg is broken, upstream PR pending
-    # TODO: remove skips once the PR is merged into the release
+    # plot_box and plot_labelbox  (one Rectangle patch per blob)
     # ------------------------------------------------------------------ #
 
-    @unittest.skip(
-        "plot_box(): passing a positional fmt argument is broken in the current "
-        "release. An upstream PR has been submitted but not yet merged. "
-        "Revisit and remove this skip once the fix is distributed."
-    )
     def test_plot_box_ratio(self):
         self._test_plot_ratio("plot_box", self._patches)
 
-    @unittest.skip("plot_box(): see test_plot_box_ratio for details")
     def test_plot_box_fmt(self):
         self._test_plot_adds("plot_box", self._patches, "r--")
 
-    @unittest.skip("plot_box(): see test_plot_box_ratio for details")
     def test_plot_box_kwargs(self):
         self._test_plot_adds("plot_box", self._patches, color="yellow")
+
+    def _box_patch(self, method, *args, **kwargs):
+        fig, ax = self._fresh_ax()
+        getattr(self.blobs1, method)(*args, **kwargs)
+        patch = ax.patches[0]
+        plt.close(fig)
+        return patch
+
+    def test_box_format_strings(self):
+        for method in ("plot_box", "plot_labelbox"):
+            for fmt, color, linestyle in [
+                ("r--", (1, 0, 0), "--"),
+                ("g", (0, 0.5, 0), "solid"),
+                ("C1:", mcolors.to_rgb("C1"), ":"),
+                ("orange", mcolors.to_rgb("orange"), "solid"),
+                ("--", mcolors.to_rgb("yellow"), "--"),  # the default color
+            ]:
+                with self.subTest(method=method, fmt=fmt):
+                    patch = self._box_patch(method, fmt)
+                    self.assertEqual(tuple(patch.get_edgecolor()[:3]), tuple(color))
+                    self.assertEqual(patch.get_linestyle(), linestyle)
+
+    def test_box_with_a_marker_in_the_format_string_says_so(self):
+        for method in ("plot_box", "plot_labelbox"):
+            for fmt in ("o", "r."):
+                with self.subTest(method=method, fmt=fmt):
+                    with self.assertRaisesRegex(ValueError, "cannot draw"):
+                        self._box_patch(method, fmt)
+
+    def test_plot_labelbox_ratio(self):
+        self._test_plot_ratio("plot_labelbox", self._patches)
 
     # ------------------------------------------------------------------ #
     # plot_centroid  (default: marker=["bx","bo"] → 2 Line2D per blob)
