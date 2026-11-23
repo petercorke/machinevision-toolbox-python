@@ -741,6 +741,106 @@ class TestBlobPlotMethods(unittest.TestCase):
                     with self.assertRaisesRegex(ValueError, "cannot draw"):
                         self._box_patch(method, fmt)
 
+    def _labelbox(self, *args, **kwargs):
+        """Draw one labelled box; return (box patch, label text)."""
+        fig, ax = self._fresh_ax()
+        self.blobs1.plot_labelbox(*args, **kwargs)
+        patch, text = ax.patches[0], ax.texts[0]
+        plt.close(fig)
+        return patch, text
+
+    @staticmethod
+    def _hex(color):
+        return mcolors.to_hex(color)
+
+    def test_labelbox_default_label_background_is_the_box_edge_color(self):
+        patch, text = self._labelbox()
+        self.assertEqual(self._hex(text.get_bbox_patch().get_facecolor()), "#ffff00")
+        self.assertEqual(self._hex(text.get_color()), "#000000")
+
+    def test_labelbox_label_background_follows_however_the_edge_was_set(self):
+        # was: only the color option was followed, so ec= left a yellow label
+        for args, kwargs in [
+            ((), dict(color="red")),
+            ((), dict(edgecolor="red")),
+            ((), dict(ec="red")),
+            (("r--",), {}),
+        ]:
+            with self.subTest(args=args, kwargs=kwargs):
+                patch, text = self._labelbox(*args, **kwargs)
+                self.assertEqual(self._hex(patch.get_edgecolor()), "#ff0000")
+                self.assertEqual(
+                    self._hex(text.get_bbox_patch().get_facecolor()), "#ff0000"
+                )
+
+    def test_labelbox_shorthands(self):
+        patch, text = self._labelbox(textcolor="white", labelcolor="blue")
+        self.assertEqual(self._hex(text.get_color()), "#ffffff")
+        self.assertEqual(self._hex(text.get_bbox_patch().get_facecolor()), "#0000ff")
+        self.assertEqual(self._hex(patch.get_edgecolor()), "#ffff00")  # box unchanged
+
+    def test_labelbox_text_style(self):
+        patch, text = self._labelbox(
+            text_style=dict(color="white", fontsize=17, fontweight="bold")
+        )
+        self.assertEqual(self._hex(text.get_color()), "#ffffff")
+        self.assertEqual(text.get_fontsize(), 17)
+        self.assertEqual(text.get_fontweight(), "bold")
+        self.assertEqual(self._hex(patch.get_edgecolor()), "#ffff00")  # box unchanged
+
+    def test_labelbox_text_style_accepts_short_names(self):
+        # size and c are aliases of fontsize and color
+        patch, text = self._labelbox(text_style=dict(size=15, c="red", weight="bold"))
+        self.assertEqual(text.get_fontsize(), 15)
+        self.assertEqual(self._hex(text.get_color()), "#ff0000")
+        self.assertEqual(text.get_fontweight(), "bold")
+
+    def test_labelbox_text_style_wins_over_the_shorthands(self):
+        patch, text = self._labelbox(
+            textcolor="white",
+            labelcolor="blue",
+            text_style=dict(color="red", backgroundcolor="green"),
+        )
+        self.assertEqual(self._hex(text.get_color()), "#ff0000")
+        self.assertEqual(self._hex(text.get_bbox_patch().get_facecolor()), "#008000")
+
+    def test_labelbox_bbox_in_text_style_is_merged_over_the_default(self):
+        patch, text = self._labelbox(
+            labelcolor="blue", text_style=dict(bbox=dict(linewidth=2, edgecolor="k"))
+        )
+        bbox = text.get_bbox_patch()
+        self.assertEqual(self._hex(bbox.get_facecolor()), "#0000ff")  # kept
+        self.assertEqual(bbox.get_linewidth(), 2)
+        self.assertEqual(self._hex(bbox.get_edgecolor()), "#000000")
+        # and a facecolor in bbox is the most specific of all
+        patch, text = self._labelbox(
+            labelcolor="blue", text_style=dict(bbox=dict(facecolor="red"))
+        )
+        self.assertEqual(self._hex(text.get_bbox_patch().get_facecolor()), "#ff0000")
+
+    def test_labelbox_position(self):
+        positions = {}
+        for position in ("topleft", "topright", "bottomleft", "bottomright"):
+            patch, text = self._labelbox(position=position)
+            positions[position] = (text.get_ha(), text.get_va())
+        self.assertEqual(positions["topleft"], ("left", "bottom"))
+        self.assertEqual(positions["topright"], ("right", "bottom"))
+        self.assertEqual(positions["bottomleft"], ("left", "top"))
+        self.assertEqual(positions["bottomright"], ("right", "top"))
+
+    def test_labelbox_bad_position(self):
+        with self.assertRaisesRegex(ValueError, "position must be"):
+            self._labelbox(position="middle")
+
+    def test_labelbox_text_style_is_not_changed_by_drawing(self):
+        style = dict(size=15, c="red")
+        self._labelbox(text_style=style)
+        self.assertEqual(style, dict(size=15, c="red"))
+
+    def test_labelbox_label_text(self):
+        patch, text = self._labelbox(label="shark {:d}")
+        self.assertTrue(text.get_text().startswith("shark "))
+
     def test_plot_labelbox_ratio(self):
         self._test_plot_ratio("plot_labelbox", self._patches)
 

@@ -1872,15 +1872,37 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             smb.plot_box(lrbt=blob.bbox, **options)
 
     def plot_labelbox(
-        self, fmt: str | None = None, label: str = "{:d}", **kwargs: Any
+        self,
+        fmt: str | None = None,
+        label: str = "{:d}",
+        *,
+        position: str = "topleft",
+        textcolor: Any = None,
+        labelcolor: Any = None,
+        text_style: dict[str, Any] | None = None,
+        **kwargs: Any,
     ) -> None:
         """
         Plot a labelled bounding box of blobs using Matplotlib
 
-        :param fmt: Matplotlib format string, passed to ``plot_labelbox``
+        :param fmt: Matplotlib format string for the box, such as ``"r--"``
         :param label: label to be displayed on the bounding box, defaults to blob id
         :type label: str or bool, optional
-        :param kwargs: arguments passed to ``plot_labelbox``
+        :param position: place to draw the label: ``"topleft"`` (default),
+            ``"topright"``, ``"bottomleft"`` or ``"bottomright"``
+        :param textcolor: color of the label text, defaults to black
+        :param labelcolor: label background color, defaults to the edge color of the box
+        :param text_style: Matplotlib text options for the label, such as
+            ``dict(fontsize=12, fontweight="bold")``, defaults to None
+        :param kwargs: Matplotlib patch options for the box, passed to ``plot_labelbox``
+
+        The label text color and background can be set by ``text_style``,
+        by ``textcolor`` and ``labelcolor``, or by default, and the most specific
+        wins: see :func:`~machinevisiontoolbox.base.graphics.plot_labelbox`.
+
+        .. versionchanged:: 2.5.0
+            Added ``text_style``, and the label background follows the edge color of the
+            box however that was set.
 
         Plot a labelled bounding box for every blob described by this object.
 
@@ -1916,7 +1938,15 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         )
         for blob in self:
             # the format string is already in options, so is not passed again
-            plot_labelbox(text=label.format(blob.id), lrbt=blob.bbox, **options)
+            plot_labelbox(
+                text=label.format(blob.id),
+                lrbt=blob.bbox,
+                position=position,
+                textcolor=textcolor,
+                labelcolor=labelcolor,
+                text_style=text_style,
+                **options,
+            )
 
     def plot_centroid(
         self,
