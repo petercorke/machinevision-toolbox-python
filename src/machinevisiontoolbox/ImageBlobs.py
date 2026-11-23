@@ -1910,9 +1910,8 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             fmt, dict(color="yellow", linewidth=2), kwargs, artist=Patch
         )
         for blob in self:
-            plot_labelbox(
-                text=label.format(blob.id), fmt=fmt, lrbt=blob.bbox, **options
-            )
+            # the format string is already in options, so is not passed again
+            plot_labelbox(text=label.format(blob.id), lrbt=blob.bbox, **options)
 
     def plot_centroid(self, *args: Any, label: bool = False, **kwargs: Any) -> None:
         """

@@ -145,3 +145,20 @@ def test_dashes_keep_the_default_color():
         "color": "red",
         "linestyle": "--",
     }
+
+
+def test_a_marker_in_the_format_string_is_refused_for_a_patch():
+    from matplotlib.patches import Patch
+
+    with pytest.raises(ValueError, match="cannot draw"):
+        mpl_styling("r.", {}, {}, artist=Patch)
+    with pytest.raises(ValueError, match="'o'"):
+        mpl_styling(("o",), {}, {}, artist=Patch)  # as *args arrives
+    # a line style, a color and a whole color name are fine
+    assert mpl_styling("r--", {}, {}, artist=Patch) == {
+        "color": "r",
+        "linestyle": "--",
+    }
+    # and a marker is fine for a line, or when no artist is given
+    assert mpl_styling("r.", {}, {}, artist=Line2D)["marker"] == "."
+    assert mpl_styling("r.", {}, {})["marker"] == "."

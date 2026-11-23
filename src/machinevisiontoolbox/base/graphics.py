@@ -14,7 +14,7 @@ import numpy as np
 import spatialmath.base as smb
 from matplotlib import cbook, colors
 from matplotlib.artist import Artist
-from matplotlib.patches import Rectangle
+from matplotlib.patches import Patch, Rectangle
 
 from machinevisiontoolbox.base import name2color
 
@@ -1188,6 +1188,11 @@ def mpl_styling(
     """
 
     res = parse_fmt(fmt)
+    if artist is not None and issubclass(artist, Patch) and "marker" in res:
+        shown = fmt[0] if isinstance(fmt, (tuple, list)) else fmt
+        raise ValueError(
+            f"format string {shown!r} has a marker, which a {artist.__name__} cannot draw"
+        )
 
     if artist is not None:
         defaults = cbook.normalize_kwargs(defaults or {}, artist)
