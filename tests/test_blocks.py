@@ -71,6 +71,16 @@ class TestVisjacBlock:
         J = self.cam.visjac_p(self.p, 1)
         nt.assert_array_almost_equal(Visjac_p(self.cam).test_output(self.p)[0], J)
 
+    def test_depth_estimation_is_not_implemented(self):
+        # depthest=True used to be accepted and ignored
+        with pytest.raises(NotImplementedError, match="depth argument"):
+            Visjac_p(self.cam, depthest=True)
+
+    def test_depthest_false_is_accepted(self):
+        block = Visjac_p(self.cam, 5, depthest=False)
+        J = self.cam.visjac_p(self.p, 5)
+        nt.assert_array_almost_equal(block.test_output(self.p)[0], J)
+
     def test_jacobian_has_two_rows_per_point(self):
         p = self.cam.project_point(mkcube(0.2) + np.array([[0], [0], [2]]))
         J = Visjac_p(self.cam, 2).test_output(p)[0]
@@ -169,12 +179,12 @@ class TestImagePlaneInASimulation:
 
     P = np.array([1.0, 2.0, 5.0])
 
-    def run_diagram(self, **imageplane_args):
+    def run_diagram(self, graphics=True, **imageplane_args):
         cam = CentralCamera.Default()
         # sysargs=False: bdsim must not read pytest's command line as its own options
         sim = bdsim.BDSim(
             animation=False,
-            graphics=True,
+            graphics=graphics,
             hold=False,
             progress=False,
             verbose=False,
@@ -189,7 +199,7 @@ class TestImagePlaneInASimulation:
         bd.connect(pose, camera[1])
         bd.connect(camera, imageplane)
         bd.compile()
-        sim.run(bd, T=0.5, dt=0.1)
+        self.out = sim.run(bd, T=0.5, dt=0.1)
         return cam, imageplane
 
     def test_point_is_drawn_where_the_camera_projects_it(self, agg_backend):
@@ -222,6 +232,30 @@ class TestImagePlaneInASimulation:
         calls = []
         cam, _ = self.run_diagram(init=calls.append)
         assert calls == [cam]
+
+    def test_one_figure_is_opened(self, agg_backend):
+        # the block used to make a second figure of its own, leaving the one
+        # that the base class makes empty
+        self.run_diagram()
+        assert len(plt.get_fignums()) == 1
+
+    def test_watch_records_the_input_signal(self, agg_backend):
+        # watch=True used to fail with AttributeError: 'StartPlug' object has no
+        # attribute 'start'
+        self.run_diagram(watch=True)
+        assert len(self.out.ynames) == 1
+        assert self.out.y.shape[0] > 1
+
+    def test_without_watch_nothing_is_recorded(self, agg_backend):
+        self.run_diagram()
+        assert len(getattr(self.out, "ynames", [])) == 0
+
+    def test_graphics_off_draws_nothing_and_still_watches(self, agg_backend):
+        # graphics=False used to open a figure and fail on the missing axes
+        _, imageplane = self.run_diagram(graphics=False, watch=True)
+        assert len(plt.get_fignums()) == 0
+        assert len(self.out.ynames) == 1
+        assert imageplane.ax is None
 
 
 class TestEstPoseFrame:
