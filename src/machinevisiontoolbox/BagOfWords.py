@@ -359,7 +359,7 @@ class BagOfWords:
 
         stopfeatures = freq[stopwords].sum()
         print(
-            f"Removing {stopfeatures} features ({stopfeatures/len(self.words) * 100:.1f}%) associated with {self.nstopwords} most frequent words"
+            f"Removing {stopfeatures} features ({stopfeatures / len(self.words) * 100:.1f}%) associated with {self.nstopwords} most frequent words"
         )
 
         k = np.full(index.shape, False, dtype=bool)

@@ -14,7 +14,6 @@ from pathlib import Path
 
 
 class TestExamplesSmoke(unittest.TestCase):
-
     def test_examples_exist(self):
         examples_dir = Path(__file__).resolve().parents[1] / "examples"
         scripts = sorted(examples_dir.glob("*.py"))

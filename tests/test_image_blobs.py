@@ -18,7 +18,6 @@ _N_MULTI = 4
 
 
 class TestBlobs(unittest.TestCase):
-
     def test_blob_2x2_square(self):
         # 1 blob: 2x2
         im = Image.String(
@@ -813,5 +812,4 @@ class TestBlobPlotMethods(unittest.TestCase):
 
 # ------------------------------------------------------------------------ #
 if __name__ == "__main__":
-
     unittest.main()

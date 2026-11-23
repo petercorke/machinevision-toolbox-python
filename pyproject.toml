@@ -119,12 +119,20 @@ testpaths = ["tests"]
 addopts = "--tb=short"
 
 [tool.ruff]
-line-length = 120
+# 88 matches RTB, bdsim and sphinx-pyrunblock
+line-length = 88
 # the notebooks that reproduce the book code have a bare except in their setup cell
 extend-exclude = ["tests/RVC"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "BLE", "S110"]
+# the formatter wraps code but not long strings or comments, so E501 would only
+# report what `ruff format` cannot fix
+ignore = ["E501"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
 
 [tool.ruff.lint.per-file-ignores]
 # these files re-export their submodules with star imports on purpose, so that

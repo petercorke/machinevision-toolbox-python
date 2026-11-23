@@ -240,7 +240,7 @@ RS_W, RS_H = 5, 3  # odd sizes, so strides and alignment are exercised
 
 def realsense_depth_frame(i: int) -> np.ndarray:
     """Expected pixels of depth frame ``i`` in a bag from :func:`make_realsense_bag`."""
-    return (np.arange(RS_H * RS_W, dtype=np.uint16).reshape(RS_H, RS_W) * 7 + 100 * i)
+    return np.arange(RS_H * RS_W, dtype=np.uint16).reshape(RS_H, RS_W) * 7 + 100 * i
 
 
 def depth_pixels(i: int, encoding: str) -> np.ndarray:
@@ -251,7 +251,7 @@ def depth_pixels(i: int, encoding: str) -> np.ndarray:
 
 def realsense_color_frame(i: int) -> np.ndarray:
     """Expected pixels of color frame ``i`` in a bag from :func:`make_realsense_bag`."""
-    return (np.arange(RS_H * RS_W * 3, dtype=np.uint8).reshape(RS_H, RS_W, 3) + 10 * i)
+    return np.arange(RS_H * RS_W * 3, dtype=np.uint8).reshape(RS_H, RS_W, 3) + 10 * i
 
 
 def make_realsense_bag(
@@ -326,7 +326,12 @@ def make_realsense_bag(
                 else Header(stamp=stamp, frame_id="")
             )
             for conn, enc, pixels, scale in [
-                (conn_depth, depth_encoding, depth_pixels(i, depth_encoding), RS_DEPTH_UNITS),
+                (
+                    conn_depth,
+                    depth_encoding,
+                    depth_pixels(i, depth_encoding),
+                    RS_DEPTH_UNITS,
+                ),
                 (conn_color, "rgb8", realsense_color_frame(i), 0.0),
             ]:
                 msg = Image(

@@ -12,7 +12,6 @@ from machinevisiontoolbox import CentralCamera, Image
 
 
 class TestCamera(unittest.TestCase):
-
     def test_parameters(self):
 
         c = CentralCamera(f=0.2)
@@ -418,5 +417,4 @@ class TestCameraPlot(unittest.TestCase):
 
 # ----------------------------------------------------------------------- #
 if __name__ == "__main__":
-
     unittest.main()

@@ -126,7 +126,9 @@ class Kernel:
     def ndim(self) -> int:
         return 2
 
-    def __array__(self, dtype: Dtype | None = None, copy: bool | None = None) -> np.ndarray:
+    def __array__(
+        self, dtype: Dtype | None = None, copy: bool | None = None
+    ) -> np.ndarray:
         """
         Convert to a plain NumPy array
 

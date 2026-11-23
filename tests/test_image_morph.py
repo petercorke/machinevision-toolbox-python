@@ -10,7 +10,6 @@ from machinevisiontoolbox import Image
 
 
 class TestImageProcessingMorph(unittest.TestCase):
-
     def test_morph_scalar_se(self):
 
         # test simple case
@@ -486,5 +485,4 @@ class TestImageProcessingMorph(unittest.TestCase):
 
 # ----------------------------------------------------------------------- #
 if __name__ == "__main__":
-
     unittest.main()

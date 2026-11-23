@@ -642,7 +642,14 @@ def draw_text(
     else:
         lt = cv2.LINE_8
     cv2.putText(
-        image, text or "", _roundvec(pos), _fontdict[font], fontsize, color, fontthickness, lt
+        image,
+        text or "",
+        _roundvec(pos),
+        _fontdict[font],
+        fontsize,
+        color,
+        fontthickness,
+        lt,
     )
     return image
 
@@ -977,7 +984,9 @@ def draw_circle(
 
 
 def mpl_styling(
-    fmt: str | tuple[str] | None = None, defaults: dict | None = None, kwargs: dict | None = None
+    fmt: str | tuple[str] | None = None,
+    defaults: dict | None = None,
+    kwargs: dict | None = None,
 ):
     """Merge Matplotlib style options
 

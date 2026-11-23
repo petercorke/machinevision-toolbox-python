@@ -722,14 +722,12 @@ class BundleAdjust:
 
         # loop over views
         for view in self.views:
-
             # get camera pose
             k = view.index
             X = x[k : k + 6]
 
             # loop over all points viewed from this camera
             for landmark, edge in view.incidences():
-
                 k = landmark.index
                 P = x[k : k + 3]  # get landmark position
 
@@ -942,14 +940,12 @@ class BundleAdjust:
         residual = np.zeros((self.nviews, self.nlandmarks))
         # loop over views
         for view in self.views:
-
             # get view pose
             k = view.index
             X = x[k : k + 6]
 
             # loop over all points viewed from this camera
             for landmark, edge in view.incidences():
-
                 k = landmark.index
                 P = x[k : k + 3]  # get landmark position
 

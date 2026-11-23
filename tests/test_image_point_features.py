@@ -11,7 +11,6 @@ from machinevisiontoolbox import Image
 
 
 class TestImageCoreOperations(unittest.TestCase):
-
     def test_copy(self):
         """Test image copying"""
         img = Image.Read("monalisa.png")
@@ -117,7 +116,6 @@ class TestImageCoreOperations(unittest.TestCase):
 
 
 class TestImagePointFeatures(unittest.TestCase):
-
     def test_sift(self):
         """Test SIFT feature detection"""
         img = Image.Read("monalisa.png", mono=True)
@@ -150,7 +148,9 @@ class TestImagePointFeatures(unittest.TestCase):
 
         img = Image.Read("flowers1.png", mono=True)
         err = cv2.error("(-213:The function/feature is not implemented) patented")
-        with mock.patch.object(cv2.xfeatures2d, "SURF_create", side_effect=err, create=True):
+        with mock.patch.object(
+            cv2.xfeatures2d, "SURF_create", side_effect=err, create=True
+        ):
             with self.assertRaises(RuntimeError) as cm:
                 img.SURF()
         self.assertIn("OPENCV_ENABLE_NONFREE", str(cm.exception))
@@ -165,7 +165,9 @@ class TestImagePointFeatures(unittest.TestCase):
         from machinevisiontoolbox._cv2_contrib import _MissingContrib
 
         img = Image.Read("flowers1.png", mono=True)
-        with mock.patch.object(cv2, "xfeatures2d", _MissingContrib("xfeatures2d"), create=True):
+        with mock.patch.object(
+            cv2, "xfeatures2d", _MissingContrib("xfeatures2d"), create=True
+        ):
             with self.assertRaises(AttributeError) as cm:
                 img.SURF()
         self.assertIn("opencv-contrib-python", str(cm.exception))
@@ -180,7 +182,10 @@ class TestImagePointFeatures(unittest.TestCase):
 
         img = Image.Read("flowers1.png", mono=True)
         with mock.patch.object(
-            cv2.xfeatures2d, "SURF_create", side_effect=lambda **kw: cv2.SIFT_create(**kw), create=True
+            cv2.xfeatures2d,
+            "SURF_create",
+            side_effect=lambda **kw: cv2.SIFT_create(**kw),
+            create=True,
         ):
             surf = img.SURF()
         self.assertIsInstance(surf, SURFFeature)

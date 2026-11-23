@@ -56,7 +56,6 @@ class PointCloud:
                 " ** Note that Open3d typically does not run on the latest Python version(s)"
             )
 
-
         if not _open3d:
             raise RuntimeError(
                 "PointCloud class requires Open3D to be installed: "

@@ -722,8 +722,7 @@ class ImageSpatialMixin(ImageMixinBase):
         percentile: float = ...,
         k: float = ...,
         hist: Literal[False] = ...,
-    ) -> Any:
-        ...
+    ) -> Any: ...
 
     @overload
     def canny(
@@ -735,8 +734,7 @@ class ImageSpatialMixin(ImageMixinBase):
         k: float = ...,
         *,
         hist: Literal[True],
-    ) -> "tuple[Any, CannyHistogram]":
-        ...
+    ) -> "tuple[Any, CannyHistogram]": ...
 
     def canny(
         self,

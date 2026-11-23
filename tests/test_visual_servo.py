@@ -3,7 +3,6 @@
 Smoke tests for Visual Servo classes.
 """
 
-
 import unittest
 
 import numpy as np
@@ -13,7 +12,6 @@ from machinevisiontoolbox import IBVS, PBVS, CentralCamera, mkgrid
 
 
 class TestPbvs(unittest.TestCase):
-
     def test_run(self):
 
         camera = CentralCamera.Default(
@@ -32,7 +30,6 @@ class TestPbvs(unittest.TestCase):
 
 
 class TestIbvs(unittest.TestCase):
-
     def test_run(self):
 
         camera = CentralCamera.Default(

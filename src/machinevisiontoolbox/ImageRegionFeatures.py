@@ -188,11 +188,7 @@ class MSERFeature:
             # change. Logged as its own issue (#54), not something this
             # compat fix can address.
             # -----------------------------------------------------------------
-            lrtb = (
-                np.zeros((0, 4), dtype=int)
-                if len(bboxes) == 0
-                else np.array(bboxes)
-            )
+            lrtb = np.zeros((0, 4), dtype=int) if len(bboxes) == 0 else np.array(bboxes)
             lrtb[:, 2:] = lrtb[:, 0:2] + lrtb[:, 2:]  # convert to lrtb
             self._bboxes = lrtb
 
@@ -282,7 +278,7 @@ class MSERFeature:
         if len(self) != 1:
             return f"MSER features, {len(self)} regions"
         else:
-            s = f"MSER feature: u: {self._bboxes[0,0]} - {self._bboxes[0,2]}, v: {self._bboxes[0,1]} - {self._bboxes[0,3]}"
+            s = f"MSER feature: u: {self._bboxes[0, 0]} - {self._bboxes[0, 2]}, v: {self._bboxes[0, 1]} - {self._bboxes[0, 3]}"
             return s
 
     def __repr__(self) -> str:

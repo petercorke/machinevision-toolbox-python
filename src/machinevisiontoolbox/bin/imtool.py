@@ -174,9 +174,7 @@ def visualize_image(image, args, block):
         ax = fig.gca()
 
         # Attach interactive rectangle / line-profile overlay.
-        _nav_help = (
-            "  x   close image and advance to next file\n" "  q   close window\n"
-        )
+        _nav_help = "  x   close image and advance to next file\n  q   close window\n"
         ImageInteractor(fig, ax, image, nav_help=_nav_help)
 
         def _on_exit(event):

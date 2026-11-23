@@ -120,9 +120,9 @@ class CameraBase(ABC):
                 self.pp = pp
 
         if sensorsize is not None:
-            assert (
-                self._imagesize is not None
-            ), "imagesize must be set when sensorsize is given"
+            assert self._imagesize is not None, (
+                "imagesize must be set when sensorsize is given"
+            )
             self._rhou = sensorsize[0] / self._imagesize[0]
             self._rhov = sensorsize[1] / self._imagesize[1]
         else:
@@ -1253,7 +1253,9 @@ class CameraBase(ABC):
                 CameraBase._plot_frustum(ax, pose, scale, alpha)
 
             elif shape == "camera":
-                CameraBase._plot_camera_icon(ax, pose, scale, solid, color, alpha, label)
+                CameraBase._plot_camera_icon(
+                    ax, pose, scale, solid, color, alpha, label
+                )
 
             if frame is True:
                 pose.plot(
@@ -2982,7 +2984,11 @@ class CentralCamera(CameraBase):
             method_int = None
 
         E, mask = cv2.findEssentialMat(
-            points1=p1.T, points2=p2.T, cameraMatrix=K, method=method_int, **kwargs  # type: ignore[arg-type]
+            points1=p1.T,
+            points2=p2.T,
+            cameraMatrix=K,
+            method=method_int,  # type: ignore[arg-type]
+            **kwargs,
         )
         if mask is not None:
             mask = mask.flatten().astype(bool)
