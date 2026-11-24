@@ -351,6 +351,7 @@ class PointCloud:
         block: bool = False,
         file: str | None = None,
         title: str = "Point Cloud",
+        notebook: bool = False,
         **kwargs: Any,
     ) -> None:
         """
@@ -362,6 +363,11 @@ class PointCloud:
         :type title: str, optional
         :param file: save display as an image, defaults to None
         :type file: str, optional
+        :param notebook: draw in the output of the notebook cell, rather than in an
+            Open3D window, defaults to False
+        :type notebook: bool, optional
+        :raises ValueError: ``file`` is given with ``notebook=True``
+        :raises ImportError: ``notebook=True`` and Plotly is not installed
         :param front: set front vector
         :type front: array_like(3)
         :param lookat: set lookat vector
@@ -375,8 +381,38 @@ class PointCloud:
 
         Typing "h" in the display window will print help information to the console.
 
+        With ``notebook=True`` the point cloud is drawn in the output of the notebook
+        cell, as a Plotly figure that can be rotated and zoomed.  This needs
+        `Plotly <https://plotly.com/python/>`_, which is not installed with the
+        Toolbox: ``pip install plotly``.  ``block`` and ``file`` do not apply, and
+        besides the view options above, ``width``, ``height`` and
+        ``point_sample_factor`` (the fraction of the points drawn, 0 to 1, which
+        keeps a large cloud responsive) are passed to
+        :func:`open3d.visualization.draw_plotly`.
+
+        .. versionchanged:: 2.5.0
+            Added the ``notebook`` option.
+
         :seealso: :class:`open3d.visualization.ViewControl`
         """
+        if notebook:
+            if file is not None:
+                raise ValueError("file cannot be used with notebook=True")
+            try:
+                import plotly  # noqa: F401
+            except ImportError:
+                raise ImportError(
+                    "disp(notebook=True) draws with Plotly, which is not installed. "
+                    "Install it with: pip install plotly"
+                ) from None
+
+            # get_plotly_fig rather than draw_plotly, which shows the figure and also
+            # returns it, so that a cell ending in the call shows it twice
+            fig = o3d.visualization.get_plotly_fig([self._pcd], **kwargs)
+            fig.update_layout(title=dict(text=title), margin=dict(t=40))
+            fig.show()
+            return
+
         if block:
             o3d.visualization.draw_geometries([self._pcd], window_name=title, **kwargs)
         else:
