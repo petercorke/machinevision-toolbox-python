@@ -682,6 +682,60 @@ class TestCannyHistogramPlot(unittest.TestCase):
         self.assertEqual(show.call_count, 1)
         self.assertEqual(len(plt.get_fignums()), 1)
 
+    def _xlabel(self, **kwargs):
+        with patch("matplotlib.pyplot.show"):
+            self.hist.plot(**kwargs)
+        return plt.gca().get_xlabel()
+
+    def test_x_axis_is_gradient_magnitude_for_every_type(self):
+        for type in ("frequency", "pdf", "cdf"):
+            plt.close("all")
+            self.assertEqual(self._xlabel(type=type), "gradient magnitude", type)
+
+    def test_x_axis_label_can_be_given(self):
+        self.assertEqual(self._xlabel(xlabel="gradient"), "gradient")
+
+    def test_x_axis_label_with_an_axes_given(self):
+        _, ax = plt.subplots()
+        with patch("matplotlib.pyplot.show"):
+            self.hist.plot(ax=ax)
+        self.assertEqual(ax.get_xlabel(), "gradient magnitude")
+
+
+class TestHistogramXLabel(unittest.TestCase):
+    def setUp(self):
+        self.im = Image.Read("eiffel-1.png", mono=True)
+
+    def tearDown(self):
+        plt.close("all")
+
+    def _xlabel(self, hist, **kwargs):
+        with patch("matplotlib.pyplot.show"):
+            hist.plot(**kwargs)
+        return plt.gcf().axes[-1].get_xlabel()
+
+    def test_defaults(self):
+        self.assertEqual(self._xlabel(self.im.hist()), "pixel value")
+        plt.close("all")
+        self.assertEqual(self._xlabel(self.im.hist(sorted=True)), "bin rank")
+
+    def test_label_can_be_given(self):
+        for type in ("frequency", "pdf", "cdf"):
+            plt.close("all")
+            self.assertEqual(
+                self._xlabel(self.im.hist(), type=type, xlabel="grey level"),
+                "grey level",
+                type,
+            )
+
+    def test_label_can_be_given_for_overlay_and_stack(self):
+        color = Image.Read("flowers1.png")
+        for style in ("stack", "overlay"):
+            plt.close("all")
+            self.assertEqual(
+                self._xlabel(color.hist(), style=style, xlabel="level"), "level", style
+            )
+
 
 if __name__ == "__main__":
     unittest.main()
