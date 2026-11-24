@@ -2285,24 +2285,8 @@ class ImagePointFeaturesMixin(ImageMixinBase):
         sortby: str | None = None,
         nfeat: int | None = None,
         id: str | int = "image",
-        scale: bool = False,
-        orient: bool = False,
         **kwargs: Any,
     ) -> Any:
-        # https://datascience.stackexchange.com/questions/43213/freak-feature-extraction-opencv
-        algorithms: dict[str, Any] = {
-            "SIFT": getattr(cv2, "SIFT_create"),
-            "SURF": _SURF_create,
-            "ORB": getattr(cv2, "ORB_create"),
-            "Harris": _Harris_create,
-            # resolved only when used, so that a detector missing from this OpenCV
-            # (OpenCV 5 without the contrib modules) does not break the others
-            "BRISK": lambda **kw: _resolve_feature_create("BRISK")(**kw),
-            "AKAZE": lambda **kw: _resolve_feature_create("AKAZE")(**kw),
-            # 'FREAK': (cv2.FREAK_create, FREAKFeature),
-            # 'DAISY': (cv2.DAISY_create, DAISYFeature),
-        }
-
         # check if image is valid
         # TODO, MSER can handle color
         image = self.mono()
@@ -2310,9 +2294,12 @@ class ImagePointFeaturesMixin(ImageMixinBase):
         # get a reference to the appropriate detector
         algorithm = cls.__name__.replace("Feature", "")
         try:
-            detector = algorithms[algorithm](**kwargs)
+            factory, has_scale, has_orient = _DETECTORS[algorithm]
         except KeyError:
-            raise ValueError("bad algorithm specified")
+            raise ValueError("bad algorithm specified") from None
+
+        # every keyword argument belongs to the detector, none is claimed here
+        detector = factory(**kwargs)
 
         kp, des = detector.detectAndCompute(image._A, mask=None)
 
@@ -2340,7 +2327,7 @@ class ImagePointFeaturesMixin(ImageMixinBase):
             des = des[:nfeat, :]
 
         # construct a new Feature2DBase subclass
-        features = cls(kp, des, scale=scale, orient=orient)
+        features = cls(kp, des, scale=has_scale, orient=has_orient)
 
         # add attributes
         features._feature_type = algorithm
@@ -2383,7 +2370,7 @@ class ImagePointFeaturesMixin(ImageMixinBase):
         :seealso: :class:`SIFTFeature` `cv2.SIFT_create <https://docs.opencv.org/4.5.2/d7/d60/classcv_1_1SIFT.html>`_
         """
 
-        return self._image2feature(SIFTFeature, scale=True, orient=True, **kwargs)
+        return self._image2feature(SIFTFeature, **kwargs)
 
     def SURF(self, **kwargs: Any) -> "SURFFeature":
         """
@@ -2427,7 +2414,7 @@ class ImagePointFeaturesMixin(ImageMixinBase):
 
         .. versionadded:: 2.5.0
         """
-        return self._image2feature(SURFFeature, scale=True, orient=True, **kwargs)
+        return self._image2feature(SURFFeature, **kwargs)
 
     def ORB(self, scoreType: str = "harris", **kwargs: Any) -> "ORBFeature":
         """
@@ -2460,8 +2447,6 @@ class ImagePointFeaturesMixin(ImageMixinBase):
         scoreoptions = {"harris": cv2.ORB_HARRIS_SCORE, "fast": cv2.ORB_FAST_SCORE}
         return self._image2feature(
             ORBFeature,
-            scale=True,
-            orient=True,
             scoreType=scoreoptions[scoreType],
             **kwargs,
         )
@@ -2499,7 +2484,7 @@ class ImagePointFeaturesMixin(ImageMixinBase):
 
         :seealso: :class:`BRISKFeature` `cv2.BRISK_create <https://docs.opencv.org/4.5.2/d7/d60/classcv_1_1BRISK.html>`_
         """
-        return self._image2feature(BRISKFeature, scale=True, orient=True, **kwargs)
+        return self._image2feature(BRISKFeature, **kwargs)
 
     def AKAZE(self, **kwargs: Any) -> "AKAZEFeature":
         """
@@ -2535,7 +2520,7 @@ class ImagePointFeaturesMixin(ImageMixinBase):
             :class:`~machinevisiontoolbox.ImagePointFeatures.AKAZEFeature`
             `cv2.AKAZE <https://docs.opencv.org/4.5.2/d7/d60/classcv_1_1AKAZE.html>`_
         """
-        return self._image2feature(AKAZEFeature, scale=True, orient=True, **kwargs)
+        return self._image2feature(AKAZEFeature, **kwargs)
 
     def Harris(self, **kwargs: Any) -> "HarrisFeature":
         r"""
@@ -2718,3 +2703,21 @@ if __name__ == "__main__":
             "-v",
         ]
     )
+
+
+# What each detector behind Image.SIFT(), Image.ORB() etc. is built from, and what it
+# provides.  The flags are facts about the algorithm, so they live here rather than
+# being passed in by each caller (where a keyword such as ``scale`` would collide with
+# an option of the detector itself, as Harris has one).  The factories are resolved
+# only when used, so that a detector missing from this OpenCV (OpenCV 5 without the
+# contrib modules) does not break the others.
+#
+#   name: (factory, has scale, has orientation)
+_DETECTORS: dict[str, tuple[Any, bool, bool]] = {
+    "SIFT": (lambda **kw: getattr(cv2, "SIFT_create")(**kw), True, True),
+    "SURF": (_SURF_create, True, True),
+    "ORB": (lambda **kw: getattr(cv2, "ORB_create")(**kw), True, True),
+    "BRISK": (lambda **kw: _resolve_feature_create("BRISK")(**kw), True, True),
+    "AKAZE": (lambda **kw: _resolve_feature_create("AKAZE")(**kw), True, True),
+    "Harris": (_Harris_create, False, False),
+}
