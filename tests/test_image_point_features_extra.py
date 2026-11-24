@@ -146,7 +146,8 @@ class TestPrinting:
     def test_one_with_scale_and_orientation(self):
         s = str(make_features(3)[1])
         assert s.startswith("SIFTFeature: (20.0, 25.0), strength=0.20")
-        assert "scale=3.0" in s and "orient=0.5°" in s and s.endswith("id=1")
+        # the orientation is 30 degrees; it was printed as radians (0.5) with a degree sign
+        assert "scale=3.0" in s and "orient=30.0°" in s and s.endswith("id=1")
 
     def test_one_without_scale_and_orientation(self):
         f = make_features(3)[1]
@@ -165,6 +166,21 @@ class TestPrinting:
         out = capsys.readouterr().out
         assert "strength" in out and "scale" in out and "orient" in out
         assert "20.0, 25.0" in out
+
+    def test_table_and_list_show_the_orientation_in_degrees(self, capsys):
+        make_features(3).table()
+        assert "30°" in capsys.readouterr().out  # feature 1 is at 30 degrees
+        make_features(3).list()
+        assert "orient=30.0°" in capsys.readouterr().out
+
+    def test_without_strength(self, capsys):
+        f = make_features(3)
+        f._has_strength = False
+        assert "strength" not in str(f[1])
+        f.table()
+        assert "strength" not in capsys.readouterr().out
+        f.list()
+        assert "strength" not in capsys.readouterr().out
 
     def test_table_without_scale_and_orientation(self, capsys):
         f = make_features(3)
@@ -971,3 +987,146 @@ class TestFeatureMatchEstimateWithTheRealEstimators:
         else:
             with pytest.raises(ValueError, match="not been set"):
                 matches.inliers
+
+
+# --------------------------------------------------------------------------- #
+# scale, orientation and strength exist only for the features that have them
+
+
+class TestPropertiesThatMayBeAbsent:
+    @staticmethod
+    def features(scale, orient, strength=True):
+        f = make_features(3)
+        f._has_scale, f._has_orient, f._has_strength = scale, orient, strength
+        f._feature_type = "FAST"
+        return f
+
+    @pytest.mark.parametrize(
+        "name, message",
+        [
+            ("scale", "FAST features have no scale"),
+            ("orientation", "FAST features have no orientation"),
+            ("strength", "FAST features have no strength"),
+        ],
+    )
+    def test_raise_if_the_features_do_not_have_it(self, name, message):
+        f = self.features(False, False, False)
+        with pytest.raises(ValueError, match=message):
+            getattr(f, name)
+        with pytest.raises(ValueError, match=message):
+            getattr(f[1], name)  # a single feature too
+
+    def test_return_values_if_the_features_have_them(self):
+        f = self.features(True, True, True)
+        nt.assert_allclose(f.scale, [2, 3, 4])
+        nt.assert_allclose(f.orientation, np.radians([0, 30, 60]))
+        nt.assert_allclose(f.strength, [0.1, 0.2, 0.3])
+
+    def test_each_is_independent_of_the_others(self):
+        f = self.features(True, False)
+        assert len(f.scale) == 3 and len(f.strength) == 3
+        with pytest.raises(ValueError, match="orientation"):
+            f.orientation
+
+    def test_sort_and_filter_by_a_missing_quantity_raise(self):
+        f = self.features(False, False)
+        with pytest.raises(ValueError, match="no scale"):
+            f.sort("scale")
+        with pytest.raises(ValueError, match="no scale"):
+            f.filter(minscale=1)
+        f.sort("strength")  # the one it has still works
+        f.filter(minstrength=0.15)
+
+    def test_drawing_circles_needs_a_scale_and_a_hand_needs_an_orientation(self):
+        f = self.features(False, False)
+        f.plot()  # markers only: nothing needed
+        with pytest.raises(ValueError, match="no scale"):
+            f.plot(filled=True)
+        g = self.features(True, False)
+        g.plot(filled=True)
+        with pytest.raises(ValueError, match="no orientation"):
+            g.plot(filled=True, hand=True)
+        self.features(True, True).plot(filled=True, hand=True)
+
+    def test_flags_are_kept_by_slicing_adding_and_sorting(self):
+        img = Image(np.zeros((50, 50), dtype=np.uint8))
+        f = self.features(True, False, True)
+        f._image = img
+        for g in (
+            f[1:],
+            f[[0, 2]],
+            f[np.array([True, False, True])],
+            f + f,
+            f.sort("scale"),
+            f.subset(2),
+        ):
+            assert (g._has_scale, g._has_orient, g._has_strength) == (True, False, True)
+            assert g._feature_type == "FAST"
+            assert g._image is img
+        assert len(f + f) == 6
+
+
+# the algorithms the toolbox has, and what each really provides: the flags must agree
+# with the keypoints, or the properties would raise for good data, or return junk
+ALGORITHMS = [
+    # name, has scale, has orientation
+    ("SIFT", True, True),
+    ("ORB", True, True),
+    ("BRISK", True, True),
+    ("AKAZE", True, True),
+    ("Harris", False, False),
+]
+
+
+class TestFlagsAgreeWithTheData:
+    @pytest.fixture
+    def image(self):
+        return Image.Read("eiffel-1.png", mono=True)
+
+    @pytest.mark.parametrize("name, has_scale, has_orient", ALGORITHMS)
+    def test_algorithm(self, image, name, has_scale, has_orient):
+        f = getattr(image, name)()
+        assert len(f) > 50
+        assert (f._has_scale, f._has_orient, f._has_strength) == (
+            has_scale,
+            has_orient,
+            True,
+        )
+        sizes = np.array([kp.size for kp in f._kp])
+        angles = np.array([kp.angle for kp in f._kp])
+
+        # strength is always there, and not all the same
+        assert np.ptp(f.strength) > 0
+
+        if has_scale:
+            assert sizes.min() > 0 and np.ptp(sizes) > 0  # varies, so it is real
+            assert len(f.scale) == len(f)
+        else:
+            assert np.ptp(sizes) == 0  # a constant, so it is not a scale
+            with pytest.raises(ValueError, match="no scale"):
+                f.scale
+
+        if has_orient:
+            assert np.ptp(angles) > 90  # spread round the circle, so it is real
+            assert np.all(np.abs(f.orientation) <= 2 * np.pi)
+        else:
+            assert np.ptp(angles) == 0
+            with pytest.raises(ValueError, match="no orientation"):
+                f.orientation
+
+    @pytest.mark.parametrize("name, has_scale, has_orient", ALGORITHMS)
+    def test_a_sum_and_a_slice_keep_what_the_algorithm_has(
+        self, image, name, has_scale, has_orient
+    ):
+        f = getattr(image, name)()
+        for g in (f[:20], f[:20] + f[20:40], f.sort(inplace=False)):
+            assert (g._has_scale, g._has_orient) == (has_scale, has_orient)
+            assert g._image is not None or g is f
+
+    def test_printing_an_orb_feature_shows_scale_and_orientation_in_degrees(
+        self, image
+    ):
+        s = str(image.ORB()[0])
+        assert "scale=" in s and "orient=" in s
+        degrees = float(s.split("orient=")[1].split("°")[0])
+        assert 0 <= degrees < 360
