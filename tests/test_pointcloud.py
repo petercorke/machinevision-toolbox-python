@@ -118,6 +118,61 @@ class TestPointCloudNotebookDisplay(unittest.TestCase):
             self.pc.disp(notebook=True, file="x.png")
 
 
+@unittest.skipUnless(open3d_available, "open3d not installed")
+class TestVoxelGridNotebookDisplay(unittest.TestCase):
+    def setUp(self):
+        self.vg = PointCloud(np.random.rand(3, 2000)).voxel_grid(0.25)
+
+    def test_one_cube_per_voxel_with_the_bounds_of_the_grid(self):
+        n = len(self.vg._voxels.get_voxels())
+        mesh = self.vg._cubes()
+        self.assertEqual(len(mesh.triangles), 12 * n)
+        self.assertEqual(len(mesh.vertices), 8 * n)
+        nt.assert_allclose(mesh.get_min_bound(), self.vg._voxels.get_min_bound())
+        nt.assert_allclose(mesh.get_max_bound(), self.vg._voxels.get_max_bound())
+
+    def test_cubes_are_gray_when_the_voxels_have_no_color(self):
+        colors = np.asarray(self.vg._cubes().vertex_colors)
+        nt.assert_allclose(colors, 0.7)
+
+    def test_cubes_keep_the_colors_of_the_voxels(self):
+        import open3d as o3d
+
+        pcd = o3d.geometry.PointCloud()
+        pcd.points = o3d.utility.Vector3dVector(np.random.rand(500, 3))
+        pcd.colors = o3d.utility.Vector3dVector(np.tile([1.0, 0.0, 0.0], (500, 1)))
+        colors = np.asarray(PointCloud(pcd).voxel_grid(0.25)._cubes().vertex_colors)
+        nt.assert_allclose(colors, np.tile([1.0, 0.0, 0.0], (len(colors), 1)))
+
+    @unittest.skipUnless(plotly_available, "plotly not installed")
+    def test_shown_once_with_a_mesh_of_the_voxels(self):
+        from unittest.mock import patch
+
+        shown = []
+        with patch(
+            "plotly.graph_objects.Figure.show",
+            autospec=True,
+            side_effect=lambda fig, *a, **k: shown.append(fig),
+        ):
+            result = self.vg.disp(notebook=True, title="Voxels")
+        self.assertIsNone(result)
+        self.assertEqual(len(shown), 1)
+        self.assertEqual(shown[0].layout.title.text, "Voxels")
+        self.assertEqual(len(shown[0].data), 1)
+        self.assertEqual(len(shown[0].data[0].x), len(self.vg._cubes().vertices))
+
+    def test_plotly_missing_says_how_to_install_it(self):
+        from unittest.mock import patch
+
+        with patch.dict("sys.modules", {"plotly": None}):
+            with self.assertRaisesRegex(ImportError, "pip install plotly"):
+                self.vg.disp(notebook=True)
+
+    def test_file_cannot_be_used(self):
+        with self.assertRaisesRegex(ValueError, "file"):
+            self.vg.disp(notebook=True, file="x.png")
+
+
 # ----------------------------------------------------------------------- #
 if __name__ == "__main__":
     unittest.main()
