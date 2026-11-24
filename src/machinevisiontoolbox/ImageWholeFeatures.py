@@ -1369,6 +1369,7 @@ class Histogram:
         samescale: bool = False,
         ax: Axes | None = None,
         bar: bool | None = None,
+        xlabel: str | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -1400,6 +1401,9 @@ class Histogram:
         :type samescale: bool, optional
         :param ax: Matplotlib axes to plot on, defaults to None (new figure)
         :type ax: matplotlib.axes.Axes, optional
+        :param xlabel: label for the x axis, defaults to "pixel value", or "bin rank"
+            for a sorted histogram
+        :type xlabel: str, optional
         :param bar: deprecated alias for ``filled``, use ``filled=`` instead
         :param kwargs: additional keyword arguments passed to Matplotlib plotting functions, ``plt.stairs`` for ``solid=True`` and ``plt.plot`` for ``solid=False``, and ``plt.Polygon`` for ``style='overlay'``
         :raises ValueError: invalid histogram type
@@ -1410,6 +1414,9 @@ class Histogram:
         to plot: ``frequency``, ``pdf``/``probability``, ``cf``/``cumulative``, or
         ``cdf``/``normalized`` (normalized cumulative, range 0 to 1).  ``ncdf`` is
         accepted as a deprecated alias for ``cdf``.
+
+        .. versionchanged:: 2.5.0
+            Added the ``xlabel`` option.
 
         The ``style`` option selects the style for plotting multiple planes:
 
@@ -1537,10 +1544,12 @@ class Histogram:
 
         if self._sorted:
             xrange = (self.x[0], self.x[-1])
-            xlabel = "bin rank"
+            default_xlabel = "bin rank"
         else:
             xrange = (self._xrange[0], self._xrange[1])
-            xlabel = "pixel value"
+            default_xlabel = "pixel value"
+        if xlabel is None:
+            xlabel = default_xlabel
 
         colors: list[str] = []
         if self.colordict is not None:
@@ -1994,9 +2003,14 @@ class CannyHistogram(Histogram):
         Plot the histogram, with the thresholds marked
 
         The arguments are those of :meth:`Histogram.plot`.  The lower and upper
-        thresholds are drawn as vertical lines.
+        thresholds are drawn as vertical lines.  The x axis is labelled "gradient
+        magnitude" unless ``xlabel`` is given.
+
+        .. versionchanged:: 2.5.0
+            The x axis is labelled "gradient magnitude", it used to say "pixel value".
         """
         ax = kwargs.get("ax")
+        kwargs.setdefault("xlabel", "gradient magnitude")
         # block=None: draw but do not show, the figure is shown once, below, after
         # the thresholds are added (showing it twice puts two live views of the one
         # figure in a notebook, which move together)
