@@ -1775,9 +1775,9 @@ class Histogram:
             ylabel2 = "probability density"
         elif type in ("cf", "cumulative"):
             y = self.cf
-            maxy = y[
-                -1, 0
-            ]  # last row values are all the same, total number of pixels in plane
+            # the last row is the total number of pixels in each plane, y is 1D for a
+            # greyscale image and 2D, one column per plane, for a color image
+            maxy = np.max(y[-1])
             ylabel1 = "cumulative frequency"
             ylabel2 = "cumulative frequency"
         elif type in ("cdf", "normalized"):

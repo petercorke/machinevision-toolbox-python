@@ -737,5 +737,31 @@ class TestHistogramXLabel(unittest.TestCase):
             )
 
 
+class TestCumulativeFrequencyPlot(unittest.TestCase):
+    def tearDown(self):
+        plt.close("all")
+
+    def _plot(self, image, **kwargs):
+        with patch("matplotlib.pyplot.show"):
+            image.hist().plot(**kwargs)
+        return plt.gcf().axes
+
+    def test_greyscale(self):
+        im = Image.Read("eiffel-1.png", mono=True)
+        for type in ("cf", "cumulative"):
+            plt.close("all")
+            (ax,) = self._plot(im, type=type)
+            # the axis runs up to the number of pixels, which is where it ends
+            self.assertEqual(ax.get_ylim()[1], im.npixels)
+
+    def test_color_stack_and_overlay(self):
+        im = Image.Read("flowers1.png")
+        for style in ("stack", "overlay"):
+            plt.close("all")
+            axes = self._plot(im, type="cf", style=style)
+            for ax in axes:
+                self.assertEqual(ax.get_ylim()[1], im.npixels)
+
+
 if __name__ == "__main__":
     unittest.main()
