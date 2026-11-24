@@ -18,6 +18,41 @@ except ImportError:
     _open3d = False
 
 
+class _Normals(np.ndarray):
+    """The point normals, which can also be called as the old ``normals()`` method
+
+    Up to MVTB release 0.9 ``PointCloud.normals(radius=..., max_nn=...)`` was the
+    method that estimated the normals, and the printed book uses it.  Since MVTB
+    v1.0.1 it is the property :attr:`PointCloud.normals`, and the method is
+    :meth:`PointCloud.estimate_normals`, which are the names that Open3D uses for
+    the same things (the array is 3xN, the MVTB convention, where Open3D's is Nx3).
+    This array subclass lets the old call still work, with a deprecation warning,
+    without changing what the property returns.
+    """
+
+    _pcd: "PointCloud | None" = None
+
+    def __new__(cls, array: np.ndarray, pcd: "PointCloud") -> "_Normals":
+        obj = np.asarray(array).view(cls)
+        obj._pcd = pcd
+        return obj
+
+    def __array_finalize__(self, obj: Any) -> None:
+        self._pcd = getattr(obj, "_pcd", None)
+
+    def __call__(self, **kwargs: Any) -> None:
+        warn(
+            "Deprecated in MVTB 2.5.0: normals(...) estimates the normals, use "
+            "estimate_normals(...) instead, as in Open3D.  normals is now a property "
+            "that returns them.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        if self._pcd is None:
+            raise TypeError("'numpy.ndarray' object is not callable")
+        self._pcd.estimate_normals(**kwargs)
+
+
 class PointCloud:
     def __init__(self, arg: Any, depth_scale: float = 1.0, **kwargs) -> None:
         """
@@ -593,9 +628,15 @@ class PointCloud:
         Point normals are returned as columns of the array.  The columns correspond
         to the same columns in the :attr:`points` and :attr:`colors` properties.
 
+        .. deprecated:: 2.5.0
+            Calling the result, ``pcd.normals(radius=0.1, max_nn=30)``, estimates the
+            normals as the method of this name did up to MVTB release 0.9.  It still
+            works, with a warning, use :meth:`estimate_normals` instead.  Since MVTB
+            v1.0.1 these are the names that Open3D uses.
+
         :seealso: :meth:`estimate_normals` :attr:`points` :attr:`colors`
         """
-        return np.asarray(self._pcd.normals).T
+        return _Normals(np.asarray(self._pcd.normals).T, self)
 
     def remove_outlier(self, **kwargs: Any) -> "PointCloud":
         """
