@@ -650,5 +650,38 @@ class TestHistogramCompare(unittest.TestCase):
             h1.compare(h1.pdf)  # type: ignore[arg-type]
 
 
+class TestCannyHistogramPlot(unittest.TestCase):
+    def setUp(self):
+        _, self.hist = Image.Read("eiffel-1.png", mono=True).canny(hist=True)
+
+    def tearDown(self):
+        plt.close("all")
+
+    def test_figure_is_shown_once(self):
+        # shown twice, a notebook gets two live views of the one figure, which move
+        # together
+        with patch("matplotlib.pyplot.show") as show:
+            self.hist.plot()
+        self.assertEqual(show.call_count, 1)
+
+    def test_thresholds_are_in_the_figure_when_it_is_shown(self):
+        labels = []
+
+        def record(*args, **kwargs):
+            labels.extend(t.get_text() for t in plt.gca().get_legend().get_texts())
+
+        with patch("matplotlib.pyplot.show", side_effect=record):
+            self.hist.plot()
+        self.assertTrue(any(t.startswith("th0") for t in labels))
+        self.assertTrue(any(t.startswith("th1") for t in labels))
+
+    def test_ax_is_used_and_shown_once(self):
+        _, ax = plt.subplots()
+        with patch("matplotlib.pyplot.show") as show:
+            self.hist.plot(ax=ax)
+        self.assertEqual(show.call_count, 1)
+        self.assertEqual(len(plt.get_fignums()), 1)
+
+
 if __name__ == "__main__":
     unittest.main()
