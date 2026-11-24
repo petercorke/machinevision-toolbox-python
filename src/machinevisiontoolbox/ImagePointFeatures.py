@@ -311,6 +311,11 @@ class BaseFeature2D:
         .. warning:: Takes the first ``nfeat`` features in each grid cell, not the
             ``nfeat`` strongest.  Sort the features by strength to achieve this.
 
+        .. versionchanged:: 2.5.0
+            The result keeps the descriptors and the scale, orientation and strength
+            of the features, and a feature at the right or bottom edge of the image
+            no longer raises ``IndexError``.
+
         :seealso: :meth:`sort`
         """
 
@@ -323,21 +328,22 @@ class BaseFeature2D:
         image = self._image
         if image is None:
             raise ValueError("no image associated with features")
-        binwidth = image.width // nw
-        binheight = image.height // nh
 
-        keep = []
+        keep: list[int] = []
         bins = np.zeros((nh, nw), dtype="int")
 
-        for f in self:
-            ix = int(f.p[0].item() // binwidth)
-            iy = int(f.p[1].item() // binheight)
+        for i, f in enumerate(self):
+            # the last cell takes the pixels left over when the size is not a
+            # multiple of the number of cells
+            ix = min(int(f.p[0].item() * nw // image.width), nw - 1)
+            iy = min(int(f.p[1].item() * nh // image.height), nh - 1)
 
             if bins[iy, ix] < nfeat:
-                keep.append(f)
+                keep.append(i)
                 bins[iy, ix] += 1
 
-        return self.__class__(keep)
+        # indexing keeps the descriptors and the flags, as slicing does
+        return self[keep]
 
     def __add__(self, other: "BaseFeature2D | builtins.list | None") -> "BaseFeature2D":
         """
