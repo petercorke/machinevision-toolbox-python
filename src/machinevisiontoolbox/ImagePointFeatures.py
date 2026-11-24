@@ -5,7 +5,7 @@ Detection and matching of keypoint and descriptor features (SIFT, ORB, etc.) in 
 import builtins
 import math
 from collections.abc import Sequence
-from typing import TYPE_CHECKING, Any, Iterator
+from typing import TYPE_CHECKING, Any, Iterator, Self
 
 import cv2
 import matplotlib.lines as mlines
@@ -50,6 +50,7 @@ class BaseFeature2D:
         scale: bool = False,
         orient: bool = False,
         image: np.ndarray | None = None,
+        strength: bool = True,
     ) -> None:
         """
         Create set of 2D point features
@@ -62,6 +63,12 @@ class BaseFeature2D:
         :type scale: bool, optional
         :param orient: features have an inherent orientation, defaults to False
         :type orient: bool, optional
+        :param strength: features have a strength (detector response), defaults to True
+        :type strength: bool, optional
+
+        The :attr:`scale`, :attr:`orientation` and :attr:`strength` properties raise
+        ``ValueError`` for a set of features that does not have that quantity, for example
+        :attr:`orientation` of FAST features.
 
         A :class:`~machinevisiontoolbox.ImagePointFeatures.BaseFeature2D` object:
 
@@ -82,6 +89,7 @@ class BaseFeature2D:
 
         self._has_scale: bool = scale
         self._has_orient: bool = orient
+        self._has_strength: bool = strength
         self._image: Any = image
         self._feature_type: str | None = None
         if kp is None:
@@ -89,6 +97,27 @@ class BaseFeature2D:
         else:
             self._kp = list(kp)
         self._descriptor: np.ndarray | None = des
+
+    def _require(self, flag: bool, what: str) -> None:
+        """Raise ValueError if these features do not have ``what``"""
+        if not flag:
+            kind = self._feature_type or self.__class__.__name__
+            raise ValueError(f"{kind} features have no {what}")
+
+    def _like(self) -> Self:
+        """A new empty set of the same kind, with the metadata of this one
+
+        The flags that say which of scale, orientation and strength the features
+        have, the feature type and the image they came from are copied, so a set made
+        by slicing, adding or sorting keeps them.
+        """
+        new = self.__class__()
+        new._has_scale = self._has_scale
+        new._has_orient = self._has_orient
+        new._has_strength = self._has_strength
+        new._feature_type = self._feature_type
+        new._image = self._image
+        return new
 
     def __len__(self) -> int:
         """
@@ -136,9 +165,7 @@ class BaseFeature2D:
 
         :seealso: :meth:`.__len__`
         """
-        new = self.__class__()  # Get item from point feature object (base method)
-        new._has_scale = self._has_scale
-        new._has_orient = self._has_orient
+        new = self._like()  # Get item from point feature object (base method)
         # compute canonical integer index list for both _kp and descriptor
         n = len(self)
         if isinstance(i, int):
@@ -190,14 +217,13 @@ class BaseFeature2D:
         if len(self) > 1:  # String representation of feature (base method)
             return f"{self.__class__.__name__} features, {len(self)} points"
         else:
-            s = (
-                f"{self.__class__.__name__}: ({self.u:.1f}, {self.v:.1f}),"
-                f" strength={self.strength:.2f}"
-            )
+            s = f"{self.__class__.__name__}: ({self.u:.1f}, {self.v:.1f}),"
+            if self._has_strength:
+                s += f" strength={self.strength:.2f}"
             if self._has_scale:
                 s += f", scale={self.scale:.1f}"
             if self._has_orient:
-                s += f", orient={self.orientation:.1f}°"
+                s += f", orient={np.degrees(self.orientation):.1f}°"
             s += f", id={self.id}"
             return s
 
@@ -225,14 +251,13 @@ class BaseFeature2D:
         :seealso: :meth:`table`
         """
         for i, f in enumerate(self):  # List matches
-            s = (
-                f"{self._feature_type} feature {i}: ({f.u:.1f}, {f.v:.1f}),"
-                f" strength={f.strength:.2f}"
-            )
+            s = f"{self._feature_type} feature {i}: ({f.u:.1f}, {f.v:.1f}),"
+            if f._has_strength:
+                s += f" strength={f.strength:.2f}"
             if f._has_scale:
                 s += f", scale={f.scale:.1f}"
             if f._has_orient:
-                s += f", orient={f.orientation:.1f}°"
+                s += f", orient={np.degrees(f.orientation):.1f}°"
             s += f", id={f.id}"
             print(s)
 
@@ -248,8 +273,9 @@ class BaseFeature2D:
         columns = [
             Column("#"),
             Column("centroid"),
-            Column("strength", fmt="{:.3g}"),
         ]  # Print features in tabular form
+        if self._has_strength:
+            columns.append(Column("strength", fmt="{:.3g}"))
         if self._has_scale:
             columns.append(Column("scale", fmt="{:.3g}"))
         if self._has_orient:
@@ -257,11 +283,13 @@ class BaseFeature2D:
         columns.append(Column("id", fmt="{:d}"))
         table = ANSITable(*columns, border="thin")
         for i, f in enumerate(self):
-            values = [f.strength]
+            values = []
+            if self._has_strength:
+                values.append(f.strength)
             if self._has_scale:
                 values.append(f.scale)
             if self._has_orient:
-                values.append(f.orientation)
+                values.append(np.degrees(f.orientation))
 
             table.row(i, f"{f.u:.1f}, {f.v:.1f}", *values, f.id)
         table.print()
@@ -361,8 +389,7 @@ class BaseFeature2D:
                 self._feature_type,
                 other._feature_type,
             )
-        new = self.__class__()
-        new._feature_type = self._feature_type
+        new = self._like()
         new._kp = self._kp + other._kp
         if self._descriptor is not None and other._descriptor is not None:
             new._descriptor = np.vstack((self._descriptor, other._descriptor))
@@ -496,6 +523,12 @@ class BaseFeature2D:
 
         :return: Orientation in radians
         :rtype: float or list of float
+        :raises ValueError: if the features have no orientation, such as FAST or Harris
+            features
+
+        .. versionchanged:: 2.5.0
+            Raises ``ValueError`` if the features have no orientation. It used to return
+            a constant for a detector that has no orientation.
 
         Example:
 
@@ -507,7 +540,7 @@ class BaseFeature2D:
             >>> orb[0].orientation
             >>> orb[:5].orientation
         """
-        # TODO should be in radians
+        self._require(self._has_orient, "orientation")
         return [np.radians(kp.angle) for kp in self._kp]
 
     @property
@@ -518,6 +551,11 @@ class BaseFeature2D:
 
         :return: Scale
         :rtype: float or list of float
+        :raises ValueError: if the features have no scale, such as FAST or Harris features
+
+        .. versionchanged:: 2.5.0
+            Raises ``ValueError`` if the features have no scale. It used to return the
+            keypoint size, which is a constant for a detector that has no scale.
 
         Example:
 
@@ -529,6 +567,7 @@ class BaseFeature2D:
             >>> orb[0].scale
             >>> orb[:5].scale
         """
+        self._require(self._has_scale, "scale")
         return [kp.size for kp in self._kp]
 
     @property
@@ -539,6 +578,10 @@ class BaseFeature2D:
 
         :return: Strength
         :rtype: float or list of float
+        :raises ValueError: if the features have no strength
+
+        .. versionchanged:: 2.5.0
+            Raises ``ValueError`` if the features have no strength.
 
         Example:
 
@@ -550,6 +593,7 @@ class BaseFeature2D:
             >>> orb[0].strength
             >>> orb[:5].strength
         """
+        self._require(self._has_strength, "strength")
         return [kp.response for kp in self._kp]
 
     @property
@@ -906,11 +950,10 @@ class BaseFeature2D:
             if self._descriptor is not None:
                 self._descriptor = np.take(self._descriptor, sorted_index, axis=0)
         else:
-            new = self.__class__()
+            new = self._like()
             new._kp = [self._kp[i] for i in sorted_index]
             if self._descriptor is not None:
                 new._descriptor = np.take(self._descriptor, sorted_index, axis=0)
-            new._feature_type = self._feature_type
             return new
         return None
 
@@ -2416,7 +2459,11 @@ class ImagePointFeaturesMixin(ImageMixinBase):
 
         scoreoptions = {"harris": cv2.ORB_HARRIS_SCORE, "fast": cv2.ORB_FAST_SCORE}
         return self._image2feature(
-            ORBFeature, scoreType=scoreoptions[scoreType], **kwargs
+            ORBFeature,
+            scale=True,
+            orient=True,
+            scoreType=scoreoptions[scoreType],
+            **kwargs,
         )
 
     def BRISK(self, **kwargs: Any) -> "BRISKFeature":
@@ -2452,7 +2499,7 @@ class ImagePointFeaturesMixin(ImageMixinBase):
 
         :seealso: :class:`BRISKFeature` `cv2.BRISK_create <https://docs.opencv.org/4.5.2/d7/d60/classcv_1_1BRISK.html>`_
         """
-        return self._image2feature(BRISKFeature, **kwargs)
+        return self._image2feature(BRISKFeature, scale=True, orient=True, **kwargs)
 
     def AKAZE(self, **kwargs: Any) -> "AKAZEFeature":
         """
@@ -2488,7 +2535,7 @@ class ImagePointFeaturesMixin(ImageMixinBase):
             :class:`~machinevisiontoolbox.ImagePointFeatures.AKAZEFeature`
             `cv2.AKAZE <https://docs.opencv.org/4.5.2/d7/d60/classcv_1_1AKAZE.html>`_
         """
-        return self._image2feature(AKAZEFeature, **kwargs)
+        return self._image2feature(AKAZEFeature, scale=True, orient=True, **kwargs)
 
     def Harris(self, **kwargs: Any) -> "HarrisFeature":
         r"""
