@@ -18,6 +18,37 @@ except ImportError:
     _open3d = False
 
 
+def _show_in_notebook(
+    geometry: Any, title: str, file: str | None, kwargs: dict[str, Any]
+) -> None:
+    """Draw an Open3D geometry in the output of the notebook cell, using Plotly
+
+    :param geometry: an Open3D point cloud or triangle mesh
+    :param title: title of the figure
+    :param file: ``disp``'s ``file`` argument, which cannot be used here
+    :param kwargs: view options passed to
+        :func:`open3d.visualization.get_plotly_fig`
+    :raises ValueError: ``file`` is given
+    :raises ImportError: Plotly is not installed, it is not a dependency of the
+        Toolbox
+    """
+    if file is not None:
+        raise ValueError("file cannot be used with notebook=True")
+    try:
+        import plotly  # noqa: F401
+    except ImportError:
+        raise ImportError(
+            "disp(notebook=True) draws with Plotly, which is not installed. "
+            "Install it with: pip install plotly"
+        ) from None
+
+    # get_plotly_fig rather than draw_plotly, which shows the figure and also returns
+    # it, so that a cell ending in the call shows it twice
+    fig = o3d.visualization.get_plotly_fig([geometry], **kwargs)
+    fig.update_layout(title=dict(text=title), margin=dict(t=40))
+    fig.show()
+
+
 class PointCloud:
     def __init__(self, arg: Any, depth_scale: float = 1.0, **kwargs) -> None:
         """
@@ -396,21 +427,7 @@ class PointCloud:
         :seealso: :class:`open3d.visualization.ViewControl`
         """
         if notebook:
-            if file is not None:
-                raise ValueError("file cannot be used with notebook=True")
-            try:
-                import plotly  # noqa: F401
-            except ImportError:
-                raise ImportError(
-                    "disp(notebook=True) draws with Plotly, which is not installed. "
-                    "Install it with: pip install plotly"
-                ) from None
-
-            # get_plotly_fig rather than draw_plotly, which shows the figure and also
-            # returns it, so that a cell ending in the call shows it twice
-            fig = o3d.visualization.get_plotly_fig([self._pcd], **kwargs)
-            fig.update_layout(title=dict(text=title), margin=dict(t=40))
-            fig.show()
+            _show_in_notebook(self._pcd, title, file, kwargs)
             return
 
         if block:
@@ -741,6 +758,43 @@ class VoxelGrid:
             pcd._pcd, voxel_size=voxel_size
         )
 
+    def _cubes(self) -> Any:
+        """The voxels as a triangle mesh, one cube of 12 triangles per voxel
+
+        Open3D's Plotly drawing does not handle a voxel grid, it draws nothing.  The
+        voxels keep their colors, or are gray if none has a color, so that the
+        lighting shows their shape.
+        """
+        voxels = self._voxels.get_voxels()
+        index = np.array([v.grid_index for v in voxels], dtype=float).reshape(-1, 3)
+        colors = np.array([v.color for v in voxels], dtype=float).reshape(-1, 3)
+        if not np.any(colors):
+            colors = np.full_like(colors, 0.7)
+        n = len(voxels)
+
+        # the unit cube: 8 corners, and 12 triangles which are 2 on each face
+        corners = np.array(
+            [[0, 0, 0], [1, 0, 0], [1, 1, 0], [0, 1, 0]]
+            + [[0, 0, 1], [1, 0, 1], [1, 1, 1], [0, 1, 1]],
+            dtype=float,
+        )
+        faces = np.array(
+            [[0, 2, 1], [0, 3, 2], [4, 5, 6], [4, 6, 7]]
+            + [[0, 1, 5], [0, 5, 4], [3, 6, 2], [3, 7, 6]]
+            + [[0, 4, 7], [0, 7, 3], [1, 2, 6], [1, 6, 5]]
+        )
+
+        # the grid index is of the voxel's minimum corner, from the grid's origin
+        minimum = np.asarray(self._voxels.origin) + index * self._voxels.voxel_size
+        vertices = minimum[:, None, :] + corners[None, :, :] * self._voxels.voxel_size
+        triangles = faces[None, :, :] + 8 * np.arange(n)[:, None, None]
+
+        mesh = o3d.geometry.TriangleMesh()
+        mesh.vertices = o3d.utility.Vector3dVector(vertices.reshape(-1, 3))
+        mesh.triangles = o3d.utility.Vector3iVector(triangles.reshape(-1, 3))
+        mesh.vertex_colors = o3d.utility.Vector3dVector(np.repeat(colors, 8, axis=0))
+        return mesh
+
     def write(self, filename: str) -> None:
         """
         Write voxel grid to file
@@ -757,6 +811,7 @@ class VoxelGrid:
         block: bool = True,
         file: str | None = None,
         title: str = "Voxel Grid",
+        notebook: bool = False,
         **kwargs: Any,
     ) -> None:
         """
@@ -768,7 +823,26 @@ class VoxelGrid:
         :type title: str, optional
         :param file: save display to this filename, defaults to None
         :type file: str, optional
+        :param notebook: draw in the output of the notebook cell, rather than in an
+            Open3D window, defaults to False
+        :type notebook: bool, optional
+        :raises ValueError: ``file`` is given with ``notebook=True``
+        :raises ImportError: ``notebook=True`` and Plotly is not installed
+
+        With ``notebook=True`` the voxels are drawn in the output of the notebook
+        cell, as a Plotly figure that can be rotated and zoomed, in the same way as
+        :meth:`PointCloud.disp`, which describes the options.  Each voxel is drawn
+        as a cube of 12 triangles, so a grid of many thousands of voxels is slow.
+
+        .. versionchanged:: 2.5.0
+            Added the ``notebook`` option.
+
+        :seealso: :meth:`PointCloud.disp`
         """
+        if notebook:
+            _show_in_notebook(self._cubes(), title, file, kwargs)
+            return
+
         if block:
             o3d.visualization.draw_geometries(
                 [self._voxels], window_name=title, **kwargs
