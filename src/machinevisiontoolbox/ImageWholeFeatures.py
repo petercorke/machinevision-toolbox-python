@@ -1997,7 +1997,10 @@ class CannyHistogram(Histogram):
         thresholds are drawn as vertical lines.
         """
         ax = kwargs.get("ax")
-        super().plot(type, False, **kwargs)
+        # block=None: draw but do not show, the figure is shown once, below, after
+        # the thresholds are added (showing it twice puts two live views of the one
+        # figure in a notebook, which move together)
+        super().plot(type, None, **kwargs)  # type: ignore[arg-type]
         if ax is None:
             ax = plt.gca()
         ax.axvline(self.th0, color="k", linestyle=":", label=f"th0 = {self.th0:.4g}")
