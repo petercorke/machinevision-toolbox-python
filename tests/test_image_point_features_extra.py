@@ -1130,3 +1130,23 @@ class TestFlagsAgreeWithTheData:
         assert "scale=" in s and "orient=" in s
         degrees = float(s.split("orient=")[1].split("°")[0])
         assert 0 <= degrees < 360
+
+
+class TestHarrisOptions:
+    """Harris has an option called ``scale``, which must reach the detector."""
+
+    @pytest.fixture
+    def image(self):
+        return Image.Read("eiffel-1.png", mono=True)
+
+    def test_scale_is_the_suppression_distance(self, image):
+        near = image.Harris(scale=7)
+        far = image.Harris(scale=40)
+        # corners must be further apart, so there are fewer of them
+        assert len(far) < len(near)
+
+    def test_scale_does_not_claim_a_scale_per_feature(self, image):
+        f = image.Harris(scale=15)
+        assert (f._has_scale, f._has_orient) == (False, False)
+        with pytest.raises(ValueError, match="no scale"):
+            f.scale
