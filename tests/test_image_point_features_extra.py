@@ -1150,3 +1150,53 @@ class TestHarrisOptions:
         assert (f._has_scale, f._has_orient) == (False, False)
         with pytest.raises(ValueError, match="no scale"):
             f.scale
+
+
+class TestGridify:
+    @pytest.fixture
+    def orb(self):
+        return Image.Read("eiffel-1.png", mono=True).ORB(nfeat=500)
+
+    def test_result_has_keypoints_descriptors_and_flags(self, orb):
+        g = orb.gridify(4, 5)
+        assert 0 < len(g) < len(orb)
+        assert all(isinstance(k, cv2.KeyPoint) for k in g._kp)
+        assert g._descriptor.shape == (len(g), orb._descriptor.shape[1])
+        assert (g._has_scale, g._has_orient, g._has_strength) == (True, True, True)
+        assert g._feature_type == orb._feature_type
+        assert g._image is orb._image
+        assert len(g.scale) == len(g)
+
+    def test_features_keep_their_own_descriptors(self, orb):
+        g = orb.gridify(4, 5)
+        # each kept feature is one of the originals, with its own descriptor row
+        index = {tuple(k.pt): i for i, k in enumerate(orb._kp)}
+        for k, d in zip(g._kp, g._descriptor):
+            assert np.array_equal(d, orb._descriptor[index[tuple(k.pt)]])
+
+    def test_result_can_be_matched(self, orb):
+        g = orb.gridify(4, 5)
+        assert len(g.match(g)) == len(g)
+
+    def test_at_most_nfeat_per_cell(self, orb):
+        w, h = orb._image.width, orb._image.height
+        g = orb.gridify((4, 3), 2)
+        cells = {}
+        for k in g._kp:
+            c = (int(k.pt[0] * 4 // w), int(k.pt[1] * 3 // h))
+            cells[c] = cells.get(c, 0) + 1
+        assert max(cells.values()) <= 2
+
+    def test_features_at_the_far_edges(self):
+        # 1280 is not a multiple of 13, so the right edge is past the last cell
+        im = Image.Read("eiffel-1.png", mono=True)
+        kps = [cv2.KeyPoint(x, y, 7) for x, y in [(0, 0), (1279, 850), (1279, 0)]]
+        f = BaseFeature2D()
+        f._kp = kps
+        f._descriptor = np.zeros((3, 32), dtype=np.uint8)
+        f._image = im
+        assert len(f.gridify(13, 5)) == 3
+
+    def test_no_image(self):
+        with pytest.raises(ValueError, match="no image"):
+            BaseFeature2D().gridify(4, 5)
