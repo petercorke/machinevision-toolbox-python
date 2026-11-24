@@ -53,6 +53,71 @@ class TestPointCloud(unittest.TestCase):
         self.assertEqual(len(pc2), len(pc))
 
 
+try:
+    import plotly  # noqa: F401
+
+    plotly_available = True
+except ImportError:
+    plotly_available = False
+
+
+@unittest.skipUnless(open3d_available, "open3d not installed")
+class TestPointCloudNotebookDisplay(unittest.TestCase):
+    def setUp(self):
+        self.pc = PointCloud(np.random.rand(3, 500))
+
+    @unittest.skipUnless(plotly_available, "plotly not installed")
+    def test_shown_once_as_a_figure_with_points(self):
+        from unittest.mock import patch
+
+        with patch("plotly.graph_objects.Figure.show") as show:
+            result = self.pc.disp(notebook=True, title="My cloud")
+        self.assertEqual(show.call_count, 1)
+        # nothing is returned, or a cell ending in the call would show it again
+        self.assertIsNone(result)
+
+    @unittest.skipUnless(plotly_available, "plotly not installed")
+    def test_figure_has_the_points_and_title(self):
+        from unittest.mock import patch
+
+        shown = []
+        with patch(
+            "plotly.graph_objects.Figure.show",
+            autospec=True,
+            side_effect=lambda fig, *a, **k: shown.append(fig),
+        ):
+            self.pc.disp(notebook=True, title="My cloud", width=300, height=200)
+        fig = shown[0]
+        self.assertEqual(len(fig.data[0].x), 500)
+        self.assertEqual(fig.layout.title.text, "My cloud")
+        self.assertEqual((fig.layout.width, fig.layout.height), (300, 200))
+
+    @unittest.skipUnless(plotly_available, "plotly not installed")
+    def test_point_sample_factor_thins_the_cloud(self):
+        from unittest.mock import patch
+
+        shown = []
+        with patch(
+            "plotly.graph_objects.Figure.show",
+            autospec=True,
+            side_effect=lambda fig, *a, **k: shown.append(fig),
+        ):
+            self.pc.disp(notebook=True, point_sample_factor=0.2)
+        self.assertLess(len(shown[0].data[0].x), 500)
+
+    def test_plotly_missing_says_how_to_install_it(self):
+        from unittest.mock import patch
+
+        # a None entry in sys.modules makes the import raise ImportError
+        with patch.dict("sys.modules", {"plotly": None}):
+            with self.assertRaisesRegex(ImportError, "pip install plotly"):
+                self.pc.disp(notebook=True)
+
+    def test_file_cannot_be_used(self):
+        with self.assertRaisesRegex(ValueError, "file"):
+            self.pc.disp(notebook=True, file="x.png")
+
+
 # ----------------------------------------------------------------------- #
 if __name__ == "__main__":
     unittest.main()
