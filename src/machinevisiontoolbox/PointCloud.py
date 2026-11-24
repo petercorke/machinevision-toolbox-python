@@ -45,7 +45,13 @@ def _show_in_notebook(
     # get_plotly_fig rather than draw_plotly, which shows the figure and also returns
     # it, so that a cell ending in the call shows it twice
     fig = o3d.visualization.get_plotly_fig([geometry], **kwargs)
-    fig.update_layout(title=dict(text=title), margin=dict(t=40))
+    # the three axes have the same scale, so shapes have their true proportions as
+    # in the Open3D window.  Plotly's default, "auto", does that unless one axis is
+    # more than four times longer than the other two, when it draws a cube instead
+    # and squashes a long or flat scene
+    fig.update_layout(
+        title=dict(text=title), margin=dict(t=40), scene_aspectmode="data"
+    )
     fig.show()
 
 
@@ -419,7 +425,8 @@ class PointCloud:
         besides the view options above, ``width``, ``height`` and
         ``point_sample_factor`` (the fraction of the points drawn, 0 to 1, which
         keeps a large cloud responsive) are passed to
-        :func:`open3d.visualization.draw_plotly`.
+        :func:`open3d.visualization.draw_plotly`.  The three axes have the same
+        scale, so shapes have their true proportions, as in the Open3D window.
 
         .. versionchanged:: 2.5.0
             Added the ``notebook`` option.
@@ -831,8 +838,9 @@ class VoxelGrid:
 
         With ``notebook=True`` the voxels are drawn in the output of the notebook
         cell, as a Plotly figure that can be rotated and zoomed, in the same way as
-        :meth:`PointCloud.disp`, which describes the options.  Each voxel is drawn
-        as a cube of 12 triangles, so a grid of many thousands of voxels is slow.
+        :meth:`PointCloud.disp`, which describes the options, and with the same
+        scale on the three axes.  Each voxel is drawn as a cube of 12 triangles, so a
+        grid of many thousands of voxels is slow.
 
         .. versionchanged:: 2.5.0
             Added the ``notebook`` option.
