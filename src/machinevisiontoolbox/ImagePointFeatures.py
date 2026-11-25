@@ -2408,6 +2408,15 @@ class ImagePointFeaturesMixin(ImageMixinBase):
             >>> len(sift)  # number of features
             >>> print(sift[:5])
 
+        .. plot::
+
+            from machinevisiontoolbox import Image
+
+            img = Image.Read("eiffel-1.png")
+            img.disp()
+            sift = img.SIFT()
+            sift.plot()
+
         .. rubric:: References
 
         - Distinctive image features from scale-invariant keypoints.
@@ -2491,6 +2500,15 @@ class ImagePointFeaturesMixin(ImageMixinBase):
             >>> len(orb)  # number of features
             >>> print(orb[:5])
 
+        .. plot::
+
+            from machinevisiontoolbox import Image
+
+            img = Image.Read("eiffel-1.png")
+            img.disp()
+            orb = img.ORB()
+            orb.plot()
+
         .. seealso:: :class:ORBFeature`, `cv2.ORB_create <https://docs.opencv.org/4.5.2/db/d95/classcv_1_1ORB.html>`_
         """
 
@@ -2525,6 +2543,15 @@ class ImagePointFeaturesMixin(ImageMixinBase):
             >>> brisk = img.BRISK()
             >>> len(brisk)  # number of features
             >>> print(brisk[:5])
+
+        .. plot::
+
+            from machinevisiontoolbox import Image
+
+            img = Image.Read("eiffel-1.png")
+            img.disp()
+            brisk = img.BRISK()
+            brisk.plot()
 
         .. rubric:: References
 
@@ -2561,6 +2588,15 @@ class ImagePointFeaturesMixin(ImageMixinBase):
             >>> akaze = img.AKAZE()
             >>> len(akaze)  # number of features
             >>> print(akaze[:5])
+
+        .. plot::
+
+            from machinevisiontoolbox import Image
+
+            img = Image.Read("eiffel-1.png")
+            img.disp()
+            akaze = img.AKAZE()
+            akaze.plot()
 
         .. rubric:: References
 
@@ -2613,6 +2649,15 @@ class ImagePointFeaturesMixin(ImageMixinBase):
             >>> harris = img.Harris()
             >>> len(harris)  # number of features
             >>> print(harris[:5])
+
+        .. plot::
+
+            from machinevisiontoolbox import Image
+
+            img = Image.Read("eiffel-1.png")
+            img.disp()
+            harris = img.Harris()
+            harris.plot()
 
         .. note:: The Harris corner detector and descriptor is not part of
             OpenCV and has been custom written for pedagogical purposes.
