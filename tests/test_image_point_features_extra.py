@@ -248,6 +248,29 @@ class TestAdd:
         assert sum([a]) is a
         assert len(sum(make_features(n) for n in (1, 2, 3))) == 6
 
+    def test_an_empty_set_does_not_remove_the_descriptors(self):
+        # an algorithm that finds no features gives a set with no descriptors
+        a = make_features(3)
+        empty = a._like()
+        assert len(empty) == 0 and empty.descriptor is None
+        for total in (a + empty, empty + a, sum([empty, a, empty])):
+            assert len(total) == 3
+            assert total.descriptor.shape == (3, 4)
+            nt.assert_array_equal(total.descriptor, a.descriptor)
+
+    def test_two_empty_sets_make_an_empty_set(self):
+        empty = make_features(3)._like()
+        total = empty + empty
+        assert len(total) == 0 and total.descriptor is None
+
+    def test_a_set_with_no_descriptors_is_still_not_given_misaligned_ones(self):
+        # keypoints and descriptors must stay in step, so with features on both
+        # sides and descriptors on only one, there are no descriptors
+        a, b = make_features(3), make_features(2)
+        b._descriptor = None
+        total = a + b
+        assert len(total) == 5 and total.descriptor is None
+
     def test_sum_of_different_types_is_an_error(self):
         a, b = make_features(3), make_features(3)
         b._feature_type = "ORB"

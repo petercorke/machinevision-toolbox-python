@@ -383,6 +383,10 @@ class BaseFeature2D:
             Adding something that is not a feature set, ``[]`` or ``None``
             raises ``TypeError``.  It used to raise ``AssertionError``.
 
+        .. versionchanged:: 2.5.0
+            Adding a set that has no features keeps the descriptors of the other
+            set.  They used to be lost.
+
         Example:
 
         .. runblock:: pycon
@@ -418,6 +422,12 @@ class BaseFeature2D:
         new._kp = self._kp + other._kp
         if self._descriptor is not None and other._descriptor is not None:
             new._descriptor = np.vstack((self._descriptor, other._descriptor))
+        elif len(other) == 0:
+            # an algorithm that finds no features has no descriptors, which
+            # must not remove those of the other set
+            new._descriptor = self._descriptor
+        elif len(self) == 0:
+            new._descriptor = other._descriptor
         return new
 
     def __radd__(
