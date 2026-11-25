@@ -105,7 +105,7 @@ class ImageFiducialsMixin(ImageMixinBase):
         ``36h11``     AprilTag   6x6           587
         ============  ========   ===========   =====================
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 

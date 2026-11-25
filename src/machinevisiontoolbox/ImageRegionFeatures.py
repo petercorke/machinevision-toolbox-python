@@ -39,7 +39,7 @@ class ImageRegionFeaturesMixin(ImageMixinBase):
         like a list and can be indexed, sliced and used as an iterator in
         for loops and comprehensions.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -72,7 +72,7 @@ class ImageRegionFeaturesMixin(ImageMixinBase):
         :return: detected strings and metadata
         :rtype: list of :class:`OCRWord`
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -138,7 +138,7 @@ class MSERFeature:
         return an object that represents the MSERs found.
         This class behaves like a list and each MSER is an element of the list.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -199,7 +199,7 @@ class MSERFeature:
         :return: number of features
         :rtype: int
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -224,7 +224,7 @@ class MSERFeature:
 
         This method allows a ``MSERFeature`` object to be indexed, sliced or iterated.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -265,7 +265,7 @@ class MSERFeature:
         :return: Brief readable description of MSER
         :rtype: str
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -288,7 +288,7 @@ class MSERFeature:
         :return: Brief readable description of MSER
         :rtype: str
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -312,7 +312,7 @@ class MSERFeature:
         If the object contains just one region the result is an array, otherwise
         it is a list of arrays (with different numbers of rows).
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -340,7 +340,7 @@ class MSERFeature:
         If the object contains just one region the result is a 1D array,
         otherwise it is a 2D arrays with one row per bounding box.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 

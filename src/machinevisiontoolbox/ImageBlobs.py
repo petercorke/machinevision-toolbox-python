@@ -595,7 +595,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         - a scalar, representing the minimum acceptable value
         - a array_like(2), representing minimum and maximum acceptable value
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -679,7 +679,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         ``"touch"``         Blob edge touch status
         =================   =========================================
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -783,7 +783,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         :return: area in pixels
         :rtype: int
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -804,7 +804,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         :return: u-coordinate (horizontal)
         :rtype: float
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -827,7 +827,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         :return: v-coordinate (vertical)
         :rtype: float
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -850,7 +850,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         :return: centroid of the blob
         :rtype: 2-tuple
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -873,7 +873,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         :return: centroid of the blob
         :rtype: 2-tuple
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -898,7 +898,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         The axis-aligned bounding box is a 1D array [umin, umax, vmin, vmax].
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -926,7 +926,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         Returns the u-coordinate of the left side of the bounding box.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -951,7 +951,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         Returns the u-coordinate of the right side of the bounding box.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -976,7 +976,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         Returns the v-coordinate of the top side of the bounding box.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1001,7 +1001,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         Returns the v-coordinate of the bottom side of the bounding box.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1027,7 +1027,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         Return the area of the bounding box which is invariant to blob
         position.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1057,7 +1057,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         bounding box. This is a simple shape metric which is invariant to blob
         position and scale.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1086,7 +1086,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         Returns the major axis length which is invariant to blob position
         and orientation.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1112,7 +1112,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         Returns the minor axis length which is invariant to blob position
         and orientation.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1138,7 +1138,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         Returns the ratio of equivalent ellipse axis lengths, :math:`<1`, which
         is invariant to blob position, orientation and scale.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1164,7 +1164,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         Returns the orientation of equivalent ellipse major axis with respect to
         the horizontal axis, which is invariant to blob position and scale.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1187,7 +1187,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         Returns true if the blob touches the edge of the image.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1208,7 +1208,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         :return: blob level in hierarchy
         :rtype: int
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1235,7 +1235,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         the blob hierarchy. The background blob is black (0), the first-level
         child blobs are white (1), etc.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1258,7 +1258,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         :return: index of this blob's parent
         :rtype: int
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1284,7 +1284,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         :return: index of this blob
         :rtype: int
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1308,7 +1308,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         :return: list of indices of this blob's children        :rtype: list of int
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1341,7 +1341,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         normalized central moments  ``nu20`` ``nu11`` ``nu02`` ``nu30`` ``nu21`` ``nu12`` ``nu03`` |
         ==========================  ===============================================================================
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1367,7 +1367,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         are a robust shape descriptor that is invariant to position, orientation
         and scale.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
             :precision: 4
@@ -1416,7 +1416,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         Return the length of the blob's external perimeter.  This is an 8-way
         connected chain of edge pixels.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1447,7 +1447,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         Circularity is one for a circular blob and < 1 for all other shapes,
         approaching zero for a line.  For a single pixel blob, with zero ``perimeter_length`` it is ``None``.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1484,7 +1484,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         Return the coordinates of the pixels that form the blob's external
         perimeter.  This is an 8-way connected chain of edge pixels.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1526,7 +1526,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         The result is a low-order polygonal approximation to the original
         perimeter.  Increasing ``epsilon`` reduces the number of perimeter points.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1596,7 +1596,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         The result is a convex perimeter that minimally contains the blob.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1659,7 +1659,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         It touches the blob at at least three points. Each circle is specified by a
         3-tuple (uc, vc, r).
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1697,7 +1697,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         The minimum enclosing rectangle is the smallest rectangle that can fully contain the blob.
         It is specified by a 5-tuple (uc, vc, w, h, theta) where (uc, vc) is the center, (w, h) is the width and height, and theta is the orientation.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1738,7 +1738,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         :math:`(r, \theta)`.  The polar profile can be used for scale and
         orientation invariant matching of shapes.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1792,7 +1792,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
            ``target`` blob has an orientation offset of 0.5. These values lie in
            the range [0, 1), equivalent to :math:`[0, 2\pi)` and wraps around.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1839,19 +1839,19 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         Plot the bounding box of a blob or blobs on the current Matplotlib axes.
 
-        Example:
+        .. rubric:: Examples
 
-            >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read("sharks.png")
-            >>> blobs = im.blobs()
-            >>> blobs.plot_box(color="yellow") # solid yellow box for all blobs
+        >>> from machinevisiontoolbox import Image
+        >>> im = Image.Read("sharks.png")
+        >>> blobs = im.blobs()
+        >>> blobs.plot_box(color="yellow") # solid yellow box for all blobs
 
-        Example:
+        .. rubric:: Examples
 
-            >>> blobs[0].plot_box('b--') # blue dashed box
-            >>> blobs[1].plot_box(color="blue", linestyle="--") # blue dashed box
-            >>> blobs[2].plot_box(color="g") # solid green box
-            >>> blobs[3].plot_box(color="r", linewidth=4)
+        >>> blobs[0].plot_box('b--') # blue dashed box
+        >>> blobs[1].plot_box(color="blue", linestyle="--") # blue dashed box
+        >>> blobs[2].plot_box(color="g") # solid green box
+        >>> blobs[3].plot_box(color="r", linewidth=4)
 
         .. plot::
 
@@ -1914,13 +1914,13 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         By default, blobs are labeled by their blob id.
 
-        Example:
+        .. rubric:: Examples
 
-            >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read("sharks.png")
-            >>> blobs = im.blobs()
-            >>> blobs[:3].plot_labelbox(color="yellow")
-            >>> blobs[3].plot_labelbox(color="lightblue", linewidth=2, label="3")
+        >>> from machinevisiontoolbox import Image
+        >>> im = Image.Read("sharks.png")
+        >>> blobs = im.blobs()
+        >>> blobs[:3].plot_labelbox(color="yellow")
+        >>> blobs[3].plot_labelbox(color="lightblue", linewidth=2, label="3")
 
         .. plot::
 
@@ -1977,17 +1977,17 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         If no marker style is given then it will be an overlaid "o" and "x"
         in blue.
 
-        Example:
+        .. rubric:: Examples
 
-            >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read("sharks.png")
-            >>> blobs = im.blobs()
-            >>> blobs.plot_centroid(label=True)  # default blue "o" and "x" with blob id for all blobs
-            >>>
-            >>> blobs[0].plot_centroid()  # default blue "o" and "x"
-            >>> blobs[1].plot_centroid('rd', label=True) # red diamond with label
-            >>> blobs[2].plot_centroid(marker="x", color="red") # red "x"
-            >>> blobs[3].plot_centroid(marker="P", markeredgecolor="lightsteelblue", markerfacecolor="w", fillstyle="full")
+        >>> from machinevisiontoolbox import Image
+        >>> im = Image.Read("sharks.png")
+        >>> blobs = im.blobs()
+        >>> blobs.plot_centroid(label=True)  # default blue "o" and "x" with blob id for all blobs
+        >>>
+        >>> blobs[0].plot_centroid()  # default blue "o" and "x"
+        >>> blobs[1].plot_centroid('rd', label=True) # red diamond with label
+        >>> blobs[2].plot_centroid(marker="x", color="red") # red "x"
+        >>> blobs[3].plot_centroid(marker="P", markeredgecolor="lightsteelblue", markerfacecolor="w", fillstyle="full")
 
         .. plot::
 
@@ -2038,17 +2038,17 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         Plots the perimeter of blob or blobs on the current Matplotlib axes.
 
-        Example:
+        .. rubric:: Examples
 
-            >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read("sharks.png")
-            >>> blobs = im.blobs()
-            >>> blob.plot_perimeter() # perimeters for all blobs, different colors
-            >>>
-            >>> blobs[0].plot_perimeter("c--") # cyan dashed line
-            >>> blobs[1].plot_perimeter(color="cyan", linestyle="--") # cyan dashed line
-            >>> blobs[2].plot_perimeter(color="red")
-            >>> blobs[3].plot_perimeter(show="hull", color="orange", linewidth=3)
+        >>> from machinevisiontoolbox import Image
+        >>> im = Image.Read("sharks.png")
+        >>> blobs = im.blobs()
+        >>> blob.plot_perimeter() # perimeters for all blobs, different colors
+        >>>
+        >>> blobs[0].plot_perimeter("c--") # cyan dashed line
+        >>> blobs[1].plot_perimeter(color="cyan", linestyle="--") # cyan dashed line
+        >>> blobs[2].plot_perimeter(color="red")
+        >>> blobs[3].plot_perimeter(show="hull", color="orange", linewidth=3)
 
         .. plot::
 
@@ -2092,17 +2092,17 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         Plots the equivalent ellipses of blob or blobs on the current
         Matplotlib axes.
 
-        Example:
+        .. rubric:: Examples
 
-            >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read("sharks.png")
-            >>> blobs = im.blobs()
-            >>> blobs.plot_ellipse() # ellipses for all blobs, different colors
-            >>>
-            >>> blobs[0].plot_ellipse("c--") # cyan dashed line
-            >>> blobs[1].plot_ellipse(color="cyan", linestyle="--") # cyan dashed line
-            >>> blobs[2].plot_ellipse(color="red")
-            >>> blobs[3].plot_ellipse(color="orange", linewidth=3)
+        >>> from machinevisiontoolbox import Image
+        >>> im = Image.Read("sharks.png")
+        >>> blobs = im.blobs()
+        >>> blobs.plot_ellipse() # ellipses for all blobs, different colors
+        >>>
+        >>> blobs[0].plot_ellipse("c--") # cyan dashed line
+        >>> blobs[1].plot_ellipse(color="cyan", linestyle="--") # cyan dashed line
+        >>> blobs[2].plot_ellipse(color="red")
+        >>> blobs[3].plot_ellipse(color="orange", linewidth=3)
 
         .. plot::
 
@@ -2142,7 +2142,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         coordinate frame (origin at the centroid, x- and y-axes aligned with the major
         and minor ellipse axes) to their coordinate in the image coordinate frame.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2187,17 +2187,17 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         These are the axes of the equivalent ellipse and the intersection point is
         the blob's centroid.
 
-        Example:
+        .. rubric:: Examples
 
-            >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read("sharks.png")
-            >>> blobs = im.blobs()
-            >>> blobs.plot_axes() # axes for all blobs, different colors
-            >>>
-            >>> blobs[0].plot_axes("c--") # cyan dashed line
-            >>> blobs[1].plot_axes(color="cyan", linestyle="--") # cyan dashed line
-            >>> blobs[2].plot_axes(color="red")
-            >>> blobs[3].plot_axes(color="orange", linewidth=3)
+        >>> from machinevisiontoolbox import Image
+        >>> im = Image.Read("sharks.png")
+        >>> blobs = im.blobs()
+        >>> blobs.plot_axes() # axes for all blobs, different colors
+        >>>
+        >>> blobs[0].plot_axes("c--") # cyan dashed line
+        >>> blobs[1].plot_axes(color="cyan", linestyle="--") # cyan dashed line
+        >>> blobs[2].plot_axes(color="red")
+        >>> blobs[3].plot_axes(color="orange", linewidth=3)
 
         .. plot::
 
@@ -2254,7 +2254,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         equivalent ellipse.  Return a list of vertices (not closed) and a list
         of box centroids.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
             :precision: 4
@@ -2303,17 +2303,17 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         of box centroids.
         Highlights the perimeter of a blob or blobs on the current plot.
 
-        Example:
+        .. rubric:: Examples
 
-            >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read("sharks.png")
-            >>> blobs = im.blobs()
-            >>> blobs.plot_aligned_box() # aligned boxes for all blobs, different colors
-            >>>
-            >>> blobs[0].plot_aligned_box("c--") # cyan dashed line
-            >>> blobs[1].plot_aligned_box(color="cyan", linestyle="--") # cyan dashed line
-            >>> blobs[2].plot_aligned_box(color="red")
-            >>> blobs[3].plot_aligned_box(color="orange", linewidth=3)
+        >>> from machinevisiontoolbox import Image
+        >>> im = Image.Read("sharks.png")
+        >>> blobs = im.blobs()
+        >>> blobs.plot_aligned_box() # aligned boxes for all blobs, different colors
+        >>>
+        >>> blobs[0].plot_aligned_box("c--") # cyan dashed line
+        >>> blobs[1].plot_aligned_box(color="cyan", linestyle="--") # cyan dashed line
+        >>> blobs[2].plot_aligned_box(color="red")
+        >>> blobs[3].plot_aligned_box(color="orange", linewidth=3)
 
         .. plot::
 
@@ -2349,17 +2349,17 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         Plots the minimum enclosing circles of blob or blobs on the current
         Matplotlib axes.
 
-        Example:
+        .. rubric:: Examples
 
-            >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read("sharks.png")
-            >>> blobs = im.blobs()
-            >>> blobs.plot_MEC() # MEC for all blobs, different colors
-            >>>
-            >>> blobs[0].plot_MEC("c--") # cyan dashed line
-            >>> blobs[1].plot_MEC(color="cyan", linestyle="--") # cyan dashed line
-            >>> blobs[2].plot_MEC(color="red")
-            >>> blobs[3].plot_MEC(color="orange", linewidth=3)
+        >>> from machinevisiontoolbox import Image
+        >>> im = Image.Read("sharks.png")
+        >>> blobs = im.blobs()
+        >>> blobs.plot_MEC() # MEC for all blobs, different colors
+        >>>
+        >>> blobs[0].plot_MEC("c--") # cyan dashed line
+        >>> blobs[1].plot_MEC(color="cyan", linestyle="--") # cyan dashed line
+        >>> blobs[2].plot_MEC(color="red")
+        >>> blobs[3].plot_MEC(color="orange", linewidth=3)
 
         .. plot::
 
@@ -2395,17 +2395,17 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         Plots the minimum enclosing rectangles of blob or blobs on the current
         Matplotlib axes.
 
-        Example:
+        .. rubric:: Examples
 
-            >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read("sharks.png")
-            >>> blobs = im.blobs()
-            >>> blobs.plot_MER() # MEC for all blobs, different colors
-            >>>
-            >>> blobs[0].plot_MER("c--") # cyan dashed line
-            >>> blobs[1].plot_MER(color="cyan", linestyle="--") # cyan dashed line
-            >>> blobs[2].plot_MER(color="red")
-            >>> blobs[3].plot_MER(color="orange", linewidth=3)
+        >>> from machinevisiontoolbox import Image
+        >>> im = Image.Read("sharks.png")
+        >>> blobs = im.blobs()
+        >>> blobs.plot_MER() # MEC for all blobs, different colors
+        >>>
+        >>> blobs[0].plot_MER("c--") # cyan dashed line
+        >>> blobs[1].plot_MER(color="cyan", linestyle="--") # cyan dashed line
+        >>> blobs[2].plot_MER(color="red")
+        >>> blobs[3].plot_MER(color="orange", linewidth=3)
 
         .. plot::
 
@@ -2449,7 +2449,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         label image where the greyvalue of each region corresponds to the blob
         index.
 
-            Example:
+            .. rubric:: Examples
 
             >>> from machinevisiontoolbox import Image
             >>> im = Image.Read("sharks.png")
@@ -2747,7 +2747,7 @@ class ImageBlobsMixin(ImageMixinBase):
         information about them. The object behaves like a list so it can
         be indexed and sliced.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 

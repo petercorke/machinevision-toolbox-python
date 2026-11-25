@@ -69,7 +69,7 @@ class ImageIOMixin(ImageMixinBase):
         If ``filename`` is omitted a native file-browser dialogue is opened,
         initially showing the ``images`` folder of the ``mvtb_data`` package.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -138,7 +138,7 @@ class ImageIOMixin(ImageMixinBase):
         many display options.  The Matplotlib display is interactive and supports
         zooming, panning, and pixel value inspection.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -198,7 +198,7 @@ class ImageIOMixin(ImageMixinBase):
         Write image data to a file.  The file format is taken from the extension
         of the filename.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -230,7 +230,7 @@ class ImageIOMixin(ImageMixinBase):
 
         Get image metadata from EXIF headers.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -485,7 +485,7 @@ class ImageIOMixin(ImageMixinBase):
         - ``linewidth``: 4
         - ``linestyle``: "--"
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -601,7 +601,7 @@ class ImageIOMixin(ImageMixinBase):
         with a stereo baseline significantly different to the human eye
         separation (typically 65mm).
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -675,14 +675,14 @@ class ImageIOMixin(ImageMixinBase):
         image.  Clicking the corresponding point in the right-hand image
         will display the disparity at the top of the right-hand image.
 
-        Example:
+        .. rubric:: Examples
 
-            .. code-block:: python
+        .. code-block:: python
 
-                from machinevisiontoolbox import Image
-                left = Image.Read("rocks2-l.png", reduce=2)
-                right = Image.Read("rocks2-r.png", reduce=2)
-                left.stdisp(right)
+            from machinevisiontoolbox import Image
+            left = Image.Read("rocks2-l.png", reduce=2)
+            right = Image.Read("rocks2-r.png", reduce=2)
+            left.stdisp(right)
 
 
         .. plot::
