@@ -89,6 +89,8 @@ import numpy as np
 np.set_printoptions(precision=4, suppress=True)
 from ansitable import ANSITable
 ANSITable._color = False
+import matplotlib
+matplotlib.rcParams["figure.max_open_warning"] = 0
 """
 
 # Add any paths that contain templates here, relative to this directory.
