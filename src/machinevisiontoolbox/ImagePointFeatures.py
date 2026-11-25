@@ -777,7 +777,8 @@ class BaseFeature2D:
         :type metric: str, optional
         :param sort: sort features by strength, defaults to True
         :type sort: bool, optional
-        :raises ValueError: bad metric name provided
+        :raises ValueError: bad metric name provided, or the two sets have different
+            kinds of descriptor, for example SIFT and ORB
         :return: set of candidate matches
         :rtype: :class:`FeatureMatch` instance
 
@@ -820,6 +821,12 @@ class BaseFeature2D:
         des2 = other.descriptor
         if des1 is None or des2 is None:
             raise ValueError("features have no descriptors")
+        if des1.dtype != des2.dtype or des1.shape[1] != des2.shape[1]:
+            raise ValueError(
+                "cannot match features with different kinds of descriptor: "
+                f"{self._feature_type} ({des1.shape[1]} {des1.dtype}) and "
+                f"{other._feature_type} ({des2.shape[1]} {des2.dtype})"
+            )
 
         if metric is None:
             metric = "hamming" if des1.dtype == np.uint8 else "L2"
@@ -2280,6 +2287,23 @@ def _SURF_create(**kwargs: Any) -> Any:
 # -------------------------------------------------------------------------
 
 
+def _set_keypoint_ids(kp: list, image: Any, id: str | int) -> None:
+    """Set the ``class_id`` of each keypoint, as the ``id`` argument of the features says"""
+    if id == "image":
+        if image.id is not None:
+            # copy image id into the keypoints
+            for k in kp:
+                k.class_id = image.id
+    elif id == "index":
+        for i, k in enumerate(kp):
+            k.class_id = i
+    elif isinstance(id, int):
+        for k in kp:
+            k.class_id = id
+    else:
+        raise ValueError(f"id must be 'image', 'index' or an int, got {id!r}")
+
+
 class ImagePointFeaturesMixin(ImageMixinBase):
     """
     Methods of :class:`Image` that find point features, such as SIFT, ORB and Harris
@@ -2312,19 +2336,7 @@ class ImagePointFeaturesMixin(ImageMixinBase):
         # kp is a list of N KeyPoint objects
         # des is NxM ndarray of keypoint descriptors
 
-        if id == "image":
-            if image.id is not None:
-                # copy image id into the keypoints
-                for k in kp:
-                    k.class_id = image.id
-        elif id == "index":
-            for i, k in enumerate(kp):
-                k.class_id = i
-        elif isinstance(id, int):
-            for k in kp:
-                k.class_id = id
-        else:
-            raise ValueError(f"id must be 'image', 'index' or an int, got {id!r}")
+        _set_keypoint_ids(kp, image, id)
 
         # do sorting in here
 
@@ -2583,62 +2595,104 @@ class ImagePointFeaturesMixin(ImageMixinBase):
 
     def ComboFeature(
         self,
-        detector: Any,
-        descriptor: Any,
-        det_opts: dict[str, Any],
-        des_opts: dict[str, Any],
+        detector: str,
+        descriptor: str,
+        det_opts: dict[str, Any] | None = None,
+        des_opts: dict[str, Any] | None = None,
+        nfeat: int | None = None,
+        id: str | int = "image",
     ) -> BaseFeature2D:
         """
-        Combination feature detector and descriptor
+        Find features using one algorithm to detect and another to describe
 
-        :param detector: detector name
-        :type detector: str
-        :param descriptor: descriptor name
-        :type descriptor: str
-        :param det_opts: options for detector
-        :type det_opts: dict
-        :param des_opts: options for descriptor
+        :param detector: name of the detector, one of ``"FAST"``, ``"AGAST"``,
+            ``"GFTT"``, ``"Harris"``, ``"SIFT"``, ``"ORB"``, ``"BRISK"`` or
+            ``"AKAZE"``
+        :param descriptor: name of the descriptor, one of ``"SIFT"``, ``"ORB"``,
+            ``"BRISK"``, ``"AKAZE"``, ``"FREAK"``, ``"BRIEF"``, ``"DAISY"``,
+            ``"LATCH"``, ``"LUCID"`` or ``"BOOST"``
+        :param det_opts: options passed to the detector, defaults to None
+        :param des_opts: options passed to the descriptor, defaults to None
+        :param nfeat: keep at most this many of the strongest features, defaults to
+            None, which keeps all of them.  A few can be lost, because a descriptor
+            needs a margin of image around a point
+        :param id: what to put in each feature's ``id``: ``"image"`` (the image id),
+            ``"index"`` (0, 1, ...) or an int, defaults to ``"image"``
+        :raises ValueError: unknown detector or descriptor, a pair that cannot be
+            combined, or a descriptor that needs a color image given a greyscale one
         :return: set of 2D point features
         :rtype: :class:`BaseFeature2D` subclass
 
-        Detect corner features using the specified detector ``detector`` and
-        describe them using the specified descriptor ``descriptor``.  A large
-        number of possible combinations are possible.
+        Detect features with ``detector`` and describe each one with ``descriptor``.
+        Most detectors, such as FAST, find corners but give no description of them,
+        and most descriptors, such as BRIEF, describe the image around a point
+        but do not find one.  This method joins any detector to any descriptor.
 
-        .. warning:: Incomplete
+        The result is a set of the class of the descriptor, for example
+        :class:`BRIEFFeature`, and can be matched with another set made with the
+        same descriptor.  The detector can differ, and the descriptors of the two
+        sets must be of the same kind.  A feature set has scale and orientation only
+        if the detector provides them (SIFT, ORB, BRISK, AKAZE), or the descriptor
+        computes an orientation (BRISK, FREAK).
 
-        :seealso: :class:`BOOSTFeature` :class:`BRIEFFeature` :class:`DAISYFeature` :class:`FREAKFeature` :class:`LATCHFeature` :class:`LUCIDFeature`
+        Two combinations cannot be made.  The AKAZE descriptor uses information that
+        only the AKAZE detector records, and the ORB descriptor cannot use the
+        keypoints of the SIFT detector.  The LUCID descriptor describes a color
+        patch, so it needs a color image.
+
+        .. rubric:: Examples
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read("eiffel-1.png")
+            >>> features = img.ComboFeature("FAST", "BRIEF", nfeat=500)
+            >>> len(features)
+            >>> features.descriptor.shape
+
+        .. versionadded:: 2.5.0
+
+        .. seealso:: :class:`BOOSTFeature` :class:`BRIEFFeature` :class:`DAISYFeature` :class:`FREAKFeature` :class:`LATCHFeature` :class:`LUCIDFeature`
         """
-
-        # WORK IN PROGRESS
-
-        detectors: dict[str, Any] = {
-            "AGAST": getattr(cv2, "AgastFeatureDetector_create"),
-            "FAST": getattr(cv2, "FastFeatureDetector_create"),
-            "GoodFeaturesToTrack": getattr(cv2, "GFTTDetector_create"),
-        }
-
-        descriptors = {
-            "BOOST": (cv2.xfeatures2d.BoostDesc_create, BOOSTFeature),  # type: ignore[attr-defined]
-            "BRIEF": (cv2.xfeatures2d.BriefDescriptorExtractor_create, BRIEFFeature),  # type: ignore[attr-defined]
-            "DAISY": (cv2.xfeatures2d.BriefDescriptorExtractor_create, DAISYFeature),  # type: ignore[attr-defined]
-            "FREAK": (cv2.xfeatures2d.BriefDescriptorExtractor_create, FREAKFeature),  # type: ignore[attr-defined]
-            "LATCH": (cv2.xfeatures2d.BriefDescriptorExtractor_create, LATCHFeature),  # type: ignore[attr-defined]
-            "LUCID": (cv2.xfeatures2d.BriefDescriptorExtractor_create, LUCIDFeature),  # type: ignore[attr-defined]
-        }
-        # eg. Feature2D('FAST', 'FREAK')
-        if detector in detectors:
-            # call it
-            kp = detectors[detector](self._A, **det_opts)
-        elif callable(detector):
-            # call it
-            kp = detector(self._A, **det_opts)
-        else:
+        try:
+            det_factory, has_scale, has_orient = _COMBO_DETECTORS[detector]
+        except KeyError:
             raise ValueError(
-                f"detector must be a callable or one of {list(detectors)}, got {detector!r}"
+                f"unknown detector {detector!r}, must be one of "
+                f"{', '.join(_COMBO_DETECTORS)}"
+            ) from None
+        try:
+            des_factory, cls, needs_color, finds_orient = _DESCRIPTORS[descriptor]
+        except KeyError:
+            raise ValueError(
+                f"unknown descriptor {descriptor!r}, must be one of "
+                f"{', '.join(_DESCRIPTORS)}"
+            ) from None
+        reason = _unsupported_pair(detector, descriptor)
+        if reason is not None:
+            raise ValueError(f"cannot combine {detector} with {descriptor}: {reason}")
+        if needs_color and self.nplanes != 3:
+            raise ValueError(
+                f"{descriptor} describes a color patch, so needs a color image"
             )
 
-        raise NotImplementedError("ComboFeature is a work in progress")
+        mono = self.mono()
+        kp = list(det_factory(**(det_opts or {})).detect(mono._A, None))
+        if nfeat is not None:
+            kp = sorted(kp, key=lambda k: k.response, reverse=True)[:nfeat]
+
+        # the descriptor may drop keypoints too close to the edge
+        kp, des = des_factory(**(des_opts or {})).compute(
+            self._A if needs_color else mono._A, kp
+        )
+
+        # after description, since the AKAZE descriptor uses class_id
+        _set_keypoint_ids(kp, mono, id)
+
+        features = cls(kp, des, scale=has_scale, orient=has_orient or finds_orient)
+        features._feature_type = descriptor
+        features._image = self
+        return features
 
 
 class _Harris_create:
@@ -2656,6 +2710,11 @@ class _Harris_create:
         self.peakscale = scale
         self.patch = patch
         self.scale = None
+
+    def detect(
+        self, image: np.ndarray, mask: np.ndarray | None = None
+    ) -> list[cv2.KeyPoint]:
+        return self.detectAndCompute(image, mask)[0]
 
     def detectAndCompute(
         self, image: np.ndarray, mask: np.ndarray | None = None
@@ -2727,3 +2786,67 @@ _DETECTORS: dict[str, tuple[Any, bool, bool]] = {
     "AKAZE": (lambda **kw: _resolve_feature_create("AKAZE")(**kw), True, True),
     "Harris": (_Harris_create, False, False),
 }
+
+
+def _contrib_create(name: str) -> Any:
+    """A factory for an OpenCV algorithm that lives in the contrib modules in OpenCV 5"""
+
+    def create(**kwargs: Any) -> Any:
+        try:
+            return _resolve_feature_create(name)(**kwargs)
+        except AttributeError:
+            raise RuntimeError(
+                f"{name} is not available in this OpenCV, which needs its contrib "
+                "modules: pip install opencv-contrib-python"
+            ) from None
+
+    return create
+
+
+# Detectors that Image.ComboFeature can join to a descriptor, each of which has a
+# ``detect`` method, with what the keypoints it finds provide.
+#
+#   name: (factory, has scale, has orientation)
+_COMBO_DETECTORS: dict[str, tuple[Any, bool, bool]] = {
+    "FAST": (
+        lambda **kw: getattr(cv2, "FastFeatureDetector_create")(**kw),
+        False,
+        False,
+    ),
+    "AGAST": (_contrib_create("AgastFeatureDetector"), False, False),
+    "GFTT": (lambda **kw: getattr(cv2, "GFTTDetector_create")(**kw), False, False),
+    "Harris": (_Harris_create, False, False),
+    "SIFT": _DETECTORS["SIFT"],
+    "ORB": _DETECTORS["ORB"],
+    "BRISK": _DETECTORS["BRISK"],
+    "AKAZE": _DETECTORS["AKAZE"],
+}
+
+# Descriptors that Image.ComboFeature can join to a detector, each of which has a
+# ``compute`` method.
+#
+#   name: (factory, class of the result, needs a color image, finds an orientation)
+_DESCRIPTORS: dict[str, tuple[Any, type[BaseFeature2D], bool, bool]] = {
+    "SIFT": (_DETECTORS["SIFT"][0], SIFTFeature, False, False),
+    "ORB": (_DETECTORS["ORB"][0], ORBFeature, False, False),
+    "BRISK": (_DETECTORS["BRISK"][0], BRISKFeature, False, True),
+    "AKAZE": (_DETECTORS["AKAZE"][0], AKAZEFeature, False, False),
+    "FREAK": (_contrib_create("FREAK"), FREAKFeature, False, True),
+    "BRIEF": (_contrib_create("BriefDescriptorExtractor"), BRIEFFeature, False, False),
+    "DAISY": (_contrib_create("DAISY"), DAISYFeature, False, False),
+    "LATCH": (_contrib_create("LATCH"), LATCHFeature, False, False),
+    "LUCID": (_contrib_create("LUCID"), LUCIDFeature, True, False),
+    "BOOST": (_contrib_create("BoostDesc"), BOOSTFeature, False, False),
+}
+
+
+def _unsupported_pair(detector: str, descriptor: str) -> str | None:
+    """Why this detector cannot be joined to this descriptor, or None if it can"""
+    if descriptor == "AKAZE" and detector != "AKAZE":
+        return (
+            "the AKAZE descriptor needs the scale space index that only the AKAZE "
+            "detector records"
+        )
+    if descriptor == "ORB" and detector == "SIFT":
+        return "the ORB descriptor cannot use the keypoints of the SIFT detector"
+    return None
