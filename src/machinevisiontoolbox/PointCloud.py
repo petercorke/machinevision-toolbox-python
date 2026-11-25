@@ -10,6 +10,8 @@ import numpy as np
 import spatialmath.base as smb
 from spatialmath import SE3
 
+from machinevisiontoolbox.base.color import name2color
+
 try:
     import open3d as o3d
 
@@ -254,12 +256,22 @@ class PointCloud:
         Point colors are returned as columns of the array. The columns correspond
         to the same columns in the :attr:`points` and :attr:`normal` properties.
 
-        :seealso: :attr:`points` :attr:`normals`
+        .. seealso:: :attr:`points`, :attr:`normals`, :attr:`iscolor`, :meth:`paint`
         """
         return np.asarray(self._pcd.colors).T
 
     @property
     def iscolor(self) -> bool:
+        """
+        Test if the points have colors
+
+        :return: ``True`` if every point has a color
+        :rtype: bool
+
+        An empty point cloud has no colors.
+
+        .. seealso:: :attr:`colors`, :meth:`paint`, :meth:`unpaint`
+        """
         return self._pcd.has_colors()
 
     @classmethod
@@ -529,6 +541,71 @@ class PointCloud:
             new._pcd.transform(T.A)
             return new
 
+    def concatenate(
+        self,
+        *others: "PointCloud",
+        color: Any = (0.7, 0.7, 0.7),
+    ) -> "PointCloud":
+        """
+        Join point clouds
+
+        :param others: one or more point clouds to join to this one
+        :type others: :class:`PointCloud`
+        :param color: color for the points of clouds that have no color: an RGB
+            value in the range [0, 1] or a color name, or ``None`` to remove the
+            colors from the result, defaults to light gray
+        :type color: array_like(3), str or None, optional
+        :return: a new point cloud containing the points of all the clouds
+        :rtype: :class:`PointCloud`
+        :raises ValueError: ``color`` is a string that is not a known color name
+
+        The points are joined in order, this cloud first.  The clouds that are
+        joined are not changed.
+
+        If none of the clouds has color, the result has none.  If some of them
+        have color and others do not, every point must have a color, so the
+        points that have none are given ``color``.  With ``color=None`` the
+        colors of all points are dropped instead.  An empty point cloud has no
+        color, and does not affect the colors of the result.
+
+        The ``+`` operator does the same with the default ``color``.
+
+        .. versionadded:: 2.5.0
+
+        .. rubric:: Examples
+
+        .. runblock:: pycon
+
+            >>> import numpy as np
+            >>> from machinevisiontoolbox import PointCloud
+            >>> red = PointCloud(np.random.rand(3, 4)).paint("red")
+            >>> plain = PointCloud(np.random.rand(3, 3))
+            >>> both = red.concatenate(plain, color="blue")
+            >>> both.colors
+            >>> red.concatenate(plain, color=None).iscolor
+
+        .. seealso:: :meth:`paint`, :meth:`unpaint`, :meth:`__add__`, :attr:`iscolor`
+        """
+        if color is not None and not isinstance(color, str):
+            color = np.asarray(color, dtype=float)
+        elif isinstance(color, str):
+            rgb = name2color(color)
+            if rgb is None:
+                raise ValueError(f"unknown color name: {color!r}")
+            color = rgb
+
+        clouds = (self,) + others
+        pcd = o3d.geometry.PointCloud()
+        keep_color = color is not None and any(c.iscolor for c in clouds)
+        for c in clouds:
+            pcd.points.extend(c.points.T)
+            if keep_color:
+                if c.iscolor:
+                    pcd.colors.extend(c.colors.T)
+                else:
+                    pcd.colors.extend(np.tile(color, (len(c), 1)))
+        return self.__class__(pcd)
+
     def __add__(self, other: "PointCloud") -> "PointCloud":
         """
         Overloaded the + operator to concatenate point clouds
@@ -537,13 +614,37 @@ class PointCloud:
         :type other: :class:`PointCloud`
         :return: concatenated point clouds
         :rtype: :class:`PointCloud`
+
+        Points that have no color are given light gray if the other cloud has
+        color.  Use :meth:`concatenate` to choose the color, or to drop the colors.
+
+        .. versionchanged:: 2.5.0
+            Joining a colored and an uncolored cloud gives every point a color.  The
+            result used to have fewer colors than points, so it displayed with none.
+
+        .. seealso:: :meth:`concatenate`, :meth:`__radd__`
         """
-        pcd = o3d.geometry.PointCloud()
-        pcd.points.extend(self.points.T)
-        pcd.points.extend(other.points.T)
-        pcd.colors.extend(self.colors.T)
-        pcd.colors.extend(other.colors.T)
-        return self.__class__(pcd)
+        return self.concatenate(other)
+
+    def __radd__(self, other: Any) -> "PointCloud":
+        """
+        Overloaded the + operator so that :func:`sum` works on point clouds
+
+        :param other: the integer 0, which :func:`sum` starts from
+        :return: this point cloud, unchanged
+        :rtype: :class:`PointCloud`
+
+        ``sum(clouds)`` begins by computing ``0 + clouds[0]``.  This method
+        accepts that zero, so a list of point clouds can be joined with
+        ``sum(clouds)``.
+
+        .. versionadded:: 2.5.0
+
+        .. seealso:: :meth:`__add__`, :meth:`concatenate`
+        """
+        if isinstance(other, int) and other == 0:
+            return self
+        return NotImplemented
 
     def downsample_voxel(self, voxel_size: float) -> "PointCloud":
         """
@@ -697,14 +798,44 @@ class PointCloud:
         """
         Colorize point cloud
 
-        :param color: color for points
+        :param color: color for points, either an RGB value in the range [0, 1]
+            or the name of a color, such as ``"red"`` or ``"skyblue"``
         :type color: array_like(3), str
         :return: colorized point cloud
         :rtype: :class:`PointCloud`
+        :raises ValueError: ``color`` is a string that is not a known color name
 
         Paint all points in the point cloud this color.
+
+        .. versionchanged:: 2.5.0
+            ``color`` can be a color name, which is converted by
+            :func:`~machinevisiontoolbox.base.color.name2color`.
+
+        .. seealso:: :meth:`unpaint`, :meth:`concatenate`, :attr:`colors`, :attr:`iscolor`
         """
+        if isinstance(color, str):
+            rgb = name2color(color)
+            if rgb is None:
+                raise ValueError(f"unknown color name: {color!r}")
+            color = rgb
         self._pcd.paint_uniform_color(color)
+        return self
+
+    def unpaint(self) -> "PointCloud":
+        """
+        Remove the colors from a point cloud
+
+        :return: the point cloud, now without color
+        :rtype: :class:`PointCloud`
+
+        The opposite of :meth:`paint`.  The points are kept.  The point cloud is
+        changed, and returned so calls can be chained.
+
+        .. versionadded:: 2.5.0
+
+        .. seealso:: :meth:`paint`, :attr:`iscolor`, :meth:`concatenate`
+        """
+        self._pcd.colors = o3d.utility.Vector3dVector()
         return self
 
     def ICP(

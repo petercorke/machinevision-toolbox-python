@@ -201,6 +201,86 @@ class TestVoxelGridNotebookDisplay(unittest.TestCase):
             self.vg.disp(notebook=True, file="x.png")
 
 
+@unittest.skipUnless(open3d_available, "open3d not installed")
+class TestConcatenateAndUnpaint(unittest.TestCase):
+    def setUp(self):
+        self.red = PointCloud(np.random.rand(3, 4)).paint("red")
+        self.plain = PointCloud(np.random.rand(3, 3))
+        self.empty = PointCloud(np.empty((3, 0)))
+
+    def test_both_colored(self):
+        c = self.red.concatenate(PointCloud(np.random.rand(3, 2)).paint("blue"))
+        self.assertEqual(c.colors.shape, (3, 6))
+        nt.assert_allclose(c.colors[:, 0], [1, 0, 0])
+        nt.assert_allclose(c.colors[:, 5], [0, 0, 1])
+
+    def test_neither_colored_gives_no_colors(self):
+        c = self.plain.concatenate(self.plain)
+        self.assertEqual(len(c), 6)
+        self.assertFalse(c.iscolor)
+
+    def test_uncolored_points_get_the_default_gray(self):
+        for c in (self.red + self.plain, self.plain + self.red):
+            self.assertEqual(len(c), 7)
+            self.assertEqual(c.colors.shape, (3, 7))
+        c = self.red + self.plain
+        nt.assert_allclose(c.colors[:, 3], [1, 0, 0])
+        nt.assert_allclose(c.colors[:, 4], 0.7)
+
+    def test_uncolored_points_get_the_given_color(self):
+        c = self.red.concatenate(self.plain, color="blue")
+        nt.assert_allclose(c.colors[:, 4:], np.tile([[0], [0], [1]], (1, 3)))
+        c = self.red.concatenate(self.plain, color=[0, 1, 0])
+        nt.assert_allclose(c.colors[:, 4:], np.tile([[0], [1], [0]], (1, 3)))
+
+    def test_color_none_drops_all_colors(self):
+        c = self.red.concatenate(self.plain, color=None)
+        self.assertEqual(len(c), 7)
+        self.assertFalse(c.iscolor)
+
+    def test_unknown_color_name(self):
+        with self.assertRaisesRegex(ValueError, "unknown color name"):
+            self.red.concatenate(self.plain, color="not-a-color")
+
+    def test_several_clouds(self):
+        c = self.red.concatenate(self.plain, self.red, color="blue")
+        self.assertEqual(len(c), 11)
+        self.assertEqual(c.colors.shape, (3, 11))
+        nt.assert_allclose(c.colors[:, 5], [0, 0, 1])
+        nt.assert_allclose(c.colors[:, 8], [1, 0, 0])
+
+    def test_inputs_are_not_changed(self):
+        self.red.concatenate(self.plain)
+        self.assertEqual((len(self.red), len(self.plain)), (4, 3))
+        self.assertFalse(self.plain.iscolor)
+
+    def test_empty_clouds(self):
+        for c in (self.red + self.empty, self.empty + self.red):
+            self.assertEqual(c.colors.shape, (3, 4))
+        for c in (self.plain + self.empty, self.empty + self.plain):
+            self.assertEqual(len(c), 3)
+            self.assertFalse(c.iscolor)
+        c = self.empty + self.empty
+        self.assertEqual(len(c), 0)
+        self.assertFalse(c.iscolor)
+        # an empty cloud does not make the others colored
+        c = sum([self.empty, self.plain, self.empty])
+        self.assertFalse(c.iscolor)
+        c = sum([self.red, self.empty, self.plain])
+        self.assertEqual(c.colors.shape, (3, 7))
+
+    def test_unpaint_removes_the_colors(self):
+        result = self.red.unpaint()
+        self.assertIs(result, self.red)
+        self.assertFalse(self.red.iscolor)
+        self.assertEqual(len(self.red), 4)
+        # and it can be painted again
+        self.assertTrue(self.red.paint("green").iscolor)
+
+    def test_unpaint_of_an_uncolored_cloud(self):
+        self.assertFalse(self.plain.unpaint().iscolor)
+
+
 # ----------------------------------------------------------------------- #
 if __name__ == "__main__":
     unittest.main()
