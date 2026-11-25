@@ -4401,11 +4401,18 @@ class TensorStack(ImageSource):
         >>> import torch
         >>> batch = torch.randn(10, 3, 64, 64)  # 10 RGB images
         >>> source = TensorStack(batch, colororder="RGB")
+        >>> print(source)
+        TensorStack(10 frames, shape (3, 64, 64), dtype float32)
         >>> len(source)
         10
         >>> img = source[7]  # Returns Image wrapping tensor[7] (zero-copy view)
+        >>> print(img)
+        Image: 64 x 64 (float32), R:G:B
+          R: span=[-3.33973, 3.61569]; mean=-0.0275616, 𝜎=1.00145; median=-0.01917
+          G: span=[-3.5052, 4.08658]; mean=0.0193997, 𝜎=1.00146; median=0.0170656
+          B: span=[-3.73214, 3.53697]; mean=-0.0117258, 𝜎=1.00667; median=-0.0202868
         >>> for img in source:
-        ...     features = extract(img)  # Process each image lazily
+        ...     features = mycode(img)  # Your algorithm goes here, process each image lazily
 
     .. seealso:: :meth:`Image.Tensor`
     """
