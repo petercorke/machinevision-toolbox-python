@@ -256,12 +256,22 @@ class PointCloud:
         Point colors are returned as columns of the array. The columns correspond
         to the same columns in the :attr:`points` and :attr:`normal` properties.
 
-        :seealso: :attr:`points` :attr:`normals`
+        .. seealso:: :attr:`points`, :attr:`normals`, :attr:`iscolor`, :meth:`paint`
         """
         return np.asarray(self._pcd.colors).T
 
     @property
     def iscolor(self) -> bool:
+        """
+        Test if the points have colors
+
+        :return: ``True`` if every point has a color
+        :rtype: bool
+
+        An empty point cloud has no colors.
+
+        .. seealso:: :attr:`colors`, :meth:`paint`, :meth:`unpaint`
+        """
         return self._pcd.has_colors()
 
     @classmethod
@@ -574,7 +584,7 @@ class PointCloud:
             >>> both.colors
             >>> red.concatenate(plain, color=None).iscolor
 
-        :seealso: :meth:`paint` :meth:`unpaint`
+        .. seealso:: :meth:`paint`, :meth:`unpaint`, :meth:`__add__`, :attr:`iscolor`
         """
         if color is not None and not isinstance(color, str):
             color = np.asarray(color, dtype=float)
@@ -612,7 +622,7 @@ class PointCloud:
             Joining a colored and an uncolored cloud gives every point a color.  The
             result used to have fewer colors than points, so it displayed with none.
 
-        :seealso: :meth:`concatenate`
+        .. seealso:: :meth:`concatenate`, :meth:`__radd__`
         """
         return self.concatenate(other)
 
@@ -629,6 +639,8 @@ class PointCloud:
         ``sum(clouds)``.
 
         .. versionadded:: 2.5.0
+
+        .. seealso:: :meth:`__add__`, :meth:`concatenate`
         """
         if isinstance(other, int) and other == 0:
             return self
@@ -798,6 +810,8 @@ class PointCloud:
         .. versionchanged:: 2.5.0
             ``color`` can be a color name, which is converted by
             :func:`~machinevisiontoolbox.base.color.name2color`.
+
+        .. seealso:: :meth:`unpaint`, :meth:`concatenate`, :attr:`colors`, :attr:`iscolor`
         """
         if isinstance(color, str):
             rgb = name2color(color)
@@ -819,7 +833,7 @@ class PointCloud:
 
         .. versionadded:: 2.5.0
 
-        :seealso: :meth:`paint` :attr:`iscolor`
+        .. seealso:: :meth:`paint`, :attr:`iscolor`, :meth:`concatenate`
         """
         self._pcd.colors = o3d.utility.Vector3dVector()
         return self
