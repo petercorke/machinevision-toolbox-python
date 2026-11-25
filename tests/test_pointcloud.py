@@ -281,6 +281,40 @@ class TestConcatenateAndUnpaint(unittest.TestCase):
         self.assertFalse(self.plain.unpaint().iscolor)
 
 
+@unittest.skipUnless(open3d_available, "open3d not installed")
+class TestSegmentPlane(unittest.TestCase):
+    def setUp(self):
+        rng = np.random.default_rng(0)
+        ground = np.vstack((rng.random((2, 800)) * 10, rng.normal(0, 0.01, 800)))
+        objects = rng.random((3, 200)) * [[1], [1], [1]] + np.array([[4], [4], [0.5]])
+        self.pc = PointCloud(np.hstack((ground, objects)))
+
+    def test_splits_the_points_into_plane_and_rest(self):
+        plane, on_plane, rest = self.pc.segment_plane(distance_threshold=0.05)
+        self.assertEqual(len(on_plane) + len(rest), len(self.pc))
+        self.assertEqual(np.shape(plane), (4,))
+        # the ground is z = 0
+        nt.assert_allclose(np.abs(plane[2]), 1, atol=0.01)
+        self.assertGreater(len(on_plane), 780)
+        self.assertEqual(len(self.pc), 1000)  # not changed
+
+    def test_default_is_1000_iterations_of_3_points(self):
+        import open3d as o3d
+
+        o3d.utility.random.seed(1)
+        a = self.pc.segment_plane(distance_threshold=0.05)
+        o3d.utility.random.seed(1)
+        b = self.pc.segment_plane(
+            distance_threshold=0.05, ransac_n=3, num_iterations=1000
+        )
+        nt.assert_allclose(a[0], b[0])
+        self.assertEqual(len(a[1]), len(b[1]))
+
+    def test_distance_threshold_is_required(self):
+        with self.assertRaises(TypeError):
+            self.pc.segment_plane()
+
+
 # ----------------------------------------------------------------------- #
 if __name__ == "__main__":
     unittest.main()

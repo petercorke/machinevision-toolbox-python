@@ -785,7 +785,7 @@ class PointCloud:
         :param ransac_n: number of points sampled to fit each candidate plane,
             defaults to 3
         :type ransac_n: int, optional
-        :param num_iterations: number of candidate planes tried, defaults to 100
+        :param num_iterations: number of candidate planes tried, defaults to 1000
         :type num_iterations: int, optional
         :param probability: required probability of finding the best plane,
             Open3D's default is 0.99999999
@@ -806,6 +806,10 @@ class PointCloud:
         original point cloud is not changed.  Points of an object that lie close
         to the plane, such as the foot of an object standing on a ground plane, are
         inliers.
+
+        .. versionchanged:: 2.5.0
+            The default ``num_iterations`` is 1000.  It was 100, which sometimes
+            returned a poor plane.
 
         RANSAC chooses its points at random, so the plane and the number of inliers
         differ slightly from run to run.  With few iterations a poor plane is
@@ -828,7 +832,7 @@ class PointCloud:
 
         .. seealso:: :meth:`select`, :meth:`remove_outlier`
         """
-        default_dict = dict(ransac_n=3, num_iterations=100)
+        default_dict = dict(ransac_n=3, num_iterations=1000)
         kwargs = {**default_dict, **kwargs}
 
         plane_model, inliers = self._pcd.segment_plane(**kwargs)
