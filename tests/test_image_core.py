@@ -188,6 +188,91 @@ class TestImage(unittest.TestCase):
         with self.assertRaises(ValueError):
             im[1.5]
 
+    def test_getitem_plane_of_a_color_image(self):
+        a = np.arange(60).reshape((5, 4, 3))
+        im = Image(a, colororder="RGB")
+        for i in range(3):
+            nt.assert_array_equal(im[i].array, a[:, :, i])
+        nt.assert_array_equal(im[np.int64(1)].array, a[:, :, 1])  # NumPy integer
+        nt.assert_array_equal(im[-1].array, a[:, :, 2])  # counts from the last plane
+        nt.assert_array_equal(im[-3].array, a[:, :, 0])
+
+    def test_getitem_plane_out_of_range(self):
+        im = Image(np.zeros((5, 4, 3)), colororder="RGB")
+        for key in (3, 5, -4):
+            with self.assertRaises(ValueError):
+                im[key]
+
+    def test_getitem_plane_of_a_greyscale_image(self):
+        a = np.arange(20).reshape((5, 4))
+        im = Image(a)
+        nt.assert_array_equal(im[0].array, a)
+        nt.assert_array_equal(im[-1].array, a)
+        with self.assertRaises(ValueError):
+            im[1]
+
+    def test_getitem_bool_is_not_a_plane(self):
+        im = Image(np.zeros((5, 4, 3)), colororder="RGB")
+        with self.assertRaises(ValueError):
+            im[True]
+
+    def test_getitem_list_is_refused(self):
+        # used to return a 1x1 image, as if it were the pair of keys (0, 2)
+        im = Image(np.zeros((5, 4, 3)), colororder="RGB")
+        with self.assertRaisesRegex(ValueError, "plane"):
+            im[[0, 2]]
+
+    def test_getitem_lone_slice_is_refused(self):
+        im = Image(np.zeros((5, 4, 3)), colororder="RGB")
+        for key in (slice(1, 3), slice(None, None, -1)):
+            with self.assertRaises(ValueError):
+                im[key]
+
+    def test_getitem_plane_names(self):
+        a = np.arange(60).reshape((5, 4, 3))
+        im = Image(a, colororder="RGB")
+        bgr = im["BGR"]
+        self.assertEqual(bgr.colororder_str, "B:G:R")
+        nt.assert_array_equal(bgr.array, a[:, :, ::-1])
+        br = im["B:R"]
+        self.assertEqual(br.colororder_str, "B:R")
+        nt.assert_array_equal(br.array, a[:, :, [2, 0]])
+        flipped = im[:, :, ::-1]
+        self.assertEqual(flipped.colororder_str, "B:G:R")
+        nt.assert_array_equal(flipped.array, a[:, :, ::-1])
+
+    def test_getitem_views_and_copies(self):
+        # what the Image.__getitem__ docstring says about sharing pixels
+        a = np.arange(60, dtype=np.uint8).reshape((5, 4, 3))
+        im = Image(a, colororder="RGB")
+        self.assertTrue(np.shares_memory(im[0].array, a))  # int: a view
+        self.assertTrue(np.shares_memory(im["G"].array, a))  # one name: a view
+        self.assertTrue(np.shares_memory(im[1:3, 1:3].array, a))  # slices: a view
+        self.assertFalse(np.shares_memory(im["BGR"].array, a))  # several names: a copy
+        self.assertFalse(np.shares_memory(im.plane([0, 2]).array, a))
+
+    def test_getitem_results_are_not_contiguous(self):
+        # drawing into these raises, and Image(..., copy=True) is the way out
+        im = Image(np.zeros((8, 10, 3), dtype=np.uint8), colororder="RGB")
+        for sub in (im[0], im["BGR"], im[2:6, 2:6], im[:, :, ::-1], im[:, ::-1]):
+            self.assertFalse(sub.array.flags.c_contiguous)
+            color = [1] * sub.nplanes
+            with self.assertRaises(ValueError):
+                sub.draw_circle((1, 1), 1, color=color)
+            fixed = Image(sub.array, copy=True)
+            self.assertTrue(fixed.array.flags.c_contiguous)
+            fixed.draw_circle((1, 1), 1, color=color)
+
+    def test_planes_are_views(self):
+        a = np.arange(60, dtype=np.uint8).reshape((5, 4, 3))
+        im = Image(a, colororder="RGB")
+        planes = list(im.planes())
+        self.assertEqual(len(planes), 3)
+        for i, p in enumerate(planes):
+            nt.assert_array_equal(p.array, a[:, :, i])
+            self.assertTrue(np.shares_memory(p.array, a))
+            self.assertFalse(p.array.flags.c_contiguous)
+
     def test_colordict(self):
         cdict = Image.colororder2dict("RGBA")
         self.assertIsInstance(cdict, dict)
