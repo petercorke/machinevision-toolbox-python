@@ -246,8 +246,9 @@ class Kernel:
             - If the kernel is strongly truncated, ie. it is non-zero at the
               edges of the window then the volume will be less than one.
 
-        :references:
-            - |RVC3|, Section 11.5.1.1.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.5.1.1.
 
         .. seealso:: :meth:`DGauss`
         """
@@ -299,8 +300,9 @@ class Kernel:
         .. note::
             - This kernel has an isotropic response to image gradient.
 
-        :references:
-            - |RVC3|, Section 11.5.1.3.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.5.1.3.
 
         .. seealso:: :meth:`LoG` :meth:`zerocross`
         """
@@ -342,8 +344,9 @@ class Kernel:
             - This kernel is an effective vertical-edge detector
             - The y-derivative (horizontal-edge) kernel is ``K.T``
 
-        :references:
-            - |RVC3|, Section 11.5.1.3.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.5.1.3.
 
         .. seealso:: :meth:`DGauss`
         """
@@ -412,8 +415,9 @@ class Kernel:
               used as an efficient approximation.
             - This is a "Mexican hat" shaped kernel
 
-        :references:
-            - |RVC3|, Section 11.5.1.3.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.5.1.3.
 
         .. seealso:: :meth:`LoG` :meth:`Gauss`
         """
@@ -484,8 +488,9 @@ class Kernel:
 
         .. note:: This is the classic "Mexican hat" shaped kernel
 
-        :references:
-            - |RVC3|, Section 11.5.1.3.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.5.1.3.
 
         .. seealso:: :meth:`Laplace` :meth:`DoG` :meth:`Gauss` :meth:`zerocross`
         """
@@ -559,8 +564,9 @@ class Kernel:
             - The vertical derivative, :math:`dG/dy`, is the transpose of this kernel.
             - This kernel is an effective edge detector.
 
-        :references:
-            - |RVC3|, Section 11.5.1.3.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.5.1.3.
 
         .. seealso:: :meth:`HGauss` :meth:`Gauss` :meth:`Sobel`
         """
@@ -710,8 +716,9 @@ class Kernel:
             >>> K.print()
             >>> Kernel.Circle([2, 3])
 
-        :references:
-            - |RVC3|, Section 11.5.1.1.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.5.1.1.
 
         .. seealso:: :meth:`Box`
         """
@@ -777,8 +784,9 @@ class Kernel:
             >>> K.print()
             >>> Kernel.Box(2, normalize=False)
 
-        :references:
-            - |RVC3|, Section 11.5.1.1.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.5.1.1.
 
         .. seealso:: :meth:`Circle`
         """

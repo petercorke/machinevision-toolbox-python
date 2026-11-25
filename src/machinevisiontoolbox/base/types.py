@@ -65,8 +65,9 @@ def int_image(
 
     .. note:: Works for greyscale or color (arbitrary number of planes) image
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
+
+    - |RVC3|, Section 10.1.
 
     .. seealso:: :func:`float_image`
     """
@@ -130,8 +131,9 @@ def float_image(
 
     .. note:: Works for greyscale or color (arbitrary number of planes) image
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
+
+    - |RVC3|, Section 10.1.
 
     .. seealso:: :func:`int_image`
     """

@@ -172,8 +172,9 @@ class ImageSpatialMixin(ImageMixinBase):
             - If input image is integer it is converted to float, convolved,
               then converted back to integer.
 
-        :references:
-            - |RVC3|, Section 11.5.1.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.5.1.
 
         .. seealso:: :meth:`machinevisiontoolbox.Kernel.Gauss` :meth:`convolve`
         """
@@ -285,8 +286,9 @@ class ImageSpatialMixin(ImageMixinBase):
             Because convolution is a sum of products, a single NaN within the kernel's
             window propagates to make the output pixel NaN.  Use :meth:`fixbad` for handling NaN values.
 
-        :references:
-            - |RVC3|, Section 11.5.1.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.5.1.
 
         .. important:: Uses OpenCV functions ``cv2.filter2D`` and ``cv2.copyMakeBorder`` which accept multiple-channel, CV_8U, CV_16U, CV_16S, CV_32F or CV_64F images.
 
@@ -440,8 +442,9 @@ class ImageSpatialMixin(ImageMixinBase):
             >>> img = Image.Read('monalisa.png', grey=True)
             >>> Iu, Iv = img.gradients()
 
-        :references:
-            - |RVC3|, Section 11.5.1.3.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.5.1.3.
 
         .. seealso:: :class:`~machinevisiontoolbox.Kernel.Kernel`
         """
@@ -487,8 +490,9 @@ class ImageSpatialMixin(ImageMixinBase):
             >>> Iu, Iv = img.gradients()
             >>> direction = Iu.direction(Iv)
 
-        :references:
-            - |RVC3|, Section 11.5.1.3.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.5.1.3.
 
         .. seealso:: :meth:`gradients`
         """
@@ -511,8 +515,9 @@ class ImageSpatialMixin(ImageMixinBase):
         positive for high gradient in orthogonal directions, and negative
         for high gradient in a single direction.
 
-        :references:
-            - |RVC3|, Section 12.3.1.
+        .. rubric:: References
+
+        - |RVC3|, Section 12.3.1.
 
         .. important:: Uses OpenCV function ``cv2.cornerHarris`` which accepts single-channel, CV_8U, CV_32F or CV_64F images (color images are automatically converted to greyscale).
 
@@ -584,8 +589,9 @@ class ImageSpatialMixin(ImageMixinBase):
             - Is slow since the function ``func`` must be invoked once for
               every output pixel.
 
-        :references:
-            - |RVC3|, Section 11.5.3.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.5.3.
 
         .. seealso:: :func:`scipy.ndimage.generic_filter`
         """
@@ -632,8 +638,9 @@ class ImageSpatialMixin(ImageMixinBase):
         .. note:: Uses morphological filtering with 3x3 structuring element, which can
             lead to erroneous values in border pixels.
 
-        :references:
-            - |RVC3|, Section 11.5.1.3.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.5.1.3.
 
         .. seealso::
 
@@ -677,8 +684,9 @@ class ImageSpatialMixin(ImageMixinBase):
         .. note:: The two image sequences have the same length, the original image is
             not included in the list of smoothed images.
 
-        :references:
-            - |RVC3|, Section 12.3.2.
+        .. rubric:: References
+
+        - |RVC3|, Section 12.3.2.
 
         .. seealso::
 
@@ -743,8 +751,9 @@ class ImageSpatialMixin(ImageMixinBase):
             - Works for greyscale images only.
             - Converts a color image to greyscale.
 
-        :references:
-            - |RVC3|, Section 12.3.2.
+        .. rubric:: References
+
+        - |RVC3|, Section 12.3.2.
 
         .. important:: Uses OpenCV function ``cv2.pyrDown`` which accepts single-channel, CV_8U, CV_16U, CV_16S, CV_32F or CV_64F images (color images are automatically converted to greyscale).
 
@@ -893,11 +902,12 @@ class ImageSpatialMixin(ImageMixinBase):
             gradient magnitude and ``k``.  The arguments ``percentile``,
             ``k`` and ``hist`` are new.
 
-        :references:
-            - "A Computational Approach To Edge Detection", J. Canny,
-              IEEE Trans. Pattern Analysis and Machine Intelligence,
-              8(6):679–698, 1986.
-            - |RVC3|, Section 11.5.1.3.
+        .. rubric:: References
+
+        - "A Computational Approach To Edge Detection", J. Canny,
+          IEEE Trans. Pattern Analysis and Machine Intelligence,
+          8(6):679–698, 1986.
+        - |RVC3|, Section 11.5.1.3.
 
         .. seealso:: :meth:`smooth` :meth:`~machinevisiontoolbox.ImageWholeFeatures.Histogram`
         """
@@ -1005,8 +1015,9 @@ class ImageSpatialMixin(ImageMixinBase):
             - The input can be logical, uint8, uint16, float or double, the
               output is always double.
 
-        :references:
-            - |RVC3|, Section 11.5.3.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.5.3.
 
         .. versionchanged:: 2.5.0
             ``rank`` now defaults to ``"median"``.  The previous default of -1
@@ -1107,8 +1118,9 @@ class ImageSpatialMixin(ImageMixinBase):
         .. note:: This filter is effective for removing impulse (aka
             salt and pepper) noise.
 
-        :references:
-            - |RVC3|, Section 11.5.3.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.5.3.
 
         .. seealso:: :meth:`rankfilter`
         """
@@ -1161,8 +1173,9 @@ class ImageSpatialMixin(ImageMixinBase):
             pixels were 0 or 255.  For any other values there was no zero pixel
             left, and the result was about 65000 everywhere.
 
-        :references:
-            - |RVC3|, Section 11.6.4.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.6.4.
 
         .. important:: Uses OpenCV function ``cv2.distanceTransform`` which accepts single-channel, CV_8U images.
 
@@ -1234,8 +1247,9 @@ class ImageSpatialMixin(ImageMixinBase):
             - 8-way connectivity introduces ambiguities, a chequerboard is
               two blobs.
 
-        :references:
-            - |RVC3|, Section 12.1.2.1.
+        .. rubric:: References
+
+        - |RVC3|, Section 12.1.2.1.
 
         .. important:: Uses OpenCV function ``cv2.connectedComponents`` which accepts single-channel, CV_8U images.
 
@@ -1292,11 +1306,12 @@ class ImageSpatialMixin(ImageMixinBase):
             >>> N
             >>> labels.print()
 
-        :references:
-            - Linear time maximally stable extremal regions,
-              David Nistér and Henrik Stewénius,
-              In Computer Vision–ECCV 2008, pages 183–196. Springer, 2008.
-            - |RVC3|, Section 12.1.2.2.
+        .. rubric:: References
+
+        - Linear time maximally stable extremal regions,
+          David Nistér and Henrik Stewénius,
+          In Computer Vision–ECCV 2008, pages 183–196. Springer, 2008.
+        - |RVC3|, Section 12.1.2.2.
 
         .. seealso::
 
@@ -1338,11 +1353,12 @@ class ImageSpatialMixin(ImageMixinBase):
         indicating which region the corresponding input pixel belongs to.  The
         background has label 0.
 
-        :references:
-            - Efficient graph-based image segmentation,
-              Pedro F Felzenszwalb and Daniel P Huttenlocher,
-              volume 59, pages 167–181. Springer, 2004.
-            - |RVC3|, Section 12.1.2.2.
+        .. rubric:: References
+
+        - Efficient graph-based image segmentation,
+          Pedro F Felzenszwalb and Daniel P Huttenlocher,
+          volume 59, pages 167–181. Springer, 2004.
+        - |RVC3|, Section 12.1.2.2.
 
         .. seealso::
 
@@ -1391,8 +1407,9 @@ class ImageSpatialMixin(ImageMixinBase):
 
         .. note:: Not invariant to pixel value scale or offset.
 
-        :references:
-            - |RVC3|, Section 11.5.2.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.5.2.
 
         .. seealso::
 
@@ -1443,8 +1460,9 @@ class ImageSpatialMixin(ImageMixinBase):
 
         .. note:: Not invariant to pixel value scale or offset.
 
-        :references:
-            - |RVC3|, Section 11.5.2.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.5.2.
 
         .. seealso::
 
@@ -1491,8 +1509,9 @@ class ImageSpatialMixin(ImageMixinBase):
             - The ``ncc`` similarity measure is invariant to scale changes in
               image intensity.
 
-        :references:
-            - |RVC3|, Section 11.5.2.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.5.2.
 
         .. seealso::
 
@@ -1546,8 +1565,9 @@ class ImageSpatialMixin(ImageMixinBase):
             - The ``zsad`` similarity measure is invariant to changes in image
               brightness offset.
 
-        :references:
-            - |RVC3|, Section 11.5.2.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.5.2.
 
         .. seealso::
 
@@ -1595,8 +1615,9 @@ class ImageSpatialMixin(ImageMixinBase):
             - The ``zssd`` similarity measure is invariant to changes in image
               brightness offset.
 
-        :references:
-            - |RVC3|, Section 11.5.2.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.5.2.
 
         .. seealso::
 
@@ -1645,8 +1666,9 @@ class ImageSpatialMixin(ImageMixinBase):
             - The ``zncc`` similarity measure is invariant to affine changes (offset and scale factor)
               in image intensity (brightness offset and scale).
 
-        :references:
-            - |RVC3|, Section 11.5.2.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.5.2.
 
         .. seealso::
 
@@ -1702,8 +1724,9 @@ class ImageSpatialMixin(ImageMixinBase):
               crosses the image boundary, and these output pixels are set
               to NaN.
 
-        :references:
-            - |RVC3|, Section 11.5.2.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.5.2.
 
         .. important:: Uses OpenCV function ``cv2.matchTemplate`` which accepts multiple-channel, CV_8U or CV_32F images.
 

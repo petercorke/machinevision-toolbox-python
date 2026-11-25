@@ -610,8 +610,9 @@ class VideoFile(ImageSource):
                     pass
 
 
-    :references:
-        - |RVC3|, Section 11.1.4.
+    .. rubric:: References
+
+    - |RVC3|, Section 11.1.4.
 
     .. seealso::
 
@@ -755,8 +756,9 @@ class VideoCamera(ImageSource):
         enumerate the cameras that are present on the current machine
         together with their best-available names.
 
-    :references:
-        - |RVC3|, Section 11.1.3.
+    .. rubric:: References
+
+    - |RVC3|, Section 11.1.3.
 
     .. seealso::
 
@@ -1187,8 +1189,9 @@ class FileCollection(ImageSource):
                     pass
 
 
-    :references:
-        - |RVC3|, Section 11.1.2.
+    .. rubric:: References
+
+    - |RVC3|, Section 11.1.2.
 
     .. seealso::
 
@@ -1655,8 +1658,9 @@ class FileArchive(ImageSource):
                     pass
 
 
-    :references:
-        - |RVC3|, Section 11.1.2.
+    .. rubric:: References
+
+    - |RVC3|, Section 11.1.2.
 
     .. seealso::
 
@@ -1911,8 +1915,9 @@ class WebCam(ImageSource):
         with an iPhone, Continuity Camera makes the phone appear as a local
         camera instead, see :class:`VideoCamera`.
 
-    :references:
-        - |RVC3|, Section 11.1.5.
+    .. rubric:: References
+
+    - |RVC3|, Section 11.1.5.
 
     .. seealso::
 
@@ -2050,8 +2055,9 @@ class EarthView(ImageSource):
           Services → Credentials*), so a leaked key can't be used for
           anything else, and consider a daily request quota to bound costs.
 
-    :references:
-        - |RVC3|, Section 11.1.6.
+    .. rubric:: References
+
+    - |RVC3|, Section 11.1.6.
 
     .. seealso:: :meth:`grab` :func:`~machinevisiontoolbox.base.imageio.convert`
     """

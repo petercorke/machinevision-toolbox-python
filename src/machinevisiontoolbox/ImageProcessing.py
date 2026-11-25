@@ -61,8 +61,9 @@ class ImageProcessingMixin(ImageMixinBase):
 
         .. note:: Works only for ``uint8`` and ``int8`` image and LUT.
 
-        :references:
-            - |RVC3|, Section 11.3.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.3.
 
         .. important:: Uses OpenCV function ``cv2.LUT`` which accepts multiple-channel, CV_8U images.
 
@@ -134,8 +135,9 @@ class ImageProcessingMixin(ImageMixinBase):
               of calls to ``func``.
 
 
-        :references:
-            - |RVC3|, Section 11.3.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.3.
 
         .. seealso:: :meth:`apply2` :meth:`numpy.vectorize`
         """
@@ -199,8 +201,9 @@ class ImageProcessingMixin(ImageMixinBase):
             - Slow when ``vectorize`` is ``True`` which involves a large number
               of calls to ``func``.
 
-        :references:
-            - |RVC3|, Section 11.4.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.4.
 
         .. seealso:: :meth:`apply` :meth:`numpy.vectorize`
         """
@@ -296,8 +299,9 @@ class ImageProcessingMixin(ImageMixinBase):
               that is, all grey levels ae equally likely to occur.
             - Color images automatically converted to greyscale
 
-        :references:
-            - |RVC3|, Section 11.3.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.3.
 
         .. important:: Uses OpenCV function ``cv2.equalizeHist`` which accepts single-channel, CV_8U images.
 
@@ -340,9 +344,10 @@ class ImageProcessingMixin(ImageMixinBase):
             >>> img = Image([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
             >>> img.stretch().A
 
-        :references:
+        .. rubric:: References
 
-            - |RVC3|, Section 12.1.
+
+        - |RVC3|, Section 12.1.
         """
 
         # TODO make all infinity values = None?
@@ -475,12 +480,13 @@ class ImageProcessingMixin(ImageMixinBase):
             >>> img.threshold('percentile', p=90)
 
 
-        :references:
-            - A Threshold Selection Method from Gray-Level Histograms, N. Otsu. IEEE
-              Trans. Systems, Man and Cybernetics Vol SMC-9(1), Jan 1979, pp 62-66.
-            - Automatic measurement of sister chromatid exchange frequency" Zack (Zack
-              GW, Rogers WE, Latt SA (1977), J. Histochem. Cytochem. 25 (7): 741–53.
-            - |RVC3|, Section 12.1.1.
+        .. rubric:: References
+
+        - A Threshold Selection Method from Gray-Level Histograms, N. Otsu. IEEE
+          Trans. Systems, Man and Cybernetics Vol SMC-9(1), Jan 1979, pp 62-66.
+        - Automatic measurement of sister chromatid exchange frequency" Zack (Zack
+          GW, Rogers WE, Latt SA (1977), J. Histochem. Cytochem. 25 (7): 741–53.
+        - |RVC3|, Section 12.1.1.
 
         .. note:: Uses NumPy thresholding and toolbox-native Otsu and triangle
             threshold selection, not OpenCV functions, to support a wider range of datatypes and automatic threshold selection methods.
@@ -625,8 +631,9 @@ class ImageProcessingMixin(ImageMixinBase):
 
         .. math:: Y_{u,v} = \left\{ \begin{array}{l} X_{u,v} \mbox{, if } X_{u,v} > t \\ 0 \mbox{, otherwise} \end{array} \right.
 
-        :references:
-            - |RVC3|, Section 12.1.1.1.
+        .. rubric:: References
+
+        - |RVC3|, Section 12.1.1.1.
 
         .. seealso:: :meth:`threshold` :meth:`threshold_adaptive` :meth:`otsu` `opencv.threshold <https://docs.opencv.org/4.x/d7/d1b/group__imgproc__misc.html#gae8a4a146d1ca78c626a53577199e9c57>`_
         """
@@ -767,8 +774,9 @@ class ImageProcessingMixin(ImageMixinBase):
         window minus ``C``.  ``h`` should reflect the scale of the objects
         that are to be segmented from the background.
 
-        :references:
-            - |RVC3|, Section 12.1.1.1.
+        .. rubric:: References
+
+        - |RVC3|, Section 12.1.1.1.
 
         .. important:: Uses OpenCV function ``cv2.adaptiveThreshold`` which accepts single-channel, CV_8U images.
 
@@ -848,14 +856,15 @@ class ImageProcessingMixin(ImageMixinBase):
               MATLAB Machine Vision Toolbox.
             - Works for greyscale integer and floating-point images.
 
-        :references:
-            - A Threshold Selection Method from Gray-Level Histograms, N. Otsu.
-              IEEE Trans. Systems, Man and Cybernetics Vol SMC-9(1), Jan 1979,
-              pp 62-66.
-            - An improved method for image thresholding on the valley-emphasis
-              method. H-F Ng, D. Jargalsaikhan etal. Signal and Info Proc.
-              Assocn. Annual Summit and Conf (APSIPA). 2013. pp1-4
-            - |RVC3|, Section 12.1.1.
+        .. rubric:: References
+
+        - A Threshold Selection Method from Gray-Level Histograms, N. Otsu.
+          IEEE Trans. Systems, Man and Cybernetics Vol SMC-9(1), Jan 1979,
+          pp 62-66.
+        - An improved method for image thresholding on the valley-emphasis
+          method. H-F Ng, D. Jargalsaikhan etal. Signal and Info Proc.
+          Assocn. Annual Summit and Conf (APSIPA). 2013. pp1-4
+        - |RVC3|, Section 12.1.1.
 
         .. seealso:: :meth:`triangle` :meth:`threshold` :meth:`threshold_interactive` :meth:`threshold_adaptive`
         """

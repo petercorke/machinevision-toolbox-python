@@ -390,8 +390,9 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
                 computing the histogram.
             - Histogram is computed using ``numpy.histogram`` independently for each plane.
 
-        :references:
-            - |RVC3|, Section 14.4.3.
+        .. rubric:: References
+
+        - |RVC3|, Section 14.4.3.
 
         .. seealso::
 
@@ -580,8 +581,9 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
             - Supports single channel images only.
             - ``mpq(0, 0)`` is the same as ``sum()`` but less efficient.
 
-        :references:
-            - |RVC3|, Section 12.1.3.4.
+        .. rubric:: References
+
+        - |RVC3|, Section 12.1.3.4.
 
         .. seealso:: :meth:`sum` :meth:`npq` :meth:`upq`
         """
@@ -624,8 +626,9 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
             - The central moments are invariant to translation.
             - Supports single channel images only.
 
-        :references:
-            - |RVC3|, Section 12.1.3.4.
+        .. rubric:: References
+
+        - |RVC3|, Section 12.1.3.4.
 
         .. seealso:: :meth:`sum` :meth:`mpq` :meth:`upq`
         """
@@ -674,8 +677,9 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
               scale.
             - Supports single channel images only.
 
-        :references:
-            - |RVC3|, Section 12.1.3.4.
+        .. rubric:: References
+
+        - |RVC3|, Section 12.1.3.4.
 
         .. seealso:: :meth:`sum` :meth:`mpq` :meth:`upq`
         """
@@ -720,8 +724,9 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
         .. note::
             - Converts a color image to greyscale.
 
-        :references:
-            - |RVC3|, Section 12.1.3.4.
+        .. rubric:: References
+
+        - |RVC3|, Section 12.1.3.4.
 
         .. important:: Uses OpenCV function ``cv2.moments`` which accepts single-channel, CV_8U, CV_16U, CV_16S, CV_32F or CV_64F images (color images are automatically converted to greyscale).
 
@@ -752,10 +757,11 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
             - These invariants are a function of object shape and are invariant
               to position, orientation and scale.
 
-        :references:
-            - M-K. Hu, Visual pattern recognition by moment invariants. IRE
-              Trans. on Information Theory, IT-8:pp. 179-187, 1962.
-            - |RVC3|, Section 12.1.3.6.
+        .. rubric:: References
+
+        - M-K. Hu, Visual pattern recognition by moment invariants. IRE
+          Trans. on Information Theory, IT-8:pp. 179-187, 1962.
+        - |RVC3|, Section 12.1.3.6.
 
         .. important:: Uses OpenCV functions ``cv2.moments`` and ``cv2.HuMoments`` which accept single-channel, CV_8U, CV_16U, CV_16S, CV_32F or CV_64F images.
 
@@ -792,8 +798,9 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
             >>> img = Image(pix)
             >>> img.nonzero()
 
-        :references:
-            - |RVC3|, Section 12.1.3.2.
+        .. rubric:: References
+
+        - |RVC3|, Section 12.1.3.2.
 
         .. seealso:: :meth:`flatnonzero`
         """

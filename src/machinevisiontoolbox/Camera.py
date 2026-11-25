@@ -1442,8 +1442,9 @@ class CentralCamera(CameraBase):
     to the image plane, as well as supporting a virtual image plane onto
     which 3D points and lines can be drawn.
 
-    :references:
-        - |RVC3|, Section 13.1.
+    .. rubric:: References
+
+    - |RVC3|, Section 13.1.
 
     .. seealso:: :class:`CameraBase` :class:`FishEyeCamera` :class:`SphericalCamera`
     """
@@ -1483,8 +1484,9 @@ class CentralCamera(CameraBase):
             >>> camera = CentralCamera.Default(name='camera1')
             >>> camera
 
-        :references:
-            - |RVC3|, Section 13.1.
+        .. rubric:: References
+
+        - |RVC3|, Section 13.1.
 
         .. seealso:: :class:`CentralCamera`
         """
@@ -1587,8 +1589,9 @@ class CentralCamera(CameraBase):
             >>> camera = CentralCamera.Default()
             >>> camera.project_point((0.3, 0.4, 2))
 
-        :references:
-            - |RVC3|, Section 13.1.
+        .. rubric:: References
+
+        - |RVC3|, Section 13.1.
 
         .. seealso:: :meth:`C` :meth:`project_point` :meth:`project_line` :meth:`project_quadric`
         """
@@ -1678,8 +1681,9 @@ class CentralCamera(CameraBase):
             >>> camera = CentralCamera()
             >>> camera.project_line(line)
 
-        :references:
-            - |RVC3|, Section 13.7.1.
+        .. rubric:: References
+
+        - |RVC3|, Section 13.7.1.
 
         .. seealso:: :meth:`C` :class:`~spatialmath.geom3d.Line3` :meth:`project_point` :meth:`project_quadric`
         """
@@ -1734,8 +1738,9 @@ class CentralCamera(CameraBase):
             >>> camera = CentralCamera.Default(f=0.015, pose=T_cam);
             >>> camera.project_quadric(Q)
 
-        :references:
-            - |RVC3|, Section 13.7.1.
+        .. rubric:: References
+
+        - |RVC3|, Section 13.7.1.
 
         .. seealso:: :meth:`C` :meth:`project_point` :meth:`project_line`
         """
@@ -1777,8 +1782,9 @@ class CentralCamera(CameraBase):
             >>> p1 = camera1.project_point(P)  # project to first camera
             >>> camera1.epiline(p1, camera2)   # epipolar line in second camera
 
-        :references:
-            - |RVC3|, Section 14.2.1.
+        .. rubric:: References
+
+        - |RVC3|, Section 14.2.1.
 
         .. seealso:: :meth:`plot_epiline` :meth:`CentralCamera.F`
         """
@@ -1821,8 +1827,9 @@ class CentralCamera(CameraBase):
             >>> camera2.plot_point(P, 'kd') # project and display in second camera
             >>> camera2.plot_epiline(camera1.F(camera2), p1) # plot epipolar line in second camera
 
-        :references:
-            - |RVC3|, Section 14.2.1.
+        .. rubric:: References
+
+        - |RVC3|, Section 14.2.1.
 
         .. seealso:: :meth:`plot_point` :meth:`epiline` :meth:`CentralCamera.F`
         """
@@ -1876,9 +1883,10 @@ class CentralCamera(CameraBase):
             >>> line = camera.ray((100, 200))
             >>> line
 
-        :references:
-            - "Multiview Geometry", Hartley & Zisserman, p.162
-            - |RVC3|, Section 14.3.
+        .. rubric:: References
+
+        - "Multiview Geometry", Hartley & Zisserman, p.162
+        - |RVC3|, Section 14.3.
 
         .. seealso:: :class:`~spatialmath.geom3d.Line3`
         """
@@ -1949,8 +1957,9 @@ class CentralCamera(CameraBase):
             >>> camera1 = CentralCamera.Default(name='camera1')
             >>> camera1.fov()
 
-        :references:
-            - |RVC3|, Section 13.1.4.
+        .. rubric:: References
+
+        - |RVC3|, Section 13.1.4.
         """
         try:
             return 2 * np.arctan(np.r_[self.imagesize] / 2 * np.r_[self.rho] / self.f)
@@ -2130,8 +2139,9 @@ class CentralCamera(CameraBase):
             >>> camera = CentralCamera.Default(name='camera1')
             >>> camera.K
 
-        :references:
-            - |RVC3|, Section 13.1.
+        .. rubric:: References
+
+        - |RVC3|, Section 13.1.
 
         .. seealso:: :meth:`C` :meth:`pp` :meth:`rho`
         """
@@ -2171,8 +2181,9 @@ class CentralCamera(CameraBase):
             >>> camera.C(SE3.Trans(0.1, 0, 0))
             >>> camera.move(SE3(0.1, 0, 0)).C()
 
-        :references:
-            - |RVC3|, Section 13.1.
+        .. rubric:: References
+
+        - |RVC3|, Section 13.1.
 
         .. seealso:: :meth:`project_point` :meth:`K` :meth:`decomposeC`
         """
@@ -2223,8 +2234,9 @@ class CentralCamera(CameraBase):
         .. note:: This method assumes no lens distortion affecting the image plane
             coordinates.
 
-        :references:
-            - |RVC3|, Section 13.2.1.
+        .. rubric:: References
+
+        - |RVC3|, Section 13.2.1.
 
         .. seealso:: :meth:`C` :meth:`images2C` :meth:`decomposeC`
         """
@@ -2299,8 +2311,9 @@ class CentralCamera(CameraBase):
         .. note:: The units used for ``squaresize`` must match the units used
             for defining 3D points in space.
 
-        :references:
-            - |RVC3|, Section 13.7.
+        .. rubric:: References
+
+        - |RVC3|, Section 13.7.
 
         .. seealso:: :meth:`C` :meth:`points2C` :meth:`decomposeC` :class:`~spatialmath.pose3d.SE3`
         """
@@ -2408,9 +2421,10 @@ class CentralCamera(CameraBase):
         .. note:: Since only :math:`f s_x` and :math:`f s_y` can be estimated we
             set :math:`s_x = 1`.
 
-        :references:
-            - Multiple View Geometry, Hartley&Zisserman, p 163-164
-            - |RVC3|, Section 13.2.3.
+        .. rubric:: References
+
+        - Multiple View Geometry, Hartley&Zisserman, p 163-164
+        - |RVC3|, Section 13.2.3.
 
         .. seealso:: :meth:`C` :meth:`points2C`
         """
@@ -2572,8 +2586,9 @@ class CentralCamera(CameraBase):
             of inliers is also returned, True means the corresponding input
             point pair is an inlier.
 
-        :references:
-            - |RVC3|, Section 14.2.4.
+        .. rubric:: References
+
+        - |RVC3|, Section 14.2.4.
 
         .. seealso::
 
@@ -2638,8 +2653,9 @@ class CentralCamera(CameraBase):
             >>> T.printline(orient="camera")
             >>> normals
 
-        :references:
-            - |RVC3|, Section 14.2.4.
+        .. rubric:: References
+
+        - |RVC3|, Section 14.2.4.
 
         .. seealso::
 
@@ -2727,10 +2743,11 @@ class CentralCamera(CameraBase):
             >>> F = camera1.F(SE3.Tx(0.2))
             >>> F
 
-        :references:
-            - Y.Ma, J.Kosecka, S.Soatto, S.Sastry, "An invitation to 3D",
-              Springer, 2003. p.177
-            - |RVC3|, Section 14.2.1.
+        .. rubric:: References
+
+        - Y.Ma, J.Kosecka, S.Soatto, S.Sastry, "An invitation to 3D",
+          Springer, 2003. p.177
+        - |RVC3|, Section 14.2.1.
 
         .. seealso:: :meth:`points2F` :meth:`E`
         """
@@ -2949,9 +2966,10 @@ class CentralCamera(CameraBase):
         * a relative motion represented by a :class:`~spatialmath.pose3d.SE3`
         * a fundamental matrix
 
-        :references:
-            - Y.Ma, J.Kosecka, S.Soatto, S.Sastry, "An invitation to 3D",
-              Springer, 2003. p.177
+        .. rubric:: References
+
+        - Y.Ma, J.Kosecka, S.Soatto, S.Sastry, "An invitation to 3D",
+          Springer, 2003. p.177
 
         .. seealso:: :meth:`F` :meth:`decomposeE` :meth:`points2E`
         """
@@ -3071,8 +3089,9 @@ class CentralCamera(CameraBase):
         - a single 3D world point in front of the camera
         - a :class:`~machinevisiontoolbox.ImagePointFeatures.FeatureMatch` object
 
-        :references:
-            - |RVC3|, Section 14.2.2.
+        .. rubric:: References
+
+        - |RVC3|, Section 14.2.2.
 
         .. seealso::
 
@@ -3158,10 +3177,11 @@ class CentralCamera(CameraBase):
             >>> camera = CentralCamera.Default()
             >>> camera.visjac_p((200, 300), 2)
 
-        :references:
-            - A tutorial on Visual Servo Control, Hutchinson, Hager & Corke,
-              IEEE Trans. R&A, Vol 12(5), Oct, 1996, pp 651-670.
-            - |RVC3|, Section 15.2.1.
+        .. rubric:: References
+
+        - A tutorial on Visual Servo Control, Hutchinson, Hager & Corke,
+          IEEE Trans. R&A, Vol 12(5), Oct, 1996, pp 651-670.
+        - |RVC3|, Section 15.2.1.
 
         .. seealso:: :meth:`flowfield` :meth:`visjac_p_polar` :meth:`visjac_l` :meth:`visjac_e`
         """
@@ -3234,11 +3254,12 @@ class CentralCamera(CameraBase):
             >>> camera = CentralCamera.Default()
             >>> camera.visjac_p_polar((200, 300), 2)
 
-        :references:
-            - Combining Cartesian and polar coordinates in IBVS.
-              Corke PI, Spindler F, Chaumette F
-              IROS 2009, pp 5962–5967
-            - |RVC3|, Section 16.2.
+        .. rubric:: References
+
+        - Combining Cartesian and polar coordinates in IBVS.
+          Corke PI, Spindler F, Chaumette F
+          IROS 2009, pp 5962–5967
+        - |RVC3|, Section 16.2.
 
         .. seealso:: :meth:`visjac_p` :meth:`visjac_l` :meth:`visjac_e`
         """
@@ -3335,15 +3356,16 @@ class CentralCamera(CameraBase):
             >>> camera = CentralCamera.Default()
             >>> camera.visjac_l((0.2, 500), (0, 0, 1, -3))
 
-        :references:
-            - A New Approach to Visual Servoing in Robotics,
-              B. Espiau, F. Chaumette, and P. Rives,
-              IEEE Transactions on Robotics and Automation,
-              vol. 8, pp. 313-326, June 1992.
-            - Visual servo control 2: Advanced approaches
-              Chaumette F, Hutchinson S,
-              IEEE Robot Autom Mag 14(1):109–118 (2007)
-            - |RVC3|, Section 15.3.1.
+        .. rubric:: References
+
+        - A New Approach to Visual Servoing in Robotics,
+          B. Espiau, F. Chaumette, and P. Rives,
+          IEEE Transactions on Robotics and Automation,
+          vol. 8, pp. 313-326, June 1992.
+        - Visual servo control 2: Advanced approaches
+          Chaumette F, Hutchinson S,
+          IEEE Robot Autom Mag 14(1):109–118 (2007)
+        - |RVC3|, Section 15.3.1.
 
         .. seealso:: :meth:`visjac_p` :meth:`visjac_p_polar` :meth:`visjac_e`
         """
@@ -3424,15 +3446,16 @@ class CentralCamera(CameraBase):
             >>> camera = CentralCamera.Default()
             >>> camera.visjac_e((0.5, 0, -1000, -500, 374900), (0, 0, 1, -1))
 
-        :references:
-            - A New Approach to Visual Servoing in Robotics,
-              B. Espiau, F. Chaumette, and P. Rives,
-              IEEE Transactions on Robotics and Automation,
-              vol. 8, pp. 313-326, June 1992.
-            - Visual servo control 2: Advanced approaches
-              Chaumette F, Hutchinson S,
-              IEEE Robot Autom Mag 14(1):109–118 (2007)
-            - |RVC3|, Section 15.3.2.
+        .. rubric:: References
+
+        - A New Approach to Visual Servoing in Robotics,
+          B. Espiau, F. Chaumette, and P. Rives,
+          IEEE Transactions on Robotics and Automation,
+          vol. 8, pp. 313-326, June 1992.
+        - Visual servo control 2: Advanced approaches
+          Chaumette F, Hutchinson S,
+          IEEE Robot Autom Mag 14(1):109–118 (2007)
+        - |RVC3|, Section 15.3.2.
 
         .. seealso:: :meth:`visjac_p` :meth:`visjac_p_polar` :meth:`visjac_l`
         """
@@ -3675,8 +3698,9 @@ class FishEyeCamera(CameraBase):
         - This camera model assumes central projection, that is, the focal point
             is at z=0 and the image plane is at z=f.  The image is not inverted.
 
-    :references:
-        - |RVC3|, Section 13.3.1.
+    .. rubric:: References
+
+    - |RVC3|, Section 13.3.1.
 
     .. seealso::
 
@@ -3841,8 +3865,9 @@ class CatadioptricCamera(CameraBase):
         - This camera model assumes central projection, that is, the focal point
           is at :math:`z=0` and the image plane is at :math:`z=f`.  The image is not inverted.
 
-    :references:
-        - |RVC3|, Section 13.3.2.
+    .. rubric:: References
+
+    - |RVC3|, Section 13.3.2.
 
     .. seealso::
 
@@ -3981,8 +4006,9 @@ class SphericalCamera(CameraBase):
     The spherical camera is an idealization with a complete field of view
     that can be used to generalize all camera projection models.
 
-    :references:
-        - |RVC3|, Section 13.3.3.
+    .. rubric:: References
+
+    - |RVC3|, Section 13.3.3.
 
     .. seealso::
 

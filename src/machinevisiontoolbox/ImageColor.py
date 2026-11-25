@@ -58,8 +58,9 @@ class ImageColorMixin(ImageMixinBase):
 
         .. note:: For a monochrome image returns a reference to the :class:`Image` instance.
 
-        :references:
-            - |RVC3|, Section 10.2.7.
+        .. rubric:: References
+
+        - |RVC3|, Section 10.2.7.
 
         .. seealso:: :meth:`colorspace` :meth:`colorize`
         """
@@ -117,8 +118,9 @@ class ImageColorMixin(ImageMixinBase):
         .. note:: The chromaticity color planes are the same as ``which`` but
           lower cased.
 
-        :references:
-            - |RVC3|, Section 10.2.5.
+        .. rubric:: References
+
+        - |RVC3|, Section 10.2.5.
 
         .. seealso:: :func:`~machinevisiontoolbox.base.color.tristim2cc`
         """
@@ -160,8 +162,9 @@ class ImageColorMixin(ImageMixinBase):
             >>> img.colorize([1, 0, 0])  # red shark
             >>> img.colorize('blue')  # blue shark
 
-        :references:
-            - |RVC3|, Section 11.3.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.3.
 
         .. seealso:: :meth:`mono`
         """
@@ -243,8 +246,9 @@ class ImageColorMixin(ImageMixinBase):
           .. note:: The colorspace of the images could a chromaticity space to classify
             objects while ignoring brightness variation.
 
-          :references:
-              - |RVC3|, Section 12.1.1.2.
+          .. rubric:: References
+
+          - |RVC3|, Section 12.1.1.2.
 
         .. important:: Uses OpenCV function ``cv2.kmeans`` which accepts multiple-channel, CV_32F images (images are automatically converted to float32).
 
@@ -326,8 +330,9 @@ class ImageColorMixin(ImageMixinBase):
 
         .. note:: RGB images are assumed to be linear, or gamma decoded.
 
-        :references:
-            - |RVC3|, Section 10.2.7, 10.4.1.
+        .. rubric:: References
+
+        - |RVC3|, Section 10.2.7, 10.4.1.
 
         .. seealso:: :meth:`mono` :func:`~machinevisiontoolbox.base.color.colorspace_convert`
         """
@@ -445,8 +450,9 @@ class ImageColorMixin(ImageMixinBase):
               the maximum value of their class.  Pixels are converted first to
               double, processed, then converted back to the integer class.
 
-        :references:
-            - |RVC3|, Section 10.2.7, 10.3.6.
+        .. rubric:: References
+
+        - |RVC3|, Section 10.2.7, 10.3.6.
 
         .. seealso:: :meth:`gamma_encode` :meth:`colorspace`
         """
@@ -491,8 +497,9 @@ class ImageColorMixin(ImageMixinBase):
               the maximum value of their class.  Pixels are converted first to
               double, processed, then converted back to the integer class.
 
-        :references:
-            - |RVC3|, Section 10.2.7, 10.3.6.
+        .. rubric:: References
+
+        - |RVC3|, Section 10.2.7, 10.3.6.
 
         .. seealso:: :meth:`gamma_encode` :meth:`colorspace`
         """

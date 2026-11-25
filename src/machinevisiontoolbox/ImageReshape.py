@@ -566,8 +566,9 @@ class ImageReshapeMixin(ImageMixinBase):
             >>> img.print()
             >>> img.decimate(2, sigma=0).print()
 
-        :references:
-            - |RVC3|, Section 11.7.2.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.7.2.
 
         .. seealso:: :meth:`replicate` :meth:`scale`
         """
@@ -612,8 +613,9 @@ class ImageReshapeMixin(ImageMixinBase):
             - The resulting image is "blocky", apply Gaussian smoothing to
               reduce this.
 
-        :references:
-            - |RVC3|, Section 11.7.2.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.7.2.
 
         .. seealso:: :meth:`decimate`
         """
@@ -765,8 +767,9 @@ class ImageReshapeMixin(ImageMixinBase):
             background.samesize(foreground).disp()
 
 
-        :references:
-            - |RVC3|, Section 11.4.1.1.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.4.1.1.
 
         .. seealso:: :meth:`trim` :meth:`scale`
         """
@@ -837,8 +840,9 @@ class ImageReshapeMixin(ImageMixinBase):
             >>> img.scale(2)
             >>> img.scale(0.5)
 
-        :references:
-            - |RVC3|, Section 11.7.2.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.7.2.
 
         .. seealso:: `opencv.resize <https://docs.opencv.org/4.x/da/d54/group__imgproc__transform.html#ga47a974309e9102f5f08231edc7e7529d>`_
         """
@@ -1267,8 +1271,9 @@ class ImageReshapeMixin(ImageMixinBase):
         Pixels that are not present in the original image are set to the value
         specified by ``background``.
 
-        :references:
-            - |RVC3|, Section 14.8.
+        .. rubric:: References
+
+        - |RVC3|, Section 14.8.
 
         .. seealso:: :meth:`warp` `opencv.warpPerspective <https://docs.opencv.org/4.x/da/d54/group__imgproc__transform.html#gaf73673a7e8e18ec6963e3774e6a94b87>`_
         """

@@ -617,8 +617,9 @@ class ImageIOMixin(ImageMixinBase):
             right = Image.Read("rocks2-r.png", reduce=2)
             left.anaglyph(right).disp()
 
-        :references:
-            - |RVC3|, Section 14.4.
+        .. rubric:: References
+
+        - |RVC3|, Section 14.4.
 
         .. seealso:: :meth:`stdisp` :meth:`Overlay`
         """
@@ -694,8 +695,9 @@ class ImageIOMixin(ImageMixinBase):
 
         .. note:: The images are assumed to be epipolar aligned.
 
-        :references:
-            - |RVC3|, Section 14.4.
+        .. rubric:: References
+
+        - |RVC3|, Section 14.4.
 
         .. seealso:: :meth:`anaglyph`
         """
