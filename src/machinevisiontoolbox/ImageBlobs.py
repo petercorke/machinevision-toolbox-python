@@ -2472,7 +2472,9 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         label image where the greyvalue of each region corresponds to the blob
         index.
 
-            .. rubric:: Examples
+        .. rubric:: Examples
+
+        .. code-block:: pycon
 
             >>> from machinevisiontoolbox import Image
             >>> im = Image.Read("sharks.png")
@@ -2480,15 +2482,15 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> labels = blobs.label_image()
             >>> labels.disp(colorbar=True)
 
-            .. plot::
+        .. plot::
 
-                from machinevisiontoolbox import Image
+            from machinevisiontoolbox import Image
 
-                im = Image.Read("sharks.png")
-                im.disp()
-                blobs = im.blobs()
-                labels = blobs.label_image()
-                labels.disp(colorbar=True)
+            im = Image.Read("sharks.png")
+            im.disp()
+            blobs = im.blobs()
+            labels = blobs.label_image()
+            labels.disp(colorbar=True)
 
         .. note:: The label image is reconstituted from the OpenCV contours that are
             saved within the :class:`Blobs` object.
