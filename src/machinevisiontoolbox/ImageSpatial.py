@@ -175,7 +175,7 @@ class ImageSpatialMixin(ImageMixinBase):
         :references:
             - |RVC3|, Section 11.5.1.
 
-        :seealso: :meth:`machinevisiontoolbox.Kernel.Gauss` :meth:`convolve`
+        .. seealso:: :meth:`machinevisiontoolbox.Kernel.Gauss` :meth:`convolve`
         """
 
         if not argcheck.isscalar(sigma):
@@ -290,7 +290,8 @@ class ImageSpatialMixin(ImageMixinBase):
 
         .. important:: Uses OpenCV functions ``cv2.filter2D`` and ``cv2.copyMakeBorder`` which accept multiple-channel, CV_8U, CV_16U, CV_16S, CV_32F or CV_64F images.
 
-        :seealso:
+        .. seealso::
+
             :class:`~machinevisiontoolbox.Kernel.Kernel`
             :meth:`~smooth`
             `cv2.filter2D <https://docs.opencv.org/4.x/d4/d86/group__imgproc__filter.html#ga27c049795ce870216ddfb366086b5a04>`_
@@ -442,7 +443,7 @@ class ImageSpatialMixin(ImageMixinBase):
         :references:
             - |RVC3|, Section 11.5.1.3.
 
-        :seealso: :class:`~machinevisiontoolbox.Kernel.Kernel`
+        .. seealso:: :class:`~machinevisiontoolbox.Kernel.Kernel`
         """
         if K is None:
             K = Kernel.Sobel()
@@ -489,7 +490,7 @@ class ImageSpatialMixin(ImageMixinBase):
         :references:
             - |RVC3|, Section 11.5.1.3.
 
-        :seealso: :meth:`gradients`
+        .. seealso:: :meth:`gradients`
         """
         if horizontal.shape != vertical.shape:
             raise ValueError("images must the same shape")
@@ -515,7 +516,8 @@ class ImageSpatialMixin(ImageMixinBase):
 
         .. important:: Uses OpenCV function ``cv2.cornerHarris`` which accepts single-channel, CV_8U, CV_32F or CV_64F images (color images are automatically converted to greyscale).
 
-        :seealso:
+        .. seealso::
+
             :meth:`gradients`
             :meth:`Harris`
             `cv2.cornerHarris <https://docs.opencv.org/4.x/dd/d1a/group__imgproc__feature.html#gac1fc3598018010880e370e2f709b4345>`_
@@ -585,7 +587,7 @@ class ImageSpatialMixin(ImageMixinBase):
         :references:
             - |RVC3|, Section 11.5.3.
 
-        :seealso: :func:`scipy.ndimage.generic_filter`
+        .. seealso:: :func:`scipy.ndimage.generic_filter`
         """
         # replace window's mex function with scipy's ndimage.generic_filter
         if self.iscolor:
@@ -633,7 +635,8 @@ class ImageSpatialMixin(ImageMixinBase):
         :references:
             - |RVC3|, Section 11.5.1.3.
 
-        :seealso:
+        .. seealso::
+
             :meth:`Laplace`
             :meth:`LoG`
         """
@@ -677,7 +680,8 @@ class ImageSpatialMixin(ImageMixinBase):
         :references:
             - |RVC3|, Section 12.3.2.
 
-        :seealso:
+        .. seealso::
+
             :meth:`pyramid`
             :meth:`smooth`
             :class:`~.Gauss`
@@ -744,7 +748,8 @@ class ImageSpatialMixin(ImageMixinBase):
 
         .. important:: Uses OpenCV function ``cv2.pyrDown`` which accepts single-channel, CV_8U, CV_16U, CV_16S, CV_32F or CV_64F images (color images are automatically converted to greyscale).
 
-        :seealso:
+        .. seealso::
+
             :meth:`smooth`
             :meth:`scalespace`
             `cv2.pyrDown <https://docs.opencv.org/4.x/d4/d86/group__imgproc__filter.html#gaf9bba239dfca11654cb7f50f889fc2ff>`_
@@ -1007,7 +1012,7 @@ class ImageSpatialMixin(ImageMixinBase):
             ``rank`` now defaults to ``"median"``.  The previous default of -1
             was always rejected, so ``rank`` had to be given.
 
-        :seealso: :obj:`scipy.ndimage.rank_filter`
+        .. seealso:: :obj:`scipy.ndimage.rank_filter`
         """
         if h is not None:
             w = 2 * h + 1
@@ -1105,7 +1110,7 @@ class ImageSpatialMixin(ImageMixinBase):
         :references:
             - |RVC3|, Section 11.5.3.
 
-        :seealso: :meth:`rankfilter`
+        .. seealso:: :meth:`rankfilter`
         """
         w = 2 * h + 1
         r = int((w**2 - 1) / 2)
@@ -1161,7 +1166,7 @@ class ImageSpatialMixin(ImageMixinBase):
 
         .. important:: Uses OpenCV function ``cv2.distanceTransform`` which accepts single-channel, CV_8U images.
 
-        :seealso: `opencv.distanceTransform <https://docs.opencv.org/4.x/d7/d1b/group__imgproc__misc.html#ga8a0b7fdfcb7a13dde018988ba3a43042>`_
+        .. seealso:: `opencv.distanceTransform <https://docs.opencv.org/4.x/d7/d1b/group__imgproc__misc.html#ga8a0b7fdfcb7a13dde018988ba3a43042>`_
         """
         self._opencv_type_check(self._A, "single-channel", "CV_8U")
         # OpenCV does distance of each non-zero pixel to the nearest zero pixel
@@ -1234,7 +1239,8 @@ class ImageSpatialMixin(ImageMixinBase):
 
         .. important:: Uses OpenCV function ``cv2.connectedComponents`` which accepts single-channel, CV_8U images.
 
-        :seealso:
+        .. seealso::
+
             :meth:`blobs`
             `cv2.connectedComponents <https://docs.opencv.org/4.x/d3/dc0/group__imgproc__shape.html#gaedef8c7340499ca391d459122e51bef5>`_
             :meth:`labels_graphseg`
@@ -1292,7 +1298,8 @@ class ImageSpatialMixin(ImageMixinBase):
               In Computer Vision–ECCV 2008, pages 183–196. Springer, 2008.
             - |RVC3|, Section 12.1.2.2.
 
-        :seealso:
+        .. seealso::
+
             :meth:`labels_binary`
             :meth:`labels_graphseg`
             :meth:`blobs`
@@ -1337,7 +1344,8 @@ class ImageSpatialMixin(ImageMixinBase):
               volume 59, pages 167–181. Springer, 2004.
             - |RVC3|, Section 12.1.2.2.
 
-        :seealso:
+        .. seealso::
+
             :meth:`labels_binary`
             :meth:`labels_MSER`
             :meth:`blobs`
@@ -1386,7 +1394,8 @@ class ImageSpatialMixin(ImageMixinBase):
         :references:
             - |RVC3|, Section 11.5.2.
 
-        :seealso:
+        .. seealso::
+
             :meth:`zsad`
             :meth:`ssd`
             :meth:`ncc`
@@ -1437,7 +1446,8 @@ class ImageSpatialMixin(ImageMixinBase):
         :references:
             - |RVC3|, Section 11.5.2.
 
-        :seealso:
+        .. seealso::
+
             :meth:`zssd`
             :meth:`sad`
             :meth:`ncc`
@@ -1484,7 +1494,8 @@ class ImageSpatialMixin(ImageMixinBase):
         :references:
             - |RVC3|, Section 11.5.2.
 
-        :seealso:
+        .. seealso::
+
             :meth:`zncc`
             :meth:`sad`
             :meth:`ssd`
@@ -1538,7 +1549,8 @@ class ImageSpatialMixin(ImageMixinBase):
         :references:
             - |RVC3|, Section 11.5.2.
 
-        :seealso:
+        .. seealso::
+
             :meth:`zsad`
             :meth:`ssd`
             :meth:`ncc`
@@ -1586,7 +1598,8 @@ class ImageSpatialMixin(ImageMixinBase):
         :references:
             - |RVC3|, Section 11.5.2.
 
-        :seealso:
+        .. seealso::
+
             :meth:`zssd`
             :meth:`sad`
             :meth:`ncc`
@@ -1635,7 +1648,8 @@ class ImageSpatialMixin(ImageMixinBase):
         :references:
             - |RVC3|, Section 11.5.2.
 
-        :seealso:
+        .. seealso::
+
             :meth:`zncc`
             :meth:`sad`
             :meth:`ssd`
@@ -1693,7 +1707,7 @@ class ImageSpatialMixin(ImageMixinBase):
 
         .. important:: Uses OpenCV function ``cv2.matchTemplate`` which accepts multiple-channel, CV_8U or CV_32F images.
 
-        :seealso: `cv2.matchTemplate <https://docs.opencv.org/4.x/df/dfb/group__imgproc__object.html#ga586ebfb0a7fb604b35a23d85391329be>`_
+        .. seealso:: `cv2.matchTemplate <https://docs.opencv.org/4.x/df/dfb/group__imgproc__object.html#ga586ebfb0a7fb604b35a23d85391329be>`_
         """
 
         # check inputs

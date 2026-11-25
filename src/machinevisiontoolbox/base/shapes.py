@@ -180,7 +180,7 @@ def mkcube(
             ax.plot_wireframe(X, Y, Z)
 
 
-    :seealso: :func:`mksphere`, :func:`mkcylinder`
+    .. seealso:: :func:`mksphere`, :func:`mkcylinder`
     """
 
     if pose is not None and centre is not None:
@@ -275,7 +275,7 @@ def mksphere(
             ax.plot_wireframe(X, Y, Z)
 
 
-    :seealso: :func:`mkcube`, :func:`mkcylinder`
+    .. seealso:: :func:`mkcube`, :func:`mkcylinder`
     """
 
     theta = np.linspace(-pi, pi, n).reshape((1, n))
@@ -354,7 +354,7 @@ def mkcylinder(
             ax.plot_wireframe(X, Y, Z)
 
 
-    :seealso: :func:`mkcube`, :func:`mksphere`
+    .. seealso:: :func:`mkcube`, :func:`mksphere`
     """
 
     if isinstance(r, (int, float)):

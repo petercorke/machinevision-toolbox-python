@@ -286,7 +286,9 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         :references:
             - |RVC3|, Section 12.1.2.1.
 
-        :seealso: :meth:`filter` :meth:`sort`
+        .. seealso::
+
+            :meth:`filter` :meth:`sort`
             `opencv.moments <https://docs.opencv.org/4.x/d3/dc0/group__imgproc__shape.html#ga556a180f43cab22649c23ada36a8a139>`_,
             `opencv.boundingRect <https://docs.opencv.org/4.x/d3/dc0/group__imgproc__shape.html#ga103fcbda2f540f3ef1c042d6a9b35ac7>`_,
             `opencv.findContours <https://docs.opencv.org/4.x/d3/dc0/group__imgproc__shape.html#gadf1ad6a0b82947fa1fe3c3d497f260e0>`_
@@ -611,7 +613,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         :references:
             - |RVC3|, Section 12.1.2.1.
 
-        :seealso: :meth:`sort`
+        .. seealso:: :meth:`sort`
         """
         mask = []
 
@@ -689,7 +691,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         :references:
             - |RVC3|, Section 12.1.2.1.
 
-        :seealso: :meth:`filter`
+        .. seealso:: :meth:`filter`
         """
         k: np.ndarray
         if by == "area":
@@ -812,7 +814,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> blobs[0].uc
             >>> blobs.uc
 
-        :seealso:  :meth:`vc` :meth:`centroid`
+        .. seealso:: :meth:`vc` :meth:`centroid`
         """
         return [b.uc for b in self.data]
 
@@ -835,7 +837,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> blobs[0].vc
             >>> blobs.vc
 
-        :seealso:  :meth:`u` :meth:`centroid`
+        .. seealso:: :meth:`u` :meth:`centroid`
         """
         return [b.vc for b in self.data]
 
@@ -858,7 +860,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> blobs[0].bboxarea
             >>> blobs.bboxarea
 
-        :seealso:  :meth:`u` :meth:`v` :meth:`moments`
+        .. seealso:: :meth:`u` :meth:`v` :meth:`moments`
         """
         return [(b.uc, b.vc) for b in self.data]
 
@@ -881,7 +883,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> blobs[0].bboxarea
             >>> blobs.bboxarea
 
-        :seealso:  :meth:`u` :meth:`v`
+        .. seealso:: :meth:`u` :meth:`v`
         """
         return [(b.uc, b.vc) for b in self.data]
 
@@ -909,7 +911,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         .. note:: The bounding box is the smallest box with vertical and
             horizontal edges that fully encloses the blob.
 
-        :seealso: :meth:`umin` :meth:`vmin` :meth:`umax` :meth:`umax`,
+        .. seealso:: :meth:`umin` :meth:`vmin` :meth:`umax` :meth:`umax`,
         """
         return [b.bbox for b in self.data]
 
@@ -934,7 +936,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> blobs[0].umin
             >>> blobs.umin
 
-        :seealso: :meth:`umax` :meth:`bbox`
+        .. seealso:: :meth:`umax` :meth:`bbox`
         """
         return [b.bbox[0] for b in self.data]
 
@@ -959,7 +961,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> blobs[0].umin
             >>> blobs.umin
 
-        :seealso: :meth:`umin` :meth:`bbox`
+        .. seealso:: :meth:`umin` :meth:`bbox`
         """
         return [b.bbox[0] + b.bbox[2] for b in self.data]
 
@@ -984,7 +986,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> blobs[0].vmin
             >>> blobs.vmin
 
-        :seealso: :meth:`vmax` :meth:`bbox`
+        .. seealso:: :meth:`vmax` :meth:`bbox`
         """
         return [b.bbox[0] for b in self.data]
 
@@ -1009,7 +1011,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> blobs[0].vmax
             >>> blobs.vmax
 
-        :seealso: :meth:`vmin` :meth:`bbox`
+        .. seealso:: :meth:`vmin` :meth:`bbox`
         """
         return [b.bbox[1] + b.bbox[3] for b in self.data]
 
@@ -1038,7 +1040,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         .. note:: The bounding box is the smallest box with vertical and
             horizontal edges that fully encloses the blob.
 
-        :seealso: :meth:`bbox` :meth:`area` :meth:`fillfactor`
+        .. seealso:: :meth:`bbox` :meth:`area` :meth:`fillfactor`
         """
         return [b.bbox[2] * b.bbox[3] for b in self.data]
 
@@ -1068,7 +1070,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         .. note:: The bounding box is the smallest box with vertical and
             horizontal edges that fully encloses the blob.
 
-        :seealso: :meth:`bbox`
+        .. seealso:: :meth:`bbox`
         """
         return [b.moments.m00 / (b.bbox[2] * b.bbox[3]) for b in self.data]
 
@@ -1094,7 +1096,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> blobs[0].a
             >>> blobs.a
 
-        :seealso: :meth:`b` :meth:`aspect`
+        .. seealso:: :meth:`b` :meth:`aspect`
         """
         return [b.a for b in self.data]
 
@@ -1120,7 +1122,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> blobs[0].b
             >>> blobs.b
 
-        :seealso: :meth:`a` :meth:`aspect`
+        .. seealso:: :meth:`a` :meth:`aspect`
         """
         return [b.b for b in self.data]
 
@@ -1146,7 +1148,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> blobs[0].aspect
             >>> blobs.aspect
 
-        :seealso: :func:`a` :meth:`b`
+        .. seealso:: :func:`a` :meth:`b`
         """
         return [b.b / b.a for b in self.data]
 
@@ -1216,7 +1218,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> blobs[2].level
             >>> blobs.level
 
-        :seealso: :meth:`color` :meth:`parent` :meth:`children` :meth:`dotfile` :meth:`graph`
+        .. seealso:: :meth:`color` :meth:`parent` :meth:`children` :meth:`dotfile` :meth:`graph`
         """
         return [b.level for b in self.data]
 
@@ -1243,7 +1245,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> blobs[2].color
             >>> blobs.color
 
-        :seealso: :meth:`level` :meth:`parent` :meth:`children`
+        .. seealso:: :meth:`level` :meth:`parent` :meth:`children`
         """
         return [b.level & 1 for b in self.data]
 
@@ -1269,7 +1271,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         A parent of -1 is the image background.
 
-        :seealso: :meth:`id` :meth:`children` :meth:`level` :meth:`dotfile` :meth:`graph`
+        .. seealso:: :meth:`id` :meth:`children` :meth:`level` :meth:`dotfile` :meth:`graph`
         """
         return [b.parent.id if b.parent is not None else -1 for b in self.data]
 
@@ -1294,7 +1296,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> blobs[6].id
 
 
-        :seealso: :meth:`parent` :meth:`children` :meth:`level` :meth:`dotfile` :meth:`graph`
+        .. seealso:: :meth:`parent` :meth:`children` :meth:`level` :meth:`dotfile` :meth:`graph`
         """
         return [b.id for b in self.data]
 
@@ -1315,7 +1317,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> blobs = im.blobs()
             >>> blobs[5].children
 
-        :seealso: :meth:`parent` :meth:`level` :meth:`dotfile` :meth:`graph`
+        .. seealso:: :meth:`parent` :meth:`level` :meth:`dotfile` :meth:`graph`
         """
         return [[c.id for c in b.children] for b in self.data]
 
@@ -1349,7 +1351,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> blobs[0].moments.m00
             >>> blobs[0].moments.m10
 
-        :seealso: :meth:`centroid` :meth:`humoments`
+        .. seealso:: :meth:`centroid` :meth:`humoments`
         """
         return [b.moments for b in self.data]
 
@@ -1375,7 +1377,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> blobs = im.blobs()
             >>> blobs[0].humoments()
 
-        :seealso: :meth:`moments`
+        .. seealso:: :meth:`moments`
         """
 
         def hu(b: Any) -> np.ndarray:
@@ -1428,7 +1430,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         .. note:: The length of the internal perimeter is found from summing
             the external perimeter of each child blob.
 
-        :seealso: :meth:`perimeter` :meth:`children`
+        .. seealso:: :meth:`perimeter` :meth:`children`
         """
         return [b.perimeter_length for b in self.data]
 
@@ -1466,7 +1468,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
               December 13-15, 1994, Kawasaki, Japan
               L. Yang, F. Albregtsen, T. Loennestad, P. Groettum
 
-        :seealso: :meth:`area` :meth:`perimeter_length`
+        .. seealso:: :meth:`area` :meth:`perimeter_length`
         """
         return [b.circularity for b in self.data]
 
@@ -1507,7 +1509,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         .. note:: The perimeter is not closed, that is, the first and last point
             are not the same.
 
-        :seealso: :meth:`perimeter_approx` :meth:`perimeter_hull` :meth:`plot_perimeter` :meth:`polar`
+        .. seealso:: :meth:`perimeter_approx` :meth:`perimeter_hull` :meth:`plot_perimeter` :meth:`polar`
         """
         return [b.perimeter for b in self.data]
 
@@ -1567,7 +1569,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         .. note:: The perimeter is not closed, that is, the first and last point
             are not the same.
 
-        :seealso: :meth:`plot_perimeter` :meth:`perimeter` :meth:`perimeter_hull` :meth:`polar` `cv2.approxPolyDP <https://docs.opencv.org/4.x/d3/dc0/group__imgproc__shape.html#ga0012a5fdaea70b8a9970165d98722b4c>`_
+        .. seealso:: :meth:`plot_perimeter` :meth:`perimeter` :meth:`perimeter_hull` :meth:`polar` `cv2.approxPolyDP <https://docs.opencv.org/4.x/d3/dc0/group__imgproc__shape.html#ga0012a5fdaea70b8a9970165d98722b4c>`_
         """
         perimeters = []
         for b in self.data:
@@ -1634,7 +1636,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         .. note:: The perimeter is not closed, that is, the first and last point
             are not the same.
 
-        :seealso: :meth:`plot_perimeter` :meth:`perimeter` :meth:`perimeter_approx` :meth:`perimeter_approx` :meth:`polar` `cv2.convexHull <https://docs.opencv.org/4.x/d3/dc0/group__imgproc__shape.html#ga014b28e56cb8854c0de4a211cb2be656>`_
+        .. seealso:: :meth:`plot_perimeter` :meth:`perimeter` :meth:`perimeter_approx` :meth:`perimeter_approx` :meth:`polar` `cv2.convexHull <https://docs.opencv.org/4.x/d3/dc0/group__imgproc__shape.html#ga014b28e56cb8854c0de4a211cb2be656>`_
         """
         perimeters = []
         for b in self.data:
@@ -1675,7 +1677,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             blobs = im.blobs()
             blobs.plot_MEC(color='y')
 
-        :seealso: :meth:`plot_MEC` :meth:`MER` `cv2.minEnclosingCircle <https://docs.opencv.org/4.x/d3/dc0/group__imgproc__shape.html#ga8ce13c24081bbc7151e9326f412190f1>`_
+        .. seealso:: :meth:`plot_MEC` :meth:`MER` `cv2.minEnclosingCircle <https://docs.opencv.org/4.x/d3/dc0/group__imgproc__shape.html#ga8ce13c24081bbc7151e9326f412190f1>`_
         """
         mecs = []
         for b in self.data:
@@ -1713,7 +1715,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             blobs = im.blobs()
             blobs.plot_MER(color='y')
 
-        :seealso: :meth:`plot_MER` :meth:`MEC`  `cv2.minAreaRect <https://docs.opencv.org/4.x/d3/dc0/group__imgproc__shape.html#ga3d476a3417130ae5154aea421ca7ead9>`_
+        .. seealso:: :meth:`plot_MER` :meth:`MEC`  `cv2.minAreaRect <https://docs.opencv.org/4.x/d3/dc0/group__imgproc__shape.html#ga3d476a3417130ae5154aea421ca7ead9>`_
         """
         mers = []
         for b in self.data:
@@ -1749,7 +1751,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         .. note:: The points are evenly spaced around the perimeter but are
             not evenly spaced in subtended angle.
 
-        :seealso: :meth:`polarmatch` :meth:`perimeter`
+        .. seealso:: :meth:`polarmatch` :meth:`perimeter`
         """
 
         def polarfunc(b: Any) -> tuple[np.ndarray, np.ndarray]:
@@ -1804,7 +1806,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             - Orientation is obtained by cross-correlation of the polar-angle
               profile.
 
-        :seealso: :meth:`polar` :meth:`contour`
+        .. seealso:: :meth:`polar` :meth:`contour`
         """
 
         # assert(numrows(r1) == numrows(r2), 'r1 and r2 must have same number of rows');
@@ -1863,7 +1865,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             blobs[2].plot_box(color="g") # solid green box
             blobs[3].plot_box(color="r", linewidth=4)
 
-        :seealso: :meth:`plot_labelbox` :meth:`plot_centroid` :meth:`plot_perimeter` :func:`~machinevisiontoolbox.base.graphics.plot_box`
+        .. seealso:: :meth:`plot_labelbox` :meth:`plot_centroid` :meth:`plot_perimeter` :func:`~machinevisiontoolbox.base.graphics.plot_box`
         """
         options = mpl_styling(
             args, dict(color="yellow", linewidth=2), kwargs, artist=Patch
@@ -1930,7 +1932,9 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             blobs[:3].plot_labelbox(color="yellow")
             blobs[3].plot_labelbox(color="lightblue", linewidth=2, label="3")
 
-        :seealso: :meth:`plot_box` :meth:`plot_centroid` :meth:`plot_perimeter`
+        .. seealso::
+
+            :meth:`plot_box` :meth:`plot_centroid` :meth:`plot_perimeter`
             :func:`~machinevisiontoolbox.base.graphics.plot_labelbox`
         """
         options = mpl_styling(
@@ -1996,7 +2000,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             blobs[1].plot_centroid('rd', label=True) # red diamond with label
             blobs[2].plot_centroid(marker="x", color="red") # red "x"
             blobs[3].plot_centroid(marker="P", markeredgecolor="lightsteelblue", markerfacecolor="w", fillstyle="full")
-        :seealso: :meth:`plot_box` :meth:`plot_perimeter` :func:`~machinevisiontoolbox.base.graphics.plot_point`
+        .. seealso:: :meth:`plot_box` :meth:`plot_perimeter` :func:`~machinevisiontoolbox.base.graphics.plot_point`
         """
         if len(args) > 0:
             kwargs["marker"] = args[0]
@@ -2058,7 +2062,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             blobs[2].plot_perimeter(color="red")
             blobs[3].plot_perimeter(show="hull", color="orange", linewidth=3)
 
-        :seealso: :meth:`perimeter` :meth:`perimeter_approx` :meth:`perimeter_hull` :meth:`plot_box` :meth:`plot_centroid`
+        .. seealso:: :meth:`perimeter` :meth:`perimeter_approx` :meth:`perimeter_hull` :meth:`plot_box` :meth:`plot_centroid`
         """
         options = mpl_styling(
             args, dict(color="yellow", linewidth=2), kwargs, artist=Line2D
@@ -2112,7 +2116,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             blobs[2].plot_ellipse(color="red")
             blobs[3].plot_ellipse(color="orange", linewidth=3)
 
-        :seealso: :meth:`plot_axes` :meth:`plot_box` :meth:`plot_centroid` :func:`~spatialmath.base.plot_ellipse`
+        .. seealso:: :meth:`plot_axes` :meth:`plot_box` :meth:`plot_centroid` :func:`~spatialmath.base.plot_ellipse`
         """
         options = mpl_styling(
             args, dict(color="cyan", linewidth=2), kwargs, artist=Line2D
@@ -2147,7 +2151,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> blobs = im.blobs()
             >>> blobs.blob_frame()
 
-        :seealso: :meth:`centroid` :meth:`orientation`
+        .. seealso:: :meth:`centroid` :meth:`orientation`
         """
         frames = SE2.Empty()
         for blob in self:
@@ -2207,7 +2211,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             blobs[2].plot_axes(color="red")
             blobs[3].plot_axes(color="orange", linewidth=3)
 
-        :seealso: :meth:`plot_ellipse` :meth:`plot_box` :meth:`plot_centroid`
+        .. seealso:: :meth:`plot_ellipse` :meth:`plot_box` :meth:`plot_centroid`
         """
         a_options = mpl_styling(
             args, MAJOR_AXIS_STYLE, kwargs, artist=Line2D
@@ -2261,7 +2265,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> blobs[0].aligned_box()  # downward shark
 
 
-        :seealso: :meth:`plot_aligned_box` :meth:`plot_axes` :meth:`plot_box` :meth:`plot_centroid`
+        .. seealso:: :meth:`plot_aligned_box` :meth:`plot_axes` :meth:`plot_box` :meth:`plot_centroid`
         """
         boxes = []
         for blob in self:
@@ -2323,7 +2327,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             blobs[2].plot_aligned_box(color="red")
             blobs[3].plot_aligned_box(color="orange", linewidth=3)
 
-        :seealso: :meth:`plot_box` :meth:`plot_MER`:meth:`plot_centroid`
+        .. seealso:: :meth:`plot_box` :meth:`plot_MER`:meth:`plot_centroid`
         """
         options = mpl_styling(
             args, dict(color="yellow", linewidth=2), kwargs, artist=Line2D
@@ -2369,7 +2373,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             blobs[2].plot_MEC(color="red")
             blobs[3].plot_MEC(color="orange", linewidth=3)
 
-        :seealso: :meth:`MEC` :meth:`plot_MER` :meth:`plot_box` :meth:`plot_centroid`
+        .. seealso:: :meth:`MEC` :meth:`plot_MER` :meth:`plot_box` :meth:`plot_centroid`
         """
         options = mpl_styling(
             args, dict(color="yellow", linewidth=2), kwargs, artist=Line2D
@@ -2415,7 +2419,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             blobs[2].plot_MER(color="red")
             blobs[3].plot_MER(color="orange", linewidth=3)
 
-        :seealso: :meth:`MER` :meth:`MEC` :meth:`plot_box` :meth:`plot_aligned_box` :meth:`plot_centroid`
+        .. seealso:: :meth:`MER` :meth:`MEC` :meth:`plot_box` :meth:`plot_aligned_box` :meth:`plot_centroid`
         """
         options = mpl_styling(
             args, dict(color="yellow", linewidth=2), kwargs, artist=Line2D
@@ -2466,7 +2470,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         .. note:: The label image is reconstituted from the OpenCV contours that are
             saved within the :class:`Blobs` object.
 
-        :seealso: :meth:`~machinevisiontoolbox.ImageSpatial.labels_binary`
+        .. seealso:: :meth:`~machinevisiontoolbox.ImageSpatial.labels_binary`
         """
 
         if image is None:
@@ -2520,7 +2524,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         The blob hierarchy is represented as a directed graph where each node is
         a blob id and each edge points from parent blob to child blob.
 
-        :seealso: :meth:`dotfile` :meth:`parent` :meth:`children` :meth:`level`
+        .. seealso:: :meth:`dotfile` :meth:`parent` :meth:`children` :meth:`level`
         """
 
         graph_format = format.lower().replace("-", "_")
@@ -2683,7 +2687,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         .. note:: If ``filename`` is a file object then the file will *not*
             be closed after the GraphViz model is written.
 
-        :seealso: :meth:`graph` :meth:`child` :meth:`parent` :meth:`level`
+        .. seealso:: :meth:`graph` :meth:`child` :meth:`parent` :meth:`level`
         """
 
         if show:
@@ -2757,7 +2761,7 @@ class ImageBlobsMixin(ImageMixinBase):
         :references:
             - |RVC3|, Section 12.1.2.1.
 
-        :seealso: :class:`Blobs` :class:`Blob`
+        .. seealso:: :class:`Blobs` :class:`Blob`
         """
 
         # TODO do the feature extraction here

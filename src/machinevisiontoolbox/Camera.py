@@ -341,7 +341,7 @@ class CameraBase(ABC):
         .. note:: If the principal point is not set, then setting imagesize
             sets the principal point to the centre of the image plane.
 
-        :seealso: :meth:`width` :meth:`height` :meth:`nu` :meth:`nv`
+        .. seealso:: :meth:`width` :meth:`height` :meth:`nu` :meth:`nv`
         """
         return self._imagesize
 
@@ -359,7 +359,7 @@ class CameraBase(ABC):
         .. note:: If the principle point is not set, then it
             is set to the centre of the image plane.
 
-        :seealso: :meth:`width` :meth:`height` :meth:`nu` :meth:`nv`
+        .. seealso:: :meth:`width` :meth:`height` :meth:`nu` :meth:`nv`
         """
         npix = _getvector(npix, dtype="int")
         if len(npix) == 1:
@@ -390,7 +390,7 @@ class CameraBase(ABC):
             >>> camera = CentralCamera.Default();
             >>> camera.nu
 
-        :seealso: :meth:`nv` :meth:`width` :meth:`imagesize`
+        .. seealso:: :meth:`nv` :meth:`width` :meth:`imagesize`
         """
         if self._imagesize is None:
             raise ValueError("imagesize not set")
@@ -411,7 +411,7 @@ class CameraBase(ABC):
             >>> camera = CentralCamera.Default();
             >>> camera.nv
 
-        :seealso: :meth:`nu` :meth:`height`  :meth:`imagesize`
+        .. seealso:: :meth:`nu` :meth:`height`  :meth:`imagesize`
         """
         if self._imagesize is None:
             raise ValueError("imagesize not set")
@@ -432,7 +432,7 @@ class CameraBase(ABC):
             >>> camera = CentralCamera.Default();
             >>> camera.width
 
-        :seealso: :meth:`nu` :meth:`height`
+        .. seealso:: :meth:`nu` :meth:`height`
         """
         if self._imagesize is None:
             raise ValueError("imagesize not set")
@@ -453,7 +453,7 @@ class CameraBase(ABC):
             >>> camera = CentralCamera.Default();
             >>> camera.height
 
-        :seealso: :meth:`nv` :meth:`width`
+        .. seealso:: :meth:`nv` :meth:`width`
         """
         if self._imagesize is None:
             raise ValueError("imagesize not set")
@@ -477,7 +477,7 @@ class CameraBase(ABC):
             >>> camera = CentralCamera.Default();
             >>> camera.pp
 
-        :seealso: :meth:`u0` :meth:`v0`
+        .. seealso:: :meth:`u0` :meth:`v0`
         """
         return self._pp
 
@@ -489,7 +489,7 @@ class CameraBase(ABC):
         :param pp: principal point
         :type pp: array_like(2)
 
-        :seealso: :meth:`pp` :meth:`u0` :meth:`v0`
+        .. seealso:: :meth:`pp` :meth:`u0` :meth:`v0`
         """
         pp = _getvector(pp)
         if len(pp) == 1:
@@ -515,7 +515,7 @@ class CameraBase(ABC):
             >>> camera = CentralCamera();
             >>> camera.u0
 
-        :seealso: :meth:`v0` :meth:`pp`
+        .. seealso:: :meth:`v0` :meth:`pp`
         """
         assert self._pp is not None
         return self._pp[0]
@@ -536,7 +536,7 @@ class CameraBase(ABC):
             >>> camera = CentralCamera();
             >>> camera.v0
 
-        :seealso: :meth:`u0` :meth:`pp`
+        .. seealso:: :meth:`u0` :meth:`pp`
         """
         assert self._pp is not None
         return self._pp[1]
@@ -557,7 +557,7 @@ class CameraBase(ABC):
             >>> camera = CentralCamera.Default();
             >>> camera.rhou
 
-        :seealso: :meth:`rhov` :meth:`rho`
+        .. seealso:: :meth:`rhov` :meth:`rho`
         """
         return self._rhou
 
@@ -580,7 +580,7 @@ class CameraBase(ABC):
             >>> camera = CentralCamera.Default();
             >>> camera.rhov
 
-        :seealso: :meth:`rhov` :meth:`rho`
+        .. seealso:: :meth:`rhov` :meth:`rho`
         """
         return self._rhov
 
@@ -600,7 +600,7 @@ class CameraBase(ABC):
             >>> camera = CentralCamera();
             >>> camera.rhov
 
-        :seealso: :meth:`rhou` :meth:`rhov`
+        .. seealso:: :meth:`rhou` :meth:`rhov`
         """
 
         return np.array([self._rhou, self._rhov])
@@ -640,7 +640,7 @@ class CameraBase(ABC):
         .. note:: Changes the pose of the current camera instance, whereas
             :meth:`move` clones the camera instance with a new pose.
 
-        :seealso: :meth:`move`
+        .. seealso:: :meth:`move`
         """
         return self._pose
 
@@ -652,7 +652,7 @@ class CameraBase(ABC):
         :param newpose: pose of camera frame
         :type newpose: :class:`~spatialmath.pose3d.SE3` or ndarray(4,4)
 
-        :seealso: :meth:`move`
+        .. seealso:: :meth:`move`
         """
         self._pose = SE3(newpose)
 
@@ -677,7 +677,7 @@ class CameraBase(ABC):
             >>> camera.project_point([0, 0, 2])
             >>> camera.project_point([0, 0, 2])
 
-        :seealso: :meth:`project_point`
+        .. seealso:: :meth:`project_point`
         """
         return self._noise
 
@@ -710,7 +710,7 @@ class CameraBase(ABC):
         If the vector is ``None``, then zero distortion (all coefficients are zero) is
         assumed.
 
-        :seealso: :meth:`~CentralCamera.project_point` `OpenCV distortion model <https://docs.opencv.org/4.x/d9/d0c/group__calib3d.html>`_
+        .. seealso:: :meth:`~CentralCamera.project_point` `OpenCV distortion model <https://docs.opencv.org/4.x/d9/d0c/group__calib3d.html>`_
         """
         return self._distortion
 
@@ -746,7 +746,7 @@ class CameraBase(ABC):
         .. note:: The ``plot`` method of this cloned camera will create a new
             window.
 
-        :seealso: :meth:`pose`
+        .. seealso:: :meth:`pose`
         """
         newcamera = copy.copy(self)
         if name is not None:
@@ -821,7 +821,7 @@ class CameraBase(ABC):
         Creates a 2D axis that represents the image plane of the virtual
         camera.
 
-        :seealso: :meth:`plot` :meth:`mesh`
+        .. seealso:: :meth:`plot` :meth:`mesh`
         """
         if self._new_imageplane(fig, ax):
             assert self._ax is not None
@@ -872,7 +872,7 @@ class CameraBase(ABC):
         Every camera object has a virtual image plane drawn using Matplotlib.
         Remove all points and lines from the image plane.
 
-        :seealso: :meth:`plot_point` :meth:`plot_line` :meth:`disp`
+        .. seealso:: :meth:`plot_point` :meth:`plot_line` :meth:`disp`
         """
         if self._ax is not None:
             for artist in self._ax.get_children():
@@ -938,7 +938,7 @@ class CameraBase(ABC):
             - This method is common to all ``CameraBase`` subclasses, but it
               invokes a camera-specific projection method.
 
-        :seealso: :meth:`plot_line2` :meth:`plot_line3` :meth:`plot_wireframe` :meth:`clf`
+        .. seealso:: :meth:`plot_line2` :meth:`plot_line3` :meth:`plot_wireframe` :meth:`clf`
         """
         self._init_imageplane(ax)  # type: ignore[arg-type]
 
@@ -997,7 +997,7 @@ class CameraBase(ABC):
             - This method is common to all ``CameraBase`` subclasses, but it
               invokes a camera-specific projection method.
 
-        :seealso: :meth:`plot_point` :meth:`plot_line3` :meth:`clf`
+        .. seealso:: :meth:`plot_point` :meth:`plot_line3` :meth:`clf`
         """
         # get handle for this camera image plane
         self._init_imageplane()
@@ -1099,7 +1099,7 @@ class CameraBase(ABC):
             X, Y, Z = mkcube(0.2, pose=SE3(0, 0, 1), edge=True)
             camera.plot_wireframe(X, Y, Z, 'k--')
 
-        :seealso: :func:`mkcube` :obj:`spatialmath.base.cylinder` :obj:`spatialmath.base.sphere` :obj:`spatialmath.base.cuboid`
+        .. seealso:: :func:`mkcube` :obj:`spatialmath.base.cylinder` :obj:`spatialmath.base.sphere` :obj:`spatialmath.base.cuboid`
         """
 
         # self._ax.plot_surface(X, Y, Z)
@@ -1181,7 +1181,7 @@ class CameraBase(ABC):
 
         .. note:: The dimensions of the image plane should match the dimensions of the image.
 
-        :seealso: :func:`machinevisiontoolbox.base.idisp()`
+        .. seealso:: :func:`machinevisiontoolbox.base.idisp()`
         """
         self.imagesize = (im.shape[1], im.shape[0])
         self._init_imageplane()
@@ -1413,7 +1413,7 @@ class CameraBase(ABC):
         to the coordinates of projected world points.  The noise has a
         standard deviation specified by the camera constructor.
 
-        :seealso: :meth:`noise`
+        .. seealso:: :meth:`noise`
         """
         # distort the pixels
 
@@ -1445,7 +1445,7 @@ class CentralCamera(CameraBase):
     :references:
         - |RVC3|, Section 13.1.
 
-    :seealso: :class:`CameraBase` :class:`FishEyeCamera` :class:`SphericalCamera`
+    .. seealso:: :class:`CameraBase` :class:`FishEyeCamera` :class:`SphericalCamera`
     """
 
     _fu: float
@@ -1486,7 +1486,7 @@ class CentralCamera(CameraBase):
         :references:
             - |RVC3|, Section 13.1.
 
-        :seealso: :class:`CentralCamera`
+        .. seealso:: :class:`CentralCamera`
         """
         default = {
             "f": 0.008,
@@ -1590,7 +1590,7 @@ class CentralCamera(CameraBase):
         :references:
             - |RVC3|, Section 13.1.
 
-        :seealso: :meth:`C` :meth:`project_point` :meth:`project_line` :meth:`project_quadric`
+        .. seealso:: :meth:`C` :meth:`project_point` :meth:`project_line` :meth:`project_quadric`
         """
         if pose is None:
             pose = self.pose
@@ -1681,7 +1681,7 @@ class CentralCamera(CameraBase):
         :references:
             - |RVC3|, Section 13.7.1.
 
-        :seealso: :meth:`C` :class:`~spatialmath.geom3d.Line3` :meth:`project_point` :meth:`project_quadric`
+        .. seealso:: :meth:`C` :class:`~spatialmath.geom3d.Line3` :meth:`project_point` :meth:`project_quadric`
         """
         if not isinstance(lines, Line3):
             raise ValueError("expecting Line3 lines")
@@ -1737,7 +1737,7 @@ class CentralCamera(CameraBase):
         :references:
             - |RVC3|, Section 13.7.1.
 
-        :seealso: :meth:`C` :meth:`project_point` :meth:`project_line`
+        .. seealso:: :meth:`C` :meth:`project_point` :meth:`project_line`
         """
         if not smb.ismatrix(Q, (4, 4)):
             raise ValueError("expecting 4x4 conic matrix")
@@ -1780,7 +1780,7 @@ class CentralCamera(CameraBase):
         :references:
             - |RVC3|, Section 14.2.1.
 
-        :seealso: :meth:`plot_epiline` :meth:`CentralCamera.F`
+        .. seealso:: :meth:`plot_epiline` :meth:`CentralCamera.F`
         """
         # p is 3 x N, result is 3 x N
         return self.F(camera2) @ smb.e2h(p)
@@ -1824,7 +1824,7 @@ class CentralCamera(CameraBase):
         :references:
             - |RVC3|, Section 14.2.1.
 
-        :seealso: :meth:`plot_point` :meth:`epiline` :meth:`CentralCamera.F`
+        .. seealso:: :meth:`plot_point` :meth:`epiline` :meth:`CentralCamera.F`
         """
         # p is 3 x N, result is 3 x N
         self.plot_line2(F @ smb.e2h(p), *fmt, **kwargs)
@@ -1845,7 +1845,7 @@ class CentralCamera(CameraBase):
             - This method is common to all ``CameraBase`` subclasses, but it
               invokes a camera-specific projection method.
 
-        :seealso: :meth:`plot_point` :meth:`plot_line2` :meth:`plot_wireframe` :meth:`clf`
+        .. seealso:: :meth:`plot_point` :meth:`plot_line2` :meth:`plot_wireframe` :meth:`clf`
         """
 
         l = self.project_line(L)
@@ -1880,7 +1880,7 @@ class CentralCamera(CameraBase):
             - "Multiview Geometry", Hartley & Zisserman, p.162
             - |RVC3|, Section 14.3.
 
-        :seealso: :class:`~spatialmath.geom3d.Line3`
+        .. seealso:: :class:`~spatialmath.geom3d.Line3`
         """
         # define Plucker line in terms of point (centre of camera) and direction
         C = self.C(pose=pose)
@@ -2019,7 +2019,7 @@ class CentralCamera(CameraBase):
             >>> camera = CentralCamera.Default(name='camera1')
             >>> camera.fu
 
-        :seealso: :meth:`fv` :meth:`f`
+        .. seealso:: :meth:`fv` :meth:`f`
         """
         return self._fu
 
@@ -2039,7 +2039,7 @@ class CentralCamera(CameraBase):
             >>> camera = CentralCamera.Default(name='camera1')
             >>> camera.fv
 
-        :seealso: :meth:`fu` :meth:`f`
+        .. seealso:: :meth:`fu` :meth:`f`
         """
         return self._fv
 
@@ -2069,7 +2069,7 @@ class CentralCamera(CameraBase):
             has non-square pixels or the frame grabber is changing the aspect
             ratio of the image.
 
-        :seealso: :meth:`fu` :meth:`fv`
+        .. seealso:: :meth:`fu` :meth:`fv`
         """
         return np.r_[self._fu, self._fv]
 
@@ -2108,7 +2108,7 @@ class CentralCamera(CameraBase):
             >>> camera = CentralCamera.Default(name='camera1')
             >>> camera.fpix
 
-        :seealso: :meth:`f`
+        .. seealso:: :meth:`f`
         """
         return np.r_[self._fu / self._rhou, self._fv / self._rhov]
 
@@ -2133,7 +2133,7 @@ class CentralCamera(CameraBase):
         :references:
             - |RVC3|, Section 13.1.
 
-        :seealso: :meth:`C` :meth:`pp` :meth:`rho`
+        .. seealso:: :meth:`C` :meth:`pp` :meth:`rho`
         """
         # fmt: off
         K = np.array([[self.fu / self.rhou, 0,                   self.u0],
@@ -2174,7 +2174,7 @@ class CentralCamera(CameraBase):
         :references:
             - |RVC3|, Section 13.1.
 
-        :seealso: :meth:`project_point` :meth:`K` :meth:`decomposeC`
+        .. seealso:: :meth:`project_point` :meth:`K` :meth:`decomposeC`
         """
         P0 = np.eye(3, 4)
         if pose is None:
@@ -2226,7 +2226,7 @@ class CentralCamera(CameraBase):
         :references:
             - |RVC3|, Section 13.2.1.
 
-        :seealso: :meth:`C` :meth:`images2C` :meth:`decomposeC`
+        .. seealso:: :meth:`C` :meth:`images2C` :meth:`decomposeC`
         """
         z4 = np.zeros((4,))
 
@@ -2302,7 +2302,7 @@ class CentralCamera(CameraBase):
         :references:
             - |RVC3|, Section 13.7.
 
-        :seealso: :meth:`C` :meth:`points2C` :meth:`decomposeC` :class:`~spatialmath.pose3d.SE3`
+        .. seealso:: :meth:`C` :meth:`points2C` :meth:`decomposeC` :class:`~spatialmath.pose3d.SE3`
         """
 
         criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
@@ -2412,7 +2412,7 @@ class CentralCamera(CameraBase):
             - Multiple View Geometry, Hartley&Zisserman, p 163-164
             - |RVC3|, Section 13.2.3.
 
-        :seealso: :meth:`C` :meth:`points2C`
+        .. seealso:: :meth:`C` :meth:`points2C`
         """
 
         def rq(S: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
@@ -2508,7 +2508,7 @@ class CentralCamera(CameraBase):
             >>> H = camera.H(SE3.Tx(0.2), plane, 5)
             >>> H
 
-        :seealso: :meth:`points2H` :meth:`decomposeH`
+        .. seealso:: :meth:`points2H` :meth:`decomposeH`
         """
         if d < 0:
             raise ValueError(f"plane distance d must be > 0, got {d!r}")
@@ -2575,7 +2575,9 @@ class CentralCamera(CameraBase):
         :references:
             - |RVC3|, Section 14.2.4.
 
-        :seealso: :meth:`H` :meth:`decomposeH`
+        .. seealso::
+
+            :meth:`H` :meth:`decomposeH`
             `opencv.findHomography <https://docs.opencv.org/4.x/d9/d0c/group__calib3d.html#ga4abc2ece9fab9398f2e560d53c8c9780>`_
         """
 
@@ -2639,7 +2641,9 @@ class CentralCamera(CameraBase):
         :references:
             - |RVC3|, Section 14.2.4.
 
-        :seealso: :meth:`points2H` :meth:`H`
+        .. seealso::
+
+            :meth:`points2H` :meth:`H`
             `opencv.decomposeHomographyMat <https://docs.opencv.org/4.x/d9/d0c/group__calib3d.html#ga7f60bdff78833d1e3fd6d9d0fd538d92>`_
         """
 
@@ -2728,7 +2732,7 @@ class CentralCamera(CameraBase):
               Springer, 2003. p.177
             - |RVC3|, Section 14.2.1.
 
-        :seealso: :meth:`points2F` :meth:`E`
+        .. seealso:: :meth:`points2F` :meth:`E`
         """
 
         if isinstance(other, SE3):
@@ -2824,7 +2828,9 @@ class CentralCamera(CameraBase):
             >>> F
             >>> resid
 
-        :seealso: :meth:`F` :meth:`E`
+        .. seealso::
+
+            :meth:`F` :meth:`E`
             `opencv.findFundamentalMat <https://docs.opencv.org/4.x/d9/d0c/group__calib3d.html#ga59b0d57f46f8677fb5904294a23d404a>`_
         """
 
@@ -2947,7 +2953,7 @@ class CentralCamera(CameraBase):
             - Y.Ma, J.Kosecka, S.Soatto, S.Sastry, "An invitation to 3D",
               Springer, 2003. p.177
 
-        :seealso: :meth:`F` :meth:`decomposeE` :meth:`points2E`
+        .. seealso:: :meth:`F` :meth:`decomposeE` :meth:`points2E`
         """
 
         if isinstance(other, np.ndarray) and other.shape == (3, 3):
@@ -3018,7 +3024,9 @@ class CentralCamera(CameraBase):
             of inliers is also returned, True means the corresponding input
             point pair is an inlier.
 
-        :seealso: :meth:`E` :meth:`decomposeE`
+        .. seealso::
+
+            :meth:`E` :meth:`decomposeE`
             `opencv.findEssentialMat <https://docs.opencv.org/4.x/d9/d0c/group__calib3d.html#gad245d60e64d0c1270dbfd0520847bb87>`_
 
         """
@@ -3066,7 +3074,9 @@ class CentralCamera(CameraBase):
         :references:
             - |RVC3|, Section 14.2.2.
 
-        :seealso: :meth:`E` :meth:`points2E`
+        .. seealso::
+
+            :meth:`E` :meth:`points2E`
             :class:`~machinevisiontoolbox.ImagePointFeatures.FeatureMatch`
             `opencv.decomposeEssentialMat <https://docs.opencv.org/4.x/d9/d0c/group__calib3d.html#ga54a2f5b3f8aeaf6c76d4a31dece85d5d>`_
             `opencv.recoverPose <https://docs.opencv.org/4.x/d9/d0c/group__calib3d.html#gadb7d2dfcc184c1d2f496d8639f4371c0>`_
@@ -3153,7 +3163,7 @@ class CentralCamera(CameraBase):
               IEEE Trans. R&A, Vol 12(5), Oct, 1996, pp 651-670.
             - |RVC3|, Section 15.2.1.
 
-        :seealso: :meth:`flowfield` :meth:`visjac_p_polar` :meth:`visjac_l` :meth:`visjac_e`
+        .. seealso:: :meth:`flowfield` :meth:`visjac_p_polar` :meth:`visjac_l` :meth:`visjac_e`
         """
 
         uv = _getmatrix(uv, (2, None))
@@ -3230,7 +3240,7 @@ class CentralCamera(CameraBase):
               IROS 2009, pp 5962–5967
             - |RVC3|, Section 16.2.
 
-        :seealso: :meth:`visjac_p` :meth:`visjac_l` :meth:`visjac_e`
+        .. seealso:: :meth:`visjac_p` :meth:`visjac_l` :meth:`visjac_e`
         """
 
         J = []
@@ -3335,7 +3345,7 @@ class CentralCamera(CameraBase):
               IEEE Robot Autom Mag 14(1):109–118 (2007)
             - |RVC3|, Section 15.3.1.
 
-        :seealso: :meth:`visjac_p` :meth:`visjac_p_polar` :meth:`visjac_e`
+        .. seealso:: :meth:`visjac_p` :meth:`visjac_p_polar` :meth:`visjac_e`
         """
 
         a, b, c, d = _getvector(plane)
@@ -3424,7 +3434,7 @@ class CentralCamera(CameraBase):
               IEEE Robot Autom Mag 14(1):109–118 (2007)
             - |RVC3|, Section 15.3.2.
 
-        :seealso: :meth:`visjac_p` :meth:`visjac_p_polar` :meth:`visjac_l`
+        .. seealso:: :meth:`visjac_p` :meth:`visjac_p_polar` :meth:`visjac_l`
         """
 
         E = _getvector(E)
@@ -3500,7 +3510,7 @@ class CentralCamera(CameraBase):
             >>> camera = CentralCamera.Default()
             >>> camera.flowfield([0, 0, 0, 0, 1, 0])
 
-        :seealso: :meth:`visjac_p`
+        .. seealso:: :meth:`visjac_p`
         """
         vel = _getvector(vel, 6)
 
@@ -3540,7 +3550,7 @@ class CentralCamera(CameraBase):
 
         where :math:`\vec{f}(\vec{x})` is the perspective projection function.
 
-        :seealso: :meth:`project_point`
+        .. seealso:: :meth:`project_point`
         """
         # compute Jacobians and projection
 
@@ -3584,7 +3594,9 @@ class CentralCamera(CameraBase):
             * Algorithm ``"ippe-square"`` requires exactly four points at the corners of a
               square and in the order: (-x, y), (x, y), (x, -y), (-x, -y).
 
-        :seealso: :meth:`project_point`
+        .. seealso::
+
+            :meth:`project_point`
             `opencv.solvePnP <https://docs.opencv.org/4.x/d9/d0c/group__calib3d.html#ga549c2075fac14829ff4a58bc931c033d>`_
         """
 
@@ -3666,7 +3678,9 @@ class FishEyeCamera(CameraBase):
     :references:
         - |RVC3|, Section 13.3.1.
 
-    :seealso: :class:`CameraBase` :class:`CentralCamera` :class:`CatadioptricCamera`
+    .. seealso::
+
+        :class:`CameraBase` :class:`CentralCamera` :class:`CatadioptricCamera`
         :class:`SphericalCamera`
     """
 
@@ -3763,7 +3777,7 @@ class FishEyeCamera(CameraBase):
         The points ``P`` are by default with respect to the world frame, but
         they can be transformed by specifying ``objpose``.
 
-        :seealso: :meth:`plot_point`
+        .. seealso:: :meth:`plot_point`
         """
 
         P = _getmatrix(P, (3, None))
@@ -3830,7 +3844,9 @@ class CatadioptricCamera(CameraBase):
     :references:
         - |RVC3|, Section 13.3.2.
 
-    :seealso: :class:`CameraBase` :class:`CentralCamera` :class:`FishEyeCamera`
+    .. seealso::
+
+        :class:`CameraBase` :class:`CentralCamera` :class:`FishEyeCamera`
         :class:`SphericalCamera`
     """
 
@@ -3922,7 +3938,7 @@ class CatadioptricCamera(CameraBase):
         The points ``P`` are by default with respect to the world frame, but
         they can be transformed by specifying ``objpose``.
 
-        :seealso: :meth:`plot_point`
+        .. seealso:: :meth:`plot_point`
         """
         P = _getmatrix(P, (3, None))
 
@@ -3968,7 +3984,9 @@ class SphericalCamera(CameraBase):
     :references:
         - |RVC3|, Section 13.3.3.
 
-    :seealso: :class:`CameraBase` :class:`CentralCamera` :class:`CatadioptricCamera`
+    .. seealso::
+
+        :class:`CameraBase` :class:`CentralCamera` :class:`CatadioptricCamera`
         :class:`FishEyeCamera`
     """
 
@@ -4027,7 +4045,7 @@ class SphericalCamera(CameraBase):
         The points ``P`` are by default with respect to the world frame, but
         they can be transformed by specifying ``objpose``.
 
-        :seealso: :meth:`plot_point`
+        .. seealso:: :meth:`plot_point`
         """
         P = _getmatrix(P, (3, None))
 

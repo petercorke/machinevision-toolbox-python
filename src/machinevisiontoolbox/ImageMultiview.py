@@ -83,7 +83,7 @@ class ImageMultiviewMixin(ImageMixinBase):
             of 0, so windows that extend beyond the image are invalid for
             every image type.
 
-        :seealso: :meth:`DSI_refine` :meth:`stereo_BM` :meth:`stereo_SGBM`
+        .. seealso:: :meth:`DSI_refine` :meth:`stereo_BM` :meth:`stereo_SGBM`
         """
 
         def window_stack(image, hw):
@@ -235,7 +235,7 @@ class ImageMultiviewMixin(ImageMixinBase):
         :references:
             - |RVC3|, Section 14.4.1.
 
-        :seealso: :meth:`stereo_simple`
+        .. seealso:: :meth:`stereo_simple`
         """
         invalid = np.isnan(DSI)
         # best plane, never a NaN one (argmax would return the first NaN)
@@ -311,7 +311,7 @@ class ImageMultiviewMixin(ImageMixinBase):
         :references:
             - |RVC3|, Section 14.4.2.7.
 
-        :seealso: :meth:`stereo_SGBM` :meth:`stereo_simple` `opencv.StereoBM <https://docs.opencv.org/4.x/d9/dba/classcv_1_1StereoBM.html>`_
+        .. seealso:: :meth:`stereo_SGBM` :meth:`stereo_simple` `opencv.StereoBM <https://docs.opencv.org/4.x/d9/dba/classcv_1_1StereoBM.html>`_
         """
         # https://docs.opencv.org/4.x/d9/dba/classcv_1_1StereoBM.html
 
@@ -396,7 +396,7 @@ class ImageMultiviewMixin(ImageMixinBase):
               30(2):328–341, 2008.
             - |RVC3|, Section 14.4.2.7.
 
-        :seealso: :meth:`stereo_SGBM` :meth:`stereo_simple` `opencv.StereoSGBM <https://docs.opencv.org/4.x/d2/d85/classcv_1_1StereoSGBM.html>`_
+        .. seealso:: :meth:`stereo_SGBM` :meth:`stereo_simple` `opencv.StereoSGBM <https://docs.opencv.org/4.x/d2/d85/classcv_1_1StereoSGBM.html>`_
         """
         # https://docs.opencv.org/4.x/d2/d85/classcv_1_1StereoSGBM.html#details
 
@@ -469,7 +469,7 @@ class ImageMultiviewMixin(ImageMixinBase):
         :references:
             - |RVC3|, Section 14.4.3.
 
-        :seealso: :meth:`warp_perspective` :class:`Match` `opencv.stereoRectifyUncalibrated <https://docs.opencv.org/4.x/d9/d0c/group__calib3d.html#gaadc5b14471ddc004939471339294f052>`_
+        .. seealso:: :meth:`warp_perspective` :class:`Match` `opencv.stereoRectifyUncalibrated <https://docs.opencv.org/4.x/d9/d0c/group__calib3d.html#gaadc5b14471ddc004939471339294f052>`_
         """
         retval, H1, H2 = cv2.stereoRectifyUncalibrated(
             points1=m.inliers.p1.T, points2=m.inliers.p2.T, F=F, imgSize=self.size

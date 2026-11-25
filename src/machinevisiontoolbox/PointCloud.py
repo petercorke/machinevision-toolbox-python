@@ -96,7 +96,7 @@ class PointCloud:
         references and invokes them on the underlying Open3D object.  Any returned Open3D
         point cloud objects are converted to a :class:`PointCloud` instance.
 
-        :seealso: :meth:`__getattr__` :obj:`open3d.geometry.PointCloud` :class:`~machinevisiontoolbox.Image` :class:`CentralCamera`
+        .. seealso:: :meth:`__getattr__` :obj:`open3d.geometry.PointCloud` :class:`~machinevisiontoolbox.Image` :class:`CentralCamera`
         """
         if not _open3d:
             raise RuntimeError(
@@ -270,7 +270,7 @@ class PointCloud:
         Points are returned as columns of the array. The columns correspond
         to the same columns in the :attr:`colors` and :attr:`normal` properties.
 
-        :seealso: :attr:`colors` :attr:`normals`
+        .. seealso:: :attr:`colors` :attr:`normals`
         """
         return np.asarray(self._pcd.points).T
 
@@ -472,7 +472,7 @@ class PointCloud:
         .. versionchanged:: 2.5.0
             Added the ``notebook`` option.
 
-        :seealso: :class:`open3d.visualization.ViewControl`
+        .. seealso:: :class:`open3d.visualization.ViewControl`
         """
         if notebook:
             _show_in_notebook(self._pcd, title, file, kwargs)
@@ -519,7 +519,7 @@ class PointCloud:
         Transform a :class:`PointCloud` by premultiplying by an
         :class:`~spatialmath.pose3d.SE3` instance.
 
-        :seealso: :meth:`transform` :meth:`__imul__`
+        .. seealso:: :meth:`transform` :meth:`__imul__`
         """
         if isinstance(T, SE3):
             return self.copy().transform(T)
@@ -538,7 +538,7 @@ class PointCloud:
         Transform a :class:`PointCloud` by inplace multiplication by an
         :class:`~spatialmath.pose3d.SE3` instance.
 
-        :seealso: :meth:`__rmul__` :meth:`transform`
+        .. seealso:: :meth:`__rmul__` :meth:`transform`
         """
         if isinstance(T, SE3):
             self.transform(T)
@@ -560,7 +560,7 @@ class PointCloud:
         If ``inplace`` is False then the point cloud data is copied
         before transformation.
 
-        :seealso: :meth:`__rmul__` :meth:`__imul__`
+        .. seealso:: :meth:`__rmul__` :meth:`__imul__`
         """
         if inplace:
             self._pcd.transform(T.A)
@@ -687,7 +687,7 @@ class PointCloud:
         Point cloud resolution is reduced by keeping only one
         point per voxel.
 
-        :seealso: :meth:`downsample_random`
+        .. seealso:: :meth:`downsample_random`
         """
         return self.__class__(self._pcd.voxel_down_sample(voxel_size))
 
@@ -708,7 +708,7 @@ class PointCloud:
         Point cloud resolution is reduced by randomly selecting
         a subset of points.
 
-        :seealso: :meth:`downsample_random`
+        .. seealso:: :meth:`downsample_random`
         """
         if seed is None:
             return self.__class__(self._pcd.random_down_sample(fraction))
@@ -729,7 +729,7 @@ class PointCloud:
         - accessed using the ``normals`` property
         - toggled on for display when the point cloud is displayed.
 
-        :seealso: :meth:`disp` :meth:`open3d.geometry.PointCloud.estimate_normals`
+        .. seealso:: :meth:`disp` :meth:`open3d.geometry.PointCloud.estimate_normals`
         """
         # radius=0.1, max_nn=30
         self._pcd.estimate_normals(
@@ -747,7 +747,7 @@ class PointCloud:
         Point normals are returned as columns of the array.  The columns correspond
         to the same columns in the :attr:`points` and :attr:`colors` properties.
 
-        :seealso: :meth:`estimate_normals` :attr:`points` :attr:`colors`
+        .. seealso:: :meth:`estimate_normals` :attr:`points` :attr:`colors`
         """
         return np.asarray(self._pcd.normals).T
 
@@ -764,7 +764,7 @@ class PointCloud:
         .. deprecated:: 1.0.3
             Use :meth:`open3d.geometry.PointCloud.remove_radius_outlier` directly.
 
-        :seealso: :meth:`open3d.geometry.PointCloud.remove_radius_outlier`
+        .. seealso:: :meth:`open3d.geometry.PointCloud.remove_radius_outlier`
         """
         warn(
             "Deprecated in 1.0.3: use pc.remove_radius_outlier(radius=, nb_points=)[0] instead of remove_outlier().",
@@ -938,7 +938,7 @@ class PointCloud:
         :return: pose of ``data`` with respect to instance points
         :rtype: :class:`~spatialmath.pose3d.SE3`
 
-        :seealso: :obj:`open3d.pipelines.registration.TransformationEstimationPointToPoint`
+        .. seealso:: :obj:`open3d.pipelines.registration.TransformationEstimationPointToPoint`
         """
         estimation = o3d.pipelines.registration.TransformationEstimationPointToPoint()
 
@@ -1043,7 +1043,7 @@ class VoxelGrid:
         :param filename: filename
         :type filename: str
 
-        :seealso: :obj:`open3d.io.write_voxel_grid`
+        .. seealso:: :obj:`open3d.io.write_voxel_grid`
         """
         o3d.io.write_voxel_grid(str(filename), self._voxels)  # type: ignore[arg-type]
 
@@ -1079,7 +1079,7 @@ class VoxelGrid:
         .. versionchanged:: 2.5.0
             Added the ``notebook`` option.
 
-        :seealso: :meth:`PointCloud.disp`
+        .. seealso:: :meth:`PointCloud.disp`
         """
         if notebook:
             _show_in_notebook(self._cubes(), title, file, kwargs)

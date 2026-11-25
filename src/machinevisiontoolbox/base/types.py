@@ -68,7 +68,7 @@ def int_image(
     :references:
         - |RVC3|, Section 10.1.
 
-    :seealso: :func:`float_image`
+    .. seealso:: :func:`float_image`
     """
 
     intclass = np.dtype(intclass)
@@ -133,7 +133,7 @@ def float_image(
     :references:
         - |RVC3|, Section 10.1.
 
-    :seealso: :func:`int_image`
+    .. seealso:: :func:`int_image`
     """
 
     floatclass = np.dtype(floatclass)

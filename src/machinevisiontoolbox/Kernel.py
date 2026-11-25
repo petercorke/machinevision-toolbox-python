@@ -26,7 +26,7 @@ class Kernel:
         processing operations. They are created by a number of class
         methods that generate common kernels such as Gaussian, Laplacian, etc.
 
-        :seealso: :meth:`Gauss` :meth:`Laplace` :meth:`Sobel` :meth:`DoG` :meth:`LoG` :meth:`DGauss` :meth:`Circle` :meth:`Box`
+        .. seealso:: :meth:`Gauss` :meth:`Laplace` :meth:`Sobel` :meth:`DoG` :meth:`LoG` :meth:`DGauss` :meth:`Circle` :meth:`Box`
         """
         if not isinstance(K, np.ndarray) and K.ndim != 2:
             raise ValueError("kernel must be a 2D ndarray")
@@ -249,7 +249,7 @@ class Kernel:
         :references:
             - |RVC3|, Section 11.5.1.1.
 
-        :seealso: :meth:`DGauss`
+        .. seealso:: :meth:`DGauss`
         """
 
         # make sure sigma, w are valid input
@@ -302,7 +302,7 @@ class Kernel:
         :references:
             - |RVC3|, Section 11.5.1.3.
 
-        :seealso: :meth:`LoG` :meth:`zerocross`
+        .. seealso:: :meth:`LoG` :meth:`zerocross`
         """
         # fmt: off
         K = np.array([[ 0,  1,  0],
@@ -345,7 +345,7 @@ class Kernel:
         :references:
             - |RVC3|, Section 11.5.1.3.
 
-        :seealso: :meth:`DGauss`
+        .. seealso:: :meth:`DGauss`
         """
         # fmt: off
         K = np.array([[1, 0, -1],
@@ -415,7 +415,7 @@ class Kernel:
         :references:
             - |RVC3|, Section 11.5.1.3.
 
-        :seealso: :meth:`LoG` :meth:`Gauss`
+        .. seealso:: :meth:`LoG` :meth:`Gauss`
         """
 
         # sigma1 > sigma2
@@ -487,7 +487,7 @@ class Kernel:
         :references:
             - |RVC3|, Section 11.5.1.3.
 
-        :seealso: :meth:`Laplace` :meth:`DoG` :meth:`Gauss` :meth:`zerocross`
+        .. seealso:: :meth:`Laplace` :meth:`DoG` :meth:`Gauss` :meth:`zerocross`
         """
 
         if h is None:
@@ -562,7 +562,7 @@ class Kernel:
         :references:
             - |RVC3|, Section 11.5.1.3.
 
-        :seealso: :meth:`HGauss` :meth:`Gauss` :meth:`Sobel`
+        .. seealso:: :meth:`HGauss` :meth:`Gauss` :meth:`Sobel`
         """
         if h is None:
             h = np.ceil(3.0 * sigma)
@@ -648,7 +648,7 @@ class Kernel:
             Hxx, Hyy, Hxy = Kernel.HGauss(5, 15)
             Hxy.disp3d()
 
-        :seealso: :meth:`DGauss` :meth:`Gauss` :meth:`Sobel`
+        .. seealso:: :meth:`DGauss` :meth:`Gauss` :meth:`Sobel`
         """
         if h is None:
             h = np.ceil(3.0 * sigma)
@@ -713,7 +713,7 @@ class Kernel:
         :references:
             - |RVC3|, Section 11.5.1.1.
 
-        :seealso: :meth:`Box`
+        .. seealso:: :meth:`Box`
         """
 
         # check valid input:
@@ -780,7 +780,7 @@ class Kernel:
         :references:
             - |RVC3|, Section 11.5.1.1.
 
-        :seealso: :meth:`Circle`
+        .. seealso:: :meth:`Circle`
         """
         # check valid input:
         wi = 2 * h + 1

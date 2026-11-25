@@ -151,7 +151,7 @@ class BaseFeature2D:
             >>> orb = img.ORB()
             >>> len(orb)  # number of features
 
-        :seealso: :meth:`.__getitem__`
+        .. seealso:: :meth:`.__getitem__`
         """
         return len(self._kp)  # Number of features (base method)
 
@@ -179,7 +179,7 @@ class BaseFeature2D:
             >>> print(orb[:5])  # first 5 ORB features
             >>> print(orb[::50])  # every 50th ORB feature
 
-        :seealso: :meth:`.__len__`
+        .. seealso:: :meth:`.__len__`
         """
         new = self._like()  # Get item from point feature object (base method)
         # compute canonical integer index list for both _kp and descriptor
@@ -253,7 +253,7 @@ class BaseFeature2D:
         :return: string representation
         :rtype: str
 
-        :seealso: :meth:`str`
+        .. seealso:: :meth:`str`
         """
         return str(self)  # Display features in readable form
 
@@ -267,7 +267,7 @@ class BaseFeature2D:
 
         Print the features in a simple format, one line per feature.
 
-        :seealso: :meth:`table`
+        .. seealso:: :meth:`table`
         """
         for i, f in enumerate(self):  # List matches
             s = f"{self._label} feature {i}: ({f.u:.1f}, {f.v:.1f}),"
@@ -287,7 +287,7 @@ class BaseFeature2D:
         Each row is in the table includes: the index in the feature vector,
         centroid coordinate, feature strength, feature scale and image id.
 
-        :seealso: ``str``
+        .. seealso:: ``str``
         """
         columns = [
             Column("#"),
@@ -335,7 +335,7 @@ class BaseFeature2D:
             of the features, and a feature at the right or bottom edge of the image
             no longer raises ``IndexError``.
 
-        :seealso: :meth:`sort`
+        .. seealso:: :meth:`sort`
         """
 
         try:  # Sort features into grid
@@ -401,7 +401,7 @@ class BaseFeature2D:
             >>> orb = img2.ORB() + orb
             >>> orb
 
-        :seealso: :meth:`__radd__`
+        .. seealso:: :meth:`__radd__`
         """
         if other is None or (
             isinstance(other, list) and len(other) == 0
@@ -469,7 +469,7 @@ class BaseFeature2D:
             >>> orb = sum([img1.ORB(), img2.ORB()])
             >>> orb
 
-        :seealso: :meth:`__add__`
+        .. seealso:: :meth:`__add__`
         """
         # an empty set, or the 0 that sum() starts with
         if (
@@ -754,7 +754,7 @@ class BaseFeature2D:
             - For the metric "ncc" the best match is the largest distance.  A value over
               0.8 is often considered to be a good match.
 
-        :seealso: :meth:`match`
+        .. seealso:: :meth:`match`
         """
         metric_dict = {"L1": 1, "L2": 2}  # Distance between feature sets
 
@@ -830,7 +830,7 @@ class BaseFeature2D:
             >>> m = orb1.match(orb2)
             >>> len(m)
 
-        :seealso: :class:`FeatureMatch` :meth:`distance`
+        .. seealso:: :class:`FeatureMatch` :meth:`distance`
         """
 
         # TODO: implement thresh  # Match point features
@@ -1476,7 +1476,7 @@ class FeatureMatch:
         .. note:: This constructor would not be called directly, it is used by the
             ``match`` method of the :class:`BaseFeature2D` subclass.
 
-        :seealso: :obj:`BaseFeature2D.match` `cv2.KeyPoint <https://docs.opencv.org/4.5.2/d2/d29/classcv_1_1KeyPoint.html#a507d41b54805e9ee5042b922e68e4372>`_
+        .. seealso:: :obj:`BaseFeature2D.match` `cv2.KeyPoint <https://docs.opencv.org/4.5.2/d2/d29/classcv_1_1KeyPoint.html#a507d41b54805e9ee5042b922e68e4372>`_
         """
         self._matches = m
         self._kp1 = fv1
@@ -1513,7 +1513,7 @@ class FeatureMatch:
             >>> matches[:5]  # first 5 matches
             >>> matches[0]   # first match
 
-        :seealso: :meth:`.__len__`
+        .. seealso:: :meth:`.__len__`
         """
         if not isinstance(i, (int, slice, np.ndarray)):
             if isinstance(i, (str, bytes)) or not isinstance(i, Sequence):
@@ -1561,7 +1561,7 @@ class FeatureMatch:
             >>> matches = orb1.match(orb2)
             >>> len(matches)
 
-        :seealso: :meth:`.__getitem__`
+        .. seealso:: :meth:`.__getitem__`
         """
         return len(self._matches)
 
@@ -1611,7 +1611,7 @@ class FeatureMatch:
             - Useful when features in the sets come from multiple images and
               ``id`` is used to indicate the source image.
 
-        :seealso: :class:`BaseFeature2D` :obj:`BaseFeature2D.id` :meth:`by_id2`
+        .. seealso:: :class:`BaseFeature2D` :obj:`BaseFeature2D.id` :meth:`by_id2`
         """
         if self._inverse_dict1 is None:
             # first call, build a dict for efficient mapping
@@ -1648,7 +1648,7 @@ class FeatureMatch:
             - Useful when features in the sets come from multiple images and
               ``id`` is used to indicate the source image.
 
-        :seealso: :class:`BaseFeature2D` :obj:`BaseFeature2D.id` :meth:`by_id1`
+        .. seealso:: :class:`BaseFeature2D` :obj:`BaseFeature2D.id` :meth:`by_id1`
         """
         if self._inverse_dict2 is None:
             # first call, build a dict for efficient mapping
@@ -1749,7 +1749,7 @@ class FeatureMatch:
 
         Print the matches in a simple format, one line per match.
 
-        :seealso: :meth:`table`
+        .. seealso:: :meth:`table`
         """
         for i, m in enumerate(self._matches):
             # TODO shouldn't have to flatten
@@ -1772,7 +1772,7 @@ class FeatureMatch:
         Each row in the table includes: the index of the match, inlier/outlier
         status, match strength, feature coordinates.
 
-        :seealso: :meth:`__str__`
+        .. seealso:: :meth:`__str__`
         """
         columns = [
             Column("#"),
@@ -1812,7 +1812,7 @@ class FeatureMatch:
             algorithm that applies a geometric constraint to the sets of
             putative matches.
 
-        :seealso: :obj:`CentralCamera.points2F`
+        .. seealso:: :obj:`CentralCamera.points2F`
         """
         if self._inliers is None:
             raise ValueError("inlier status has not been set")
@@ -1830,7 +1830,7 @@ class FeatureMatch:
             algorithm that applies a geometric constraint to the sets of
             putative matches.
 
-        :seealso: :obj:`entralCamera.points2F`
+        .. seealso:: :obj:`entralCamera.points2F`
         """
         if self._inliers is None:
             raise ValueError("inlier status has not been set")
@@ -2415,7 +2415,7 @@ class ImagePointFeaturesMixin(ImageMixinBase):
             - |RVC3|, Section 14.1.
 
 
-        :seealso: :class:`SIFTFeature` `cv2.SIFT_create <https://docs.opencv.org/4.5.2/d7/d60/classcv_1_1SIFT.html>`_
+        .. seealso:: :class:`SIFTFeature` `cv2.SIFT_create <https://docs.opencv.org/4.5.2/d7/d60/classcv_1_1SIFT.html>`_
         """
 
         return self._image2feature(SIFTFeature, **kwargs)
@@ -2458,7 +2458,7 @@ class ImagePointFeaturesMixin(ImageMixinBase):
               In European Conference on Computer Vision (ECCV), 2006.
             - |RVC3|, Section 14.1.
 
-        :seealso: :class:`SURFFeature` :meth:`SIFT` `cv2.xfeatures2d.SURF_create <https://docs.opencv.org/4.x/d5/df7/classcv_1_1xfeatures2d_1_1SURF.html>`_
+        .. seealso:: :class:`SURFFeature` :meth:`SIFT` `cv2.xfeatures2d.SURF_create <https://docs.opencv.org/4.x/d5/df7/classcv_1_1xfeatures2d_1_1SURF.html>`_
 
         .. versionadded:: 2.5.0
         """
@@ -2489,7 +2489,7 @@ class ImagePointFeaturesMixin(ImageMixinBase):
             >>> len(orb)  # number of features
             >>> print(orb[:5])
 
-        :seealso: :class:ORBFeature`, `cv2.ORB_create <https://docs.opencv.org/4.5.2/db/d95/classcv_1_1ORB.html>`_
+        .. seealso:: :class:ORBFeature`, `cv2.ORB_create <https://docs.opencv.org/4.5.2/db/d95/classcv_1_1ORB.html>`_
         """
 
         scoreoptions = {"harris": cv2.ORB_HARRIS_SCORE, "fast": cv2.ORB_FAST_SCORE}
@@ -2530,7 +2530,7 @@ class ImagePointFeaturesMixin(ImageMixinBase):
               In Computer Vision (ICCV), 2011 IEEE International Conference on,
               pages 2548–2555. IEEE, 2011.
 
-        :seealso: :class:`BRISKFeature` `cv2.BRISK_create <https://docs.opencv.org/4.5.2/d7/d60/classcv_1_1BRISK.html>`_
+        .. seealso:: :class:`BRISKFeature` `cv2.BRISK_create <https://docs.opencv.org/4.5.2/d7/d60/classcv_1_1BRISK.html>`_
         """
         return self._image2feature(BRISKFeature, **kwargs)
 
@@ -2564,7 +2564,8 @@ class ImagePointFeaturesMixin(ImageMixinBase):
               Pablo F Alcantarilla, Jesús Nuevo, and Adrien Bartoli.
               Trans. Pattern Anal. Machine Intell, 34(7):1281–1298, 2011.
 
-        :seealso:
+        .. seealso::
+
             :class:`~machinevisiontoolbox.ImagePointFeatures.AKAZEFeature`
             `cv2.AKAZE <https://docs.opencv.org/4.5.2/d7/d60/classcv_1_1AKAZE.html>`_
         """
@@ -2619,7 +2620,7 @@ class ImagePointFeaturesMixin(ImageMixinBase):
               Manchester, pp 147–151
             - |RVC3|, Section 12.3.1.
 
-        :seealso: :class:`HarrisFeature`
+        .. seealso:: :class:`HarrisFeature`
         """
         return self._image2feature(HarrisFeature, **kwargs)
 

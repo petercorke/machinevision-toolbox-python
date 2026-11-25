@@ -277,7 +277,7 @@ def lambda2rg(
     :references:
         - |RVC3|, Section 10.1.
 
-    :seealso: :func:`lambda2xy` :func:`cmfrgb`
+    .. seealso:: :func:`lambda2xy` :func:`cmfrgb`
     """
 
     # check input
@@ -341,7 +341,7 @@ def cmfrgb(λ: ArrayLike, e: ArrayLike | None = None, **kwargs: Any) -> np.ndarr
     :references:
         - |RVC3|, Section 10.1.
 
-    :seealso: :func:`~lambda2rg`
+    .. seealso:: :func:`~lambda2rg`
     """
 
     λ = smb.getvector(λ)  # λ is (N,1)
@@ -466,7 +466,7 @@ def lambda2xy(λ: np.ndarray | float, *args: Any) -> np.ndarray:
     :references:
         - |RVC3|, Section 10.1.
 
-    :seealso: :func:`lambda2rg` :func:`cmfxyz` :func:`ccxyz`
+    .. seealso:: :func:`lambda2rg` :func:`cmfxyz` :func:`ccxyz`
     """
 
     # argcheck
@@ -528,7 +528,7 @@ def cmfxyz(
     :references:
         - |RVC3|, Section 10.1.
 
-    :seealso: :func:`lambda2xy` :func:`ccxyz`
+    .. seealso:: :func:`lambda2xy` :func:`ccxyz`
     """
     λ = smb.getvector(λ)
 
@@ -575,7 +575,7 @@ def luminos(λ: np.ndarray | float, **kwargs: Any) -> np.ndarray | float:
     :references:
         - |RVC3|, Section 10.1.
 
-    :seealso: :func:`rluminos`
+    .. seealso:: :func:`rluminos`
     """
     λ = smb.getvector(λ)
 
@@ -664,7 +664,7 @@ def ccxyz(λ: np.ndarray | float, e: np.ndarray | float | None = None) -> np.nda
     :references:
         - |RVC3|, Section 10.1.
 
-    :seealso: :func:`cmfxyz` :func:`lambda2xy`
+    .. seealso:: :func:`cmfxyz` :func:`lambda2xy`
     """
 
     λ = smb.getvector(λ)
@@ -787,7 +787,7 @@ def name2color(
     :references:
         - |RVC3|, Section 10.1.
 
-    :seealso: :func:`~color2name` :func:`color_names`
+    .. seealso:: :func:`~color2name` :func:`color_names`
     """
 
     def csconvert(name: str, cs: str) -> np.ndarray:
@@ -880,7 +880,7 @@ def color_names(pattern: str | None = None) -> list[str]:
     :references:
         - |RVC3|, Section 10.1.
 
-    :seealso: :func:`name2color` :func:`color2name` :mod:`re`
+    .. seealso:: :func:`name2color` :func:`color2name` :mod:`re`
     """
     names = list(colors.get_named_colors_mapping().keys())
     if pattern is None:
@@ -925,7 +925,7 @@ def color2name(color: np.ndarray | list[float], colorspace: str = "RGB") -> str:
     :references:
         - |RVC3|, Section 10.1.
 
-    :seealso: :func:`~name2color`
+    .. seealso:: :func:`~name2color`
     """
 
     # map numeric tuple to color name
@@ -1029,7 +1029,7 @@ def XYZ2RGBxform(
         - Use the inverse of the transform for RGB to XYZ.
         - Works with linear RGB colorspace, not gamma encoded
 
-    :seealso: :func:`gamma_decode`
+    .. seealso:: :func:`gamma_decode`
     """
 
     if isinstance(white, str):
@@ -1220,7 +1220,7 @@ def plot_chromaticity_diagram(
     :references:
         - |RVC3|, Section 10.1.
 
-    :seealso: :func:`plot_spectral_locus`
+    .. seealso:: :func:`plot_spectral_locus`
     """
     if colorspace.lower() == "xy":
         CS = _xy_chromaticity_diagram(Y=brightness, N=N)
@@ -1290,7 +1290,7 @@ def plot_spectral_locus(
         from machinevisiontoolbox import plot_spectral_locus
         plot_spectral_locus()
 
-    :seealso: :func:`plot_chromaticity_diagram`
+    .. seealso:: :func:`plot_chromaticity_diagram`
     """
 
     nm = 1e-9
@@ -1413,7 +1413,7 @@ def colorspace_convert(image: ArrayLike, src: str, dst: str) -> np.ndarray:
         * Colons within the color space names, as returned by :meth:`~machinevisiontoolbox.Image.colororder_str`, are ignored, so 'rgb' and 'r:g:b' are treated as the same color space.
         * Case is ignored in color space names, so 'RGB' and 'rgb' are treated as the same color space.
 
-    :seealso: :func:`gamma_decode` `cv2.cvtColor <https://docs.opencv.org/4.x/d8/d01/group__imgproc__color__conversions.html#ga397ae87e1288a81d2363b61574eb8cab>`_
+    .. seealso:: :func:`gamma_decode` `cv2.cvtColor <https://docs.opencv.org/4.x/d8/d01/group__imgproc__color__conversions.html#ga397ae87e1288a81d2363b61574eb8cab>`_
     """
 
     operation = _convertflag(src, dst)
@@ -1545,7 +1545,7 @@ def gamma_encode(image: np.ndarray, gamma: float | str = "sRGB") -> np.ndarray:
     :references:
         - |RVC3|, Section 10.1.
 
-    :seealso: :func:`gamma_decode` :func:`colorspace_convert`
+    .. seealso:: :func:`gamma_decode` :func:`colorspace_convert`
     """
 
     if not isinstance(gamma, (int, float, str)):
@@ -1618,7 +1618,7 @@ def gamma_decode(image: np.ndarray, gamma: float | str = "sRGB") -> np.ndarray:
     :references:
         - |RVC3|, Section 10.1.
 
-    :seealso: :func:`gamma_encode`
+    .. seealso:: :func:`gamma_encode`
     """
 
     if not isinstance(gamma, (int, float, str)):
@@ -1888,7 +1888,7 @@ def esttheta(im: Any, sharpen: np.ndarray | None = None) -> float:
     .. note:: The user selects boundary points by clicking the mouse. After the
         last point, hit the Enter key and the region will be closed.
 
-    :seealso: :func:`shadow_invariant`
+    .. seealso:: :func:`shadow_invariant`
     """
 
     def pickregion(im: Any) -> np.ndarray:

@@ -36,7 +36,7 @@ class ImageLineFeaturesMixin(ImageMixinBase):
         Compute the Hough transform of the image and return an object that
         represents the lines found within the image.
 
-        :seealso: :class:`~machinevisiontoolbox.ImageLineFeatures.HoughFeature`
+        .. seealso:: :class:`~machinevisiontoolbox.ImageLineFeatures.HoughFeature`
         """
         return HoughFeature(self, **kwargs)
 
@@ -80,7 +80,7 @@ class HoughFeature:
         :references:
             - |RVC3|, Section 12.2.
 
-        :seealso: :meth:`lines` :meth:`lines_p`
+        .. seealso:: :meth:`lines` :meth:`lines_p`
         """
 
         self.image = image.array_as(np.uint8)
@@ -110,7 +110,7 @@ class HoughFeature:
 
         .. important:: Uses OpenCV function ``cv2.HoughLines`` which accepts single-channel, CV_8U images (images are pre-converted to uint8 when the :class:`Hough` object is created).
 
-        :seealso: :meth:`plot_lines` :meth:`lines_p` `opencv.HoughLines <https://docs.opencv.org/4.x/dd/d1a/group__imgproc__feature.html#ga46b4e588934f6c8dfd509cc6e0e4545a>`_
+        .. seealso:: :meth:`plot_lines` :meth:`lines_p` `opencv.HoughLines <https://docs.opencv.org/4.x/dd/d1a/group__imgproc__feature.html#ga46b4e588934f6c8dfd509cc6e0e4545a>`_
         """
         lines = cv2.HoughLines(
             image=self.image, rho=self.drho, theta=self.dtheta, threshold=minvotes
@@ -147,7 +147,7 @@ class HoughFeature:
 
         .. important:: Uses OpenCV function ``cv2.HoughLinesP`` which accepts single-channel, CV_8U images (images are pre-converted to uint8 when the :class:`Hough` object is created).
 
-        :seealso: :meth:`plot_lines` :meth:`lines` `opencv.HoughLinesP <https://docs.opencv.org/4.x/dd/d1a/group__imgproc__feature.html#ga8618180a5948286384e3b7ca02f6feeb>`_
+        .. seealso:: :meth:`plot_lines` :meth:`lines` `opencv.HoughLinesP <https://docs.opencv.org/4.x/dd/d1a/group__imgproc__feature.html#ga8618180a5948286384e3b7ca02f6feeb>`_
         """
         if seed is not None:
             cv2.setRNGSeed(seed)
@@ -189,7 +189,7 @@ class HoughFeature:
         - for probabilistic Hough lines, each row is :math:`(u_1, v_1, u_2, v_2)`,
           and lines segments are drawn on the current plot.
 
-        :seealso: :meth:`lines` :meth:`lines_p`
+        .. seealso:: :meth:`lines` :meth:`lines_p`
         """
         if lines.shape[1] == 2:
             # Hough lines
@@ -301,7 +301,7 @@ class HoughFeature:
         as an image where brightness is proportional to the number of votes for
         that :math:`(\theta, \rho)` coordinate.
 
-        :seealso: :meth:`accumulator`
+        .. seealso:: :meth:`accumulator`
         """
         if self.A is None:
             self.accumulator()

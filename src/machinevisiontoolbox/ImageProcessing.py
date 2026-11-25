@@ -66,7 +66,7 @@ class ImageProcessingMixin(ImageMixinBase):
 
         .. important:: Uses OpenCV function ``cv2.LUT`` which accepts multiple-channel, CV_8U images.
 
-        :seealso: `cv2.LUT <https://docs.opencv.org/4.x/d2/de8/group__core__array.html#gab55b8d062b7f5587720ede032d34156f>`_
+        .. seealso:: `cv2.LUT <https://docs.opencv.org/4.x/d2/de8/group__core__array.html#gab55b8d062b7f5587720ede032d34156f>`_
         """
         self._opencv_type_check(self._A, "multiple-channel", "CV_8U")
         image = self.array_as("uint8")
@@ -137,7 +137,7 @@ class ImageProcessingMixin(ImageMixinBase):
         :references:
             - |RVC3|, Section 11.3.
 
-        :seealso: :meth:`apply2` :meth:`numpy.vectorize`
+        .. seealso:: :meth:`apply2` :meth:`numpy.vectorize`
         """
         if vectorize:
             func = np.vectorize(func, **kwargs)
@@ -202,7 +202,7 @@ class ImageProcessingMixin(ImageMixinBase):
         :references:
             - |RVC3|, Section 11.4.
 
-        :seealso: :meth:`apply` :meth:`numpy.vectorize`
+        .. seealso:: :meth:`apply` :meth:`numpy.vectorize`
         """
         if self.size != other.size:
             raise ValueError("two images must have same size")
@@ -232,7 +232,7 @@ class ImageProcessingMixin(ImageMixinBase):
             >>> img = Image([[1, 2], [3, 4]])
             >>> img.clip(2, 3).A
 
-        :seealso: :func:`numpy.clip`
+        .. seealso:: :func:`numpy.clip`
         """
         return self.__class__(np.clip(self._A, min, max), colororder=self.colororder)
 
@@ -264,7 +264,7 @@ class ImageProcessingMixin(ImageMixinBase):
             >>> img.roll(rv=1).A
             >>> img.roll(ru=1, rv=-1).A
 
-        :seealso: :func:`numpy.roll`
+        .. seealso:: :func:`numpy.roll`
         """
         if dx is not None:
             ru = dx
@@ -301,7 +301,7 @@ class ImageProcessingMixin(ImageMixinBase):
 
         .. important:: Uses OpenCV function ``cv2.equalizeHist`` which accepts single-channel, CV_8U images.
 
-        :seealso: `cv2.equalizeHist <https://docs.opencv.org/4.x/d6/dc7/group__imgproc__hist.html#ga7e54091f0c937d49bf84152a16f76d6e>`_
+        .. seealso:: `cv2.equalizeHist <https://docs.opencv.org/4.x/d6/dc7/group__imgproc__hist.html#ga7e54091f0c937d49bf84152a16f76d6e>`_
         """
         self._opencv_type_check(self._A, "single-channel", "CV_8U")
         out = cv2.equalizeHist(src=self.array_as("uint8"))
@@ -485,7 +485,8 @@ class ImageProcessingMixin(ImageMixinBase):
         .. note:: Uses NumPy thresholding and toolbox-native Otsu and triangle
             threshold selection, not OpenCV functions, to support a wider range of datatypes and automatic threshold selection methods.
 
-        :seealso:
+        .. seealso::
+
             :meth:`threshold_interactive` :meth:`threshold_adaptive_` :meth:`otsu`
             :meth:`triangle`
         """
@@ -627,7 +628,7 @@ class ImageProcessingMixin(ImageMixinBase):
         :references:
             - |RVC3|, Section 12.1.1.1.
 
-        :seealso: :meth:`threshold` :meth:`threshold_adaptive` :meth:`otsu` `opencv.threshold <https://docs.opencv.org/4.x/d7/d1b/group__imgproc__misc.html#gae8a4a146d1ca78c626a53577199e9c57>`_
+        .. seealso:: :meth:`threshold` :meth:`threshold_adaptive` :meth:`otsu` `opencv.threshold <https://docs.opencv.org/4.x/d7/d1b/group__imgproc__misc.html#gae8a4a146d1ca78c626a53577199e9c57>`_
         """
 
         # ACKNOWLEDGEMENT: https://matplotlib.org/devdocs/gallery/widgets/range_slider.html
@@ -771,7 +772,8 @@ class ImageProcessingMixin(ImageMixinBase):
 
         .. important:: Uses OpenCV function ``cv2.adaptiveThreshold`` which accepts single-channel, CV_8U images.
 
-        :seealso:
+        .. seealso::
+
             :meth:`threshold`
             :meth:`threshold_interactive`
             :meth:`otsu`
@@ -855,7 +857,7 @@ class ImageProcessingMixin(ImageMixinBase):
               Assocn. Annual Summit and Conf (APSIPA). 2013. pp1-4
             - |RVC3|, Section 12.1.1.
 
-        :seealso: :meth:`triangle` :meth:`threshold` :meth:`threshold_interactive` :meth:`threshold_adaptive`
+        .. seealso:: :meth:`triangle` :meth:`threshold` :meth:`threshold_interactive` :meth:`threshold_adaptive`
         """
         image = self.mono() if self.iscolor else self
 
@@ -907,7 +909,7 @@ class ImageProcessingMixin(ImageMixinBase):
         Compute an automatic threshold using the triangle algorithm from the
         image histogram.  Works for greyscale integer and floating-point images.
 
-        :seealso: :meth:`threshold` :meth:`otsu`
+        .. seealso:: :meth:`threshold` :meth:`otsu`
         """
         image = self.mono() if self.iscolor else self
 
@@ -1010,7 +1012,7 @@ class ImageProcessingMixin(ImageMixinBase):
 
         .. important:: Uses OpenCV function ``cv2.addWeighted`` which accepts multiple-channel, CV_8U, CV_16U, CV_16S, CV_32F or CV_64F images.
 
-        :seealso: :meth:`choose` `cv2.addWeighted <https://docs.opencv.org/4.x/d2/de8/group__core__array.html#gafafb2513349db3bcff51f54ee5592a19>`_
+        .. seealso:: :meth:`choose` `cv2.addWeighted <https://docs.opencv.org/4.x/d2/de8/group__core__array.html#gafafb2513349db3bcff51f54ee5592a19>`_
         """
 
         if self.shape != image2.shape:
@@ -1100,7 +1102,7 @@ class ImageProcessingMixin(ImageMixinBase):
 
         .. important:: Uses OpenCV functions ``cv2.bitwise_and`` and ``cv2.bitwise_xor`` which accept multiple-channel, CV_8U, CV_16U, CV_16S, CV_32S, CV_32F or CV_64F images.
 
-        :seealso: :func:`~machinevisiontoolbox.base.color.name2color` `opencv.bitwise_and <https://docs.opencv.org/4.x/d2/de8/group__core__array.html#ga60b4d04b251ba5eb1392c34425497e14>`_
+        .. seealso:: :func:`~machinevisiontoolbox.base.color.name2color` `opencv.bitwise_and <https://docs.opencv.org/4.x/d2/de8/group__core__array.html#ga60b4d04b251ba5eb1392c34425497e14>`_
         """
         im1 = self._A
 
