@@ -165,12 +165,14 @@ def mkcube(
 
     .. rubric:: Examples
 
-    >>> from machinevisiontoolbox import mkcube
-    >>> import matplotlib.pyplot as plt
-    >>> S = mkcube(edge=True)  # cube of side length 1
-    >>> fig = plt.figure()
-    >>> ax = fig.add_subplot(projection='3d')
-    >>> ax.plot_wireframe(*S)
+    .. code-block:: pycon
+
+        >>> from machinevisiontoolbox import mkcube
+        >>> import matplotlib.pyplot as plt
+        >>> S = mkcube(edge=True)  # cube of side length 1
+        >>> fig = plt.figure()
+        >>> ax = fig.add_subplot(projection='3d')
+        >>> ax.plot_wireframe(*S)
 
     .. plot::
 

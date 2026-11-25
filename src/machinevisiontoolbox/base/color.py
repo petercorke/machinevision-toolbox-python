@@ -1803,10 +1803,12 @@ def shadow_invariant(
 
     .. rubric:: Examples
 
-    >>> im, _ = iread('parks.png', gamma='sRGB', dtype='double')
-    >>> idisp(im)
-    >>> gs = shadow_invariant(im, 0.7)
-    >>> idisp(gs)
+    .. code-block:: pycon
+
+        >>> im, _ = iread('parks.png', gamma='sRGB', dtype='double')
+        >>> idisp(im)
+        >>> gs = shadow_invariant(im, 0.7)
+        >>> idisp(gs)
 
     .. plot::
 
