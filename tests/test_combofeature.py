@@ -97,8 +97,26 @@ class TestComboFeature(unittest.TestCase):
     def test_unsupported_pairs_say_why(self):
         with self.assertRaisesRegex(ValueError, "AKAZE detector"):
             self.img.ComboFeature("FAST", "AKAZE")
-        with self.assertRaisesRegex(ValueError, "SIFT"):
-            self.img.ComboFeature("SIFT", "ORB")
+
+    def test_orb_describes_sift_keypoints_sensibly(self):
+        # not just no error: the matches must agree with one epipolar geometry, to the
+        # same standard as another pair that works
+        import cv2
+
+        def inlier_fraction(detector, descriptor):
+            a = self.img.ComboFeature(detector, descriptor, nfeat=1500)
+            b = Image.Read("eiffel-2.png").ComboFeature(
+                detector, descriptor, nfeat=1500
+            )
+            m = a.match(b, ratio=0.8)
+            self.assertGreater(len(m), 100)
+            p1 = np.array(m.p1, dtype=np.float32).T
+            p2 = np.array(m.p2, dtype=np.float32).T
+            _, mask = cv2.findFundamentalMat(p1, p2, cv2.FM_RANSAC, 2.0, 0.99)
+            return mask.sum() / len(m)
+
+        self.assertGreater(inlier_fraction("SIFT", "ORB"), 0.7)
+        self.assertGreater(inlier_fraction("FAST", "ORB"), 0.7)
 
     def test_lucid_needs_color(self):
         with self.assertRaisesRegex(ValueError, "color image"):

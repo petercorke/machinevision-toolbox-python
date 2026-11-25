@@ -2613,20 +2613,35 @@ class ImagePointFeaturesMixin(ImageMixinBase):
             ``"LATCH"``, ``"LUCID"`` or ``"BOOST"``
         :param det_opts: options passed to the detector, defaults to None
         :param des_opts: options passed to the descriptor, defaults to None
-        :param nfeat: keep at most this many of the strongest features, defaults to
+        :param nfeat: keep at most this many of the strongest keypoints, defaults to
             None, which keeps all of them.  A few can be lost, because a descriptor
-            needs a margin of image around a point
-        :param id: what to put in each feature's ``id``: ``"image"`` (the image id),
+            needs a margin of image around a keypoint
+        :param id: what to put in each keypoint's ``id``: ``"image"`` (the image id),
             ``"index"`` (0, 1, ...) or an int, defaults to ``"image"``
         :raises ValueError: unknown detector or descriptor, a pair that cannot be
             combined, or a descriptor that needs a color image given a greyscale one
         :return: set of 2D point features
         :rtype: :class:`BaseFeature2D` subclass
 
-        Detect features with ``detector`` and describe each one with ``descriptor``.
+        Detect keypoints with ``detector`` and describe each one with ``descriptor``.
         Most detectors, such as FAST, find corners but give no description of them,
-        and most descriptors, such as BRIEF, describe the image around a point
-        but do not find one.  This method joins any detector to any descriptor.
+        and most descriptors, such as BRIEF, describe the image around a keypoint
+        but do not find one.  This method joins any detector to almost any
+        descriptor.  There are 8 detectors and 10 descriptors, which is
+        73 combinations that work out of 80:
+
+        .. csv-table::
+            :header: "detector", "SIFT", "ORB", "BRISK", "AKAZE", "FREAK", "BRIEF", "DAISY", "LATCH", "LUCID", "BOOST"
+            :stub-columns: 1
+
+            FAST, yes, yes, yes, no, yes, yes, yes, yes, yes, yes
+            AGAST, yes, yes, yes, no, yes, yes, yes, yes, yes, yes
+            GFTT, yes, yes, yes, no, yes, yes, yes, yes, yes, yes
+            Harris, yes, yes, yes, no, yes, yes, yes, yes, yes, yes
+            SIFT, yes, yes*, yes, no, yes, yes, yes, yes, yes, yes
+            ORB, yes, yes, yes, no, yes, yes, yes, yes, yes, yes
+            BRISK, yes, yes, yes, no, yes, yes, yes, yes, yes, yes
+            AKAZE, yes, yes, yes, yes, yes, yes, yes, yes, yes, yes
 
         The result is a set of the class of the descriptor, for example
         :class:`BRIEFFeature`, and can be matched with another set made with the
@@ -2635,10 +2650,15 @@ class ImagePointFeaturesMixin(ImageMixinBase):
         if the detector provides them (SIFT, ORB, BRISK, AKAZE), or the descriptor
         computes an orientation (BRISK, FREAK).
 
-        Two combinations cannot be made.  The AKAZE descriptor uses information that
-        only the AKAZE detector records, and the ORB descriptor cannot use the
-        keypoints of the SIFT detector.  The LUCID descriptor describes a color
-        patch, so it needs a color image.
+        Some combinations are restricted:
+
+        - The AKAZE descriptor uses information that only the AKAZE detector
+          records in its keypoints, so it cannot be used with another detector.
+        - The ORB descriptor reads a pyramid level from each keypoint, which the SIFT
+          detector uses for something else (*).  For SIFT keypoints it is set to the
+          full resolution image, so the ORB descriptor ignores their scale and has
+          no scale invariance.
+        - The LUCID descriptor describes a color patch, so it needs a color image.
 
         .. rubric:: Examples
 
@@ -2680,6 +2700,15 @@ class ImagePointFeaturesMixin(ImageMixinBase):
         kp = list(det_factory(**(det_opts or {})).detect(mono._A, None))
         if nfeat is not None:
             kp = sorted(kp, key=lambda k: k.response, reverse=True)[:nfeat]
+
+        if detector == "SIFT" and descriptor == "ORB":
+            # SIFT packs its scale space level and layer into the keypoint's octave,
+            # and ORB reads it as its own pyramid level, which fails.  Describing
+            # at full resolution is the only sensible reading
+            kp = [
+                cv2.KeyPoint(k.pt[0], k.pt[1], k.size, k.angle, k.response, 0, -1)
+                for k in kp
+            ]
 
         # the descriptor may drop keypoints too close to the edge
         kp, des = des_factory(**(des_opts or {})).compute(
@@ -2847,6 +2876,4 @@ def _unsupported_pair(detector: str, descriptor: str) -> str | None:
             "the AKAZE descriptor needs the scale space index that only the AKAZE "
             "detector records"
         )
-    if descriptor == "ORB" and detector == "SIFT":
-        return "the ORB descriptor cannot use the keypoints of the SIFT detector"
     return None
