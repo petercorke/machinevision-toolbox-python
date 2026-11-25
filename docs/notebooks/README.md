@@ -110,12 +110,17 @@ Every notebook's first code cell is a copy of that file's content, marked with a
 | `notebooks-sync-bootstrap` | regenerates the bootstrap cell of every notebook from `_mvtb_nb_bootstrap.py` |
 | `notebooks-first-cell` | the first cell is markdown, and its logo has a width, a height and `style="height:auto"` |
 
-### One-time setup (per machine)
+### One-time setup (per clone)
 
+```
+make setup
+```
+which runs
 ```
 pip install pre-commit
 pre-commit install
 ```
+Git does not copy hooks with a clone, so do this in every new clone of the repo.
 
 After that the hooks run on `git commit`, and fix a notebook in place (re-add it and commit again). To run them by hand on every notebook:
 ```

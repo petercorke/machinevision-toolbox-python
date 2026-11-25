@@ -4,7 +4,8 @@ BLUE=\033[0;34m
 BLACK=\033[0;30m
 
 help:
-	@echo "$(BLUE) make test - run all unit tests"
+	@echo "$(BLUE) make setup - install the git pre-commit hooks (once per clone)"
+	@echo " make test - run all unit tests"
 	@echo " make test-log - run all unit tests and write log to pytest.log"
 	@echo " make test-nb - run nbmake tests on RVC3 vision chapter notebooks"
 	@echo " make coverage - run unit tests and coverage report"
@@ -16,6 +17,10 @@ help:
 	@echo " make dist - preview dist build"
 	@echo " make clean - remove dist and docs build files"
 	@echo " make help - this message$(BLACK)"
+
+setup:
+	python -m pip install pre-commit
+	pre-commit install
 
 test:
 	validate-pyproject pyproject.toml
