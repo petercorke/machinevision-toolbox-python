@@ -179,7 +179,8 @@ class ImageTensorMixin(ImageMixinBase):
             >>> img = Image.Tensor(tensor)
             >>> print(img)
 
-        The modern "Machine Vision Toolbox" workflow:
+        The modern "Machine Vision Toolbox" workflow, where ``model`` is any PyTorch
+        model that takes a batch of images:
 
         .. code-block:: python
 
