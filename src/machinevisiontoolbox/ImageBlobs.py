@@ -1850,11 +1850,6 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> im = Image.Read("sharks.png")
             >>> blobs = im.blobs()
             >>> blobs.plot_box(color="yellow") # solid yellow box for all blobs
-
-        .. rubric:: Examples
-
-        .. code-block:: pycon
-
             >>> blobs[0].plot_box('b--') # blue dashed box
             >>> blobs[1].plot_box(color="blue", linestyle="--") # blue dashed box
             >>> blobs[2].plot_box(color="g") # solid green box
@@ -1867,6 +1862,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             im = Image.Read("sharks.png")
             im.disp()
             blobs = im.blobs()
+            blobs.plot_box(color="yellow") # solid yellow box for all blobs
             blobs[0].plot_box('b--') # blue dashed box
             blobs[1].plot_box(color="blue", linestyle="--") # blue dashed box
             blobs[2].plot_box(color="g") # solid green box
