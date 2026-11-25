@@ -92,6 +92,7 @@ class BaseFeature2D:
         self._has_strength: bool = strength
         self._image: Any = image
         self._feature_type: str | None = None
+        self._detector: str | None = None
         if kp is None:
             self._kp: list[cv2.KeyPoint] = []
         else:
@@ -116,8 +117,23 @@ class BaseFeature2D:
         new._has_orient = self._has_orient
         new._has_strength = self._has_strength
         new._feature_type = self._feature_type
+        new._detector = self._detector
         new._image = self._image
         return new
+
+    @property
+    def _label(self) -> str:
+        """Name of the algorithm that makes these features, for display
+
+        A feature is a detected keypoint and its descriptor.  Most algorithms, such
+        as SIFT, provide both, so are named for the algorithm.  For a detector joined
+        to a different descriptor by :meth:`Image.ComboFeature` it is
+        ``"detector+descriptor"``, for example ``"FAST+BRIEF"``.
+        """
+        name = self._feature_type or self.__class__.__name__.removesuffix("Feature")
+        if self._detector is not None and self._detector != name:
+            name = f"{self._detector}+{name}"
+        return name
 
     def __len__(self) -> int:
         """
@@ -200,9 +216,12 @@ class BaseFeature2D:
         :return: string representation
         :rtype: str
 
-        For a feature object of length one display the feature type, position,
+        For a feature object of length one display the algorithm, position,
         strength and id.  For a feature object with multiple features display
-        the feature type and number of features.
+        the algorithm and number of features.  A feature is a detected keypoint with
+        its descriptor.  The algorithm is named once if it provides both, for
+        example SIFT, and as ``"detector+descriptor"`` if they are different, for
+        example FAST+BRIEF, made by :meth:`Image.ComboFeature`.
 
         Example:
 
@@ -215,9 +234,9 @@ class BaseFeature2D:
             >>> orb[0]  # feature 0
         """
         if len(self) > 1:  # String representation of feature (base method)
-            return f"{self.__class__.__name__} features, {len(self)} points"
+            return f"{self._label} features, {len(self)} points"
         else:
-            s = f"{self.__class__.__name__}: ({self.u:.1f}, {self.v:.1f}),"
+            s = f"{self._label} feature: ({self.u:.1f}, {self.v:.1f}),"
             if self._has_strength:
                 s += f" strength={self.strength:.2f}"
             if self._has_scale:
@@ -251,7 +270,7 @@ class BaseFeature2D:
         :seealso: :meth:`table`
         """
         for i, f in enumerate(self):  # List matches
-            s = f"{self._feature_type} feature {i}: ({f.u:.1f}, {f.v:.1f}),"
+            s = f"{self._label} feature {i}: ({f.u:.1f}, {f.v:.1f}),"
             if f._has_strength:
                 s += f" strength={f.strength:.2f}"
             if f._has_scale:
@@ -915,6 +934,7 @@ class BaseFeature2D:
         k = k[:N]
         new = self[k]
         new._feature_type = self._feature_type
+        new._detector = self._detector
         return new
 
     def sort(
@@ -2630,35 +2650,72 @@ class ImagePointFeaturesMixin(ImageMixinBase):
         descriptor.  There are 8 detectors and 10 descriptors, which is
         73 combinations that work out of 80:
 
-        .. csv-table::
-            :header: "detector", "SIFT", "ORB", "BRISK", "AKAZE", "FREAK", "BRIEF", "DAISY", "LATCH", "LUCID", "BOOST"
-            :stub-columns: 1
+        +------------+-----------------------------------------------------------+
+        | descriptor |                          detector                         |
+        |            +------+-------+------+--------+------+-----+-------+-------+
+        |            | FAST | AGAST | GFTT | Harris | SIFT | ORB | BRISK | AKAZE |
+        +============+======+=======+======+========+======+=====+=======+=======+
+        |  **SIFT**  |  ✓   |   ✓   |  ✓   |   ✓    |  ✔   |  ✓  |   ✓   |   ✓   |
+        +------------+------+-------+------+--------+------+-----+-------+-------+
+        |  **ORB**   |  ✓   |   ✓   |  ✓   |   ✓    |  1   |  ✔  |   ✓   |   ✓   |
+        +------------+------+-------+------+--------+------+-----+-------+-------+
+        | **BRISK**  |  ✓   |   ✓   |  ✓   |   ✓    |  ✓   |  ✓  |   ✔   |   ✓   |
+        +------------+------+-------+------+--------+------+-----+-------+-------+
+        | **AKAZE**  |      |       |      |        |      |     |       |   ✔   |
+        +------------+------+-------+------+--------+------+-----+-------+-------+
+        | **FREAK**  |  ✓   |   ✓   |  ✓   |   ✓    |  ✓   |  ✓  |   ✓   |   ✓   |
+        +------------+------+-------+------+--------+------+-----+-------+-------+
+        | **BRIEF**  |  ✓   |   ✓   |  ✓   |   ✓    |  ✓   |  ✓  |   ✓   |   ✓   |
+        +------------+------+-------+------+--------+------+-----+-------+-------+
+        | **DAISY**  |  ✓   |   ✓   |  ✓   |   ✓    |  ✓   |  ✓  |   ✓   |   ✓   |
+        +------------+------+-------+------+--------+------+-----+-------+-------+
+        | **LATCH**  |  ✓   |   ✓   |  ✓   |   ✓    |  ✓   |  ✓  |   ✓   |   ✓   |
+        +------------+------+-------+------+--------+------+-----+-------+-------+
+        | **LUCID**  |  2   |   2   |  2   |   2    |  2   |  2  |   2   |   2   |
+        +------------+------+-------+------+--------+------+-----+-------+-------+
+        | **BOOST**  |  ✓   |   ✓   |  ✓   |   ✓    |  ✓   |  ✓  |   ✓   |   ✓   |
+        +------------+------+-------+------+--------+------+-----+-------+-------+
 
-            FAST, yes, yes, yes, no, yes, yes, yes, yes, yes, yes
-            AGAST, yes, yes, yes, no, yes, yes, yes, yes, yes, yes
-            GFTT, yes, yes, yes, no, yes, yes, yes, yes, yes, yes
-            Harris, yes, yes, yes, no, yes, yes, yes, yes, yes, yes
-            SIFT, yes, yes*, yes, no, yes, yes, yes, yes, yes, yes
-            ORB, yes, yes, yes, no, yes, yes, yes, yes, yes, yes
-            BRISK, yes, yes, yes, no, yes, yes, yes, yes, yes, yes
-            AKAZE, yes, yes, yes, yes, yes, yes, yes, yes, yes, yes
+        The columns are the detectors and the rows are the descriptors.  In the table,
+
+        - ``✓`` is a combination that works
+        - ``✔`` is a combination that works, and is an algorithm that defines both a
+          detector and a descriptor, for example SIFT
+        - an empty cell is a combination that cannot be made.  The AKAZE descriptor
+          uses information that only the AKAZE detector records in its keypoints,
+          so it cannot be used with another detector.
+
+        1. The ORB descriptor reads a pyramid level from each keypoint, which the
+           SIFT detector uses for something else.  For SIFT keypoints it is set to
+           the full resolution image, so the ORB descriptor ignores their scale and
+           has no scale invariance.
+        2. The LUCID descriptor describes a color patch, so it needs a color image.
+
+        A set of features can also provide the scale, orientation and strength (the
+        detector's response) of each keypoint.  This depends on the detector, as in
+        this table, where ✓ means that it does:
+
+        +-----------------+-----------------------------------------------------------+
+        |     provides    |                          detector                         |
+        |                 +------+-------+------+--------+------+-----+-------+-------+
+        |                 | FAST | AGAST | GFTT | Harris | SIFT | ORB | BRISK | AKAZE |
+        +=================+======+=======+======+========+======+=====+=======+=======+
+        |   **position**  |  ✓   |   ✓   |  ✓   |   ✓    |  ✓   |  ✓  |   ✓   |   ✓   |
+        +-----------------+------+-------+------+--------+------+-----+-------+-------+
+        |    **scale**    |      |       |      |        |  ✓   |  ✓  |   ✓   |   ✓   |
+        +-----------------+------+-------+------+--------+------+-----+-------+-------+
+        | **orientation** |  3   |   3   |  3   |   3    |  ✓   |  ✓  |   ✓   |   ✓   |
+        +-----------------+------+-------+------+--------+------+-----+-------+-------+
+        |  **strength**   |  ✓   |   ✓   |  ✓   |   ✓    |  ✓   |  ✓  |   ✓   |   ✓   |
+        +-----------------+------+-------+------+--------+------+-----+-------+-------+
+
+        3. The detector does not provide orientation, but the BRISK and FREAK
+           descriptors compute orientation internally.
 
         The result is a set of the class of the descriptor, for example
         :class:`BRIEFFeature`, and can be matched with another set made with the
         same descriptor.  The detector can differ, and the descriptors of the two
-        sets must be of the same kind.  A feature set has scale and orientation only
-        if the detector provides them (SIFT, ORB, BRISK, AKAZE), or the descriptor
-        computes an orientation (BRISK, FREAK).
-
-        Some combinations are restricted:
-
-        - The AKAZE descriptor uses information that only the AKAZE detector
-          records in its keypoints, so it cannot be used with another detector.
-        - The ORB descriptor reads a pyramid level from each keypoint, which the SIFT
-          detector uses for something else (*).  For SIFT keypoints it is set to the
-          full resolution image, so the ORB descriptor ignores their scale and has
-          no scale invariance.
-        - The LUCID descriptor describes a color patch, so it needs a color image.
+        sets must be of the same kind.
 
         .. rubric:: Examples
 
@@ -2667,6 +2724,7 @@ class ImagePointFeaturesMixin(ImageMixinBase):
             >>> from machinevisiontoolbox import Image
             >>> img = Image.Read("eiffel-1.png")
             >>> features = img.ComboFeature("FAST", "BRIEF", nfeat=500)
+            >>> print(features)
             >>> len(features)
             >>> features.descriptor.shape
 
@@ -2720,6 +2778,7 @@ class ImagePointFeaturesMixin(ImageMixinBase):
 
         features = cls(kp, des, scale=has_scale, orient=has_orient or finds_orient)
         features._feature_type = descriptor
+        features._detector = detector
         features._image = self
         return features
 

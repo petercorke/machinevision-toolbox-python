@@ -80,6 +80,25 @@ class TestComboFeature(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "different kinds of descriptor"):
             a.match(b)
 
+    def test_str_names_the_algorithm_or_the_pair(self):
+        # a feature is a detected keypoint and its descriptor
+        n = len(self.img.SIFT())
+        self.assertEqual(str(self.img.SIFT()), f"SIFT features, {n} points")
+        f = self.img.ComboFeature("FAST", "BRIEF", nfeat=20)
+        self.assertEqual(str(f), f"FAST+BRIEF features, {len(f)} points")
+        self.assertTrue(str(f[0]).startswith("FAST+BRIEF feature: ("))
+        # slicing and adding keep the name
+        self.assertEqual(str(f[:5]), "FAST+BRIEF features, 5 points")
+        self.assertTrue(str(f.subset(5)).startswith("FAST+BRIEF features"))
+        # the same detector and descriptor is named once
+        s = self.img.ComboFeature("SIFT", "SIFT", nfeat=20)
+        self.assertTrue(str(s).startswith("SIFT features"))
+
+    def test_sets_from_different_detectors_can_be_added(self):
+        a = self.img.ComboFeature("FAST", "BRIEF", nfeat=20)
+        b = self.img.ComboFeature("AGAST", "BRIEF", nfeat=20)
+        self.assertEqual(len(a + b), len(a) + len(b))
+
     def test_id(self):
         f = self.img.ComboFeature("FAST", "BRIEF", nfeat=20, id="index")
         self.assertEqual([k.class_id for k in f._kp], list(range(len(f))))

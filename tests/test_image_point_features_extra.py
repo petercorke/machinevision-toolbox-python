@@ -140,12 +140,12 @@ class TestProperties:
 
 class TestPrinting:
     def test_several(self):
-        assert str(make_features(3)) == "SIFTFeature features, 3 points"
+        assert str(make_features(3)) == "SIFT features, 3 points"
         assert repr(make_features(3)) == str(make_features(3))
 
     def test_one_with_scale_and_orientation(self):
         s = str(make_features(3)[1])
-        assert s.startswith("SIFTFeature: (20.0, 25.0), strength=0.20")
+        assert s.startswith("SIFT feature: (20.0, 25.0), strength=0.20")
         # the orientation is 30 degrees; it was printed as radians (0.5) with a degree sign
         assert "scale=3.0" in s and "orient=30.0°" in s and s.endswith("id=1")
 
