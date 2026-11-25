@@ -2728,6 +2728,65 @@ class ImagePointFeaturesMixin(ImageMixinBase):
             >>> len(features)
             >>> features.descriptor.shape
 
+        .. rubric:: References
+
+        - Comparison of the detectors and descriptors: Performance analysis of
+          keypoint detectors and binary descriptors under varying degrees of
+          photometric and geometric transformations.
+          Shuvo Kumar Paul, Pourya Hoseini, Mircea Nicolescu and Monica Nicolescu.
+          `arXiv:2012.04135 <https://arxiv.org/abs/2012.04135>`_, 2020.
+        - AGAST: Adaptive and generic corner detection based on the accelerated
+          segment test.
+          Elmar Mair, Gregory D. Hager, Darius Burschka, Michael Suppa and
+          Gerhard Hirzinger.
+          In European Conference on Computer Vision (ECCV), 2010.
+        - AKAZE: Fast explicit diffusion for accelerated features in nonlinear
+          scale spaces.
+          Pablo F. Alcantarilla, Jesús Nuevo and Adrien Bartoli.
+          IEEE Trans. Pattern Anal. Machine Intell., 34(7):1281–1298, 2011.
+        - BOOST: Boosting binary keypoint descriptors.
+          Tomasz Trzcinski, Mario Christoudias, Vincent Lepetit and Pascal Fua.
+          In Computer Vision and Pattern Recognition (CVPR), 2013.  Also:
+          Learning image descriptors with boosting.
+          Tomasz Trzcinski, Mario Christoudias and Vincent Lepetit.
+          IEEE Trans. Pattern Anal. Machine Intell., 2013.
+        - BRIEF: Binary robust independent elementary features.
+          Michael Calonder, Vincent Lepetit, Christoph Strecha and Pascal Fua.
+          In European Conference on Computer Vision (ECCV), pages 778–792, 2010.
+        - BRISK: Binary robust invariant scalable keypoints.
+          Stefan Leutenegger, Margarita Chli and Roland Yves Siegwart.
+          In International Conference on Computer Vision (ICCV), pages 2548–2555,
+          2011.
+        - DAISY: An efficient dense descriptor applied to wide baseline stereo.
+          Engin Tola, Vincent Lepetit and Pascal Fua.
+          IEEE Trans. Pattern Anal. Machine Intell., 32(5):815–830, May 2010.
+        - FAST: Machine learning for high-speed corner detection.
+          Edward Rosten and Tom Drummond.
+          In European Conference on Computer Vision (ECCV), pages 430–443, 2006.
+        - FREAK: Fast retina keypoint.
+          Alexandre Alahi, Raphael Ortiz and Pierre Vandergheynst.
+          In Computer Vision and Pattern Recognition (CVPR), pages 510–517, 2012.
+        - GFTT: Good features to track.
+          Jianbo Shi and Carlo Tomasi.
+          In Computer Vision and Pattern Recognition (CVPR), pages 593–600, 1994.
+        - Harris: A combined corner and edge detector.
+          CG Harris and MJ Stephens.
+          Proceedings of the Fourth Alvey Vision Conference, Manchester,
+          pages 147–151, 1988.
+        - LATCH: Learned arrangements of three patch codes.
+          Gil Levi and Tal Hassner.
+          `arXiv:1501.03719 <https://arxiv.org/abs/1501.03719>`_, 2015.
+        - LUCID: Locally uniform comparison image descriptor.
+          Andrew Ziegler, Eric Christiansen, David Kriegman and Serge J. Belongie.
+          In Advances in Neural Information Processing Systems (NIPS), 2012.
+        - ORB: An efficient alternative to SIFT or SURF.
+          Ethan Rublee, Vincent Rabaud, Kurt Konolige and Gary Bradski.
+          In International Conference on Computer Vision (ICCV), pages 2564–2571,
+          2011.
+        - SIFT: Distinctive image features from scale-invariant keypoints.
+          David G. Lowe.
+          Int. J. Comput. Vision, 60(2):91–110, November 2004.
+
         .. versionadded:: 2.5.0
 
         .. seealso:: :class:`BOOSTFeature` :class:`BRIEFFeature` :class:`DAISYFeature` :class:`FREAKFeature` :class:`LATCHFeature` :class:`LUCIDFeature`
