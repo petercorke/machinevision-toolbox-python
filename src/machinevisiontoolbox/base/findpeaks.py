@@ -84,7 +84,9 @@ def findpeaks(
         n = round(scale / dx) * 2 + 1
         kernel = np.ones((n,))
         (k,) = np.nonzero(y == sp.signal.order_filter(y, kernel, n - 1))
-        k = np.array([kk for kk in k if kk >= scale and kk <= len(y) - scale])
+        k = np.array(
+            [kk for kk in k if kk >= scale and kk < len(y) - scale], dtype=np.intp
+        )
     else:
         # take the zero crossings
         dy = np.diff(y)
