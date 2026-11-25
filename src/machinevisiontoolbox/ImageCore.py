@@ -2817,8 +2817,8 @@ class Image(
             access, or ``img.A[v,u]`` for direct access to the underlying NumPy array.
 
         .. note:: The result is a *view* that shares its pixels with ``img`` when the key is
-            an int, slices, or a string naming one plane, so changing one changes the other.  It
-            is a new array when the string names several planes.  Either way the result may not be
+            a plane number, a tuple of slices, or a string naming one plane, so changing one
+            changes the other.  It is a new array when the string names several planes.  Either way the result may not be
             C-contiguous: a plane of a color image, a region of interest and a reversed slice
             are all strided, and a string such as ``"BGR"`` gives a planar layout.
             The ``draw_*`` methods and OpenCV functions that write into an image refuse such
