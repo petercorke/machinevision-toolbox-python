@@ -508,6 +508,7 @@ class PointCloud:
         :type notebook: bool, optional
         :raises ValueError: ``file`` is given with ``notebook=True``
         :raises ImportError: ``notebook=True`` and Plotly is not installed
+        :raises TypeError: ``notebook=True`` and an option that Plotly cannot draw
         :param front: set front vector
         :type front: array_like(3)
         :param lookat: set lookat vector
@@ -529,7 +530,9 @@ class PointCloud:
         ``point_sample_factor`` (the fraction of the points drawn, 0 to 1, which
         keeps a large cloud responsive) are passed to
         :func:`open3d.visualization.draw_plotly`.  The three axes have the same
-        scale, so shapes have their true proportions, as in the Open3D window.
+        scale, so shapes have their true proportions, as in the Open3D window.  The
+        other options of the Open3D window, such as ``point_show_normal``, are not
+        available with ``notebook=True``, and raise :class:`TypeError`.
 
         .. versionchanged:: 2.5.0
             Added the ``notebook`` option.
@@ -1131,12 +1134,14 @@ class VoxelGrid:
         :type notebook: bool, optional
         :raises ValueError: ``file`` is given with ``notebook=True``
         :raises ImportError: ``notebook=True`` and Plotly is not installed
+        :raises TypeError: ``notebook=True`` and an option that Plotly cannot draw
 
         With ``notebook=True`` the voxels are drawn in the output of the notebook
         cell, as a Plotly figure that can be rotated and zoomed, in the same way as
         :meth:`PointCloud.disp`, which describes the options, and with the same
         scale on the three axes.  Each voxel is drawn as a cube of 12 triangles, so a
-        grid of many thousands of voxels is slow.
+        grid of many thousands of voxels is slow.  Options of the Open3D window that
+        Plotly cannot draw raise :class:`TypeError`.
 
         .. versionchanged:: 2.5.0
             Added the ``notebook`` option.
