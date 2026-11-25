@@ -77,6 +77,21 @@ class TestPointCloudNotebookDisplay(unittest.TestCase):
         self.assertIsNone(result)
 
     @unittest.skipUnless(plotly_available, "plotly not installed")
+    def test_axes_have_the_same_scale(self):
+        from unittest.mock import patch
+
+        # a long thin cloud, for which Plotly's default would draw a cube
+        pc = PointCloud(np.random.rand(3, 500) * np.array([[10.0], [0.5], [0.5]]))
+        shown = []
+        with patch(
+            "plotly.graph_objects.Figure.show",
+            autospec=True,
+            side_effect=lambda fig, *a, **k: shown.append(fig),
+        ):
+            pc.disp(notebook=True)
+        self.assertEqual(shown[0].layout.scene.aspectmode, "data")
+
+    @unittest.skipUnless(plotly_available, "plotly not installed")
     def test_figure_has_the_points_and_title(self):
         from unittest.mock import patch
 
@@ -160,6 +175,19 @@ class TestVoxelGridNotebookDisplay(unittest.TestCase):
         self.assertEqual(shown[0].layout.title.text, "Voxels")
         self.assertEqual(len(shown[0].data), 1)
         self.assertEqual(len(shown[0].data[0].x), len(self.vg._cubes().vertices))
+
+    @unittest.skipUnless(plotly_available, "plotly not installed")
+    def test_axes_have_the_same_scale(self):
+        from unittest.mock import patch
+
+        shown = []
+        with patch(
+            "plotly.graph_objects.Figure.show",
+            autospec=True,
+            side_effect=lambda fig, *a, **k: shown.append(fig),
+        ):
+            self.vg.disp(notebook=True)
+        self.assertEqual(shown[0].layout.scene.aspectmode, "data")
 
     def test_plotly_missing_says_how_to_install_it(self):
         from unittest.mock import patch
