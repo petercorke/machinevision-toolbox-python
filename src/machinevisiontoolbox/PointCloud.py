@@ -10,6 +10,8 @@ import numpy as np
 import spatialmath.base as smb
 from spatialmath import SE3
 
+from machinevisiontoolbox.base.color import name2color
+
 try:
     import open3d as o3d
 
@@ -545,6 +547,24 @@ class PointCloud:
         pcd.colors.extend(other.colors.T)
         return self.__class__(pcd)
 
+    def __radd__(self, other: Any) -> "PointCloud":
+        """
+        Overloaded the + operator so that :func:`sum` works on point clouds
+
+        :param other: the integer 0, which :func:`sum` starts from
+        :return: this point cloud, unchanged
+        :rtype: :class:`PointCloud`
+
+        ``sum(clouds)`` begins by computing ``0 + clouds[0]``.  This method
+        accepts that zero, so a list of point clouds can be joined with
+        ``sum(clouds)``.
+
+        .. versionadded:: 2.5.0
+        """
+        if isinstance(other, int) and other == 0:
+            return self
+        return NotImplemented
+
     def downsample_voxel(self, voxel_size: float) -> "PointCloud":
         """
         Downsample point cloud by voxelization
@@ -697,13 +717,24 @@ class PointCloud:
         """
         Colorize point cloud
 
-        :param color: color for points
+        :param color: color for points, either an RGB value in the range [0, 1]
+            or the name of a color, such as ``"red"`` or ``"skyblue"``
         :type color: array_like(3), str
         :return: colorized point cloud
         :rtype: :class:`PointCloud`
+        :raises ValueError: ``color`` is a string that is not a known color name
 
         Paint all points in the point cloud this color.
+
+        .. versionchanged:: 2.5.0
+            ``color`` can be a color name, which is converted by
+            :func:`~machinevisiontoolbox.base.color.name2color`.
         """
+        if isinstance(color, str):
+            rgb = name2color(color)
+            if rgb is None:
+                raise ValueError(f"unknown color name: {color!r}")
+            color = rgb
         self._pcd.paint_uniform_color(color)
         return self
 
