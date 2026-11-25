@@ -192,8 +192,9 @@ class BundleAdjust:
         .. warning:: This class assumes that all camera views have the same camera
             intrinsics.
 
-        :references:
-            - |RVC3|, Section 14.3.2.
+        .. rubric:: References
+
+        - |RVC3|, Section 14.3.2.
 
         .. seealso:: :meth:`optimize` :class:`~machinevisiontoolbox.Camera.CentralCamera` :class:`pgraph.UGraph`
         """
@@ -575,8 +576,9 @@ class BundleAdjust:
         camera poses and landmark positions in order to minimize the total
         reprojection error.
 
-        :references:
-            - |RVC3|, Section 14.3.2.
+        .. rubric:: References
+
+        - |RVC3|, Section 14.3.2.
 
         .. seealso:: :meth:`nstates` :meth:`solve` :meth:`build_linear_system`
         """
@@ -672,8 +674,9 @@ class BundleAdjust:
               since fixed elements are omitted from the variable state
               vector used for the optimization.
 
-        :references:
-            - |RVC3|, Section 14.3.2, F.2.4.
+        .. rubric:: References
+
+        - |RVC3|, Section 14.3.2, F.2.4.
 
         .. seealso:: :meth:`build_linear_system`
         """
@@ -702,8 +705,9 @@ class BundleAdjust:
         Build the block structured Hessian matrix based on current bundle
         adjustment state and the Jacobians.
 
-        :references:
-            - |RVC3|, Section 14.3.2, F.2.4.
+        .. rubric:: References
+
+        - |RVC3|, Section 14.3.2, F.2.4.
 
         .. seealso:: :meth:`spy` :meth:`~Camera.CentralCamera.derivatives`
         """

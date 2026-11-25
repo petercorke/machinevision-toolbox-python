@@ -99,8 +99,9 @@ class ImageMorphMixin(ImageMixinBase):
             A single NaN within the structuring element's window propagates to make the
             output pixel NaN.  Use :meth:`fixbad` for handling NaN values.
 
-        :references:
-            - |RVC3|, Section 11.6.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.6.
 
         .. important:: Uses OpenCV function ``cv2.erode`` which accepts multiple-channel, CV_8U, CV_16U, CV_16S, CV_32F or CV_64F images.
 
@@ -199,8 +200,9 @@ class ImageMorphMixin(ImageMixinBase):
             A single NaN within the structuring element's window propagates to make the
             output pixel NaN.  Use :meth:`fixbad` for handling NaN values.
 
-        :references:
-            - |RVC3|, Section 11.6.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.6.
 
         .. important:: Uses OpenCV function ``cv2.dilate`` which accepts multiple-channel, CV_8U, CV_16U, CV_16S, CV_32F or CV_64F images.
 
@@ -287,8 +289,9 @@ class ImageMorphMixin(ImageMixinBase):
             - The structuring element should have an odd side length.
             - For a binary image, min = erosion, max = dilation.
 
-        :references:
-            - |RVC3|, Section 11.6.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.6.
 
         .. important:: Uses OpenCV function ``cv2.morphologyEx`` which accepts multiple-channel, CV_8U, CV_16U, CV_16S, CV_32F or CV_64F images.
 
@@ -411,8 +414,9 @@ class ImageMorphMixin(ImageMixinBase):
             A single NaN within the structuring element's window propagates to make the
             output pixel NaN.  Use :meth:`fixbad` for handling NaN values.
 
-        :references:
-            - |RVC3|, Section 11.6.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.6.
 
         .. important:: Uses OpenCV function ``cv2.morphologyEx`` which accepts multiple-channel, CV_8U, CV_16U, CV_16S, CV_32F or CV_64F images.
 
@@ -501,8 +505,9 @@ class ImageMorphMixin(ImageMixinBase):
             A single NaN within the structuring element's window propagates to make the
             output pixel NaN.  Use :meth:`fixbad` for handling NaN values.
 
-        :references:
-            - |RVC3|, Section 11.6.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.6.
 
         .. important:: Uses OpenCV function ``cv2.morphologyEx`` which accepts multiple-channel, CV_8U, CV_16U, CV_16S, CV_32F or CV_64F images.
 
@@ -582,8 +587,9 @@ class ImageMorphMixin(ImageMixinBase):
 
         .. note:: For the single argument case ``s1`` :math:`=S_1 - S_2`.
 
-        :references:
-            - |RVC3|, Section 11.6.3.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.6.3.
 
         .. important:: Uses OpenCV function ``cv2.morphologyEx`` (with ``MORPH_HITMISS``) which accepts single-channel, CV_8U or CV_16S images.
 
@@ -631,8 +637,9 @@ class ImageMorphMixin(ImageMixinBase):
             >>> img = Image.Read("shark2.png")
             >>> skeleton = img.thin()
 
-        :references:
-            - |RVC3|, Section 11.6.3.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.6.3.
 
         .. seealso:: :meth:`thin_animate` :meth:`hitormiss` :meth:`endpoint` :meth:`triplepoint`
         """
@@ -691,8 +698,9 @@ class ImageMorphMixin(ImageMixinBase):
             >>> img = Image.Read("shark2.png")
             >>> img.thin_animate()
 
-        :references:
-            - |RVC3|, Section 11.6.3.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.6.3.
 
         .. seealso:: :meth:`thin` :meth:`hitormiss` :meth:`endpoint` :meth:`triplepoint`
         """
@@ -750,8 +758,9 @@ class ImageMorphMixin(ImageMixinBase):
 
         .. note:: Computed using the hit-or-miss morphological operator.
 
-        :references:
-            - |RVC3|, Section 11.6.3.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.6.3.
 
         .. seealso:: :meth:`hitormiss` :meth:`thin` :meth:`triplepoint`
         """
@@ -795,8 +804,9 @@ class ImageMorphMixin(ImageMixinBase):
 
         .. note:: Computed using the hit-or-miss morphological operator.
 
-        :references:
-            - |RVC3|, Section 11.6.3.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.6.3.
 
         .. seealso:: :meth:`hitormiss` :meth:`thin` :meth:`endpoint`
         """

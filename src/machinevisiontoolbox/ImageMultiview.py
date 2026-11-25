@@ -69,8 +69,9 @@ class ImageMultiviewMixin(ImageMixinBase):
             disparity ``d`` (counting from 0), since the shifted window in the
             right image must also lie within the image.
 
-        :references:
-            - |RVC3|, Section 14.4.
+        .. rubric:: References
+
+        - |RVC3|, Section 14.4.
 
         .. warning:: Not fast.
 
@@ -232,8 +233,9 @@ class ImageMultiviewMixin(ImageMixinBase):
             unless the first disparity was 0.  A DSI plane that is NaN no longer
             gives a NaN result for a pixel that has a valid peak.
 
-        :references:
-            - |RVC3|, Section 14.4.1.
+        .. rubric:: References
+
+        - |RVC3|, Section 14.4.1.
 
         .. seealso:: :meth:`stereo_simple`
         """
@@ -308,8 +310,9 @@ class ImageMultiviewMixin(ImageMixinBase):
 
         .. note:: The images are assumed to be epipolar aligned.
 
-        :references:
-            - |RVC3|, Section 14.4.2.7.
+        .. rubric:: References
+
+        - |RVC3|, Section 14.4.2.7.
 
         .. seealso:: :meth:`stereo_SGBM` :meth:`stereo_simple` `opencv.StereoBM <https://docs.opencv.org/4.x/d9/dba/classcv_1_1StereoBM.html>`_
         """
@@ -389,12 +392,13 @@ class ImageMultiviewMixin(ImageMixinBase):
 
         .. note:: The images are assumed to be epipolar aligned.
 
-        :references:
-            - Stereo processing by semiglobal matching and mutual information,
-              Heiko Hirschmuller,
-              IEEE Transactions on Pattern Analysis and Machine Intelligence,
-              30(2):328–341, 2008.
-            - |RVC3|, Section 14.4.2.7.
+        .. rubric:: References
+
+        - Stereo processing by semiglobal matching and mutual information,
+          Heiko Hirschmuller,
+          IEEE Transactions on Pattern Analysis and Machine Intelligence,
+          30(2):328–341, 2008.
+        - |RVC3|, Section 14.4.2.7.
 
         .. seealso:: :meth:`stereo_SGBM` :meth:`stereo_simple` `opencv.StereoSGBM <https://docs.opencv.org/4.x/d2/d85/classcv_1_1StereoSGBM.html>`_
         """
@@ -466,8 +470,9 @@ class ImageMultiviewMixin(ImageMixinBase):
                 walls_r_rect = walls_r.warp_perspective(H_r)
 
 
-        :references:
-            - |RVC3|, Section 14.4.3.
+        .. rubric:: References
+
+        - |RVC3|, Section 14.4.3.
 
         .. seealso:: :meth:`warp_perspective` :class:`Match` `opencv.stereoRectifyUncalibrated <https://docs.opencv.org/4.x/d9/d0c/group__calib3d.html#gaadc5b14471ddc004939471339294f052>`_
         """

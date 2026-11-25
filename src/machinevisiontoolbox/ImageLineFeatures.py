@@ -77,8 +77,9 @@ class HoughFeature:
             - The OpenCV implementation works with ``uint8`` images only, other formats
               will be converted to ``uint8``.
 
-        :references:
-            - |RVC3|, Section 12.2.
+        .. rubric:: References
+
+        - |RVC3|, Section 12.2.
 
         .. seealso:: :meth:`lines` :meth:`lines_p`
         """
@@ -105,8 +106,9 @@ class HoughFeature:
 
         .. math:: u \cos \theta + v \sin \theta = \rho
 
-        :references:
-            - |RVC3|, Section 12.2.
+        .. rubric:: References
+
+        - |RVC3|, Section 12.2.
 
         .. important:: Uses OpenCV function ``cv2.HoughLines`` which accepts single-channel, CV_8U images (images are pre-converted to uint8 when the :class:`Hough` object is created).
 

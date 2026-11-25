@@ -283,8 +283,9 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
               area is computed from the moments of the blob, which are computed from the
               contour, see above.
 
-        :references:
-            - |RVC3|, Section 12.1.2.1.
+        .. rubric:: References
+
+        - |RVC3|, Section 12.1.2.1.
 
         .. seealso::
 
@@ -610,8 +611,9 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             parents and children in the blob tree.  A blob may have references
             to parents and children that are not in the filtered set.
 
-        :references:
-            - |RVC3|, Section 12.1.2.1.
+        .. rubric:: References
+
+        - |RVC3|, Section 12.1.2.1.
 
         .. seealso:: :meth:`sort`
         """
@@ -688,8 +690,9 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> blobs = img.blobs()
             >>> blobs.sort()
 
-        :references:
-            - |RVC3|, Section 12.1.2.1.
+        .. rubric:: References
+
+        - |RVC3|, Section 12.1.2.1.
 
         .. seealso:: :meth:`filter`
         """
@@ -2758,8 +2761,9 @@ class ImageBlobsMixin(ImageMixinBase):
             >>> len(blobs)
             >>> print(blobs)
 
-        :references:
-            - |RVC3|, Section 12.1.2.1.
+        .. rubric:: References
+
+        - |RVC3|, Section 12.1.2.1.
 
         .. seealso:: :class:`Blobs` :class:`Blob`
         """

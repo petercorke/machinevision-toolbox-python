@@ -137,8 +137,9 @@ def loadspectrum(
           <https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.interp1d.html>`_
           for more info.
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
+
+    - |RVC3|, Section 10.1.
     """
     global _spectra
 
@@ -202,8 +203,9 @@ def blackbody(λ: np.ndarray | float, T: float) -> np.ndarray | float:
         >>> e = blackbody(l, 6500)                # emission of sun
         >>> print(e[:5])
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
+
+    - |RVC3|, Section 10.1.
     """
 
     # physical constants
@@ -274,8 +276,9 @@ def lambda2rg(
           instructions given by Stiles & Burch (1959)" and renormalized to
           primaries at 15500 (645.16), 19000 (526.32), and 22500 (444.44) cm-1.
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
+
+    - |RVC3|, Section 10.1.
 
     .. seealso:: :func:`lambda2xy` :func:`cmfrgb`
     """
@@ -338,8 +341,9 @@ def cmfrgb(λ: ArrayLike, e: ArrayLike | None = None, **kwargs: Any) -> np.ndarr
         >>> e = loadspectrum(l, "solar")
         >>> cmfrgb(l, e)
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
+
+    - |RVC3|, Section 10.1.
 
     .. seealso:: :func:`~lambda2rg`
     """
@@ -403,8 +407,9 @@ def tristim2cc(tri: np.ndarray) -> np.ndarray:
         >>> cc = tristim2cc(img)
         >>> cc.shape
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
+
+    - |RVC3|, Section 10.1.
     """
 
     # TODO check if tri is correct shape? can be vector or matrix
@@ -463,8 +468,9 @@ def lambda2xy(λ: np.ndarray | float, *args: Any) -> np.ndarray:
         >>> lambda2xy([550e-9, 600e-9])
 
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
+
+    - |RVC3|, Section 10.1.
 
     .. seealso:: :func:`lambda2rg` :func:`cmfxyz` :func:`ccxyz`
     """
@@ -525,8 +531,9 @@ def cmfxyz(
     .. note::  CIE 1931 2-deg XYZ CMFs from from `Color & Vision Research Laboratory <http://cvrl.ioo.ucl.ac.uk>`_
 
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
+
+    - |RVC3|, Section 10.1.
 
     .. seealso:: :func:`lambda2xy` :func:`ccxyz`
     """
@@ -572,8 +579,9 @@ def luminos(λ: np.ndarray | float, **kwargs: Any) -> np.ndarray | float:
         - Luminosity has units of lumens, which are the intensity with which
           wavelengths are perceived by the light-adapted human eye.
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
+
+    - |RVC3|, Section 10.1.
 
     .. seealso:: :func:`rluminos`
     """
@@ -616,8 +624,9 @@ def rluminos(λ: np.ndarray | float, **kwargs: Any) -> np.ndarray | float:
           intensity with which wavelengths are perceived by the light-adapted
           human eye.
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
+
+    - |RVC3|, Section 10.1.
     """
 
     λ = smb.getvector(λ)
@@ -661,8 +670,9 @@ def ccxyz(λ: np.ndarray | float, e: np.ndarray | float | None = None) -> np.nda
         >>> e = loadspectrum(l, "solar")
         >>> lambda2rg(l, e)
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
+
+    - |RVC3|, Section 10.1.
 
     .. seealso:: :func:`cmfxyz` :func:`lambda2xy`
     """
@@ -784,8 +794,9 @@ def name2color(
 
     .. note:: Uses color database from Matplotlib.
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
+
+    - |RVC3|, Section 10.1.
 
     .. seealso:: :func:`~color2name` :func:`color_names`
     """
@@ -877,8 +888,9 @@ def color_names(pattern: str | None = None) -> list[str]:
     .. versionadded:: 2.5.0
         Replaces the wildcard feature of :func:`name2color`.
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
+
+    - |RVC3|, Section 10.1.
 
     .. seealso:: :func:`name2color` :func:`color2name` :mod:`re`
     """
@@ -922,8 +934,9 @@ def color2name(color: np.ndarray | list[float], colorspace: str = "RGB") -> str:
         - Uses color database from Matplotlib
         - Tristiumuls values are [0,1]
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
+
+    - |RVC3|, Section 10.1.
 
     .. seealso:: :func:`~name2color`
     """
@@ -1217,8 +1230,9 @@ def plot_chromaticity_diagram(
     .. note:: The colors shown within the locus only approximate the true
             colors, due to the gamut of the display device.
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
+
+    - |RVC3|, Section 10.1.
 
     .. seealso:: :func:`plot_spectral_locus`
     """
@@ -1542,8 +1556,9 @@ def gamma_encode(image: np.ndarray, gamma: float | str = "sRGB") -> np.ndarray:
           the maximum value of their class.  Pixels are converted first to
           double, encoded, then converted back to the integer class.
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
+
+    - |RVC3|, Section 10.1.
 
     .. seealso:: :func:`gamma_decode` :func:`colorspace_convert`
     """
@@ -1615,8 +1630,9 @@ def gamma_decode(image: np.ndarray, gamma: float | str = "sRGB") -> np.ndarray:
           the maximum value of their class.  Pixels are converted first to
           double, encoded, then converted back to the integer class.
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
+
+    - |RVC3|, Section 10.1.
 
     .. seealso:: :func:`gamma_encode`
     """
@@ -1795,11 +1811,12 @@ def shadow_invariant(
         - The input image is assumed to be linear, that is, it has been
           gamma decoded.
 
-    :references:
-        - “Dealing with shadows: Capturing intrinsic scene appear for image-based outdoor localisation,”
-          P. Corke, R. Paul, W. Churchill, and P. Newman
-          Proc. Int. Conf. Intelligent Robots and Systems (IROS), pp. 2085–2 2013.
-        - |RVC3|, Section 10.4.2.
+    .. rubric:: References
+
+    - “Dealing with shadows: Capturing intrinsic scene appear for image-based outdoor localisation,”
+      P. Corke, R. Paul, W. Churchill, and P. Newman
+      Proc. Int. Conf. Intelligent Robots and Systems (IROS), pp. 2085–2 2013.
+    - |RVC3|, Section 10.4.2.
     """
 
     # Convert the image into a vector (h*w,channel)

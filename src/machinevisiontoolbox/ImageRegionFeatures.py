@@ -49,8 +49,9 @@ class ImageRegionFeaturesMixin(ImageMixinBase):
             >>> len(mser)  # number of features
             >>> mser[:5].bbox
 
-        :references:
-            - |RVC3|, Section 12.1.1.2.
+        .. rubric:: References
+
+        - |RVC3|, Section 12.1.1.2.
 
         .. seealso:: :class:`MSERFeature`, `cv2.MSER_create <https://docs.opencv.org/4.5.2/d3/d28/classcv_1_1MSER.html>`_
         """
@@ -86,8 +87,9 @@ class ImageRegionFeaturesMixin(ImageMixinBase):
 
         .. warning:: `PyTessearct <https://github.com/madmaze/pytesseract>`_ must be installed.
 
-        :references:
-            - |RVC3|, Section 12.4.1.
+        .. rubric:: References
+
+        - |RVC3|, Section 12.4.1.
 
         .. seealso:: :class:`OCRWord`
         """
@@ -149,11 +151,12 @@ class MSERFeature:
             >>> msers[0]
             >>> msers.bbox
 
-        :references:
-            - J. Matas, O. Chum, M. Urban, and T. Pajdla.
-              "Robust wide baseline stereo from maximally stable extremal regions."
-              Proc. of British Machine Vision Conference, pages 384-396, 2002.
-            - |RVC3|, Section 12.1.2.2.
+        .. rubric:: References
+
+        - J. Matas, O. Chum, M. Urban, and T. Pajdla.
+          "Robust wide baseline stereo from maximally stable extremal regions."
+          Proc. of British Machine Vision Conference, pages 384-396, 2002.
+        - |RVC3|, Section 12.1.2.2.
 
 
         .. seealso:: :meth:`bbox` :meth:`points`

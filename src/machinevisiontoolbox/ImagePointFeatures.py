@@ -2408,11 +2408,12 @@ class ImagePointFeaturesMixin(ImageMixinBase):
             >>> len(sift)  # number of features
             >>> print(sift[:5])
 
-        :references:
-            - Distinctive image features from scale-invariant keypoints.
-              David G. Lowe
-              Int. J. Comput. Vision, 60(2):91–110, November 2004.
-            - |RVC3|, Section 14.1.
+        .. rubric:: References
+
+        - Distinctive image features from scale-invariant keypoints.
+          David G. Lowe
+          Int. J. Comput. Vision, 60(2):91–110, November 2004.
+        - |RVC3|, Section 14.1.
 
 
         .. seealso:: :class:`SIFTFeature` `cv2.SIFT_create <https://docs.opencv.org/4.5.2/d7/d60/classcv_1_1SIFT.html>`_
@@ -2452,11 +2453,12 @@ class ImagePointFeaturesMixin(ImageMixinBase):
             >>> surf = img.SURF()
             >>> len(surf)  # number of features
 
-        :references:
-            - SURF: Speeded up robust features.
-              Herbert Bay, Tinne Tuytelaars, and Luc Van Gool.
-              In European Conference on Computer Vision (ECCV), 2006.
-            - |RVC3|, Section 14.1.
+        .. rubric:: References
+
+        - SURF: Speeded up robust features.
+          Herbert Bay, Tinne Tuytelaars, and Luc Van Gool.
+          In European Conference on Computer Vision (ECCV), 2006.
+        - |RVC3|, Section 14.1.
 
         .. seealso:: :class:`SURFFeature` :meth:`SIFT` `cv2.xfeatures2d.SURF_create <https://docs.opencv.org/4.x/d5/df7/classcv_1_1xfeatures2d_1_1SURF.html>`_
 
@@ -2524,11 +2526,12 @@ class ImagePointFeaturesMixin(ImageMixinBase):
             >>> len(brisk)  # number of features
             >>> print(brisk[:5])
 
-        :references:
-            - Brisk: Binary robust invariant scalable keypoints.
-              Stefan Leutenegger, Margarita Chli, and Roland Yves Siegwart.
-              In Computer Vision (ICCV), 2011 IEEE International Conference on,
-              pages 2548–2555. IEEE, 2011.
+        .. rubric:: References
+
+        - Brisk: Binary robust invariant scalable keypoints.
+          Stefan Leutenegger, Margarita Chli, and Roland Yves Siegwart.
+          In Computer Vision (ICCV), 2011 IEEE International Conference on,
+          pages 2548–2555. IEEE, 2011.
 
         .. seealso:: :class:`BRISKFeature` `cv2.BRISK_create <https://docs.opencv.org/4.5.2/d7/d60/classcv_1_1BRISK.html>`_
         """
@@ -2559,10 +2562,11 @@ class ImagePointFeaturesMixin(ImageMixinBase):
             >>> len(akaze)  # number of features
             >>> print(akaze[:5])
 
-        :references:
-            - Fast explicit diffusion for accelerated features in nonlinear scale spaces.
-              Pablo F Alcantarilla, Jesús Nuevo, and Adrien Bartoli.
-              Trans. Pattern Anal. Machine Intell, 34(7):1281–1298, 2011.
+        .. rubric:: References
+
+        - Fast explicit diffusion for accelerated features in nonlinear scale spaces.
+          Pablo F Alcantarilla, Jesús Nuevo, and Adrien Bartoli.
+          Trans. Pattern Anal. Machine Intell, 34(7):1281–1298, 2011.
 
         .. seealso::
 
@@ -2613,12 +2617,13 @@ class ImagePointFeaturesMixin(ImageMixinBase):
         .. note:: The Harris corner detector and descriptor is not part of
             OpenCV and has been custom written for pedagogical purposes.
 
-        :references:
-            - A combined corner and edge detector.
-              CG Harris, MJ Stephens
-              Proceedings of the Fourth Alvey Vision Conference, 1988
-              Manchester, pp 147–151
-            - |RVC3|, Section 12.3.1.
+        .. rubric:: References
+
+        - A combined corner and edge detector.
+          CG Harris, MJ Stephens
+          Proceedings of the Fourth Alvey Vision Conference, 1988
+          Manchester, pp 147–151
+        - |RVC3|, Section 12.3.1.
 
         .. seealso:: :class:`HarrisFeature`
         """

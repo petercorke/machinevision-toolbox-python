@@ -463,8 +463,9 @@ def idisp(
         On NumPy 2 they used to copy ``2,1,(np.uint8(10), np.uint8(20), np.uint8(30))``,
         and raised an error for a monochrome image.
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
+
+    - |RVC3|, Section 10.1.
 
     .. seealso::
 
@@ -1156,8 +1157,9 @@ def iread(
           and ``[abc]`` patterns, and includes hidden files (those starting with a dot) in the search results.
         - For URL input, the image is read directly from the URL without saving to a local file.  The URL must start with "http://" or "https://".  Wildcard patterns are not supported for URLs.
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
+
+    - |RVC3|, Section 10.1.
 
     .. seealso:: :func:`iread_iter` :func:`convert` `cv2.imread <https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56>`_
     """
