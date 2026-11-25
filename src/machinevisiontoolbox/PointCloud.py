@@ -21,6 +21,7 @@ Open3D convention.
 """
 
 import difflib
+import inspect
 from pathlib import Path
 from typing import Any, Callable
 from warnings import warn
@@ -55,6 +56,15 @@ def _show_in_notebook(
     """
     if file is not None:
         raise ValueError("file cannot be used with notebook=True")
+    # Plotly draws a subset of the options of the Open3D window, so name an option
+    # that it does not accept, instead of leaving it to fail in get_plotly_fig
+    supported = set(inspect.signature(o3d.visualization.get_plotly_fig).parameters)
+    unsupported = sorted(set(kwargs) - supported)
+    if unsupported:
+        raise TypeError(
+            f"disp(notebook=True) does not support the option(s) {unsupported}; "
+            f"the options it accepts are {sorted(supported - {'geometry_list'})}"
+        )
     try:
         import plotly  # noqa: F401
     except ImportError:

@@ -377,5 +377,16 @@ class TestFallThrough(unittest.TestCase):
 
 
 # ----------------------------------------------------------------------- #
+class TestDispNotebookOptions(unittest.TestCase):
+    """disp(notebook=True) names an option that Plotly cannot draw"""
+
+    def test_unsupported_option_is_named(self):
+        pc = PointCloud(np.random.default_rng(0).random((3, 20)))
+        with self.assertRaises(TypeError) as cm:
+            pc.disp(notebook=True, point_show_normal=True)
+        self.assertIn("point_show_normal", str(cm.exception))
+        self.assertIn("notebook=True", str(cm.exception))
+
+
 if __name__ == "__main__":
     unittest.main()
