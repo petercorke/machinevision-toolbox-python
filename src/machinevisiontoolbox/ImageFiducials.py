@@ -105,7 +105,7 @@ class ImageFiducialsMixin(ImageMixinBase):
         ``36h11``     AprilTag   6x6           587
         ============  ========   ===========   =====================
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -118,8 +118,9 @@ class ImageFiducialsMixin(ImageMixinBase):
         .. note:: ``side`` is the dimension of the square that contains the
             small white squares inside the black background.
 
-        :references:
-            - |RVC3|, Section 13.6.1.
+        .. rubric:: References
+
+        - |RVC3|, Section 13.6.1.
 
         .. seealso:: :class:`Fiducial` :class:`ArUcoBoard`
         """

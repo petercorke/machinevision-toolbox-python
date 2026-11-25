@@ -161,7 +161,7 @@ class ImageConstantsMixin(ImageMixinBase):
         Create a greyscale image of zero-valued pixels. If only one dimension is
         given the image is square.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -222,7 +222,7 @@ class ImageConstantsMixin(ImageMixinBase):
         then the image has ``len(value)`` planes, each initialized to the
         corresponding element of ``value``.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -304,7 +304,7 @@ class ImageConstantsMixin(ImageMixinBase):
         rows are separated by a pipe.  There are no spaces.  All rows must be
         the same length.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -448,7 +448,7 @@ class ImageConstantsMixin(ImageMixinBase):
             supported for ``uint8`` images, and if given then ``maxval`` is ignored.
 
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -589,7 +589,7 @@ class ImageConstantsMixin(ImageMixinBase):
 
         The image background is set to ``bg`` and the circles are filled with ``fg``.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -684,7 +684,7 @@ class ImageConstantsMixin(ImageMixinBase):
 
         The image background is set to ``bg`` and the circles are filled with ``fg``.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -784,7 +784,7 @@ class ImageConstantsMixin(ImageMixinBase):
         * float image: 0 to 1
         * int image: 0 to maximum positive value of the integer type
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -881,7 +881,7 @@ class ImageConstantsMixin(ImageMixinBase):
             * float image: 0 to 1
             * int image: 0 to maximum positive value of the integer type
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -966,7 +966,7 @@ class ImageConstantsMixin(ImageMixinBase):
         * float image: black squares 0.0, white squares 1.0
         * int image: black squares 0, white squares maximum positive value of the integer type
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1075,7 +1075,7 @@ class ImageConstantsMixin(ImageMixinBase):
             filled square of pixels with rows from 10 to 20 and columns from 10 to 20.  It
             will have an area of 11x11 = 121 pixels, not 10x10 = 100 pixels.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 

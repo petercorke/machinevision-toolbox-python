@@ -76,7 +76,7 @@ class ImageMorphMixin(ImageMixinBase):
         False as 0. The structuring element should be a 2D array of non-negative
         integers, where non-zero values indicate the shape of the structuring element.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -99,8 +99,9 @@ class ImageMorphMixin(ImageMixinBase):
             A single NaN within the structuring element's window propagates to make the
             output pixel NaN.  Use :meth:`fixbad` for handling NaN values.
 
-        :references:
-            - |RVC3|, Section 11.6.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.6.
 
         .. important:: Uses OpenCV function ``cv2.erode`` which accepts multiple-channel, CV_8U, CV_16U, CV_16S, CV_32F or CV_64F images.
 
@@ -175,7 +176,7 @@ class ImageMorphMixin(ImageMixinBase):
         False as 0. The structuring element should be a 2D array of non-negative
         integers, where non-zero values indicate the shape of the structuring element.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -199,8 +200,9 @@ class ImageMorphMixin(ImageMixinBase):
             A single NaN within the structuring element's window propagates to make the
             output pixel NaN.  Use :meth:`fixbad` for handling NaN values.
 
-        :references:
-            - |RVC3|, Section 11.6.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.6.
 
         .. important:: Uses OpenCV function ``cv2.dilate`` which accepts multiple-channel, CV_8U, CV_16U, CV_16S, CV_32F or CV_64F images.
 
@@ -287,8 +289,9 @@ class ImageMorphMixin(ImageMixinBase):
             - The structuring element should have an odd side length.
             - For a binary image, min = erosion, max = dilation.
 
-        :references:
-            - |RVC3|, Section 11.6.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.6.
 
         .. important:: Uses OpenCV function ``cv2.morphologyEx`` which accepts multiple-channel, CV_8U, CV_16U, CV_16S, CV_32F or CV_64F images.
 
@@ -388,7 +391,7 @@ class ImageMorphMixin(ImageMixinBase):
         False as 0. The structuring element should be a 2D array of non-negative
         integers, where non-zero values indicate the shape of the structuring element.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -411,8 +414,9 @@ class ImageMorphMixin(ImageMixinBase):
             A single NaN within the structuring element's window propagates to make the
             output pixel NaN.  Use :meth:`fixbad` for handling NaN values.
 
-        :references:
-            - |RVC3|, Section 11.6.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.6.
 
         .. important:: Uses OpenCV function ``cv2.morphologyEx`` which accepts multiple-channel, CV_8U, CV_16U, CV_16S, CV_32F or CV_64F images.
 
@@ -478,7 +482,7 @@ class ImageMorphMixin(ImageMixinBase):
         False as 0. The structuring element should be a 2D array of non-negative
         integers, where non-zero values indicate the shape of the structuring element.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -501,8 +505,9 @@ class ImageMorphMixin(ImageMixinBase):
             A single NaN within the structuring element's window propagates to make the
             output pixel NaN.  Use :meth:`fixbad` for handling NaN values.
 
-        :references:
-            - |RVC3|, Section 11.6.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.6.
 
         .. important:: Uses OpenCV function ``cv2.morphologyEx`` which accepts multiple-channel, CV_8U, CV_16U, CV_16S, CV_32F or CV_64F images.
 
@@ -567,7 +572,7 @@ class ImageMorphMixin(ImageMixinBase):
             * -1, must match a zero value
             * 0, don't care, matches any value.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -582,8 +587,9 @@ class ImageMorphMixin(ImageMixinBase):
 
         .. note:: For the single argument case ``s1`` :math:`=S_1 - S_2`.
 
-        :references:
-            - |RVC3|, Section 11.6.3.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.6.3.
 
         .. important:: Uses OpenCV function ``cv2.morphologyEx`` (with ``MORPH_HITMISS``) which accepts single-channel, CV_8U or CV_16S images.
 
@@ -620,7 +626,7 @@ class ImageMorphMixin(ImageMixinBase):
         binary image. Any non-zero region is replaced by a network of
         single-pixel wide lines.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -631,8 +637,9 @@ class ImageMorphMixin(ImageMixinBase):
             >>> img = Image.Read("shark2.png")
             >>> skeleton = img.thin()
 
-        :references:
-            - |RVC3|, Section 11.6.3.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.6.3.
 
         .. seealso:: :meth:`thin_animate` :meth:`hitormiss` :meth:`endpoint` :meth:`triplepoint`
         """
@@ -683,7 +690,7 @@ class ImageMorphMixin(ImageMixinBase):
         The algorithm is iterative, and the result of of each iteration is
         displayed using Matplotlib.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -691,8 +698,9 @@ class ImageMorphMixin(ImageMixinBase):
             >>> img = Image.Read("shark2.png")
             >>> img.thin_animate()
 
-        :references:
-            - |RVC3|, Section 11.6.3.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.6.3.
 
         .. seealso:: :meth:`thin` :meth:`hitormiss` :meth:`endpoint` :meth:`triplepoint`
         """
@@ -739,7 +747,7 @@ class ImageMorphMixin(ImageMixinBase):
         in the binary image is the end point of a single-pixel wide line such as
         found in an image skeleton.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -750,8 +758,9 @@ class ImageMorphMixin(ImageMixinBase):
 
         .. note:: Computed using the hit-or-miss morphological operator.
 
-        :references:
-            - |RVC3|, Section 11.6.3.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.6.3.
 
         .. seealso:: :meth:`hitormiss` :meth:`thin` :meth:`triplepoint`
         """
@@ -784,7 +793,7 @@ class ImageMorphMixin(ImageMixinBase):
         in the binary image is a triple point, that is where three single-pixel
         wide line intersect. These are the Voronoi points in an image skeleton.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -795,8 +804,9 @@ class ImageMorphMixin(ImageMixinBase):
 
         .. note:: Computed using the hit-or-miss morphological operator.
 
-        :references:
-            - |RVC3|, Section 11.6.3.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.6.3.
 
         .. seealso:: :meth:`hitormiss` :meth:`thin` :meth:`endpoint`
         """

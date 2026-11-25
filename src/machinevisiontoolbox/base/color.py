@@ -52,7 +52,7 @@ def _loaddata(filename: str, verbose: bool = False, **kwargs: Any) -> np.ndarray
     ``_loaddata(filename)`` returns ``data`` from ``filename``, otherwise
     returns None
 
-    Example:
+    .. rubric:: Examples
 
     .. note::
 
@@ -114,7 +114,7 @@ def loadspectrum(
     ``filename`` and interpolate it to the wavelengths [meters] specified in 𝜆.
     The spectral data can be scalar (D=1) or vector (D>1) valued.
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -137,8 +137,9 @@ def loadspectrum(
           <https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.interp1d.html>`_
           for more info.
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
+
+    - |RVC3|, Section 10.1.
     """
     global _spectra
 
@@ -192,7 +193,7 @@ def blackbody(λ: np.ndarray | float, T: float) -> np.ndarray | float:
     If 𝜆 is an array, then the result is an array of
     blackbody radiation power density at the corresponding elements of 𝜆.
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -202,8 +203,9 @@ def blackbody(λ: np.ndarray | float, T: float) -> np.ndarray | float:
         >>> e = blackbody(l, 6500)                # emission of sun
         >>> print(e[:5])
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
+
+    - |RVC3|, Section 10.1.
     """
 
     # physical constants
@@ -244,7 +246,7 @@ def lambda2rg(
     illumination spectrum :math:`\texttt{e}(\lambda)` defined at corresponding
     wavelengths of :math:`\lambda`.
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -274,8 +276,9 @@ def lambda2rg(
           instructions given by Stiles & Burch (1959)" and renormalized to
           primaries at 15500 (645.16), 19000 (526.32), and 22500 (444.44) cm-1.
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
+
+    - |RVC3|, Section 10.1.
 
     .. seealso:: :func:`lambda2xy` :func:`cmfrgb`
     """
@@ -327,7 +330,7 @@ def cmfrgb(λ: ArrayLike, e: ArrayLike | None = None, **kwargs: Any) -> np.ndarr
     wavelengths of :math:`\lambda`. This is the tristimulus that has the same
     visual sensation as :math:`\texttt{e}(\lambda)`.
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -338,8 +341,9 @@ def cmfrgb(λ: ArrayLike, e: ArrayLike | None = None, **kwargs: Any) -> np.ndarr
         >>> e = loadspectrum(l, "solar")
         >>> cmfrgb(l, e)
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
+
+    - |RVC3|, Section 10.1.
 
     .. seealso:: :func:`~lambda2rg`
     """
@@ -393,7 +397,7 @@ def tristim2cc(tri: np.ndarray) -> np.ndarray:
     result is an image with two planes corresponding to r and g, or x and y
     (depending on whether the input image was RGB or XYZ).
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -403,8 +407,9 @@ def tristim2cc(tri: np.ndarray) -> np.ndarray:
         >>> cc = tristim2cc(img)
         >>> cc.shape
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
+
+    - |RVC3|, Section 10.1.
     """
 
     # TODO check if tri is correct shape? can be vector or matrix
@@ -454,7 +459,7 @@ def lambda2xy(λ: np.ndarray | float, *args: Any) -> np.ndarray:
     result is an array where the rows are the chromaticity coordinates at the
     corresponding elements of :math:`\lambda`.
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -463,8 +468,9 @@ def lambda2xy(λ: np.ndarray | float, *args: Any) -> np.ndarray:
         >>> lambda2xy([550e-9, 600e-9])
 
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
+
+    - |RVC3|, Section 10.1.
 
     .. seealso:: :func:`lambda2rg` :func:`cmfxyz` :func:`ccxyz`
     """
@@ -511,7 +517,7 @@ def cmfxyz(
     wavelengths of :math:`\lambda`. This is the XYZ tristimulus that has the
     same visual sensation as :math:`\texttt{e}(\lambda)`.
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -525,8 +531,9 @@ def cmfxyz(
     .. note::  CIE 1931 2-deg XYZ CMFs from from `Color & Vision Research Laboratory <http://cvrl.ioo.ucl.ac.uk>`_
 
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
+
+    - |RVC3|, Section 10.1.
 
     .. seealso:: :func:`lambda2xy` :func:`ccxyz`
     """
@@ -559,7 +566,7 @@ def luminos(λ: np.ndarray | float, **kwargs: Any) -> np.ndarray | float:
     array whose elements are the luminosity at the corresponding
     :math:`\lambda`.
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -572,8 +579,9 @@ def luminos(λ: np.ndarray | float, **kwargs: Any) -> np.ndarray | float:
         - Luminosity has units of lumens, which are the intensity with which
           wavelengths are perceived by the light-adapted human eye.
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
+
+    - |RVC3|, Section 10.1.
 
     .. seealso:: :func:`rluminos`
     """
@@ -602,7 +610,7 @@ def rluminos(λ: np.ndarray | float, **kwargs: Any) -> np.ndarray | float:
     vector whose elements are the luminosity at the corresponding
     :math:`\lambda`.
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -616,8 +624,9 @@ def rluminos(λ: np.ndarray | float, **kwargs: Any) -> np.ndarray | float:
           intensity with which wavelengths are perceived by the light-adapted
           human eye.
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
+
+    - |RVC3|, Section 10.1.
     """
 
     λ = smb.getvector(λ)
@@ -649,7 +658,7 @@ def ccxyz(λ: np.ndarray | float, e: np.ndarray | float | None = None) -> np.nda
     wavelengths of :math:`\lambda`. This is the tristimulus that has the same
     visual sensation as :math:`\texttt{e}(\lambda)`.
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -661,8 +670,9 @@ def ccxyz(λ: np.ndarray | float, e: np.ndarray | float | None = None) -> np.nda
         >>> e = loadspectrum(l, "solar")
         >>> lambda2rg(l, e)
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
+
+    - |RVC3|, Section 10.1.
 
     .. seealso:: :func:`cmfxyz` :func:`lambda2xy`
     """
@@ -771,7 +781,7 @@ def name2color(
         :class:`ValueError`.  It used to return a list of the matching color
         names, which is now done by :func:`color_names`.
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -784,8 +794,9 @@ def name2color(
 
     .. note:: Uses color database from Matplotlib.
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
+
+    - |RVC3|, Section 10.1.
 
     .. seealso:: :func:`~color2name` :func:`color_names`
     """
@@ -865,7 +876,7 @@ def color_names(pattern: str | None = None) -> list[str]:
         name must match, so to find names that contain ``coral`` use
         ``".*coral.*"``, not ``"coral"`` or ``"*coral*"``.
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -877,8 +888,9 @@ def color_names(pattern: str | None = None) -> list[str]:
     .. versionadded:: 2.5.0
         Replaces the wildcard feature of :func:`name2color`.
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
+
+    - |RVC3|, Section 10.1.
 
     .. seealso:: :func:`name2color` :func:`color2name` :mod:`re`
     """
@@ -909,7 +921,7 @@ def color2name(color: np.ndarray | list[float], colorspace: str = "RGB") -> str:
     Converts the given value from the specified ``colorspace`` to RGB and finds
     the closest (Euclidean distance) value in ``matplotlib.colors``.
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -922,8 +934,9 @@ def color2name(color: np.ndarray | list[float], colorspace: str = "RGB") -> str:
         - Uses color database from Matplotlib
         - Tristiumuls values are [0,1]
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
+
+    - |RVC3|, Section 10.1.
 
     .. seealso:: :func:`~name2color`
     """
@@ -1017,7 +1030,7 @@ def XYZ2RGBxform(
     to an RGB tristimulus value.  The transformation applies to linear, non
     gamma encoded, tristimulus values.
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -1201,12 +1214,12 @@ def plot_chromaticity_diagram(
     locus, and internal pixels are an approximation of their true color (at the
     specified ``brightness``).
 
-    Example:
+    .. rubric:: Examples
 
-        .. code-block:: python
+    .. code-block:: python
 
-            from machinevisiontoolbox import plot_chromaticity_diagram
-            plot_chromaticity_diagram()  # show filled chromaticity diagram
+        from machinevisiontoolbox import plot_chromaticity_diagram
+        plot_chromaticity_diagram()  # show filled chromaticity diagram
 
 
     .. plot::
@@ -1217,8 +1230,9 @@ def plot_chromaticity_diagram(
     .. note:: The colors shown within the locus only approximate the true
             colors, due to the gamut of the display device.
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
+
+    - |RVC3|, Section 10.1.
 
     .. seealso:: :func:`plot_spectral_locus`
     """
@@ -1277,12 +1291,12 @@ def plot_spectral_locus(
     Typically, would be used in conjunction with :func:`plot_chromaticity_diagram`
     to plot chromaticity diagram with labelled boundary.
 
-    Example:
+    .. rubric:: Examples
 
-        .. code-block:: python
+    .. code-block:: python
 
-            from machinevisiontoolbox import plot_spectral_locus
-            plot_spectral_locus()  # add the border
+        from machinevisiontoolbox import plot_spectral_locus
+        plot_spectral_locus()  # add the border
 
 
     .. plot::
@@ -1354,7 +1368,7 @@ def cie_primaries() -> np.ndarray:
     ``cie_primaries`` is a 3-vector with the wavelengths [m] of the
     CIE-1976 red, green and blue primaries respectively.
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -1401,7 +1415,7 @@ def colorspace_convert(image: ArrayLike, src: str, dst: str) -> np.ndarray:
     CIE L*u*v*                  ``'luv'``, ``'l*u*v*'``
     =======================     ========================
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -1542,8 +1556,9 @@ def gamma_encode(image: np.ndarray, gamma: float | str = "sRGB") -> np.ndarray:
           the maximum value of their class.  Pixels are converted first to
           double, encoded, then converted back to the integer class.
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
+
+    - |RVC3|, Section 10.1.
 
     .. seealso:: :func:`gamma_decode` :func:`colorspace_convert`
     """
@@ -1615,8 +1630,9 @@ def gamma_decode(image: np.ndarray, gamma: float | str = "sRGB") -> np.ndarray:
           the maximum value of their class.  Pixels are converted first to
           double, encoded, then converted back to the integer class.
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
+
+    - |RVC3|, Section 10.1.
 
     .. seealso:: :func:`gamma_encode`
     """
@@ -1665,7 +1681,7 @@ def _srgb_inverse(Rg: np.ndarray) -> np.ndarray:
     - ``_srgb_imverse(Rg)`` maps an sRGB gamma encoded image to linear
         tristimulus values.
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -1697,7 +1713,7 @@ def _srgb(R: np.ndarray) -> np.ndarray:
     - ``_srgb(R)`` maps linear tristimulus values to an sRGB gamma encoded
         image.
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -1785,21 +1801,22 @@ def shadow_invariant(
     filters in the order red, green, blue.  If these aren't provided they
     default to 610, 538, and 460nm.
 
-    Example:
+    .. rubric:: Examples
 
-        >>> im = iread('parks.png', gamma='sRGB', dtype='double')
-        >>> gs = shadow_invariant(im, 0.7)
-        >>> idisp(gs)
+    >>> im = iread('parks.png', gamma='sRGB', dtype='double')
+    >>> gs = shadow_invariant(im, 0.7)
+    >>> idisp(gs)
 
     .. note::
         - The input image is assumed to be linear, that is, it has been
           gamma decoded.
 
-    :references:
-        - “Dealing with shadows: Capturing intrinsic scene appear for image-based outdoor localisation,”
-          P. Corke, R. Paul, W. Churchill, and P. Newman
-          Proc. Int. Conf. Intelligent Robots and Systems (IROS), pp. 2085–2 2013.
-        - |RVC3|, Section 10.4.2.
+    .. rubric:: References
+
+    - “Dealing with shadows: Capturing intrinsic scene appear for image-based outdoor localisation,”
+      P. Corke, R. Paul, W. Churchill, and P. Newman
+      Proc. Int. Conf. Intelligent Robots and Systems (IROS), pp. 2085–2 2013.
+    - |RVC3|, Section 10.4.2.
     """
 
     # Convert the image into a vector (h*w,channel)
