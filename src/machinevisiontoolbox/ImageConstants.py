@@ -468,8 +468,6 @@ class ImageConstantsMixin(ImageMixinBase):
 
             Image.Random(size=100).disp()
 
-        .. rubric:: Examples
-
         We could, for example, create a random image with the same histogram as an existing image:
 
         .. code-block:: pycon
@@ -484,6 +482,8 @@ class ImageConstantsMixin(ImageMixinBase):
         .. plot::
 
             from machinevisiontoolbox import Image
+            import matplotlib.pyplot as plt
+
             img = Image.Read("street.png")
             h = img.hist()
             img2 = Image.Random(size=img.size, pdf=h.pdf)
