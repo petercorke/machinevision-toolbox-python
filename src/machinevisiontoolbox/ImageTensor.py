@@ -168,6 +168,8 @@ class ImageTensorMixin(ImageMixinBase):
         For batches where ``B > 1`` use :class:`TensorStack` which creates an
         image iterator for the batch.
 
+        .. rubric:: Examples
+
         .. code-block:: pycon
 
             >>> from machinevisiontoolbox import Image

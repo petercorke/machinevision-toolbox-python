@@ -296,11 +296,10 @@ class ImageSource(ABC):
 
         .. code-block:: pycon
 
-        >>> from machinevisiontoolbox import VideoFile
-        >>> t = VideoFile("traffic_sequence.mp4").tensor(normalize=None)
-        >>> t.shape
-        torch.Size([N, 3, H, W])
-
+            >>> from machinevisiontoolbox import VideoFile
+            >>> t = VideoFile("traffic_sequence.mpg").tensor(normalize=None)
+            >>> t.shape
+            torch.Size([N, 3, H, W])
         """
         try:
             import torch as _torch
@@ -381,7 +380,7 @@ class ImageSource(ABC):
 
         Display images from the source.  For example::
 
-            VideoFile("traffic_sequence.mp4").disp(fps=10)
+            VideoFile("traffic_sequence.mpg").disp(fps=10)
 
         will display an animation of the video at 10 frames per second.
 
@@ -595,7 +594,7 @@ class VideoFile(ImageSource):
     .. code-block:: python
 
         from machinevisiontoolbox import VideoFile
-        video = VideoFile("traffic_sequence.mp4")
+        video = VideoFile("traffic_sequence.mpg")
         len(video)
         for im in video:
             pass
@@ -605,7 +604,7 @@ class VideoFile(ImageSource):
 
         .. code-block:: python
 
-            with VideoFile("traffic_sequence.mp4") as video:
+            with VideoFile("traffic_sequence.mpg") as video:
                 for im in video:
                     pass
 
@@ -4398,16 +4397,15 @@ class TensorStack(ImageSource):
 
     .. code-block:: pycon
 
-    >>> from machinevisiontoolbox import TensorStack
-    >>> import torch
-    >>> batch = torch.randn(10, 3, 64, 64)  # 10 RGB images
-    >>> source = TensorStack(batch, colororder="RGB")
-    >>> len(source)
-    10
-    >>> img = source[7]  # Returns Image wrapping tensor[7] (zero-copy view)
-    >>> for img in source:
-    ...     features = extract(img)  # Process each image lazily
-
+        >>> from machinevisiontoolbox import TensorStack
+        >>> import torch
+        >>> batch = torch.randn(10, 3, 64, 64)  # 10 RGB images
+        >>> source = TensorStack(batch, colororder="RGB")
+        >>> len(source)
+        10
+        >>> img = source[7]  # Returns Image wrapping tensor[7] (zero-copy view)
+        >>> for img in source:
+        ...     features = extract(img)  # Process each image lazily
 
     .. seealso:: :meth:`Image.Tensor`
     """

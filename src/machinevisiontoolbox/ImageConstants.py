@@ -468,6 +468,8 @@ class ImageConstantsMixin(ImageMixinBase):
 
             Image.Random(size=100).disp()
 
+        .. rubric:: Examples
+
         We could, for example, create a random image with the same histogram as an existing image:
 
         .. code-block:: pycon
