@@ -297,9 +297,9 @@ class ImageSource(ABC):
         .. code-block:: pycon
 
             >>> from machinevisiontoolbox import VideoFile
-            >>> t = VideoFile("traffic_sequence.mpg").tensor(normalize=None)
+            >>> t = VideoFile("traffic_sequence.mp4").tensor(normalize=None)
             >>> t.shape
-            torch.Size([N, 3, H, W])
+            torch.Size([350, 3, 576, 704])
         """
         try:
             import torch as _torch
