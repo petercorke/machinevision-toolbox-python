@@ -4047,7 +4047,7 @@ class Image(
             ...     v = np.random.randint(20, img.vmax-20)
             ...     r = np.random.randint(10, 50)
             ...     img.draw_circle((u, v), r, thickness=-1, color=[255*c for c in color])
-            >>> img.disp(img)
+            >>> img.disp()
 
         .. plot::
 
@@ -4060,7 +4060,7 @@ class Image(
                 v = np.random.randint(20, img.vmax-20)
                 r = np.random.randint(10, 50)
                 img.draw_circle((u, v), r, thickness=-1, color=[255*c for c in color])
-            img.disp(img)
+            img.disp()
 
         .. note:: If ``image`` has multiple planes then ``color`` should have the same number
             of elements as the image has planes. If it is a scalar that value is used

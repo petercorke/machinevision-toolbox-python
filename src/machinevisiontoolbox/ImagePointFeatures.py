@@ -2446,7 +2446,7 @@ class ImagePointFeaturesMixin(ImageMixinBase):
 
         .. rubric:: Examples
 
-        .. code-block:: python
+        .. code-block:: pycon
 
             >>> from machinevisiontoolbox import Image
             >>> img = Image.Read("eiffel-1.png")
