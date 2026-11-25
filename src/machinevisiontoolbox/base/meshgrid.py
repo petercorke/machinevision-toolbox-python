@@ -40,7 +40,7 @@ def meshgrid(width: int, height: int) -> tuple[np.ndarray, np.ndarray]:
         >>> Z = U**2 + V**2 # z=u^2 + v^2
         >>> Z
 
-    :seealso: :func:`Image.warp` :func:`~numpy.meshgrid`
+    .. seealso:: :func:`Image.warp` :func:`~numpy.meshgrid`
     """
     u = np.arange(width)
     v = np.arange(height)
@@ -80,7 +80,7 @@ def spherical_rotate(
     .. math:: \begin{pmatrix} \phi^\prime_{u,v} \\ \theta^\prime_{u,v} \end{pmatrix} =
         \mat{R} \begin{pmatrix} \phi_{u,v} \\ \theta_{u,v} \end{pmatrix}, \forall u, v
 
-    :seealso: :class:`spatialmath.pose3d.SO3`
+    .. seealso:: :class:`spatialmath.pose3d.SO3`
     """
 
     # convert the spherical coordinates to Cartesian

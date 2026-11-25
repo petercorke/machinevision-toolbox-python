@@ -187,7 +187,7 @@ class Image(
             img.plane(0)
             img.plane("alpha")
 
-        :seealso: :meth:`colororder` :meth:`colororder_str`
+        .. seealso:: :meth:`colororder` :meth:`colororder_str`
 
         **Image domain**
 
@@ -251,7 +251,7 @@ class Image(
         2, 4 or 7 the number of planes must be given explicitly in ``colororder``, the
         third element of ``size``.
 
-        :seealso: :meth:`view1d`
+        .. seealso:: :meth:`view1d`
 
         Example:
 
@@ -532,7 +532,7 @@ class Image(
         dtype conversion or an explicit copy is requested, either of which
         produces a new, independent (writeable) array.
 
-        :seealso: :attr:`array`
+        .. seealso:: :attr:`array`
         """
         arr = self.array
         if dtype is not None:
@@ -592,7 +592,7 @@ class Image(
         - ``np.add(a, b)`` dispatches here via NumPy ufunc protocol
         - ``a + b`` dispatches to the Toolbox ``__add__`` operator implementation
 
-        :seealso: :meth:`array`
+        .. seealso:: :meth:`array`
         """
         if method != "__call__":
             return NotImplemented
@@ -674,7 +674,7 @@ class Image(
             >>> np.sum(img)
             >>> np.ravel(img).shape
 
-        :seealso: :meth:`__array_ufunc__`
+        .. seealso:: :meth:`__array_ufunc__`
         """
         if "out" in kwargs:
             raise TypeError("NumPy function out= is not supported for Image")
@@ -746,7 +746,7 @@ class Image(
         whereas the ``str`` method provides a more detailed summary, including
         statistics about the pixel values.
 
-        :seealso: :meth:`stats` :meth:`__repr__`
+        .. seealso:: :meth:`stats` :meth:`__repr__`
         """
         # basic image parameters
         s = f"Image: {self.width} x {self.height} ({self.dtype})"
@@ -898,7 +898,7 @@ class Image(
             - For a multiplane images the planes are printed sequentially, along
               with the plane's name.
 
-        :seealso: :meth:`print` :meth:`Image.strhcat` :meth:`Image.showpixels`
+        .. seealso:: :meth:`print` :meth:`Image.strhcat` :meth:`Image.showpixels`
         """
         self.print(**kwargs)
         return self
@@ -946,7 +946,7 @@ class Image(
             - For a multiplane images the planes are printed sequentially, along
               with the plane's name.
 
-        :seealso: :meth:`rprint` :meth:`Image.strhcat` :meth:`Image.showpixels`
+        .. seealso:: :meth:`rprint` :meth:`Image.strhcat` :meth:`Image.showpixels`
         """
 
         def format_plane(plane: Image, fmt: str, indent: str = "  ") -> list[str]:
@@ -1025,7 +1025,7 @@ class Image(
         The number of rows in each image must be the same, but the number of columns can
         vary.
 
-        :seealso: :meth:`Image.print` :meth:`Image.showpixels` :func:`Image`
+        .. seealso:: :meth:`Image.print` :meth:`Image.showpixels` :func:`Image`
         """
 
         # convert to a list of numpy arrays
@@ -1146,7 +1146,7 @@ class Image(
         .. note:: Changing the color order does not change the order of the planes
             in the image array, it simply changes their label.
 
-        :seealso: :meth:`colororder_str` :meth:`colordict` :meth:`plane` :meth:`red` :meth:`green` :meth:`blue`
+        .. seealso:: :meth:`colororder_str` :meth:`colordict` :meth:`plane` :meth:`red` :meth:`green` :meth:`blue`
         """
         return self._colororder
 
@@ -1335,7 +1335,7 @@ class Image(
         .. note:: The color planes are sorted by their index value.  There is no
             check that the lowest plane index is zero.
 
-        :seealso: :meth:`colordict2str` :meth:`colororder2dict`
+        .. seealso:: :meth:`colordict2str` :meth:`colororder2dict`
         """
         return [x[0] for x in sorted(cdict.items(), key=lambda x: x[1])]
 
@@ -1359,7 +1359,7 @@ class Image(
         .. note:: The color planes are sorted by their index value.  There is no
             check that the lowest plane index is zero.
 
-        :seealso: :meth:`colordict2list` :meth:`colororder2dict`
+        .. seealso:: :meth:`colordict2list` :meth:`colororder2dict`
 
         """
         return ":".join(Image.colordict2list(cdict))
@@ -1380,7 +1380,7 @@ class Image(
             >>> img = Image.Read('flowers1.png')
             >>> img.colororder_str
 
-        :seealso: :meth:`colororder`
+        .. seealso:: :meth:`colororder`
         """
         if self.colororder is not None:
             s = sorted(self.colororder.items(), key=lambda x: x[1])
@@ -1410,7 +1410,7 @@ class Image(
         .. note:: Images loaded from a file have their name initially set to
             the full file pathname.
 
-        :seealso: :meth:`Read`
+        .. seealso:: :meth:`Read`
         """
         return self._name
 
@@ -1437,7 +1437,7 @@ class Image(
             >>> img = Image.Read('flowers1.png', dtype='float32')
             >>> img.isfloat
 
-        :seealso: :meth:`isint` :meth:`isbool`
+        .. seealso:: :meth:`isint` :meth:`isbool`
         """
         return np.issubdtype(self.dtype, np.floating)
 
@@ -1459,7 +1459,7 @@ class Image(
             >>> img = Image.Read('flowers1.png', dtype='float32')
             >>> img.isint
 
-        :seealso: :meth:`isfloat` :meth:`isbool`
+        .. seealso:: :meth:`isfloat` :meth:`isbool`
         """
         return np.issubdtype(self.dtype, np.integer)
 
@@ -1480,7 +1480,7 @@ class Image(
             >>> img.isint
             >>> img.isbool
 
-        :seealso: :meth:`isint` :meth:`isfloat`
+        .. seealso:: :meth:`isint` :meth:`isfloat`
         """
         return np.issubdtype(self.dtype, bool)
 
@@ -1502,7 +1502,7 @@ class Image(
             >>> img = Image.Read('flowers1.png', dtype='float32')
             >>> img.dtype
 
-        :seealso: :meth:`to` :meth:`to_int` :meth:`to_float` :meth:`like` :meth:`cast` :func:`numpy.dtype`
+        .. seealso:: :meth:`to` :meth:`to_int` :meth:`to_float` :meth:`like` :meth:`cast` :func:`numpy.dtype`
         """
         return self._A.dtype
 
@@ -1523,7 +1523,7 @@ class Image(
             >>> img = Image([[1, 2], [3, nan]], dtype='float32')
             >>> img.numnan
 
-        :seealso: :meth:`numinf`
+        .. seealso:: :meth:`numinf`
         """
         return int(np.isnan(self._A).sum())
 
@@ -1544,7 +1544,7 @@ class Image(
             >>> img = Image([[1, 2], [3, inf]], dtype='float32')
             >>> img.numinf
 
-        :seealso: :meth:`numnan`
+        .. seealso:: :meth:`numnan`
         """
         return int(np.isinf(self._A).sum())
 
@@ -1566,7 +1566,7 @@ class Image(
             >>> img = Image.Read('flowers1.png')
             >>> img.width
 
-        :seealso: :meth:`height` :meth:`size` :meth:`umax`
+        .. seealso:: :meth:`height` :meth:`size` :meth:`umax`
         """
         return self._A.shape[1]
 
@@ -1586,7 +1586,7 @@ class Image(
             >>> img = Image.Read('flowers1.png')
             >>> img.height
 
-        :seealso: :meth:`width` :meth:`size` :meth:`vmax`
+        .. seealso:: :meth:`width` :meth:`size` :meth:`vmax`
         """
         return self._A.shape[0]
 
@@ -1607,7 +1607,7 @@ class Image(
             >>> img.umax
             >>> img.width
 
-        :seealso: :meth:`width`
+        .. seealso:: :meth:`width`
         """
         return self._A.shape[1] - 1
 
@@ -1628,7 +1628,7 @@ class Image(
             >>> img.vmax
             >>> img.height
 
-        :seealso: :meth:`height`
+        .. seealso:: :meth:`height`
         """
         return self._A.shape[0] - 1
 
@@ -1657,7 +1657,7 @@ class Image(
         .. warning:: Computed using :meth:`numpy.arange` and for ``step>1`` the
             maximum coordinate may not be returned.
 
-        :seealso: :meth:`umax` :meth:`vspan`
+        .. seealso:: :meth:`umax` :meth:`vspan`
         """
         if self.domain is None:
             return np.arange(0, self.width, step)
@@ -1689,7 +1689,7 @@ class Image(
         .. warning:: Computed using :meth:`numpy.arange` and for ``step>1`` the
             maximum coordinate may not be returned.
 
-        :seealso: :meth:`vmax` :meth:`uspan`
+        .. seealso:: :meth:`vmax` :meth:`uspan`
         """
         if self.domain is None:
             return np.arange(0, self.height, step)
@@ -1714,7 +1714,7 @@ class Image(
 
         .. note:: The dimensions are in a different order compared to :meth:`shape`.
 
-        :seealso: :meth:`width` :meth:`height` :meth:`shape`
+        .. seealso:: :meth:`width` :meth:`height` :meth:`shape`
         """
         return (self._A.shape[1], self._A.shape[0])
 
@@ -1739,7 +1739,7 @@ class Image(
         .. note:: If the image has an even dimension the centre will lie
             between pixels.
 
-        :seealso: :meth:`center` :meth:`centre_int`
+        .. seealso:: :meth:`center` :meth:`centre_int`
         """
         return (self._A.shape[1] / 2, self._A.shape[0] / 2)
 
@@ -1766,7 +1766,7 @@ class Image(
               between pixels.
             - Same as ``centre``, just US spelling
 
-        :seealso: :meth:`center_int`
+        .. seealso:: :meth:`center_int`
         """
         return self.centre
 
@@ -1791,7 +1791,7 @@ class Image(
         .. note:: If the image has an even dimension the centre coordinate will
               be truncated toward zero.
 
-        :seealso: :meth:`centre`
+        .. seealso:: :meth:`centre`
         """
         return (self._A.shape[1] // 2, self._A.shape[0] // 2)
 
@@ -1820,7 +1820,7 @@ class Image(
               be truncated toward zero.
             - Same as ``centre_int``, just US spelling
 
-        :seealso: :meth:`center`
+        .. seealso:: :meth:`center`
         """
         return self.centre_int
 
@@ -1843,7 +1843,7 @@ class Image(
             >>> img.npixels
             >>> img.width * img.height
 
-        :seealso: :meth:`size`
+        .. seealso:: :meth:`size`
         """
         return self._A.shape[0] * self._A.shape[1]
 
@@ -1867,7 +1867,7 @@ class Image(
 
         .. note:: The dimensions are in a different order compared to :meth:`size`.
 
-        :seealso: :meth:`size` :meth:`nplanes` :meth:`ndim` :meth:`iscolor`
+        .. seealso:: :meth:`size` :meth:`nplanes` :meth:`ndim` :meth:`iscolor`
         """
         return self._A.shape
 
@@ -1889,7 +1889,7 @@ class Image(
             >>> img = Image.Read('street.png')
             >>> img.ndim
 
-        :seealso: :meth:`nplanes` :meth:`shape`
+        .. seealso:: :meth:`nplanes` :meth:`shape`
         """
         return self._A.ndim
 
@@ -1944,7 +1944,7 @@ class Image(
             >>> img = Image.Read('street.png')
             >>> img.iscolor
 
-        :seealso: :meth:`isrgb` :meth:`nplanes`
+        .. seealso:: :meth:`isrgb` :meth:`nplanes`
         """
         return self._A.ndim > 2
 
@@ -1966,7 +1966,7 @@ class Image(
 
         .. note:: Is False if image is not color.
 
-        :seealso: :meth:`colororder`
+        .. seealso:: :meth:`colororder`
         """
         return self.colororder_str == "B:G:R"
 
@@ -1988,7 +1988,7 @@ class Image(
 
         .. note:: Is False if image is not color.
 
-        :seealso: :meth:`colororder`
+        .. seealso:: :meth:`colororder`
         """
         return self.colororder_str == "R:G:B"
 
@@ -2020,7 +2020,7 @@ class Image(
             >>> img.print()
             >>> img.to('uint8').print()
 
-        :seealso: :meth:`astype` :meth:`to_int` :meth:`to_float`
+        .. seealso:: :meth:`astype` :meth:`to_int` :meth:`to_float`
         """
         # convert image to different type, does rescaling
         # as just changes type. array_as() and the constructor both
@@ -2055,7 +2055,7 @@ class Image(
             >>> img.print()
             >>> img.astype('uint8').print()
 
-        :seealso: :meth:`to`
+        .. seealso:: :meth:`to`
         """
         if isinstance(dtype, str):
             dtype = DTYPE_ALIASES.get(dtype, dtype)
@@ -2090,7 +2090,7 @@ class Image(
         .. deprecated:: 2.0.0
             Use :meth:`array` instead.
 
-        :seealso: :meth:`A` :meth:`colororder`
+        .. seealso:: :meth:`A` :meth:`colororder`
         """
         warnings.warn(
             "Deprecated in 2.0.0: use .array instead of .image.",
@@ -2128,7 +2128,7 @@ class Image(
            manipulation of the image data -- and for that reason the returned array is read-only.
            To create a new image with modified pixel data, use the :meth:`Image` constructor to create a new image with a modified array.
 
-        :seealso: :meth:`array_as` :meth:`rgb` :meth:`bgr` :meth:`colororder`
+        .. seealso:: :meth:`array_as` :meth:`rgb` :meth:`bgr` :meth:`colororder`
         """
         view = self._A.view()
         view.flags.writeable = False
@@ -2168,7 +2168,7 @@ class Image(
             Use :meth:`array` instead for accessing the NumPy image data and the
             :meth:`Image` constructor for creating a new ``Image`` with a different array.
 
-        :seealso: :meth:`array` :meth:`image`
+        .. seealso:: :meth:`array` :meth:`image`
         """
         warnings.warn(
             "Deprecated in 2.0.0: use .array instead of .A.",
@@ -2196,7 +2196,7 @@ class Image(
 
         The image is guaranteed to be in RGB order irrespective of current color order.
 
-        :seealso: :meth:`image` :meth:`bgr` :meth:`colororder`
+        .. seealso:: :meth:`image` :meth:`bgr` :meth:`colororder`
         """
         if not self.iscolor:
             raise ValueError("greyscale image has no rgb property")
@@ -2217,7 +2217,7 @@ class Image(
 
         The image is guaranteed to be in BGR (OpenCV standard) order irrespective of current color order.
 
-        :seealso: :meth:`image` :meth:`rgb` :meth:`colororder`
+        .. seealso:: :meth:`image` :meth:`rgb` :meth:`colororder`
         """
         if not self.iscolor:
             raise ValueError("greyscale image has no bgr property")
@@ -2272,7 +2272,7 @@ class Image(
         .. deprecated:: 2.0.0
             Use :meth:`array_as` instead.
 
-        :seealso: :meth:`array_as` :meth:`to_float` :meth:`cast` :meth:`like`
+        .. seealso:: :meth:`array_as` :meth:`to_float` :meth:`cast` :meth:`like`
         """
         warnings.warn(
             "Deprecated in 2.0.0: use .array_as(int_type) instead of .to_int().",
@@ -2320,7 +2320,7 @@ class Image(
         .. deprecated:: 2.0.0
             Use :meth:`array_as` instead.
 
-        :seealso: :meth:`array_as` :meth:`to_int` :meth:`cast` :meth:`like`
+        .. seealso:: :meth:`array_as` :meth:`to_int` :meth:`cast` :meth:`like`
         """
         warnings.warn(
             "Deprecated in 2.0.0: use .array_as(float_type) instead of .to_float().",
@@ -2373,7 +2373,7 @@ class Image(
 
         .. warning:: This method assumes that all integer values are unsigned.
 
-        :seealso: :meth:`array` :func:`array_float` :meth:`cast` :meth:`like`
+        .. seealso:: :meth:`array` :func:`array_float` :meth:`cast` :meth:`like`
         """
         if dtype is None:
             return self._A
@@ -2412,7 +2412,7 @@ class Image(
 
         .. note:: Scalars are cast to NumPy types not native Python types.
 
-        :seealso: :meth:`like`
+        .. seealso:: :meth:`like`
         """
         return self._A.dtype.type(value)
 
@@ -2451,7 +2451,7 @@ class Image(
             >>> img = Image.Read('flowers1.png')
             >>> img.like(0.5)
 
-        :seealso: :meth:`cast` :meth:`to_int` :meth:`to_float`
+        .. seealso:: :meth:`cast` :meth:`to_int` :meth:`to_float`
 
         """
         if self.isint:
@@ -2511,7 +2511,7 @@ class Image(
             >>> img = Image.Zeros(size=20, dtype='uint8')
             >>> img.minval
 
-        :seealso: :meth:`maxval`
+        .. seealso:: :meth:`maxval`
         """
         if self.isint:
             return np.iinfo(self.dtype).min
@@ -2538,7 +2538,7 @@ class Image(
             >>> img = Image.Zeros(size=20, dtype='uint8')
             >>> img.maxval
 
-        :seealso: :meth:`minval`
+        .. seealso:: :meth:`minval`
         """
         if self.isint:
             return np.iinfo(self.dtype).max
@@ -2566,7 +2566,7 @@ class Image(
             >>> img = Image.Zeros(size=20, dtype='uint8')
             >>> img.true
 
-        :seealso: :meth:`false` :meth:`maxval`
+        .. seealso:: :meth:`false` :meth:`maxval`
         """
         if self.isint:
             return self.maxval
@@ -2594,7 +2594,7 @@ class Image(
             >>> img = Image.Zeros(size=20, dtype='uint8')
             >>> img.false
 
-        :seealso: :meth:`true`
+        .. seealso:: :meth:`true`
         """
         return 0
 
@@ -2624,7 +2624,7 @@ class Image(
         .. note:: A greyscale image is stored internally as a 2D NumPy array
             which has zero planes, but ``nplanes`` will return 1 in that case.
 
-        :seealso: :meth:`iscolor` :meth:`shape` :meth:`ndim`
+        .. seealso:: :meth:`iscolor` :meth:`shape` :meth:`ndim`
         """
         if self._A is None:
             return 0
@@ -2693,7 +2693,7 @@ class Image(
               of colon separated plane names.
             - For a single-plane image the index must be zero.
 
-        :seealso: :meth:`red` :meth:`green` :meth:`blue` :meth:``__getitem__``
+        .. seealso:: :meth:`red` :meth:`green` :meth:`blue` :meth:``__getitem__``
         """
 
         colororder: dict[str, Any] | None
@@ -2801,7 +2801,7 @@ class Image(
             The order of the indices changed to column, row, plane.  Previously
             it was row, column, plane.
 
-        :seealso: :meth:`red` :meth:`green` :meth:`blue` :meth:`plane` :meth:`roi` :meth:`pixel`
+        .. seealso:: :meth:`red` :meth:`green` :meth:`blue` :meth:`plane` :meth:`roi` :meth:`pixel`
         """
 
         if (
@@ -2952,7 +2952,7 @@ class Image(
             >>> pix = img.pixel(100, 200)
             >>> pix # color pixel value (R, G, B)
 
-        :seealso: :meth:`__getitem__` :meth:`roi`
+        .. seealso:: :meth:`__getitem__` :meth:`roi`
         """
         return self._A[v, u]
 
@@ -2990,7 +2990,7 @@ class Image(
             >>> pixels.shape
             >>> pixels[:,:5] # first 5 pixels, with coordinates
 
-        :seealso: :meth:`pixel` :meth:`__getitem__` :meth:`roi`
+        .. seealso:: :meth:`pixel` :meth:`__getitem__` :meth:`roi`
         """
         if isinstance(mask, Image):
             if mask.ndim != 2:
@@ -3042,7 +3042,7 @@ class Image(
             Image.Read("flowers4.png").red().disp()
 
 
-        :seealso: :meth:`plane` :meth:`green` :meth:`blue`
+        .. seealso:: :meth:`plane` :meth:`green` :meth:`blue`
         """
         return self.plane("R")
 
@@ -3070,7 +3070,7 @@ class Image(
             from machinevisiontoolbox import Image
             Image.Read("flowers4.png").green().disp()
 
-        :seealso: :meth:`plane` :meth:`red` :meth:`blue`
+        .. seealso:: :meth:`plane` :meth:`red` :meth:`blue`
         """
         return self.plane("G")
 
@@ -3098,7 +3098,7 @@ class Image(
             from machinevisiontoolbox import Image
             Image.Read("flowers4.png").blue().disp()
 
-        :seealso: :meth:`plane` :meth:`red` :meth:`green`
+        .. seealso:: :meth:`plane` :meth:`red` :meth:`green`
         """
         return self.plane("B")
 
@@ -3152,7 +3152,7 @@ class Image(
 
         Multiply an Image in place by another image or a scalar.
 
-        :seealso: :meth:`__mul__`
+        .. seealso:: :meth:`__mul__`
         """
         self._A = self._binop(self, other, lambda x, y: x * y)._A
         return self
@@ -3224,7 +3224,7 @@ class Image(
 
         Add another image or a scalar to an Image in place.
 
-        :seealso: :meth:`__add__`
+        .. seealso:: :meth:`__add__`
         """
         self._A = self._binop(self, other, lambda x, y: x + y)._A
         return self
@@ -3271,7 +3271,7 @@ class Image(
 
         Subtract another image or a scalar from an Image in place.
 
-        :seealso: :meth:`__sub__`
+        .. seealso:: :meth:`__sub__`
         """
         self._A = self._binop(self, other, lambda x, y: x - y)._A
         return self
@@ -3317,7 +3317,7 @@ class Image(
 
         Divide an Image in place by another image or a scalar.
 
-        :seealso: :meth:`__truediv__`
+        .. seealso:: :meth:`__truediv__`
         """
         self._A = self._binop(self, other, lambda x, y: x / y)._A
         return self
@@ -3361,7 +3361,7 @@ class Image(
 
         Divide an Image in place by another image or a scalar, rounding down.
 
-        :seealso: :meth:`__floordiv__`
+        .. seealso:: :meth:`__floordiv__`
         """
         self._A = self._binop(self, other, lambda x, y: x // y)._A
         return self
@@ -3425,7 +3425,7 @@ class Image(
 
         Bitwise-AND an Image in place with another image or a scalar.
 
-        :seealso: :meth:`__and__`
+        .. seealso:: :meth:`__and__`
         """
         self._A = self._binop(self, other, lambda x, y: x & y)._A
         return self
@@ -3466,7 +3466,7 @@ class Image(
 
         Bitwise-OR an Image in place with another image or a scalar.
 
-        :seealso: :meth:`__or__`
+        .. seealso:: :meth:`__or__`
         """
         self._A = self._binop(self, other, lambda x, y: x | y)._A
         return self
@@ -3507,7 +3507,7 @@ class Image(
 
         Bitwise-XOR an Image in place with another image or a scalar.
 
-        :seealso: :meth:`__xor__`
+        .. seealso:: :meth:`__xor__`
         """
         self._A = self._binop(self, other, lambda x, y: x ^ y)._A
         return self
@@ -3543,7 +3543,7 @@ class Image(
 
         Left-shift pixel values of an Image in place.
 
-        :seealso: :meth:`__lshift__`
+        .. seealso:: :meth:`__lshift__`
         """
         if not isinstance(other, int):
             raise ValueError("left shift must be by integer amount")
@@ -3581,7 +3581,7 @@ class Image(
 
         Right-shift pixel values of an Image in place.
 
-        :seealso: :meth:`__rshift__`
+        .. seealso:: :meth:`__rshift__`
         """
         if not isinstance(other, int):
             raise ValueError("right shift must be by integer amount")
@@ -3615,7 +3615,7 @@ class Image(
             >>> z = img % 0
             >>> print(z.nplanes)
 
-        :seealso: :meth:`Pstack`
+        .. seealso:: :meth:`Pstack`
         """
         if smb.isscalar(other):
             other = Image.Constant(other, size=self.size, dtype=str(self._A.dtype))
@@ -3632,7 +3632,7 @@ class Image(
         Stack the planes of another image (or a scalar plane) onto this Image
         in place.
 
-        :seealso: :meth:`__mod__`
+        .. seealso:: :meth:`__mod__`
         """
         if smb.isscalar(other):
             other = Image.Constant(other, size=self.size, dtype=str(self._A.dtype))
@@ -3668,7 +3668,7 @@ class Image(
             >>> (img == 2).print()
             >>> (img == Image([[0, 2], [3, 4]])).print()
 
-        :seealso: :meth:`true` :meth:`false`
+        .. seealso:: :meth:`true` :meth:`false`
         """
         return self._binop(self, other, lambda x, y: x == y)
 
@@ -3741,7 +3741,7 @@ class Image(
             >>> (img != 2).print()
             >>> (img != Image([[0, 2], [3, 4]])).print()
 
-        :seealso: :meth:`true` :meth:`false`
+        .. seealso:: :meth:`true` :meth:`false`
         """
         return self._binop(self, other, lambda x, y: x != y)
 
@@ -3768,7 +3768,7 @@ class Image(
             >>> (img > 2).print()
             >>> (img > Image([[0, 2], [3, 4]])).print()
 
-        :seealso: :meth:`true` :meth:`false`
+        .. seealso:: :meth:`true` :meth:`false`
         """
         return self._binop(self, other, lambda x, y: x > y)
 
@@ -3795,7 +3795,7 @@ class Image(
             >>> (img >= 2).print()
             >>> (img >= Image([[0, 2], [3, 4]])).print()
 
-        :seealso: :meth:`true` :meth:`false`
+        .. seealso:: :meth:`true` :meth:`false`
         """
         return self._binop(self, other, lambda x, y: x >= y)
 
@@ -3822,7 +3822,7 @@ class Image(
             >>> (img < 2).print()
             >>> (img < Image([[0, 2], [3, 4]])).print()
 
-        :seealso: :meth:`true` :meth:`false`
+        .. seealso:: :meth:`true` :meth:`false`
         """
         return self._binop(self, other, lambda x, y: x < y)
 
@@ -3849,7 +3849,7 @@ class Image(
             >>> (img <= 2).print()
             >>> (img <= Image([[0, 2], [3, 4]])).print()
 
-        :seealso: :meth:`true` :meth:`false`
+        .. seealso:: :meth:`true` :meth:`false`
         """
         return self._binop(self, other, lambda x, y: x <= y)
 
@@ -4011,7 +4011,7 @@ class Image(
         .. warning:: The image is drawn into in place, see :meth:`draw_box` for the
             requirement that the pixel data is C-contiguous.
 
-        :seealso: :func:`~machinevisiontoolbox.base.graphics.draw_line`
+        .. seealso:: :func:`~machinevisiontoolbox.base.graphics.draw_line`
         """
         draw_line(self._A, start, end, **kwargs)
 
@@ -4067,7 +4067,7 @@ class Image(
         .. warning:: The image is drawn into in place, see :meth:`draw_box` for the
             requirement that the pixel data is C-contiguous.
 
-        :seealso: :func:`~machinevisiontoolbox.base.graphics.draw_circle`
+        .. seealso:: :func:`~machinevisiontoolbox.base.graphics.draw_circle`
         """
         if center is not None and centre is None:
             centre = center
@@ -4111,7 +4111,7 @@ class Image(
             might not be: create it with ``Image(array, copy=True)`` to get a
             contiguous copy.  See :class:`Image`.
 
-        :seealso: :func:`~machinevisiontoolbox.base.graphics.draw_box`
+        .. seealso:: :func:`~machinevisiontoolbox.base.graphics.draw_box`
         """
         draw_box(self._A, **kwargs)
 
@@ -4151,7 +4151,7 @@ class Image(
         .. warning:: The image is drawn into in place, see :meth:`draw_box` for the
             requirement that the pixel data is C-contiguous.
 
-        :seealso: :func:`~machinevisiontoolbox.base.graphics.draw_labelbox`
+        .. seealso:: :func:`~machinevisiontoolbox.base.graphics.draw_labelbox`
         """
         draw_labelbox(self._A, text, **kwargs)
 
@@ -4191,7 +4191,7 @@ class Image(
         .. warning:: The image is drawn into in place, see :meth:`draw_box` for the
             requirement that the pixel data is C-contiguous.
 
-        :seealso: :func:`~machinevisiontoolbox.base.graphics.draw_text`
+        .. seealso:: :func:`~machinevisiontoolbox.base.graphics.draw_text`
         """
         draw_text(self._A, pos, text, **kwargs)
 
@@ -4239,7 +4239,7 @@ class Image(
         .. warning:: The image is drawn into in place, see :meth:`draw_box` for the
             requirement that the pixel data is C-contiguous.
 
-        :seealso: :func:`~machinevisiontoolbox.base.graphics.draw_text`
+        .. seealso:: :func:`~machinevisiontoolbox.base.graphics.draw_text`
         """
         draw_point(self._A, pos, marker, text, **kwargs)
 
@@ -4279,7 +4279,7 @@ class Image(
             >>> rgb.nplanes
             >>> rgb.colororder_str
 
-        :seealso: :meth:`Vstack` :meth:`Hstack`
+        .. seealso:: :meth:`Vstack` :meth:`Hstack`
 
         """
         nplanes = images[0].nplanes
@@ -4324,7 +4324,7 @@ class Image(
             >>> img = Image([[1, 2, 3], [4, 5, 6]])
             >>> img.fliplr().A
 
-        :seealso: :meth:`flipud`
+        .. seealso:: :meth:`flipud`
         """
         return self.__class__(np.fliplr(self._A), colororder=self.colororder)
 
@@ -4343,7 +4343,7 @@ class Image(
             >>> img = Image([[1, 2, 3], [4, 5, 6]])
             >>> img.flipud().A
 
-        :seealso: :meth:`fliplr`
+        .. seealso:: :meth:`fliplr`
         """
         return self.__class__(np.flipud(self._A), colororder=self.colororder)
 

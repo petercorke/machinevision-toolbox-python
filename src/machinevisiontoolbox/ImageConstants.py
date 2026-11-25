@@ -172,7 +172,7 @@ class ImageConstantsMixin(ImageMixinBase):
             >>> Image.Zeros(size=(10,20,3), colororder='RGB')
             >>> Image.Zeros(size=20, dtype='float', colororder="RGB") # create color image, all black
 
-        :seealso: :meth:`Constant`
+        .. seealso:: :meth:`Constant`
         """
 
         size, dtype, colororder = _resolve_pattern_options(
@@ -235,7 +235,7 @@ class ImageConstantsMixin(ImageMixinBase):
         .. note:: If ``len(value) == 3`` and ``colororder`` is not specified
             then RGB is assumed.
 
-        :seealso: :meth:`Zeros`
+        .. seealso:: :meth:`Zeros`
         """
         default_dtype = "float" if isinstance(value, float) else "uint8"
 
@@ -355,7 +355,7 @@ class ImageConstantsMixin(ImageMixinBase):
 
         .. note:: The default datatype for the image is ``uint8``
 
-        :seealso: :meth:`Constant`
+        .. seealso:: :meth:`Constant`
         """
 
         def str2array(s: str) -> list[list[int]]:
@@ -491,7 +491,7 @@ class ImageConstantsMixin(ImageMixinBase):
             orig.set_title("Original image histogram")
             random.set_title("Random image histogram")
 
-        :seealso: :meth:`Constant`
+        .. seealso:: :meth:`Constant`
         """
 
         size, dtype, colororder = _resolve_pattern_options(
@@ -1086,7 +1086,7 @@ class ImageConstantsMixin(ImageMixinBase):
             >>> img = Image.Polygons([p1, p2], size=50)
             >>> img
 
-        :seealso: :meth:`sm.Polygon2` :meth:`cv2.fillPoly`
+        .. seealso:: :meth:`sm.Polygon2` :meth:`cv2.fillPoly`
         """
         if isinstance(polygons, Polygon2):
             polygons = [polygons]

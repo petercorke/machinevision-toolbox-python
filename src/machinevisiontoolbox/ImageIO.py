@@ -90,7 +90,7 @@ class ImageIOMixin(ImageMixinBase):
 
         .. warning:: In an ipython environment, eg. ``mvtbtool``, the file-browser dialogue may not work.  In this case, specify the filename as a string.
 
-        :seealso: :func:`~machinevisiontoolbox.base.imageio.iread` :func:`~machinevisiontoolbox.base.imageio.convert`  `cv2.imread <https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56>`_
+        .. seealso:: :func:`~machinevisiontoolbox.base.imageio.iread` :func:`~machinevisiontoolbox.base.imageio.convert`  `cv2.imread <https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56>`_
         """
         if filename is None:
             filename = _pick_imagefile()
@@ -151,7 +151,7 @@ class ImageIOMixin(ImageMixinBase):
             from machinevisiontoolbox import Image
             Image.Read('flowers1.png').disp()
 
-        :seealso: :func:`~machinevisiontoolbox.base.imageio.idisp`
+        .. seealso:: :func:`~machinevisiontoolbox.base.imageio.idisp`
         """
         display_title: str | None
         if title is False:
@@ -206,7 +206,7 @@ class ImageIOMixin(ImageMixinBase):
             >>> img = Image.Read('flowers1.png')
             >>> img.write('flowers.jpg')
 
-        :seealso: :func:`~machinevisiontoolbox.base.iwrite` `cv2.imwrite <https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html#gabbc7ef1aa2edfaa87772f1202d67e0ce>`_
+        .. seealso:: :func:`~machinevisiontoolbox.base.iwrite` `cv2.imwrite <https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html#gabbc7ef1aa2edfaa87772f1202d67e0ce>`_
         """
 
         # cv2.imwrite can only save 8-bit single channel or 3-channel BGR images
@@ -362,7 +362,7 @@ class ImageIOMixin(ImageMixinBase):
         and to get the pixel values in that window. This can be used to demonstrate
         window operations, such as convolution and morphological operations.
 
-        :seealso: :meth:`print` :meth:`disp`
+        .. seealso:: :meth:`print` :meth:`disp`
         """
 
         if ax is None:
@@ -505,7 +505,7 @@ class ImageIOMixin(ImageMixinBase):
             window = img.showwindow(h=1)
             window.move(2, 3)
 
-        :seealso: :meth:`showpixels`
+        .. seealso:: :meth:`showpixels`
 
 
         """
@@ -620,7 +620,7 @@ class ImageIOMixin(ImageMixinBase):
         :references:
             - |RVC3|, Section 14.4.
 
-        :seealso: :meth:`stdisp` :meth:`Overlay`
+        .. seealso:: :meth:`stdisp` :meth:`Overlay`
         """
         if self.size != right.size:
             raise ValueError("images must be same size")
@@ -697,7 +697,7 @@ class ImageIOMixin(ImageMixinBase):
         :references:
             - |RVC3|, Section 14.4.
 
-        :seealso: :meth:`anaglyph`
+        .. seealso:: :meth:`anaglyph`
         """
 
         class Cursor:

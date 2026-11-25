@@ -186,7 +186,7 @@ class ImageTensorMixin(ImageMixinBase):
             outputs = model(img.tensor(normalize="imagenet"))  # pass tensor to model
             out = Image.Tensor(outputs, logits=True).disp()
 
-        :seealso: :meth:`tensor` :class:`TensorStack`
+        .. seealso:: :meth:`tensor` :class:`TensorStack`
         """
         # 1. Handle Dictionary Input (The "Friendly" check)
         if isinstance(data, dict):

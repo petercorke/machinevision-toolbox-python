@@ -61,7 +61,7 @@ class ImageColorMixin(ImageMixinBase):
         :references:
             - |RVC3|, Section 10.2.7.
 
-        :seealso: :meth:`colorspace` :meth:`colorize`
+        .. seealso:: :meth:`colorspace` :meth:`colorize`
         """
 
         if not self.iscolor:
@@ -120,7 +120,7 @@ class ImageColorMixin(ImageMixinBase):
         :references:
             - |RVC3|, Section 10.2.5.
 
-        :seealso: :func:`~machinevisiontoolbox.base.color.tristim2cc`
+        .. seealso:: :func:`~machinevisiontoolbox.base.color.tristim2cc`
         """
         if not self.iscolor:
             raise ValueError("cannot compute chromaticity for greyscale image")
@@ -163,7 +163,7 @@ class ImageColorMixin(ImageMixinBase):
         :references:
             - |RVC3|, Section 11.3.
 
-        :seealso: :meth:`mono`
+        .. seealso:: :meth:`mono`
         """
 
         # TODO, colorize all in list
@@ -248,7 +248,7 @@ class ImageColorMixin(ImageMixinBase):
 
         .. important:: Uses OpenCV function ``cv2.kmeans`` which accepts multiple-channel, CV_32F images (images are automatically converted to float32).
 
-        :seealso: `opencv.kmeans <https://docs.opencv.org/4.x/d5/d38/group__core__cluster.html#ga9a34dc06c6ec9460e90860f15bcd2f88>`_
+        .. seealso:: `opencv.kmeans <https://docs.opencv.org/4.x/d5/d38/group__core__cluster.html#ga9a34dc06c6ec9460e90860f15bcd2f88>`_
         """
         # TODO
         # colorspace can be RGB, rg, Lab, ab
@@ -329,7 +329,7 @@ class ImageColorMixin(ImageMixinBase):
         :references:
             - |RVC3|, Section 10.2.7, 10.4.1.
 
-        :seealso: :meth:`mono` :func:`~machinevisiontoolbox.base.color.colorspace_convert`
+        .. seealso:: :meth:`mono` :func:`~machinevisiontoolbox.base.color.colorspace_convert`
         """
 
         # TODO other color cases
@@ -393,7 +393,7 @@ class ImageColorMixin(ImageMixinBase):
           maximum of the dimensions of the input images.  Small dimensions are
           zero padded.  The top-left corner of both images are aligned.
 
-        :seealso: :meth:`anaglyph` :meth:`blend` :meth:`stshow`
+        .. seealso:: :meth:`anaglyph` :meth:`blend` :meth:`stshow`
         """
         if im1.iscolor or im2.iscolor:
             raise ValueError("images must be greyscale")
@@ -448,7 +448,7 @@ class ImageColorMixin(ImageMixinBase):
         :references:
             - |RVC3|, Section 10.2.7, 10.3.6.
 
-        :seealso: :meth:`gamma_encode` :meth:`colorspace`
+        .. seealso:: :meth:`gamma_encode` :meth:`colorspace`
         """
         out = color.gamma_encode(self._A, gamma)
         return self.__class__(out)
@@ -494,7 +494,7 @@ class ImageColorMixin(ImageMixinBase):
         :references:
             - |RVC3|, Section 10.2.7, 10.3.6.
 
-        :seealso: :meth:`gamma_encode` :meth:`colorspace`
+        .. seealso:: :meth:`gamma_encode` :meth:`colorspace`
         """
         out = color.gamma_decode(self._A, gamma)
         return self.__class__(out, colororder=self.colororder)

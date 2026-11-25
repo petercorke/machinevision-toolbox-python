@@ -207,7 +207,7 @@ class ImageReshapeMixin(ImageMixinBase):
             subimages = mona.dice(grid=3)
             Image.Tile(subimages, bgcolor=(255,255,255)).disp()
 
-        :seealso: :meth:`Tile`
+        .. seealso:: :meth:`Tile`
         """
         if isinstance(overlap, int):
             overlap = (overlap, overlap)
@@ -285,7 +285,7 @@ class ImageReshapeMixin(ImageMixinBase):
             Image.Hstack((img, img, img)).disp()
 
 
-        :seealso: :meth:`Vstack` :meth:`Pstack` :meth:`Tile`
+        .. seealso:: :meth:`Vstack` :meth:`Pstack` :meth:`Tile`
         """
         width = (len(images) - 1) * sep
         height = 0
@@ -377,7 +377,7 @@ class ImageReshapeMixin(ImageMixinBase):
             img = Image.Read('street.png')
             Image.Hstack((img, img, img)).disp()
 
-        :seealso: :meth:`Hstack` :meth:`Pstack` :meth:`Tile`
+        .. seealso:: :meth:`Hstack` :meth:`Pstack` :meth:`Tile`
         """
         height = (len(images) - 1) * sep
         width = 0
@@ -470,7 +470,7 @@ class ImageReshapeMixin(ImageMixinBase):
 
         .. note:: All tiles must have the same size, datatype and colororder.
 
-        :seealso: :meth:`dice` :meth:`Hstack` :meth:`Vstack`
+        .. seealso:: :meth:`dice` :meth:`Hstack` :meth:`Vstack`
         """
         # exemplars, shape=(-1, columns), **kwargs)
 
@@ -569,7 +569,7 @@ class ImageReshapeMixin(ImageMixinBase):
         :references:
             - |RVC3|, Section 11.7.2.
 
-        :seealso: :meth:`replicate` :meth:`scale`
+        .. seealso:: :meth:`replicate` :meth:`scale`
         """
         if (m - np.ceil(m)) != 0:
             raise ValueError(f"decimation factor m must be an integer, got {m!r}")
@@ -615,7 +615,7 @@ class ImageReshapeMixin(ImageMixinBase):
         :references:
             - |RVC3|, Section 11.7.2.
 
-        :seealso: :meth:`decimate`
+        .. seealso:: :meth:`decimate`
         """
         # TODO merge with other version, handle color
         if self.iscolor:
@@ -666,7 +666,7 @@ class ImageReshapeMixin(ImageMixinBase):
             >>> img = Image.Read('monalisa.png')
             >>> smile = img.roi([265, 342, 264, 286])
 
-        :seealso: :meth:`__getitem__` :meth:`pixel`
+        .. seealso:: :meth:`__getitem__` :meth:`pixel`
         """
         if bbox is None:
             # use Rectangle widget to allow user to draw it
@@ -768,7 +768,7 @@ class ImageReshapeMixin(ImageMixinBase):
         :references:
             - |RVC3|, Section 11.4.1.1.
 
-        :seealso: :meth:`trim` :meth:`scale`
+        .. seealso:: :meth:`trim` :meth:`scale`
         """
         # check inputs
         if bias < 0 or bias > 1:
@@ -840,7 +840,7 @@ class ImageReshapeMixin(ImageMixinBase):
         :references:
             - |RVC3|, Section 11.7.2.
 
-        :seealso: `opencv.resize <https://docs.opencv.org/4.x/da/d54/group__imgproc__transform.html#ga47a974309e9102f5f08231edc7e7529d>`_
+        .. seealso:: `opencv.resize <https://docs.opencv.org/4.x/da/d54/group__imgproc__transform.html#ga47a974309e9102f5f08231edc7e7529d>`_
         """
         # check inputs
         if not smb.isscalar(sfactor):
@@ -950,7 +950,7 @@ class ImageReshapeMixin(ImageMixinBase):
         and a vertical domain that spans colatitude angle :math:`\theta \in [0,
         \pi]`.
 
-        :seealso: :meth:`~base.meshgrid` :meth:`interp2d`
+        .. seealso:: :meth:`~base.meshgrid` :meth:`interp2d`
         """
         Phi, Theta = np.meshgrid(self.domain[0], self.domain[1])
         nPhi, nTheta = mvb.spherical_rotate(Phi, Theta, R)
@@ -1004,7 +1004,7 @@ class ImageReshapeMixin(ImageMixinBase):
             >>> V
             >>> Image(U**2 + V**2).print()
 
-        :seealso: :func:`~base.meshgrid`
+        .. seealso:: :func:`~base.meshgrid`
         """
         if isinstance(self, type):
             if width is None or height is None:
@@ -1045,7 +1045,7 @@ class ImageReshapeMixin(ImageMixinBase):
 
         .. note::  Uses OpenCV.
 
-        :seealso: :meth:`interp2d` :meth:`domain` `opencv.remap <https://docs.opencv.org/4.x/da/d54/group__imgproc__transform.html#gab75ef31ce5cdfb5c44b6da5f3b908ea4>`_
+        .. seealso:: :meth:`interp2d` :meth:`domain` `opencv.remap <https://docs.opencv.org/4.x/da/d54/group__imgproc__transform.html#gab75ef31ce5cdfb5c44b6da5f3b908ea4>`_
         """
         # TODO more interpolation modes
 
@@ -1100,7 +1100,7 @@ class ImageReshapeMixin(ImageMixinBase):
 
         .. note::  Uses SciPy
 
-        :seealso: :meth:`domain` :meth:`meshgrid` :meth:`vspan` :func:`scipy.interpolate.griddata`
+        .. seealso:: :meth:`domain` :meth:`meshgrid` :meth:`vspan` :func:`scipy.interpolate.griddata`
         """
 
         if Ud is None and Vd is None:
@@ -1180,7 +1180,7 @@ class ImageReshapeMixin(ImageMixinBase):
             ...
             >>> out.disp()
 
-        :seealso: :meth:`warp` `opencv.warpAffine <https://docs.opencv.org/4.x/da/d54/group__imgproc__transform.html#ga0203d9ee5fcd28d40dbc4a1ea4451983>`_
+        .. seealso:: :meth:`warp` `opencv.warpAffine <https://docs.opencv.org/4.x/da/d54/group__imgproc__transform.html#ga0203d9ee5fcd28d40dbc4a1ea4451983>`_
         """
         flags = cv2.INTER_CUBIC
         if inverse:
@@ -1270,7 +1270,7 @@ class ImageReshapeMixin(ImageMixinBase):
         :references:
             - |RVC3|, Section 14.8.
 
-        :seealso: :meth:`warp` `opencv.warpPerspective <https://docs.opencv.org/4.x/da/d54/group__imgproc__transform.html#gaf73673a7e8e18ec6963e3774e6a94b87>`_
+        .. seealso:: :meth:`warp` `opencv.warpPerspective <https://docs.opencv.org/4.x/da/d54/group__imgproc__transform.html#gaf73673a7e8e18ec6963e3774e6a94b87>`_
         """
 
         if not smb.ismatrix(H, (3, 3)):
@@ -1341,7 +1341,7 @@ class ImageReshapeMixin(ImageMixinBase):
             >>> out = images[12].undistort(K, distortion)
             >>> out.disp()
 
-        :seealso: :meth:`~machinevisiontoolbox.CentralCamera.images2C` `opencv.undistort <https://docs.opencv.org/4.x/da/d54/group__imgproc__transform.html#ga69f2545a8b62a6b0fc2ee060dc30559d>`_
+        .. seealso:: :meth:`~machinevisiontoolbox.CentralCamera.images2C` `opencv.undistort <https://docs.opencv.org/4.x/da/d54/group__imgproc__transform.html#ga69f2545a8b62a6b0fc2ee060dc30559d>`_
         """
         undistorted = cv2.undistort(src=self._A, cameraMatrix=K, distCoeffs=dist)
         return self.__class__(undistorted, colororder=self.colororder)
