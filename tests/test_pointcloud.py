@@ -322,6 +322,60 @@ class TestSegmentPlane(unittest.TestCase):
             self.pc.segment_plane()
 
 
+@unittest.skipUnless(open3d_available, "open3d not installed")
+class TestFallThrough(unittest.TestCase):
+    def setUp(self):
+        self.pc = PointCloud(np.random.rand(3, 50))
+
+    def test_method_and_property_of_open3d_are_forwarded(self):
+        self.assertFalse(self.pc.is_empty())
+        self.assertEqual(self.pc.get_center().shape, (3,))
+        self.assertTrue(callable(self.pc.get_min_bound))
+
+    def test_open3d_clouds_are_wrapped(self):
+        result = self.pc.remove_duplicated_points()
+        self.assertIsInstance(result, PointCloud)
+        pcf, ind = self.pc.remove_radius_outlier(nb_points=1, radius=1.0)
+        self.assertIsInstance(pcf, PointCloud)
+
+    def test_unknown_name_is_an_attribute_error(self):
+        with self.assertRaises(AttributeError):
+            self.pc.no_such_thing
+
+    def test_hasattr_and_getattr_default_work(self):
+        self.assertFalse(hasattr(self.pc, "no_such_thing"))
+        self.assertIsNone(getattr(self.pc, "no_such_thing", None))
+        self.assertTrue(hasattr(self.pc, "get_center"))
+
+    def test_message_names_the_attribute_and_both_classes(self):
+        with self.assertRaises(AttributeError) as cm:
+            self.pc.no_such_thing
+        msg = str(cm.exception)
+        self.assertIn("no_such_thing", msg)
+        self.assertIn("PointCloud", msg)
+        self.assertIn("Open3D", msg)
+        self.assertIn("method or property", msg)
+
+    def test_message_suggests_the_close_name(self):
+        with self.assertRaises(AttributeError) as cm:
+            self.pc.estimate_normal
+        self.assertIn("estimate_normals", str(cm.exception))
+        with self.assertRaises(AttributeError) as cm:
+            self.pc.get_axis_alligned_bounding_box
+        self.assertIn("get_axis_aligned_bounding_box", str(cm.exception))
+
+    def test_no_suggestion_when_nothing_is_close(self):
+        with self.assertRaises(AttributeError) as cm:
+            self.pc.zzzzzz
+        self.assertNotIn("Did you mean", str(cm.exception))
+
+    def test_missing_wrapped_object_does_not_recurse(self):
+        bare = PointCloud.__new__(PointCloud)  # as made by copy and pickle
+        with self.assertRaises(AttributeError):
+            bare.get_center
+        self.assertFalse(hasattr(bare, "get_center"))
+
+
 # ----------------------------------------------------------------------- #
 if __name__ == "__main__":
     unittest.main()
