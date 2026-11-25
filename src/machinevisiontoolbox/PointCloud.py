@@ -122,7 +122,7 @@ class PointCloud:
                 "PointCloud class requires Open3D to be installed: "
                 "pip install open3d or "
                 "pip install machinevision-toolbox-python[open3d]\n"
-                " ** Note that Open3d typically does not run on the latest Python version(s)"
+                " ** Note that Open3D typically does not run on the latest Python version(s)"
             )
 
         if not _open3d:
