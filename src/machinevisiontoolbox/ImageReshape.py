@@ -65,7 +65,7 @@ class ImageReshapeMixin(ImageMixinBase):
 
         Trim pixels from the edges of the image.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -116,7 +116,7 @@ class ImageReshapeMixin(ImageMixinBase):
 
         Pad the edges of the image with pixels equal to ``value``.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -189,7 +189,7 @@ class ImageReshapeMixin(ImageMixinBase):
         .. note:: If the image size is not an exact multiple of the grid size, the
             last rows and columns of the image will not be included in any of the tiles.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -268,7 +268,7 @@ class ImageReshapeMixin(ImageMixinBase):
         composite output image, can be optionally returned if ``return_offsets``
         is True.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -361,7 +361,7 @@ class ImageReshapeMixin(ImageMixinBase):
         composite output image, can be optionally returned if ``return_offsets``
         is True.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -454,7 +454,7 @@ class ImageReshapeMixin(ImageMixinBase):
         example,  4 tiles would be placed into a 2x2 grid (width x height), 5 tiles in a
         2x3 grid, etc.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -557,7 +557,7 @@ class ImageReshapeMixin(ImageMixinBase):
               artifacts.  The standard deviation should be chosen as a function
               of the maximum spatial-frequency in the image.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -597,7 +597,7 @@ class ImageReshapeMixin(ImageMixinBase):
         Create an image where each input pixel becomes an :math:`n \times n`
         patch of pixel values. This is a simple way of upscaling an image.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -658,7 +658,7 @@ class ImageReshapeMixin(ImageMixinBase):
 
             \bf{I}_{u,v} | u_{min} \le u \le u_{max}, v_{min} \le v \le v_{max}
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -736,7 +736,7 @@ class ImageReshapeMixin(ImageMixinBase):
         the left, while ``bias``>0.5 moves the crop window down or to the
         right.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -828,7 +828,7 @@ class ImageReshapeMixin(ImageMixinBase):
         ``'area'``     resampling using pixel area relation
         =============  ====================================
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -896,7 +896,7 @@ class ImageReshapeMixin(ImageMixinBase):
 
         Rotate the image counter-clockwise by angle ``angle`` in radians.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1147,7 +1147,7 @@ class ImageReshapeMixin(ImageMixinBase):
 
         .. math:: Y_{u,v} = X_{u^\prime, v^\prime} \mbox{, where } \begin{pmatrix} u^\prime \\ v^\prime \end{pmatrix} = \mat{M} \begin{pmatrix} u \\ v \\ 1 \end{pmatrix}
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1329,7 +1329,7 @@ class ImageReshapeMixin(ImageMixinBase):
         where :math:`k_i` are radial distortion coefficients and :math:`p_i` are
         tangential distortion coefficients.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1378,7 +1378,7 @@ class ImageReshapeMixin(ImageMixinBase):
         one row per pixel, and each row is the pixel value, the values of its
         planes.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 

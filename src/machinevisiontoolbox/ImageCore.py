@@ -253,7 +253,7 @@ class Image(
 
         .. seealso:: :meth:`view1d`
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -575,7 +575,7 @@ class Image(
         .. important:: The NumPy ``out=`` argument is intentionally not supported. Images are
             treated as immutable values, so in-place ufunc writes are rejected.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -663,7 +663,7 @@ class Image(
         The NumPy ``out=`` argument is intentionally not supported for image
         immutability.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -732,7 +732,7 @@ class Image(
         :return: summary of image
         :rtype: str
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -810,7 +810,7 @@ class Image(
         :return: summary of image enclosed in angle brackets
         :rtype: str
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -870,7 +870,7 @@ class Image(
 
         Very compact display of pixel numerical values in grid layout and return the image itself.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -929,7 +929,7 @@ class Image(
 
         Very compact display of pixel numerical values in grid layout.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1124,7 +1124,7 @@ class Image(
         The color order is a dict where the key is the color plane name, eg. 'R'
         and the value is the index of the plane in the 3D pixel value array.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1234,7 +1234,7 @@ class Image(
         * colon separated string, eg. ``"R:G:B"``, ``"L*:a*:b*"``
         * dictionary, eg. ``dict(R=0, G=1, B=2)``
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1281,7 +1281,7 @@ class Image(
         * colon separated string, eg. ``"R:G:B"``, ``"L*:a*:b*"``
         * dictionary, eg. ``dict(R=0, G=1, B=2)``
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1325,7 +1325,7 @@ class Image(
         :return: list of color channels in plane order
         :rtype: list
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1349,7 +1349,7 @@ class Image(
         :return: color channel names in plane order as a colon-separated string
         :rtype: str
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1372,7 +1372,7 @@ class Image(
         :return: Image color plane order as a colon separated string.
         :rtype: str
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1397,7 +1397,7 @@ class Image(
         The name is shown by the Image repr and when images are displayed
         graphically.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1427,7 +1427,7 @@ class Image(
         :return: True if image has floating point values
         :rtype: bool
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1449,7 +1449,7 @@ class Image(
         :return: True if image has integer pixel values
         :rtype: bool
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1471,7 +1471,7 @@ class Image(
         :return: True if image has boolean pixel values
         :rtype: bool
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1492,7 +1492,7 @@ class Image(
         :return: NumPy datatype of image
         :rtype: numpy.dtype
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1514,7 +1514,7 @@ class Image(
         :return: number of NaN pixels in image
         :rtype: int
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1535,7 +1535,7 @@ class Image(
         :return: number of Inf pixels in image
         :rtype: int
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1558,7 +1558,7 @@ class Image(
         :return: Width of image in pixels
         :rtype: int
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1578,7 +1578,7 @@ class Image(
         :return: Height of image in pixels
         :rtype: int
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1598,7 +1598,7 @@ class Image(
         :return: Maximum u-coordinate in image in pixels
         :rtype: int
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1619,7 +1619,7 @@ class Image(
         :return: Maximum v-coordinate in image in pixels
         :rtype: int
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1641,7 +1641,7 @@ class Image(
         :return: 1D array of values [0 ... width-1]
         :rtype: ndarray(W)
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1673,7 +1673,7 @@ class Image(
         :return: 1D array of values [0 ... height-1]
         :rtype: ndarray(H)
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1704,7 +1704,7 @@ class Image(
         :return: Size of image (width, height)
         :rtype: tuple
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1726,7 +1726,7 @@ class Image(
         :return: Coordinate (u,v) of the centre pixel
         :rtype: tuple
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1751,7 +1751,7 @@ class Image(
         :return: Coordinate (u,v) of the centre pixel
         :rtype: tuple
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1778,7 +1778,7 @@ class Image(
         :return: Coordinate (u,v) of the centre pixel
         :rtype: tuple
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1805,7 +1805,7 @@ class Image(
 
         Integer coordinate of centre pixel.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1834,7 +1834,7 @@ class Image(
 
         .. note:: Number of planes is not considered.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1855,7 +1855,7 @@ class Image(
         :return: Shape of internal NumPy array
         :rtype: 2-tuple, or 3-tuple if color
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1879,7 +1879,7 @@ class Image(
         :return: number of image dimensions
         :rtype: int
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1902,7 +1902,7 @@ class Image(
         :return: whether pixel coordinate lies within image bounds
         :rtype: bool, ndarray(N)
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1934,7 +1934,7 @@ class Image(
         :return: number of image dimensions
         :rtype: int
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1956,7 +1956,7 @@ class Image(
         :return: Image has BGR color order
         :rtype: bool
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1978,7 +1978,7 @@ class Image(
         :return: Image has RGB color order
         :rtype: bool
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2008,7 +2008,7 @@ class Image(
         datatype.  Integer values are scaled according to the maximum value
         of the datatype, floating values are in the range 0.0 to 1.0.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2043,7 +2043,7 @@ class Image(
         Create a new image, same size as input image, with pixels of a different
         datatype.  Values are retained, only the datatype is changed.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2074,7 +2074,7 @@ class Image(
         Return a reference to the encapsulated NumPy array that holds the pixel
         values.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2110,7 +2110,7 @@ class Image(
         Return a read-only view of the encapsulated NumPy array that holds the pixel
         values.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2151,7 +2151,7 @@ class Image(
 
         Replace the encapsulated NumPy array with another.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2250,7 +2250,7 @@ class Image(
         * boolean class, False is mapped to zero and True is mapped to the
           maximum positive value.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2301,7 +2301,7 @@ class Image(
           value.
         * boolean class, False is mapped to 0.0 and True is mapped to 1.0.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2351,7 +2351,7 @@ class Image(
         bool       False → 0, True → max_int                 False → 0.0, True → 1.0
         =========  ========================================  ====================================
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2400,7 +2400,7 @@ class Image(
         The value, scalar or integer, is **cast** to the same type as the image.
         The result has the same numeric value, but the type is changed.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2443,7 +2443,7 @@ class Image(
             than the maximum value of the destination class are wrapped not
             clipped.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2501,7 +2501,7 @@ class Image(
 
         For the datatype of the image, return its minimum possible value
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2528,7 +2528,7 @@ class Image(
 
         For the datatype of the image, return its maximum possible value
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2556,7 +2556,7 @@ class Image(
         The true value is 1.0 for a floating point image and maximum integer
         value for an integer value.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2584,7 +2584,7 @@ class Image(
         The false value is 0.0 for a floating point image and 0
         value for an integer value.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2611,7 +2611,7 @@ class Image(
         For a 2D or greyscale image this is one, otherwise it is the third
         dimension of the image.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2642,7 +2642,7 @@ class Image(
 
         Iterator that returns sequential image planes.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2666,7 +2666,7 @@ class Image(
 
         Create a new image from the selected planes of the image.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2764,7 +2764,7 @@ class Image(
         - an int, return this plane as an ``Image``.
         - a string, return this named plane or planes as an ``Image``.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2940,7 +2940,7 @@ class Image(
             array.  It is consistent with the column-first convention used across the
             Toolbox and is consistent with the :math:`(u,v)` coordinate system for images.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2978,7 +2978,7 @@ class Image(
         of pixel values.  If ``coords`` is True, the result is an (P+2)xN array where
         the first two rows are the u and v coordinates of the selected pixels.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3025,7 +3025,7 @@ class Image(
         :return out: greyscale image representing the red image plane
         :rtype: :class:`Image`
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3054,7 +3054,7 @@ class Image(
         :return out: greyscale image representing the green image plane
         :rtype: :class:`Image`
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3082,7 +3082,7 @@ class Image(
         :return out: greyscale image representing the blue image plane
         :rtype: :class:`Image`
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3124,7 +3124,7 @@ class Image(
         * scalar ``*`` image
         * image ``*`` scalar
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3166,7 +3166,7 @@ class Image(
 
         Compute the element-wise power of an Image.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3196,7 +3196,7 @@ class Image(
         * scalar ``+`` image
         * image ``+`` scalar
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3243,7 +3243,7 @@ class Image(
         * scalar ``-`` image
         * image ``-`` scalar
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3290,7 +3290,7 @@ class Image(
         * scalar ``/`` image
         * image ``/`` scalar
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3336,7 +3336,7 @@ class Image(
         * scalar ``//`` image
         * image ``//`` scalar
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3376,7 +3376,7 @@ class Image(
 
         Compute the element-wise negation of an Image.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3403,7 +3403,7 @@ class Image(
         * scalar ``&`` image
         * image ``&`` scalar
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3444,7 +3444,7 @@ class Image(
         * scalar ``|`` image
         * image ``|`` scalar
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3485,7 +3485,7 @@ class Image(
         * scalar ``^`` image
         * image ``^`` scalar
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3521,7 +3521,7 @@ class Image(
 
         Left shift pixel values in an Image.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3559,7 +3559,7 @@ class Image(
 
         Right shift pixel values in an Image.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3604,7 +3604,7 @@ class Image(
         resulting image has one more plane than the original image and the new plane is filled with
         the scalar value.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3659,7 +3659,7 @@ class Image(
             * scalar ``==`` image
             * image ``==`` scalar
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3692,7 +3692,7 @@ class Image(
             * color order is identical (if ``colororder`` is ``True``)
             * all pixel values are identical
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3732,7 +3732,7 @@ class Image(
             * scalar ``!=`` image
             * image ``!=`` scalar
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3759,7 +3759,7 @@ class Image(
             * scalar ``>`` image
             * image ``>`` scalar
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3786,7 +3786,7 @@ class Image(
             * scalar ``>=`` image
             * image ``>=`` scalar
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3813,7 +3813,7 @@ class Image(
             * scalar ``<`` image
             * image ``<`` scalar
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3840,7 +3840,7 @@ class Image(
             * scalar ``<=`` image
             * image ``<=`` scalar
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3865,7 +3865,7 @@ class Image(
             * floating image: True is 1.0, False is 0.0
             * integer image: True is maximum value, False is 0 True is 1 and False is 0.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3940,7 +3940,7 @@ class Image(
 
         Return element-wise absolute value of pixel values.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3959,7 +3959,7 @@ class Image(
 
         Return element-wise square root of pixel values.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -4126,14 +4126,14 @@ class Image(
 
         The box position is specified by the parameters accepted by :func:`~machinevisiontoolbox.base.graphics.draw_box`
 
-        Example:
+        .. rubric:: Examples
 
-            .. code-block:: python
+        .. code-block:: python
 
-                from machinevisiontoolbox import Image
-                img = Image.Read("monalisa.png")
-                img.draw_labelbox("Face", lb=(243,111), rt=(394,329), color="yellow", fontheight=20)
-                img.disp()
+            from machinevisiontoolbox import Image
+            img = Image.Read("monalisa.png")
+            img.draw_labelbox("Face", lb=(243,111), rt=(394,329), color="yellow", fontheight=20)
+            img.disp()
 
 
         .. plot::
@@ -4166,14 +4166,14 @@ class Image(
         :type text: str
         :param kwargs: parameters passed to :func:`~machinevisiontoolbox.base.graphics.draw_text`
 
-        Example:
+        .. rubric:: Examples
 
-            .. code-block:: python
+        .. code-block:: python
 
-                from machinevisiontoolbox import Image
-                img = Image.Read("monalisa.png")
-                img.draw_text((340,290), "Smile!", fontheight=40, color="yellow")
-                img.disp()
+            from machinevisiontoolbox import Image
+            img = Image.Read("monalisa.png")
+            img.draw_text((340,290), "Smile!", fontheight=40, color="yellow")
+            img.disp()
 
 
         .. plot::
@@ -4213,7 +4213,7 @@ class Image(
         :type text: str, optional
         :param kwargs: parameters passed to :func:`~machinevisiontoolbox.base.graphics.draw_point`
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -4267,7 +4267,7 @@ class Image(
         the result's color order is constructed by concatenating the color orders
         of the input images.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -4316,7 +4316,7 @@ class Image(
         :return: horizontally flipped image
         :rtype: :class:`Image`
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -4335,7 +4335,7 @@ class Image(
         :return: vertically flipped image
         :rtype: :class:`Image`
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -4377,7 +4377,7 @@ class Image(
         by the maximum value of the image dtype, and negative infinity values are
         replaced by the negative maximum value of the image dtype.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 

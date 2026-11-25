@@ -142,7 +142,7 @@ class BaseFeature2D:
         :return: number of features
         :rtype: int
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -169,7 +169,7 @@ class BaseFeature2D:
 
         This method allows a ``BaseFeature2D`` object to be indexed, sliced or iterated.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -223,7 +223,7 @@ class BaseFeature2D:
         example SIFT, and as ``"detector+descriptor"`` if they are different, for
         example FAST+BRIEF, made by :meth:`Image.ComboFeature`.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -387,7 +387,7 @@ class BaseFeature2D:
             Adding a set that has no features keeps the descriptors of the other
             set.  They used to be lost.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -453,7 +453,7 @@ class BaseFeature2D:
             ``TypeError`` with a message.  It used to raise ``ValueError("bad")``,
             and ``sum()`` of feature sets did not work.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -492,7 +492,7 @@ class BaseFeature2D:
         :return: Horizontal coordinate
         :rtype: float or list of float
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -514,7 +514,7 @@ class BaseFeature2D:
         :return: Vertical coordinate
         :rtype: float or list of float
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -535,7 +535,7 @@ class BaseFeature2D:
         :return: image id
         :rtype: int or list of int
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -565,7 +565,7 @@ class BaseFeature2D:
             Raises ``ValueError`` if the features have no orientation. It used to return
             a constant for a detector that has no orientation.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -592,7 +592,7 @@ class BaseFeature2D:
             Raises ``ValueError`` if the features have no scale. It used to return the
             keypoint size, which is a constant for a detector that has no scale.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -618,7 +618,7 @@ class BaseFeature2D:
         .. versionchanged:: 2.5.0
             Raises ``ValueError`` if the features have no strength.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -640,7 +640,7 @@ class BaseFeature2D:
         :return: scale space octave containing the feature
         :rtype: float or list of float
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -660,7 +660,7 @@ class BaseFeature2D:
         :return: Descriptor, or None if the features have no descriptors
         :rtype: ndarray(N,M) or None
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -693,7 +693,7 @@ class BaseFeature2D:
         :return: Feature centroids as matrix columns
         :rtype: ndarray(2,N)
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -738,7 +738,7 @@ class BaseFeature2D:
         the closest match in row :math:`i` is the best matching feature to feature
         :math:`i`.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -820,7 +820,7 @@ class BaseFeature2D:
             error, which is why this is auto-selected rather than left for
             the caller to always remember.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -929,7 +929,7 @@ class BaseFeature2D:
         Return ``N`` features selected in constant steps from the input feature
         vector, ie. feature 0, s, 2s, etc.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -960,7 +960,7 @@ class BaseFeature2D:
         :return: sorted features
         :rtype: :class:`BaseFeature2D` instance
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1014,7 +1014,7 @@ class BaseFeature2D:
         The support region about the feature's centroid is extracted,
         rotated and scaled.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1079,7 +1079,7 @@ class BaseFeature2D:
         nstrongest       N                   strength
         ===============  ==================  ===================================
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1147,7 +1147,7 @@ class BaseFeature2D:
 
         If ``image`` is None then the keypoints are rendered over a black background.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1502,7 +1502,7 @@ class FeatureMatch:
 
         Allow indexing, slicing or iterating over the set of matches
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1551,7 +1551,7 @@ class FeatureMatch:
         :return: number of matches
         :rtype: int
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1575,7 +1575,7 @@ class FeatureMatch:
         Return the correspondences as an array where each column contains
         the index into the first and second feature sets.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1672,7 +1672,7 @@ class FeatureMatch:
         indices and distance metric.  For multiple correspondences, show
         summary data.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1710,7 +1710,7 @@ class FeatureMatch:
         indices and distance metric.  For multiple correspondences, show
         summary data.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1956,7 +1956,7 @@ class FeatureMatch:
             the estimate itself if there was no residual) and leave it as the inlier
             status.
 
-        Example:
+        .. rubric:: Examples
 
         .. code-block:: python
 
@@ -1987,7 +1987,7 @@ class FeatureMatch:
         :return: _description_
         :rtype: float or ndarray(N)
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2009,7 +2009,7 @@ class FeatureMatch:
         :return: feature coordinate
         :rtype: ndarray(2) or ndarray(2,N)
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2031,7 +2031,7 @@ class FeatureMatch:
         :return: feature coordinate
         :rtype: ndarray(2) or ndarray(2,N)
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2053,7 +2053,7 @@ class FeatureMatch:
         :return: feature descriptor
         :rtype: ndarray(M) or ndarray(N,M)
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2075,7 +2075,7 @@ class FeatureMatch:
         :return: feature descriptor
         :rtype: ndarray(M) or ndarray(N,M)
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2097,7 +2097,7 @@ class FeatureMatch:
         :return: feature id
         :rtype: int or ndarray(N)
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2119,7 +2119,7 @@ class FeatureMatch:
         :return: feature id
         :rtype: int or ndarray(N)
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2398,7 +2398,7 @@ class ImagePointFeaturesMixin(ImageMixinBase):
         Returns an iterable and sliceable object that contains SIFT features and
         descriptors.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2443,7 +2443,7 @@ class ImagePointFeaturesMixin(ImageMixinBase):
             PyPI are not.  If it is not available this method raises an exception that
             says so.  :meth:`SIFT` is a freely available alternative.
 
-        Example:
+        .. rubric:: Examples
 
         .. code-block:: python
 
@@ -2479,7 +2479,7 @@ class ImagePointFeaturesMixin(ImageMixinBase):
         Returns an iterable and sliceable object that contains 2D features with
         properties.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2514,7 +2514,7 @@ class ImagePointFeaturesMixin(ImageMixinBase):
         Returns an iterable and sliceable object that contains BRISK features and
         descriptors.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2549,7 +2549,7 @@ class ImagePointFeaturesMixin(ImageMixinBase):
         Returns an iterable and sliceable object that contains AKAZE features and
         descriptors.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2600,7 +2600,7 @@ class ImagePointFeaturesMixin(ImageMixinBase):
         Returns an iterable and sliceable object that contains Harris features and
         descriptors.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
