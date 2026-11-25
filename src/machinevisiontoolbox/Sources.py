@@ -406,7 +406,7 @@ class ImageSource(ABC):
             :class:`VideoCamera` or :class:`ROSTopic` those controls are
             disabled automatically.
 
-        :seealso: :class:`ImageSequence`
+        .. seealso:: :class:`ImageSequence`
         """
         import matplotlib.pyplot as plt
 
@@ -613,7 +613,9 @@ class VideoFile(ImageSource):
     :references:
         - |RVC3|, Section 11.1.4.
 
-    :seealso: :func:`~machinevisiontoolbox.base.imageio.convert`
+    .. seealso::
+
+        :func:`~machinevisiontoolbox.base.imageio.convert`
         `opencv.VideoCapture <https://docs.opencv.org/4.x/d8/dfe/classcv_1_1VideoCapture.html#a57c0e81e83e60f36c83027dc2a188e80>`_
     """
 
@@ -756,7 +758,9 @@ class VideoCamera(ImageSource):
     :references:
         - |RVC3|, Section 11.1.3.
 
-    :seealso: :meth:`list` :class:`WebCam` :func:`~machinevisiontoolbox.base.imageio.convert`
+    .. seealso::
+
+        :meth:`list` :class:`WebCam` :func:`~machinevisiontoolbox.base.imageio.convert`
         `cv2.VideoCapture <https://docs.opencv.org/4.x/d8/dfe/classcv_1_1VideoCapture.html#a57c0e81e83e60f36c83027dc2a188e80>`_
     """
 
@@ -886,7 +890,7 @@ class VideoCamera(ImageSource):
         ==============================  =========================================================
 
 
-        :seealso: :meth:`set`
+        .. seealso:: :meth:`set`
         """
         if property is not None:
             return self.cap.get(self.properties[property])
@@ -927,7 +931,7 @@ class VideoCamera(ImageSource):
         ``"ios:whitebalance"``          white balance of image for Apple AVFOUNDATION backend
         ==============================  =========================================================
 
-        :seealso: :meth:`get`
+        .. seealso:: :meth:`get`
         """
         return self.cap.set(self.properties[property], value)
 
@@ -939,7 +943,7 @@ class VideoCamera(ImageSource):
         :return: width of video frame in pixels
         :rtype: int
 
-        :seealso: :meth:`height` :meth:`shape`
+        .. seealso:: :meth:`height` :meth:`shape`
         """
         return int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
 
@@ -951,7 +955,7 @@ class VideoCamera(ImageSource):
         :return: height of video frame in pixels
         :rtype: int
 
-        :seealso: :meth:`width` :meth:`shape`
+        .. seealso:: :meth:`width` :meth:`shape`
         """
         return int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
@@ -979,7 +983,7 @@ class VideoCamera(ImageSource):
         :return: height and width of video frame in pixels
         :rtype: int, int
 
-        :seealso: :meth:`height` :meth:`width`
+        .. seealso:: :meth:`height` :meth:`width`
         """
         return (self.height, self.width)
 
@@ -1015,7 +1019,7 @@ class VideoCamera(ImageSource):
             {'id': 0, 'width': 1280, 'height': 720, 'fps': 30, 'name': 'FaceTime HD Camera'}
             {'id': 1, 'width': 1920, 'height': 1080, 'fps': 30, 'name': 'iPhone Camera'}
 
-        :seealso: :class:`VideoCamera`
+        .. seealso:: :class:`VideoCamera`
         """
 
         def _query_macos() -> list[str]:
@@ -1186,7 +1190,9 @@ class FileCollection(ImageSource):
     :references:
         - |RVC3|, Section 11.1.2.
 
-    :seealso: :func:`~machinevisiontoolbox.base.imageio.convert`
+    .. seealso::
+
+        :func:`~machinevisiontoolbox.base.imageio.convert`
         `cv2.imread <https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56>`_
     """
 
@@ -1373,7 +1379,7 @@ class ImageSequence(ImageSource):
             seq.disp(animate=True, fps=5)     # timed playback
 
 
-    :seealso: :class:`PointCloudSequence`
+    .. seealso:: :class:`PointCloudSequence`
     """
 
     _frames: list
@@ -1652,7 +1658,9 @@ class FileArchive(ImageSource):
     :references:
         - |RVC3|, Section 11.1.2.
 
-    :seealso: :meth:`open` :func:`~machinevisiontoolbox.base.imageio.convert`
+    .. seealso::
+
+        :meth:`open` :func:`~machinevisiontoolbox.base.imageio.convert`
         `cv2.imread <https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56>`_
     """
 
@@ -1906,7 +1914,9 @@ class WebCam(ImageSource):
     :references:
         - |RVC3|, Section 11.1.5.
 
-    :seealso: :class:`VideoCamera` :func:`~machinevisiontoolbox.base.imageio.convert`
+    .. seealso::
+
+        :class:`VideoCamera` :func:`~machinevisiontoolbox.base.imageio.convert`
         `cv2.VideoCapture <https://docs.opencv.org/4.x/d8/dfe/classcv_1_1VideoCapture.html#a57c0e81e83e60f36c83027dc2a188e80>`_
     """
 
@@ -2043,7 +2053,7 @@ class EarthView(ImageSource):
     :references:
         - |RVC3|, Section 11.1.6.
 
-    :seealso: :meth:`grab` :func:`~machinevisiontoolbox.base.imageio.convert`
+    .. seealso:: :meth:`grab` :func:`~machinevisiontoolbox.base.imageio.convert`
     """
 
     key: str | None
@@ -2874,7 +2884,7 @@ class ROSTopic(ImageSource):
         :return: width in pixels, or ``None`` if no frame has been received yet
         :rtype: int or None
 
-        :seealso: :meth:`height` :meth:`shape`
+        .. seealso:: :meth:`height` :meth:`shape`
         """
         if self._latest_frame is None:
             return None
@@ -2888,7 +2898,7 @@ class ROSTopic(ImageSource):
         :return: height in pixels, or ``None`` if no frame has been received yet
         :rtype: int or None
 
-        :seealso: :meth:`width` :meth:`shape`
+        .. seealso:: :meth:`width` :meth:`shape`
         """
         if self._latest_frame is None:
             return None
@@ -2903,7 +2913,7 @@ class ROSTopic(ImageSource):
             been received yet
         :rtype: tuple(int, int) or None
 
-        :seealso: :meth:`height` :meth:`width`
+        .. seealso:: :meth:`height` :meth:`width`
         """
         if self._latest_frame is None:
             return None
@@ -3304,7 +3314,7 @@ class ROSBag(ImageSource):
         :return: formatted time string
         :rtype: str
 
-        :seealso: `strftime format codes <https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes>`_
+        .. seealso:: `strftime format codes <https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes>`_
         """
         dt = datetime.fromtimestamp(
             timestamp_ns / 1_000_000_000, tz=timezone.utc
@@ -3321,7 +3331,7 @@ class ROSBag(ImageSource):
         ``None`` accepts all topics.
 
         :type: str, list of str, or None
-        :seealso: :attr:`msgfilter`
+        .. seealso:: :attr:`msgfilter`
         """
         return self._topic_filter
 
@@ -3339,7 +3349,7 @@ class ROSBag(ImageSource):
         ``None`` accepts all message types.
 
         :type: str, list of str, or None
-        :seealso: :attr:`topicfilter`
+        .. seealso:: :attr:`topicfilter`
         """
         return self._msgfilter
 
@@ -4117,7 +4127,7 @@ class PointCloudSequence:
             seq.disp(animate=True, fps=10)   # timed playback
 
 
-    :seealso: :class:`ImageSequence`
+    .. seealso:: :class:`ImageSequence`
     """
 
     _clouds: list
@@ -4183,7 +4193,7 @@ class PointCloudSequence:
         - ``[-]`` — decrease playback speed
         - ``[q]`` / ``[x]`` — quit
 
-        :seealso: :class:`ImageSequence`
+        .. seealso:: :class:`ImageSequence`
         """
         import time
 
@@ -4392,7 +4402,7 @@ class TensorStack(ImageSource):
         ...     features = extract(img)  # Process each image lazily
 
 
-    :seealso: :meth:`Image.Tensor`
+    .. seealso:: :meth:`Image.Tensor`
     """
 
     def __init__(
@@ -4551,7 +4561,7 @@ class LabelMeReader:
         it is quite bloated with many package dependencies. This class is a lightweight
         alternative focused on polygonal shapes and basic flags.
 
-    :seealso: :meth:`pixels_mask` :class:`~machinevisiontoolbox.Image.Polygons` :class:`~machinevisiontoolbox.Image`, :class:`Polygon2`
+    .. seealso:: :meth:`pixels_mask` :class:`~machinevisiontoolbox.Image.Polygons` :class:`~machinevisiontoolbox.Image`, :class:`Polygon2`
     """
 
     filename: str

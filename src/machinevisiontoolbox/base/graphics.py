@@ -219,7 +219,7 @@ def draw_box(
     .. warning:: The image is drawn into in place, and ``image`` must be C-contiguous
         which OpenCV requires, otherwise a ``ValueError`` is raised.
 
-    :seealso: :func:`~smtb.base.graphics.plot_box`  `opencv.rectangle <https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga07d2f74cadcf8e305e810ce8eed13bc9>`_
+    .. seealso:: :func:`~smtb.base.graphics.plot_box`  `opencv.rectangle <https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga07d2f74cadcf8e305e810ce8eed13bc9>`_
     """
     _require_c_contiguous(image)
 
@@ -377,7 +377,7 @@ def plot_labelbox(
 
 
 
-    :seealso: :func:`~spatialmath.base.plot_box`, :func:`~spatialmath.base.plot_text`
+    .. seealso:: :func:`~spatialmath.base.plot_box`, :func:`~spatialmath.base.plot_text`
     """
     if fmt is None:
         args = []
@@ -518,7 +518,7 @@ def draw_labelbox(
     .. warning:: The image is drawn into in place, and ``image`` must be C-contiguous
         which OpenCV requires, otherwise a ``ValueError`` is raised.
 
-    :seealso: :func:`draw_box`, :func:`draw_text`
+    .. seealso:: :func:`draw_box`, :func:`draw_text`
     """
     _require_c_contiguous(image)
 
@@ -655,7 +655,7 @@ def draw_text(
     .. warning:: The image is drawn into in place, and ``image`` must be C-contiguous
         which OpenCV requires, otherwise a ``ValueError`` is raised.
 
-    :seealso: :func:`~spatialmath.base.graphics.plot_text` `opencv.putText <https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga5126f47f883d730f633d74f07456c576>`_
+    .. seealso:: :func:`~spatialmath.base.graphics.plot_text` `opencv.putText <https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga5126f47f883d730f633d74f07456c576>`_
     """
     _require_c_contiguous(image)
 
@@ -798,7 +798,7 @@ def draw_point(
     .. warning:: The image is drawn into in place, and ``image`` must be C-contiguous
         which OpenCV requires, otherwise a ``ValueError`` is raised.
 
-    :seealso: :func:`~spatialmath.base.graphics.plot_point` `opencv.putText <https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga5126f47f883d730f633d74f07456c576>`_
+    .. seealso:: :func:`~spatialmath.base.graphics.plot_point` `opencv.putText <https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga5126f47f883d730f633d74f07456c576>`_
     """
     _require_c_contiguous(image)
 
@@ -948,7 +948,7 @@ def draw_line(
     .. warning:: The image is drawn into in place, and ``image`` must be C-contiguous
         which OpenCV requires, otherwise a ``ValueError`` is raised.
 
-    :seealso: :func:`~spatialmath.base.graphics.plot_line` `opencv.line <https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga7078a9fae8c7e7d13d24dac2520ae4a2>`_
+    .. seealso:: :func:`~spatialmath.base.graphics.plot_line` `opencv.line <https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga7078a9fae8c7e7d13d24dac2520ae4a2>`_
     """
     _require_c_contiguous(image)
     color = _color(image, color)
@@ -1024,7 +1024,7 @@ def draw_circle(
     .. warning:: The image is drawn into in place, and ``image`` must be C-contiguous
         which OpenCV requires, otherwise a ``ValueError`` is raised.
 
-    :seealso: :func:`~spatialmath.base.graphics.plot_circle` `opencv.circle <https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#gaf10604b069374903dbd0f0488cb43670>`_
+    .. seealso:: :func:`~spatialmath.base.graphics.plot_circle` `opencv.circle <https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#gaf10604b069374903dbd0f0488cb43670>`_
     """
     _require_c_contiguous(image)
     color = _color(image, color)

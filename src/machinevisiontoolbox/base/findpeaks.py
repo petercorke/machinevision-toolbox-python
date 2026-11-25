@@ -66,7 +66,7 @@ def findpeaks(
           which is a list of polynomial coefficients for each peak, see
           :obj:`numpy.polynomial`.
 
-    :seealso: :func:`findpeaks2d` :func:`findpeaks3d`
+    .. seealso:: :func:`findpeaks2d` :func:`findpeaks3d`
     """
 
     # if second argument is a matrix we take this as the corresponding x
@@ -200,7 +200,7 @@ def findpeaks2d(
         - The interp options fits points in the neighbourhood about the
           peak with a paraboloid and its peak position is returned.
 
-    :seealso: :func:`findpeaks` :func:`findpeaks3d`
+    .. seealso:: :func:`findpeaks` :func:`findpeaks3d`
     """
 
     # TODO check valid input
@@ -299,7 +299,7 @@ def findpeaks3d(v: np.ndarray, npeaks: int | None = None) -> np.ndarray:
             neighbours. Edges elements will never be returned as maxima.
 
 
-    :seealso: :func:`findpeaks` :func:`findpeaks2d`
+    .. seealso:: :func:`findpeaks` :func:`findpeaks2d`
     """
     # absolute value of Laplacian as a 3D matrix, with scale along axis 2
 

@@ -56,7 +56,9 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
             - NaN values are ignored in the sum
             - For ``axis`` remember the axes are in NumPy order: 0=rows, 1=columns, 2=planes.
 
-        :seealso: :func:`numpy.sum` :meth:`numnan` :meth:`~~machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.mpq`
+        .. seealso::
+
+            :func:`numpy.sum` :meth:`numnan` :meth:`~~machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.mpq`
             :meth:`~machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.npq`
             :meth:`~machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.upq`
         """
@@ -84,7 +86,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
             - NaN values are ignored
             - For ``axis`` remember the axes are in NumPy order: 0=rows, 1=columns, 2=planes.
 
-        :seealso: :meth:`stats` :meth:`hist` :meth:`Hough` :meth:`max` :func:`numpy.nanmin` :meth:`numnan`
+        .. seealso:: :meth:`stats` :meth:`hist` :meth:`Hough` :meth:`max` :func:`numpy.nanmin` :meth:`numnan`
         """
         return np.nanmin(self._A, **kwargs)
 
@@ -110,7 +112,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
             - NaN values are ignored
             - For ``axis`` remember the axes are in NumPy order: 0=rows, 1=columns, 2=planes.
 
-        :seealso: :meth:`stats` :meth:`hist` :meth:`min` :func:`numpy.nanmax` :meth:`numnan`
+        .. seealso:: :meth:`stats` :meth:`hist` :meth:`min` :func:`numpy.nanmax` :meth:`numnan`
         """
         return np.nanmax(self._A, **kwargs)
 
@@ -136,7 +138,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
             - NaN values are ignored
             - For ``axis`` remember the axes are in NumPy order: 0=rows, 1=columns, 2=planes.
 
-        :seealso: :meth:`stats` :meth:`hist` :meth:`Hough` :meth:`std` :meth:`median` :func:`numpy.nanmean` :meth:`numnan`
+        .. seealso:: :meth:`stats` :meth:`hist` :meth:`Hough` :meth:`std` :meth:`median` :func:`numpy.nanmean` :meth:`numnan`
         """
         return np.nanmean(self._A, **kwargs)
 
@@ -162,7 +164,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
             - NaN values are ignored
             - For ``axis`` remember the axes are in NumPy order: 0=rows, 1=columns, 2=planes.
 
-        :seealso: :meth:`stats` :meth:`hist` :meth:`mean` :meth:`var` :func:`numpy.nanstd` :meth:`numnan`
+        .. seealso:: :meth:`stats` :meth:`hist` :meth:`mean` :meth:`var` :func:`numpy.nanstd` :meth:`numnan`
         """
         return np.nanstd(self._A, **kwargs)
 
@@ -188,7 +190,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
             - NaN values are ignored
             - For ``axis`` remember the axes are in NumPy order: 0=rows, 1=columns, 2=planes.
 
-        :seealso: :meth:`stats` :meth:`hist` :meth:`std` :func:`numpy.nanvar` :meth:`numnan`
+        .. seealso:: :meth:`stats` :meth:`hist` :meth:`std` :func:`numpy.nanvar` :meth:`numnan`
         """
         return np.nanvar(self._A, **kwargs)
 
@@ -214,7 +216,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
             - NaN values are ignored
             - For ``axis`` remember the axes are in NumPy order: 0=rows, 1=columns, 2=planes.
 
-        :seealso: :meth:`stats` :meth:`hist` :meth:`mean` :meth:`std` :func:`numpy.nanmedian` :meth:`numnan`
+        .. seealso:: :meth:`stats` :meth:`hist` :meth:`mean` :meth:`std` :func:`numpy.nanmedian` :meth:`numnan`
         """
         return np.nanmedian(self._A, **kwargs)
 
@@ -263,7 +265,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
             - NaN values are ignored for scalar statistics and reported via
               ``nnan`` and ``ninf`` counts.
 
-        :seealso: :meth:`printstats` :meth:`hist` :meth:`min` :meth:`max` :meth:`mean` :meth:`std` :meth:`median`
+        .. seealso:: :meth:`printstats` :meth:`hist` :meth:`min` :meth:`max` :meth:`mean` :meth:`std` :meth:`median`
         """
 
         if getattr(self, "_stats", None) is None:
@@ -282,7 +284,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
 
         Prints a concise summary of image statistics.
 
-        :seealso: :meth:`stats`
+        .. seealso:: :meth:`stats`
         """
 
         stats = self.stats
@@ -391,7 +393,8 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
         :references:
             - |RVC3|, Section 14.4.3.
 
-        :seealso:
+        .. seealso::
+
             :meth:`stats`
             :class:`~machinevisiontoolbox.ImageWholeFeatures.Histogram`
             :func:`numpy.histogram`
@@ -437,7 +440,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
             Returns ``(h, x)`` instead of only ``h``.  This convenience
             property now uses a lazily cached default histogram.
 
-        :seealso: :meth:`pdf` :meth:`cf` :meth:`cdf` :meth:`Histogram.h`
+        .. seealso:: :meth:`pdf` :meth:`cf` :meth:`cdf` :meth:`Histogram.h`
         """
         hist = self._default_hist()
         return hist.h, hist.x
@@ -457,7 +460,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
         multiplane (color) image it is a 2D array with the PDF of each plane
         as a column.
 
-        :seealso: :meth:`h` :meth:`cf` :meth:`cdf` :meth:`Histogram.pdf`
+        .. seealso:: :meth:`h` :meth:`cf` :meth:`cdf` :meth:`Histogram.pdf`
         """
         hist = self._default_hist()
         return hist.pdf, hist.x
@@ -480,7 +483,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
             Was previously called ``cdf``, and now returns ``(cf, x)`` instead of only ``cf``.  This convenience
             property now uses a lazily cached default histogram.
 
-        :seealso: :meth:`h` :meth:`pdf` :meth:`cdf` :meth:`Histogram.cf`
+        .. seealso:: :meth:`h` :meth:`pdf` :meth:`cdf` :meth:`Histogram.cf`
         """
         hist = self._default_hist()
         return hist.cf, hist.x
@@ -504,7 +507,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
             Was previously called ``ncdf``, and now returns ``(cdf, x)`` instead of only ``cdf``.  This convenience
             property now uses a lazily cached default histogram.
 
-        :seealso: :meth:`h` :meth:`cf` :meth:`pdf` :meth:`Histogram.cdf`
+        .. seealso:: :meth:`h` :meth:`cf` :meth:`pdf` :meth:`Histogram.cdf`
         """
         hist = self._default_hist()
         return hist.cdf, hist.x
@@ -541,7 +544,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
         local maxima.  For a color image returns a list of such arrays, one per
         plane.
 
-        :seealso: :meth:`h` :meth:`Histogram.peaks`
+        .. seealso:: :meth:`h` :meth:`Histogram.peaks`
         """
         hist = self._default_hist()
         return hist.peaks(**kwargs)
@@ -580,7 +583,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
         :references:
             - |RVC3|, Section 12.1.3.4.
 
-        :seealso: :meth:`sum` :meth:`npq` :meth:`upq`
+        .. seealso:: :meth:`sum` :meth:`npq` :meth:`upq`
         """
 
         if not isinstance(p, int) or not isinstance(q, int):
@@ -624,7 +627,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
         :references:
             - |RVC3|, Section 12.1.3.4.
 
-        :seealso: :meth:`sum` :meth:`mpq` :meth:`upq`
+        .. seealso:: :meth:`sum` :meth:`mpq` :meth:`upq`
         """
 
         if not isinstance(p, int) or not isinstance(q, int):
@@ -674,7 +677,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
         :references:
             - |RVC3|, Section 12.1.3.4.
 
-        :seealso: :meth:`sum` :meth:`mpq` :meth:`upq`
+        .. seealso:: :meth:`sum` :meth:`mpq` :meth:`upq`
         """
         if not isinstance(p, int) or not isinstance(q, int):
             raise TypeError(f"p, q must be an int, got p={p!r}, q={q!r}")
@@ -722,7 +725,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
 
         .. important:: Uses OpenCV function ``cv2.moments`` which accepts single-channel, CV_8U, CV_16U, CV_16S, CV_32F or CV_64F images (color images are automatically converted to greyscale).
 
-        :seealso: :meth:`mpq` :meth:`npq` :meth:`upq` `opencv.moments <https://docs.opencv.org/4.x/d8/d23/classcv_1_1Moments.html>`_
+        .. seealso:: :meth:`mpq` :meth:`npq` :meth:`upq` `opencv.moments <https://docs.opencv.org/4.x/d8/d23/classcv_1_1Moments.html>`_
         """
         return cv2.moments(array=self.mono().to_int(), binaryImage=binary)
 
@@ -756,7 +759,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
 
         .. important:: Uses OpenCV functions ``cv2.moments`` and ``cv2.HuMoments`` which accept single-channel, CV_8U, CV_16U, CV_16S, CV_32F or CV_64F images.
 
-        :seealso: :meth:`moments` `opencv.HuMoments <https://docs.opencv.org/4.x/d3/dc0/group__imgproc__shape.html#gab001db45c1f1af6cbdbe64df04c4e944>`_
+        .. seealso:: :meth:`moments` `opencv.HuMoments <https://docs.opencv.org/4.x/d3/dc0/group__imgproc__shape.html#gab001db45c1f1af6cbdbe64df04c4e944>`_
         """
 
         # TODO check for binary image
@@ -792,7 +795,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
         :references:
             - |RVC3|, Section 12.1.3.2.
 
-        :seealso: :meth:`flatnonzero`
+        .. seealso:: :meth:`flatnonzero`
         """
         v, u = np.nonzero(self._A)
         return np.vstack((u, v))
@@ -818,7 +821,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
             >>> img.flatnonzero()
             >>> img.view1d()[23]
 
-        :seealso: :meth:`view1d` :meth:`nonzero`
+        .. seealso:: :meth:`view1d` :meth:`nonzero`
         """
         return np.flatnonzero(self._A)
 
@@ -864,7 +867,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
             - The ``interp`` option fits points in the neighbourhood about the
               peak with a paraboloid and its peak position is returned.
 
-        :seealso: :meth:`~machinevisiontoolbox.base.findpeaks.findpeaks2d`
+        .. seealso:: :meth:`~machinevisiontoolbox.base.findpeaks.findpeaks2d`
         """
 
         ret = findpeaks2d(self._A, npeaks=npeaks, scale=scale, interp=interp)
@@ -938,7 +941,7 @@ class Histogram:
 
         Create :class:`Histogram` instance by computing the histogram over each image plane.
 
-        :seealso: :meth:`~machinevisiontoolbox.ImageFeatures.ImageFeaturesMixin.hist`
+        .. seealso:: :meth:`~machinevisiontoolbox.ImageFeatures.ImageFeaturesMixin.hist`
         """
         if nbins <= 0:
             raise ValueError("nbins must be > 0")
@@ -1123,7 +1126,7 @@ class Histogram:
             >>> with np.printoptions(threshold=10):
             ...     hist.h
 
-        :seealso: :meth:`pdf` :meth:`cf` :meth:`cdf`
+        .. seealso:: :meth:`pdf` :meth:`cf` :meth:`cdf`
         """
         return self._h
 
@@ -1150,7 +1153,7 @@ class Histogram:
             >>> with np.printoptions(threshold=10):
             ...     hist.pdf
 
-        :seealso: :meth:`h` :meth:`cf` :meth:`cdf`
+        .. seealso:: :meth:`h` :meth:`cf` :meth:`cdf`
         """
         y = self._h.astype(float)
         sum = np.sum(y, axis=0)
@@ -1186,7 +1189,7 @@ class Histogram:
         .. versionchanged:: 2.0.0
             In earlier releases this method was named ``cdf``.
 
-        :seealso: :meth:`h` :meth:`pdf` :meth:`cdf`
+        .. seealso:: :meth:`h` :meth:`pdf` :meth:`cdf`
         """
         return np.cumsum(self._h, axis=0)
 
@@ -1217,7 +1220,7 @@ class Histogram:
         .. versionchanged:: 2.0.0
             In earlier releases this method was named ``ncdf``.
 
-        :seealso: :meth:`h` :meth:`pdf` :meth:`cf`
+        .. seealso:: :meth:`h` :meth:`pdf` :meth:`cf`
         """
         y = np.cumsum(self._h, axis=0)
 
@@ -1303,7 +1306,7 @@ class Histogram:
             >>> h1.compare(h2, "kl")  # abbreviation of "kl_div"
             >>> h2.compare(h1, "kl")  # not the same
 
-        :seealso: :meth:`pdf` :meth:`cdf` `cv2.compareHist <https://docs.opencv.org/4.x/d6/dc7/group__imgproc__hist.html#gaf4190090efa5c47cb367cf97a9a519bd>`_
+        .. seealso:: :meth:`pdf` :meth:`cdf` `cv2.compareHist <https://docs.opencv.org/4.x/d6/dc7/group__imgproc__hist.html#gaf4190090efa5c47cb367cf97a9a519bd>`_
 
         .. versionadded:: 2.5.0
         """
@@ -1863,7 +1866,7 @@ class Histogram:
 
         Note the first peak (at 8) is excluded because the maxima window ($x \pm 20$) extends outside the histogram range.
 
-        :seealso: :func:`~machinevisiontoolbox.base.findpeaks.findpeaks`
+        .. seealso:: :func:`~machinevisiontoolbox.base.findpeaks.findpeaks`
         """
         if self.nplanes == 1:
             # greyscale image

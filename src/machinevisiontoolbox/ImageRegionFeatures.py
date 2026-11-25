@@ -52,7 +52,7 @@ class ImageRegionFeaturesMixin(ImageMixinBase):
         :references:
             - |RVC3|, Section 12.1.1.2.
 
-        :seealso: :class:`MSERFeature`, `cv2.MSER_create <https://docs.opencv.org/4.5.2/d3/d28/classcv_1_1MSER.html>`_
+        .. seealso:: :class:`MSERFeature`, `cv2.MSER_create <https://docs.opencv.org/4.5.2/d3/d28/classcv_1_1MSER.html>`_
         """
 
         return MSERFeature(self, **kwargs)
@@ -89,7 +89,7 @@ class ImageRegionFeaturesMixin(ImageMixinBase):
         :references:
             - |RVC3|, Section 12.4.1.
 
-        :seealso: :class:`OCRWord`
+        .. seealso:: :class:`OCRWord`
         """
         if not _pytesseract_available:
             print(
@@ -156,7 +156,7 @@ class MSERFeature:
             - |RVC3|, Section 12.1.2.2.
 
 
-        :seealso: :meth:`bbox` :meth:`points`
+        .. seealso:: :meth:`bbox` :meth:`points`
         """
 
         self._points: list[np.ndarray] = []
@@ -208,7 +208,7 @@ class MSERFeature:
             >>> mser = img.MSER()
             >>> len(mser)  # number of features
 
-        :seealso: :meth:`__getitem__`
+        .. seealso:: :meth:`__getitem__`
         """
         return len(self._points)
 
@@ -235,7 +235,7 @@ class MSERFeature:
             >>> mser[:5]   # first 5 MSER features
             >>> mser[::50]  # every 50th MSER feature
 
-        :seealso: :meth:`len`
+        .. seealso:: :meth:`len`
         """
         new = self.__class__()
 
@@ -324,7 +324,7 @@ class MSERFeature:
             >>> msers[0].points
             >>> msers[2:4].points
 
-        :seealso: :meth:`bbox`
+        .. seealso:: :meth:`bbox`
         """
         return self._points
 
@@ -350,7 +350,7 @@ class MSERFeature:
             >>> msers[0].bbox
             >>> msers[:4].bbox
 
-        :seealso: :meth:`points`
+        .. seealso:: :meth:`points`
 
         """
         return self._bboxes
@@ -383,7 +383,7 @@ class OCRWord:
         ``ltrb``    bounding box [left, top, right, bottom]
         ==========  =======================================================
 
-        :seealso: :meth:`~machinevisiontoolbox.ImageFeatures.ImageFeaturesMixin.ocr`
+        .. seealso:: :meth:`~machinevisiontoolbox.ImageFeatures.ImageFeaturesMixin.ocr`
         """
         self.dict = {}
         for key in ocr.keys():
@@ -409,7 +409,7 @@ class OCRWord:
         :return: left side coordinate of bounding box in pixels
         :rtype: int
 
-        :seealso: :meth:`t` :meth:`ltrb`
+        .. seealso:: :meth:`t` :meth:`ltrb`
         """
         return self.dict["left"]
 
@@ -421,7 +421,7 @@ class OCRWord:
         :return: top side coordinate of bounding box in pixels
         :rtype: int
 
-        :seealso: :meth:`l` :meth:`ltrb`
+        .. seealso:: :meth:`l` :meth:`ltrb`
         """
         return self.dict["top"]
 
@@ -433,7 +433,7 @@ class OCRWord:
         :return: width of bounding box in pixels
         :rtype: int
 
-        :seealso: :meth:`h` :meth:`ltrb`
+        .. seealso:: :meth:`h` :meth:`ltrb`
         """
         return self.dict["width"]
 
@@ -445,7 +445,7 @@ class OCRWord:
         :return: height of bounding box in pixels
         :rtype: int
 
-        :seealso: :meth:`w` :meth:`ltrb`
+        .. seealso:: :meth:`w` :meth:`ltrb`
         """
         return self.dict["height"]
 
@@ -457,7 +457,7 @@ class OCRWord:
         :return: bounding box [left top right bottom] in pixels
         :rtype: list
 
-        :seealso: :meth:`l` :meth:`t` :meth:`w` :meth:`h`
+        .. seealso:: :meth:`l` :meth:`t` :meth:`w` :meth:`h`
         """
         return [
             self.dict["left"],
@@ -474,7 +474,7 @@ class OCRWord:
         :return: confidence of word (percentage)
         :rtype: int
 
-        :seealso: :meth:`text`
+        .. seealso:: :meth:`text`
         """
         return self.dict["conf"]
 
@@ -486,7 +486,7 @@ class OCRWord:
         :return: word
         :rtype: str
 
-        :seealso: :meth:`conf`
+        .. seealso:: :meth:`conf`
         """
         return self.dict["text"]
 
@@ -497,7 +497,7 @@ class OCRWord:
         Plot a label box around the word in the image, and show the OCR string
         in the label field.
 
-        :seealso: :func:`~machinevisiontoolbox.base.graphics.plot_labelbox`
+        .. seealso:: :func:`~machinevisiontoolbox.base.graphics.plot_labelbox`
         """
         try:
             plot_labelbox(

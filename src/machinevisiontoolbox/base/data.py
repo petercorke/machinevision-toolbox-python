@@ -31,7 +31,7 @@ def mvtb_load_matfile(filename: str) -> dict[str, Any]:
           first be looked for in the folder ``machinevisiontoolbox/data``, then
           the current working directory.
 
-    :seealso: :func:`mvtb_path_to_datafile` :func:`scipy.io.loadmat`
+    .. seealso:: :func:`mvtb_path_to_datafile` :func:`scipy.io.loadmat`
     """
     from collections import namedtuple
 
@@ -71,7 +71,7 @@ def mvtb_load_jsonfile(filename: str) -> dict[str, Any]:
           first be looked for in the folder ``machinevisiontoolbox/data``, then
           the current working directory.
 
-    :seealso: :func:`mvtb_path_to_datafile`
+    .. seealso:: :func:`mvtb_path_to_datafile`
     """
     import json
 
@@ -105,7 +105,7 @@ def mvtb_load_data(filename: str, handler: Callable[..., Any], **kwargs: Any) ->
         first be looked for in the folder ``machinevisiontoolbox/data``, then
         the current working directory.
 
-    :seealso: :func:`mvtb_path_to_datafile`
+    .. seealso:: :func:`mvtb_path_to_datafile`
     """
     path = mvtb_path_to_datafile(filename)
     return handler(path, **kwargs)

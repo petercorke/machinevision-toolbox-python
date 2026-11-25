@@ -121,7 +121,7 @@ class ImageFiducialsMixin(ImageMixinBase):
         :references:
             - |RVC3|, Section 13.6.1.
 
-        :seealso: :class:`Fiducial` :class:`ArUcoBoard`
+        .. seealso:: :class:`Fiducial` :class:`ArUcoBoard`
         """
 
         dictionary = _fiducial_dict(dict)
@@ -209,7 +209,9 @@ class Fiducial:
         :param tvec: translation of marker with respect to camera
         :type tvec: ndarray(3), optional
 
-        :seealso: :meth:`id` :meth:`pose` :meth:`draw`
+        .. seealso::
+
+            :meth:`id` :meth:`pose` :meth:`draw`
             :meth:`~machinevisiontoolbox.ImageFeatures.ImageFeaturesMixin.fiducial`
         """
         self._id = id
@@ -326,7 +328,7 @@ class Fiducial:
         The id pattern comprises white pixels (value 255) contained within the black
         square.  There is no white border. The pattern is generated using the OpenCV library.
 
-        :seealso: :func:`~opencv.aruco.generateImageMarker`
+        .. seealso:: :func:`~opencv.aruco.generateImageMarker`
         """
         from machinevisiontoolbox import Image
 
