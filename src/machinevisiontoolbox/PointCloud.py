@@ -58,6 +58,17 @@ def _show_in_notebook(
 
 
 class PointCloud:
+    """
+    A set of 3D points, optionally with colors and surface normals
+
+    A thin wrapper around an Open3D :obj:`open3d.geometry.PointCloud` that keeps the
+    Toolbox conventions: points, colors and normals are 3xN arrays with one point per
+    column.  Methods that Open3D provides and that are not wrapped here are forwarded
+    to it.  See the constructor for the ways to create a point cloud.
+
+    .. seealso:: :meth:`__init__`, :meth:`Read`, :meth:`DepthImage`, :meth:`disp`
+    """
+
     def __init__(self, arg: Any, depth_scale: float = 1.0, **kwargs) -> None:
         """
         Create new point cloud object
@@ -224,10 +235,28 @@ class PointCloud:
         return str(self._pcd)
 
     def __repr__(self) -> str:
+        """
+        Short string representation of the point cloud
+
+        :return: number of points, and whether the points have colors
+        :rtype: str
+        """
         return f"PointCloud(npoints={len(self)}, colored={self.iscolor})"
 
     @property
     def pcd(self) -> Any:
+        """
+        The wrapped Open3D point cloud
+
+        :return: the Open3D object this instance wraps
+        :rtype: :obj:`open3d.geometry.PointCloud`
+
+        This is the object itself, not a copy, so changing it changes this
+        point cloud.  It is for calling Open3D functions that the Toolbox does not
+        wrap.  Open3D uses Nx3 arrays, where the Toolbox uses 3xN.
+
+        .. seealso:: :attr:`points`, :attr:`colors`
+        """
         return self._pcd
 
     @property
@@ -747,11 +776,63 @@ class PointCloud:
         return self.__class__(pcd)
 
     def segment_plane(self, **kwargs: Any) -> tuple[Any, "PointCloud", "PointCloud"]:
-        # distance_threshold=0.05,
-        # ransac_n=3,
-        # num_iterations=1000
+        """
+        Find the dominant plane using RANSAC
 
-        default_dict = dict(ransac_n=3, num_iterations=100)
+        :param distance_threshold: largest distance of a point from the plane for
+            it to count as part of the plane, in the units of the points
+        :type distance_threshold: float
+        :param ransac_n: number of points sampled to fit each candidate plane,
+            defaults to 3
+        :type ransac_n: int, optional
+        :param num_iterations: number of candidate planes tried, defaults to 1000
+        :type num_iterations: int, optional
+        :param probability: required probability of finding the best plane,
+            Open3D's default is 0.99999999
+        :type probability: float, optional
+        :return: plane parameters, points on the plane, all the other points
+        :rtype: ndarray(4), :class:`PointCloud`, :class:`PointCloud`
+        :raises TypeError: ``distance_threshold`` is not given
+
+        Uses RANSAC to fit a plane :math:`aX + bY + cZ + d = 0` to the points.  Each
+        iteration fits a plane to ``ransac_n`` randomly chosen points, and keeps the
+        plane that has the most points within ``distance_threshold`` of it.  The
+        arguments are passed to
+        :meth:`open3d.geometry.PointCloud.segment_plane`.
+
+        The first return value is the array :math:`(a, b, c, d)`.  The second is
+        a new point cloud of the points within ``distance_threshold`` of the plane,
+        the inliers, and the third is a new point cloud of the remaining points.  The
+        original point cloud is not changed.  Points of an object that lie close
+        to the plane, such as the foot of an object standing on a ground plane, are
+        inliers.
+
+        .. versionchanged:: 2.5.0
+            The default ``num_iterations`` is 1000.  It was 100, which sometimes
+            returned a poor plane.
+
+        RANSAC chooses its points at random, so the plane and the number of inliers
+        differ slightly from run to run.  With few iterations a poor plane is
+        sometimes returned.  Increase ``num_iterations``, or seed Open3D's random
+        number generator with ``open3d.utility.random.seed(n)`` to get the same result
+        every time.
+
+        .. rubric:: Examples
+
+        .. runblock:: pycon
+
+            >>> import numpy as np
+            >>> from machinevisiontoolbox import PointCloud
+            >>> rng = np.random.default_rng(0)
+            >>> ground = np.vstack((rng.random((2, 300)), np.zeros(300)))  # z = 0
+            >>> objects = rng.random((3, 100)) + np.array([[0], [0], [0.5]])  # above it
+            >>> pc = PointCloud(np.hstack((ground, objects)))
+            >>> plane, on_plane, rest = pc.segment_plane(distance_threshold=0.01)
+            >>> len(on_plane), len(rest)
+
+        .. seealso:: :meth:`select`, :meth:`remove_outlier`
+        """
+        default_dict = dict(ransac_n=3, num_iterations=1000)
         kwargs = {**default_dict, **kwargs}
 
         plane_model, inliers = self._pcd.segment_plane(**kwargs)
@@ -891,7 +972,29 @@ class PointCloud:
 
 
 class VoxelGrid:
+    """
+    A point cloud divided into cubic cells
+
+    Each cell, or voxel, that contains at least one point of the point cloud is
+    occupied.  It is created by :meth:`PointCloud.voxel_grid`.
+
+    .. seealso:: :meth:`PointCloud.voxel_grid`, :meth:`disp`, :meth:`write`
+    """
+
     def __init__(self, pcd: PointCloud, voxel_size: float) -> None:
+        """
+        Create a voxel grid from a point cloud
+
+        :param pcd: the point cloud
+        :type pcd: :class:`PointCloud`
+        :param voxel_size: edge length of a voxel, in the units of the points
+        :type voxel_size: float
+
+        A voxel takes the color of the points it contains, if they have color.
+        Use :meth:`PointCloud.voxel_grid` rather than calling this directly.
+
+        .. seealso:: :meth:`PointCloud.voxel_grid`
+        """
         self._voxels = o3d.geometry.VoxelGrid.create_from_point_cloud(
             pcd._pcd, voxel_size=voxel_size
         )

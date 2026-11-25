@@ -281,6 +281,47 @@ class TestConcatenateAndUnpaint(unittest.TestCase):
         self.assertFalse(self.plain.unpaint().iscolor)
 
 
+@unittest.skipUnless(open3d_available, "open3d not installed")
+class TestSegmentPlane(unittest.TestCase):
+    def setUp(self):
+        # a ground plane of 300 points, z = 0, with three boxes of 400 points on it
+        rng = np.random.default_rng(0)
+        ground = np.vstack((rng.random((2, 300)) * 10, rng.normal(0, 0.01, 300)))
+        boxes = [
+            rng.random((3, 400)) * 2 + np.array([[x], [y], [0]])
+            for x, y in ((1, 1), (5, 2), (3, 7))
+        ]
+        self.pc = PointCloud(np.hstack([ground] + boxes))
+
+    def test_splits_the_points_into_plane_and_rest(self):
+        import open3d as o3d
+
+        o3d.utility.random.seed(0)
+        plane, on_plane, rest = self.pc.segment_plane(distance_threshold=0.05)
+        self.assertEqual(len(on_plane) + len(rest), len(self.pc))
+        self.assertEqual(np.shape(plane), (4,))
+        # the ground is z = 0
+        nt.assert_allclose(np.abs(plane[2]), 1, atol=0.01)
+        self.assertGreaterEqual(len(on_plane), 290)
+        self.assertEqual(len(self.pc), 1500)  # not changed
+
+    def test_default_iterations_find_the_ground(self):
+        # with this seed 100 iterations choose a plane through a box, not the ground
+        import open3d as o3d
+
+        o3d.utility.random.seed(0)
+        _, few, _ = self.pc.segment_plane(distance_threshold=0.05, num_iterations=100)
+        self.assertLess(len(few), 290)
+
+        o3d.utility.random.seed(0)
+        _, default, _ = self.pc.segment_plane(distance_threshold=0.05)
+        self.assertGreaterEqual(len(default), 290)
+
+    def test_distance_threshold_is_required(self):
+        with self.assertRaises(TypeError):
+            self.pc.segment_plane()
+
+
 # ----------------------------------------------------------------------- #
 if __name__ == "__main__":
     unittest.main()
