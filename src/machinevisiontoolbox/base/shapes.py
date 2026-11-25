@@ -39,7 +39,7 @@ def mkgrid(
 
     If ``n`` or ``side`` are scalar it is assumed to apply in the x- and y-directions.
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -142,7 +142,7 @@ def mkcube(
     can be changed using ``centre`` or it can be arbitrarily positioned and
     oriented by specifying its ``pose``.
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -163,14 +163,14 @@ def mkcube(
     can be changed using ``centre`` or it can be arbitrarily positioned and
     oriented by specifying its ``pose``.
 
-    Example:
+    .. rubric:: Examples
 
-        >>> from machinevisiontoolbox import mkcube
-        >>> import matplotlib.pyplot as plt
-        >>> S = mkcube(edge=True)  # cube of side length 1
-        >>> fig = plt.figure()
-        >>> ax = fig.gca(projection='3d')
-        >>> ax.plot_wireframe(*S)
+    >>> from machinevisiontoolbox import mkcube
+    >>> import matplotlib.pyplot as plt
+    >>> S = mkcube(edge=True)  # cube of side length 1
+    >>> fig = plt.figure()
+    >>> ax = fig.gca(projection='3d')
+    >>> ax.plot_wireframe(*S)
 
     We can also use MATLAB-like syntax:
 
@@ -255,16 +255,16 @@ def mksphere(
     sphere is drawn about the origin but its position can be changed using
     the ``centre`` option.
 
-    Example:
+    .. rubric:: Examples
 
-        .. code-block:: python
+    .. code-block:: python
 
-            from machinevisiontoolbox import mksphere
-            import matplotlib.pyplot as plt
-            S = mksphere()
-            fig = plt.figure()
-            ax = fig.gca(projection='3d')
-            ax.plot_wireframe(*S)
+        from machinevisiontoolbox import mksphere
+        import matplotlib.pyplot as plt
+        S = mksphere()
+        fig = plt.figure()
+        ax = fig.gca(projection='3d')
+        ax.plot_wireframe(*S)
 
 
     We can also use MATLAB-like syntax:
@@ -331,19 +331,19 @@ def mkcylinder(
     If len(r)>2 then it allows the creation of a more complex shape with radius
     as a function of z.
 
-    Example:
+    .. rubric:: Examples
 
-        .. code-block:: python
+    .. code-block:: python
 
-            from machinevisiontoolbox import mkcylinder
-            import matplotlib.pyplot as plt
-            # draw a horizontal diablo shape
-            r = np.linspace(0, 2*pi, 50)
-            S = mkcylinder(r=np.cos(r) + 1.5, symmetric=True, pose=SE3.Rx(pi/2))
-            fig = plt.figure()
-            ax = fig.gca(projection='3d')
-            ax.plot_wireframe(*S)
-            plt.show()
+        from machinevisiontoolbox import mkcylinder
+        import matplotlib.pyplot as plt
+        # draw a horizontal diablo shape
+        r = np.linspace(0, 2*pi, 50)
+        S = mkcylinder(r=np.cos(r) + 1.5, symmetric=True, pose=SE3.Rx(pi/2))
+        fig = plt.figure()
+        ax = fig.gca(projection='3d')
+        ax.plot_wireframe(*S)
+        plt.show()
 
 
     .. note:: We can also use MATLAB-like syntax:

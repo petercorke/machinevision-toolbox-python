@@ -335,13 +335,13 @@ def idisp(
     be displayed, but the ``draw_xxx()`` functions can be used to draw on the image
     prior to display.
 
-    Example:
+    .. rubric:: Examples
 
-        .. code-block:: python
+    .. code-block:: python
 
-            from machinevisiontoolbox import iread, idisp
-            im, file = iread("monalisa.png", matplotlib=False)
-            idisp(im)
+        from machinevisiontoolbox import iread, idisp
+        im, file = iread("monalisa.png", matplotlib=False)
+        idisp(im)
 
 
     Most of the options apply to the Matplotlib case.
@@ -352,7 +352,7 @@ def idisp(
     Other graphics can be superimposed on the image using the Matplotlib plotting
     functions ``plot_xxx()``.
 
-    Example:
+    .. rubric:: Examples
 
     .. code-block:: python
 
@@ -463,8 +463,9 @@ def idisp(
         On NumPy 2 they used to copy ``2,1,(np.uint8(10), np.uint8(20), np.uint8(30))``,
         and raised an error for a monochrome image.
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
+
+    - |RVC3|, Section 10.1.
 
     .. seealso::
 
@@ -1131,7 +1132,7 @@ def iread(
     correction, image decimation or region of interest windowing.  Details are
     given at :func:`convert`.
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -1156,8 +1157,9 @@ def iread(
           and ``[abc]`` patterns, and includes hidden files (those starting with a dot) in the search results.
         - For URL input, the image is read directly from the URL without saving to a local file.  The URL must start with "http://" or "https://".  Wildcard patterns are not supported for URLs.
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
+
+    - |RVC3|, Section 10.1.
 
     .. seealso:: :func:`iread_iter` :func:`convert` `cv2.imread <https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56>`_
     """
@@ -1450,14 +1452,14 @@ def iwrite(
     Writes the image ``im`` to ``filename`` using cv2.imwrite(), passing any keyword
     arguments as options.  The file type is taken from the extension in ``filename``.
 
-    Example:
+    .. rubric:: Examples
 
-        .. code-block:: python
+    .. code-block:: python
 
-            from machinevisiontoolbox import iwrite
-            import numpy as np
-            image = np.zeros((20,20))  # 20x20 black image
-            iwrite(image, "black.png")
+        from machinevisiontoolbox import iwrite
+        import numpy as np
+        image = np.zeros((20,20))  # 20x20 black image
+        iwrite(image, "black.png")
 
 
     .. note::

@@ -39,7 +39,7 @@ class ImageRegionFeaturesMixin(ImageMixinBase):
         like a list and can be indexed, sliced and used as an iterator in
         for loops and comprehensions.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -49,8 +49,9 @@ class ImageRegionFeaturesMixin(ImageMixinBase):
             >>> len(mser)  # number of features
             >>> mser[:5].bbox
 
-        :references:
-            - |RVC3|, Section 12.1.1.2.
+        .. rubric:: References
+
+        - |RVC3|, Section 12.1.1.2.
 
         .. seealso:: :class:`MSERFeature`, `cv2.MSER_create <https://docs.opencv.org/4.5.2/d3/d28/classcv_1_1MSER.html>`_
         """
@@ -72,7 +73,7 @@ class ImageRegionFeaturesMixin(ImageMixinBase):
         :return: detected strings and metadata
         :rtype: list of :class:`OCRWord`
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -86,8 +87,9 @@ class ImageRegionFeaturesMixin(ImageMixinBase):
 
         .. warning:: `PyTessearct <https://github.com/madmaze/pytesseract>`_ must be installed.
 
-        :references:
-            - |RVC3|, Section 12.4.1.
+        .. rubric:: References
+
+        - |RVC3|, Section 12.4.1.
 
         .. seealso:: :class:`OCRWord`
         """
@@ -138,7 +140,7 @@ class MSERFeature:
         return an object that represents the MSERs found.
         This class behaves like a list and each MSER is an element of the list.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -149,11 +151,12 @@ class MSERFeature:
             >>> msers[0]
             >>> msers.bbox
 
-        :references:
-            - J. Matas, O. Chum, M. Urban, and T. Pajdla.
-              "Robust wide baseline stereo from maximally stable extremal regions."
-              Proc. of British Machine Vision Conference, pages 384-396, 2002.
-            - |RVC3|, Section 12.1.2.2.
+        .. rubric:: References
+
+        - J. Matas, O. Chum, M. Urban, and T. Pajdla.
+          "Robust wide baseline stereo from maximally stable extremal regions."
+          Proc. of British Machine Vision Conference, pages 384-396, 2002.
+        - |RVC3|, Section 12.1.2.2.
 
 
         .. seealso:: :meth:`bbox` :meth:`points`
@@ -199,7 +202,7 @@ class MSERFeature:
         :return: number of features
         :rtype: int
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -224,7 +227,7 @@ class MSERFeature:
 
         This method allows a ``MSERFeature`` object to be indexed, sliced or iterated.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -265,7 +268,7 @@ class MSERFeature:
         :return: Brief readable description of MSER
         :rtype: str
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -288,7 +291,7 @@ class MSERFeature:
         :return: Brief readable description of MSER
         :rtype: str
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -312,7 +315,7 @@ class MSERFeature:
         If the object contains just one region the result is an array, otherwise
         it is a list of arrays (with different numbers of rows).
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -340,7 +343,7 @@ class MSERFeature:
         If the object contains just one region the result is a 1D array,
         otherwise it is a 2D arrays with one row per bounding box.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 

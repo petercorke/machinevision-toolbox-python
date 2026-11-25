@@ -42,7 +42,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
 
             \sum_{uvc} I_{uvc}
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -72,7 +72,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
         :type kwargs: dict
         :return: minimum value
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -98,7 +98,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
         :type kwargs: dict
         :return: maximum value
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -124,7 +124,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
         :type kwargs: dict
         :return: mean value
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -150,7 +150,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
         :type kwargs: dict
         :return: standard deviation value
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -176,7 +176,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
         :type kwargs: dict
         :return: variance value
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -202,7 +202,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
         :type kwargs: dict
         :return: median value
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -249,7 +249,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
             returns a dictionary mapping plane name to that same dictionary
         :rtype: dict
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -327,7 +327,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
         Returns an object that summarizes the distribution of
         pixel values in each color plane.
 
-        Example:
+        .. rubric:: Examples
 
         .. code-block:: python
 
@@ -345,7 +345,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
             img = Image.Read('street.png')
             img.hist().plot()
 
-        Example:
+        .. rubric:: Examples
 
         .. code-block:: python
 
@@ -362,7 +362,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
             img = Image.Read('flowers1.png')
             img.hist().plot(style='stack')
 
-        Example:
+        .. rubric:: Examples
 
         .. code-block:: python
 
@@ -390,8 +390,9 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
                 computing the histogram.
             - Histogram is computed using ``numpy.histogram`` independently for each plane.
 
-        :references:
-            - |RVC3|, Section 14.4.3.
+        .. rubric:: References
+
+        - |RVC3|, Section 14.4.3.
 
         .. seealso::
 
@@ -568,7 +569,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
 
             m(I) = \sum_{uv} I_{uv} u^p v^q
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -580,8 +581,9 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
             - Supports single channel images only.
             - ``mpq(0, 0)`` is the same as ``sum()`` but less efficient.
 
-        :references:
-            - |RVC3|, Section 12.1.3.4.
+        .. rubric:: References
+
+        - |RVC3|, Section 12.1.3.4.
 
         .. seealso:: :meth:`sum` :meth:`npq` :meth:`upq`
         """
@@ -612,7 +614,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
 
         where :math:`u_0 = m_{10}(I) / m_{00}(I)` and :math:`v_0 = m_{01}(I) / m_{00}(I)`.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -624,8 +626,9 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
             - The central moments are invariant to translation.
             - Supports single channel images only.
 
-        :references:
-            - |RVC3|, Section 12.1.3.4.
+        .. rubric:: References
+
+        - |RVC3|, Section 12.1.3.4.
 
         .. seealso:: :meth:`sum` :meth:`mpq` :meth:`upq`
         """
@@ -661,7 +664,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
 
         where :math:`u_0 = m_{10}(I) / m_{00}(I)` and :math:`v_0 = m_{01}(I) / m_{00}(I)`.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -674,8 +677,9 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
               scale.
             - Supports single channel images only.
 
-        :references:
-            - |RVC3|, Section 12.1.3.4.
+        .. rubric:: References
+
+        - |RVC3|, Section 12.1.3.4.
 
         .. seealso:: :meth:`sum` :meth:`mpq` :meth:`upq`
         """
@@ -709,7 +713,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
         normalized central moments  ``nu20`` ``nu11`` ``nu02`` ``nu30`` ``nu21`` ``nu12`` ``nu03`` |
         ==========================  ===============================================================================
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -720,8 +724,9 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
         .. note::
             - Converts a color image to greyscale.
 
-        :references:
-            - |RVC3|, Section 12.1.3.4.
+        .. rubric:: References
+
+        - |RVC3|, Section 12.1.3.4.
 
         .. important:: Uses OpenCV function ``cv2.moments`` which accepts single-channel, CV_8U, CV_16U, CV_16S, CV_32F or CV_64F images (color images are automatically converted to greyscale).
 
@@ -738,7 +743,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
 
         Computes the seven Hu image moment invariants of the image.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -752,10 +757,11 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
             - These invariants are a function of object shape and are invariant
               to position, orientation and scale.
 
-        :references:
-            - M-K. Hu, Visual pattern recognition by moment invariants. IRE
-              Trans. on Information Theory, IT-8:pp. 179-187, 1962.
-            - |RVC3|, Section 12.1.3.6.
+        .. rubric:: References
+
+        - M-K. Hu, Visual pattern recognition by moment invariants. IRE
+          Trans. on Information Theory, IT-8:pp. 179-187, 1962.
+        - |RVC3|, Section 12.1.3.6.
 
         .. important:: Uses OpenCV functions ``cv2.moments`` and ``cv2.HuMoments`` which accept single-channel, CV_8U, CV_16U, CV_16S, CV_32F or CV_64F images.
 
@@ -782,7 +788,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
 
         The (u,v) coordinates are given as columns of the returned array.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -792,8 +798,9 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
             >>> img = Image(pix)
             >>> img.nonzero()
 
-        :references:
-            - |RVC3|, Section 12.1.3.2.
+        .. rubric:: References
+
+        - |RVC3|, Section 12.1.3.2.
 
         .. seealso:: :meth:`flatnonzero`
         """
@@ -810,7 +817,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
         The coordinates are given as 1D indices into a flattened version of
         the image.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -850,7 +857,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
         is the largest value within a sliding window of width
         :math:`2 \mathtt{scale}+1`.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1048,7 +1055,7 @@ class Histogram:
         :return: concise summary of histogram
         :rtype: str
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1070,7 +1077,7 @@ class Histogram:
         :return: print concise summary of histogram
         :rtype: str
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1091,7 +1098,7 @@ class Histogram:
 
         Bin :math:`i` contains grey values in the range :math:`[x_{[i]}, x_{[i+1]})`.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1116,7 +1123,7 @@ class Histogram:
         For a greyscale image this is a 1D array, for a multiplane (color) image
         this is a 2D array with the histograms of each plane as columns.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1143,7 +1150,7 @@ class Histogram:
         For a greyscale image this is a 1D array, for a multiplane (color) image
         this is a 2D array with the cumulative histograms of each plane as columns.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1176,7 +1183,7 @@ class Histogram:
         For a greyscale image this is a 1D array, for a multiplane (color) image
         this is a 2D array with the cumulative histograms of each plane as columns.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1207,7 +1214,7 @@ class Histogram:
         this is a 2D array with the normalized cumulative histograms of each
         plane as columns.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1295,7 +1302,7 @@ class Histogram:
             pixels by one bin costs that fraction.  For 1D histograms it is the sum
             of the absolute differences of the two cumulative distributions.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1847,7 +1854,7 @@ class Histogram:
         maxima.  For a color image return a list of arrays of grey values corresponding
         to local maxima in each plane.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 

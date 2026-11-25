@@ -292,14 +292,14 @@ class ImageSource(ABC):
         This is particularly useful for :class:`VideoFile` and
         :class:`FileArchive`.
 
-        Example:
+        .. rubric:: Examples
 
-            .. code-block:: pycon
+        .. code-block:: pycon
 
-            >>> from machinevisiontoolbox import VideoFile
-            >>> t = VideoFile("traffic_sequence.mpg").tensor(normalize=None)
-            >>> t.shape
-            torch.Size([N, 3, H, W])
+        >>> from machinevisiontoolbox import VideoFile
+        >>> t = VideoFile("traffic_sequence.mpg").tensor(normalize=None)
+        >>> t.shape
+        torch.Size([N, 3, H, W])
 
         """
         try:
@@ -590,15 +590,15 @@ class VideoFile(ImageSource):
     in the ``images`` folder of the ``mvtb-data`` package, installed as a
     Toolbox dependency.
 
-    Example:
+    .. rubric:: Examples
 
-        .. code-block:: python
+    .. code-block:: python
 
-            from machinevisiontoolbox import VideoFile
-            video = VideoFile("traffic_sequence.mpg")
-            len(video)
-            for im in video:
-                pass
+        from machinevisiontoolbox import VideoFile
+        video = VideoFile("traffic_sequence.mpg")
+        len(video)
+        for im in video:
+            pass
 
 
     or using a context manager to ensure the file handle is always released:
@@ -610,8 +610,9 @@ class VideoFile(ImageSource):
                     pass
 
 
-    :references:
-        - |RVC3|, Section 11.1.4.
+    .. rubric:: References
+
+    - |RVC3|, Section 11.1.4.
 
     .. seealso::
 
@@ -715,14 +716,14 @@ class VideoCamera(ImageSource):
     The resulting object is an iterator over the frames from the video
     camera. The iterator returns :class:`~machinevisiontoolbox.Image` objects.
 
-    Example:
+    .. rubric:: Examples
 
-        .. code-block:: python
+    .. code-block:: python
 
-            from machinevisiontoolbox import VideoCamera
-            video = VideoCamera(0)
-            for im in video:
-                pass
+        from machinevisiontoolbox import VideoCamera
+        video = VideoCamera(0)
+        for im in video:
+            pass
 
 
     alternatively:
@@ -755,8 +756,9 @@ class VideoCamera(ImageSource):
         enumerate the cameras that are present on the current machine
         together with their best-available names.
 
-    :references:
-        - |RVC3|, Section 11.1.3.
+    .. rubric:: References
+
+    - |RVC3|, Section 11.1.3.
 
     .. seealso::
 
@@ -1160,15 +1162,15 @@ class FileCollection(ImageSource):
     in the ``images`` folder of the ``mvtb-data`` package, installed as a
     Toolbox dependency.
 
-    Example:
+    .. rubric:: Examples
 
-        .. code-block:: python
+    .. code-block:: python
 
-            from machinevisiontoolbox import FileCollection
-            images = FileCollection('campus/*.png')
-            len(images)
-            for image in images:  # iterate over images
-                pass
+        from machinevisiontoolbox import FileCollection
+        images = FileCollection('campus/*.png')
+        len(images)
+        for image in images:  # iterate over images
+            pass
 
 
     alternatively:
@@ -1187,8 +1189,9 @@ class FileCollection(ImageSource):
                     pass
 
 
-    :references:
-        - |RVC3|, Section 11.1.2.
+    .. rubric:: References
+
+    - |RVC3|, Section 11.1.2.
 
     .. seealso::
 
@@ -1368,15 +1371,15 @@ class ImageSequence(ImageSource):
     nanosecond epoch) and ``topic`` attribute are used for the display overlay
     when present.
 
-    Example:
+    .. rubric:: Examples
 
-        .. code-block:: python
+    .. code-block:: python
 
-            from machinevisiontoolbox import ROSBag, ImageSequence
-            bag = ROSBag("mybag.bag", msgfilter="Image")
-            seq = ImageSequence(bag)
-            seq.disp()                        # step through one frame at a time
-            seq.disp(animate=True, fps=5)     # timed playback
+        from machinevisiontoolbox import ROSBag, ImageSequence
+        bag = ROSBag("mybag.bag", msgfilter="Image")
+        seq = ImageSequence(bag)
+        seq.disp()                        # step through one frame at a time
+        seq.disp(animate=True, fps=5)     # timed playback
 
 
     .. seealso:: :class:`PointCloudSequence`
@@ -1628,15 +1631,15 @@ class FileArchive(ImageSource):
     ``"*.png"`` or ``"*.pgm"``.  Note that ``filter`` is a Unix shell style
     wildcard expression, not a Python regexp.
 
-    Example:
+    .. rubric:: Examples
 
-        .. code-block:: python
+    .. code-block:: python
 
-            from machinevisiontoolbox import FileArchive
-            images = FileArchive('bridge-l.zip')
-            len(images)
-            for image in images:  # iterate over files
-                pass
+        from machinevisiontoolbox import FileArchive
+        images = FileArchive('bridge-l.zip')
+        len(images)
+        for image in images:  # iterate over files
+            pass
 
 
     alternatively:
@@ -1655,8 +1658,9 @@ class FileArchive(ImageSource):
                     pass
 
 
-    :references:
-        - |RVC3|, Section 11.1.2.
+    .. rubric:: References
+
+    - |RVC3|, Section 11.1.2.
 
     .. seealso::
 
@@ -1871,14 +1875,14 @@ class WebCam(ImageSource):
     The resulting object is an iterator over the frames returned from the
     remote camera. The iterator returns :class:`~machinevisiontoolbox.Image` objects.
 
-    Example:
+    .. rubric:: Examples
 
-        .. code-block:: python
+    .. code-block:: python
 
-            from machinevisiontoolbox import WebCam
-            webcam = WebCam('https://webcam.dartmouth.edu/webcam/image.jpg')
-            for image in webcam:  # iterate over frames
-                pass
+        from machinevisiontoolbox import WebCam
+        webcam = WebCam('https://webcam.dartmouth.edu/webcam/image.jpg')
+        for image in webcam:  # iterate over frames
+            pass
 
 
     alternatively:
@@ -1911,8 +1915,9 @@ class WebCam(ImageSource):
         with an iPhone, Continuity Camera makes the phone appear as a local
         camera instead, see :class:`VideoCamera`.
 
-    :references:
-        - |RVC3|, Section 11.1.5.
+    .. rubric:: References
+
+    - |RVC3|, Section 11.1.5.
 
     .. seealso::
 
@@ -2026,13 +2031,13 @@ class EarthView(ImageSource):
     ``"roads"``      a binary image which is an occupancy grid, roads are free space
     ===============  ========================================================================
 
-    Example:
+    .. rubric:: Examples
 
-        .. code-block:: python
+    .. code-block:: python
 
-            from machinevisiontoolbox import EarthView
-            earth = EarthView()  # create an Earth viewer
-            image = earth.grab(-27.475722, 153.0285, zoom=17)
+        from machinevisiontoolbox import EarthView
+        earth = EarthView()  # create an Earth viewer
+        image = earth.grab(-27.475722, 153.0285, zoom=17)
 
 
     .. warning:: You must have a Google account and a valid key, backed
@@ -2050,8 +2055,9 @@ class EarthView(ImageSource):
           Services → Credentials*), so a leaked key can't be used for
           anything else, and consider a daily request quota to bound costs.
 
-    :references:
-        - |RVC3|, Section 11.1.6.
+    .. rubric:: References
+
+    - |RVC3|, Section 11.1.6.
 
     .. seealso:: :meth:`grab` :func:`~machinevisiontoolbox.base.imageio.convert`
     """
@@ -2941,16 +2947,16 @@ class SyncROSStreams:
     ``tolerance`` they are emitted together.  Otherwise it discards the single
     oldest frame and continues.
 
-    Example:
+    .. rubric:: Examples
 
-        .. code-block:: python
+    .. code-block:: python
 
-            rgb = ROSTopic("/camera/color/image_raw/compressed")
-            depth = ROSTopic("/camera/depth/image_rect_raw/compressed")
-            with SyncROSStreams([rgb, depth], tolerance=0.03) as sync:
-                for rgb_im, depth_im in sync:
-                    # process aligned pair
-                    pass
+        rgb = ROSTopic("/camera/color/image_raw/compressed")
+        depth = ROSTopic("/camera/depth/image_rect_raw/compressed")
+        with SyncROSStreams([rgb, depth], tolerance=0.03) as sync:
+            for rgb_im, depth_im in sync:
+                # process aligned pair
+                pass
 
 
     **Interaction with ``ROSTopic`` blocking mode**
@@ -4116,15 +4122,15 @@ class PointCloudSequence:
 
     Requires the ``open3d`` package.
 
-    Example:
+    .. rubric:: Examples
 
-        .. code-block:: python
+    .. code-block:: python
 
-            from machinevisiontoolbox import ROSBag, PointCloudSequence
-            bag = ROSBag("mybag.bag", msgfilter="PointCloud2")
-            seq = PointCloudSequence(bag)
-            seq.disp()                       # step through one cloud at a time
-            seq.disp(animate=True, fps=10)   # timed playback
+        from machinevisiontoolbox import ROSBag, PointCloudSequence
+        bag = ROSBag("mybag.bag", msgfilter="PointCloud2")
+        seq = PointCloudSequence(bag)
+        seq.disp()                       # step through one cloud at a time
+        seq.disp(animate=True, fps=10)   # timed playback
 
 
     .. seealso:: :class:`ImageSequence`
@@ -4387,19 +4393,19 @@ class TensorStack(ImageSource):
     :param kwargs: options applied to image frames, see
         :func:`~machinevisiontoolbox.base.imageio.convert`
 
-    Example:
+    .. rubric:: Examples
 
-        .. code-block:: pycon
+    .. code-block:: pycon
 
-        >>> from machinevisiontoolbox import TensorStack
-        >>> import torch
-        >>> batch = torch.randn(10, 3, 64, 64)  # 10 RGB images
-        >>> source = TensorStack(batch, colororder="RGB")
-        >>> len(source)
-        10
-        >>> img = source[7]  # Returns Image wrapping tensor[7] (zero-copy view)
-        >>> for img in source:
-        ...     features = extract(img)  # Process each image lazily
+    >>> from machinevisiontoolbox import TensorStack
+    >>> import torch
+    >>> batch = torch.randn(10, 3, 64, 64)  # 10 RGB images
+    >>> source = TensorStack(batch, colororder="RGB")
+    >>> len(source)
+    10
+    >>> img = source[7]  # Returns Image wrapping tensor[7] (zero-copy view)
+    >>> for img in source:
+    ...     features = extract(img)  # Process each image lazily
 
 
     .. seealso:: :meth:`Image.Tensor`
@@ -4542,19 +4548,19 @@ class LabelMeReader:
 
     Rectangle shapes are converted to 4-vertex polygons.
 
-    Example:
+    .. rubric:: Examples
 
-        .. code-block:: python
+    .. code-block:: python
 
-            from machinevisiontoolbox import LabelMeReader
-            lme = LabelMeReader("https://github.com/wkentaro/labelme/raw/main/examples/tutorial/apc2016_obj3.json")
-            len(lme.shapes)  # number of annotated shapes
-            flags = lme.flags  # file-level flags
-            image = lme.image  # labeled image (if available)
-            for polygon in lme.shapes:
-                print(polygon.points)  # polygon vertices
-                print(polygon.group_id)  # group ID (if any)
-                print(polygon.flags)  # shape-level flags
+        from machinevisiontoolbox import LabelMeReader
+        lme = LabelMeReader("https://github.com/wkentaro/labelme/raw/main/examples/tutorial/apc2016_obj3.json")
+        len(lme.shapes)  # number of annotated shapes
+        flags = lme.flags  # file-level flags
+        image = lme.image  # labeled image (if available)
+        for polygon in lme.shapes:
+            print(polygon.points)  # polygon vertices
+            print(polygon.group_id)  # group ID (if any)
+            print(polygon.flags)  # shape-level flags
 
     .. note:: The ``labelme`` package provides a more comprehensive interface to
         LabelMe annotations, including support for all shape types and attributes, but
