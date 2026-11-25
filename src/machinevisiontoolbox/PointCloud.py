@@ -1,7 +1,26 @@
 """
 Thin wrapper around Open3D point-cloud objects with MVTB look and feel.
+
+Open3D is an open-source library that supports rapid development of software that deals
+with 3D data. The Open3D frontend exposes a set of carefully selected data structures
+and algorithms in both C++ and Python. The backend is highly optimized and is set up for
+parallelization.
+
+The ``PointCloud`` class provides a subset of commonly used methods but does not
+attempt to wrap every Open3D method.  Instead, any method or property not known to the
+``PointCloud`` class, such as ``pc.some_method()``, falls through to the native Open3D
+method ``some_method()`` on the encapsulated Open3D object, and all parameters are
+passed through.  If the return value is an Open3D point cloud, or a tuple that contains
+one, it is wrapped and returned as a ``PointCloud`` instance.  A name that neither class
+knows raises :class:`AttributeError`.
+
+Open3D uses NumPy arrays in which points are rows.  This is different to the MVTB
+convention of points as columns.  The MVTB wrappers handle this transposition, but
+anything that falls through to Open3D, or that is reached through :attr:`pcd`, uses the
+Open3D convention.
 """
 
+import difflib
 from pathlib import Path
 from typing import Any, Callable
 from warnings import warn
@@ -187,6 +206,8 @@ class PointCloud:
 
         :param name: method or attribute name
         :type name: str
+        :raises AttributeError: neither this class nor the Open3D point cloud has
+            a method or property of this name
 
         If ``P`` is a :class:`PointCloud` then ``P.name`` invokes
         method ``name`` of the underlying :obj:`open3d.geometry.PointCloud`
@@ -202,28 +223,59 @@ class PointCloud:
         .. note::
             - This is a convenience method to avoid having to explicitly all
               the properties and methods of the Open3D point cloud object.
-            - If the method returns a new point cloud object, it is converted to a
-              Toolbox :class:`PointCloud` instance.
-        """
+            - If the method returns a new point cloud object, or a tuple that
+              contains one, it is converted to a Toolbox :class:`PointCloud`
+              instance.
+            - Arguments and return values other than point clouds are passed
+              through unchanged, so arrays use the Open3D convention of one point
+              per row, not the Toolbox convention of one point per column.
 
-        def wrapper(*args: Any, **kwargs: Any) -> Any:
-            meth = getattr(self._pcd, name)
-            retval = meth(*args, **kwargs)
-            if isinstance(retval, tuple):
-                return tuple(
-                    PointCloud(r) if isinstance(r, o3d.geometry.PointCloud) else r
-                    for r in retval
-                )
-            else:
-                return retval
+        .. versionchanged:: 2.5.0
+            An unknown name raises :class:`AttributeError`, as Python expects, so
+            ``hasattr`` and ``getattr`` with a default work.  It used to raise
+            :class:`ValueError`.  The message names the two classes that were
+            searched and suggests similar names.  A point cloud that is returned
+            by itself is converted, not only one inside a tuple.
+
+        .. seealso:: :attr:`pcd`
+        """
+        # copy and pickle create an instance without calling __init__, so there is
+        # no wrapped object, and looking for it here would call this method again
+        if name == "_pcd":
+            raise AttributeError(name)
+
+        def wrap(value: Any) -> Any:
+            if isinstance(value, o3d.geometry.PointCloud):
+                return PointCloud(value)
+            if isinstance(value, tuple):
+                return tuple(wrap(v) for v in value)
+            return value
 
         if hasattr(self._pcd, name):
-            if callable(getattr(self._pcd, name)):
+            attr = getattr(self._pcd, name)
+            if callable(attr):
+
+                def wrapper(*args: Any, **kwargs: Any) -> Any:
+                    return wrap(attr(*args, **kwargs))
+
                 return wrapper
-            else:
-                return getattr(self._pcd, name)
-        else:
-            raise ValueError(f"object has no attribute '{name}'")
+            return wrap(attr)
+
+        # not a method or property of either class, so suggest similar names
+        known = {
+            n
+            for n in dir(self._pcd) + dir(type(self))
+            if not n.startswith("_") and n[0].islower()
+        }
+        close = difflib.get_close_matches(name, sorted(known), n=2, cutoff=0.8)
+        msg = (
+            f"'{type(self).__name__}' object has no attribute '{name}': it is not "
+            "a method or property of PointCloud, or of the Open3D point cloud "
+            "that it wraps"
+        )
+        if close:
+            msg += ". Did you mean " + " or ".join(f"'{c}'" for c in close) + "?"
+        raise AttributeError(msg)
 
     def __str__(self) -> str:
         """
