@@ -2808,7 +2808,7 @@ class ROSTopic(ImageSource):
             pub.release()
 
         The topic is advertised lazily on first publish.
-    """
+        """
         if isinstance(msg, Image):
             if not self._is_image_message_type(self.message):
                 raise TypeError(
@@ -3685,9 +3685,7 @@ class ROSBag(ImageSource):
                     print(
                         f"  auto-detect: {name} (ros1) failed: {type(e).__name__}: {e}"
                     )
-            except (
-                Exception
-            ) as e:  # noqa: BLE001 - unexpected failures are reported (verbose), not fatal
+            except Exception as e:  # noqa: BLE001 - unexpected failures are reported (verbose), not fatal
                 if self.verbose:
                     print(
                         f"  auto-detect: {name} (ros1) UNEXPECTED {type(e).__name__}: {e}"
@@ -3725,9 +3723,7 @@ class ROSBag(ImageSource):
                         f"  auto-detect: {name} (CDR) failed: {type(e).__name__}: {e}"
                     )
                 continue
-            except (
-                Exception
-            ) as e:  # noqa: BLE001 - unexpected failures are reported (verbose), not fatal
+            except Exception as e:  # noqa: BLE001 - unexpected failures are reported (verbose), not fatal
                 if self.verbose:
                     print(
                         f"  auto-detect: {name} (CDR) UNEXPECTED {type(e).__name__}: {e}"
