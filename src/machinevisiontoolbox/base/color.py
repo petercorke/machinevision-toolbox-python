@@ -52,8 +52,6 @@ def _loaddata(filename: str, verbose: bool = False, **kwargs: Any) -> np.ndarray
     ``_loaddata(filename)`` returns ``data`` from ``filename``, otherwise
     returns None
 
-    .. rubric:: Examples
-
     .. note::
 
         - Comments are assumed to be as original data files were part of the

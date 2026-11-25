@@ -602,11 +602,11 @@ class VideoFile(ImageSource):
 
     or using a context manager to ensure the file handle is always released:
 
-        .. code-block:: python
+    .. code-block:: python
 
-            with VideoFile("traffic_sequence.mpg") as video:
-                for im in video:
-                    pass
+        with VideoFile("traffic_sequence.mpg") as video:
+            for im in video:
+                pass
 
 
     .. rubric:: References
@@ -2765,52 +2765,50 @@ class ROSTopic(ImageSource):
         ``sensor_msgs/PointCloud2`` with ``x``, ``y``, ``z`` fields and an
         ``rgb`` field when color data is present.
 
-        Example publishing a ``std_msgs/String`` message:
+        .. rubric:: Examples
 
-            .. code-block:: python
+        Publishing a ``std_msgs/String`` message:
 
-                pub = ROSTopic("/cmd_text", message="std_msgs/String", subscribe=False)
-                pub.publish({"data": "hello"})
-                pub.release()
+        .. code-block:: python
 
+            pub = ROSTopic("/cmd_text", message="std_msgs/String", subscribe=False)
+            pub.publish({"data": "hello"})
+            pub.release()
 
-        Example publishing a ``geometry_msgs/Twist`` message:
+        Publishing a ``geometry_msgs/Twist`` message:
 
-            .. code-block:: python
+        .. code-block:: python
 
-                pub = ROSTopic("/cmd_vel", message="geometry_msgs/Twist", subscribe=False)
-                pub.publish(
-                    {
-                        "linear": {"x": 0.2, "y": 0.0, "z": 0.0},
-                        "angular": {"x": 0.0, "y": 0.0, "z": 0.5},
-                    }
-                )
-                pub.release()
+            pub = ROSTopic("/cmd_vel", message="geometry_msgs/Twist", subscribe=False)
+            pub.publish(
+                {
+                    "linear": {"x": 0.2, "y": 0.0, "z": 0.0},
+                    "angular": {"x": 0.0, "y": 0.0, "z": 0.5},
+                }
+            )
+            pub.release()
 
+        Publishing an :class:`~machinevisiontoolbox.Image` with an explicit timestamp:
 
-        Example publishing an :class:`~machinevisiontoolbox.Image` with an explicit timestamp:
+        .. code-block:: python
 
-            .. code-block:: python
+            img = _make_image(np.zeros((240, 320, 3), dtype=np.uint8), colororder="RGB")
+            pub = ROSTopic("/camera/image_raw", message="sensor_msgs/Image", subscribe=False)
+            pub.publish(img, timestamp_ns=1_700_000_000_123_456_789)
+            pub.release()
 
-                img = _make_image(np.zeros((240, 320, 3), dtype=np.uint8), colororder="RGB")
-                pub = ROSTopic("/camera/image_raw", message="sensor_msgs/Image", subscribe=False)
-                pub.publish(img, timestamp_ns=1_700_000_000_123_456_789)
-                pub.release()
+        Publishing a :class:`PointCloud` with an explicit timestamp:
 
+        .. code-block:: python
 
-        Example publishing a :class:`PointCloud` with an explicit timestamp:
-
-            .. code-block:: python
-
-                points = np.array([[0.0, 1.0], [0.0, 0.2], [1.0, 1.2]], dtype=np.float32)
-                pc = PointCloud(points)
-                pub = ROSTopic("/cloud", message="sensor_msgs/PointCloud2", subscribe=False)
-                pub.publish(pc, timestamp_ns=1_700_000_000_223_456_789)
-                pub.release()
-
+            points = np.array([[0.0, 1.0], [0.0, 0.2], [1.0, 1.2]], dtype=np.float32)
+            pc = PointCloud(points)
+            pub = ROSTopic("/cloud", message="sensor_msgs/PointCloud2", subscribe=False)
+            pub.publish(pc, timestamp_ns=1_700_000_000_223_456_789)
+            pub.release()
 
         The topic is advertised lazily on first publish.
-        """
+    """
         if isinstance(msg, Image):
             if not self._is_image_message_type(self.message):
                 raise TypeError(
@@ -3687,7 +3685,9 @@ class ROSBag(ImageSource):
                     print(
                         f"  auto-detect: {name} (ros1) failed: {type(e).__name__}: {e}"
                     )
-            except Exception as e:  # noqa: BLE001 - unexpected failures are reported (verbose), not fatal
+            except (
+                Exception
+            ) as e:  # noqa: BLE001 - unexpected failures are reported (verbose), not fatal
                 if self.verbose:
                     print(
                         f"  auto-detect: {name} (ros1) UNEXPECTED {type(e).__name__}: {e}"
@@ -3725,7 +3725,9 @@ class ROSBag(ImageSource):
                         f"  auto-detect: {name} (CDR) failed: {type(e).__name__}: {e}"
                     )
                 continue
-            except Exception as e:  # noqa: BLE001 - unexpected failures are reported (verbose), not fatal
+            except (
+                Exception
+            ) as e:  # noqa: BLE001 - unexpected failures are reported (verbose), not fatal
                 if self.verbose:
                     print(
                         f"  auto-detect: {name} (CDR) UNEXPECTED {type(e).__name__}: {e}"
