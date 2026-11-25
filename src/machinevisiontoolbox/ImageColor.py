@@ -47,7 +47,7 @@ class ImageColorMixin(ImageMixinBase):
         ``'cv'``     OpenCV colorspace() RGB to grey conversion
         ===========  =====================================================
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -106,7 +106,7 @@ class ImageColorMixin(ImageMixinBase):
         .. math::
             r = \frac{R}{R+G+B}, \, g = \frac{G}{R+G+B}
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -153,7 +153,7 @@ class ImageColorMixin(ImageMixinBase):
         The greyscale image is colorized by setting each output pixel to the product
         of ``color`` and the input pixel value.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -224,7 +224,7 @@ class ImageColorMixin(ImageMixinBase):
           The method returns a label image, indicating the assigned cluster for
           each input pixel, the cluster centroids and a residual.
 
-          Example:
+          .. rubric:: Examples
 
           .. runblock:: pycon
 
@@ -320,7 +320,7 @@ class ImageColorMixin(ImageMixinBase):
         CIE L*u*v*                  'luv', 'l*u*v*'
         =======================     ======================
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -383,7 +383,7 @@ class ImageColorMixin(ImageMixinBase):
         Two greyscale images are overlaid in different colors.  Useful for
         visualizing disparity or optical flow.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -430,7 +430,7 @@ class ImageColorMixin(ImageMixinBase):
 
         .. math:: \mat{Y}_{u,v} = \mat{X}_{u,v}^\gamma
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -475,7 +475,7 @@ class ImageColorMixin(ImageMixinBase):
 
         .. math:: \mat{Y}_{u,v} = \mat{X}_{u,v}^\gamma
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 

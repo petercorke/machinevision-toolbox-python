@@ -42,7 +42,7 @@ def findpeaks(
 
     Find the peak in a 1D signal.
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -178,7 +178,7 @@ def findpeaks2d(
     its value and an estimate of the "peakiness" of the peak (the second order
     coefficient of the interpolating polynomial).
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -285,7 +285,7 @@ def findpeaks3d(v: np.ndarray, npeaks: int | None = None) -> np.ndarray:
     Find the maximum of a 3D signal, typically volumetric data such as a
     scale-space image stack.
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 

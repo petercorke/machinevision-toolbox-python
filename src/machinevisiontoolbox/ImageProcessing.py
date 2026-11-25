@@ -50,7 +50,7 @@ class ImageProcessingMixin(ImageMixinBase):
             - (256,N) where the LUT columns are applied to the ``N`` planes of
               the input image.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -119,7 +119,7 @@ class ImageProcessingMixin(ImageMixinBase):
         The function ``func`` is called with the image or pixel value as the first argument,
         followed by any additional keyword arguments.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -185,7 +185,7 @@ class ImageProcessingMixin(ImageMixinBase):
           as its argument.
 
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -227,7 +227,7 @@ class ImageProcessingMixin(ImageMixinBase):
         Pixels in the returned image will have values in the range [``min``, ``max``]
         inclusive.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -256,7 +256,7 @@ class ImageProcessingMixin(ImageMixinBase):
         :return: rolled image
         :rtype: :class:`Image` instance
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -286,7 +286,7 @@ class ImageProcessingMixin(ImageMixinBase):
         Return a histogram normalized version of the image which highlights
         image detail in low-contrast areas of an image.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -336,7 +336,7 @@ class ImageProcessingMixin(ImageMixinBase):
         greater than ``range[1]`` will be mapped to a value greater than
         ``max``.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -469,7 +469,7 @@ class ImageProcessingMixin(ImageMixinBase):
         |                 | by ``p`` (0 to 100).                                |
         +-----------------+-----------------------------------------------------+
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -842,7 +842,7 @@ class ImageProcessingMixin(ImageMixinBase):
         maximizes the variance between the classes of pixels below and above
         the threshold ``t``.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1006,7 +1006,7 @@ class ImageProcessingMixin(ImageMixinBase):
 
             \mathbf{Y} = \alpha \mathbf{X}_1 + \beta \mathbf{X}_2 + \gamma
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1085,7 +1085,7 @@ class ImageProcessingMixin(ImageMixinBase):
         If ``image2`` is a string it is taken as a colorname which is looked up
         using ``name2color``.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1211,7 +1211,7 @@ class ImageProcessingMixin(ImageMixinBase):
         The ``position`` of the pasted ``pattern`` in the image can be specified
         by its top left corner (umin, vmin) or its centre in the image.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1385,7 +1385,7 @@ class ImageProcessingMixin(ImageMixinBase):
 
         .. math:: Y_{u,v} = \left\{ \begin{array}{l} 1.0 \mbox{, if } X_{u,v} = 0 \\ 0.0 \mbox{, otherwise} \end{array}\right.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 

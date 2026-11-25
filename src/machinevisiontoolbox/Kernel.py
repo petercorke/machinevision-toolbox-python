@@ -168,7 +168,7 @@ class Kernel:
 
         Very compact display of kernel numerical values in grid layout.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -216,7 +216,7 @@ class Kernel:
         contained within the window. This is the same rule of thumb used by OpenCV's
         ``cv2.getGaussianKernel`` function.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -228,11 +228,11 @@ class Kernel:
             >>> K = Kernel.Gauss(sigma=2)
             >>> K.shape
 
-        Example:
+        .. rubric:: Examples
 
-            .. code-block:: python
+        .. code-block:: python
 
-                Kernel.Gauss(5, 15).disp3d()
+            Kernel.Gauss(5, 15).disp3d()
 
 
         .. plot::
@@ -288,7 +288,7 @@ class Kernel:
                 0 & 1 & 0
                 \end{bmatrix}
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -331,7 +331,7 @@ class Kernel:
                 1 & 0 & -1
                 \end{bmatrix}
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -388,7 +388,7 @@ class Kernel:
         - :math:`2 \mbox{ceil}(3 \sigma) + 1`, or
         - :math:`2\mathtt{h} + 1`
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -397,11 +397,11 @@ class Kernel:
             >>> K
             >>> K.print()
 
-        Example:
+        .. rubric:: Examples
 
-            .. code-block:: python
+        .. code-block:: python
 
-                Kernel.DoG(5, 15).disp3d()
+            Kernel.DoG(5, 15).disp3d()
 
 
         .. plot::
@@ -464,7 +464,7 @@ class Kernel:
         - :math:`2 \mbox{ceil}(3 \sigma) + 1`, or
         - :math:`2\mathtt{h} + 1`
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -473,11 +473,11 @@ class Kernel:
             >>> K
             >>> K.print()
 
-        Example:
+        .. rubric:: Examples
 
-            .. code-block:: python
+        .. code-block:: python
 
-                Kernel.LoG(5, 15).disp3d()
+            Kernel.LoG(5, 15).disp3d()
 
 
         .. plot::
@@ -537,7 +537,7 @@ class Kernel:
         - :math:`2 \mbox{ceil}(3 \sigma) + 1`, or
         - :math:`2\mathtt{h} + 1`
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -546,11 +546,11 @@ class Kernel:
             >>> K
             >>> K.print()
 
-        Example:
+        .. rubric:: Examples
 
-            .. code-block:: python
+        .. code-block:: python
 
-                Kernel.DGauss(5, 15).disp3d()
+            Kernel.DGauss(5, 15).disp3d()
 
 
         .. plot::
@@ -617,7 +617,7 @@ class Kernel:
         - :math:`2 \mbox{ceil}(3 \sigma) + 1`, or
         - :math:`2\mathtt{h} + 1`
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -626,14 +626,14 @@ class Kernel:
             >>> Hxx
             >>> Hxx.print()
 
-        Example:
+        .. rubric:: Examples
 
-            .. code-block:: python
+        .. code-block:: python
 
-                Hxx, Hyy, Hxy = Kernel.HGauss(5, 15)
-                Hxx.disp3d()
-                Hyy.disp3d()
-                Hxy.disp3d()
+            Hxx, Hyy, Hxy = Kernel.HGauss(5, 15)
+            Hxx.disp3d()
+            Hyy.disp3d()
+            Hxy.disp3d()
 
 
         .. plot::
@@ -706,7 +706,7 @@ class Kernel:
         The kernel is centred within a square array with side length given
         by :math:`2\mathtt{h} + 1`.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -774,7 +774,7 @@ class Kernel:
         The kernel is centred within a square array with side length given
         by :math:`2\mathtt{h} + 1`.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 

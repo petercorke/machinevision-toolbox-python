@@ -76,7 +76,7 @@ class ImageMorphMixin(ImageMixinBase):
         False as 0. The structuring element should be a 2D array of non-negative
         integers, where non-zero values indicate the shape of the structuring element.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -176,7 +176,7 @@ class ImageMorphMixin(ImageMixinBase):
         False as 0. The structuring element should be a 2D array of non-negative
         integers, where non-zero values indicate the shape of the structuring element.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -391,7 +391,7 @@ class ImageMorphMixin(ImageMixinBase):
         False as 0. The structuring element should be a 2D array of non-negative
         integers, where non-zero values indicate the shape of the structuring element.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -482,7 +482,7 @@ class ImageMorphMixin(ImageMixinBase):
         False as 0. The structuring element should be a 2D array of non-negative
         integers, where non-zero values indicate the shape of the structuring element.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -572,7 +572,7 @@ class ImageMorphMixin(ImageMixinBase):
             * -1, must match a zero value
             * 0, don't care, matches any value.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -626,7 +626,7 @@ class ImageMorphMixin(ImageMixinBase):
         binary image. Any non-zero region is replaced by a network of
         single-pixel wide lines.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -690,7 +690,7 @@ class ImageMorphMixin(ImageMixinBase):
         The algorithm is iterative, and the result of of each iteration is
         displayed using Matplotlib.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -747,7 +747,7 @@ class ImageMorphMixin(ImageMixinBase):
         in the binary image is the end point of a single-pixel wide line such as
         found in an image skeleton.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -793,7 +793,7 @@ class ImageMorphMixin(ImageMixinBase):
         in the binary image is a triple point, that is where three single-pixel
         wide line intersect. These are the Voronoi points in an image skeleton.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 

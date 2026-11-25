@@ -52,7 +52,7 @@ def int_image(
     * the boolean class, False is mapped to zero and True is mapped to the
       maximum positive value of ``inclass``.
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -118,7 +118,7 @@ def float_image(
       value.
     * the boolean class, False is mapped to 0.0 and True is mapped to 1.0.
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 

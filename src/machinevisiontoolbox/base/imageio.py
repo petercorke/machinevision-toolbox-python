@@ -335,13 +335,13 @@ def idisp(
     be displayed, but the ``draw_xxx()`` functions can be used to draw on the image
     prior to display.
 
-    Example:
+    .. rubric:: Examples
 
-        .. code-block:: python
+    .. code-block:: python
 
-            from machinevisiontoolbox import iread, idisp
-            im, file = iread("monalisa.png", matplotlib=False)
-            idisp(im)
+        from machinevisiontoolbox import iread, idisp
+        im, file = iread("monalisa.png", matplotlib=False)
+        idisp(im)
 
 
     Most of the options apply to the Matplotlib case.
@@ -352,7 +352,7 @@ def idisp(
     Other graphics can be superimposed on the image using the Matplotlib plotting
     functions ``plot_xxx()``.
 
-    Example:
+    .. rubric:: Examples
 
     .. code-block:: python
 
@@ -1132,7 +1132,7 @@ def iread(
     correction, image decimation or region of interest windowing.  Details are
     given at :func:`convert`.
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -1452,14 +1452,14 @@ def iwrite(
     Writes the image ``im`` to ``filename`` using cv2.imwrite(), passing any keyword
     arguments as options.  The file type is taken from the extension in ``filename``.
 
-    Example:
+    .. rubric:: Examples
 
-        .. code-block:: python
+    .. code-block:: python
 
-            from machinevisiontoolbox import iwrite
-            import numpy as np
-            image = np.zeros((20,20))  # 20x20 black image
-            iwrite(image, "black.png")
+        from machinevisiontoolbox import iwrite
+        import numpy as np
+        image = np.zeros((20,20))  # 20x20 black image
+        iwrite(image, "black.png")
 
 
     .. note::

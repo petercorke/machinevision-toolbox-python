@@ -158,7 +158,7 @@ class ImageSpatialMixin(ImageMixinBase):
         :math:`\sigma = 0.3 \mathtt{h} + 0.8` which ensures that most of the Gaussian is
         contained within the window.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -239,7 +239,7 @@ class ImageSpatialMixin(ImageMixinBase):
         ``'none'``          do not look outside of border
         ================  ====================================================
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -434,7 +434,7 @@ class ImageSpatialMixin(ImageMixinBase):
             datatype of the image, so a ``uint8`` image lost all of its negative
             gradients.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -481,7 +481,7 @@ class ImageSpatialMixin(ImageMixinBase):
 
             \theta_{u,v} = \tan^{-1} \frac{\mat{I}_{v: u,v}}{\mat{I}_{u: u,v}}
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -575,7 +575,7 @@ class ImageSpatialMixin(ImageMixinBase):
         - If ``se`` is None then ``h`` is the half width of a :math:`w \times
           w` square structuring element of ones, where :math:`w =2h+1`.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -625,7 +625,7 @@ class ImageSpatialMixin(ImageMixinBase):
         Compute a zero-crossing image, where pixels are true if they are adjacent to
         a change in sign.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -673,12 +673,12 @@ class ImageSpatialMixin(ImageMixinBase):
         consecutive smoothings is the difference of Gaussian which is an
         approximation to the Laplacian of Gaussian.
 
-        Examples:
+        .. rubric:: Examples
 
-            .. code-block:: python
+        .. code-block:: python
 
-                mona = Image.Read("monalisa.png", dtype="float");
-                G, L, scales = mona.scalespace(8, sigma=8);
+            mona = Image.Read("monalisa.png", dtype="float");
+            G, L, scales = mona.scalespace(8, sigma=8);
 
 
         .. note:: The two image sequences have the same length, the original image is
@@ -737,7 +737,7 @@ class ImageSpatialMixin(ImageMixinBase):
         array of images each one having dimensions half that of the previous
         image. The pyramid is computed down to a non-halvable image size.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -997,7 +997,7 @@ class ImageSpatialMixin(ImageMixinBase):
             - ``footprint`` a 2D Numpy array containing zero or one values, or
             - ``h`` which is the half width :math:`w=2h+1` of an array of ones
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1101,7 +1101,7 @@ class ImageSpatialMixin(ImageMixinBase):
         Return the median filtered image.  For every :math:`w \times w, w=2h+1`
         window take the median value as the output pixel value.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1147,7 +1147,7 @@ class ImageSpatialMixin(ImageMixinBase):
         distance to the nearest non-zero input pixel.  Any non-zero value counts
         as foreground, so the input need not be binary or have the values 0 and 255.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1226,7 +1226,7 @@ class ImageSpatialMixin(ImageMixinBase):
         indicating which region the corresponding input pixel belongs to.  The
         background has label 0.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1295,7 +1295,7 @@ class ImageSpatialMixin(ImageMixinBase):
         indicating which region the corresponding input pixel belongs to.  The
         background has label 0.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1394,7 +1394,7 @@ class ImageSpatialMixin(ImageMixinBase):
         and a value of 0 indicates identical pixel patterns and is increasingly
         positive as image dissimilarity increases.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1447,7 +1447,7 @@ class ImageSpatialMixin(ImageMixinBase):
         scalar and a value of 0 indicates identical pixel patterns and is
         increasingly positive as image dissimilarity increases.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1494,7 +1494,7 @@ class ImageSpatialMixin(ImageMixinBase):
         scalar in the interval -1 (non match) to 1 (perfect match) that
         indicates similarity.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1550,7 +1550,7 @@ class ImageSpatialMixin(ImageMixinBase):
         (relative to their mean values) and is increasingly positive as image
         dissimilarity increases.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1600,7 +1600,7 @@ class ImageSpatialMixin(ImageMixinBase):
         scalar and a value of 0 indicates identical pixel patterns (relative to their maen) and is
         increasingly positive as image dissimilarity increases.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1651,7 +1651,7 @@ class ImageSpatialMixin(ImageMixinBase):
         scalar in the interval -1 (non match) to 1 (perfect match) that
         indicates similarity.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1706,7 +1706,7 @@ class ImageSpatialMixin(ImageMixinBase):
         the template ``T`` to the same-sized neighbourhood surrounding the
         corresponding input pixel in image.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 

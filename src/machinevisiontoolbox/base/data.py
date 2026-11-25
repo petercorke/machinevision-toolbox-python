@@ -143,7 +143,7 @@ def mvtb_path_to_datafile(
     Otherwise, the file is sought within the ``mvtbdata`` package and if found,
     return that absolute path.
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 

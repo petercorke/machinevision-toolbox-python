@@ -439,7 +439,7 @@ class BundleAdjust:
         Provides access to bundle adjustment problems from data files as distributed with the SBA package.
         Details of the file format are given in the source code comments.
 
-        Example:
+        .. rubric:: Examples
 
         To solve the 7-point bundle adjustment problem distributed with
         SBA 1.6:
