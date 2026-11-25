@@ -1803,9 +1803,19 @@ def shadow_invariant(
 
     .. rubric:: Examples
 
-    >>> im = iread('parks.png', gamma='sRGB', dtype='double')
+    >>> im, _ = iread('parks.png', gamma='sRGB', dtype='double')
+    >>> idisp(im)
     >>> gs = shadow_invariant(im, 0.7)
     >>> idisp(gs)
+
+    .. plot::
+
+        from machinevisiontoolbox import iread, idisp, shadow_invariant
+
+        im, _ = iread('parks.png', gamma='sRGB', dtype='double')
+        idisp(im)
+        gs = shadow_invariant(im, 0.7)
+        idisp(gs)
 
     .. note::
         - The input image is assumed to be linear, that is, it has been
