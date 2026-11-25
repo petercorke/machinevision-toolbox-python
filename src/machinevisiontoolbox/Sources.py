@@ -1012,9 +1012,10 @@ class VideoCamera(ImageSource):
         The name mapping is best-effort: if the platform query fails the
         ``name`` key is ``None``.
 
-        Example::
+        .. rubric:: Examples
 
-            $ python
+        .. code-block:: pycon
+
             >>> from machinevisiontoolbox import VideoCamera
             >>> for cam in VideoCamera.list():
             ...     print(cam)
