@@ -7,7 +7,6 @@ import scipy.stats as stats
 def ransac_line(x, y, npoints=2, maxiter=20, t=1e-6, d=4):
 
     iterations = 0
-    n = len(x)
     best_fit = np.inf
     best_model = None
 
