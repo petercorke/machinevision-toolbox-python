@@ -266,6 +266,19 @@ class Image(
             >>> Image([[1, 2], [3, 1000]])
             >>> Image([[0.1, 0.2], [0.3, 0.4]])
             >>> Image([[True, False], [False, True]])
+            >>> a = np.array([[1, 2], [3, 4]], dtype=np.uint16)
+            >>> Image(a).dtype  # narrowed to uint8, since the values fit
+            >>> Image(a, dtype=True).dtype  # keep the dtype of the array
+            >>> Image(a, dtype="uint16").dtype  # or ask for one
+
+        .. note:: **The pixel type may be smaller than the array's.**  By default
+            (``dtype=None``) an integer array becomes the smallest integer type that holds
+            all of its values, and a floating point array becomes ``float32``.  So a
+            ``uint16`` or ``int64`` array whose values all lie below 256, such as a dark
+            16-bit frame, gives a ``uint8`` image.  This also applies to images that other
+            parts of the Toolbox build from arrays, for example the frames of a
+            ``ROSBag``.  Pass ``dtype=True`` to keep the dtype of the array, or a
+            dtype such as ``dtype="uint16"`` to choose one.
 
         .. warning:: If an image is constructed from an existing :class:`Image` instance or a Numpy array,
             the encapsulated Numpy array is, by default, a *reference* to the passed image data.
