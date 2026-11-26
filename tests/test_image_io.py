@@ -6,7 +6,6 @@ import contextlib
 import io
 import os
 import unittest
-from collections.abc import Iterable
 from pathlib import Path
 
 import numpy as np
@@ -185,7 +184,7 @@ class TestImage(unittest.TestCase):
     # new test
     def test_disp(self):
         """Test image display"""
-        im = Image.Random(size=(50, 50), dtype="uint8")
+        Image.Random(size=(50, 50), dtype="uint8")
         # TODO: Test display (may require mock or headless mode)
         # im.disp(block=False)
         pass
@@ -211,7 +210,7 @@ class TestImage(unittest.TestCase):
     # new test
     def test_showpixels(self):
         """Test showing pixel values overlay"""
-        im = Image.String("123|456|789")
+        Image.String("123|456|789")
         # TODO: Test pixel value display
         # im.showpixels()
         pass
@@ -219,8 +218,8 @@ class TestImage(unittest.TestCase):
     # new test
     def test_stdisp(self):
         """Test stereo image pair display"""
-        im_left = Image.Random(size=(50, 50), dtype="uint8")
-        im_right = Image.Random(size=(50, 50), dtype="uint8")
+        Image.Random(size=(50, 50), dtype="uint8")
+        Image.Random(size=(50, 50), dtype="uint8")
         # TODO: Test stereo display
         # im_left.stdisp(im_right)
         pass
@@ -228,7 +227,7 @@ class TestImage(unittest.TestCase):
     # new test
     def test_write(self):
         """Test writing image to file"""
-        im = Image.Random(size=(50, 50), dtype="uint8")
+        Image.Random(size=(50, 50), dtype="uint8")
         # TODO: Test writing to temp file and reading back
         # import tempfile
         # with tempfile.NamedTemporaryFile(suffix='.png') as f:

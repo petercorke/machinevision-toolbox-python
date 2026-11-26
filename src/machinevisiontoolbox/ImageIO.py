@@ -737,7 +737,7 @@ class ImageIOMixin(ImageMixinBase):
 
             def on_mouse_move(self, event: Any) -> None:
                 if event.inaxes == self.ax2 and self.leftclicked:
-                    x, y = event.xdata, event.ydata
+                    x = event.xdata
                     # update the line positions
                     self.vertical_line3.set_xdata([x, x])
                     self.text.set_text("d={:.2f}".format(self.x_left - x))

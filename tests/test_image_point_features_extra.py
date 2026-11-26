@@ -278,7 +278,7 @@ class TestAdd:
             sum([a, b])
 
 
-class TestGridify:
+class TestGridifyPerCell:
     def test_limits_features_per_cell(self):
         # ten features in one corner cell of a 2 x 2 grid of a 100 x 100 image
         image = Image(np.zeros((100, 100), dtype=np.uint8))

@@ -4,7 +4,6 @@ import unittest
 
 import numpy as np
 import numpy.testing as nt
-import spatialmath.base.argcheck as argcheck
 
 from machinevisiontoolbox import Image
 

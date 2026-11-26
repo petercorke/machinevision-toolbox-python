@@ -13,21 +13,21 @@ import sys
 import unittest
 
 try:
-    import rosbags  # noqa: F401
+    __import__("rosbags")
 
     _rosbags_available = True
 except ImportError:
     _rosbags_available = False
 
 try:
-    import pytesseract  # noqa: F401
+    __import__("pytesseract")
 
     _pytesseract_available = True
 except ImportError:
     _pytesseract_available = False
 
 try:
-    import open3d  # noqa: F401
+    __import__("open3d")
 
     _open3d_available = True
 except ImportError:
