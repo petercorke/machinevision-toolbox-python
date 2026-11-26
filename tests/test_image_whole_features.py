@@ -327,14 +327,14 @@ class TestImageWholeFeatures(unittest.TestCase):
     def test_peaks(self):
         """Test peak finding in histogram"""
         im = Image.String("000011112222")
-        hist = im.hist()
+        im.hist()
         peaks = im.peaks()
         self.assertIsNotNone(peaks)
 
     # new test
     def test_plot(self):
         """Test plotting histogram"""
-        im = Image.Random(size=(50, 50), dtype="uint8")
+        Image.Random(size=(50, 50), dtype="uint8")
         # TODO: Test histogram plotting (may require mock)
         # im.plot()
         pass

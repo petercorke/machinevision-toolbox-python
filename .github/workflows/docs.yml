@@ -47,8 +47,11 @@ jobs:
           python -m pip install pre-commit
           pre-commit run --all-files --show-diff-on-failure
 
+      # libegl1 and libgl1: Open3D will not import without them, which turns every
+      # PointCloud example in the docs into a "requires Open3D" error (ci.yml
+      # installs them for the same reason)
       - name: Install system dependencies
-        run: sudo apt-get install -y graphviz
+        run: sudo apt-get update && sudo apt-get install -y graphviz libegl1 libgl1
 
       - name: Install Python dependencies
         run: |

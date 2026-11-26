@@ -987,7 +987,9 @@ class ImageReshapeMixin(ImageMixinBase):
 
         .. important:: Can be called as a class method or an instance method.
 
-        Example of instance method:
+        .. rubric:: Examples
+
+        Using an instance method:
 
         .. runblock:: pycon
 
@@ -998,7 +1000,7 @@ class ImageReshapeMixin(ImageMixinBase):
             >>> V
             >>> Image(U**2 + V**2).print()
 
-        Example of class method:
+        Using a class method:
 
         .. runblock:: pycon
 

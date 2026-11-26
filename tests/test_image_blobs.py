@@ -2,7 +2,6 @@ import io
 import json
 import unittest
 from pathlib import Path
-from unittest.case import skip
 
 import matplotlib
 
@@ -10,7 +9,6 @@ matplotlib.use("Agg")  # non-interactive backend; must precede pyplot import
 import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 import numpy as np
-import numpy.testing as nt
 
 from machinevisiontoolbox import Blobs, Image
 

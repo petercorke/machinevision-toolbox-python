@@ -83,7 +83,7 @@ def _download_bag(url: str, keep: bool) -> tuple[str, bool]:
 def getargs():
     parser = argparse.ArgumentParser(
         formatter_class=CustomDefaultsHelpFormatter,
-        description=f"Display images or pointclouds from a ROS bag file using Machine Vision Toolbox for Python.",
+        description="Display images or pointclouds from a ROS bag file using Machine Vision Toolbox for Python.",
     )
     parser.add_argument(
         "files",

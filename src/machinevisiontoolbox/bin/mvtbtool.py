@@ -24,6 +24,7 @@ from spatialmath import SE3
 from spatialmath.base import *  # lgtm [py/polluting-import]
 
 from machinevisiontoolbox import *  # lgtm [py/unused-import]
+from machinevisiontoolbox import Image, PointCloud
 from machinevisiontoolbox.bin._bintools import LineWrapRawTextDefaultsHelpFormatter
 
 try:
@@ -299,7 +300,7 @@ def run_smoke_test() -> bool:
         checks.append((f"Image.Read + smooth() (OpenCV-backed): {e}", False))
 
     try:
-        import open3d  # noqa: F401  -- presence check; PointCloud does the real work
+        __import__("open3d")  # presence check; PointCloud does the real work
     except ImportError as e:
         checks.append(
             (

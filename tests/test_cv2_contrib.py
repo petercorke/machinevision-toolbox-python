@@ -66,6 +66,6 @@ def test_installing_twice_adds_nothing_more():
 def test_the_real_cv2_still_works_after_import():
     import cv2
 
-    import machinevisiontoolbox  # noqa: F401
+    __import__("machinevisiontoolbox")
 
     assert hasattr(cv2, "SIFT_create")
