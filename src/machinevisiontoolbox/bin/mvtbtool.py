@@ -25,6 +25,7 @@ from spatialmath import SE3
 from spatialmath.base import *  # lgtm [py/polluting-import]
 
 from machinevisiontoolbox import *  # lgtm [py/unused-import]
+from machinevisiontoolbox import Image, PointCloud
 from machinevisiontoolbox.bin._bintools import LineWrapRawTextDefaultsHelpFormatter
 
 try:

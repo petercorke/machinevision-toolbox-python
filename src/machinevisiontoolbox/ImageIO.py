@@ -799,8 +799,6 @@ class ImageIOMixin(ImageMixinBase):
 
 
 if __name__ == "__main__":
-    from pathlib import Path
-
     import pytest
 
     pytest.main(
