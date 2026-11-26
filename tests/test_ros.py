@@ -96,7 +96,7 @@ class TestResolveTypestore(unittest.TestCase):
         self.assertIsNotNone(ts)
 
     def test_case_insensitive(self):
-        ts1 = _resolve_typestore("ROS1_NOETIC")
+        _resolve_typestore("ROS1_NOETIC")
         ts2 = _resolve_typestore("ros1_noetic")
         # both should return a typestore without raising
         self.assertIsNotNone(ts2)
@@ -211,7 +211,7 @@ class TestRosBagRos1(unittest.TestCase):
     def test_context_manager_closes(self):
         bag = self._bag()
         with bag:
-            imgs = list(bag)
+            list(bag)
         # reader should be closed after exiting context
         self.assertIsNone(bag.reader)
 
@@ -313,7 +313,7 @@ class TestRosMessage(unittest.TestCase):
 def _make_mock_stream(output="image", message="sensor_msgs/CompressedImage"):
     """Build a ROSTopic-like object bypassing roslibpy entirely."""
     try:
-        import roslibpy
+        __import__("roslibpy")
     except ImportError:
         pytest.skip("roslibpy not installed")
 
@@ -586,7 +586,6 @@ class TestSyncRosStreams(unittest.TestCase):
         self.assertEqual(b.timestamp, t)
 
     def test_within_tolerance_matches(self):
-        tol = 20_000_000  # 20 ms in ns
         t0 = 1_000_000_000
         # stream2 is 10 ms ahead — within 20 ms tolerance
         s1 = _fake_stream(t0)
@@ -651,7 +650,7 @@ class TestSyncRosStreams(unittest.TestCase):
 
 _websockets_available = False
 try:
-    import websockets  # noqa: F401
+    __import__("websockets")
 
     _websockets_available = True
 except ImportError:

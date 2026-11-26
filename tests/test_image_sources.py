@@ -2,8 +2,6 @@
 
 # test for Image input/output
 
-import contextlib
-import io
 import json
 import os
 import subprocess
@@ -27,7 +25,7 @@ except ImportError:
     _torch_available = False
 
 try:
-    import labelme  # noqa: F401
+    __import__("labelme")
 
     _labelme_available = True
 except ImportError:
@@ -50,7 +48,7 @@ from machinevisiontoolbox import (
     VideoFile,
     ZipArchive,
 )
-from machinevisiontoolbox.base import iread, mvtb_path_to_datafile
+from machinevisiontoolbox.base import mvtb_path_to_datafile
 
 
 def _has_file(*args):
