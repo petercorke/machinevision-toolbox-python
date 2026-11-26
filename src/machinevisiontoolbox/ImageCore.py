@@ -2661,6 +2661,8 @@ class Image(
             >>> img = Image.Read("flowers4.png") # in RGB order
             >>> for plane in img.planes():
             >>>     print(plane)
+
+        .. seealso:: :meth:`plane` :meth:`__getitem__`
         """
         for i in range(self.nplanes):
             yield self.plane(i, copy=copy)
@@ -2721,7 +2723,7 @@ class Image(
         .. versionchanged:: 2.5.0
             Added the ``copy`` option.
 
-        .. seealso:: :meth:`red` :meth:`green` :meth:`blue` :meth:``__getitem__``
+        .. seealso:: :meth:`planes` :meth:`red` :meth:`green` :meth:`blue` :meth:`__getitem__`
         """
 
         colororder: dict[str, Any] | None
