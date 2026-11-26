@@ -525,14 +525,14 @@ class PointCloud:
         With ``notebook=True`` the point cloud is drawn in the output of the notebook
         cell, as a Plotly figure that can be rotated and zoomed.  This needs
         `Plotly <https://plotly.com/python/>`_, which is not installed with the
-        Toolbox: ``pip install plotly``.  ``block`` and ``file`` do not apply, and
-        besides the view options above, ``width``, ``height`` and
-        ``point_sample_factor`` (the fraction of the points drawn, 0 to 1, which
-        keeps a large cloud responsive) are passed to
-        :func:`open3d.visualization.draw_plotly`.  The three axes have the same
-        scale, so shapes have their true proportions, as in the Open3D window.  The
-        other options of the Open3D window, such as ``point_show_normal``, are not
-        available with ``notebook=True``, and raise :class:`TypeError`.
+        Toolbox: ``pip install plotly``.  ``block`` and ``file`` do not apply.  The
+        view options above are passed on, along with any other option that
+        :func:`open3d.visualization.draw_plotly` accepts, such as ``width``,
+        ``height`` and ``point_sample_factor`` (the fraction of the points drawn,
+        0 to 1, which keeps a large cloud responsive).  The three axes have the same
+        scale, so shapes have their true proportions, as in the Open3D window.  An
+        option of the Open3D window that Plotly cannot draw raises
+        :class:`TypeError`, which names it and lists the options that are accepted.
 
         .. versionchanged:: 2.5.0
             Added the ``notebook`` option.
