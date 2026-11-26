@@ -4064,33 +4064,36 @@ class Image(
         :type radius: int
         :param kwargs: parameters passed to :func:`~machinevisiontoolbox.base.graphics.draw_circle`
 
-        Example, "burn" some circles (confetti) into the Mona Lisa:
+        .. rubric:: Examples
 
-            .. code-block:: pycon
+        "Burn" some circles (confetti) into the Mona Lisa:
+
+        .. code-block:: pycon
 
             >>> from machinevisiontoolbox import Image
             >>> import matplotlib as mpl
+            >>> import numpy as np
             >>> img = Image.Read("monalisa.png")
             >>> colors = mpl.color_sequences["petroff10"]
             >>> for color in colors:
             ...     u = np.random.randint(20, img.umax-20)
-                    v = np.random.randint(20, img.vmax-20)
-                    r = np.random.randint(10, 50)
-                    img.draw_circle((u, v), r, thickness=-1, color=[255*c for c in color])
-            >>> img.disp(img)
-
+            ...     v = np.random.randint(20, img.vmax-20)
+            ...     r = np.random.randint(10, 50)
+            ...     img.draw_circle((u, v), r, thickness=-1, color=[255*c for c in color])
+            >>> img.disp()
 
         .. plot::
 
             from machinevisiontoolbox import Image
             import matplotlib as mpl
+            import numpy as np
             img = Image.Read("monalisa.png")
             for color in mpl.color_sequences["petroff10"]:
                 u = np.random.randint(20, img.umax-20)
                 v = np.random.randint(20, img.vmax-20)
                 r = np.random.randint(10, 50)
                 img.draw_circle((u, v), r, thickness=-1, color=[255*c for c in color])
-            img.disp(img)
+            img.disp()
 
         .. note:: If ``image`` has multiple planes then ``color`` should have the same number
             of elements as the image has planes. If it is a scalar that value is used
