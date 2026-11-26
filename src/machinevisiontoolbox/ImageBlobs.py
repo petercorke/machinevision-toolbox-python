@@ -331,7 +331,6 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         #   2: index of first child,
         #   3: index of parent
         hierarchy = hierarchy[0, :, :]  # drop the first singleton dimension
-        parents = hierarchy[:, 3]
 
         ## Collect blob data in first pass, then instantiate with all fields
 
