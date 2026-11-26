@@ -525,8 +525,6 @@ class TestImageConstants(unittest.TestCase):
         self.assertTrue(im._A.sum(), 64 * 128 / 2)
 
     def test_polygons(self):
-        from spatialmath import Polygon2
-
         p1 = Polygon2([(10, 10), (12, 10), (12, 12), (10, 12)])  # 2x2
         p2 = Polygon2([(30, 30), (40, 30), (40, 40), (30, 40)])  # 10x10
 
