@@ -3670,7 +3670,15 @@ class ROSBag(ImageSource):
             _image_payload_end(rawdata, msgtype) if msgtype.endswith("Image") else None
         )
         raw = rawdata if end is None else rawdata[:end]
-        for name in self._ROS1_STORES_ORDERED + self._ROS2_STORES_ORDERED:
+        # A ROS 2 bag directory always holds CDR messages.  Trying the ROS 1 wire
+        # format on them can succeed by accident (a PNG CompressedImage did, with the
+        # ROS 1 Noetic store), so that pass is only for ROS 1 style .bag files.
+        ros1_candidates = (
+            []
+            if self._is_ros2
+            else self._ROS1_STORES_ORDERED + self._ROS2_STORES_ORDERED
+        )
+        for name in ros1_candidates:
             if name not in available:
                 continue
             store = _get_typestore(next(s for s in _Stores if s.name == name))
