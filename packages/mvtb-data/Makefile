@@ -5,7 +5,7 @@ BLACK=\033[0;30m
 
 help:
 	@echo " make dist - build dist files"
-	@echo " make upload - upload to PyPI"
+	@echo " make pypi - upload to PyPI"
 	@echo " make clean - remove dist and docs build files"
 	@echo " make help - this message$(BLACK)"
 
