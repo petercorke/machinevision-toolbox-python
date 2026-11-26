@@ -158,7 +158,7 @@ class ImageSpatialMixin(ImageMixinBase):
         :math:`\sigma = 0.3 \mathtt{h} + 0.8` which ensures that most of the Gaussian is
         contained within the window.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -172,10 +172,11 @@ class ImageSpatialMixin(ImageMixinBase):
             - If input image is integer it is converted to float, convolved,
               then converted back to integer.
 
-        :references:
-            - |RVC3|, Section 11.5.1.
+        .. rubric:: References
 
-        :seealso: :meth:`machinevisiontoolbox.Kernel.Gauss` :meth:`convolve`
+        - |RVC3|, Section 11.5.1.
+
+        .. seealso:: :meth:`machinevisiontoolbox.Kernel.Gauss` :meth:`convolve`
         """
 
         if not argcheck.isscalar(sigma):
@@ -238,7 +239,7 @@ class ImageSpatialMixin(ImageMixinBase):
         ``'none'``          do not look outside of border
         ================  ====================================================
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -285,12 +286,14 @@ class ImageSpatialMixin(ImageMixinBase):
             Because convolution is a sum of products, a single NaN within the kernel's
             window propagates to make the output pixel NaN.  Use :meth:`fixbad` for handling NaN values.
 
-        :references:
-            - |RVC3|, Section 11.5.1.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.5.1.
 
         .. important:: Uses OpenCV functions ``cv2.filter2D`` and ``cv2.copyMakeBorder`` which accept multiple-channel, CV_8U, CV_16U, CV_16S, CV_32F or CV_64F images.
 
-        :seealso:
+        .. seealso::
+
             :class:`~machinevisiontoolbox.Kernel.Kernel`
             :meth:`~smooth`
             `cv2.filter2D <https://docs.opencv.org/4.x/d4/d86/group__imgproc__filter.html#ga27c049795ce870216ddfb366086b5a04>`_
@@ -431,7 +434,7 @@ class ImageSpatialMixin(ImageMixinBase):
             datatype of the image, so a ``uint8`` image lost all of its negative
             gradients.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -439,10 +442,11 @@ class ImageSpatialMixin(ImageMixinBase):
             >>> img = Image.Read('monalisa.png', grey=True)
             >>> Iu, Iv = img.gradients()
 
-        :references:
-            - |RVC3|, Section 11.5.1.3.
+        .. rubric:: References
 
-        :seealso: :class:`~machinevisiontoolbox.Kernel.Kernel`
+        - |RVC3|, Section 11.5.1.3.
+
+        .. seealso:: :class:`~machinevisiontoolbox.Kernel.Kernel`
         """
         if K is None:
             K = Kernel.Sobel()
@@ -477,7 +481,7 @@ class ImageSpatialMixin(ImageMixinBase):
 
             \theta_{u,v} = \tan^{-1} \frac{\mat{I}_{v: u,v}}{\mat{I}_{u: u,v}}
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -486,10 +490,11 @@ class ImageSpatialMixin(ImageMixinBase):
             >>> Iu, Iv = img.gradients()
             >>> direction = Iu.direction(Iv)
 
-        :references:
-            - |RVC3|, Section 11.5.1.3.
+        .. rubric:: References
 
-        :seealso: :meth:`gradients`
+        - |RVC3|, Section 11.5.1.3.
+
+        .. seealso:: :meth:`gradients`
         """
         if horizontal.shape != vertical.shape:
             raise ValueError("images must the same shape")
@@ -510,12 +515,14 @@ class ImageSpatialMixin(ImageMixinBase):
         positive for high gradient in orthogonal directions, and negative
         for high gradient in a single direction.
 
-        :references:
-            - |RVC3|, Section 12.3.1.
+        .. rubric:: References
+
+        - |RVC3|, Section 12.3.1.
 
         .. important:: Uses OpenCV function ``cv2.cornerHarris`` which accepts single-channel, CV_8U, CV_32F or CV_64F images (color images are automatically converted to greyscale).
 
-        :seealso:
+        .. seealso::
+
             :meth:`gradients`
             :meth:`Harris`
             `cv2.cornerHarris <https://docs.opencv.org/4.x/dd/d1a/group__imgproc__feature.html#gac1fc3598018010880e370e2f709b4345>`_
@@ -568,7 +575,7 @@ class ImageSpatialMixin(ImageMixinBase):
         - If ``se`` is None then ``h`` is the half width of a :math:`w \times
           w` square structuring element of ones, where :math:`w =2h+1`.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -582,10 +589,11 @@ class ImageSpatialMixin(ImageMixinBase):
             - Is slow since the function ``func`` must be invoked once for
               every output pixel.
 
-        :references:
-            - |RVC3|, Section 11.5.3.
+        .. rubric:: References
 
-        :seealso: :func:`scipy.ndimage.generic_filter`
+        - |RVC3|, Section 11.5.3.
+
+        .. seealso:: :func:`scipy.ndimage.generic_filter`
         """
         # replace window's mex function with scipy's ndimage.generic_filter
         if self.iscolor:
@@ -617,7 +625,7 @@ class ImageSpatialMixin(ImageMixinBase):
         Compute a zero-crossing image, where pixels are true if they are adjacent to
         a change in sign.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -630,10 +638,12 @@ class ImageSpatialMixin(ImageMixinBase):
         .. note:: Uses morphological filtering with 3x3 structuring element, which can
             lead to erroneous values in border pixels.
 
-        :references:
-            - |RVC3|, Section 11.5.1.3.
+        .. rubric:: References
 
-        :seealso:
+        - |RVC3|, Section 11.5.1.3.
+
+        .. seealso::
+
             :meth:`Laplace`
             :meth:`LoG`
         """
@@ -663,21 +673,23 @@ class ImageSpatialMixin(ImageMixinBase):
         consecutive smoothings is the difference of Gaussian which is an
         approximation to the Laplacian of Gaussian.
 
-        Examples:
+        .. rubric:: Examples
 
-            .. code-block:: python
+        .. code-block:: python
 
-                mona = Image.Read("monalisa.png", dtype="float");
-                G, L, scales = mona.scalespace(8, sigma=8);
+            mona = Image.Read("monalisa.png", dtype="float");
+            G, L, scales = mona.scalespace(8, sigma=8);
 
 
         .. note:: The two image sequences have the same length, the original image is
             not included in the list of smoothed images.
 
-        :references:
-            - |RVC3|, Section 12.3.2.
+        .. rubric:: References
 
-        :seealso:
+        - |RVC3|, Section 12.3.2.
+
+        .. seealso::
+
             :meth:`pyramid`
             :meth:`smooth`
             :class:`~.Gauss`
@@ -725,7 +737,7 @@ class ImageSpatialMixin(ImageMixinBase):
         array of images each one having dimensions half that of the previous
         image. The pyramid is computed down to a non-halvable image size.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -739,12 +751,14 @@ class ImageSpatialMixin(ImageMixinBase):
             - Works for greyscale images only.
             - Converts a color image to greyscale.
 
-        :references:
-            - |RVC3|, Section 12.3.2.
+        .. rubric:: References
+
+        - |RVC3|, Section 12.3.2.
 
         .. important:: Uses OpenCV function ``cv2.pyrDown`` which accepts single-channel, CV_8U, CV_16U, CV_16S, CV_32F or CV_64F images (color images are automatically converted to greyscale).
 
-        :seealso:
+        .. seealso::
+
             :meth:`smooth`
             :meth:`scalespace`
             `cv2.pyrDown <https://docs.opencv.org/4.x/d4/d86/group__imgproc__filter.html#gaf9bba239dfca11654cb7f50f889fc2ff>`_
@@ -888,11 +902,12 @@ class ImageSpatialMixin(ImageMixinBase):
             gradient magnitude and ``k``.  The arguments ``percentile``,
             ``k`` and ``hist`` are new.
 
-        :references:
-            - "A Computational Approach To Edge Detection", J. Canny,
-              IEEE Trans. Pattern Analysis and Machine Intelligence,
-              8(6):679–698, 1986.
-            - |RVC3|, Section 11.5.1.3.
+        .. rubric:: References
+
+        - "A Computational Approach To Edge Detection", J. Canny,
+          IEEE Trans. Pattern Analysis and Machine Intelligence,
+          8(6):679–698, 1986.
+        - |RVC3|, Section 11.5.1.3.
 
         .. seealso:: :meth:`smooth` :meth:`~machinevisiontoolbox.ImageWholeFeatures.Histogram`
         """
@@ -982,7 +997,7 @@ class ImageSpatialMixin(ImageMixinBase):
             - ``footprint`` a 2D Numpy array containing zero or one values, or
             - ``h`` which is the half width :math:`w=2h+1` of an array of ones
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1000,14 +1015,15 @@ class ImageSpatialMixin(ImageMixinBase):
             - The input can be logical, uint8, uint16, float or double, the
               output is always double.
 
-        :references:
-            - |RVC3|, Section 11.5.3.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.5.3.
 
         .. versionchanged:: 2.5.0
             ``rank`` now defaults to ``"median"``.  The previous default of -1
             was always rejected, so ``rank`` had to be given.
 
-        :seealso: :obj:`scipy.ndimage.rank_filter`
+        .. seealso:: :obj:`scipy.ndimage.rank_filter`
         """
         if h is not None:
             w = 2 * h + 1
@@ -1085,7 +1101,7 @@ class ImageSpatialMixin(ImageMixinBase):
         Return the median filtered image.  For every :math:`w \times w, w=2h+1`
         window take the median value as the output pixel value.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1102,10 +1118,11 @@ class ImageSpatialMixin(ImageMixinBase):
         .. note:: This filter is effective for removing impulse (aka
             salt and pepper) noise.
 
-        :references:
-            - |RVC3|, Section 11.5.3.
+        .. rubric:: References
 
-        :seealso: :meth:`rankfilter`
+        - |RVC3|, Section 11.5.3.
+
+        .. seealso:: :meth:`rankfilter`
         """
         w = 2 * h + 1
         r = int((w**2 - 1) / 2)
@@ -1130,7 +1147,7 @@ class ImageSpatialMixin(ImageMixinBase):
         distance to the nearest non-zero input pixel.  Any non-zero value counts
         as foreground, so the input need not be binary or have the values 0 and 255.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1156,12 +1173,13 @@ class ImageSpatialMixin(ImageMixinBase):
             pixels were 0 or 255.  For any other values there was no zero pixel
             left, and the result was about 65000 everywhere.
 
-        :references:
-            - |RVC3|, Section 11.6.4.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.6.4.
 
         .. important:: Uses OpenCV function ``cv2.distanceTransform`` which accepts single-channel, CV_8U images.
 
-        :seealso: `opencv.distanceTransform <https://docs.opencv.org/4.x/d7/d1b/group__imgproc__misc.html#ga8a0b7fdfcb7a13dde018988ba3a43042>`_
+        .. seealso:: `opencv.distanceTransform <https://docs.opencv.org/4.x/d7/d1b/group__imgproc__misc.html#ga8a0b7fdfcb7a13dde018988ba3a43042>`_
         """
         self._opencv_type_check(self._A, "single-channel", "CV_8U")
         # OpenCV does distance of each non-zero pixel to the nearest zero pixel
@@ -1208,7 +1226,7 @@ class ImageSpatialMixin(ImageMixinBase):
         indicating which region the corresponding input pixel belongs to.  The
         background has label 0.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1229,12 +1247,14 @@ class ImageSpatialMixin(ImageMixinBase):
             - 8-way connectivity introduces ambiguities, a chequerboard is
               two blobs.
 
-        :references:
-            - |RVC3|, Section 12.1.2.1.
+        .. rubric:: References
+
+        - |RVC3|, Section 12.1.2.1.
 
         .. important:: Uses OpenCV function ``cv2.connectedComponents`` which accepts single-channel, CV_8U images.
 
-        :seealso:
+        .. seealso::
+
             :meth:`blobs`
             `cv2.connectedComponents <https://docs.opencv.org/4.x/d3/dc0/group__imgproc__shape.html#gaedef8c7340499ca391d459122e51bef5>`_
             :meth:`labels_graphseg`
@@ -1275,7 +1295,7 @@ class ImageSpatialMixin(ImageMixinBase):
         indicating which region the corresponding input pixel belongs to.  The
         background has label 0.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1286,13 +1306,15 @@ class ImageSpatialMixin(ImageMixinBase):
             >>> N
             >>> labels.print()
 
-        :references:
-            - Linear time maximally stable extremal regions,
-              David Nistér and Henrik Stewénius,
-              In Computer Vision–ECCV 2008, pages 183–196. Springer, 2008.
-            - |RVC3|, Section 12.1.2.2.
+        .. rubric:: References
 
-        :seealso:
+        - Linear time maximally stable extremal regions,
+          David Nistér and Henrik Stewénius,
+          In Computer Vision–ECCV 2008, pages 183–196. Springer, 2008.
+        - |RVC3|, Section 12.1.2.2.
+
+        .. seealso::
+
             :meth:`labels_binary`
             :meth:`labels_graphseg`
             :meth:`blobs`
@@ -1331,13 +1353,15 @@ class ImageSpatialMixin(ImageMixinBase):
         indicating which region the corresponding input pixel belongs to.  The
         background has label 0.
 
-        :references:
-            - Efficient graph-based image segmentation,
-              Pedro F Felzenszwalb and Daniel P Huttenlocher,
-              volume 59, pages 167–181. Springer, 2004.
-            - |RVC3|, Section 12.1.2.2.
+        .. rubric:: References
 
-        :seealso:
+        - Efficient graph-based image segmentation,
+          Pedro F Felzenszwalb and Daniel P Huttenlocher,
+          volume 59, pages 167–181. Springer, 2004.
+        - |RVC3|, Section 12.1.2.2.
+
+        .. seealso::
+
             :meth:`labels_binary`
             :meth:`labels_MSER`
             :meth:`blobs`
@@ -1370,7 +1394,7 @@ class ImageSpatialMixin(ImageMixinBase):
         and a value of 0 indicates identical pixel patterns and is increasingly
         positive as image dissimilarity increases.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1383,10 +1407,12 @@ class ImageSpatialMixin(ImageMixinBase):
 
         .. note:: Not invariant to pixel value scale or offset.
 
-        :references:
-            - |RVC3|, Section 11.5.2.
+        .. rubric:: References
 
-        :seealso:
+        - |RVC3|, Section 11.5.2.
+
+        .. seealso::
+
             :meth:`zsad`
             :meth:`ssd`
             :meth:`ncc`
@@ -1421,7 +1447,7 @@ class ImageSpatialMixin(ImageMixinBase):
         scalar and a value of 0 indicates identical pixel patterns and is
         increasingly positive as image dissimilarity increases.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1434,10 +1460,12 @@ class ImageSpatialMixin(ImageMixinBase):
 
         .. note:: Not invariant to pixel value scale or offset.
 
-        :references:
-            - |RVC3|, Section 11.5.2.
+        .. rubric:: References
 
-        :seealso:
+        - |RVC3|, Section 11.5.2.
+
+        .. seealso::
+
             :meth:`zssd`
             :meth:`sad`
             :meth:`ncc`
@@ -1466,7 +1494,7 @@ class ImageSpatialMixin(ImageMixinBase):
         scalar in the interval -1 (non match) to 1 (perfect match) that
         indicates similarity.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1481,10 +1509,12 @@ class ImageSpatialMixin(ImageMixinBase):
             - The ``ncc`` similarity measure is invariant to scale changes in
               image intensity.
 
-        :references:
-            - |RVC3|, Section 11.5.2.
+        .. rubric:: References
 
-        :seealso:
+        - |RVC3|, Section 11.5.2.
+
+        .. seealso::
+
             :meth:`zncc`
             :meth:`sad`
             :meth:`ssd`
@@ -1520,7 +1550,7 @@ class ImageSpatialMixin(ImageMixinBase):
         (relative to their mean values) and is increasingly positive as image
         dissimilarity increases.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1535,10 +1565,12 @@ class ImageSpatialMixin(ImageMixinBase):
             - The ``zsad`` similarity measure is invariant to changes in image
               brightness offset.
 
-        :references:
-            - |RVC3|, Section 11.5.2.
+        .. rubric:: References
 
-        :seealso:
+        - |RVC3|, Section 11.5.2.
+
+        .. seealso::
+
             :meth:`zsad`
             :meth:`ssd`
             :meth:`ncc`
@@ -1568,7 +1600,7 @@ class ImageSpatialMixin(ImageMixinBase):
         scalar and a value of 0 indicates identical pixel patterns (relative to their maen) and is
         increasingly positive as image dissimilarity increases.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1583,10 +1615,12 @@ class ImageSpatialMixin(ImageMixinBase):
             - The ``zssd`` similarity measure is invariant to changes in image
               brightness offset.
 
-        :references:
-            - |RVC3|, Section 11.5.2.
+        .. rubric:: References
 
-        :seealso:
+        - |RVC3|, Section 11.5.2.
+
+        .. seealso::
+
             :meth:`zssd`
             :meth:`sad`
             :meth:`ncc`
@@ -1617,7 +1651,7 @@ class ImageSpatialMixin(ImageMixinBase):
         scalar in the interval -1 (non match) to 1 (perfect match) that
         indicates similarity.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1632,10 +1666,12 @@ class ImageSpatialMixin(ImageMixinBase):
             - The ``zncc`` similarity measure is invariant to affine changes (offset and scale factor)
               in image intensity (brightness offset and scale).
 
-        :references:
-            - |RVC3|, Section 11.5.2.
+        .. rubric:: References
 
-        :seealso:
+        - |RVC3|, Section 11.5.2.
+
+        .. seealso::
+
             :meth:`zncc`
             :meth:`sad`
             :meth:`ssd`
@@ -1670,7 +1706,7 @@ class ImageSpatialMixin(ImageMixinBase):
         the template ``T`` to the same-sized neighbourhood surrounding the
         corresponding input pixel in image.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1688,12 +1724,13 @@ class ImageSpatialMixin(ImageMixinBase):
               crosses the image boundary, and these output pixels are set
               to NaN.
 
-        :references:
-            - |RVC3|, Section 11.5.2.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.5.2.
 
         .. important:: Uses OpenCV function ``cv2.matchTemplate`` which accepts multiple-channel, CV_8U or CV_32F images.
 
-        :seealso: `cv2.matchTemplate <https://docs.opencv.org/4.x/df/dfb/group__imgproc__object.html#ga586ebfb0a7fb604b35a23d85391329be>`_
+        .. seealso:: `cv2.matchTemplate <https://docs.opencv.org/4.x/df/dfb/group__imgproc__object.html#ga586ebfb0a7fb604b35a23d85391329be>`_
         """
 
         # check inputs

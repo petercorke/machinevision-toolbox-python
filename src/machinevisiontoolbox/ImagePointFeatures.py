@@ -142,7 +142,7 @@ class BaseFeature2D:
         :return: number of features
         :rtype: int
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -151,7 +151,7 @@ class BaseFeature2D:
             >>> orb = img.ORB()
             >>> len(orb)  # number of features
 
-        :seealso: :meth:`.__getitem__`
+        .. seealso:: :meth:`.__getitem__`
         """
         return len(self._kp)  # Number of features (base method)
 
@@ -169,7 +169,7 @@ class BaseFeature2D:
 
         This method allows a ``BaseFeature2D`` object to be indexed, sliced or iterated.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -179,7 +179,7 @@ class BaseFeature2D:
             >>> print(orb[:5])  # first 5 ORB features
             >>> print(orb[::50])  # every 50th ORB feature
 
-        :seealso: :meth:`.__len__`
+        .. seealso:: :meth:`.__len__`
         """
         new = self._like()  # Get item from point feature object (base method)
         # compute canonical integer index list for both _kp and descriptor
@@ -223,7 +223,7 @@ class BaseFeature2D:
         example SIFT, and as ``"detector+descriptor"`` if they are different, for
         example FAST+BRIEF, made by :meth:`Image.ComboFeature`.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -253,7 +253,7 @@ class BaseFeature2D:
         :return: string representation
         :rtype: str
 
-        :seealso: :meth:`str`
+        .. seealso:: :meth:`str`
         """
         return str(self)  # Display features in readable form
 
@@ -267,7 +267,7 @@ class BaseFeature2D:
 
         Print the features in a simple format, one line per feature.
 
-        :seealso: :meth:`table`
+        .. seealso:: :meth:`table`
         """
         for i, f in enumerate(self):  # List matches
             s = f"{self._label} feature {i}: ({f.u:.1f}, {f.v:.1f}),"
@@ -287,7 +287,7 @@ class BaseFeature2D:
         Each row is in the table includes: the index in the feature vector,
         centroid coordinate, feature strength, feature scale and image id.
 
-        :seealso: ``str``
+        .. seealso:: ``str``
         """
         columns = [
             Column("#"),
@@ -335,7 +335,7 @@ class BaseFeature2D:
             of the features, and a feature at the right or bottom edge of the image
             no longer raises ``IndexError``.
 
-        :seealso: :meth:`sort`
+        .. seealso:: :meth:`sort`
         """
 
         try:  # Sort features into grid
@@ -387,7 +387,7 @@ class BaseFeature2D:
             Adding a set that has no features keeps the descriptors of the other
             set.  They used to be lost.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -401,7 +401,7 @@ class BaseFeature2D:
             >>> orb = img2.ORB() + orb
             >>> orb
 
-        :seealso: :meth:`__radd__`
+        .. seealso:: :meth:`__radd__`
         """
         if other is None or (
             isinstance(other, list) and len(other) == 0
@@ -453,7 +453,7 @@ class BaseFeature2D:
             ``TypeError`` with a message.  It used to raise ``ValueError("bad")``,
             and ``sum()`` of feature sets did not work.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -469,7 +469,7 @@ class BaseFeature2D:
             >>> orb = sum([img1.ORB(), img2.ORB()])
             >>> orb
 
-        :seealso: :meth:`__add__`
+        .. seealso:: :meth:`__add__`
         """
         # an empty set, or the 0 that sum() starts with
         if (
@@ -492,7 +492,7 @@ class BaseFeature2D:
         :return: Horizontal coordinate
         :rtype: float or list of float
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -514,7 +514,7 @@ class BaseFeature2D:
         :return: Vertical coordinate
         :rtype: float or list of float
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -535,7 +535,7 @@ class BaseFeature2D:
         :return: image id
         :rtype: int or list of int
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -565,7 +565,7 @@ class BaseFeature2D:
             Raises ``ValueError`` if the features have no orientation. It used to return
             a constant for a detector that has no orientation.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -592,7 +592,7 @@ class BaseFeature2D:
             Raises ``ValueError`` if the features have no scale. It used to return the
             keypoint size, which is a constant for a detector that has no scale.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -618,7 +618,7 @@ class BaseFeature2D:
         .. versionchanged:: 2.5.0
             Raises ``ValueError`` if the features have no strength.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -640,7 +640,7 @@ class BaseFeature2D:
         :return: scale space octave containing the feature
         :rtype: float or list of float
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -660,7 +660,7 @@ class BaseFeature2D:
         :return: Descriptor, or None if the features have no descriptors
         :rtype: ndarray(N,M) or None
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -693,7 +693,7 @@ class BaseFeature2D:
         :return: Feature centroids as matrix columns
         :rtype: ndarray(2,N)
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -738,7 +738,7 @@ class BaseFeature2D:
         the closest match in row :math:`i` is the best matching feature to feature
         :math:`i`.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -754,7 +754,7 @@ class BaseFeature2D:
             - For the metric "ncc" the best match is the largest distance.  A value over
               0.8 is often considered to be a good match.
 
-        :seealso: :meth:`match`
+        .. seealso:: :meth:`match`
         """
         metric_dict = {"L1": 1, "L2": 2}  # Distance between feature sets
 
@@ -820,7 +820,7 @@ class BaseFeature2D:
             error, which is why this is auto-selected rather than left for
             the caller to always remember.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -830,7 +830,7 @@ class BaseFeature2D:
             >>> m = orb1.match(orb2)
             >>> len(m)
 
-        :seealso: :class:`FeatureMatch` :meth:`distance`
+        .. seealso:: :class:`FeatureMatch` :meth:`distance`
         """
 
         # TODO: implement thresh  # Match point features
@@ -929,7 +929,7 @@ class BaseFeature2D:
         Return ``N`` features selected in constant steps from the input feature
         vector, ie. feature 0, s, 2s, etc.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -960,7 +960,7 @@ class BaseFeature2D:
         :return: sorted features
         :rtype: :class:`BaseFeature2D` instance
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1014,7 +1014,7 @@ class BaseFeature2D:
         The support region about the feature's centroid is extracted,
         rotated and scaled.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1079,7 +1079,7 @@ class BaseFeature2D:
         nstrongest       N                   strength
         ===============  ==================  ===================================
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1147,7 +1147,7 @@ class BaseFeature2D:
 
         If ``image`` is None then the keypoints are rendered over a black background.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1476,7 +1476,7 @@ class FeatureMatch:
         .. note:: This constructor would not be called directly, it is used by the
             ``match`` method of the :class:`BaseFeature2D` subclass.
 
-        :seealso: :obj:`BaseFeature2D.match` `cv2.KeyPoint <https://docs.opencv.org/4.5.2/d2/d29/classcv_1_1KeyPoint.html#a507d41b54805e9ee5042b922e68e4372>`_
+        .. seealso:: :obj:`BaseFeature2D.match` `cv2.KeyPoint <https://docs.opencv.org/4.5.2/d2/d29/classcv_1_1KeyPoint.html#a507d41b54805e9ee5042b922e68e4372>`_
         """
         self._matches = m
         self._kp1 = fv1
@@ -1502,7 +1502,7 @@ class FeatureMatch:
 
         Allow indexing, slicing or iterating over the set of matches
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1513,7 +1513,7 @@ class FeatureMatch:
             >>> matches[:5]  # first 5 matches
             >>> matches[0]   # first match
 
-        :seealso: :meth:`.__len__`
+        .. seealso:: :meth:`.__len__`
         """
         if not isinstance(i, (int, slice, np.ndarray)):
             if isinstance(i, (str, bytes)) or not isinstance(i, Sequence):
@@ -1551,7 +1551,7 @@ class FeatureMatch:
         :return: number of matches
         :rtype: int
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1561,7 +1561,7 @@ class FeatureMatch:
             >>> matches = orb1.match(orb2)
             >>> len(matches)
 
-        :seealso: :meth:`.__getitem__`
+        .. seealso:: :meth:`.__getitem__`
         """
         return len(self._matches)
 
@@ -1575,7 +1575,7 @@ class FeatureMatch:
         Return the correspondences as an array where each column contains
         the index into the first and second feature sets.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1611,7 +1611,7 @@ class FeatureMatch:
             - Useful when features in the sets come from multiple images and
               ``id`` is used to indicate the source image.
 
-        :seealso: :class:`BaseFeature2D` :obj:`BaseFeature2D.id` :meth:`by_id2`
+        .. seealso:: :class:`BaseFeature2D` :obj:`BaseFeature2D.id` :meth:`by_id2`
         """
         if self._inverse_dict1 is None:
             # first call, build a dict for efficient mapping
@@ -1648,7 +1648,7 @@ class FeatureMatch:
             - Useful when features in the sets come from multiple images and
               ``id`` is used to indicate the source image.
 
-        :seealso: :class:`BaseFeature2D` :obj:`BaseFeature2D.id` :meth:`by_id1`
+        .. seealso:: :class:`BaseFeature2D` :obj:`BaseFeature2D.id` :meth:`by_id1`
         """
         if self._inverse_dict2 is None:
             # first call, build a dict for efficient mapping
@@ -1672,7 +1672,7 @@ class FeatureMatch:
         indices and distance metric.  For multiple correspondences, show
         summary data.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1710,7 +1710,7 @@ class FeatureMatch:
         indices and distance metric.  For multiple correspondences, show
         summary data.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1749,7 +1749,7 @@ class FeatureMatch:
 
         Print the matches in a simple format, one line per match.
 
-        :seealso: :meth:`table`
+        .. seealso:: :meth:`table`
         """
         for i, m in enumerate(self._matches):
             # TODO shouldn't have to flatten
@@ -1772,7 +1772,7 @@ class FeatureMatch:
         Each row in the table includes: the index of the match, inlier/outlier
         status, match strength, feature coordinates.
 
-        :seealso: :meth:`__str__`
+        .. seealso:: :meth:`__str__`
         """
         columns = [
             Column("#"),
@@ -1812,7 +1812,7 @@ class FeatureMatch:
             algorithm that applies a geometric constraint to the sets of
             putative matches.
 
-        :seealso: :obj:`CentralCamera.points2F`
+        .. seealso:: :obj:`CentralCamera.points2F`
         """
         if self._inliers is None:
             raise ValueError("inlier status has not been set")
@@ -1830,7 +1830,7 @@ class FeatureMatch:
             algorithm that applies a geometric constraint to the sets of
             putative matches.
 
-        :seealso: :obj:`entralCamera.points2F`
+        .. seealso:: :obj:`entralCamera.points2F`
         """
         if self._inliers is None:
             raise ValueError("inlier status has not been set")
@@ -1956,7 +1956,7 @@ class FeatureMatch:
             the estimate itself if there was no residual) and leave it as the inlier
             status.
 
-        Example:
+        .. rubric:: Examples
 
         .. code-block:: python
 
@@ -1987,7 +1987,7 @@ class FeatureMatch:
         :return: _description_
         :rtype: float or ndarray(N)
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2009,7 +2009,7 @@ class FeatureMatch:
         :return: feature coordinate
         :rtype: ndarray(2) or ndarray(2,N)
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2031,7 +2031,7 @@ class FeatureMatch:
         :return: feature coordinate
         :rtype: ndarray(2) or ndarray(2,N)
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2053,7 +2053,7 @@ class FeatureMatch:
         :return: feature descriptor
         :rtype: ndarray(M) or ndarray(N,M)
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2075,7 +2075,7 @@ class FeatureMatch:
         :return: feature descriptor
         :rtype: ndarray(M) or ndarray(N,M)
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2097,7 +2097,7 @@ class FeatureMatch:
         :return: feature id
         :rtype: int or ndarray(N)
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2119,7 +2119,7 @@ class FeatureMatch:
         :return: feature id
         :rtype: int or ndarray(N)
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2398,7 +2398,7 @@ class ImagePointFeaturesMixin(ImageMixinBase):
         Returns an iterable and sliceable object that contains SIFT features and
         descriptors.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2408,14 +2408,24 @@ class ImagePointFeaturesMixin(ImageMixinBase):
             >>> len(sift)  # number of features
             >>> print(sift[:5])
 
-        :references:
-            - Distinctive image features from scale-invariant keypoints.
-              David G. Lowe
-              Int. J. Comput. Vision, 60(2):91–110, November 2004.
-            - |RVC3|, Section 14.1.
+        .. plot::
+
+            from machinevisiontoolbox import Image
+
+            img = Image.Read("eiffel-1.png")
+            img.disp()
+            sift = img.SIFT()
+            sift.plot()
+
+        .. rubric:: References
+
+        - Distinctive image features from scale-invariant keypoints.
+          David G. Lowe
+          Int. J. Comput. Vision, 60(2):91–110, November 2004.
+        - |RVC3|, Section 14.1.
 
 
-        :seealso: :class:`SIFTFeature` `cv2.SIFT_create <https://docs.opencv.org/4.5.2/d7/d60/classcv_1_1SIFT.html>`_
+        .. seealso:: :class:`SIFTFeature` `cv2.SIFT_create <https://docs.opencv.org/4.5.2/d7/d60/classcv_1_1SIFT.html>`_
         """
 
         return self._image2feature(SIFTFeature, **kwargs)
@@ -2443,22 +2453,23 @@ class ImagePointFeaturesMixin(ImageMixinBase):
             PyPI are not.  If it is not available this method raises an exception that
             says so.  :meth:`SIFT` is a freely available alternative.
 
-        Example:
+        .. rubric:: Examples
 
-        .. code-block:: python
+        .. code-block:: pycon
 
             >>> from machinevisiontoolbox import Image
             >>> img = Image.Read("eiffel-1.png")
             >>> surf = img.SURF()
             >>> len(surf)  # number of features
 
-        :references:
-            - SURF: Speeded up robust features.
-              Herbert Bay, Tinne Tuytelaars, and Luc Van Gool.
-              In European Conference on Computer Vision (ECCV), 2006.
-            - |RVC3|, Section 14.1.
+        .. rubric:: References
 
-        :seealso: :class:`SURFFeature` :meth:`SIFT` `cv2.xfeatures2d.SURF_create <https://docs.opencv.org/4.x/d5/df7/classcv_1_1xfeatures2d_1_1SURF.html>`_
+        - SURF: Speeded up robust features.
+          Herbert Bay, Tinne Tuytelaars, and Luc Van Gool.
+          In European Conference on Computer Vision (ECCV), 2006.
+        - |RVC3|, Section 14.1.
+
+        .. seealso:: :class:`SURFFeature` :meth:`SIFT` `cv2.xfeatures2d.SURF_create <https://docs.opencv.org/4.x/d5/df7/classcv_1_1xfeatures2d_1_1SURF.html>`_
 
         .. versionadded:: 2.5.0
         """
@@ -2479,7 +2490,7 @@ class ImagePointFeaturesMixin(ImageMixinBase):
         Returns an iterable and sliceable object that contains 2D features with
         properties.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2489,7 +2500,16 @@ class ImagePointFeaturesMixin(ImageMixinBase):
             >>> len(orb)  # number of features
             >>> print(orb[:5])
 
-        :seealso: :class:ORBFeature`, `cv2.ORB_create <https://docs.opencv.org/4.5.2/db/d95/classcv_1_1ORB.html>`_
+        .. plot::
+
+            from machinevisiontoolbox import Image
+
+            img = Image.Read("eiffel-1.png")
+            img.disp()
+            orb = img.ORB()
+            orb.plot()
+
+        .. seealso:: :class:ORBFeature`, `cv2.ORB_create <https://docs.opencv.org/4.5.2/db/d95/classcv_1_1ORB.html>`_
         """
 
         scoreoptions = {"harris": cv2.ORB_HARRIS_SCORE, "fast": cv2.ORB_FAST_SCORE}
@@ -2514,7 +2534,7 @@ class ImagePointFeaturesMixin(ImageMixinBase):
         Returns an iterable and sliceable object that contains BRISK features and
         descriptors.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2524,13 +2544,23 @@ class ImagePointFeaturesMixin(ImageMixinBase):
             >>> len(brisk)  # number of features
             >>> print(brisk[:5])
 
-        :references:
-            - Brisk: Binary robust invariant scalable keypoints.
-              Stefan Leutenegger, Margarita Chli, and Roland Yves Siegwart.
-              In Computer Vision (ICCV), 2011 IEEE International Conference on,
-              pages 2548–2555. IEEE, 2011.
+        .. plot::
 
-        :seealso: :class:`BRISKFeature` `cv2.BRISK_create <https://docs.opencv.org/4.5.2/d7/d60/classcv_1_1BRISK.html>`_
+            from machinevisiontoolbox import Image
+
+            img = Image.Read("eiffel-1.png")
+            img.disp()
+            brisk = img.BRISK()
+            brisk.plot()
+
+        .. rubric:: References
+
+        - Brisk: Binary robust invariant scalable keypoints.
+          Stefan Leutenegger, Margarita Chli, and Roland Yves Siegwart.
+          In Computer Vision (ICCV), 2011 IEEE International Conference on,
+          pages 2548–2555. IEEE, 2011.
+
+        .. seealso:: :class:`BRISKFeature` `cv2.BRISK_create <https://docs.opencv.org/4.5.2/d7/d60/classcv_1_1BRISK.html>`_
         """
         return self._image2feature(BRISKFeature, **kwargs)
 
@@ -2549,7 +2579,7 @@ class ImagePointFeaturesMixin(ImageMixinBase):
         Returns an iterable and sliceable object that contains AKAZE features and
         descriptors.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2559,12 +2589,23 @@ class ImagePointFeaturesMixin(ImageMixinBase):
             >>> len(akaze)  # number of features
             >>> print(akaze[:5])
 
-        :references:
-            - Fast explicit diffusion for accelerated features in nonlinear scale spaces.
-              Pablo F Alcantarilla, Jesús Nuevo, and Adrien Bartoli.
-              Trans. Pattern Anal. Machine Intell, 34(7):1281–1298, 2011.
+        .. plot::
 
-        :seealso:
+            from machinevisiontoolbox import Image
+
+            img = Image.Read("eiffel-1.png")
+            img.disp()
+            akaze = img.AKAZE()
+            akaze.plot()
+
+        .. rubric:: References
+
+        - Fast explicit diffusion for accelerated features in nonlinear scale spaces.
+          Pablo F Alcantarilla, Jesús Nuevo, and Adrien Bartoli.
+          Trans. Pattern Anal. Machine Intell, 34(7):1281–1298, 2011.
+
+        .. seealso::
+
             :class:`~machinevisiontoolbox.ImagePointFeatures.AKAZEFeature`
             `cv2.AKAZE <https://docs.opencv.org/4.5.2/d7/d60/classcv_1_1AKAZE.html>`_
         """
@@ -2599,7 +2640,7 @@ class ImagePointFeaturesMixin(ImageMixinBase):
         Returns an iterable and sliceable object that contains Harris features and
         descriptors.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2609,17 +2650,27 @@ class ImagePointFeaturesMixin(ImageMixinBase):
             >>> len(harris)  # number of features
             >>> print(harris[:5])
 
+        .. plot::
+
+            from machinevisiontoolbox import Image
+
+            img = Image.Read("eiffel-1.png")
+            img.disp()
+            harris = img.Harris()
+            harris.plot()
+
         .. note:: The Harris corner detector and descriptor is not part of
             OpenCV and has been custom written for pedagogical purposes.
 
-        :references:
-            - A combined corner and edge detector.
-              CG Harris, MJ Stephens
-              Proceedings of the Fourth Alvey Vision Conference, 1988
-              Manchester, pp 147–151
-            - |RVC3|, Section 12.3.1.
+        .. rubric:: References
 
-        :seealso: :class:`HarrisFeature`
+        - A combined corner and edge detector.
+          CG Harris, MJ Stephens
+          Proceedings of the Fourth Alvey Vision Conference, 1988
+          Manchester, pp 147–151
+        - |RVC3|, Section 12.3.1.
+
+        .. seealso:: :class:`HarrisFeature`
         """
         return self._image2feature(HarrisFeature, **kwargs)
 

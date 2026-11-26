@@ -1,7 +1,26 @@
 """
 Thin wrapper around Open3D point-cloud objects with MVTB look and feel.
+
+Open3D is an open-source library that supports rapid development of software that deals
+with 3D data. The Open3D frontend exposes a set of carefully selected data structures
+and algorithms in both C++ and Python. The backend is highly optimized and is set up for
+parallelization.
+
+The ``PointCloud`` class provides a subset of commonly used methods but does not
+attempt to wrap every Open3D method.  Instead, any method or property not known to the
+``PointCloud`` class, such as ``pc.some_method()``, falls through to the native Open3D
+method ``some_method()`` on the encapsulated Open3D object, and all parameters are
+passed through.  If the return value is an Open3D point cloud, or a tuple that contains
+one, it is wrapped and returned as a ``PointCloud`` instance.  A name that neither class
+knows raises :class:`AttributeError`.
+
+Open3D uses NumPy arrays in which points are rows.  This is different to the MVTB
+convention of points as columns.  The MVTB wrappers handle this transposition, but
+anything that falls through to Open3D, or that is reached through :attr:`pcd`, uses the
+Open3D convention.
 """
 
+import difflib
 from pathlib import Path
 from typing import Any, Callable
 from warnings import warn
@@ -37,7 +56,7 @@ def _show_in_notebook(
     if file is not None:
         raise ValueError("file cannot be used with notebook=True")
     try:
-        import plotly  # noqa: F401
+        __import__("plotly")
     except ImportError:
         raise ImportError(
             "disp(notebook=True) draws with Plotly, which is not installed. "
@@ -96,14 +115,14 @@ class PointCloud:
         references and invokes them on the underlying Open3D object.  Any returned Open3D
         point cloud objects are converted to a :class:`PointCloud` instance.
 
-        :seealso: :meth:`__getattr__` :obj:`open3d.geometry.PointCloud` :class:`~machinevisiontoolbox.Image` :class:`CentralCamera`
+        .. seealso:: :meth:`__getattr__` :obj:`open3d.geometry.PointCloud` :class:`~machinevisiontoolbox.Image` :class:`CentralCamera`
         """
         if not _open3d:
             raise RuntimeError(
                 "PointCloud class requires Open3D to be installed: "
                 "pip install open3d or "
                 "pip install machinevision-toolbox-python[open3d]\n"
-                " ** Note that Open3d typically does not run on the latest Python version(s)"
+                " ** Note that Open3D typically does not run on the latest Python version(s)"
             )
 
         if not _open3d:
@@ -187,6 +206,8 @@ class PointCloud:
 
         :param name: method or attribute name
         :type name: str
+        :raises AttributeError: neither this class nor the Open3D point cloud has
+            a method or property of this name
 
         If ``P`` is a :class:`PointCloud` then ``P.name`` invokes
         method ``name`` of the underlying :obj:`open3d.geometry.PointCloud`
@@ -202,28 +223,59 @@ class PointCloud:
         .. note::
             - This is a convenience method to avoid having to explicitly all
               the properties and methods of the Open3D point cloud object.
-            - If the method returns a new point cloud object, it is converted to a
-              Toolbox :class:`PointCloud` instance.
-        """
+            - If the method returns a new point cloud object, or a tuple that
+              contains one, it is converted to a Toolbox :class:`PointCloud`
+              instance.
+            - Arguments and return values other than point clouds are passed
+              through unchanged, so arrays use the Open3D convention of one point
+              per row, not the Toolbox convention of one point per column.
 
-        def wrapper(*args: Any, **kwargs: Any) -> Any:
-            meth = getattr(self._pcd, name)
-            retval = meth(*args, **kwargs)
-            if isinstance(retval, tuple):
-                return tuple(
-                    PointCloud(r) if isinstance(r, o3d.geometry.PointCloud) else r
-                    for r in retval
-                )
-            else:
-                return retval
+        .. versionchanged:: 2.5.0
+            An unknown name raises :class:`AttributeError`, as Python expects, so
+            ``hasattr`` and ``getattr`` with a default work.  It used to raise
+            :class:`ValueError`.  The message names the two classes that were
+            searched and suggests similar names.  A point cloud that is returned
+            by itself is converted, not only one inside a tuple.
+
+        .. seealso:: :attr:`pcd`
+        """
+        # copy and pickle create an instance without calling __init__, so there is
+        # no wrapped object, and looking for it here would call this method again
+        if name == "_pcd":
+            raise AttributeError(name)
+
+        def wrap(value: Any) -> Any:
+            if isinstance(value, o3d.geometry.PointCloud):
+                return PointCloud(value)
+            if isinstance(value, tuple):
+                return tuple(wrap(v) for v in value)
+            return value
 
         if hasattr(self._pcd, name):
-            if callable(getattr(self._pcd, name)):
+            attr = getattr(self._pcd, name)
+            if callable(attr):
+
+                def wrapper(*args: Any, **kwargs: Any) -> Any:
+                    return wrap(attr(*args, **kwargs))
+
                 return wrapper
-            else:
-                return getattr(self._pcd, name)
-        else:
-            raise ValueError(f"object has no attribute '{name}'")
+            return wrap(attr)
+
+        # not a method or property of either class, so suggest similar names
+        known = {
+            n
+            for n in dir(self._pcd) + dir(type(self))
+            if not n.startswith("_") and n[0].islower()
+        }
+        close = difflib.get_close_matches(name, sorted(known), n=2, cutoff=0.8)
+        msg = (
+            f"'{type(self).__name__}' object has no attribute '{name}': it is not "
+            "a method or property of PointCloud, or of the Open3D point cloud "
+            "that it wraps"
+        )
+        if close:
+            msg += ". Did you mean " + " or ".join(f"'{c}'" for c in close) + "?"
+        raise AttributeError(msg)
 
     def __str__(self) -> str:
         """
@@ -270,7 +322,7 @@ class PointCloud:
         Points are returned as columns of the array. The columns correspond
         to the same columns in the :attr:`colors` and :attr:`normal` properties.
 
-        :seealso: :attr:`colors` :attr:`normals`
+        .. seealso:: :attr:`colors` :attr:`normals`
         """
         return np.asarray(self._pcd.points).T
 
@@ -472,7 +524,7 @@ class PointCloud:
         .. versionchanged:: 2.5.0
             Added the ``notebook`` option.
 
-        :seealso: :class:`open3d.visualization.ViewControl`
+        .. seealso:: :class:`open3d.visualization.ViewControl`
         """
         if notebook:
             _show_in_notebook(self._pcd, title, file, kwargs)
@@ -519,7 +571,7 @@ class PointCloud:
         Transform a :class:`PointCloud` by premultiplying by an
         :class:`~spatialmath.pose3d.SE3` instance.
 
-        :seealso: :meth:`transform` :meth:`__imul__`
+        .. seealso:: :meth:`transform` :meth:`__imul__`
         """
         if isinstance(T, SE3):
             return self.copy().transform(T)
@@ -538,7 +590,7 @@ class PointCloud:
         Transform a :class:`PointCloud` by inplace multiplication by an
         :class:`~spatialmath.pose3d.SE3` instance.
 
-        :seealso: :meth:`__rmul__` :meth:`transform`
+        .. seealso:: :meth:`__rmul__` :meth:`transform`
         """
         if isinstance(T, SE3):
             self.transform(T)
@@ -560,7 +612,7 @@ class PointCloud:
         If ``inplace`` is False then the point cloud data is copied
         before transformation.
 
-        :seealso: :meth:`__rmul__` :meth:`__imul__`
+        .. seealso:: :meth:`__rmul__` :meth:`__imul__`
         """
         if inplace:
             self._pcd.transform(T.A)
@@ -687,7 +739,7 @@ class PointCloud:
         Point cloud resolution is reduced by keeping only one
         point per voxel.
 
-        :seealso: :meth:`downsample_random`
+        .. seealso:: :meth:`downsample_random`
         """
         return self.__class__(self._pcd.voxel_down_sample(voxel_size))
 
@@ -708,7 +760,7 @@ class PointCloud:
         Point cloud resolution is reduced by randomly selecting
         a subset of points.
 
-        :seealso: :meth:`downsample_random`
+        .. seealso:: :meth:`downsample_random`
         """
         if seed is None:
             return self.__class__(self._pcd.random_down_sample(fraction))
@@ -729,7 +781,7 @@ class PointCloud:
         - accessed using the ``normals`` property
         - toggled on for display when the point cloud is displayed.
 
-        :seealso: :meth:`disp` :meth:`open3d.geometry.PointCloud.estimate_normals`
+        .. seealso:: :meth:`disp` :meth:`open3d.geometry.PointCloud.estimate_normals`
         """
         # radius=0.1, max_nn=30
         self._pcd.estimate_normals(
@@ -747,7 +799,7 @@ class PointCloud:
         Point normals are returned as columns of the array.  The columns correspond
         to the same columns in the :attr:`points` and :attr:`colors` properties.
 
-        :seealso: :meth:`estimate_normals` :attr:`points` :attr:`colors`
+        .. seealso:: :meth:`estimate_normals` :attr:`points` :attr:`colors`
         """
         return np.asarray(self._pcd.normals).T
 
@@ -764,7 +816,7 @@ class PointCloud:
         .. deprecated:: 1.0.3
             Use :meth:`open3d.geometry.PointCloud.remove_radius_outlier` directly.
 
-        :seealso: :meth:`open3d.geometry.PointCloud.remove_radius_outlier`
+        .. seealso:: :meth:`open3d.geometry.PointCloud.remove_radius_outlier`
         """
         warn(
             "Deprecated in 1.0.3: use pc.remove_radius_outlier(radius=, nb_points=)[0] instead of remove_outlier().",
@@ -938,7 +990,7 @@ class PointCloud:
         :return: pose of ``data`` with respect to instance points
         :rtype: :class:`~spatialmath.pose3d.SE3`
 
-        :seealso: :obj:`open3d.pipelines.registration.TransformationEstimationPointToPoint`
+        .. seealso:: :obj:`open3d.pipelines.registration.TransformationEstimationPointToPoint`
         """
         estimation = o3d.pipelines.registration.TransformationEstimationPointToPoint()
 
@@ -1043,7 +1095,7 @@ class VoxelGrid:
         :param filename: filename
         :type filename: str
 
-        :seealso: :obj:`open3d.io.write_voxel_grid`
+        .. seealso:: :obj:`open3d.io.write_voxel_grid`
         """
         o3d.io.write_voxel_grid(str(filename), self._voxels)  # type: ignore[arg-type]
 
@@ -1079,7 +1131,7 @@ class VoxelGrid:
         .. versionchanged:: 2.5.0
             Added the ``notebook`` option.
 
-        :seealso: :meth:`PointCloud.disp`
+        .. seealso:: :meth:`PointCloud.disp`
         """
         if notebook:
             _show_in_notebook(self._cubes(), title, file, kwargs)
@@ -1121,8 +1173,6 @@ class VoxelGrid:
 
 
 if __name__ == "__main__":
-    from pathlib import Path
-
     import pytest
 
     pytest.main(

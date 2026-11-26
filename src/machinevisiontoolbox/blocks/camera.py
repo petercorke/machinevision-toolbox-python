@@ -1,8 +1,8 @@
 """
 Machine Vision blocks:
 - have inputs and outputs
-- are a subclass of ``FunctionBlock`` |rarr| ``Block`` for kinematics and have no states
-- are a subclass of ``TransferBlock`` |rarr| ``Block`` for dynamics and have states
+- are a subclass of ``FunctionBlock`` → ``Block`` for kinematics and have no states
+- are a subclass of ``TransferBlock`` → ``Block`` for dynamics and have states
 
 """
 

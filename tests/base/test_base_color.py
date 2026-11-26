@@ -6,7 +6,6 @@ from pathlib import Path
 import numpy as np
 import numpy.testing as nt
 
-import machinevisiontoolbox as mvt
 from machinevisiontoolbox.base import color
 
 
@@ -23,7 +22,7 @@ class TestColor(unittest.TestCase):
 
     def test_loadspectrum(self):
 
-        data_dir = Path.cwd() / "machinevisiontoolbox" / "data"
+        Path.cwd() / "machinevisiontoolbox" / "data"
 
         nm = 1e-9
         λ = np.linspace(400, 700, 30) * nm

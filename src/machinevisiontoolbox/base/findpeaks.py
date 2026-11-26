@@ -42,7 +42,7 @@ def findpeaks(
 
     Find the peak in a 1D signal.
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -66,7 +66,7 @@ def findpeaks(
           which is a list of polynomial coefficients for each peak, see
           :obj:`numpy.polynomial`.
 
-    :seealso: :func:`findpeaks2d` :func:`findpeaks3d`
+    .. seealso:: :func:`findpeaks2d` :func:`findpeaks3d`
     """
 
     # if second argument is a matrix we take this as the corresponding x
@@ -84,7 +84,9 @@ def findpeaks(
         n = round(scale / dx) * 2 + 1
         kernel = np.ones((n,))
         (k,) = np.nonzero(y == sp.signal.order_filter(y, kernel, n - 1))
-        k = np.array([kk for kk in k if kk >= scale and kk <= len(y) - scale])
+        k = np.array(
+            [kk for kk in k if kk >= scale and kk < len(y) - scale], dtype=np.intp
+        )
     else:
         # take the zero crossings
         dy = np.diff(y)
@@ -178,7 +180,7 @@ def findpeaks2d(
     its value and an estimate of the "peakiness" of the peak (the second order
     coefficient of the interpolating polynomial).
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -200,7 +202,7 @@ def findpeaks2d(
         - The interp options fits points in the neighbourhood about the
           peak with a paraboloid and its peak position is returned.
 
-    :seealso: :func:`findpeaks` :func:`findpeaks3d`
+    .. seealso:: :func:`findpeaks` :func:`findpeaks3d`
     """
 
     # TODO check valid input
@@ -285,7 +287,7 @@ def findpeaks3d(v: np.ndarray, npeaks: int | None = None) -> np.ndarray:
     Find the maximum of a 3D signal, typically volumetric data such as a
     scale-space image stack.
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -299,7 +301,7 @@ def findpeaks3d(v: np.ndarray, npeaks: int | None = None) -> np.ndarray:
             neighbours. Edges elements will never be returned as maxima.
 
 
-    :seealso: :func:`findpeaks` :func:`findpeaks2d`
+    .. seealso:: :func:`findpeaks` :func:`findpeaks2d`
     """
     # absolute value of Laplacian as a 3D matrix, with scale along axis 2
 
@@ -307,7 +309,6 @@ def findpeaks3d(v: np.ndarray, npeaks: int | None = None) -> np.ndarray:
     # create 3x3x3 structuring element and maximum filter
     se_nhood = np.ones((3, 3, 3))
     se_nhood[1, 1, 1] = 0
-    eps = np.finfo(np.float64).eps
     maxima = v > sp.ndimage.maximum_filter(v, footprint=se_nhood, mode="nearest")
 
     # find the locations of the minima
@@ -328,10 +329,6 @@ def findpeaks3d(v: np.ndarray, npeaks: int | None = None) -> np.ndarray:
 
 
 if __name__ == "__main__":
-    import numpy as np
-
-    from machinevisiontoolbox.base import *
-
     y = np.array([0, 0, 1, 2, 0, 0, 0, 3, 1, 0, 0, 0, 0])
     print(findpeaks(y, scale=3))
     print(findpeaks(y, scale=3, interp=True))

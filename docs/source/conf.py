@@ -89,11 +89,19 @@ import numpy as np
 np.set_printoptions(precision=4, suppress=True)
 from ansitable import ANSITable
 ANSITable._color = False
+import matplotlib
+matplotlib.rcParams["figure.max_open_warning"] = 0
 """
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
 autosummary_generate = True
+# Image.tensor and Image.Tensor differ only in case, so their stub files collide on a
+# case-insensitive file system (macOS, Windows), and their section labels collide
+# everywhere.  Give the class method its own file name.
+autosummary_filename_map = {
+    "machinevisiontoolbox.Image.Tensor": "machinevisiontoolbox.Image.Tensor_classmethod",
+}
 autodoc_member_order = "bysource"
 autosummary_imported_members = True
 autodoc_mock_imports = ["bdsim", "bdsim.graphics"]

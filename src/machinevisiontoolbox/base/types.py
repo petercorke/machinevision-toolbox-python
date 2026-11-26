@@ -52,7 +52,7 @@ def int_image(
     * the boolean class, False is mapped to zero and True is mapped to the
       maximum positive value of ``inclass``.
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -65,10 +65,11 @@ def int_image(
 
     .. note:: Works for greyscale or color (arbitrary number of planes) image
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
 
-    :seealso: :func:`float_image`
+    - |RVC3|, Section 10.1.
+
+    .. seealso:: :func:`float_image`
     """
 
     intclass = np.dtype(intclass)
@@ -117,7 +118,7 @@ def float_image(
       value.
     * the boolean class, False is mapped to 0.0 and True is mapped to 1.0.
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -130,10 +131,11 @@ def float_image(
 
     .. note:: Works for greyscale or color (arbitrary number of planes) image
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
 
-    :seealso: :func:`int_image`
+    - |RVC3|, Section 10.1.
+
+    .. seealso:: :func:`int_image`
     """
 
     floatclass = np.dtype(floatclass)
