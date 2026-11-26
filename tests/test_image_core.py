@@ -1,6 +1,4 @@
 import unittest
-from pathlib import Path
-from unittest.case import skip
 
 import numpy as np
 import numpy.testing as nt
@@ -272,6 +270,63 @@ class TestImage(unittest.TestCase):
             nt.assert_array_equal(p.array, a[:, :, i])
             self.assertTrue(np.shares_memory(p.array, a))
             self.assertFalse(p.array.flags.c_contiguous)
+
+    def test_plane_copy_is_independent_and_contiguous(self):
+        a = np.arange(60, dtype=np.uint8).reshape((5, 4, 3))
+        im = Image(a, colororder="RGB")
+        for key in (1, "G", "BGR", "B:R", [0, 2], (2, 1)):
+            out = im.plane(key, copy=True)
+            self.assertTrue(out.array.flags.c_contiguous, key)
+            self.assertFalse(np.shares_memory(out.array, a), key)
+            out._A[...] = 0  # changing the copy leaves the image alone
+            nt.assert_array_equal(im.array, a)
+            nt.assert_array_equal(out.array.shape, im.plane(key).array.shape)
+
+    def test_plane_copy_keeps_values_and_colororder(self):
+        a = np.arange(60, dtype=np.uint8).reshape((5, 4, 3))
+        im = Image(a, colororder="RGB")
+        for key in (1, "BGR", "B:R", [0, 2]):
+            view, copy = im.plane(key), im.plane(key, copy=True)
+            nt.assert_array_equal(copy.array, view.array)
+            self.assertEqual(copy.colororder_str, view.colororder_str)
+
+    def test_plane_default_stays_a_view_for_a_single_plane(self):
+        a = np.arange(60, dtype=np.uint8).reshape((5, 4, 3))
+        im = Image(a, colororder="RGB")
+        self.assertTrue(np.shares_memory(im.plane(1).array, a))
+        self.assertTrue(np.shares_memory(im.plane("G").array, a))
+        self.assertTrue(np.shares_memory(im.plane(1, copy=False).array, a))
+
+    def test_plane_copy_can_be_drawn_into(self):
+        im = Image(np.zeros((8, 10, 3), dtype=np.uint8), colororder="RGB")
+        with self.assertRaises(ValueError):
+            im.plane(1).draw_circle((3, 3), 2, color=[255])
+        green = im.plane(1, copy=True)
+        green.draw_circle((3, 3), 2, color=[255])
+        self.assertEqual(green.array.max(), 255)
+        self.assertEqual(im.array.max(), 0)  # the original is untouched
+        bgr = im.plane("BGR", copy=True)
+        bgr.draw_circle((3, 3), 2, color=[1, 2, 3])
+
+    def test_plane_copy_of_a_greyscale_image(self):
+        a = np.arange(20, dtype=np.uint8).reshape((5, 4))
+        im = Image(a)
+        self.assertIs(im.plane(0), im)
+        out = im.plane(0, copy=True)
+        self.assertIsNot(out, im)
+        self.assertFalse(np.shares_memory(out.array, a))
+        nt.assert_array_equal(out.array, a)
+
+    def test_planes_copy(self):
+        a = np.arange(60, dtype=np.uint8).reshape((5, 4, 3))
+        im = Image(a, colororder="RGB")
+        for p in im.planes(copy=True):
+            self.assertTrue(p.array.flags.c_contiguous)
+            self.assertFalse(np.shares_memory(p.array, a))
+        copies = list(im.planes(copy=True))
+        self.assertEqual(len(copies), 3)
+        for i, p in enumerate(copies):
+            nt.assert_array_equal(p.array, a[:, :, i])
 
     def test_colordict(self):
         cdict = Image.colororder2dict("RGBA")
@@ -1278,7 +1333,7 @@ class TestImage(unittest.TestCase):
         )
         nt.assert_array_equal(pix, expected)
 
-        poly = Polygon2([(1, 2), (2, 2), (2, 4), (1, 4)])
+        Polygon2([(1, 2), (2, 2), (2, 4), (1, 4)])
         x = np.arange(24)
         im = Image(x, size=(4, 6))  # width x height
         pix = im.pixels_mask(mask)
@@ -1372,16 +1427,16 @@ class TestImage(unittest.TestCase):
         # 1D array without size
         x = np.zeros((10,))
         with self.assertRaises(ValueError):
-            y = Image(x)
+            Image(x)
 
         # 4D array without size
         x = np.zeros((10, 10, 3, 2))
         with self.assertRaises(ValueError):
-            y = Image(x)
+            Image(x)
 
         # incorrect argument type
         with self.assertRaises(ValueError):
-            y = Image("image")
+            Image("image")
 
     def test_init_singleton_removal(self):
         x = np.zeros((5, 10, 1))

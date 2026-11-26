@@ -56,7 +56,7 @@ def _show_in_notebook(
     if file is not None:
         raise ValueError("file cannot be used with notebook=True")
     try:
-        import plotly  # noqa: F401
+        __import__("plotly")
     except ImportError:
         raise ImportError(
             "disp(notebook=True) draws with Plotly, which is not installed. "
@@ -1173,8 +1173,6 @@ class VoxelGrid:
 
 
 if __name__ == "__main__":
-    from pathlib import Path
-
     import pytest
 
     pytest.main(

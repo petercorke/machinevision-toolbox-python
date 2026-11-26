@@ -1274,12 +1274,12 @@ class FileCollection(ImageSource):
 
     def __str__(self) -> str:
         if self._lazy:
-            return f"FileCollection(lazy mode)"
+            return "FileCollection(lazy mode)"
         return "\n".join([str(f) for f in self.names])
 
     def __repr__(self) -> str:
         if self._lazy:
-            return f"FileCollection(lazy mode)"
+            return "FileCollection(lazy mode)"
         return f"FileCollection(nimages={len(self.images)})"
 
     def __next__(self) -> Image:
@@ -3281,6 +3281,8 @@ class ROSBag(ImageSource):
         self._warned_footers: set[int] = set()
         # topics whose depth unit is not known, reported once each
         self._warned_depth: set[str] = set()
+        # topics with a truncated message, reported once each
+        self._warned_truncated: set[str] = set()
 
     def __repr__(self) -> str:
         return (
@@ -3668,7 +3670,15 @@ class ROSBag(ImageSource):
             _image_payload_end(rawdata, msgtype) if msgtype.endswith("Image") else None
         )
         raw = rawdata if end is None else rawdata[:end]
-        for name in self._ROS1_STORES_ORDERED + self._ROS2_STORES_ORDERED:
+        # A ROS 2 bag directory always holds CDR messages.  Trying the ROS 1 wire
+        # format on them can succeed by accident (a PNG CompressedImage did, with the
+        # ROS 1 Noetic store), so that pass is only for ROS 1 style .bag files.
+        ros1_candidates = (
+            []
+            if self._is_ros2
+            else self._ROS1_STORES_ORDERED + self._ROS2_STORES_ORDERED
+        )
+        for name in ros1_candidates:
             if name not in available:
                 continue
             store = _get_typestore(next(s for s in _Stores if s.name == name))
@@ -3885,8 +3895,28 @@ class ROSBag(ImageSource):
                             f"{self.format_local_time(timestamp)} Error occurred while deserializing message: {e}"
                         )
                     continue
-                except _LENGTH_ERRORS:
-                    if self.verbose:
+                except (*_LENGTH_ERRORS, struct.error) as e:  # type: ignore[misc]
+                    # newer rosbags wrap the struct.error in a SerdeError
+                    if isinstance(e, struct.error) or isinstance(
+                        e.__cause__, struct.error
+                    ):
+                        # the message ends before its type says it should: typically
+                        # the last message of a recording that was cut short
+                        if self.verbose:
+                            print(
+                                f"{self.format_local_time(timestamp)} Truncated {connection.msgtype} on {connection.topic!r}, skipped: {e}"
+                            )
+                        elif connection.topic not in self._warned_truncated:
+                            self._warned_truncated.add(connection.topic)
+                            warnings.warn(
+                                f"{self.filename}: a {connection.msgtype} message on "
+                                f"{connection.topic!r} is truncated, perhaps because the "
+                                "recording was cut short.  It is skipped, as are any others "
+                                "like it on this topic; use verbose=True to list them.",
+                                RuntimeWarning,
+                                stacklevel=2,
+                            )
+                    elif self.verbose:
                         print(
                             f"{self.format_local_time(timestamp)} Could not deserialize {connection.msgtype} on {connection.topic!r} "
                             f"using release '{self.release}' — try --release auto or a specific release (melodic, noetic, …)"
@@ -3913,10 +3943,11 @@ class ROSBag(ImageSource):
                     else:
                         colororder = "bgr"
 
-                    # check for a per-topic override
+                    # an override of the color order, for all topics or per topic;
+                    # without one, keep what the decoder gave us (BGR or greyscale)
                     if isinstance(self.colororder, dict):
-                        colororder = self.colororder.get(connection.topic, None)
-                    else:
+                        colororder = self.colororder.get(connection.topic, colororder)
+                    elif self.colororder is not None:
                         colororder = self.colororder
 
                     if colororder is not None and not _wants_mono(self.args):

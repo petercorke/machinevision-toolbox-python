@@ -1,5 +1,4 @@
 from machinevisiontoolbox import Image
-import matplotlib.pyplot as plt
 
 
 mb = Image.Read("multiblobs.png")

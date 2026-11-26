@@ -1,11 +1,17 @@
 import unittest
-from unittest.case import skip
 
-import matplotlib.pyplot as plt
 import numpy as np
 import numpy.testing as nt
 
-from machinevisiontoolbox.base import *
+from machinevisiontoolbox.base import (
+    draw_box,
+    draw_circle,
+    draw_labelbox,
+    draw_line,
+    draw_point,
+    idisp,
+    plot_labelbox,
+)
 
 
 class TestBlobs(unittest.TestCase):

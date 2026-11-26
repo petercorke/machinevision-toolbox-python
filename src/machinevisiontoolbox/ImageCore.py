@@ -266,6 +266,19 @@ class Image(
             >>> Image([[1, 2], [3, 1000]])
             >>> Image([[0.1, 0.2], [0.3, 0.4]])
             >>> Image([[True, False], [False, True]])
+            >>> a = np.array([[1, 2], [3, 4]], dtype=np.uint16)
+            >>> Image(a).dtype  # narrowed to uint8, since the values fit
+            >>> Image(a, dtype=True).dtype  # keep the dtype of the array
+            >>> Image(a, dtype="uint16").dtype  # or ask for one
+
+        .. note:: **The pixel type may be smaller than the array's.**  By default
+            (``dtype=None``) an integer array becomes the smallest integer type that holds
+            all of its values, and a floating point array becomes ``float32``.  So a
+            ``uint16`` or ``int64`` array whose values all lie below 256, such as a dark
+            16-bit frame, gives a ``uint8`` image.  This also applies to images that other
+            parts of the Toolbox build from arrays, for example the frames of a
+            ``ROSBag``.  Pass ``dtype=True`` to keep the dtype of the array, or a
+            dtype such as ``dtype="uint16"`` to choose one.
 
         .. warning:: If an image is constructed from an existing :class:`Image` instance or a Numpy array,
             the encapsulated Numpy array is, by default, a *reference* to the passed image data.
@@ -2633,17 +2646,25 @@ class Image(
         else:
             return int(self._A.shape[-1])
 
-    def planes(self) -> Iterator[Image]:
+    def planes(self, copy: bool = False) -> Iterator[Image]:
         """
         Iterator for image planes
 
+        :param copy: if True each plane is an independent, C-contiguous copy,
+            otherwise it is a view that shares its pixels with the image,
+            defaults to False
+        :type copy: bool, optional
         :return out: image containing a single plane
         :rtype: :class:`Image`
 
         Iterator that returns sequential image planes.
 
-        .. note:: Each plane is a view that shares its pixels with the image, and is
-            not C-contiguous.  See :meth:`__getitem__`.
+        .. note:: By default each plane is a view that shares its pixels with the
+            image, and is not C-contiguous.  Use ``copy=True`` for planes that can be
+            drawn into, or changed without changing the image.  See :meth:`plane`.
+
+        .. versionchanged:: 2.5.0
+            Added the ``copy`` option.
 
         .. rubric:: Examples
 
@@ -2653,16 +2674,24 @@ class Image(
             >>> img = Image.Read("flowers4.png") # in RGB order
             >>> for plane in img.planes():
             >>>     print(plane)
+
+        .. seealso:: :meth:`plane` :meth:`__getitem__`
         """
         for i in range(self.nplanes):
-            yield self.plane(i)
+            yield self.plane(i, copy=copy)
 
-    def plane(self, planes: int | str | list[int] | tuple[int, ...]) -> "Image":
+    def plane(
+        self, planes: int | str | list[int] | tuple[int, ...], copy: bool = False
+    ) -> "Image":
         """
         Extract plane(s) from color image
 
         :param planes: planes to extract
         :type planes: int, list, str
+        :param copy: if True the result is an independent, C-contiguous copy,
+            otherwise a single plane is a view that shares its pixels with the
+            image, defaults to False
+        :type copy: bool, optional
         :raises ValueError: if image is not color
         :return out: image containing only the selected planes
         :rtype: :class:`Image`
@@ -2697,20 +2726,24 @@ class Image(
             - To select more than one plane, use either a sequence of integers or a string
               of colon separated plane names.
             - For a single-plane image the index must be zero.
-            - A single plane, selected by an int or a name, is a view that shares its pixels
-              with the image.  Several planes, selected by a name string or a list, are a
-              new array, but a planar one.  Neither is C-contiguous, so drawing into the
-              result raises a ``ValueError``; use ``Image(out.A, copy=True)`` to make a
-              contiguous copy.  See :class:`Image`.
+            - By default a single plane, selected by an int or a name, is a view that
+              shares its pixels with the image.  Several planes, selected by a name string
+              or a list, are a new array, but a planar one.  Neither is C-contiguous, so
+              drawing into the result raises a ``ValueError``.  With ``copy=True`` the
+              result is always an independent, C-contiguous copy that can be drawn into,
+              and changing it does not change the image.  See :class:`Image`.
 
-        .. seealso:: :meth:`red` :meth:`green` :meth:`blue` :meth:``__getitem__``
+        .. versionchanged:: 2.5.0
+            Added the ``copy`` option.
+
+        .. seealso:: :meth:`planes` :meth:`red` :meth:`green` :meth:`blue` :meth:`__getitem__`
         """
 
         colororder: dict[str, Any] | None
         iplanes: Any
         if isinstance(planes, int):
             if planes == 0 and self.nplanes == 1:
-                return self
+                return self.copy() if copy else self
             if planes < 0 or planes >= self.nplanes:
                 raise ValueError("plane index out of range")
             iplanes = [planes]
@@ -2746,7 +2779,7 @@ class Image(
         if isinstance(iplanes, list) and len(iplanes) == 1:
             iplanes = iplanes[0]
             colororder = None
-        return self.__class__(self._A[:, :, iplanes], colororder=colororder)
+        return self.__class__(self._A[:, :, iplanes], colororder=colororder, copy=copy)
 
     def __getitem__(
         self, keys: int | str | tuple[slice, slice] | tuple[slice, slice, slice]
@@ -2822,8 +2855,8 @@ class Image(
             C-contiguous: a plane of a color image, a region of interest and a reversed slice
             are all strided, and a string such as ``"BGR"`` gives a planar layout.
             The ``draw_*`` methods and OpenCV functions that write into an image refuse such
-            an array.  Use ``Image(img[...].A, copy=True)`` to make a contiguous copy that
-            shares nothing with ``img``.  See :class:`Image`.
+            an array.  Use ``Image(img[...].A, copy=True)``, or :meth:`plane` with ``copy=True``,
+            to make a contiguous copy that shares nothing with ``img``.  See :class:`Image`.
 
         .. warning:: The order of the indices is column, row and plane. This
             is the opposite of the order used for NumPy index on the underlying
@@ -4465,8 +4498,6 @@ class Image(
 Image.__module__ = "machinevisiontoolbox"
 
 if __name__ == "__main__":
-    from pathlib import Path
-
     import pytest
 
     pytest.main(
