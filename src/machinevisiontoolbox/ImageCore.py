@@ -2642,12 +2642,15 @@ class Image(
 
         Iterator that returns sequential image planes.
 
+        .. note:: Each plane is a view that shares its pixels with the image, and is
+            not C-contiguous.  See :meth:`__getitem__`.
+
         .. rubric:: Examples
 
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> img = Image.Read("flowers4.png") # in BGR order
+            >>> img = Image.Read("flowers4.png") # in RGB order
             >>> for plane in img.planes():
             >>>     print(plane)
         """
@@ -2671,7 +2674,7 @@ class Image(
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> img = Image.Read("flowers4.png") # in BGR order
+            >>> img = Image.Read("flowers4.png") # in RGB order
             >>> img.colororder_str
             >>> img.nplanes
             >>> red = img.plane(0) # red plane
@@ -2682,8 +2685,10 @@ class Image(
             >>> green_blue
             >>> green_blue.iscolor
             >>> green_blue.nplanes
-            >>> red_blue = img.plane([0, 2]) # blue and red planes
+            >>> red_blue = img.plane([0, 2]) # red and blue planes
             >>> red_blue
+            >>> bgr = img.plane("BGR") # planes reordered
+            >>> bgr.colororder_str
 
         .. note::
 
@@ -2692,6 +2697,11 @@ class Image(
             - To select more than one plane, use either a sequence of integers or a string
               of colon separated plane names.
             - For a single-plane image the index must be zero.
+            - A single plane, selected by an int or a name, is a view that shares its pixels
+              with the image.  Several planes, selected by a name string or a list, are a
+              new array, but a planar one.  Neither is C-contiguous, so drawing into the
+              result raises a ``ValueError``; use ``Image(out.A, copy=True)`` to make a
+              contiguous copy.  See :class:`Image`.
 
         .. seealso:: :meth:`red` :meth:`green` :meth:`blue` :meth:``__getitem__``
         """
@@ -2762,18 +2772,32 @@ class Image(
         - a 3-tuple containing at least one slice objects, return this region of uv and planes as an
           ``Image`` with one or more planes.
         - an int, return this plane as an ``Image``.
-        - a string, return this named plane or planes as an ``Image``.
+        - a string, return this named plane or planes as an ``Image``.  A string
+          of plane names without colons, such as ``"BGR"``, is read one letter
+          per plane; use colons, such as ``"a*:b*"``, for names longer than one
+          letter.  The result has its planes, and its ``colororder``, in the order given.
+
+        Any other key raises a ``ValueError``.  In particular a lone slice such as
+        ``img[1:3]`` is not valid, because it could mean columns, rows or planes: give
+        the column and row slices, for example ``img[1:3, :]``.  To reverse the planes,
+        or reverse the order of the columns or rows, use slices with a negative step,
+        for example ``img[:, :, ::-1]``.
 
         .. rubric:: Examples
 
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> img = Image.Read("flowers4.png") # in RGB order
+            >>> img = Image.Read("flowers4.png")
+            >>> img.colororder_str
             >>> red = img[0] # red plane
             >>> red # greyscale image
             >>> green = img["G"]
             >>> green # greyscale image
+            >>> bgr = img["BGR"] # planes reordered
+            >>> bgr.colororder_str
+            >>> bgr = img[:, :, ::-1] # the same, using a negative step
+            >>> bgr.colororder_str
             >>> roi = img[100:200, 300:400]
             >>> roi # color image
             >>> roi = img[100:200, 300:400, 1:]
@@ -2789,15 +2813,24 @@ class Image(
             ``Image`` instance.  If the result is a single plane the result is a
             greyscale image.
 
-        .. note:: Indexing pixel values this way is slow, use :meth:`pixel(u,v)` for faster
+        .. note:: Indexing pixel values this way is slow, use :meth:`pixel` for faster
             access, or ``img.A[v,u]`` for direct access to the underlying NumPy array.
+
+        .. note:: The result is a *view* that shares its pixels with ``img`` when the key is
+            a plane number, a tuple of slices, or a string naming one plane, so changing one
+            changes the other.  It is a new array when the string names several planes.  Either way the result may not be
+            C-contiguous: a plane of a color image, a region of interest and a reversed slice
+            are all strided, and a string such as ``"BGR"`` gives a planar layout.
+            The ``draw_*`` methods and OpenCV functions that write into an image refuse such
+            an array.  Use ``Image(img[...].A, copy=True)`` to make a contiguous copy that
+            shares nothing with ``img``.  See :class:`Image`.
 
         .. warning:: The order of the indices is column, row and plane. This
             is the opposite of the order used for NumPy index on the underlying
             array.  It is consistent with the column-first convention used across the
             Toolbox and is consistent with the :math:`(u,v)` coordinate system for images.
 
-        .. versionadded:: 1.0.0
+        .. versionchanged:: 1.0.0
             The order of the indices changed to column, row, plane.  Previously
             it was row, column, plane.
 
