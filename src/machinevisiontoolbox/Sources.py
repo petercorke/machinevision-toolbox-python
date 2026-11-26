@@ -3887,29 +3887,31 @@ class ROSBag(ImageSource):
                             f"{self.format_local_time(timestamp)} Error occurred while deserializing message: {e}"
                         )
                     continue
-                except _LENGTH_ERRORS:
-                    if self.verbose:
+                except (*_LENGTH_ERRORS, struct.error) as e:  # type: ignore[misc]
+                    # newer rosbags wrap the struct.error in a SerdeError
+                    if isinstance(e, struct.error) or isinstance(
+                        e.__cause__, struct.error
+                    ):
+                        # the message ends before its type says it should: typically
+                        # the last message of a recording that was cut short
+                        if self.verbose:
+                            print(
+                                f"{self.format_local_time(timestamp)} Truncated {connection.msgtype} on {connection.topic!r}, skipped: {e}"
+                            )
+                        elif connection.topic not in self._warned_truncated:
+                            self._warned_truncated.add(connection.topic)
+                            warnings.warn(
+                                f"{self.filename}: a {connection.msgtype} message on "
+                                f"{connection.topic!r} is truncated, perhaps because the "
+                                "recording was cut short.  It is skipped, as are any others "
+                                "like it on this topic; use verbose=True to list them.",
+                                RuntimeWarning,
+                                stacklevel=2,
+                            )
+                    elif self.verbose:
                         print(
                             f"{self.format_local_time(timestamp)} Could not deserialize {connection.msgtype} on {connection.topic!r} "
                             f"using release '{self.release}' — try --release auto or a specific release (melodic, noetic, …)"
-                        )
-                    continue
-                except struct.error as e:
-                    # the message ends before its type says it should: typically the
-                    # last message of a recording that was cut short
-                    if self.verbose:
-                        print(
-                            f"{self.format_local_time(timestamp)} Truncated {connection.msgtype} on {connection.topic!r}, skipped: {e}"
-                        )
-                    elif connection.topic not in self._warned_truncated:
-                        self._warned_truncated.add(connection.topic)
-                        warnings.warn(
-                            f"{self.filename}: a {connection.msgtype} message on "
-                            f"{connection.topic!r} is truncated, perhaps because the "
-                            "recording was cut short.  It is skipped, as are any others "
-                            "like it on this topic; use verbose=True to list them.",
-                            RuntimeWarning,
-                            stacklevel=2,
                         )
                     continue
 
