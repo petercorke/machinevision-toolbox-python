@@ -236,7 +236,7 @@ class TestKernel(unittest.TestCase):
         nt.assert_array_almost_equal(K1.K, K2.K)
 
     def test_bordertype_sp_exclude_raises(self):
-        im = Image.Random(size=(10, 10))
+        Image.Random(size=(10, 10))
         from machinevisiontoolbox.ImageSpatial import ImageSpatialMixin
 
         with self.assertRaises(ValueError):

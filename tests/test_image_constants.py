@@ -7,7 +7,6 @@ import numpy.testing as nt
 from spatialmath import Polygon2
 
 from machinevisiontoolbox import Image
-from machinevisiontoolbox.base.color import *
 
 
 class TestImageConstants(unittest.TestCase):
@@ -118,7 +117,7 @@ class TestImageConstants(unittest.TestCase):
         self.assertEqual(im.dtype, np.float32)
         self.assertTrue(np.all(im._A == 0.74))
 
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(ValueError):
             im = Image.Constant((40, 41, 42), size=(5, 9), colororder="ABCD")
 
     def test_constant_new_style(self):
