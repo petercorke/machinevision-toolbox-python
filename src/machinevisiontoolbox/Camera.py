@@ -1371,7 +1371,6 @@ class CameraBase(ABC):
         cr = 0.2  # cylinder radius
         ch = 0.4  # cylinder height
         cn = 12  # number of facets of cylinder
-        a = 3  # length of axis line segments
 
         # draw the box part of the camera
         smb.plot_cuboid(
@@ -3266,7 +3265,6 @@ class CentralCamera(CameraBase):
 
         J = []
         p = _getmatrix(p, (2, None))
-        f = self.f[0]
 
         Zs = [Z] * p.shape[1] if smb.isscalar(Z) else Z
 
@@ -4089,7 +4087,6 @@ class SphericalCamera(CameraBase):
         R = np.linalg.norm(P_arr, axis=0)
         x = P_arr[0, :] / R
         y = P_arr[1, :] / R
-        z = P_arr[2, :] / R
 
         phi = np.arctan2(y, x)
         r = np.sqrt(x**2 + y**2)

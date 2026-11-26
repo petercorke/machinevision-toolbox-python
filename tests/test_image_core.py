@@ -1,6 +1,4 @@
 import unittest
-from pathlib import Path
-from unittest.case import skip
 
 import numpy as np
 import numpy.testing as nt
@@ -1250,7 +1248,7 @@ class TestImage(unittest.TestCase):
         )
         nt.assert_array_equal(pix, expected)
 
-        poly = Polygon2([(1, 2), (2, 2), (2, 4), (1, 4)])
+        Polygon2([(1, 2), (2, 2), (2, 4), (1, 4)])
         x = np.arange(24)
         im = Image(x, size=(4, 6))  # width x height
         pix = im.pixels_mask(mask)
@@ -1344,16 +1342,16 @@ class TestImage(unittest.TestCase):
         # 1D array without size
         x = np.zeros((10,))
         with self.assertRaises(ValueError):
-            y = Image(x)
+            Image(x)
 
         # 4D array without size
         x = np.zeros((10, 10, 3, 2))
         with self.assertRaises(ValueError):
-            y = Image(x)
+            Image(x)
 
         # incorrect argument type
         with self.assertRaises(ValueError):
-            y = Image("image")
+            Image("image")
 
     def test_init_singleton_removal(self):
         x = np.zeros((5, 10, 1))

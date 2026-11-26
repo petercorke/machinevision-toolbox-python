@@ -1274,12 +1274,12 @@ class FileCollection(ImageSource):
 
     def __str__(self) -> str:
         if self._lazy:
-            return f"FileCollection(lazy mode)"
+            return "FileCollection(lazy mode)"
         return "\n".join([str(f) for f in self.names])
 
     def __repr__(self) -> str:
         if self._lazy:
-            return f"FileCollection(lazy mode)"
+            return "FileCollection(lazy mode)"
         return f"FileCollection(nimages={len(self.images)})"
 
     def __next__(self) -> Image:

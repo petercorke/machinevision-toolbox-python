@@ -139,8 +139,6 @@ def loadspectrum(
 
     - |RVC3|, Section 10.1.
     """
-    global _spectra
-
     if filename not in _spectra:
         # save an interpolator for every spectrum
         if not filename.endswith(".dat"):

@@ -19,7 +19,7 @@ from machinevisiontoolbox.bin._bintools import CustomDefaultsHelpFormatter
 def getargs():
     parser = argparse.ArgumentParser(
         formatter_class=CustomDefaultsHelpFormatter,
-        description=f"Display text words found in image using Machine Vision Toolbox for Python.  "
+        description="Display text words found in image using Machine Vision Toolbox for Python.  "
         "Words are written to stdout or a JSON file, but can also be highlighted in the image.",
     )
     parser.add_argument(
