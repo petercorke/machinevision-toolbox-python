@@ -482,6 +482,8 @@ class ImageConstantsMixin(ImageMixinBase):
         .. plot::
 
             from machinevisiontoolbox import Image
+            import matplotlib.pyplot as plt
+
             img = Image.Read("street.png")
             h = img.hist()
             img2 = Image.Random(size=img.size, pdf=h.pdf)

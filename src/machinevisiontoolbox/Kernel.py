@@ -228,8 +228,6 @@ class Kernel:
             >>> K = Kernel.Gauss(sigma=2)
             >>> K.shape
 
-        .. rubric:: Examples
-
         .. code-block:: python
 
             Kernel.Gauss(5, 15).disp3d()
@@ -397,8 +395,6 @@ class Kernel:
             >>> K
             >>> K.print()
 
-        .. rubric:: Examples
-
         .. code-block:: python
 
             Kernel.DoG(5, 15).disp3d()
@@ -473,8 +469,6 @@ class Kernel:
             >>> K
             >>> K.print()
 
-        .. rubric:: Examples
-
         .. code-block:: python
 
             Kernel.LoG(5, 15).disp3d()
@@ -545,8 +539,6 @@ class Kernel:
             >>> K = Kernel.DGauss(1)
             >>> K
             >>> K.print()
-
-        .. rubric:: Examples
 
         .. code-block:: python
 
@@ -625,8 +617,6 @@ class Kernel:
             >>> Hxx, Hyy, Hxy = Kernel.HGauss(1)
             >>> Hxx
             >>> Hxx.print()
-
-        .. rubric:: Examples
 
         .. code-block:: python
 

@@ -133,7 +133,7 @@ class TestImageSources(unittest.TestCase):
     def test_videofile(self):
         # video file
 
-        # traffic_sequence.mpg
+        # traffic_sequence.mp4
         v = VideoFile("traffic_sequence.mp4")
         self.assertEqual(v.nframes, 350)
 

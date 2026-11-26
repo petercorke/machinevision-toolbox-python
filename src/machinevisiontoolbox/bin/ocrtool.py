@@ -112,10 +112,13 @@ def main():
             plt.grid()
 
         if args.long:
-            c = np.array([word.conf for word in words])
-            print(
-                f"# {file}: {len(words)} words; confidence: {c.min():.1f} - {c.max():.1f}%, mean {c.mean():.1f}%"
-            )
+            if len(words) == 0:
+                print(f"# {file}: 0 words")
+            else:
+                c = np.array([word.conf for word in words])
+                print(
+                    f"# {file}: {len(words)} words; confidence: {c.min():.1f} - {c.max():.1f}%, mean {c.mean():.1f}%"
+                )
 
         if args.json is not None:
             import json
