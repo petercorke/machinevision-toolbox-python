@@ -3935,10 +3935,11 @@ class ROSBag(ImageSource):
                     else:
                         colororder = "bgr"
 
-                    # check for a per-topic override
+                    # an override of the color order, for all topics or per topic;
+                    # without one, keep what the decoder gave us (BGR or greyscale)
                     if isinstance(self.colororder, dict):
-                        colororder = self.colororder.get(connection.topic, None)
-                    else:
+                        colororder = self.colororder.get(connection.topic, colororder)
+                    elif self.colororder is not None:
                         colororder = self.colororder
 
                     if colororder is not None and not _wants_mono(self.args):
