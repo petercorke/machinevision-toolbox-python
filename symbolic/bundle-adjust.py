@@ -1,8 +1,7 @@
 import sys
 from datetime import datetime
-from machinevisiontoolbox import Camera
 from spatialmath import base
-from sympy import *
+from sympy import Matrix, pycode, simplify, sqrt
 import numpy as np
 
 # Camera intrinsics

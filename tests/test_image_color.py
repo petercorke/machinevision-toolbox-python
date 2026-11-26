@@ -6,7 +6,17 @@ import numpy as np
 import numpy.testing as nt
 
 from machinevisiontoolbox import Image
-from machinevisiontoolbox.base.color import *
+from machinevisiontoolbox.base.color import (
+    XYZ2RGBxform,
+    ccxyz,
+    color2name,
+    colorspace_convert,
+    gamma_decode,
+    gamma_encode,
+    lambda2xy,
+    luminos,
+    name2color,
+)
 
 
 class TestImageProcessingColor(unittest.TestCase):
