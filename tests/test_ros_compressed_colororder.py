@@ -54,7 +54,9 @@ RED = np.zeros((8, 8, 3), np.uint8)
 RED[..., 0] = 255  # pure red, in R, G, B order
 
 
-@pytest.fixture(params=["ros1"])  # ROS 2 PNG bags need their own fix, see the ROS 2 tests
+@pytest.fixture(
+    params=["ros1"]
+)  # ROS 2 PNG bags need their own fix, see the ROS 2 tests
 def make(request, tmp_path):
     def _make(images):
         path = tmp_path / ("bag.bag" if request.param == "ros1" else "bag")
