@@ -68,6 +68,27 @@ class TestMvtbtool(unittest.TestCase):
             self.assertIn("Open3D not installed", stdout, msg=stdout)
             self.assertEqual(result.returncode, 1, msg=stdout)
 
+    def test_backend_option_is_applied(self):
+        """--backend used to stop with NameError: name 'plt' is not defined."""
+        try:
+            __import__("IPython")
+        except ImportError:
+            self.skipTest("IPython not installed")
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "machinevisiontoolbox.bin.mvtbtool",
+                "--backend",
+                "Agg",
+            ],
+            input=b"exit\n",
+            capture_output=True,
+            timeout=120,
+        )
+        self.assertNotIn(b"NameError", result.stderr, msg=result.stderr.decode())
+        self.assertIn(b"Using matplotlib backend Agg", result.stdout)
+
 
 class TestImtool(unittest.TestCase):
     def test_help(self):
