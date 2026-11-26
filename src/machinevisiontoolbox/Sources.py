@@ -296,11 +296,10 @@ class ImageSource(ABC):
 
         .. code-block:: pycon
 
-        >>> from machinevisiontoolbox import VideoFile
-        >>> t = VideoFile("traffic_sequence.mp4").tensor(normalize=None)
-        >>> t.shape
-        torch.Size([N, 3, H, W])
-
+            >>> from machinevisiontoolbox import VideoFile
+            >>> t = VideoFile("traffic_sequence.mp4").tensor(normalize=None)
+            >>> t.shape
+            torch.Size([350, 3, 576, 704])
         """
         try:
             import torch as _torch
@@ -603,11 +602,11 @@ class VideoFile(ImageSource):
 
     or using a context manager to ensure the file handle is always released:
 
-        .. code-block:: python
+    .. code-block:: python
 
-            with VideoFile("traffic_sequence.mp4") as video:
-                for im in video:
-                    pass
+        with VideoFile("traffic_sequence.mp4") as video:
+            for im in video:
+                pass
 
 
     .. rubric:: References
@@ -1012,9 +1011,10 @@ class VideoCamera(ImageSource):
         The name mapping is best-effort: if the platform query fails the
         ``name`` key is ``None``.
 
-        Example::
+        .. rubric:: Examples
 
-            $ python
+        .. code-block:: pycon
+
             >>> from machinevisiontoolbox import VideoCamera
             >>> for cam in VideoCamera.list():
             ...     print(cam)
@@ -2765,49 +2765,47 @@ class ROSTopic(ImageSource):
         ``sensor_msgs/PointCloud2`` with ``x``, ``y``, ``z`` fields and an
         ``rgb`` field when color data is present.
 
-        Example publishing a ``std_msgs/String`` message:
+        .. rubric:: Examples
 
-            .. code-block:: python
+        Publishing a ``std_msgs/String`` message:
 
-                pub = ROSTopic("/cmd_text", message="std_msgs/String", subscribe=False)
-                pub.publish({"data": "hello"})
-                pub.release()
+        .. code-block:: python
 
+            pub = ROSTopic("/cmd_text", message="std_msgs/String", subscribe=False)
+            pub.publish({"data": "hello"})
+            pub.release()
 
-        Example publishing a ``geometry_msgs/Twist`` message:
+        Publishing a ``geometry_msgs/Twist`` message:
 
-            .. code-block:: python
+        .. code-block:: python
 
-                pub = ROSTopic("/cmd_vel", message="geometry_msgs/Twist", subscribe=False)
-                pub.publish(
-                    {
-                        "linear": {"x": 0.2, "y": 0.0, "z": 0.0},
-                        "angular": {"x": 0.0, "y": 0.0, "z": 0.5},
-                    }
-                )
-                pub.release()
+            pub = ROSTopic("/cmd_vel", message="geometry_msgs/Twist", subscribe=False)
+            pub.publish(
+                {
+                    "linear": {"x": 0.2, "y": 0.0, "z": 0.0},
+                    "angular": {"x": 0.0, "y": 0.0, "z": 0.5},
+                }
+            )
+            pub.release()
 
+        Publishing an :class:`~machinevisiontoolbox.Image` with an explicit timestamp:
 
-        Example publishing an :class:`~machinevisiontoolbox.Image` with an explicit timestamp:
+        .. code-block:: python
 
-            .. code-block:: python
+            img = _make_image(np.zeros((240, 320, 3), dtype=np.uint8), colororder="RGB")
+            pub = ROSTopic("/camera/image_raw", message="sensor_msgs/Image", subscribe=False)
+            pub.publish(img, timestamp_ns=1_700_000_000_123_456_789)
+            pub.release()
 
-                img = _make_image(np.zeros((240, 320, 3), dtype=np.uint8), colororder="RGB")
-                pub = ROSTopic("/camera/image_raw", message="sensor_msgs/Image", subscribe=False)
-                pub.publish(img, timestamp_ns=1_700_000_000_123_456_789)
-                pub.release()
+        Publishing a :class:`PointCloud` with an explicit timestamp:
 
+        .. code-block:: python
 
-        Example publishing a :class:`PointCloud` with an explicit timestamp:
-
-            .. code-block:: python
-
-                points = np.array([[0.0, 1.0], [0.0, 0.2], [1.0, 1.2]], dtype=np.float32)
-                pc = PointCloud(points)
-                pub = ROSTopic("/cloud", message="sensor_msgs/PointCloud2", subscribe=False)
-                pub.publish(pc, timestamp_ns=1_700_000_000_223_456_789)
-                pub.release()
-
+            points = np.array([[0.0, 1.0], [0.0, 0.2], [1.0, 1.2]], dtype=np.float32)
+            pc = PointCloud(points)
+            pub = ROSTopic("/cloud", message="sensor_msgs/PointCloud2", subscribe=False)
+            pub.publish(pc, timestamp_ns=1_700_000_000_223_456_789)
+            pub.release()
 
         The topic is advertised lazily on first publish.
         """
@@ -4397,16 +4395,22 @@ class TensorStack(ImageSource):
 
     .. code-block:: pycon
 
-    >>> from machinevisiontoolbox import TensorStack
-    >>> import torch
-    >>> batch = torch.randn(10, 3, 64, 64)  # 10 RGB images
-    >>> source = TensorStack(batch, colororder="RGB")
-    >>> len(source)
-    10
-    >>> img = source[7]  # Returns Image wrapping tensor[7] (zero-copy view)
-    >>> for img in source:
-    ...     features = extract(img)  # Process each image lazily
-
+        >>> from machinevisiontoolbox import TensorStack
+        >>> import torch
+        >>> batch = torch.randn(10, 3, 64, 64)  # 10 RGB images
+        >>> source = TensorStack(batch, colororder="RGB")
+        >>> print(source)
+        TensorStack(10 frames, shape (3, 64, 64), dtype float32)
+        >>> len(source)
+        10
+        >>> img = source[7]  # Returns Image wrapping tensor[7] (zero-copy view)
+        >>> print(img)
+        Image: 64 x 64 (float32), R:G:B
+          R: span=[-3.33973, 3.61569]; mean=-0.0275616, 𝜎=1.00145; median=-0.01917
+          G: span=[-3.5052, 4.08658]; mean=0.0193997, 𝜎=1.00146; median=0.0170656
+          B: span=[-3.73214, 3.53697]; mean=-0.0117258, 𝜎=1.00667; median=-0.0202868
+        >>> for img in source:
+        ...     features = mycode(img)  # Your algorithm goes here, process each image lazily
 
     .. seealso:: :meth:`Image.Tensor`
     """

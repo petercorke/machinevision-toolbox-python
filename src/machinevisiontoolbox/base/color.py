@@ -52,8 +52,6 @@ def _loaddata(filename: str, verbose: bool = False, **kwargs: Any) -> np.ndarray
     ``_loaddata(filename)`` returns ``data`` from ``filename``, otherwise
     returns None
 
-    .. rubric:: Examples
-
     .. note::
 
         - Comments are assumed to be as original data files were part of the
@@ -1803,9 +1801,21 @@ def shadow_invariant(
 
     .. rubric:: Examples
 
-    >>> im = iread('parks.png', gamma='sRGB', dtype='double')
-    >>> gs = shadow_invariant(im, 0.7)
-    >>> idisp(gs)
+    .. code-block:: pycon
+
+        >>> im, _ = iread('parks.png', gamma='sRGB', dtype='double')
+        >>> idisp(im)
+        >>> gs = shadow_invariant(im, 0.7)
+        >>> idisp(gs)
+
+    .. plot::
+
+        from machinevisiontoolbox import iread, idisp, shadow_invariant
+
+        im, _ = iread('parks.png', gamma='sRGB', dtype='double')
+        idisp(im)
+        gs = shadow_invariant(im, 0.7)
+        idisp(gs)
 
     .. note::
         - The input image is assumed to be linear, that is, it has been
