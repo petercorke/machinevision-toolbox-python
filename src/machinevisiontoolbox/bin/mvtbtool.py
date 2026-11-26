@@ -299,7 +299,7 @@ def run_smoke_test() -> bool:
         checks.append((f"Image.Read + smooth() (OpenCV-backed): {e}", False))
 
     try:
-        import open3d  # noqa: F401  -- presence check; PointCloud does the real work
+        __import__("open3d")  # presence check; PointCloud does the real work
     except ImportError as e:
         checks.append(
             (

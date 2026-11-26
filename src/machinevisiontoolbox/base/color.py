@@ -139,8 +139,6 @@ def loadspectrum(
 
     - |RVC3|, Section 10.1.
     """
-    global _spectra
-
     if filename not in _spectra:
         # save an interpolator for every spectrum
         if not filename.endswith(".dat"):
@@ -788,7 +786,8 @@ def name2color(
         >>> name2color("r", dtype="uint8")
         >>> name2color("red", colororder={"R": 2, "G": 1, "B": 0})
         >>> name2color("r", "xy")
-        >>> name2color("lime green")
+        >>> name2color("limegreen")
+        >>> name2color("lime green")  # None: Matplotlib's names have no spaces
 
     .. note:: Uses color database from Matplotlib.
 
