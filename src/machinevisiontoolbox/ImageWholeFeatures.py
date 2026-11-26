@@ -345,8 +345,6 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
             img = Image.Read('street.png')
             img.hist().plot()
 
-        .. rubric:: Examples
-
         .. code-block:: python
 
             from machinevisiontoolbox import Image
@@ -361,8 +359,6 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
             from machinevisiontoolbox import Image
             img = Image.Read('flowers1.png')
             img.hist().plot(style='stack')
-
-        .. rubric:: Examples
 
         .. code-block:: python
 

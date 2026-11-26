@@ -1844,17 +1844,16 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         .. rubric:: Examples
 
-        >>> from machinevisiontoolbox import Image
-        >>> im = Image.Read("sharks.png")
-        >>> blobs = im.blobs()
-        >>> blobs.plot_box(color="yellow") # solid yellow box for all blobs
+        .. code-block:: pycon
 
-        .. rubric:: Examples
-
-        >>> blobs[0].plot_box('b--') # blue dashed box
-        >>> blobs[1].plot_box(color="blue", linestyle="--") # blue dashed box
-        >>> blobs[2].plot_box(color="g") # solid green box
-        >>> blobs[3].plot_box(color="r", linewidth=4)
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read("sharks.png")
+            >>> blobs = im.blobs()
+            >>> blobs.plot_box(color="yellow") # solid yellow box for all blobs
+            >>> blobs[0].plot_box('b--') # blue dashed box
+            >>> blobs[1].plot_box(color="blue", linestyle="--") # blue dashed box
+            >>> blobs[2].plot_box(color="g") # solid green box
+            >>> blobs[3].plot_box(color="r", linewidth=4)
 
         .. plot::
 
@@ -1863,6 +1862,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             im = Image.Read("sharks.png")
             im.disp()
             blobs = im.blobs()
+            blobs.plot_box(color="yellow") # solid yellow box for all blobs
             blobs[0].plot_box('b--') # blue dashed box
             blobs[1].plot_box(color="blue", linestyle="--") # blue dashed box
             blobs[2].plot_box(color="g") # solid green box
@@ -1919,11 +1919,13 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         .. rubric:: Examples
 
-        >>> from machinevisiontoolbox import Image
-        >>> im = Image.Read("sharks.png")
-        >>> blobs = im.blobs()
-        >>> blobs[:3].plot_labelbox(color="yellow")
-        >>> blobs[3].plot_labelbox(color="lightblue", linewidth=2, label="3")
+        .. code-block:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read("sharks.png")
+            >>> blobs = im.blobs()
+            >>> blobs[:3].plot_labelbox(color="yellow")
+            >>> blobs[3].plot_labelbox(color="lightblue", linewidth=2, label="3")
 
         .. plot::
 
@@ -1982,15 +1984,17 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         .. rubric:: Examples
 
-        >>> from machinevisiontoolbox import Image
-        >>> im = Image.Read("sharks.png")
-        >>> blobs = im.blobs()
-        >>> blobs.plot_centroid(label=True)  # default blue "o" and "x" with blob id for all blobs
-        >>>
-        >>> blobs[0].plot_centroid()  # default blue "o" and "x"
-        >>> blobs[1].plot_centroid('rd', label=True) # red diamond with label
-        >>> blobs[2].plot_centroid(marker="x", color="red") # red "x"
-        >>> blobs[3].plot_centroid(marker="P", markeredgecolor="lightsteelblue", markerfacecolor="w", fillstyle="full")
+        .. code-block:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read("sharks.png")
+            >>> blobs = im.blobs()
+            >>> blobs.plot_centroid(label=True)  # default blue "o" and "x" with blob id for all blobs
+            >>> #
+            >>> blobs[0].plot_centroid()  # default blue "o" and "x"
+            >>> blobs[1].plot_centroid('rd', label=True) # red diamond with label
+            >>> blobs[2].plot_centroid(marker="x", color="red") # red "x"
+            >>> blobs[3].plot_centroid(marker="P", markeredgecolor="lightsteelblue", markerfacecolor="w", fillstyle="full")
 
         .. plot::
 
@@ -1999,6 +2003,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             im = Image.Read("sharks.png")
             im.disp()
             blobs = im.blobs()
+            blobs.plot_centroid(label=True)  # default blue "o" and "x" with blob id for all blobs
             blobs[0].plot_centroid()  # default blue "o" and "x"
             blobs[1].plot_centroid('rd', label=True) # red diamond with label
             blobs[2].plot_centroid(marker="x", color="red") # red "x"
@@ -2043,15 +2048,17 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         .. rubric:: Examples
 
-        >>> from machinevisiontoolbox import Image
-        >>> im = Image.Read("sharks.png")
-        >>> blobs = im.blobs()
-        >>> blob.plot_perimeter() # perimeters for all blobs, different colors
-        >>>
-        >>> blobs[0].plot_perimeter("c--") # cyan dashed line
-        >>> blobs[1].plot_perimeter(color="cyan", linestyle="--") # cyan dashed line
-        >>> blobs[2].plot_perimeter(color="red")
-        >>> blobs[3].plot_perimeter(show="hull", color="orange", linewidth=3)
+        .. code-block:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read("sharks.png")
+            >>> blobs = im.blobs()
+            >>> blobs.plot_perimeter() # perimeters for all blobs, different colors
+            >>> #
+            >>> blobs[0].plot_perimeter("c--") # cyan dashed line
+            >>> blobs[1].plot_perimeter(color="cyan", linestyle="--") # cyan dashed line
+            >>> blobs[2].plot_perimeter(color="red")
+            >>> blobs[3].plot_perimeter(show="hull", color="orange", linewidth=3)
 
         .. plot::
 
@@ -2060,6 +2067,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             im = Image.Read("sharks.png")
             im.disp()
             blobs = im.blobs()
+            blobs.plot_perimeter() # perimeters for all blobs, different colors
             blobs[0].plot_perimeter("c--") # cyan dashed line
             blobs[1].plot_perimeter(color="cyan", linestyle="--") # cyan dashed line
             blobs[2].plot_perimeter(color="red")
@@ -2097,15 +2105,17 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         .. rubric:: Examples
 
-        >>> from machinevisiontoolbox import Image
-        >>> im = Image.Read("sharks.png")
-        >>> blobs = im.blobs()
-        >>> blobs.plot_ellipse() # ellipses for all blobs, different colors
-        >>>
-        >>> blobs[0].plot_ellipse("c--") # cyan dashed line
-        >>> blobs[1].plot_ellipse(color="cyan", linestyle="--") # cyan dashed line
-        >>> blobs[2].plot_ellipse(color="red")
-        >>> blobs[3].plot_ellipse(color="orange", linewidth=3)
+        .. code-block:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read("sharks.png")
+            >>> blobs = im.blobs()
+            >>> blobs.plot_ellipse() # ellipses for all blobs, different colors
+            >>> #
+            >>> blobs[0].plot_ellipse("c--") # cyan dashed line
+            >>> blobs[1].plot_ellipse(color="cyan", linestyle="--") # cyan dashed line
+            >>> blobs[2].plot_ellipse(color="red")
+            >>> blobs[3].plot_ellipse(color="orange", linewidth=3)
 
         .. plot::
 
@@ -2114,6 +2124,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             im = Image.Read("sharks.png")
             im.disp()
             blobs = im.blobs()
+            blobs.plot_ellipse() # ellipses for all blobs, different colors
             blobs[0].plot_ellipse("c--") # cyan dashed line
             blobs[1].plot_ellipse(color="cyan", linestyle="--") # cyan dashed line
             blobs[2].plot_ellipse(color="red")
@@ -2192,15 +2203,17 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         .. rubric:: Examples
 
-        >>> from machinevisiontoolbox import Image
-        >>> im = Image.Read("sharks.png")
-        >>> blobs = im.blobs()
-        >>> blobs.plot_axes() # axes for all blobs, different colors
-        >>>
-        >>> blobs[0].plot_axes("c--") # cyan dashed line
-        >>> blobs[1].plot_axes(color="cyan", linestyle="--") # cyan dashed line
-        >>> blobs[2].plot_axes(color="red")
-        >>> blobs[3].plot_axes(color="orange", linewidth=3)
+        .. code-block:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read("sharks.png")
+            >>> blobs = im.blobs()
+            >>> blobs.plot_axes() # axes for all blobs, different colors
+            >>> #
+            >>> blobs[0].plot_axes("c--") # cyan dashed line
+            >>> blobs[1].plot_axes(color="cyan", linestyle="--") # cyan dashed line
+            >>> blobs[2].plot_axes(color="red")
+            >>> blobs[3].plot_axes(color="orange", linewidth=3)
 
         .. plot::
 
@@ -2209,6 +2222,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             im = Image.Read("sharks.png")
             im.disp()
             blobs = im.blobs()
+            blobs.plot_axes() # axes for all blobs, different colors
             blobs[0].plot_axes("c--") # cyan dashed line
             blobs[1].plot_axes(color="cyan", linestyle="--") # cyan dashed line
             blobs[2].plot_axes(color="red")
@@ -2308,15 +2322,17 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         .. rubric:: Examples
 
-        >>> from machinevisiontoolbox import Image
-        >>> im = Image.Read("sharks.png")
-        >>> blobs = im.blobs()
-        >>> blobs.plot_aligned_box() # aligned boxes for all blobs, different colors
-        >>>
-        >>> blobs[0].plot_aligned_box("c--") # cyan dashed line
-        >>> blobs[1].plot_aligned_box(color="cyan", linestyle="--") # cyan dashed line
-        >>> blobs[2].plot_aligned_box(color="red")
-        >>> blobs[3].plot_aligned_box(color="orange", linewidth=3)
+        .. code-block:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read("sharks.png")
+            >>> blobs = im.blobs()
+            >>> blobs.plot_aligned_box() # aligned boxes for all blobs, different colors
+            >>> #
+            >>> blobs[0].plot_aligned_box("c--") # cyan dashed line
+            >>> blobs[1].plot_aligned_box(color="cyan", linestyle="--") # cyan dashed line
+            >>> blobs[2].plot_aligned_box(color="red")
+            >>> blobs[3].plot_aligned_box(color="orange", linewidth=3)
 
         .. plot::
 
@@ -2325,6 +2341,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             im = Image.Read("sharks.png")
             im.disp()
             blobs = im.blobs()
+            blobs.plot_aligned_box() # aligned boxes for all blobs, different colors
             blobs[0].plot_aligned_box("c--") # cyan dashed line
             blobs[1].plot_aligned_box(color="cyan", linestyle="--") # cyan dashed line
             blobs[2].plot_aligned_box(color="red")
@@ -2354,15 +2371,17 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         .. rubric:: Examples
 
-        >>> from machinevisiontoolbox import Image
-        >>> im = Image.Read("sharks.png")
-        >>> blobs = im.blobs()
-        >>> blobs.plot_MEC() # MEC for all blobs, different colors
-        >>>
-        >>> blobs[0].plot_MEC("c--") # cyan dashed line
-        >>> blobs[1].plot_MEC(color="cyan", linestyle="--") # cyan dashed line
-        >>> blobs[2].plot_MEC(color="red")
-        >>> blobs[3].plot_MEC(color="orange", linewidth=3)
+        .. code-block:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read("sharks.png")
+            >>> blobs = im.blobs()
+            >>> blobs.plot_MEC() # MEC for all blobs, different colors
+            >>> #
+            >>> blobs[0].plot_MEC("c--") # cyan dashed line
+            >>> blobs[1].plot_MEC(color="cyan", linestyle="--") # cyan dashed line
+            >>> blobs[2].plot_MEC(color="red")
+            >>> blobs[3].plot_MEC(color="orange", linewidth=3)
 
         .. plot::
 
@@ -2371,6 +2390,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             im = Image.Read("sharks.png")
             im.disp()
             blobs = im.blobs()
+            blobs.plot_MEC() # MEC for all blobs, different colors
             blobs[0].plot_MEC("c--") # cyan dashed line
             blobs[1].plot_MEC(color="cyan", linestyle="--") # cyan dashed line
             blobs[2].plot_MEC(color="red")
@@ -2400,15 +2420,17 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         .. rubric:: Examples
 
-        >>> from machinevisiontoolbox import Image
-        >>> im = Image.Read("sharks.png")
-        >>> blobs = im.blobs()
-        >>> blobs.plot_MER() # MEC for all blobs, different colors
-        >>>
-        >>> blobs[0].plot_MER("c--") # cyan dashed line
-        >>> blobs[1].plot_MER(color="cyan", linestyle="--") # cyan dashed line
-        >>> blobs[2].plot_MER(color="red")
-        >>> blobs[3].plot_MER(color="orange", linewidth=3)
+        .. code-block:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read("sharks.png")
+            >>> blobs = im.blobs()
+            >>> blobs.plot_MER() # MER for all blobs, different colors
+            >>> #
+            >>> blobs[0].plot_MER("c--") # cyan dashed line
+            >>> blobs[1].plot_MER(color="cyan", linestyle="--") # cyan dashed line
+            >>> blobs[2].plot_MER(color="red")
+            >>> blobs[3].plot_MER(color="orange", linewidth=3)
 
         .. plot::
 
@@ -2417,6 +2439,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             im = Image.Read("sharks.png")
             im.disp()
             blobs = im.blobs()
+            blobs.plot_MER() # MER for all blobs, different colors
             blobs[0].plot_MER("c--") # cyan dashed line
             blobs[1].plot_MER(color="cyan", linestyle="--") # cyan dashed line
             blobs[2].plot_MER(color="red")
@@ -2452,7 +2475,9 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         label image where the greyvalue of each region corresponds to the blob
         index.
 
-            .. rubric:: Examples
+        .. rubric:: Examples
+
+        .. code-block:: pycon
 
             >>> from machinevisiontoolbox import Image
             >>> im = Image.Read("sharks.png")
@@ -2460,15 +2485,15 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> labels = blobs.label_image()
             >>> labels.disp(colorbar=True)
 
-            .. plot::
+        .. plot::
 
-                from machinevisiontoolbox import Image
+            from machinevisiontoolbox import Image
 
-                im = Image.Read("sharks.png")
-                im.disp()
-                blobs = im.blobs()
-                labels = blobs.label_image()
-                labels.disp(colorbar=True)
+            im = Image.Read("sharks.png")
+            im.disp()
+            blobs = im.blobs()
+            labels = blobs.label_image()
+            labels.disp(colorbar=True)
 
         .. note:: The label image is reconstituted from the OpenCV contours that are
             saved within the :class:`Blobs` object.
