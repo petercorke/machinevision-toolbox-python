@@ -4477,8 +4477,6 @@ class Image(
 Image.__module__ = "machinevisiontoolbox"
 
 if __name__ == "__main__":
-    from pathlib import Path
-
     import pytest
 
     pytest.main(
