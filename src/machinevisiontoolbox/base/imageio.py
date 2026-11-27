@@ -121,7 +121,7 @@ def _ensure_mpl_backend() -> None:
         return
 
     try:
-        import google.colab  # noqa: F401
+        __import__("google.colab")
 
         mpl.use("module://matplotlib_inline.backend_inline")
         return
@@ -1194,7 +1194,6 @@ def iread(
             raise ValueError(f"Could not fetch {filename}: {e.reason}") from e
 
     if isinstance(filename, (str, Path)):
-        filename_str = str(filename)
         path = Path(filename).expanduser()
         if glob.has_magic(str(path)):
             images = []
@@ -1550,7 +1549,7 @@ def pickpoints(
 
 
 if __name__ == "__main__":
-    from machinevisiontoolbox import *
+    from machinevisiontoolbox import FileCollection
 
     images = FileCollection("seq/*.png")
 

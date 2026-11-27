@@ -90,6 +90,14 @@ class TestFindpeaks(unittest.TestCase):
         self.assertIsInstance(ymax, np.ndarray)
         self.assertEqual(len(x), len(ymax))
 
+    def test_endpoints_are_not_peaks(self):
+        """Test that the last scale samples cannot be peaks."""
+        y = np.array([0, 0, 1])
+        x, ymax = findpeaks(y, scale=1)
+
+        self.assertEqual(len(x), 0)
+        self.assertEqual(len(ymax), 0)
+
     def test_all_equal(self):
         """Test signal with all equal values"""
         y = np.array([1, 1, 1, 1, 1])

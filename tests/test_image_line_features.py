@@ -5,7 +5,6 @@ import unittest.mock
 
 import cv2
 import numpy as np
-import numpy.testing as nt
 
 from machinevisiontoolbox import Image
 
@@ -15,7 +14,7 @@ class TestImageLineFeatures(unittest.TestCase):
     def test_hough(self):
         """Test Hough transform for line detection"""
         # Create simple image with lines
-        im = Image.Zeros(size=(100, 100), dtype="uint8")
+        Image.Zeros(size=(100, 100), dtype="uint8")
         # Draw a line (diagonal)
         # TODO: Add actual line drawing
         # hough_result = im.Hough()
@@ -32,7 +31,7 @@ class TestImageLineFeatures(unittest.TestCase):
     def test_lines(self):
         """Test standard Hough line detection"""
         # Create image with known lines
-        im = Image.Zeros(size=(100, 100), dtype="uint8")
+        Image.Zeros(size=(100, 100), dtype="uint8")
         # TODO: Draw lines and detect them
         pass
 
