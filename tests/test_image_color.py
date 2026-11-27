@@ -329,8 +329,8 @@ class TestBaseColorFunctions(unittest.TestCase):
     def test_gamma_encode_int_image(self):
         img = np.full((2, 2), 128, dtype=np.uint8)
         out = gamma_encode(img, 2.2)
-        # gamma_encode returns float32 for integer input with numeric gamma
-        self.assertEqual(out.dtype, np.float32)
+        # an integer image gives an integer result of the same type
+        self.assertEqual(out.dtype, np.uint8)
 
     def test_gamma_decode_float_direct(self):
         img = np.array([[0.5]])
