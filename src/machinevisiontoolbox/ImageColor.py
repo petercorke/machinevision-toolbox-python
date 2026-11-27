@@ -293,7 +293,7 @@ class ImageColorMixin(ImageMixinBase):
         else:
             raise ValueError("must specify either k or centroids")
 
-    def colorspace(self, dst: str, src: str | None = None) -> Self:
+    def colorspace(self, dst: str, src: str | None = None, dtype: Any = None) -> Self:
         """
         Transform a color image between color representations
 
@@ -301,6 +301,9 @@ class ImageColorMixin(ImageMixinBase):
         :type dst: str
         :param src: source color space (see below), defaults to colororder of image
         :type src: str, optional
+        :param dtype: data type of the result, defaults to the type of this image
+        :type dtype: str or NumPy dtype, optional
+        :raises ValueError: integer data in, or asked for in, a color space with natural units
         :return: color image in new colorspace
         :rtype: :class:`Image`
 
@@ -330,6 +333,20 @@ class ImageColorMixin(ImageMixinBase):
 
         .. note:: RGB images are assumed to be linear, or gamma decoded.
 
+        .. note::
+            - Integer images span 0 to the maximum value of their type, and float
+              images span 0 to 1.  This holds for the RGB, BGR, grey and YCrCb
+              color spaces.
+            - HSV, HLS, CIE XYZ, L*a*b* and L*u*v* are always floating point and have
+              their natural units: hue is in degrees, L* is 0 to 100, and a* and b*
+              can be negative.  An integer image converted to one of these has type
+              float32.  An integer type cannot be the source or destination.
+
+        .. versionchanged:: 2.5.0
+            Added the ``dtype`` argument.  The result has the type of the image, as
+            before, except as noted above.  Previously an 8-bit image converted to
+            HSV, L*a*b* or XYZ had OpenCV's 8-bit encoding of those spaces.
+
         .. rubric:: References
 
         - |RVC3|, Section 10.2.7, 10.4.1.
@@ -355,15 +372,19 @@ class ImageColorMixin(ImageMixinBase):
 
         # print('converting from', src, 'to', dst)
 
-        out = color.colorspace_convert(self._A, src, dst)
+        out = color.colorspace_convert(self._A, src, dst, dtype=dtype)
         # print('conversion done')
         if out.ndim > 2:
-            colororder = dst
-            colororder = colororder.replace("*", "*:", 2)
+            # the multi-character plane names need colons to separate them
+            colororder = {"ycrcb": "Y:Cr:Cb", "xyz_709": "X:Y:Z"}.get(
+                dst.lower(), dst.replace("*", "*:", 2)
+            )
         else:
             colororder = None
 
-        return self.__class__(out, dtype=self.dtype, colororder=colororder)
+        # dtype=True keeps the type that colorspace_convert gave, which is not
+        # always the type that the Image constructor would choose
+        return self.__class__(out, colororder=colororder, dtype=True)
 
     @classmethod
     def Overlay(cls, im1: Image, im2: Image, colors: str = "rc") -> Self:
