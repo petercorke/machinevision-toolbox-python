@@ -2,8 +2,6 @@
 NumPy array type aliases used throughout the Machine Vision Toolbox.
 """
 
-from typing import Any
-
 import numpy as np
 import numpy.typing as npt
 

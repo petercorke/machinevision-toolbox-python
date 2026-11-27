@@ -105,7 +105,7 @@ class ImageFiducialsMixin(ImageMixinBase):
         ``36h11``     AprilTag   6x6           587
         ============  ========   ===========   =====================
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -118,10 +118,11 @@ class ImageFiducialsMixin(ImageMixinBase):
         .. note:: ``side`` is the dimension of the square that contains the
             small white squares inside the black background.
 
-        :references:
-            - |RVC3|, Section 13.6.1.
+        .. rubric:: References
 
-        :seealso: :class:`Fiducial` :class:`ArUcoBoard`
+        - |RVC3|, Section 13.6.1.
+
+        .. seealso:: :class:`Fiducial` :class:`ArUcoBoard`
         """
 
         dictionary = _fiducial_dict(dict)
@@ -209,7 +210,9 @@ class Fiducial:
         :param tvec: translation of marker with respect to camera
         :type tvec: ndarray(3), optional
 
-        :seealso: :meth:`id` :meth:`pose` :meth:`draw`
+        .. seealso::
+
+            :meth:`id` :meth:`pose` :meth:`draw`
             :meth:`~machinevisiontoolbox.ImageFeatures.ImageFeaturesMixin.fiducial`
         """
         self._id = id
@@ -326,7 +329,7 @@ class Fiducial:
         The id pattern comprises white pixels (value 255) contained within the black
         square.  There is no white border. The pattern is generated using the OpenCV library.
 
-        :seealso: :func:`~opencv.aruco.generateImageMarker`
+        .. seealso:: :func:`~opencv.aruco.generateImageMarker`
         """
         from machinevisiontoolbox import Image
 

@@ -168,6 +168,8 @@ class ImageTensorMixin(ImageMixinBase):
         For batches where ``B > 1`` use :class:`TensorStack` which creates an
         image iterator for the batch.
 
+        .. rubric:: Examples
+
         .. code-block:: pycon
 
             >>> from machinevisiontoolbox import Image
@@ -177,7 +179,8 @@ class ImageTensorMixin(ImageMixinBase):
             >>> img = Image.Tensor(tensor)
             >>> print(img)
 
-        The modern "Machine Vision Toolbox" workflow:
+        The modern "Machine Vision Toolbox" workflow, where ``model`` is any PyTorch
+        model that takes a batch of images:
 
         .. code-block:: python
 
@@ -186,7 +189,7 @@ class ImageTensorMixin(ImageMixinBase):
             outputs = model(img.tensor(normalize="imagenet"))  # pass tensor to model
             out = Image.Tensor(outputs, logits=True).disp()
 
-        :seealso: :meth:`tensor` :class:`TensorStack`
+        .. seealso:: :meth:`tensor` :class:`TensorStack`
         """
         # 1. Handle Dictionary Input (The "Friendly" check)
         if isinstance(data, dict):

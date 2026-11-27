@@ -69,7 +69,7 @@ class ImageIOMixin(ImageMixinBase):
         If ``filename`` is omitted a native file-browser dialogue is opened,
         initially showing the ``images`` folder of the ``mvtb_data`` package.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -90,7 +90,7 @@ class ImageIOMixin(ImageMixinBase):
 
         .. warning:: In an ipython environment, eg. ``mvtbtool``, the file-browser dialogue may not work.  In this case, specify the filename as a string.
 
-        :seealso: :func:`~machinevisiontoolbox.base.imageio.iread` :func:`~machinevisiontoolbox.base.imageio.convert`  `cv2.imread <https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56>`_
+        .. seealso:: :func:`~machinevisiontoolbox.base.imageio.iread` :func:`~machinevisiontoolbox.base.imageio.convert`  `cv2.imread <https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56>`_
         """
         if filename is None:
             filename = _pick_imagefile()
@@ -138,7 +138,7 @@ class ImageIOMixin(ImageMixinBase):
         many display options.  The Matplotlib display is interactive and supports
         zooming, panning, and pixel value inspection.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -151,7 +151,7 @@ class ImageIOMixin(ImageMixinBase):
             from machinevisiontoolbox import Image
             Image.Read('flowers1.png').disp()
 
-        :seealso: :func:`~machinevisiontoolbox.base.imageio.idisp`
+        .. seealso:: :func:`~machinevisiontoolbox.base.imageio.idisp`
         """
         display_title: str | None
         if title is False:
@@ -198,7 +198,7 @@ class ImageIOMixin(ImageMixinBase):
         Write image data to a file.  The file format is taken from the extension
         of the filename.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -206,7 +206,7 @@ class ImageIOMixin(ImageMixinBase):
             >>> img = Image.Read('flowers1.png')
             >>> img.write('flowers.jpg')
 
-        :seealso: :func:`~machinevisiontoolbox.base.iwrite` `cv2.imwrite <https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html#gabbc7ef1aa2edfaa87772f1202d67e0ce>`_
+        .. seealso:: :func:`~machinevisiontoolbox.base.iwrite` `cv2.imwrite <https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html#gabbc7ef1aa2edfaa87772f1202d67e0ce>`_
         """
 
         # cv2.imwrite can only save 8-bit single channel or 3-channel BGR images
@@ -230,7 +230,7 @@ class ImageIOMixin(ImageMixinBase):
 
         Get image metadata from EXIF headers.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -362,7 +362,7 @@ class ImageIOMixin(ImageMixinBase):
         and to get the pixel values in that window. This can be used to demonstrate
         window operations, such as convolution and morphological operations.
 
-        :seealso: :meth:`print` :meth:`disp`
+        .. seealso:: :meth:`print` :meth:`disp`
         """
 
         if ax is None:
@@ -485,7 +485,7 @@ class ImageIOMixin(ImageMixinBase):
         - ``linewidth``: 4
         - ``linestyle``: "--"
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -505,7 +505,7 @@ class ImageIOMixin(ImageMixinBase):
             window = img.showwindow(h=1)
             window.move(2, 3)
 
-        :seealso: :meth:`showpixels`
+        .. seealso:: :meth:`showpixels`
 
 
         """
@@ -601,7 +601,7 @@ class ImageIOMixin(ImageMixinBase):
         with a stereo baseline significantly different to the human eye
         separation (typically 65mm).
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -617,10 +617,11 @@ class ImageIOMixin(ImageMixinBase):
             right = Image.Read("rocks2-r.png", reduce=2)
             left.anaglyph(right).disp()
 
-        :references:
-            - |RVC3|, Section 14.4.
+        .. rubric:: References
 
-        :seealso: :meth:`stdisp` :meth:`Overlay`
+        - |RVC3|, Section 14.4.
+
+        .. seealso:: :meth:`stdisp` :meth:`Overlay`
         """
         if self.size != right.size:
             raise ValueError("images must be same size")
@@ -675,14 +676,14 @@ class ImageIOMixin(ImageMixinBase):
         image.  Clicking the corresponding point in the right-hand image
         will display the disparity at the top of the right-hand image.
 
-        Example:
+        .. rubric:: Examples
 
-            .. code-block:: python
+        .. code-block:: python
 
-                from machinevisiontoolbox import Image
-                left = Image.Read("rocks2-l.png", reduce=2)
-                right = Image.Read("rocks2-r.png", reduce=2)
-                left.stdisp(right)
+            from machinevisiontoolbox import Image
+            left = Image.Read("rocks2-l.png", reduce=2)
+            right = Image.Read("rocks2-r.png", reduce=2)
+            left.stdisp(right)
 
 
         .. plot::
@@ -694,10 +695,11 @@ class ImageIOMixin(ImageMixinBase):
 
         .. note:: The images are assumed to be epipolar aligned.
 
-        :references:
-            - |RVC3|, Section 14.4.
+        .. rubric:: References
 
-        :seealso: :meth:`anaglyph`
+        - |RVC3|, Section 14.4.
+
+        .. seealso:: :meth:`anaglyph`
         """
 
         class Cursor:
@@ -735,7 +737,7 @@ class ImageIOMixin(ImageMixinBase):
 
             def on_mouse_move(self, event: Any) -> None:
                 if event.inaxes == self.ax2 and self.leftclicked:
-                    x, y = event.xdata, event.ydata
+                    x = event.xdata
                     # update the line positions
                     self.vertical_line3.set_xdata([x, x])
                     self.text.set_text("d={:.2f}".format(self.x_left - x))
@@ -797,8 +799,6 @@ class ImageIOMixin(ImageMixinBase):
 
 
 if __name__ == "__main__":
-    from pathlib import Path
-
     import pytest
 
     pytest.main(

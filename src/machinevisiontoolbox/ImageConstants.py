@@ -161,7 +161,7 @@ class ImageConstantsMixin(ImageMixinBase):
         Create a greyscale image of zero-valued pixels. If only one dimension is
         given the image is square.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -172,7 +172,7 @@ class ImageConstantsMixin(ImageMixinBase):
             >>> Image.Zeros(size=(10,20,3), colororder='RGB')
             >>> Image.Zeros(size=20, dtype='float', colororder="RGB") # create color image, all black
 
-        :seealso: :meth:`Constant`
+        .. seealso:: :meth:`Constant`
         """
 
         size, dtype, colororder = _resolve_pattern_options(
@@ -222,7 +222,7 @@ class ImageConstantsMixin(ImageMixinBase):
         then the image has ``len(value)`` planes, each initialized to the
         corresponding element of ``value``.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -235,7 +235,7 @@ class ImageConstantsMixin(ImageMixinBase):
         .. note:: If ``len(value) == 3`` and ``colororder`` is not specified
             then RGB is assumed.
 
-        :seealso: :meth:`Zeros`
+        .. seealso:: :meth:`Zeros`
         """
         default_dtype = "float" if isinstance(value, float) else "uint8"
 
@@ -304,7 +304,7 @@ class ImageConstantsMixin(ImageMixinBase):
         rows are separated by a pipe.  There are no spaces.  All rows must be
         the same length.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -355,7 +355,7 @@ class ImageConstantsMixin(ImageMixinBase):
 
         .. note:: The default datatype for the image is ``uint8``
 
-        :seealso: :meth:`Constant`
+        .. seealso:: :meth:`Constant`
         """
 
         def str2array(s: str) -> list[list[int]]:
@@ -448,7 +448,7 @@ class ImageConstantsMixin(ImageMixinBase):
             supported for ``uint8`` images, and if given then ``maxval`` is ignored.
 
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -482,6 +482,8 @@ class ImageConstantsMixin(ImageMixinBase):
         .. plot::
 
             from machinevisiontoolbox import Image
+            import matplotlib.pyplot as plt
+
             img = Image.Read("street.png")
             h = img.hist()
             img2 = Image.Random(size=img.size, pdf=h.pdf)
@@ -491,7 +493,7 @@ class ImageConstantsMixin(ImageMixinBase):
             orig.set_title("Original image histogram")
             random.set_title("Random image histogram")
 
-        :seealso: :meth:`Constant`
+        .. seealso:: :meth:`Constant`
         """
 
         size, dtype, colororder = _resolve_pattern_options(
@@ -589,7 +591,7 @@ class ImageConstantsMixin(ImageMixinBase):
 
         The image background is set to ``bg`` and the circles are filled with ``fg``.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -684,7 +686,7 @@ class ImageConstantsMixin(ImageMixinBase):
 
         The image background is set to ``bg`` and the circles are filled with ``fg``.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -784,7 +786,7 @@ class ImageConstantsMixin(ImageMixinBase):
         * float image: 0 to 1
         * int image: 0 to maximum positive value of the integer type
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -881,7 +883,7 @@ class ImageConstantsMixin(ImageMixinBase):
             * float image: 0 to 1
             * int image: 0 to maximum positive value of the integer type
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -966,7 +968,7 @@ class ImageConstantsMixin(ImageMixinBase):
         * float image: black squares 0.0, white squares 1.0
         * int image: black squares 0, white squares maximum positive value of the integer type
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1075,7 +1077,7 @@ class ImageConstantsMixin(ImageMixinBase):
             filled square of pixels with rows from 10 to 20 and columns from 10 to 20.  It
             will have an area of 11x11 = 121 pixels, not 10x10 = 100 pixels.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1086,7 +1088,7 @@ class ImageConstantsMixin(ImageMixinBase):
             >>> img = Image.Polygons([p1, p2], size=50)
             >>> img
 
-        :seealso: :meth:`sm.Polygon2` :meth:`cv2.fillPoly`
+        .. seealso:: :meth:`sm.Polygon2` :meth:`cv2.fillPoly`
         """
         if isinstance(polygons, Polygon2):
             polygons = [polygons]
@@ -1123,8 +1125,6 @@ class ImageConstantsMixin(ImageMixinBase):
 
 
 if __name__ == "__main__":
-    from pathlib import Path
-
     import pytest
 
     pytest.main(

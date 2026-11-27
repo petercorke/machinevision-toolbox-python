@@ -4,7 +4,6 @@
 # could be the basis of texture for stereo calibration
 
 from machinevisiontoolbox import Image
-import matplotlib.pyplot as plt
 
 image = Image.Random(200)
 image.threshold_interactive(block=True)

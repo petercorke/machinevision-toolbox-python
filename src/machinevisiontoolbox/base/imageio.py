@@ -121,7 +121,7 @@ def _ensure_mpl_backend() -> None:
         return
 
     try:
-        import google.colab  # noqa: F401
+        __import__("google.colab")
 
         mpl.use("module://matplotlib_inline.backend_inline")
         return
@@ -335,13 +335,13 @@ def idisp(
     be displayed, but the ``draw_xxx()`` functions can be used to draw on the image
     prior to display.
 
-    Example:
+    .. rubric:: Examples
 
-        .. code-block:: python
+    .. code-block:: python
 
-            from machinevisiontoolbox import iread, idisp
-            im, file = iread("monalisa.png", matplotlib=False)
-            idisp(im)
+        from machinevisiontoolbox import iread, idisp
+        im, file = iread("monalisa.png", matplotlib=False)
+        idisp(im)
 
 
     Most of the options apply to the Matplotlib case.
@@ -352,7 +352,7 @@ def idisp(
     Other graphics can be superimposed on the image using the Matplotlib plotting
     functions ``plot_xxx()``.
 
-    Example:
+    .. rubric:: Examples
 
     .. code-block:: python
 
@@ -463,10 +463,13 @@ def idisp(
         On NumPy 2 they used to copy ``2,1,(np.uint8(10), np.uint8(20), np.uint8(30))``,
         and raised an error for a monochrome image.
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
 
-    :seealso: :func:`matplotlib.imshow` `cv2.imshow
+    - |RVC3|, Section 10.1.
+
+    .. seealso::
+
+        :func:`matplotlib.imshow` `cv2.imshow
         <https://docs.opencv.org/4.x/d7/dfc/group__highgui.html#ga453d42fe4cb60e5723281a89973ee563>`_
     """
 
@@ -1129,7 +1132,7 @@ def iread(
     correction, image decimation or region of interest windowing.  Details are
     given at :func:`convert`.
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -1154,10 +1157,11 @@ def iread(
           and ``[abc]`` patterns, and includes hidden files (those starting with a dot) in the search results.
         - For URL input, the image is read directly from the URL without saving to a local file.  The URL must start with "http://" or "https://".  Wildcard patterns are not supported for URLs.
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
 
-    :seealso: :func:`iread_iter` :func:`convert` `cv2.imread <https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56>`_
+    - |RVC3|, Section 10.1.
+
+    .. seealso:: :func:`iread_iter` :func:`convert` `cv2.imread <https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56>`_
     """
 
     if isinstance(filename, str) and (
@@ -1190,7 +1194,6 @@ def iread(
             raise ValueError(f"Could not fetch {filename}: {e.reason}") from e
 
     if isinstance(filename, (str, Path)):
-        filename_str = str(filename)
         path = Path(filename).expanduser()
         if glob.has_magic(str(path)):
             images = []
@@ -1234,7 +1237,7 @@ def iread_iter(
           recursive globbing with the ``**`` pattern, as well as the usual ``*``, ``?``
           and ``[abc]`` patterns. Hidden files (those starting with a dot) are included in the search results.
 
-    :seealso: :func:`iread` :func:`convert` `cv2.imread <https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56>`_
+    .. seealso:: :func:`iread` :func:`convert` `cv2.imread <https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56>`_
     """
 
     if isinstance(filename, (str, Path)):
@@ -1448,14 +1451,14 @@ def iwrite(
     Writes the image ``im`` to ``filename`` using cv2.imwrite(), passing any keyword
     arguments as options.  The file type is taken from the extension in ``filename``.
 
-    Example:
+    .. rubric:: Examples
 
-        .. code-block:: python
+    .. code-block:: python
 
-            from machinevisiontoolbox import iwrite
-            import numpy as np
-            image = np.zeros((20,20))  # 20x20 black image
-            iwrite(image, "black.png")
+        from machinevisiontoolbox import iwrite
+        import numpy as np
+        image = np.zeros((20,20))  # 20x20 black image
+        iwrite(image, "black.png")
 
 
     .. note::
@@ -1471,7 +1474,9 @@ def iwrite(
         Any missing folders in the path of ``filename`` are created.  Previously
         ``cv2.imwrite`` returned ``False`` and wrote nothing.
 
-    :seealso: :func:`iread` `cv2.imwrite
+    .. seealso::
+
+        :func:`iread` `cv2.imwrite
         <https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html#gabbc7ef1aa2edfaa87772f1202d67e0ce>`_
     """
     # cv2.imwrite does not create folders, it just returns False
@@ -1520,7 +1525,7 @@ def pickpoints(
     .. versionchanged:: 2.5.0
         ``pickpoints`` with ``matplotlib=True`` raised ``NameError``; it now works.
 
-    :seealso: :func:`idisp`
+    .. seealso:: :func:`idisp`
     """
 
     if matplotlib:
@@ -1544,7 +1549,7 @@ def pickpoints(
 
 
 if __name__ == "__main__":
-    from machinevisiontoolbox import *
+    from machinevisiontoolbox import FileCollection
 
     images = FileCollection("seq/*.png")
 

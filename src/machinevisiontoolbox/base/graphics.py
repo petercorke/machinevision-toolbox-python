@@ -187,16 +187,16 @@ def draw_box(
 
     where left-bottom is (xmin, ymin), left-top is (xmax, ymax)
 
-    Example:
+    .. rubric:: Examples
 
-        .. code-block:: python
+    .. code-block:: python
 
-            from machinevisiontoolbox import draw_box, idisp
-            import numpy as np
-            img = np.zeros((1000, 1000), dtype='uint8')
-            draw_box(img, lbrt=[100, 300, 700, 500], thickness=2, color=200) # outline box
-            draw_box(img, lbwh=[300, 400, 500, 400], thickness=-1, color=250) # filled box
-            idisp(img)
+        from machinevisiontoolbox import draw_box, idisp
+        import numpy as np
+        img = np.zeros((1000, 1000), dtype='uint8')
+        draw_box(img, lbrt=[100, 300, 700, 500], thickness=2, color=200) # outline box
+        draw_box(img, lbwh=[300, 400, 500, 400], thickness=-1, color=250) # filled box
+        idisp(img)
 
 
     .. plot::
@@ -219,7 +219,7 @@ def draw_box(
     .. warning:: The image is drawn into in place, and ``image`` must be C-contiguous
         which OpenCV requires, otherwise a ``ValueError`` is raised.
 
-    :seealso: :func:`~smtb.base.graphics.plot_box`  `opencv.rectangle <https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga07d2f74cadcf8e305e810ce8eed13bc9>`_
+    .. seealso:: :func:`~smtb.base.graphics.plot_box`  `opencv.rectangle <https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga07d2f74cadcf8e305e810ce8eed13bc9>`_
     """
     _require_c_contiguous(image)
 
@@ -353,16 +353,16 @@ def plot_labelbox(
         Added ``text_style``, and the label background now follows the edge color
         of the box, not only the ``color`` option.
 
-    Example:
+    .. rubric:: Examples
 
-        .. code-block:: python
+    .. code-block:: python
 
-            from machinevisiontoolbox import plot_labelbox
-            import numpy as np
-            img = np.zeros((1000, 1000), dtype='uint8')
-            idisp(img) # create a Matplotlib window
-            plot_labelbox("labelled box", lbwh=[100, 250, 300, 400], color="yellow")
-            plot_labelbox('another labelled box', position="bottomright", lbwh=[300, 450, 500, 400], color="red")
+        from machinevisiontoolbox import plot_labelbox
+        import numpy as np
+        img = np.zeros((1000, 1000), dtype='uint8')
+        idisp(img) # create a Matplotlib window
+        plot_labelbox("labelled box", lbwh=[100, 250, 300, 400], color="yellow")
+        plot_labelbox('another labelled box', position="bottomright", lbwh=[300, 450, 500, 400], color="red")
 
 
     .. plot::
@@ -377,7 +377,7 @@ def plot_labelbox(
 
 
 
-    :seealso: :func:`~spatialmath.base.plot_box`, :func:`~spatialmath.base.plot_text`
+    .. seealso:: :func:`~spatialmath.base.plot_box`, :func:`~spatialmath.base.plot_text`
     """
     if fmt is None:
         args = []
@@ -488,16 +488,16 @@ def draw_labelbox(
     for :func:`draw_text`. If ``labelcolor`` is specified it is used as the
     background color for the text label, otherwise the box color is used.
 
-    Example:
+    .. rubric:: Examples
 
-        .. code-block:: python
+    .. code-block:: python
 
-            from machinevisiontoolbox import draw_labelbox, idisp
-            import numpy as np
-            img = np.zeros((500, 500))
-            draw_labelbox(img, "labelled box", lbwh=[100, 200, 400, 500], textcolor=0, labelcolor=100, color=200, thickness=2, fontsize=1)
-            draw_labelbox(img, "another labelled box", position="bottomright", lbwh=[300, 450, 500, 400], textcolor=0, labelcolor=100, color=200, thickness=2, fontsize=1)
-            idisp(img)
+        from machinevisiontoolbox import draw_labelbox, idisp
+        import numpy as np
+        img = np.zeros((500, 500))
+        draw_labelbox(img, "labelled box", lbwh=[100, 200, 400, 500], textcolor=0, labelcolor=100, color=200, thickness=2, fontsize=1)
+        draw_labelbox(img, "another labelled box", position="bottomright", lbwh=[300, 450, 500, 400], textcolor=0, labelcolor=100, color=200, thickness=2, fontsize=1)
+        idisp(img)
 
 
     .. plot::
@@ -518,7 +518,7 @@ def draw_labelbox(
     .. warning:: The image is drawn into in place, and ``image`` must be C-contiguous
         which OpenCV requires, otherwise a ``ValueError`` is raised.
 
-    :seealso: :func:`draw_box`, :func:`draw_text`
+    .. seealso:: :func:`draw_box`, :func:`draw_text`
     """
     _require_c_contiguous(image)
 
@@ -620,15 +620,15 @@ def draw_text(
     ``'italic'``          Hershey italic
     ====================  =============================================
 
-    Example:
+    .. rubric:: Examples
 
-        .. code-block:: python
+    .. code-block:: python
 
-            from machinevisiontoolbox import draw_text, idisp
-            import numpy as np
-            img = np.zeros((1000, 1000), dtype='uint8')
-            draw_text(img, (100, 150), 'Hello world!', color=200, fontheight=60)
-            idisp(img)
+        from machinevisiontoolbox import draw_text, idisp
+        import numpy as np
+        img = np.zeros((1000, 1000), dtype='uint8')
+        draw_text(img, (100, 150), 'Hello world!', color=200, fontheight=60)
+        idisp(img)
 
 
     .. plot::
@@ -655,7 +655,7 @@ def draw_text(
     .. warning:: The image is drawn into in place, and ``image`` must be C-contiguous
         which OpenCV requires, otherwise a ``ValueError`` is raised.
 
-    :seealso: :func:`~spatialmath.base.graphics.plot_text` `opencv.putText <https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga5126f47f883d730f633d74f07456c576>`_
+    .. seealso:: :func:`~spatialmath.base.graphics.plot_text` `opencv.putText <https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga5126f47f883d730f633d74f07456c576>`_
     """
     _require_c_contiguous(image)
 
@@ -771,17 +771,17 @@ def draw_point(
           for each color plane. For a color image ``color`` can be
           a string color name.
 
-    Example:
+    .. rubric:: Examples
 
-        .. code-block:: python
+    .. code-block:: python
 
-            from machinevisiontoolbox import draw_point, idisp
-            import numpy as np
-            img = np.zeros((1000, 1000), dtype='uint8')
-            draw_point(img, (100, 300), '*', fontsize=1, color=200)
-            draw_point(img, (500, 300), '*', 'labelled point', fontsize=1, color=200)
-            draw_point(img, np.random.randint(1000, size=(2,10)), '+', 'point {0}', color=100, fontsize=0.8)
-            idisp(img)
+        from machinevisiontoolbox import draw_point, idisp
+        import numpy as np
+        img = np.zeros((1000, 1000), dtype='uint8')
+        draw_point(img, (100, 300), '*', fontsize=1, color=200)
+        draw_point(img, (500, 300), '*', 'labelled point', fontsize=1, color=200)
+        draw_point(img, np.random.randint(1000, size=(2,10)), '+', 'point {0}', color=100, fontsize=0.8)
+        idisp(img)
 
 
     .. plot::
@@ -798,7 +798,7 @@ def draw_point(
     .. warning:: The image is drawn into in place, and ``image`` must be C-contiguous
         which OpenCV requires, otherwise a ``ValueError`` is raised.
 
-    :seealso: :func:`~spatialmath.base.graphics.plot_point` `opencv.putText <https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga5126f47f883d730f633d74f07456c576>`_
+    .. seealso:: :func:`~spatialmath.base.graphics.plot_point` `opencv.putText <https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga5126f47f883d730f633d74f07456c576>`_
     """
     _require_c_contiguous(image)
 
@@ -921,15 +921,15 @@ def draw_line(
     The coordinates can be tuples, lists or NumPy arrays.  The values are rounded to
     the nearest integer.
 
-    Example:
+    .. rubric:: Examples
 
-        .. code-block:: python
+    .. code-block:: python
 
-            from machinevisiontoolbox import draw_line, idisp
-            import numpy as np
-            img = np.zeros((1000, 1000), dtype='uint8')
-            draw_line(img, (100, 300), (700, 900), color=200, thickness=10)
-            idisp(img)
+        from machinevisiontoolbox import draw_line, idisp
+        import numpy as np
+        img = np.zeros((1000, 1000), dtype='uint8')
+        draw_line(img, (100, 300), (700, 900), color=200, thickness=10)
+        idisp(img)
 
 
     .. plot::
@@ -948,7 +948,7 @@ def draw_line(
     .. warning:: The image is drawn into in place, and ``image`` must be C-contiguous
         which OpenCV requires, otherwise a ``ValueError`` is raised.
 
-    :seealso: :func:`~spatialmath.base.graphics.plot_line` `opencv.line <https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga7078a9fae8c7e7d13d24dac2520ae4a2>`_
+    .. seealso:: :func:`~spatialmath.base.graphics.plot_line` `opencv.line <https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga7078a9fae8c7e7d13d24dac2520ae4a2>`_
     """
     _require_c_contiguous(image)
     color = _color(image, color)
@@ -993,17 +993,17 @@ def draw_circle(
     The centre coordinate can be a tuple, list or NumPy array.  The values are rounded to
     the nearest integer.  The radius is also rounded to the nearest integer.
 
-    Example:
+    .. rubric:: Examples
 
-        .. code-block:: python
+    .. code-block:: python
 
-            from machinevisiontoolbox import draw_circle, idisp
-            import numpy as np
-            img = np.zeros((1000, 1000), dtype='uint8')
-            draw_circle(img, (300,400), 150, thickness=2, color=200)
-            draw_circle(img, (500,700), 250, thickness=-1, color=50)  # filled
-            draw_circle(img, (900,900), 200, thickness=-1, color=100)  # filled
-            idisp(img)
+        from machinevisiontoolbox import draw_circle, idisp
+        import numpy as np
+        img = np.zeros((1000, 1000), dtype='uint8')
+        draw_circle(img, (300,400), 150, thickness=2, color=200)
+        draw_circle(img, (500,700), 250, thickness=-1, color=50)  # filled
+        draw_circle(img, (900,900), 200, thickness=-1, color=100)  # filled
+        idisp(img)
 
 
     .. plot::
@@ -1024,7 +1024,7 @@ def draw_circle(
     .. warning:: The image is drawn into in place, and ``image`` must be C-contiguous
         which OpenCV requires, otherwise a ``ValueError`` is raised.
 
-    :seealso: :func:`~spatialmath.base.graphics.plot_circle` `opencv.circle <https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#gaf10604b069374903dbd0f0488cb43670>`_
+    .. seealso:: :func:`~spatialmath.base.graphics.plot_circle` `opencv.circle <https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#gaf10604b069374903dbd0f0488cb43670>`_
     """
     _require_c_contiguous(image)
     color = _color(image, color)
@@ -1226,20 +1226,3 @@ def mpl_styling(
         kwargs = cbook.normalize_kwargs(kwargs or {}, artist)
     options = (defaults or {}) | res | (kwargs or {})
     return {k: v for k, v in options.items() if v is not None}
-
-
-if __name__ == "__main__":
-    import numpy as np
-
-
-#     import numpy as np
-#     from machinevisiontoolbox import idisp, iread, Image
-
-#     from machinevisiontoolbox import draw_labelbox
-
-#     img = np.zeros((1000, 1000, 3), dtype="float32")
-#     draw_box(img, lrbt=[100, 400, 100, 400], color="red", thickness=-1)
-#     draw_box(img, lrbt=[500, 800, 100, 400], color="green", thickness=-1)
-#     draw_box(img, lrbt=[100, 400, 500, 800], color="blue", thickness=-1)
-#     draw_box(img, lrbt=[500, 800, 500, 800], color="white", thickness=-1)
-#     idisp(img, block=True)

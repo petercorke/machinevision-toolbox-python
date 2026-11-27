@@ -42,7 +42,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
 
             \sum_{uvc} I_{uvc}
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -56,7 +56,9 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
             - NaN values are ignored in the sum
             - For ``axis`` remember the axes are in NumPy order: 0=rows, 1=columns, 2=planes.
 
-        :seealso: :func:`numpy.sum` :meth:`numnan` :meth:`~~machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.mpq`
+        .. seealso::
+
+            :func:`numpy.sum` :meth:`numnan` :meth:`~~machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.mpq`
             :meth:`~machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.npq`
             :meth:`~machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.upq`
         """
@@ -70,7 +72,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
         :type kwargs: dict
         :return: minimum value
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -84,7 +86,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
             - NaN values are ignored
             - For ``axis`` remember the axes are in NumPy order: 0=rows, 1=columns, 2=planes.
 
-        :seealso: :meth:`stats` :meth:`hist` :meth:`Hough` :meth:`max` :func:`numpy.nanmin` :meth:`numnan`
+        .. seealso:: :meth:`stats` :meth:`hist` :meth:`Hough` :meth:`max` :func:`numpy.nanmin` :meth:`numnan`
         """
         return np.nanmin(self._A, **kwargs)
 
@@ -96,7 +98,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
         :type kwargs: dict
         :return: maximum value
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -110,7 +112,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
             - NaN values are ignored
             - For ``axis`` remember the axes are in NumPy order: 0=rows, 1=columns, 2=planes.
 
-        :seealso: :meth:`stats` :meth:`hist` :meth:`min` :func:`numpy.nanmax` :meth:`numnan`
+        .. seealso:: :meth:`stats` :meth:`hist` :meth:`min` :func:`numpy.nanmax` :meth:`numnan`
         """
         return np.nanmax(self._A, **kwargs)
 
@@ -122,7 +124,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
         :type kwargs: dict
         :return: mean value
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -136,7 +138,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
             - NaN values are ignored
             - For ``axis`` remember the axes are in NumPy order: 0=rows, 1=columns, 2=planes.
 
-        :seealso: :meth:`stats` :meth:`hist` :meth:`Hough` :meth:`std` :meth:`median` :func:`numpy.nanmean` :meth:`numnan`
+        .. seealso:: :meth:`stats` :meth:`hist` :meth:`Hough` :meth:`std` :meth:`median` :func:`numpy.nanmean` :meth:`numnan`
         """
         return np.nanmean(self._A, **kwargs)
 
@@ -148,7 +150,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
         :type kwargs: dict
         :return: standard deviation value
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -162,7 +164,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
             - NaN values are ignored
             - For ``axis`` remember the axes are in NumPy order: 0=rows, 1=columns, 2=planes.
 
-        :seealso: :meth:`stats` :meth:`hist` :meth:`mean` :meth:`var` :func:`numpy.nanstd` :meth:`numnan`
+        .. seealso:: :meth:`stats` :meth:`hist` :meth:`mean` :meth:`var` :func:`numpy.nanstd` :meth:`numnan`
         """
         return np.nanstd(self._A, **kwargs)
 
@@ -174,7 +176,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
         :type kwargs: dict
         :return: variance value
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -188,7 +190,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
             - NaN values are ignored
             - For ``axis`` remember the axes are in NumPy order: 0=rows, 1=columns, 2=planes.
 
-        :seealso: :meth:`stats` :meth:`hist` :meth:`std` :func:`numpy.nanvar` :meth:`numnan`
+        .. seealso:: :meth:`stats` :meth:`hist` :meth:`std` :func:`numpy.nanvar` :meth:`numnan`
         """
         return np.nanvar(self._A, **kwargs)
 
@@ -200,7 +202,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
         :type kwargs: dict
         :return: median value
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -214,7 +216,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
             - NaN values are ignored
             - For ``axis`` remember the axes are in NumPy order: 0=rows, 1=columns, 2=planes.
 
-        :seealso: :meth:`stats` :meth:`hist` :meth:`mean` :meth:`std` :func:`numpy.nanmedian` :meth:`numnan`
+        .. seealso:: :meth:`stats` :meth:`hist` :meth:`mean` :meth:`std` :func:`numpy.nanmedian` :meth:`numnan`
         """
         return np.nanmedian(self._A, **kwargs)
 
@@ -247,7 +249,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
             returns a dictionary mapping plane name to that same dictionary
         :rtype: dict
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -263,7 +265,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
             - NaN values are ignored for scalar statistics and reported via
               ``nnan`` and ``ninf`` counts.
 
-        :seealso: :meth:`printstats` :meth:`hist` :meth:`min` :meth:`max` :meth:`mean` :meth:`std` :meth:`median`
+        .. seealso:: :meth:`printstats` :meth:`hist` :meth:`min` :meth:`max` :meth:`mean` :meth:`std` :meth:`median`
         """
 
         if getattr(self, "_stats", None) is None:
@@ -282,7 +284,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
 
         Prints a concise summary of image statistics.
 
-        :seealso: :meth:`stats`
+        .. seealso:: :meth:`stats`
         """
 
         stats = self.stats
@@ -325,7 +327,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
         Returns an object that summarizes the distribution of
         pixel values in each color plane.
 
-        Example:
+        .. rubric:: Examples
 
         .. code-block:: python
 
@@ -343,8 +345,6 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
             img = Image.Read('street.png')
             img.hist().plot()
 
-        Example:
-
         .. code-block:: python
 
             from machinevisiontoolbox import Image
@@ -359,8 +359,6 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
             from machinevisiontoolbox import Image
             img = Image.Read('flowers1.png')
             img.hist().plot(style='stack')
-
-        Example:
 
         .. code-block:: python
 
@@ -388,10 +386,12 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
                 computing the histogram.
             - Histogram is computed using ``numpy.histogram`` independently for each plane.
 
-        :references:
-            - |RVC3|, Section 14.4.3.
+        .. rubric:: References
 
-        :seealso:
+        - |RVC3|, Section 14.4.3.
+
+        .. seealso::
+
             :meth:`stats`
             :class:`~machinevisiontoolbox.ImageWholeFeatures.Histogram`
             :func:`numpy.histogram`
@@ -437,7 +437,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
             Returns ``(h, x)`` instead of only ``h``.  This convenience
             property now uses a lazily cached default histogram.
 
-        :seealso: :meth:`pdf` :meth:`cf` :meth:`cdf` :meth:`Histogram.h`
+        .. seealso:: :meth:`pdf` :meth:`cf` :meth:`cdf` :meth:`Histogram.h`
         """
         hist = self._default_hist()
         return hist.h, hist.x
@@ -457,7 +457,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
         multiplane (color) image it is a 2D array with the PDF of each plane
         as a column.
 
-        :seealso: :meth:`h` :meth:`cf` :meth:`cdf` :meth:`Histogram.pdf`
+        .. seealso:: :meth:`h` :meth:`cf` :meth:`cdf` :meth:`Histogram.pdf`
         """
         hist = self._default_hist()
         return hist.pdf, hist.x
@@ -480,7 +480,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
             Was previously called ``cdf``, and now returns ``(cf, x)`` instead of only ``cf``.  This convenience
             property now uses a lazily cached default histogram.
 
-        :seealso: :meth:`h` :meth:`pdf` :meth:`cdf` :meth:`Histogram.cf`
+        .. seealso:: :meth:`h` :meth:`pdf` :meth:`cdf` :meth:`Histogram.cf`
         """
         hist = self._default_hist()
         return hist.cf, hist.x
@@ -504,7 +504,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
             Was previously called ``ncdf``, and now returns ``(cdf, x)`` instead of only ``cdf``.  This convenience
             property now uses a lazily cached default histogram.
 
-        :seealso: :meth:`h` :meth:`cf` :meth:`pdf` :meth:`Histogram.cdf`
+        .. seealso:: :meth:`h` :meth:`cf` :meth:`pdf` :meth:`Histogram.cdf`
         """
         hist = self._default_hist()
         return hist.cdf, hist.x
@@ -541,7 +541,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
         local maxima.  For a color image returns a list of such arrays, one per
         plane.
 
-        :seealso: :meth:`h` :meth:`Histogram.peaks`
+        .. seealso:: :meth:`h` :meth:`Histogram.peaks`
         """
         hist = self._default_hist()
         return hist.peaks(**kwargs)
@@ -565,7 +565,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
 
             m(I) = \sum_{uv} I_{uv} u^p v^q
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -577,10 +577,11 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
             - Supports single channel images only.
             - ``mpq(0, 0)`` is the same as ``sum()`` but less efficient.
 
-        :references:
-            - |RVC3|, Section 12.1.3.4.
+        .. rubric:: References
 
-        :seealso: :meth:`sum` :meth:`npq` :meth:`upq`
+        - |RVC3|, Section 12.1.3.4.
+
+        .. seealso:: :meth:`sum` :meth:`npq` :meth:`upq`
         """
 
         if not isinstance(p, int) or not isinstance(q, int):
@@ -609,7 +610,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
 
         where :math:`u_0 = m_{10}(I) / m_{00}(I)` and :math:`v_0 = m_{01}(I) / m_{00}(I)`.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -621,10 +622,11 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
             - The central moments are invariant to translation.
             - Supports single channel images only.
 
-        :references:
-            - |RVC3|, Section 12.1.3.4.
+        .. rubric:: References
 
-        :seealso: :meth:`sum` :meth:`mpq` :meth:`upq`
+        - |RVC3|, Section 12.1.3.4.
+
+        .. seealso:: :meth:`sum` :meth:`mpq` :meth:`upq`
         """
 
         if not isinstance(p, int) or not isinstance(q, int):
@@ -658,7 +660,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
 
         where :math:`u_0 = m_{10}(I) / m_{00}(I)` and :math:`v_0 = m_{01}(I) / m_{00}(I)`.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -671,10 +673,11 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
               scale.
             - Supports single channel images only.
 
-        :references:
-            - |RVC3|, Section 12.1.3.4.
+        .. rubric:: References
 
-        :seealso: :meth:`sum` :meth:`mpq` :meth:`upq`
+        - |RVC3|, Section 12.1.3.4.
+
+        .. seealso:: :meth:`sum` :meth:`mpq` :meth:`upq`
         """
         if not isinstance(p, int) or not isinstance(q, int):
             raise TypeError(f"p, q must be an int, got p={p!r}, q={q!r}")
@@ -706,7 +709,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
         normalized central moments  ``nu20`` ``nu11`` ``nu02`` ``nu30`` ``nu21`` ``nu12`` ``nu03`` |
         ==========================  ===============================================================================
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -717,12 +720,13 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
         .. note::
             - Converts a color image to greyscale.
 
-        :references:
-            - |RVC3|, Section 12.1.3.4.
+        .. rubric:: References
+
+        - |RVC3|, Section 12.1.3.4.
 
         .. important:: Uses OpenCV function ``cv2.moments`` which accepts single-channel, CV_8U, CV_16U, CV_16S, CV_32F or CV_64F images (color images are automatically converted to greyscale).
 
-        :seealso: :meth:`mpq` :meth:`npq` :meth:`upq` `opencv.moments <https://docs.opencv.org/4.x/d8/d23/classcv_1_1Moments.html>`_
+        .. seealso:: :meth:`mpq` :meth:`npq` :meth:`upq` `opencv.moments <https://docs.opencv.org/4.x/d8/d23/classcv_1_1Moments.html>`_
         """
         return cv2.moments(array=self.mono().to_int(), binaryImage=binary)
 
@@ -735,7 +739,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
 
         Computes the seven Hu image moment invariants of the image.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -749,14 +753,15 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
             - These invariants are a function of object shape and are invariant
               to position, orientation and scale.
 
-        :references:
-            - M-K. Hu, Visual pattern recognition by moment invariants. IRE
-              Trans. on Information Theory, IT-8:pp. 179-187, 1962.
-            - |RVC3|, Section 12.1.3.6.
+        .. rubric:: References
+
+        - M-K. Hu, Visual pattern recognition by moment invariants. IRE
+          Trans. on Information Theory, IT-8:pp. 179-187, 1962.
+        - |RVC3|, Section 12.1.3.6.
 
         .. important:: Uses OpenCV functions ``cv2.moments`` and ``cv2.HuMoments`` which accept single-channel, CV_8U, CV_16U, CV_16S, CV_32F or CV_64F images.
 
-        :seealso: :meth:`moments` `opencv.HuMoments <https://docs.opencv.org/4.x/d3/dc0/group__imgproc__shape.html#gab001db45c1f1af6cbdbe64df04c4e944>`_
+        .. seealso:: :meth:`moments` `opencv.HuMoments <https://docs.opencv.org/4.x/d3/dc0/group__imgproc__shape.html#gab001db45c1f1af6cbdbe64df04c4e944>`_
         """
 
         # TODO check for binary image
@@ -779,7 +784,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
 
         The (u,v) coordinates are given as columns of the returned array.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -789,10 +794,11 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
             >>> img = Image(pix)
             >>> img.nonzero()
 
-        :references:
-            - |RVC3|, Section 12.1.3.2.
+        .. rubric:: References
 
-        :seealso: :meth:`flatnonzero`
+        - |RVC3|, Section 12.1.3.2.
+
+        .. seealso:: :meth:`flatnonzero`
         """
         v, u = np.nonzero(self._A)
         return np.vstack((u, v))
@@ -807,7 +813,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
         The coordinates are given as 1D indices into a flattened version of
         the image.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -818,7 +824,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
             >>> img.flatnonzero()
             >>> img.view1d()[23]
 
-        :seealso: :meth:`view1d` :meth:`nonzero`
+        .. seealso:: :meth:`view1d` :meth:`nonzero`
         """
         return np.flatnonzero(self._A)
 
@@ -847,7 +853,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
         is the largest value within a sliding window of width
         :math:`2 \mathtt{scale}+1`.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -864,7 +870,7 @@ class ImageWholeFeaturesMixin(ImageMixinBase):
             - The ``interp`` option fits points in the neighbourhood about the
               peak with a paraboloid and its peak position is returned.
 
-        :seealso: :meth:`~machinevisiontoolbox.base.findpeaks.findpeaks2d`
+        .. seealso:: :meth:`~machinevisiontoolbox.base.findpeaks.findpeaks2d`
         """
 
         ret = findpeaks2d(self._A, npeaks=npeaks, scale=scale, interp=interp)
@@ -938,7 +944,7 @@ class Histogram:
 
         Create :class:`Histogram` instance by computing the histogram over each image plane.
 
-        :seealso: :meth:`~machinevisiontoolbox.ImageFeatures.ImageFeaturesMixin.hist`
+        .. seealso:: :meth:`~machinevisiontoolbox.ImageFeatures.ImageFeaturesMixin.hist`
         """
         if nbins <= 0:
             raise ValueError("nbins must be > 0")
@@ -1045,7 +1051,7 @@ class Histogram:
         :return: concise summary of histogram
         :rtype: str
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1067,7 +1073,7 @@ class Histogram:
         :return: print concise summary of histogram
         :rtype: str
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1088,7 +1094,7 @@ class Histogram:
 
         Bin :math:`i` contains grey values in the range :math:`[x_{[i]}, x_{[i+1]})`.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1113,7 +1119,7 @@ class Histogram:
         For a greyscale image this is a 1D array, for a multiplane (color) image
         this is a 2D array with the histograms of each plane as columns.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1123,7 +1129,7 @@ class Histogram:
             >>> with np.printoptions(threshold=10):
             ...     hist.h
 
-        :seealso: :meth:`pdf` :meth:`cf` :meth:`cdf`
+        .. seealso:: :meth:`pdf` :meth:`cf` :meth:`cdf`
         """
         return self._h
 
@@ -1140,7 +1146,7 @@ class Histogram:
         For a greyscale image this is a 1D array, for a multiplane (color) image
         this is a 2D array with the cumulative histograms of each plane as columns.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1150,7 +1156,7 @@ class Histogram:
             >>> with np.printoptions(threshold=10):
             ...     hist.pdf
 
-        :seealso: :meth:`h` :meth:`cf` :meth:`cdf`
+        .. seealso:: :meth:`h` :meth:`cf` :meth:`cdf`
         """
         y = self._h.astype(float)
         sum = np.sum(y, axis=0)
@@ -1173,7 +1179,7 @@ class Histogram:
         For a greyscale image this is a 1D array, for a multiplane (color) image
         this is a 2D array with the cumulative histograms of each plane as columns.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1186,7 +1192,7 @@ class Histogram:
         .. versionchanged:: 2.0.0
             In earlier releases this method was named ``cdf``.
 
-        :seealso: :meth:`h` :meth:`pdf` :meth:`cdf`
+        .. seealso:: :meth:`h` :meth:`pdf` :meth:`cdf`
         """
         return np.cumsum(self._h, axis=0)
 
@@ -1204,7 +1210,7 @@ class Histogram:
         this is a 2D array with the normalized cumulative histograms of each
         plane as columns.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1217,7 +1223,7 @@ class Histogram:
         .. versionchanged:: 2.0.0
             In earlier releases this method was named ``ncdf``.
 
-        :seealso: :meth:`h` :meth:`pdf` :meth:`cf`
+        .. seealso:: :meth:`h` :meth:`pdf` :meth:`cf`
         """
         y = np.cumsum(self._h, axis=0)
 
@@ -1292,7 +1298,7 @@ class Histogram:
             pixels by one bin costs that fraction.  For 1D histograms it is the sum
             of the absolute differences of the two cumulative distributions.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1303,7 +1309,7 @@ class Histogram:
             >>> h1.compare(h2, "kl")  # abbreviation of "kl_div"
             >>> h2.compare(h1, "kl")  # not the same
 
-        :seealso: :meth:`pdf` :meth:`cdf` `cv2.compareHist <https://docs.opencv.org/4.x/d6/dc7/group__imgproc__hist.html#gaf4190090efa5c47cb367cf97a9a519bd>`_
+        .. seealso:: :meth:`pdf` :meth:`cdf` `cv2.compareHist <https://docs.opencv.org/4.x/d6/dc7/group__imgproc__hist.html#gaf4190090efa5c47cb367cf97a9a519bd>`_
 
         .. versionadded:: 2.5.0
         """
@@ -1844,7 +1850,7 @@ class Histogram:
         maxima.  For a color image return a list of arrays of grey values corresponding
         to local maxima in each plane.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1863,7 +1869,7 @@ class Histogram:
 
         Note the first peak (at 8) is excluded because the maxima window ($x \pm 20$) extends outside the histogram range.
 
-        :seealso: :func:`~machinevisiontoolbox.base.findpeaks.findpeaks`
+        .. seealso:: :func:`~machinevisiontoolbox.base.findpeaks.findpeaks`
         """
         if self.nplanes == 1:
             # greyscale image

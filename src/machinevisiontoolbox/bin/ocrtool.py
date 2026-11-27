@@ -19,7 +19,7 @@ from machinevisiontoolbox.bin._bintools import CustomDefaultsHelpFormatter
 def getargs():
     parser = argparse.ArgumentParser(
         formatter_class=CustomDefaultsHelpFormatter,
-        description=f"Display text words found in image using Machine Vision Toolbox for Python.  "
+        description="Display text words found in image using Machine Vision Toolbox for Python.  "
         "Words are written to stdout or a JSON file, but can also be highlighted in the image.",
     )
     parser.add_argument(
@@ -112,10 +112,13 @@ def main():
             plt.grid()
 
         if args.long:
-            c = np.array([word.conf for word in words])
-            print(
-                f"# {file}: {len(words)} words; confidence: {c.min():.1f} - {c.max():.1f}%, mean {c.mean():.1f}%"
-            )
+            if len(words) == 0:
+                print(f"# {file}: 0 words")
+            else:
+                c = np.array([word.conf for word in words])
+                print(
+                    f"# {file}: {len(words)} words; confidence: {c.min():.1f} - {c.max():.1f}%, mean {c.mean():.1f}%"
+                )
 
         if args.json is not None:
             import json

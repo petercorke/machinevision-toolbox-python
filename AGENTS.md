@@ -50,6 +50,9 @@ description and ask first.
   ignores as `# type: ignore[code]` with the specific error code; unused ignores are reported.
   Import from the defining submodule (for example `machinevisiontoolbox.base.graphics`), not
   through the package's star imports, which mypy cannot follow.
+- Run `make setup` once in each new clone. It installs the pre-commit hooks that keep the
+  notebooks in `docs/notebooks` in step (outputs cleared, bootstrap cell current). Git does not
+  copy hooks with a clone, and CI rejects a PR whose notebooks were committed without them.
 - Formatting and linting: `ruff`, configured in `pyproject.toml` (line length 88, as in RTB,
   bdsim and sphinx-pyrunblock). Format with `ruff format src tests` and lint with
   `ruff check src tests`; do not use `black`. Format only the files you change, so that a

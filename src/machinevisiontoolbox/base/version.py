@@ -10,7 +10,7 @@ def mvtb_version() -> None:
     Displays the versions of the Machine Vision Toolbox for Python, Spatial Math Toolbox for Python, NumPy, and OpenCV.
     Also displays the OpenCV build information.
 
-    :seealso: :func:`cv2.getBuildInformation`
+    .. seealso:: :func:`cv2.getBuildInformation`
     """
     import textwrap
 
