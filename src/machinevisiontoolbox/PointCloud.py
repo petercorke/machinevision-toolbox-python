@@ -21,6 +21,7 @@ Open3D convention.
 """
 
 import difflib
+import inspect
 from pathlib import Path
 from typing import Any, Callable
 from warnings import warn
@@ -90,6 +91,15 @@ def _show_in_notebook(
     """
     if file is not None:
         raise ValueError("file cannot be used with notebook=True")
+    # Plotly draws a subset of the options of the Open3D window, so name an option
+    # that it does not accept, instead of leaving it to fail in get_plotly_fig
+    supported = set(inspect.signature(o3d.visualization.get_plotly_fig).parameters)
+    unsupported = sorted(set(kwargs) - supported)
+    if unsupported:
+        raise TypeError(
+            f"disp(notebook=True) does not support the option(s) {unsupported}; "
+            f"the options it accepts are {sorted(supported - {'geometry_list'})}"
+        )
     try:
         __import__("plotly")
     except ImportError:
@@ -533,6 +543,7 @@ class PointCloud:
         :type notebook: bool, optional
         :raises ValueError: ``file`` is given with ``notebook=True``
         :raises ImportError: ``notebook=True`` and Plotly is not installed
+        :raises TypeError: ``notebook=True`` and an option that Plotly cannot draw
         :param front: set front vector
         :type front: array_like(3)
         :param lookat: set lookat vector
@@ -549,12 +560,14 @@ class PointCloud:
         With ``notebook=True`` the point cloud is drawn in the output of the notebook
         cell, as a Plotly figure that can be rotated and zoomed.  This needs
         `Plotly <https://plotly.com/python/>`_, which is not installed with the
-        Toolbox: ``pip install plotly``.  ``block`` and ``file`` do not apply, and
-        besides the view options above, ``width``, ``height`` and
-        ``point_sample_factor`` (the fraction of the points drawn, 0 to 1, which
-        keeps a large cloud responsive) are passed to
-        :func:`open3d.visualization.draw_plotly`.  The three axes have the same
-        scale, so shapes have their true proportions, as in the Open3D window.
+        Toolbox: ``pip install plotly``.  ``block`` and ``file`` do not apply.  The
+        view options above are passed on, along with any other option that
+        :func:`open3d.visualization.draw_plotly` accepts, such as ``width``,
+        ``height`` and ``point_sample_factor`` (the fraction of the points drawn,
+        0 to 1, which keeps a large cloud responsive).  The three axes have the same
+        scale, so shapes have their true proportions, as in the Open3D window.  An
+        option of the Open3D window that Plotly cannot draw raises
+        :class:`TypeError`, which names it and lists the options that are accepted.
 
         .. versionchanged:: 2.5.0
             Added the ``notebook`` option.
@@ -1162,12 +1175,14 @@ class VoxelGrid:
         :type notebook: bool, optional
         :raises ValueError: ``file`` is given with ``notebook=True``
         :raises ImportError: ``notebook=True`` and Plotly is not installed
+        :raises TypeError: ``notebook=True`` and an option that Plotly cannot draw
 
         With ``notebook=True`` the voxels are drawn in the output of the notebook
         cell, as a Plotly figure that can be rotated and zoomed, in the same way as
         :meth:`PointCloud.disp`, which describes the options, and with the same
         scale on the three axes.  Each voxel is drawn as a cube of 12 triangles, so a
-        grid of many thousands of voxels is slow.
+        grid of many thousands of voxels is slow.  Options of the Open3D window that
+        Plotly cannot draw raise :class:`TypeError`.
 
         .. versionchanged:: 2.5.0
             Added the ``notebook`` option.
