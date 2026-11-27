@@ -1,14 +1,35 @@
 """
 Thin wrapper around Open3D point-cloud objects with MVTB look and feel.
+
+Open3D is an open-source library that supports rapid development of software that deals
+with 3D data. The Open3D frontend exposes a set of carefully selected data structures
+and algorithms in both C++ and Python. The backend is highly optimized and is set up for
+parallelization.
+
+The ``PointCloud`` class provides a subset of commonly used methods but does not
+attempt to wrap every Open3D method.  Instead, any method or property not known to the
+``PointCloud`` class, such as ``pc.some_method()``, falls through to the native Open3D
+method ``some_method()`` on the encapsulated Open3D object, and all parameters are
+passed through.  If the return value is an Open3D point cloud, or a tuple that contains
+one, it is wrapped and returned as a ``PointCloud`` instance.  A name that neither class
+knows raises :class:`AttributeError`.
+
+Open3D uses NumPy arrays in which points are rows.  This is different to the MVTB
+convention of points as columns.  The MVTB wrappers handle this transposition, but
+anything that falls through to Open3D, or that is reached through :attr:`pcd`, uses the
+Open3D convention.
 """
 
+import difflib
 from pathlib import Path
-from warnings import warn
 from typing import Any, Callable
+from warnings import warn
 
 import numpy as np
 import spatialmath.base as smb
 from spatialmath import SE3
+
+from machinevisiontoolbox.base.color import name2color
 
 try:
     import open3d as o3d
@@ -18,7 +39,55 @@ except ImportError:
     _open3d = False
 
 
+def _show_in_notebook(
+    geometry: Any, title: str, file: str | None, kwargs: dict[str, Any]
+) -> None:
+    """Draw an Open3D geometry in the output of the notebook cell, using Plotly
+
+    :param geometry: an Open3D point cloud or triangle mesh
+    :param title: title of the figure
+    :param file: ``disp``'s ``file`` argument, which cannot be used here
+    :param kwargs: view options passed to
+        :func:`open3d.visualization.get_plotly_fig`
+    :raises ValueError: ``file`` is given
+    :raises ImportError: Plotly is not installed, it is not a dependency of the
+        Toolbox
+    """
+    if file is not None:
+        raise ValueError("file cannot be used with notebook=True")
+    try:
+        __import__("plotly")
+    except ImportError:
+        raise ImportError(
+            "disp(notebook=True) draws with Plotly, which is not installed. "
+            "Install it with: pip install plotly"
+        ) from None
+
+    # get_plotly_fig rather than draw_plotly, which shows the figure and also returns
+    # it, so that a cell ending in the call shows it twice
+    fig = o3d.visualization.get_plotly_fig([geometry], **kwargs)
+    # the three axes have the same scale, so shapes have their true proportions as
+    # in the Open3D window.  Plotly's default, "auto", does that unless one axis is
+    # more than four times longer than the other two, when it draws a cube instead
+    # and squashes a long or flat scene
+    fig.update_layout(
+        title=dict(text=title), margin=dict(t=40), scene_aspectmode="data"
+    )
+    fig.show()
+
+
 class PointCloud:
+    """
+    A set of 3D points, optionally with colors and surface normals
+
+    A thin wrapper around an Open3D :obj:`open3d.geometry.PointCloud` that keeps the
+    Toolbox conventions: points, colors and normals are 3xN arrays with one point per
+    column.  Methods that Open3D provides and that are not wrapped here are forwarded
+    to it.  See the constructor for the ways to create a point cloud.
+
+    .. seealso:: :meth:`__init__`, :meth:`Read`, :meth:`DepthImage`, :meth:`disp`
+    """
+
     def __init__(self, arg: Any, depth_scale: float = 1.0, **kwargs) -> None:
         """
         Create new point cloud object
@@ -46,16 +115,15 @@ class PointCloud:
         references and invokes them on the underlying Open3D object.  Any returned Open3D
         point cloud objects are converted to a :class:`PointCloud` instance.
 
-        :seealso: :meth:`__getattr__` :obj:`open3d.geometry.PointCloud` :class:`~machinevisiontoolbox.Image` :class:`CentralCamera`
+        .. seealso:: :meth:`__getattr__` :obj:`open3d.geometry.PointCloud` :class:`~machinevisiontoolbox.Image` :class:`CentralCamera`
         """
         if not _open3d:
             raise RuntimeError(
                 "PointCloud class requires Open3D to be installed: "
                 "pip install open3d or "
                 "pip install machinevision-toolbox-python[open3d]\n"
-                " ** Note that Open3d typically does not run on the latest Python version(s)"
+                " ** Note that Open3D typically does not run on the latest Python version(s)"
             )
-
 
         if not _open3d:
             raise RuntimeError(
@@ -138,6 +206,8 @@ class PointCloud:
 
         :param name: method or attribute name
         :type name: str
+        :raises AttributeError: neither this class nor the Open3D point cloud has
+            a method or property of this name
 
         If ``P`` is a :class:`PointCloud` then ``P.name`` invokes
         method ``name`` of the underlying :obj:`open3d.geometry.PointCloud`
@@ -153,28 +223,59 @@ class PointCloud:
         .. note::
             - This is a convenience method to avoid having to explicitly all
               the properties and methods of the Open3D point cloud object.
-            - If the method returns a new point cloud object, it is converted to a
-              Toolbox :class:`PointCloud` instance.
-        """
+            - If the method returns a new point cloud object, or a tuple that
+              contains one, it is converted to a Toolbox :class:`PointCloud`
+              instance.
+            - Arguments and return values other than point clouds are passed
+              through unchanged, so arrays use the Open3D convention of one point
+              per row, not the Toolbox convention of one point per column.
 
-        def wrapper(*args: Any, **kwargs: Any) -> Any:
-            meth = getattr(self._pcd, name)
-            retval = meth(*args, **kwargs)
-            if isinstance(retval, tuple):
-                return tuple(
-                    PointCloud(r) if isinstance(r, o3d.geometry.PointCloud) else r
-                    for r in retval
-                )
-            else:
-                return retval
+        .. versionchanged:: 2.5.0
+            An unknown name raises :class:`AttributeError`, as Python expects, so
+            ``hasattr`` and ``getattr`` with a default work.  It used to raise
+            :class:`ValueError`.  The message names the two classes that were
+            searched and suggests similar names.  A point cloud that is returned
+            by itself is converted, not only one inside a tuple.
+
+        .. seealso:: :attr:`pcd`
+        """
+        # copy and pickle create an instance without calling __init__, so there is
+        # no wrapped object, and looking for it here would call this method again
+        if name == "_pcd":
+            raise AttributeError(name)
+
+        def wrap(value: Any) -> Any:
+            if isinstance(value, o3d.geometry.PointCloud):
+                return PointCloud(value)
+            if isinstance(value, tuple):
+                return tuple(wrap(v) for v in value)
+            return value
 
         if hasattr(self._pcd, name):
-            if callable(getattr(self._pcd, name)):
+            attr = getattr(self._pcd, name)
+            if callable(attr):
+
+                def wrapper(*args: Any, **kwargs: Any) -> Any:
+                    return wrap(attr(*args, **kwargs))
+
                 return wrapper
-            else:
-                return getattr(self._pcd, name)
-        else:
-            raise ValueError(f"object has no attribute '{name}'")
+            return wrap(attr)
+
+        # not a method or property of either class, so suggest similar names
+        known = {
+            n
+            for n in dir(self._pcd) + dir(type(self))
+            if not n.startswith("_") and n[0].islower()
+        }
+        close = difflib.get_close_matches(name, sorted(known), n=2, cutoff=0.8)
+        msg = (
+            f"'{type(self).__name__}' object has no attribute '{name}': it is not "
+            "a method or property of PointCloud, or of the Open3D point cloud "
+            "that it wraps"
+        )
+        if close:
+            msg += ". Did you mean " + " or ".join(f"'{c}'" for c in close) + "?"
+        raise AttributeError(msg)
 
     def __str__(self) -> str:
         """
@@ -186,10 +287,28 @@ class PointCloud:
         return str(self._pcd)
 
     def __repr__(self) -> str:
+        """
+        Short string representation of the point cloud
+
+        :return: number of points, and whether the points have colors
+        :rtype: str
+        """
         return f"PointCloud(npoints={len(self)}, colored={self.iscolor})"
 
     @property
     def pcd(self) -> Any:
+        """
+        The wrapped Open3D point cloud
+
+        :return: the Open3D object this instance wraps
+        :rtype: :obj:`open3d.geometry.PointCloud`
+
+        This is the object itself, not a copy, so changing it changes this
+        point cloud.  It is for calling Open3D functions that the Toolbox does not
+        wrap.  Open3D uses Nx3 arrays, where the Toolbox uses 3xN.
+
+        .. seealso:: :attr:`points`, :attr:`colors`
+        """
         return self._pcd
 
     @property
@@ -203,7 +322,7 @@ class PointCloud:
         Points are returned as columns of the array. The columns correspond
         to the same columns in the :attr:`colors` and :attr:`normal` properties.
 
-        :seealso: :attr:`colors` :attr:`normals`
+        .. seealso:: :attr:`colors` :attr:`normals`
         """
         return np.asarray(self._pcd.points).T
 
@@ -218,12 +337,22 @@ class PointCloud:
         Point colors are returned as columns of the array. The columns correspond
         to the same columns in the :attr:`points` and :attr:`normal` properties.
 
-        :seealso: :attr:`points` :attr:`normals`
+        .. seealso:: :attr:`points`, :attr:`normals`, :attr:`iscolor`, :meth:`paint`
         """
         return np.asarray(self._pcd.colors).T
 
     @property
     def iscolor(self) -> bool:
+        """
+        Test if the points have colors
+
+        :return: ``True`` if every point has a color
+        :rtype: bool
+
+        An empty point cloud has no colors.
+
+        .. seealso:: :attr:`colors`, :meth:`paint`, :meth:`unpaint`
+        """
         return self._pcd.has_colors()
 
     @classmethod
@@ -352,6 +481,7 @@ class PointCloud:
         block: bool = False,
         file: str | None = None,
         title: str = "Point Cloud",
+        notebook: bool = False,
         **kwargs: Any,
     ) -> None:
         """
@@ -363,6 +493,11 @@ class PointCloud:
         :type title: str, optional
         :param file: save display as an image, defaults to None
         :type file: str, optional
+        :param notebook: draw in the output of the notebook cell, rather than in an
+            Open3D window, defaults to False
+        :type notebook: bool, optional
+        :raises ValueError: ``file`` is given with ``notebook=True``
+        :raises ImportError: ``notebook=True`` and Plotly is not installed
         :param front: set front vector
         :type front: array_like(3)
         :param lookat: set lookat vector
@@ -376,8 +511,25 @@ class PointCloud:
 
         Typing "h" in the display window will print help information to the console.
 
-        :seealso: :class:`open3d.visualization.ViewControl`
+        With ``notebook=True`` the point cloud is drawn in the output of the notebook
+        cell, as a Plotly figure that can be rotated and zoomed.  This needs
+        `Plotly <https://plotly.com/python/>`_, which is not installed with the
+        Toolbox: ``pip install plotly``.  ``block`` and ``file`` do not apply, and
+        besides the view options above, ``width``, ``height`` and
+        ``point_sample_factor`` (the fraction of the points drawn, 0 to 1, which
+        keeps a large cloud responsive) are passed to
+        :func:`open3d.visualization.draw_plotly`.  The three axes have the same
+        scale, so shapes have their true proportions, as in the Open3D window.
+
+        .. versionchanged:: 2.5.0
+            Added the ``notebook`` option.
+
+        .. seealso:: :class:`open3d.visualization.ViewControl`
         """
+        if notebook:
+            _show_in_notebook(self._pcd, title, file, kwargs)
+            return
+
         if block:
             o3d.visualization.draw_geometries([self._pcd], window_name=title, **kwargs)
         else:
@@ -419,7 +571,7 @@ class PointCloud:
         Transform a :class:`PointCloud` by premultiplying by an
         :class:`~spatialmath.pose3d.SE3` instance.
 
-        :seealso: :meth:`transform` :meth:`__imul__`
+        .. seealso:: :meth:`transform` :meth:`__imul__`
         """
         if isinstance(T, SE3):
             return self.copy().transform(T)
@@ -438,7 +590,7 @@ class PointCloud:
         Transform a :class:`PointCloud` by inplace multiplication by an
         :class:`~spatialmath.pose3d.SE3` instance.
 
-        :seealso: :meth:`__rmul__` :meth:`transform`
+        .. seealso:: :meth:`__rmul__` :meth:`transform`
         """
         if isinstance(T, SE3):
             self.transform(T)
@@ -460,7 +612,7 @@ class PointCloud:
         If ``inplace`` is False then the point cloud data is copied
         before transformation.
 
-        :seealso: :meth:`__rmul__` :meth:`__imul__`
+        .. seealso:: :meth:`__rmul__` :meth:`__imul__`
         """
         if inplace:
             self._pcd.transform(T.A)
@@ -470,6 +622,71 @@ class PointCloud:
             new._pcd.transform(T.A)
             return new
 
+    def concatenate(
+        self,
+        *others: "PointCloud",
+        color: Any = (0.7, 0.7, 0.7),
+    ) -> "PointCloud":
+        """
+        Join point clouds
+
+        :param others: one or more point clouds to join to this one
+        :type others: :class:`PointCloud`
+        :param color: color for the points of clouds that have no color: an RGB
+            value in the range [0, 1] or a color name, or ``None`` to remove the
+            colors from the result, defaults to light gray
+        :type color: array_like(3), str or None, optional
+        :return: a new point cloud containing the points of all the clouds
+        :rtype: :class:`PointCloud`
+        :raises ValueError: ``color`` is a string that is not a known color name
+
+        The points are joined in order, this cloud first.  The clouds that are
+        joined are not changed.
+
+        If none of the clouds has color, the result has none.  If some of them
+        have color and others do not, every point must have a color, so the
+        points that have none are given ``color``.  With ``color=None`` the
+        colors of all points are dropped instead.  An empty point cloud has no
+        color, and does not affect the colors of the result.
+
+        The ``+`` operator does the same with the default ``color``.
+
+        .. versionadded:: 2.5.0
+
+        .. rubric:: Examples
+
+        .. runblock:: pycon
+
+            >>> import numpy as np
+            >>> from machinevisiontoolbox import PointCloud
+            >>> red = PointCloud(np.random.rand(3, 4)).paint("red")
+            >>> plain = PointCloud(np.random.rand(3, 3))
+            >>> both = red.concatenate(plain, color="blue")
+            >>> both.colors
+            >>> red.concatenate(plain, color=None).iscolor
+
+        .. seealso:: :meth:`paint`, :meth:`unpaint`, :meth:`__add__`, :attr:`iscolor`
+        """
+        if color is not None and not isinstance(color, str):
+            color = np.asarray(color, dtype=float)
+        elif isinstance(color, str):
+            rgb = name2color(color)
+            if rgb is None:
+                raise ValueError(f"unknown color name: {color!r}")
+            color = rgb
+
+        clouds = (self,) + others
+        pcd = o3d.geometry.PointCloud()
+        keep_color = color is not None and any(c.iscolor for c in clouds)
+        for c in clouds:
+            pcd.points.extend(c.points.T)
+            if keep_color:
+                if c.iscolor:
+                    pcd.colors.extend(c.colors.T)
+                else:
+                    pcd.colors.extend(np.tile(color, (len(c), 1)))
+        return self.__class__(pcd)
+
     def __add__(self, other: "PointCloud") -> "PointCloud":
         """
         Overloaded the + operator to concatenate point clouds
@@ -478,13 +695,37 @@ class PointCloud:
         :type other: :class:`PointCloud`
         :return: concatenated point clouds
         :rtype: :class:`PointCloud`
+
+        Points that have no color are given light gray if the other cloud has
+        color.  Use :meth:`concatenate` to choose the color, or to drop the colors.
+
+        .. versionchanged:: 2.5.0
+            Joining a colored and an uncolored cloud gives every point a color.  The
+            result used to have fewer colors than points, so it displayed with none.
+
+        .. seealso:: :meth:`concatenate`, :meth:`__radd__`
         """
-        pcd = o3d.geometry.PointCloud()
-        pcd.points.extend(self.points.T)
-        pcd.points.extend(other.points.T)
-        pcd.colors.extend(self.colors.T)
-        pcd.colors.extend(other.colors.T)
-        return self.__class__(pcd)
+        return self.concatenate(other)
+
+    def __radd__(self, other: Any) -> "PointCloud":
+        """
+        Overloaded the + operator so that :func:`sum` works on point clouds
+
+        :param other: the integer 0, which :func:`sum` starts from
+        :return: this point cloud, unchanged
+        :rtype: :class:`PointCloud`
+
+        ``sum(clouds)`` begins by computing ``0 + clouds[0]``.  This method
+        accepts that zero, so a list of point clouds can be joined with
+        ``sum(clouds)``.
+
+        .. versionadded:: 2.5.0
+
+        .. seealso:: :meth:`__add__`, :meth:`concatenate`
+        """
+        if isinstance(other, int) and other == 0:
+            return self
+        return NotImplemented
 
     def downsample_voxel(self, voxel_size: float) -> "PointCloud":
         """
@@ -498,7 +739,7 @@ class PointCloud:
         Point cloud resolution is reduced by keeping only one
         point per voxel.
 
-        :seealso: :meth:`downsample_random`
+        .. seealso:: :meth:`downsample_random`
         """
         return self.__class__(self._pcd.voxel_down_sample(voxel_size))
 
@@ -519,7 +760,7 @@ class PointCloud:
         Point cloud resolution is reduced by randomly selecting
         a subset of points.
 
-        :seealso: :meth:`downsample_random`
+        .. seealso:: :meth:`downsample_random`
         """
         if seed is None:
             return self.__class__(self._pcd.random_down_sample(fraction))
@@ -540,7 +781,7 @@ class PointCloud:
         - accessed using the ``normals`` property
         - toggled on for display when the point cloud is displayed.
 
-        :seealso: :meth:`disp` :meth:`open3d.geometry.PointCloud.estimate_normals`
+        .. seealso:: :meth:`disp` :meth:`open3d.geometry.PointCloud.estimate_normals`
         """
         # radius=0.1, max_nn=30
         self._pcd.estimate_normals(
@@ -558,7 +799,7 @@ class PointCloud:
         Point normals are returned as columns of the array.  The columns correspond
         to the same columns in the :attr:`points` and :attr:`colors` properties.
 
-        :seealso: :meth:`estimate_normals` :attr:`points` :attr:`colors`
+        .. seealso:: :meth:`estimate_normals` :attr:`points` :attr:`colors`
         """
         return np.asarray(self._pcd.normals).T
 
@@ -575,7 +816,7 @@ class PointCloud:
         .. deprecated:: 1.0.3
             Use :meth:`open3d.geometry.PointCloud.remove_radius_outlier` directly.
 
-        :seealso: :meth:`open3d.geometry.PointCloud.remove_radius_outlier`
+        .. seealso:: :meth:`open3d.geometry.PointCloud.remove_radius_outlier`
         """
         warn(
             "Deprecated in 1.0.3: use pc.remove_radius_outlier(radius=, nb_points=)[0] instead of remove_outlier().",
@@ -587,11 +828,63 @@ class PointCloud:
         return self.__class__(pcd)
 
     def segment_plane(self, **kwargs: Any) -> tuple[Any, "PointCloud", "PointCloud"]:
-        # distance_threshold=0.05,
-        # ransac_n=3,
-        # num_iterations=1000
+        """
+        Find the dominant plane using RANSAC
 
-        default_dict = dict(ransac_n=3, num_iterations=100)
+        :param distance_threshold: largest distance of a point from the plane for
+            it to count as part of the plane, in the units of the points
+        :type distance_threshold: float
+        :param ransac_n: number of points sampled to fit each candidate plane,
+            defaults to 3
+        :type ransac_n: int, optional
+        :param num_iterations: number of candidate planes tried, defaults to 1000
+        :type num_iterations: int, optional
+        :param probability: required probability of finding the best plane,
+            Open3D's default is 0.99999999
+        :type probability: float, optional
+        :return: plane parameters, points on the plane, all the other points
+        :rtype: ndarray(4), :class:`PointCloud`, :class:`PointCloud`
+        :raises TypeError: ``distance_threshold`` is not given
+
+        Uses RANSAC to fit a plane :math:`aX + bY + cZ + d = 0` to the points.  Each
+        iteration fits a plane to ``ransac_n`` randomly chosen points, and keeps the
+        plane that has the most points within ``distance_threshold`` of it.  The
+        arguments are passed to
+        :meth:`open3d.geometry.PointCloud.segment_plane`.
+
+        The first return value is the array :math:`(a, b, c, d)`.  The second is
+        a new point cloud of the points within ``distance_threshold`` of the plane,
+        the inliers, and the third is a new point cloud of the remaining points.  The
+        original point cloud is not changed.  Points of an object that lie close
+        to the plane, such as the foot of an object standing on a ground plane, are
+        inliers.
+
+        .. versionchanged:: 2.5.0
+            The default ``num_iterations`` is 1000.  It was 100, which sometimes
+            returned a poor plane.
+
+        RANSAC chooses its points at random, so the plane and the number of inliers
+        differ slightly from run to run.  With few iterations a poor plane is
+        sometimes returned.  Increase ``num_iterations``, or seed Open3D's random
+        number generator with ``open3d.utility.random.seed(n)`` to get the same result
+        every time.
+
+        .. rubric:: Examples
+
+        .. runblock:: pycon
+
+            >>> import numpy as np
+            >>> from machinevisiontoolbox import PointCloud
+            >>> rng = np.random.default_rng(0)
+            >>> ground = np.vstack((rng.random((2, 300)), np.zeros(300)))  # z = 0
+            >>> objects = rng.random((3, 100)) + np.array([[0], [0], [0.5]])  # above it
+            >>> pc = PointCloud(np.hstack((ground, objects)))
+            >>> plane, on_plane, rest = pc.segment_plane(distance_threshold=0.01)
+            >>> len(on_plane), len(rest)
+
+        .. seealso:: :meth:`select`, :meth:`remove_outlier`
+        """
+        default_dict = dict(ransac_n=3, num_iterations=1000)
         kwargs = {**default_dict, **kwargs}
 
         plane_model, inliers = self._pcd.segment_plane(**kwargs)
@@ -638,14 +931,44 @@ class PointCloud:
         """
         Colorize point cloud
 
-        :param color: color for points
+        :param color: color for points, either an RGB value in the range [0, 1]
+            or the name of a color, such as ``"red"`` or ``"skyblue"``
         :type color: array_like(3), str
         :return: colorized point cloud
         :rtype: :class:`PointCloud`
+        :raises ValueError: ``color`` is a string that is not a known color name
 
         Paint all points in the point cloud this color.
+
+        .. versionchanged:: 2.5.0
+            ``color`` can be a color name, which is converted by
+            :func:`~machinevisiontoolbox.base.color.name2color`.
+
+        .. seealso:: :meth:`unpaint`, :meth:`concatenate`, :attr:`colors`, :attr:`iscolor`
         """
+        if isinstance(color, str):
+            rgb = name2color(color)
+            if rgb is None:
+                raise ValueError(f"unknown color name: {color!r}")
+            color = rgb
         self._pcd.paint_uniform_color(color)
+        return self
+
+    def unpaint(self) -> "PointCloud":
+        """
+        Remove the colors from a point cloud
+
+        :return: the point cloud, now without color
+        :rtype: :class:`PointCloud`
+
+        The opposite of :meth:`paint`.  The points are kept.  The point cloud is
+        changed, and returned so calls can be chained.
+
+        .. versionadded:: 2.5.0
+
+        .. seealso:: :meth:`paint`, :attr:`iscolor`, :meth:`concatenate`
+        """
+        self._pcd.colors = o3d.utility.Vector3dVector()
         return self
 
     def ICP(
@@ -667,7 +990,7 @@ class PointCloud:
         :return: pose of ``data`` with respect to instance points
         :rtype: :class:`~spatialmath.pose3d.SE3`
 
-        :seealso: :obj:`open3d.pipelines.registration.TransformationEstimationPointToPoint`
+        .. seealso:: :obj:`open3d.pipelines.registration.TransformationEstimationPointToPoint`
         """
         estimation = o3d.pipelines.registration.TransformationEstimationPointToPoint()
 
@@ -701,10 +1024,69 @@ class PointCloud:
 
 
 class VoxelGrid:
+    """
+    A point cloud divided into cubic cells
+
+    Each cell, or voxel, that contains at least one point of the point cloud is
+    occupied.  It is created by :meth:`PointCloud.voxel_grid`.
+
+    .. seealso:: :meth:`PointCloud.voxel_grid`, :meth:`disp`, :meth:`write`
+    """
+
     def __init__(self, pcd: PointCloud, voxel_size: float) -> None:
+        """
+        Create a voxel grid from a point cloud
+
+        :param pcd: the point cloud
+        :type pcd: :class:`PointCloud`
+        :param voxel_size: edge length of a voxel, in the units of the points
+        :type voxel_size: float
+
+        A voxel takes the color of the points it contains, if they have color.
+        Use :meth:`PointCloud.voxel_grid` rather than calling this directly.
+
+        .. seealso:: :meth:`PointCloud.voxel_grid`
+        """
         self._voxels = o3d.geometry.VoxelGrid.create_from_point_cloud(
             pcd._pcd, voxel_size=voxel_size
         )
+
+    def _cubes(self) -> Any:
+        """The voxels as a triangle mesh, one cube of 12 triangles per voxel
+
+        Open3D's Plotly drawing does not handle a voxel grid, it draws nothing.  The
+        voxels keep their colors, or are gray if none has a color, so that the
+        lighting shows their shape.
+        """
+        voxels = self._voxels.get_voxels()
+        index = np.array([v.grid_index for v in voxels], dtype=float).reshape(-1, 3)
+        colors = np.array([v.color for v in voxels], dtype=float).reshape(-1, 3)
+        if not np.any(colors):
+            colors = np.full_like(colors, 0.7)
+        n = len(voxels)
+
+        # the unit cube: 8 corners, and 12 triangles which are 2 on each face
+        corners = np.array(
+            [[0, 0, 0], [1, 0, 0], [1, 1, 0], [0, 1, 0]]
+            + [[0, 0, 1], [1, 0, 1], [1, 1, 1], [0, 1, 1]],
+            dtype=float,
+        )
+        faces = np.array(
+            [[0, 2, 1], [0, 3, 2], [4, 5, 6], [4, 6, 7]]
+            + [[0, 1, 5], [0, 5, 4], [3, 6, 2], [3, 7, 6]]
+            + [[0, 4, 7], [0, 7, 3], [1, 2, 6], [1, 6, 5]]
+        )
+
+        # the grid index is of the voxel's minimum corner, from the grid's origin
+        minimum = np.asarray(self._voxels.origin) + index * self._voxels.voxel_size
+        vertices = minimum[:, None, :] + corners[None, :, :] * self._voxels.voxel_size
+        triangles = faces[None, :, :] + 8 * np.arange(n)[:, None, None]
+
+        mesh = o3d.geometry.TriangleMesh()
+        mesh.vertices = o3d.utility.Vector3dVector(vertices.reshape(-1, 3))
+        mesh.triangles = o3d.utility.Vector3iVector(triangles.reshape(-1, 3))
+        mesh.vertex_colors = o3d.utility.Vector3dVector(np.repeat(colors, 8, axis=0))
+        return mesh
 
     def write(self, filename: str) -> None:
         """
@@ -713,7 +1095,7 @@ class VoxelGrid:
         :param filename: filename
         :type filename: str
 
-        :seealso: :obj:`open3d.io.write_voxel_grid`
+        .. seealso:: :obj:`open3d.io.write_voxel_grid`
         """
         o3d.io.write_voxel_grid(str(filename), self._voxels)  # type: ignore[arg-type]
 
@@ -722,6 +1104,7 @@ class VoxelGrid:
         block: bool = True,
         file: str | None = None,
         title: str = "Voxel Grid",
+        notebook: bool = False,
         **kwargs: Any,
     ) -> None:
         """
@@ -733,7 +1116,27 @@ class VoxelGrid:
         :type title: str, optional
         :param file: save display to this filename, defaults to None
         :type file: str, optional
+        :param notebook: draw in the output of the notebook cell, rather than in an
+            Open3D window, defaults to False
+        :type notebook: bool, optional
+        :raises ValueError: ``file`` is given with ``notebook=True``
+        :raises ImportError: ``notebook=True`` and Plotly is not installed
+
+        With ``notebook=True`` the voxels are drawn in the output of the notebook
+        cell, as a Plotly figure that can be rotated and zoomed, in the same way as
+        :meth:`PointCloud.disp`, which describes the options, and with the same
+        scale on the three axes.  Each voxel is drawn as a cube of 12 triangles, so a
+        grid of many thousands of voxels is slow.
+
+        .. versionchanged:: 2.5.0
+            Added the ``notebook`` option.
+
+        .. seealso:: :meth:`PointCloud.disp`
         """
+        if notebook:
+            _show_in_notebook(self._cubes(), title, file, kwargs)
+            return
+
         if block:
             o3d.visualization.draw_geometries(
                 [self._voxels], window_name=title, **kwargs
@@ -770,8 +1173,6 @@ class VoxelGrid:
 
 
 if __name__ == "__main__":
-    from pathlib import Path
-
     import pytest
 
     pytest.main(

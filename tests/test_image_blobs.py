@@ -1,24 +1,22 @@
-import unittest
 import io
 import json
+import unittest
 from pathlib import Path
-from unittest.case import skip
 
 import matplotlib
 
 matplotlib.use("Agg")  # non-interactive backend; must precede pyplot import
+import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 import numpy as np
-import numpy.testing as nt
 
-from machinevisiontoolbox import Image, Blobs
+from machinevisiontoolbox import Blobs, Image
 
 # Number of blobs produced by Image.Squares(2, ...): a 2×2 grid = 4 squares.
 _N_MULTI = 4
 
 
 class TestBlobs(unittest.TestCase):
-
     def test_blob_2x2_square(self):
         # 1 blob: 2x2
         im = Image.String(
@@ -701,25 +699,148 @@ class TestBlobPlotMethods(unittest.TestCase):
         return len(ax.patches)
 
     # ------------------------------------------------------------------ #
-    # plot_box  — SKIPPED; positional fmt arg is broken, upstream PR pending
-    # TODO: remove skips once the PR is merged into the release
+    # plot_box and plot_labelbox  (one Rectangle patch per blob)
     # ------------------------------------------------------------------ #
 
-    @unittest.skip(
-        "plot_box(): passing a positional fmt argument is broken in the current "
-        "release. An upstream PR has been submitted but not yet merged. "
-        "Revisit and remove this skip once the fix is distributed."
-    )
     def test_plot_box_ratio(self):
         self._test_plot_ratio("plot_box", self._patches)
 
-    @unittest.skip("plot_box(): see test_plot_box_ratio for details")
     def test_plot_box_fmt(self):
         self._test_plot_adds("plot_box", self._patches, "r--")
 
-    @unittest.skip("plot_box(): see test_plot_box_ratio for details")
     def test_plot_box_kwargs(self):
         self._test_plot_adds("plot_box", self._patches, color="yellow")
+
+    def _box_patch(self, method, *args, **kwargs):
+        fig, ax = self._fresh_ax()
+        getattr(self.blobs1, method)(*args, **kwargs)
+        patch = ax.patches[0]
+        plt.close(fig)
+        return patch
+
+    def test_box_format_strings(self):
+        for method in ("plot_box", "plot_labelbox"):
+            for fmt, color, linestyle in [
+                ("r--", (1, 0, 0), "--"),
+                ("g", (0, 0.5, 0), "solid"),
+                ("C1:", mcolors.to_rgb("C1"), ":"),
+                ("orange", mcolors.to_rgb("orange"), "solid"),
+                ("--", mcolors.to_rgb("yellow"), "--"),  # the default color
+            ]:
+                with self.subTest(method=method, fmt=fmt):
+                    patch = self._box_patch(method, fmt)
+                    self.assertEqual(tuple(patch.get_edgecolor()[:3]), tuple(color))
+                    self.assertEqual(patch.get_linestyle(), linestyle)
+
+    def test_box_with_a_marker_in_the_format_string_says_so(self):
+        for method in ("plot_box", "plot_labelbox"):
+            for fmt in ("o", "r."):
+                with self.subTest(method=method, fmt=fmt):
+                    with self.assertRaisesRegex(ValueError, "cannot draw"):
+                        self._box_patch(method, fmt)
+
+    def _labelbox(self, *args, **kwargs):
+        """Draw one labelled box; return (box patch, label text)."""
+        fig, ax = self._fresh_ax()
+        self.blobs1.plot_labelbox(*args, **kwargs)
+        patch, text = ax.patches[0], ax.texts[0]
+        plt.close(fig)
+        return patch, text
+
+    @staticmethod
+    def _hex(color):
+        return mcolors.to_hex(color)
+
+    def test_labelbox_default_label_background_is_the_box_edge_color(self):
+        patch, text = self._labelbox()
+        self.assertEqual(self._hex(text.get_bbox_patch().get_facecolor()), "#ffff00")
+        self.assertEqual(self._hex(text.get_color()), "#000000")
+
+    def test_labelbox_label_background_follows_however_the_edge_was_set(self):
+        # was: only the color option was followed, so ec= left a yellow label
+        for args, kwargs in [
+            ((), dict(color="red")),
+            ((), dict(edgecolor="red")),
+            ((), dict(ec="red")),
+            (("r--",), {}),
+        ]:
+            with self.subTest(args=args, kwargs=kwargs):
+                patch, text = self._labelbox(*args, **kwargs)
+                self.assertEqual(self._hex(patch.get_edgecolor()), "#ff0000")
+                self.assertEqual(
+                    self._hex(text.get_bbox_patch().get_facecolor()), "#ff0000"
+                )
+
+    def test_labelbox_shorthands(self):
+        patch, text = self._labelbox(textcolor="white", labelcolor="blue")
+        self.assertEqual(self._hex(text.get_color()), "#ffffff")
+        self.assertEqual(self._hex(text.get_bbox_patch().get_facecolor()), "#0000ff")
+        self.assertEqual(self._hex(patch.get_edgecolor()), "#ffff00")  # box unchanged
+
+    def test_labelbox_text_style(self):
+        patch, text = self._labelbox(
+            text_style=dict(color="white", fontsize=17, fontweight="bold")
+        )
+        self.assertEqual(self._hex(text.get_color()), "#ffffff")
+        self.assertEqual(text.get_fontsize(), 17)
+        self.assertEqual(text.get_fontweight(), "bold")
+        self.assertEqual(self._hex(patch.get_edgecolor()), "#ffff00")  # box unchanged
+
+    def test_labelbox_text_style_accepts_short_names(self):
+        # size and c are aliases of fontsize and color
+        patch, text = self._labelbox(text_style=dict(size=15, c="red", weight="bold"))
+        self.assertEqual(text.get_fontsize(), 15)
+        self.assertEqual(self._hex(text.get_color()), "#ff0000")
+        self.assertEqual(text.get_fontweight(), "bold")
+
+    def test_labelbox_text_style_wins_over_the_shorthands(self):
+        patch, text = self._labelbox(
+            textcolor="white",
+            labelcolor="blue",
+            text_style=dict(color="red", backgroundcolor="green"),
+        )
+        self.assertEqual(self._hex(text.get_color()), "#ff0000")
+        self.assertEqual(self._hex(text.get_bbox_patch().get_facecolor()), "#008000")
+
+    def test_labelbox_bbox_in_text_style_is_merged_over_the_default(self):
+        patch, text = self._labelbox(
+            labelcolor="blue", text_style=dict(bbox=dict(linewidth=2, edgecolor="k"))
+        )
+        bbox = text.get_bbox_patch()
+        self.assertEqual(self._hex(bbox.get_facecolor()), "#0000ff")  # kept
+        self.assertEqual(bbox.get_linewidth(), 2)
+        self.assertEqual(self._hex(bbox.get_edgecolor()), "#000000")
+        # and a facecolor in bbox is the most specific of all
+        patch, text = self._labelbox(
+            labelcolor="blue", text_style=dict(bbox=dict(facecolor="red"))
+        )
+        self.assertEqual(self._hex(text.get_bbox_patch().get_facecolor()), "#ff0000")
+
+    def test_labelbox_position(self):
+        positions = {}
+        for position in ("topleft", "topright", "bottomleft", "bottomright"):
+            patch, text = self._labelbox(position=position)
+            positions[position] = (text.get_ha(), text.get_va())
+        self.assertEqual(positions["topleft"], ("left", "bottom"))
+        self.assertEqual(positions["topright"], ("right", "bottom"))
+        self.assertEqual(positions["bottomleft"], ("left", "top"))
+        self.assertEqual(positions["bottomright"], ("right", "top"))
+
+    def test_labelbox_bad_position(self):
+        with self.assertRaisesRegex(ValueError, "position must be"):
+            self._labelbox(position="middle")
+
+    def test_labelbox_text_style_is_not_changed_by_drawing(self):
+        style = dict(size=15, c="red")
+        self._labelbox(text_style=style)
+        self.assertEqual(style, dict(size=15, c="red"))
+
+    def test_labelbox_label_text(self):
+        patch, text = self._labelbox(label="shark {:d}")
+        self.assertTrue(text.get_text().startswith("shark "))
+
+    def test_plot_labelbox_ratio(self):
+        self._test_plot_ratio("plot_labelbox", self._patches)
 
     # ------------------------------------------------------------------ #
     # plot_centroid  (default: marker=["bx","bo"] → 2 Line2D per blob)
@@ -733,6 +854,28 @@ class TestBlobPlotMethods(unittest.TestCase):
 
     def test_plot_centroid_kwargs(self):
         self._test_plot_adds("plot_centroid", self._lines, marker="x", color="red")
+
+    def test_plot_centroid_text_style(self):
+        fig, ax = self._fresh_ax()
+        self.blobs1.plot_centroid(
+            label=True, text_style=dict(color="white", fontsize=17)
+        )
+        (text,) = ax.texts
+        self.assertEqual(text.get_color(), "white")
+        self.assertEqual(text.get_fontsize(), 17)
+        plt.close(fig)
+
+    def test_plot_centroid_label_without_text_style(self):
+        fig, ax = self._fresh_ax()
+        self.blobs1.plot_centroid(label=True)
+        self.assertEqual(len(ax.texts), 1)
+        plt.close(fig)
+
+    def test_plot_centroid_text_style_without_label_adds_no_text(self):
+        fig, ax = self._fresh_ax()
+        self.blobs1.plot_centroid(text_style=dict(color="white"))
+        self.assertEqual(len(ax.texts), 0)
+        plt.close(fig)
 
     # ------------------------------------------------------------------ #
     # plot_perimeter  (plt.plot → 1 Line2D per blob)
@@ -773,6 +916,68 @@ class TestBlobPlotMethods(unittest.TestCase):
     def test_plot_axes_kwargs(self):
         self._test_plot_adds("plot_axes", self._lines, color="blue")
 
+    def _axes_lines(self, *args, **kwargs):
+        """Plot the axes of one blob; return its (major, minor) Line2D."""
+        fig, ax = self._fresh_ax()
+        self.blobs1.plot_axes(*args, **kwargs)
+        major, minor = ax.lines[-2:]
+        plt.close(fig)
+        return major, minor
+
+    def test_plot_axes_default_colors(self):
+        major, minor = self._axes_lines()
+        self.assertEqual(major.get_color(), "red")
+        self.assertEqual(minor.get_color(), "green")
+
+    def test_plot_axes_kwargs_apply_to_both(self):
+        major, minor = self._axes_lines(color="blue", linestyle="--")
+        for line in (major, minor):
+            self.assertEqual(line.get_color(), "blue")
+            self.assertEqual(line.get_linestyle(), "--")
+
+    def test_plot_axes_major_style_only(self):
+        major, minor = self._axes_lines(major_style=dict(color="orange", linewidth=5))
+        self.assertEqual(major.get_color(), "orange")
+        self.assertEqual(major.get_linewidth(), 5)
+        self.assertEqual(minor.get_color(), "green")  # untouched default
+        self.assertEqual(minor.get_linewidth(), 2)
+
+    def test_plot_axes_minor_style_only(self):
+        major, minor = self._axes_lines(minor_style=dict(linestyle=":"))
+        self.assertEqual(minor.get_linestyle(), ":")
+        self.assertEqual(major.get_linestyle(), "-")
+        self.assertEqual(minor.get_color(), "green")
+
+    def test_plot_axes_style_beats_kwargs_and_fmt(self):
+        major, minor = self._axes_lines(
+            "c--", color="blue", major_style=dict(color="orange")
+        )
+        self.assertEqual(major.get_color(), "orange")  # style wins over kwargs
+        self.assertEqual(major.get_linestyle(), "--")  # fmt still applies
+        self.assertEqual(minor.get_color(), "blue")  # kwargs wins over fmt
+        self.assertEqual(minor.get_linestyle(), "--")
+
+    def test_plot_axes_style_and_kwargs_may_use_different_spellings(self):
+        # lw in kwargs and linewidth in the style used to be an alias clash
+        major, minor = self._axes_lines(lw=3, major_style=dict(linewidth=5))
+        self.assertEqual(major.get_linewidth(), 5)
+        self.assertEqual(minor.get_linewidth(), 3)
+        major, minor = self._axes_lines(minor_style=dict(lw=4, c="k"))
+        self.assertEqual(minor.get_linewidth(), 4)
+        self.assertEqual(minor.get_color(), "k")
+
+    def test_plot_axes_does_not_change_the_defaults(self):
+        from machinevisiontoolbox.ImageBlobs import MAJOR_AXIS_STYLE, MINOR_AXIS_STYLE
+
+        before = dict(MAJOR_AXIS_STYLE), dict(MINOR_AXIS_STYLE)
+        self._axes_lines(
+            "r--",
+            color="blue",
+            major_style=dict(color="k"),
+            minor_style=dict(linewidth=4),
+        )
+        self.assertEqual((MAJOR_AXIS_STYLE, MINOR_AXIS_STYLE), before)
+
     # ------------------------------------------------------------------ #
     # plot_aligned_box  (smb.plot_polygon → 1 Line2D per blob)
     # ------------------------------------------------------------------ #
@@ -782,6 +987,33 @@ class TestBlobPlotMethods(unittest.TestCase):
 
     def test_plot_aligned_box_kwargs(self):
         self._test_plot_adds("plot_aligned_box", self._lines, color="yellow")
+
+    # the format string is applied once, by mpl_styling: what each line looks like
+    _FMT_RESULTS = [
+        # fmt, color, linestyle, marker
+        (None, "yellow", "-", "None"),
+        ("g", "g", "-", "None"),
+        ("r--", "r", "--", "None"),
+        ("--", "yellow", "--", "None"),
+        ("r:", "r", ":", "None"),
+        ("o", "yellow", "None", "o"),  # markers only, as for plot()
+        ("r.", "r", "None", "."),
+        ("C1", "C1", "-", "None"),
+        ("orange", "orange", "-", "None"),
+    ]
+
+    def test_polygon_and_circle_methods_apply_the_format_string_once(self):
+        for method in ("plot_aligned_box", "plot_MEC", "plot_MER"):
+            for fmt, color, linestyle, marker in self._FMT_RESULTS:
+                with self.subTest(method=method, fmt=fmt):
+                    fig, ax = self._fresh_ax()
+                    getattr(self.blobs1, method)(*([] if fmt is None else [fmt]))
+                    line = ax.lines[0]
+                    plt.close(fig)
+                    self.assertEqual(line.get_color(), color)
+                    self.assertEqual(line.get_linestyle(), linestyle)
+                    self.assertEqual(line.get_marker(), marker)
+                    self.assertEqual(line.get_linewidth(), 2)
 
     # ------------------------------------------------------------------ #
     # plot_MEC  (smb.plot_circle → 1 artist per blob)
@@ -813,5 +1045,4 @@ class TestBlobPlotMethods(unittest.TestCase):
 
 # ------------------------------------------------------------------------ #
 if __name__ == "__main__":
-
     unittest.main()

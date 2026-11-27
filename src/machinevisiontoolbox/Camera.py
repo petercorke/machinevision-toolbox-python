@@ -8,6 +8,7 @@ import copy
 from abc import ABC, abstractmethod
 from collections import namedtuple
 from math import pi, sin, tan
+from collections.abc import Iterable
 from typing import Any, Callable, cast
 
 import cv2
@@ -38,6 +39,16 @@ _getmatrix = cast(Callable[..., np.ndarray], smb.getmatrix)
 
 
 class CameraBase(ABC):
+    """
+    Abstract base class of the camera models
+
+    A camera model has an image size, a principal point, a pixel size and a
+    pose, and projects world points to the image plane.  The subclasses are
+    :class:`CentralCamera` (perspective), :class:`FishEyeCamera`,
+    :class:`CatadioptricCamera` and :class:`SphericalCamera`.  A subclass
+    implements :meth:`project_point`.
+    """
+
     _name: str
     _camtype: str
     _imagesize: np.ndarray | None
@@ -100,11 +111,11 @@ class CameraBase(ABC):
             self._name = camtype
         else:
             if not isinstance(name, str):
-                raise TypeError(name, "name must be a string")
+                raise TypeError(f"name must be a string, got {name!r}")
             self._name = name
 
         if not isinstance(camtype, str):
-            raise TypeError(camtype, "camtype must be a string")
+            raise TypeError(f"camtype must be a string, got {camtype!r}")
         self._camtype = camtype
 
         if imagesize is None:
@@ -120,9 +131,9 @@ class CameraBase(ABC):
                 self.pp = pp
 
         if sensorsize is not None:
-            assert (
-                self._imagesize is not None
-            ), "imagesize must be set when sensorsize is given"
+            assert self._imagesize is not None, (
+                "imagesize must be set when sensorsize is given"
+            )
             self._rhou = sensorsize[0] / self._imagesize[0]
             self._rhov = sensorsize[1] / self._imagesize[1]
         else:
@@ -134,7 +145,7 @@ class CameraBase(ABC):
                 self._rhou = rho[0]
                 self._rhov = rho[1]
             else:
-                raise ValueError(rho, "rho must be a 1- or 2-element vector")
+                raise ValueError(f"rho must be a 1- or 2-element vector, got {rho!r}")
 
         if noise is not None:
             self._noise = noise
@@ -211,13 +222,37 @@ class CameraBase(ABC):
         return s + ")"
 
     @abstractmethod
-    def project_point(self, P, **kwargs: Any) -> np.ndarray:
+    def project_point(self, P: np.ndarray | ArrayLike, **kwargs: Any) -> np.ndarray:
+        """
+        Project world points to the image plane
+
+        :param P: world points
+        :type P: array_like(3), ndarray(3,N)
+        :return: image plane points
+        :rtype: ndarray(2,N)
+
+        Implemented by each camera model.
+        """
         pass
 
     def project_line(self, *args: Any, **kwargs: Any) -> np.ndarray:
+        """
+        Project a line to the image plane
+
+        :raises NotImplementedError: for a camera model that does not support it
+
+        Implemented by the camera models that support it.
+        """
         raise NotImplementedError("not implemented for this camera model")
 
     def project_conic(self, *args: Any, **kwargs: Any) -> np.ndarray:
+        """
+        Project a conic to the image plane
+
+        :raises NotImplementedError: for a camera model that does not support it
+
+        Implemented by the camera models that support it.
+        """
         raise NotImplementedError("not implemented for this camera model")
 
     @property
@@ -227,7 +262,7 @@ class CameraBase(ABC):
 
         A camera has a string-valued name that can be read and written.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -250,7 +285,7 @@ class CameraBase(ABC):
         if isinstance(newname, str):
             self._name = newname
         else:
-            raise TypeError(newname, "name must be a string")
+            raise TypeError(f"name must be a string, got {newname!r}")
 
     @property
     def camtype(self) -> str:
@@ -260,7 +295,7 @@ class CameraBase(ABC):
         A camera has a string-valued type that can be read and written.  This
         is unique to the camera subclass and projection model.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -283,7 +318,7 @@ class CameraBase(ABC):
         if isinstance(newcamtype, str):
             self._camtype = newcamtype
         else:
-            raise TypeError(newcamtype, "camtype must be a string")
+            raise TypeError(f"camtype must be a string, got {newcamtype!r}")
 
     @property
     def imagesize(self) -> np.ndarray | None:
@@ -293,7 +328,7 @@ class CameraBase(ABC):
         The dimensions of the virtual image plane is a 2-tuple (width, height) that can
         be read or written.  For writing the size must be an iterable of length 2.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -306,7 +341,7 @@ class CameraBase(ABC):
         .. note:: If the principal point is not set, then setting imagesize
             sets the principal point to the centre of the image plane.
 
-        :seealso: :meth:`width` :meth:`height` :meth:`nu` :meth:`nv`
+        .. seealso:: :meth:`width` :meth:`height` :meth:`nu` :meth:`nv`
         """
         return self._imagesize
 
@@ -324,7 +359,7 @@ class CameraBase(ABC):
         .. note:: If the principle point is not set, then it
             is set to the centre of the image plane.
 
-        :seealso: :meth:`width` :meth:`height` :meth:`nu` :meth:`nv`
+        .. seealso:: :meth:`width` :meth:`height` :meth:`nu` :meth:`nv`
         """
         npix = _getvector(npix, dtype="int")
         if len(npix) == 1:
@@ -333,7 +368,9 @@ class CameraBase(ABC):
             # ignore color dimension in case it is given
             self._imagesize = npix[:2]
         else:
-            raise ValueError(npix, "imagesize must be a 1- or 2-element vector")
+            raise ValueError(
+                f"imagesize must be a 1- or 2-element vector, got {npix!r}"
+            )
         if self._pp is None:
             assert self._imagesize is not None
             self._pp = self._imagesize / 2
@@ -345,7 +382,7 @@ class CameraBase(ABC):
 
         :return: width (width)
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -353,7 +390,7 @@ class CameraBase(ABC):
             >>> camera = CentralCamera.Default();
             >>> camera.nu
 
-        :seealso: :meth:`nv` :meth:`width` :meth:`imagesize`
+        .. seealso:: :meth:`nv` :meth:`width` :meth:`imagesize`
         """
         if self._imagesize is None:
             raise ValueError("imagesize not set")
@@ -366,7 +403,7 @@ class CameraBase(ABC):
 
         :return: height (height)
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -374,7 +411,7 @@ class CameraBase(ABC):
             >>> camera = CentralCamera.Default();
             >>> camera.nv
 
-        :seealso: :meth:`nu` :meth:`height`  :meth:`imagesize`
+        .. seealso:: :meth:`nu` :meth:`height`  :meth:`imagesize`
         """
         if self._imagesize is None:
             raise ValueError("imagesize not set")
@@ -387,7 +424,7 @@ class CameraBase(ABC):
 
         :return: width
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -395,7 +432,7 @@ class CameraBase(ABC):
             >>> camera = CentralCamera.Default();
             >>> camera.width
 
-        :seealso: :meth:`nu` :meth:`height`
+        .. seealso:: :meth:`nu` :meth:`height`
         """
         if self._imagesize is None:
             raise ValueError("imagesize not set")
@@ -408,7 +445,7 @@ class CameraBase(ABC):
 
         :return: height
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -416,7 +453,7 @@ class CameraBase(ABC):
             >>> camera = CentralCamera.Default();
             >>> camera.height
 
-        :seealso: :meth:`nv` :meth:`width`
+        .. seealso:: :meth:`nv` :meth:`width`
         """
         if self._imagesize is None:
             raise ValueError("imagesize not set")
@@ -432,7 +469,7 @@ class CameraBase(ABC):
         be read or written.  For writing the size must be an
         iterable of length 2.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -440,7 +477,7 @@ class CameraBase(ABC):
             >>> camera = CentralCamera.Default();
             >>> camera.pp
 
-        :seealso: :meth:`u0` :meth:`v0`
+        .. seealso:: :meth:`u0` :meth:`v0`
         """
         return self._pp
 
@@ -452,7 +489,7 @@ class CameraBase(ABC):
         :param pp: principal point
         :type pp: array_like(2)
 
-        :seealso: :meth:`pp` :meth:`u0` :meth:`v0`
+        .. seealso:: :meth:`pp` :meth:`u0` :meth:`v0`
         """
         pp = _getvector(pp)
         if len(pp) == 1:
@@ -460,7 +497,7 @@ class CameraBase(ABC):
         elif len(pp) == 2:
             self._pp = pp
         else:
-            raise ValueError(pp, "pp must be a 1- or 2-element vector")
+            raise ValueError(f"pp must be a 1- or 2-element vector, got {pp!r}")
 
     @property
     def u0(self) -> float:
@@ -470,7 +507,7 @@ class CameraBase(ABC):
         :return: horizontal component of principal point
         :rtype: float
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -478,7 +515,7 @@ class CameraBase(ABC):
             >>> camera = CentralCamera();
             >>> camera.u0
 
-        :seealso: :meth:`v0` :meth:`pp`
+        .. seealso:: :meth:`v0` :meth:`pp`
         """
         assert self._pp is not None
         return self._pp[0]
@@ -491,7 +528,7 @@ class CameraBase(ABC):
         :return: vertical component of principal point
         :rtype: float
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -499,7 +536,7 @@ class CameraBase(ABC):
             >>> camera = CentralCamera();
             >>> camera.v0
 
-        :seealso: :meth:`u0` :meth:`pp`
+        .. seealso:: :meth:`u0` :meth:`pp`
         """
         assert self._pp is not None
         return self._pp[1]
@@ -512,7 +549,7 @@ class CameraBase(ABC):
         :return: horizontal pixel size
         :rtype: float
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -520,7 +557,7 @@ class CameraBase(ABC):
             >>> camera = CentralCamera.Default();
             >>> camera.rhou
 
-        :seealso: :meth:`rhov` :meth:`rho`
+        .. seealso:: :meth:`rhov` :meth:`rho`
         """
         return self._rhou
 
@@ -535,7 +572,7 @@ class CameraBase(ABC):
         :return: vertical pixel size
         :rtype: float
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -543,7 +580,7 @@ class CameraBase(ABC):
             >>> camera = CentralCamera.Default();
             >>> camera.rhov
 
-        :seealso: :meth:`rhov` :meth:`rho`
+        .. seealso:: :meth:`rhov` :meth:`rho`
         """
         return self._rhov
 
@@ -555,7 +592,7 @@ class CameraBase(ABC):
         :return: horizontal pixel size
         :rtype: ndarray(2)
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -563,7 +600,7 @@ class CameraBase(ABC):
             >>> camera = CentralCamera();
             >>> camera.rhov
 
-        :seealso: :meth:`rhou` :meth:`rhov`
+        .. seealso:: :meth:`rhou` :meth:`rhov`
         """
 
         return np.array([self._rhou, self._rhov])
@@ -589,7 +626,7 @@ class CameraBase(ABC):
         The camera pose with respect to the global frame can be read or written
         as an :class:`~spatialmath.pose3d.SE3` instance.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -603,7 +640,7 @@ class CameraBase(ABC):
         .. note:: Changes the pose of the current camera instance, whereas
             :meth:`move` clones the camera instance with a new pose.
 
-        :seealso: :meth:`move`
+        .. seealso:: :meth:`move`
         """
         return self._pose
 
@@ -615,7 +652,7 @@ class CameraBase(ABC):
         :param newpose: pose of camera frame
         :type newpose: :class:`~spatialmath.pose3d.SE3` or ndarray(4,4)
 
-        :seealso: :meth:`move`
+        .. seealso:: :meth:`move`
         """
         self._pose = SE3(newpose)
 
@@ -629,7 +666,7 @@ class CameraBase(ABC):
 
         The noise parameter is set by the object constructor.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -640,7 +677,7 @@ class CameraBase(ABC):
             >>> camera.project_point([0, 0, 2])
             >>> camera.project_point([0, 0, 2])
 
-        :seealso: :meth:`project_point`
+        .. seealso:: :meth:`project_point`
         """
         return self._noise
 
@@ -673,7 +710,7 @@ class CameraBase(ABC):
         If the vector is ``None``, then zero distortion (all coefficients are zero) is
         assumed.
 
-        :seealso: :meth:`~CentralCamera.project_point` `OpenCV distortion model <https://docs.opencv.org/4.x/d9/d0c/group__calib3d.html>`_
+        .. seealso:: :meth:`~CentralCamera.project_point` `OpenCV distortion model <https://docs.opencv.org/4.x/d9/d0c/group__calib3d.html>`_
         """
         return self._distortion
 
@@ -696,7 +733,7 @@ class CameraBase(ABC):
 
         Returns a copy of the camera object with pose set to ``T``.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -709,7 +746,7 @@ class CameraBase(ABC):
         .. note:: The ``plot`` method of this cloned camera will create a new
             window.
 
-        :seealso: :meth:`pose`
+        .. seealso:: :meth:`pose`
         """
         newcamera = copy.copy(self)
         if name is not None:
@@ -784,7 +821,7 @@ class CameraBase(ABC):
         Creates a 2D axis that represents the image plane of the virtual
         camera.
 
-        :seealso: :meth:`plot` :meth:`mesh`
+        .. seealso:: :meth:`plot` :meth:`mesh`
         """
         if self._new_imageplane(fig, ax):
             assert self._ax is not None
@@ -835,7 +872,7 @@ class CameraBase(ABC):
         Every camera object has a virtual image plane drawn using Matplotlib.
         Remove all points and lines from the image plane.
 
-        :seealso: :meth:`plot_point` :meth:`plot_line` :meth:`disp`
+        .. seealso:: :meth:`plot_point` :meth:`plot_line` :meth:`disp`
         """
         if self._ax is not None:
             for artist in self._ax.get_children():
@@ -849,12 +886,12 @@ class CameraBase(ABC):
     def plot_point(
         self,
         P: np.ndarray | ArrayLike,
-        *fmt,
+        *fmt: Any,
         return_artist: bool = False,
         objpose: SE3 | None = None,
         pose: SE3 | None = None,
         ax: Axes | None = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> np.ndarray:
         """
         Plot points on virtual image plane (base method)
@@ -875,16 +912,16 @@ class CameraBase(ABC):
         plotted on the camera's virtual image plane.
         Points are organized as columns of the arrays.
 
-        Example:
+        .. rubric:: Examples
 
-            .. code-block:: python
+        .. code-block:: python
 
-                from machinevisiontoolbox import CentralCamera
-                from spatialmath import SE3
-                camera = CentralCamera.Default()
-                camera.plot_point([0.2, 0.3, 2])
-                camera.plot_point([0.2, 0.3, 2], 'r*')
-                camera.plot_point([0.2, 0.3, 2], pose=SE3(0.1, 0, 0))
+            from machinevisiontoolbox import CentralCamera
+            from spatialmath import SE3
+            camera = CentralCamera.Default()
+            camera.plot_point([0.2, 0.3, 2])
+            camera.plot_point([0.2, 0.3, 2], 'r*')
+            camera.plot_point([0.2, 0.3, 2], pose=SE3(0.1, 0, 0))
 
 
         .. plot::
@@ -901,7 +938,7 @@ class CameraBase(ABC):
             - This method is common to all ``CameraBase`` subclasses, but it
               invokes a camera-specific projection method.
 
-        :seealso: :meth:`plot_line2` :meth:`plot_line3` :meth:`plot_wireframe` :meth:`clf`
+        .. seealso:: :meth:`plot_line2` :meth:`plot_line3` :meth:`plot_wireframe` :meth:`clf`
         """
         self._init_imageplane(ax)  # type: ignore[arg-type]
 
@@ -947,7 +984,7 @@ class CameraBase(ABC):
 
         .. math:: \ell_0 u + \ell_1 v + \ell_2 = 0
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -960,7 +997,7 @@ class CameraBase(ABC):
             - This method is common to all ``CameraBase`` subclasses, but it
               invokes a camera-specific projection method.
 
-        :seealso: :meth:`plot_point` :meth:`plot_line3` :meth:`clf`
+        .. seealso:: :meth:`plot_point` :meth:`plot_line3` :meth:`clf`
         """
         # get handle for this camera image plane
         self._init_imageplane()
@@ -1043,15 +1080,15 @@ class CameraBase(ABC):
         wire link in the wireframe is approximated by ``nsteps`` points, each of
         which is projected, allowing straight edges to appear curved.
 
-        Example:
+        .. rubric:: Examples
 
-            .. code-block:: python
+        .. code-block:: python
 
-                from machinevisiontoolbox import CentralCamera, mkcube
-                from spatialmath import SE3
-                camera = CentralCamera.Default()
-                X, Y, Z = mkcube(0.2, pose=SE3(0, 0, 1), edge=True)
-                camera.plot_wireframe(X, Y, Z, 'k--')
+            from machinevisiontoolbox import CentralCamera, mkcube
+            from spatialmath import SE3
+            camera = CentralCamera.Default()
+            X, Y, Z = mkcube(0.2, pose=SE3(0, 0, 1), edge=True)
+            camera.plot_wireframe(X, Y, Z, 'k--')
 
 
         .. plot::
@@ -1062,7 +1099,7 @@ class CameraBase(ABC):
             X, Y, Z = mkcube(0.2, pose=SE3(0, 0, 1), edge=True)
             camera.plot_wireframe(X, Y, Z, 'k--')
 
-        :seealso: :func:`mkcube` :obj:`spatialmath.base.cylinder` :obj:`spatialmath.base.sphere` :obj:`spatialmath.base.cuboid`
+        .. seealso:: :func:`mkcube` :obj:`spatialmath.base.cylinder` :obj:`spatialmath.base.sphere` :obj:`spatialmath.base.cuboid`
         """
 
         # self._ax.plot_surface(X, Y, Z)
@@ -1144,7 +1181,7 @@ class CameraBase(ABC):
 
         .. note:: The dimensions of the image plane should match the dimensions of the image.
 
-        :seealso: :func:`machinevisiontoolbox.base.idisp()`
+        .. seealso:: :func:`machinevisiontoolbox.base.idisp()`
         """
         self.imagesize = (im.shape[1], im.shape[0])
         self._init_imageplane()
@@ -1236,7 +1273,7 @@ class CameraBase(ABC):
         # autoscale only for these collection additions.
         _orig_add_collection3d = ax.add_collection3d  # type: ignore[union-attr]
 
-        def _add_collection3d_compat(collection, *args, **kwargs):
+        def _add_collection3d_compat(collection: Any, *args: Any, **kwargs: Any) -> Any:
             kwargs.setdefault("autolim", False)
             try:
                 return _orig_add_collection3d(collection, *args, **kwargs)
@@ -1253,7 +1290,9 @@ class CameraBase(ABC):
                 CameraBase._plot_frustum(ax, pose, scale, alpha)
 
             elif shape == "camera":
-                CameraBase._plot_camera_icon(ax, pose, scale, solid, color, alpha, label)
+                CameraBase._plot_camera_icon(
+                    ax, pose, scale, solid, color, alpha, label
+                )
 
             if frame is True:
                 pose.plot(
@@ -1332,7 +1371,6 @@ class CameraBase(ABC):
         cr = 0.2  # cylinder radius
         ch = 0.4  # cylinder height
         cn = 12  # number of facets of cylinder
-        a = 3  # length of axis line segments
 
         # draw the box part of the camera
         smb.plot_cuboid(
@@ -1374,7 +1412,7 @@ class CameraBase(ABC):
         to the coordinates of projected world points.  The noise has a
         standard deviation specified by the camera constructor.
 
-        :seealso: :meth:`noise`
+        .. seealso:: :meth:`noise`
         """
         # distort the pixels
 
@@ -1403,10 +1441,11 @@ class CentralCamera(CameraBase):
     to the image plane, as well as supporting a virtual image plane onto
     which 3D points and lines can be drawn.
 
-    :references:
-        - |RVC3|, Section 13.1.
+    .. rubric:: References
 
-    :seealso: :class:`CameraBase` :class:`FishEyeCamera` :class:`SphericalCamera`
+    - |RVC3|, Section 13.1.
+
+    .. seealso:: :class:`CameraBase` :class:`FishEyeCamera` :class:`SphericalCamera`
     """
 
     _fu: float
@@ -1414,7 +1453,10 @@ class CentralCamera(CameraBase):
     _distortion: np.ndarray | None  # type: ignore[assignment]
 
     def __init__(
-        self, f: ArrayLike = 1, distortion: np.ndarray | None = None, **kwargs
+        self,
+        f: ArrayLike = 1,
+        distortion: np.ndarray | None = None,
+        **kwargs: Any,
     ) -> None:
         super().__init__(camtype="perspective", **kwargs)
         # TODO some of this logic to f and pp setters
@@ -1433,7 +1475,7 @@ class CentralCamera(CameraBase):
         Initialize a central camera with: focal length of 8mm, :math:`10\mu\mbox{m}` pixels,
         image size of :math:`1000 \times 1000` with principal point at (500, 500).
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1441,10 +1483,11 @@ class CentralCamera(CameraBase):
             >>> camera = CentralCamera.Default(name='camera1')
             >>> camera
 
-        :references:
-            - |RVC3|, Section 13.1.
+        .. rubric:: References
 
-        :seealso: :class:`CentralCamera`
+        - |RVC3|, Section 13.1.
+
+        .. seealso:: :class:`CentralCamera`
         """
         default = {
             "f": 0.008,
@@ -1479,7 +1522,7 @@ class CentralCamera(CameraBase):
         behind: bool = True,
         visibility: bool = False,
         retinal: bool = False,
-        **kwargs,
+        **kwargs: Any,
     ) -> np.ndarray:
         r"""
         Project 3D points to image plane
@@ -1537,7 +1580,7 @@ class CentralCamera(CameraBase):
         If ``retinal`` is ``True`` then project points in retinal coordinates,
         in units of metres with respect to the principal point.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1545,10 +1588,11 @@ class CentralCamera(CameraBase):
             >>> camera = CentralCamera.Default()
             >>> camera.project_point((0.3, 0.4, 2))
 
-        :references:
-            - |RVC3|, Section 13.1.
+        .. rubric:: References
 
-        :seealso: :meth:`C` :meth:`project_point` :meth:`project_line` :meth:`project_quadric`
+        - |RVC3|, Section 13.1.
+
+        .. seealso:: :meth:`C` :meth:`project_point` :meth:`project_line` :meth:`project_quadric`
         """
         if pose is None:
             pose = self.pose
@@ -1625,7 +1669,7 @@ class CentralCamera(CameraBase):
         where :math:`\mat{C}` is the camera calibration matrix and :math:`\sk{\vec{L}}`
         is the skew matrix representation of the Plucker line.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1636,10 +1680,11 @@ class CentralCamera(CameraBase):
             >>> camera = CentralCamera()
             >>> camera.project_line(line)
 
-        :references:
-            - |RVC3|, Section 13.7.1.
+        .. rubric:: References
 
-        :seealso: :meth:`C` :class:`~spatialmath.geom3d.Line3` :meth:`project_point` :meth:`project_quadric`
+        - |RVC3|, Section 13.7.1.
+
+        .. seealso:: :meth:`C` :class:`~spatialmath.geom3d.Line3` :meth:`project_point` :meth:`project_quadric`
         """
         if not isinstance(lines, Line3):
             raise ValueError("expecting Line3 lines")
@@ -1681,7 +1726,7 @@ class CentralCamera(CameraBase):
         where :math:`(\mat{X})^* = det(\mat{X}) \mat{X}^{-1}` is the adjugate
         operator.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1692,10 +1737,11 @@ class CentralCamera(CameraBase):
             >>> camera = CentralCamera.Default(f=0.015, pose=T_cam);
             >>> camera.project_quadric(Q)
 
-        :references:
-            - |RVC3|, Section 13.7.1.
+        .. rubric:: References
 
-        :seealso: :meth:`C` :meth:`project_point` :meth:`project_line`
+        - |RVC3|, Section 13.7.1.
+
+        .. seealso:: :meth:`C` :meth:`project_point` :meth:`project_line`
         """
         if not smb.ismatrix(Q, (4, 4)):
             raise ValueError("expecting 4x4 conic matrix")
@@ -1723,7 +1769,7 @@ class CentralCamera(CameraBase):
         which is in homogeneous form :math:`\ell_0 u + \ell_1 v + \ell_2 = 0`
         and the conjugate point :math:`{}^2 \vec{p}` lies on this line.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1735,10 +1781,11 @@ class CentralCamera(CameraBase):
             >>> p1 = camera1.project_point(P)  # project to first camera
             >>> camera1.epiline(p1, camera2)   # epipolar line in second camera
 
-        :references:
-            - |RVC3|, Section 14.2.1.
+        .. rubric:: References
 
-        :seealso: :meth:`plot_epiline` :meth:`CentralCamera.F`
+        - |RVC3|, Section 14.2.1.
+
+        .. seealso:: :meth:`plot_epiline` :meth:`CentralCamera.F`
         """
         # p is 3 x N, result is 3 x N
         return self.F(camera2) @ smb.e2h(p)
@@ -1766,7 +1813,7 @@ class CentralCamera(CameraBase):
         which is in homogeneous form :math:`\ell_0 u + \ell_1 v + \ell_2 = 0`
         and the conjugate point :math:`{}^2 \vec{p}` lies on this line.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1779,10 +1826,11 @@ class CentralCamera(CameraBase):
             >>> camera2.plot_point(P, 'kd') # project and display in second camera
             >>> camera2.plot_epiline(camera1.F(camera2), p1) # plot epipolar line in second camera
 
-        :references:
-            - |RVC3|, Section 14.2.1.
+        .. rubric:: References
 
-        :seealso: :meth:`plot_point` :meth:`epiline` :meth:`CentralCamera.F`
+        - |RVC3|, Section 14.2.1.
+
+        .. seealso:: :meth:`plot_point` :meth:`epiline` :meth:`CentralCamera.F`
         """
         # p is 3 x N, result is 3 x N
         self.plot_line2(F @ smb.e2h(p), *fmt, **kwargs)
@@ -1803,7 +1851,7 @@ class CentralCamera(CameraBase):
             - This method is common to all ``CameraBase`` subclasses, but it
               invokes a camera-specific projection method.
 
-        :seealso: :meth:`plot_point` :meth:`plot_line2` :meth:`plot_wireframe` :meth:`clf`
+        .. seealso:: :meth:`plot_point` :meth:`plot_line2` :meth:`plot_wireframe` :meth:`clf`
         """
 
         l = self.project_line(L)
@@ -1825,7 +1873,7 @@ class CentralCamera(CameraBase):
         that represents the 3D ray from the camera origin through the image
         plane point.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1834,11 +1882,12 @@ class CentralCamera(CameraBase):
             >>> line = camera.ray((100, 200))
             >>> line
 
-        :references:
-            - "Multiview Geometry", Hartley & Zisserman, p.162
-            - |RVC3|, Section 14.3.
+        .. rubric:: References
 
-        :seealso: :class:`~spatialmath.geom3d.Line3`
+        - "Multiview Geometry", Hartley & Zisserman, p.162
+        - |RVC3|, Section 14.3.
+
+        .. seealso:: :class:`~spatialmath.geom3d.Line3`
         """
         # define Plucker line in terms of point (centre of camera) and direction
         C = self.C(pose=pose)
@@ -1857,7 +1906,7 @@ class CentralCamera(CameraBase):
         :return: Euclidean coordinate of the camera frame's origin
         :rtype: ndarray(3)
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1877,7 +1926,7 @@ class CentralCamera(CameraBase):
         :return: Euclidean coordinate of the camera frame's origin
         :rtype: ndarray(3)
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1899,7 +1948,7 @@ class CentralCamera(CameraBase):
         Computes the field of view angles (2x1) in radians for the camera
         horizontal and vertical directions.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1907,8 +1956,9 @@ class CentralCamera(CameraBase):
             >>> camera1 = CentralCamera.Default(name='camera1')
             >>> camera1.fov()
 
-        :references:
-            - |RVC3|, Section 13.1.4.
+        .. rubric:: References
+
+        - |RVC3|, Section 13.1.4.
         """
         try:
             return 2 * np.arctan(np.r_[self.imagesize] / 2 * np.r_[self.rho] / self.f)
@@ -1969,7 +2019,7 @@ class CentralCamera(CameraBase):
         :return: focal length in horizontal direction
         :rtype: float
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1977,7 +2027,7 @@ class CentralCamera(CameraBase):
             >>> camera = CentralCamera.Default(name='camera1')
             >>> camera.fu
 
-        :seealso: :meth:`fv` :meth:`f`
+        .. seealso:: :meth:`fv` :meth:`f`
         """
         return self._fu
 
@@ -1989,7 +2039,7 @@ class CentralCamera(CameraBase):
         :return: focal length in vertical direction
         :rtype: float
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1997,7 +2047,7 @@ class CentralCamera(CameraBase):
             >>> camera = CentralCamera.Default(name='camera1')
             >>> camera.fv
 
-        :seealso: :meth:`fu` :meth:`f`
+        .. seealso:: :meth:`fu` :meth:`f`
         """
         return self._fv
 
@@ -2011,7 +2061,7 @@ class CentralCamera(CameraBase):
 
         Return focal length in horizontal and vertical directions.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2027,7 +2077,7 @@ class CentralCamera(CameraBase):
             has non-square pixels or the frame grabber is changing the aspect
             ratio of the image.
 
-        :seealso: :meth:`fu` :meth:`fv`
+        .. seealso:: :meth:`fu` :meth:`fv`
         """
         return np.r_[self._fu, self._fv]
 
@@ -2048,7 +2098,7 @@ class CentralCamera(CameraBase):
             self._fu = f[0]
             self._fv = f[1]
         else:
-            raise ValueError(f, "f must be a 1- or 2-element vector")
+            raise ValueError(f"f must be a 1- or 2-element vector, got {f!r}")
 
     @property
     def fpix(self) -> np.ndarray:
@@ -2058,7 +2108,7 @@ class CentralCamera(CameraBase):
         :return: focal length in horizontal and vertical directions in pixels
         :rtype: ndarray(2)
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2066,7 +2116,7 @@ class CentralCamera(CameraBase):
             >>> camera = CentralCamera.Default(name='camera1')
             >>> camera.fpix
 
-        :seealso: :meth:`f`
+        .. seealso:: :meth:`f`
         """
         return np.r_[self._fu / self._rhou, self._fv / self._rhov]
 
@@ -2080,7 +2130,7 @@ class CentralCamera(CameraBase):
 
         Return the camera intrinsic matrix.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2088,10 +2138,11 @@ class CentralCamera(CameraBase):
             >>> camera = CentralCamera.Default(name='camera1')
             >>> camera.K
 
-        :references:
-            - |RVC3|, Section 13.1.
+        .. rubric:: References
 
-        :seealso: :meth:`C` :meth:`pp` :meth:`rho`
+        - |RVC3|, Section 13.1.
+
+        .. seealso:: :meth:`C` :meth:`pp` :meth:`rho`
         """
         # fmt: off
         K = np.array([[self.fu / self.rhou, 0,                   self.u0],
@@ -2119,7 +2170,7 @@ class CentralCamera(CameraBase):
         If ``retinal`` is ``True`` then project points in retinal coordinates,
         in units of metres with respect to the principal point.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2129,10 +2180,11 @@ class CentralCamera(CameraBase):
             >>> camera.C(SE3.Trans(0.1, 0, 0))
             >>> camera.move(SE3(0.1, 0, 0)).C()
 
-        :references:
-            - |RVC3|, Section 13.1.
+        .. rubric:: References
 
-        :seealso: :meth:`project_point` :meth:`K` :meth:`decomposeC`
+        - |RVC3|, Section 13.1.
+
+        .. seealso:: :meth:`project_point` :meth:`K` :meth:`decomposeC`
         """
         P0 = np.eye(3, 4)
         if pose is None:
@@ -2164,7 +2216,7 @@ class CentralCamera(CameraBase):
 
             \max | \mat{C}\mat{P} - \mat{p} |
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2181,10 +2233,11 @@ class CentralCamera(CameraBase):
         .. note:: This method assumes no lens distortion affecting the image plane
             coordinates.
 
-        :references:
-            - |RVC3|, Section 13.2.1.
+        .. rubric:: References
 
-        :seealso: :meth:`C` :meth:`images2C` :meth:`decomposeC`
+        - |RVC3|, Section 13.2.1.
+
+        .. seealso:: :meth:`C` :meth:`images2C` :meth:`decomposeC`
         """
         z4 = np.zeros((4,))
 
@@ -2214,8 +2267,11 @@ class CentralCamera(CameraBase):
 
     @classmethod
     def images2C(
-        cls, images, gridshape: tuple[int, int] = (7, 6), squaresize: float = 0.025
-    ) -> tuple[np.ndarray, np.ndarray, list] | None:
+        cls,
+        images: Iterable[Image],
+        gridshape: tuple[int, int] = (7, 6),
+        squaresize: float = 0.025,
+    ) -> tuple[np.ndarray, np.ndarray, list[Any]] | None:
         """
         Calibrate camera from checkerboard images
 
@@ -2254,10 +2310,11 @@ class CentralCamera(CameraBase):
         .. note:: The units used for ``squaresize`` must match the units used
             for defining 3D points in space.
 
-        :references:
-            - |RVC3|, Section 13.7.
+        .. rubric:: References
 
-        :seealso: :meth:`C` :meth:`points2C` :meth:`decomposeC` :class:`~spatialmath.pose3d.SE3`
+        - |RVC3|, Section 13.7.
+
+        .. seealso:: :meth:`C` :meth:`points2C` :meth:`decomposeC` :class:`~spatialmath.pose3d.SE3`
         """
 
         criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
@@ -2305,7 +2362,7 @@ class CentralCamera(CameraBase):
                 )
                 valid.append(i)
 
-        ret, C, distortion, rvecs, tvecs = cv2.calibrateCamera(
+        rms, C, distortion, rvecs, tvecs = cv2.calibrateCamera(
             objectPoints=objpoints,
             imagePoints=imgpoints,
             imageSize=grey.shape[::-1],
@@ -2314,7 +2371,7 @@ class CentralCamera(CameraBase):
         )
 
         CalibrationFrame = namedtuple("CalibrationFrame", "image pose id")
-        if ret:
+        if rms:
             frames = []
             for rvec, tvec, corner_image, id in zip(rvecs, tvecs, corner_images, valid):
                 frame = CalibrationFrame(
@@ -2350,7 +2407,7 @@ class CentralCamera(CameraBase):
         ``pose``          pose of the camera frame wrt world
         ================  ====================================
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2363,11 +2420,12 @@ class CentralCamera(CameraBase):
         .. note:: Since only :math:`f s_x` and :math:`f s_y` can be estimated we
             set :math:`s_x = 1`.
 
-        :references:
-            - Multiple View Geometry, Hartley&Zisserman, p 163-164
-            - |RVC3|, Section 13.2.3.
+        .. rubric:: References
 
-        :seealso: :meth:`C` :meth:`points2C`
+        - Multiple View Geometry, Hartley&Zisserman, p 163-164
+        - |RVC3|, Section 13.2.3.
+
+        .. seealso:: :meth:`C` :meth:`points2C`
         """
 
         def rq(S: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
@@ -2452,7 +2510,7 @@ class CentralCamera(CameraBase):
         represented by the rigid-body motion ``T``. The plane has normal ``n``
         and at distance ``d`` with respect to the world frame.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2463,14 +2521,14 @@ class CentralCamera(CameraBase):
             >>> H = camera.H(SE3.Tx(0.2), plane, 5)
             >>> H
 
-        :seealso: :meth:`points2H` :meth:`decomposeH`
+        .. seealso:: :meth:`points2H` :meth:`decomposeH`
         """
         if d < 0:
-            raise ValueError(d, "plane distance d must be > 0")
+            raise ValueError(f"plane distance d must be > 0, got {d!r}")
 
         n = _getvector(n)
         if n[2] < 0:
-            raise ValueError(n, "normal must be away from camera (n[2] >= 0)")
+            raise ValueError(f"normal must be away from camera (n[2] >= 0), got {n!r}")
 
         # T transform view 1 to view 2
         T = SE3(T).inv()
@@ -2488,7 +2546,7 @@ class CentralCamera(CameraBase):
         p2: np.ndarray,
         method: str = "leastsquares",
         seed: int | None = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> tuple[np.ndarray, float] | tuple[np.ndarray, float, np.ndarray]:
         """
         Estimate homography from corresponding points
@@ -2507,7 +2565,7 @@ class CentralCamera(CameraBase):
         Compute a homography from two sets of corresponding image plane points
         whose world points lie on a plane.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2527,10 +2585,13 @@ class CentralCamera(CameraBase):
             of inliers is also returned, True means the corresponding input
             point pair is an inlier.
 
-        :references:
-            - |RVC3|, Section 14.2.4.
+        .. rubric:: References
 
-        :seealso: :meth:`H` :meth:`decomposeH`
+        - |RVC3|, Section 14.2.4.
+
+        .. seealso::
+
+            :meth:`H` :meth:`decomposeH`
             `opencv.findHomography <https://docs.opencv.org/4.x/d9/d0c/group__calib3d.html#ga4abc2ece9fab9398f2e560d53c8c9780>`_
         """
 
@@ -2574,7 +2635,7 @@ class CentralCamera(CameraBase):
         to the plane. In practice, there are multiple solutions. The translation
         not to scale.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2591,10 +2652,13 @@ class CentralCamera(CameraBase):
             >>> T.printline(orient="camera")
             >>> normals
 
-        :references:
-            - |RVC3|, Section 14.2.4.
+        .. rubric:: References
 
-        :seealso: :meth:`points2H` :meth:`H`
+        - |RVC3|, Section 14.2.4.
+
+        .. seealso::
+
+            :meth:`points2H` :meth:`H`
             `opencv.decomposeHomographyMat <https://docs.opencv.org/4.x/d9/d0c/group__calib3d.html#ga7f60bdff78833d1e3fd6d9d0fd538d92>`_
         """
 
@@ -2665,7 +2729,7 @@ class CentralCamera(CameraBase):
         * an SE3 pose describing the pose of the second view with respect to
           the first, assuming the same camera intrinsic parameters.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2678,12 +2742,13 @@ class CentralCamera(CameraBase):
             >>> F = camera1.F(SE3.Tx(0.2))
             >>> F
 
-        :references:
-            - Y.Ma, J.Kosecka, S.Soatto, S.Sastry, "An invitation to 3D",
-              Springer, 2003. p.177
-            - |RVC3|, Section 14.2.1.
+        .. rubric:: References
 
-        :seealso: :meth:`points2F` :meth:`E`
+        - Y.Ma, J.Kosecka, S.Soatto, S.Sastry, "An invitation to 3D",
+          Springer, 2003. p.177
+        - |RVC3|, Section 14.2.1.
+
+        .. seealso:: :meth:`points2F` :meth:`E`
         """
 
         if isinstance(other, SE3):
@@ -2699,7 +2764,9 @@ class CentralCamera(CameraBase):
             return np.linalg.inv(K2).T @ E @ np.linalg.inv(K1)
 
         else:
-            raise ValueError("bad type")
+            raise ValueError(
+                f"other must be a CentralCamera or SE3, got {type(other).__name__}"
+            )
 
     @staticmethod
     def points2F(
@@ -2708,8 +2775,8 @@ class CentralCamera(CameraBase):
         method: str = "8p",
         residual: bool = True,
         seed: int | None = None,
-        **kwargs,
-    ) -> list:
+        **kwargs: Any,
+    ) -> list[Any]:
         """
         Estimate fundamental matrix from corresponding points
 
@@ -2761,7 +2828,7 @@ class CentralCamera(CameraBase):
         image-plane points. Corresponding points are given by corresponding
         columns of ``p1`` and ``p2``.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2777,7 +2844,9 @@ class CentralCamera(CameraBase):
             >>> F
             >>> resid
 
-        :seealso: :meth:`F` :meth:`E`
+        .. seealso::
+
+            :meth:`F` :meth:`E`
             `opencv.findFundamentalMat <https://docs.opencv.org/4.x/d9/d0c/group__calib3d.html#ga59b0d57f46f8677fb5904294a23d404a>`_
         """
 
@@ -2896,11 +2965,12 @@ class CentralCamera(CameraBase):
         * a relative motion represented by a :class:`~spatialmath.pose3d.SE3`
         * a fundamental matrix
 
-        :references:
-            - Y.Ma, J.Kosecka, S.Soatto, S.Sastry, "An invitation to 3D",
-              Springer, 2003. p.177
+        .. rubric:: References
 
-        :seealso: :meth:`F` :meth:`decomposeE` :meth:`points2E`
+        - Y.Ma, J.Kosecka, S.Soatto, S.Sastry, "An invitation to 3D",
+          Springer, 2003. p.177
+
+        .. seealso:: :meth:`F` :meth:`decomposeE` :meth:`points2E`
         """
 
         if isinstance(other, np.ndarray) and other.shape == (3, 3):
@@ -2916,7 +2986,10 @@ class CentralCamera(CameraBase):
             T21 = SE3(other.inv())
 
         else:
-            raise ValueError("bad type")
+            raise ValueError(
+                "other must be a CentralCamera, SE3 or a 3x3 fundamental matrix, "
+                f"got {type(other).__name__}"
+            )
 
         return smb.skew(T21.t) @ T21.R
 
@@ -2926,7 +2999,7 @@ class CentralCamera(CameraBase):
         p2: np.ndarray,
         method: str | None = None,
         K: np.ndarray | None = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> np.ndarray | tuple[np.ndarray, np.ndarray]:
         """
         Essential matrix from points
@@ -2948,7 +3021,7 @@ class CentralCamera(CameraBase):
         Each set of points is represented by the columns of the array ``p1``
         or ``p2``.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2968,7 +3041,9 @@ class CentralCamera(CameraBase):
             of inliers is also returned, True means the corresponding input
             point pair is an inlier.
 
-        :seealso: :meth:`E` :meth:`decomposeE`
+        .. seealso::
+
+            :meth:`E` :meth:`decomposeE`
             `opencv.findEssentialMat <https://docs.opencv.org/4.x/d9/d0c/group__calib3d.html#gad245d60e64d0c1270dbfd0520847bb87>`_
 
         """
@@ -2982,7 +3057,11 @@ class CentralCamera(CameraBase):
             method_int = None
 
         E, mask = cv2.findEssentialMat(
-            points1=p1.T, points2=p2.T, cameraMatrix=K, method=method_int, **kwargs  # type: ignore[arg-type]
+            points1=p1.T,
+            points2=p2.T,
+            cameraMatrix=K,
+            method=method_int,  # type: ignore[arg-type]
+            **kwargs,
         )
         if mask is not None:
             mask = mask.flatten().astype(bool)
@@ -3009,10 +3088,13 @@ class CentralCamera(CameraBase):
         - a single 3D world point in front of the camera
         - a :class:`~machinevisiontoolbox.ImagePointFeatures.FeatureMatch` object
 
-        :references:
-            - |RVC3|, Section 14.2.2.
+        .. rubric:: References
 
-        :seealso: :meth:`E` :meth:`points2E`
+        - |RVC3|, Section 14.2.2.
+
+        .. seealso::
+
+            :meth:`E` :meth:`points2E`
             :class:`~machinevisiontoolbox.ImagePointFeatures.FeatureMatch`
             `opencv.decomposeEssentialMat <https://docs.opencv.org/4.x/d9/d0c/group__calib3d.html#ga54a2f5b3f8aeaf6c76d4a31dece85d5d>`_
             `opencv.recoverPose <https://docs.opencv.org/4.x/d9/d0c/group__calib3d.html#gadb7d2dfcc184c1d2f496d8639f4371c0>`_
@@ -3085,7 +3167,7 @@ class CentralCamera(CameraBase):
         Depth is the z-component of the point's coordinate in the camera frame.
         If ``depth`` is a scalar then it is the depth for all points.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3094,12 +3176,13 @@ class CentralCamera(CameraBase):
             >>> camera = CentralCamera.Default()
             >>> camera.visjac_p((200, 300), 2)
 
-        :references:
-            - A tutorial on Visual Servo Control, Hutchinson, Hager & Corke,
-              IEEE Trans. R&A, Vol 12(5), Oct, 1996, pp 651-670.
-            - |RVC3|, Section 15.2.1.
+        .. rubric:: References
 
-        :seealso: :meth:`flowfield` :meth:`visjac_p_polar` :meth:`visjac_l` :meth:`visjac_e`
+        - A tutorial on Visual Servo Control, Hutchinson, Hager & Corke,
+          IEEE Trans. R&A, Vol 12(5), Oct, 1996, pp 651-670.
+        - |RVC3|, Section 15.2.1.
+
+        .. seealso:: :meth:`flowfield` :meth:`visjac_p_polar` :meth:`visjac_l` :meth:`visjac_e`
         """
 
         uv = _getmatrix(uv, (2, None))
@@ -3161,7 +3244,7 @@ class CentralCamera(CameraBase):
         Depth is the z-component of the point's coordinate in the camera frame.
         If ``depth`` is a scalar then it is the depth for all points.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3170,18 +3253,18 @@ class CentralCamera(CameraBase):
             >>> camera = CentralCamera.Default()
             >>> camera.visjac_p_polar((200, 300), 2)
 
-        :references:
-            - Combining Cartesian and polar coordinates in IBVS.
-              Corke PI, Spindler F, Chaumette F
-              IROS 2009, pp 5962–5967
-            - |RVC3|, Section 16.2.
+        .. rubric:: References
 
-        :seealso: :meth:`visjac_p` :meth:`visjac_l` :meth:`visjac_e`
+        - Combining Cartesian and polar coordinates in IBVS.
+          Corke PI, Spindler F, Chaumette F
+          IROS 2009, pp 5962–5967
+        - |RVC3|, Section 16.2.
+
+        .. seealso:: :meth:`visjac_p` :meth:`visjac_l` :meth:`visjac_e`
         """
 
         J = []
         p = _getmatrix(p, (2, None))
-        f = self.f[0]
 
         Zs = [Z] * p.shape[1] if smb.isscalar(Z) else Z
 
@@ -3262,7 +3345,7 @@ class CentralCamera(CameraBase):
         Depth is the z-component of the point's coordinate in the camera frame.
         If ``depth`` is a scalar then it is the depth for all points.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3271,17 +3354,18 @@ class CentralCamera(CameraBase):
             >>> camera = CentralCamera.Default()
             >>> camera.visjac_l((0.2, 500), (0, 0, 1, -3))
 
-        :references:
-            - A New Approach to Visual Servoing in Robotics,
-              B. Espiau, F. Chaumette, and P. Rives,
-              IEEE Transactions on Robotics and Automation,
-              vol. 8, pp. 313-326, June 1992.
-            - Visual servo control 2: Advanced approaches
-              Chaumette F, Hutchinson S,
-              IEEE Robot Autom Mag 14(1):109–118 (2007)
-            - |RVC3|, Section 15.3.1.
+        .. rubric:: References
 
-        :seealso: :meth:`visjac_p` :meth:`visjac_p_polar` :meth:`visjac_e`
+        - A New Approach to Visual Servoing in Robotics,
+          B. Espiau, F. Chaumette, and P. Rives,
+          IEEE Transactions on Robotics and Automation,
+          vol. 8, pp. 313-326, June 1992.
+        - Visual servo control 2: Advanced approaches
+          Chaumette F, Hutchinson S,
+          IEEE Robot Autom Mag 14(1):109–118 (2007)
+        - |RVC3|, Section 15.3.1.
+
+        .. seealso:: :meth:`visjac_p` :meth:`visjac_p_polar` :meth:`visjac_e`
         """
 
         a, b, c, d = _getvector(plane)
@@ -3351,7 +3435,7 @@ class CentralCamera(CameraBase):
 
         .. math:: aX + bY + cZ + d = 0
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3360,17 +3444,18 @@ class CentralCamera(CameraBase):
             >>> camera = CentralCamera.Default()
             >>> camera.visjac_e((0.5, 0, -1000, -500, 374900), (0, 0, 1, -1))
 
-        :references:
-            - A New Approach to Visual Servoing in Robotics,
-              B. Espiau, F. Chaumette, and P. Rives,
-              IEEE Transactions on Robotics and Automation,
-              vol. 8, pp. 313-326, June 1992.
-            - Visual servo control 2: Advanced approaches
-              Chaumette F, Hutchinson S,
-              IEEE Robot Autom Mag 14(1):109–118 (2007)
-            - |RVC3|, Section 15.3.2.
+        .. rubric:: References
 
-        :seealso: :meth:`visjac_p` :meth:`visjac_p_polar` :meth:`visjac_l`
+        - A New Approach to Visual Servoing in Robotics,
+          B. Espiau, F. Chaumette, and P. Rives,
+          IEEE Transactions on Robotics and Automation,
+          vol. 8, pp. 313-326, June 1992.
+        - Visual servo control 2: Advanced approaches
+          Chaumette F, Hutchinson S,
+          IEEE Robot Autom Mag 14(1):109–118 (2007)
+        - |RVC3|, Section 15.3.2.
+
+        .. seealso:: :meth:`visjac_p` :meth:`visjac_p_polar` :meth:`visjac_l`
         """
 
         E = _getvector(E)
@@ -3438,7 +3523,7 @@ class CentralCamera(CameraBase):
         Display the optical flow field using Matplotlib, for a grid of points at
         distance ``Z`` for a camera velocity of ``vel``.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3446,7 +3531,7 @@ class CentralCamera(CameraBase):
             >>> camera = CentralCamera.Default()
             >>> camera.flowfield([0, 0, 0, 0, 1, 0])
 
-        :seealso: :meth:`visjac_p`
+        .. seealso:: :meth:`visjac_p`
         """
         vel = _getvector(vel, 6)
 
@@ -3486,7 +3571,7 @@ class CentralCamera(CameraBase):
 
         where :math:`\vec{f}(\vec{x})` is the perspective projection function.
 
-        :seealso: :meth:`project_point`
+        .. seealso:: :meth:`project_point`
         """
         # compute Jacobians and projection
 
@@ -3514,8 +3599,9 @@ class CentralCamera(CameraBase):
         :type method: str, optional
         :param frame: estimate pose with respect to frame "world" [default] or "camera"
         :type frame: str, optional
-        :return: pose of target frame relative to the world frame
-        :rtype: :class:`~spatialmath.pose3d.SE3`
+        :return: pose of target frame relative to the world frame, or ``None`` if
+            the algorithm finds no solution
+        :rtype: :class:`~spatialmath.pose3d.SE3` or None
 
         Using a set of points defining some object with respect to its own frame {B}, and
         a set of image-plane projections, estimate the pose of {B} with respect to the world
@@ -3529,7 +3615,9 @@ class CentralCamera(CameraBase):
             * Algorithm ``"ippe-square"`` requires exactly four points at the corners of a
               square and in the order: (-x, y), (x, y), (x, -y), (-x, -y).
 
-        :seealso: :meth:`project_point`
+        .. seealso::
+
+            :meth:`project_point`
             `opencv.solvePnP <https://docs.opencv.org/4.x/d9/d0c/group__calib3d.html#ga549c2075fac14829ff4a58bc931c033d>`_
         """
 
@@ -3608,10 +3696,13 @@ class FishEyeCamera(CameraBase):
         - This camera model assumes central projection, that is, the focal point
             is at z=0 and the image plane is at z=f.  The image is not inverted.
 
-    :references:
-        - |RVC3|, Section 13.3.1.
+    .. rubric:: References
 
-    :seealso: :class:`CameraBase` :class:`CentralCamera` :class:`CatadioptricCamera`
+    - |RVC3|, Section 13.3.1.
+
+    .. seealso::
+
+        :class:`CameraBase` :class:`CentralCamera` :class:`CatadioptricCamera`
         :class:`SphericalCamera`
     """
 
@@ -3620,7 +3711,10 @@ class FishEyeCamera(CameraBase):
     projection: str
 
     def __init__(
-        self, k: float | None = None, projection: str = "equiangular", **kwargs
+        self,
+        k: float | None = None,
+        projection: str = "equiangular",
+        **kwargs: Any,
     ) -> None:
         super().__init__(camtype="fisheye", **kwargs)
 
@@ -3705,7 +3799,7 @@ class FishEyeCamera(CameraBase):
         The points ``P`` are by default with respect to the world frame, but
         they can be transformed by specifying ``objpose``.
 
-        :seealso: :meth:`plot_point`
+        .. seealso:: :meth:`plot_point`
         """
 
         P = _getmatrix(P, (3, None))
@@ -3769,10 +3863,13 @@ class CatadioptricCamera(CameraBase):
         - This camera model assumes central projection, that is, the focal point
           is at :math:`z=0` and the image plane is at :math:`z=f`.  The image is not inverted.
 
-    :references:
-        - |RVC3|, Section 13.3.2.
+    .. rubric:: References
 
-    :seealso: :class:`CameraBase` :class:`CentralCamera` :class:`FishEyeCamera`
+    - |RVC3|, Section 13.3.2.
+
+    .. seealso::
+
+        :class:`CameraBase` :class:`CentralCamera` :class:`FishEyeCamera`
         :class:`SphericalCamera`
     """
 
@@ -3785,7 +3882,7 @@ class CatadioptricCamera(CameraBase):
         k: float | None = None,
         projection: str = "equiangular",
         maxangle: float | None = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
         super().__init__(camtype="catadioptric", **kwargs)
 
@@ -3864,7 +3961,7 @@ class CatadioptricCamera(CameraBase):
         The points ``P`` are by default with respect to the world frame, but
         they can be transformed by specifying ``objpose``.
 
-        :seealso: :meth:`plot_point`
+        .. seealso:: :meth:`plot_point`
         """
         P = _getmatrix(P, (3, None))
 
@@ -3907,10 +4004,13 @@ class SphericalCamera(CameraBase):
     The spherical camera is an idealization with a complete field of view
     that can be used to generalize all camera projection models.
 
-    :references:
-        - |RVC3|, Section 13.3.3.
+    .. rubric:: References
 
-    :seealso: :class:`CameraBase` :class:`CentralCamera` :class:`CatadioptricCamera`
+    - |RVC3|, Section 13.3.3.
+
+    .. seealso::
+
+        :class:`CameraBase` :class:`CentralCamera` :class:`CatadioptricCamera`
         :class:`FishEyeCamera`
     """
 
@@ -3969,7 +4069,7 @@ class SphericalCamera(CameraBase):
         The points ``P`` are by default with respect to the world frame, but
         they can be transformed by specifying ``objpose``.
 
-        :seealso: :meth:`plot_point`
+        .. seealso:: :meth:`plot_point`
         """
         P = _getmatrix(P, (3, None))
 
@@ -3987,7 +4087,6 @@ class SphericalCamera(CameraBase):
         R = np.linalg.norm(P_arr, axis=0)
         x = P_arr[0, :] / R
         y = P_arr[1, :] / R
-        z = P_arr[2, :] / R
 
         phi = np.arctan2(y, x)
         r = np.sqrt(x**2 + y**2)

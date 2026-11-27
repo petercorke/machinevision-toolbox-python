@@ -140,7 +140,7 @@ class VisualServo(ABC):
 
     def step(self, t: float) -> int:
         """Compute one timestep of the simulation, implemented by subclasses."""
-        raise NotImplementedError
+        raise NotImplementedError(f"{type(self).__name__} must implement step()")
 
     def init(self) -> None:
         """
@@ -238,7 +238,7 @@ class VisualServo(ABC):
 
         Show image feature points versus time.
 
-        :seealso: :meth:`plot_vel` :meth:`self.plot_pose` :meth:`plot_jcond` :meth:`plot_z` :meth:`plot_error`
+        .. seealso:: :meth:`plot_vel` :meth:`self.plot_pose` :meth:`plot_jcond` :meth:`plot_z` :meth:`plot_error`
         """
 
         if len(self.history) == 0:
@@ -307,7 +307,7 @@ class VisualServo(ABC):
 
         Show camera velocity versus time.
 
-        :seealso: :meth:`plot_p` :meth:`self.plot_pose` ::meth:`plot_jcond` :meth:`plot_z` :meth:`plot_error`
+        .. seealso:: :meth:`plot_p` :meth:`self.plot_pose` ::meth:`plot_jcond` :meth:`plot_z` :meth:`plot_error`
         """
         if len(self.history) == 0:
             return
@@ -332,7 +332,7 @@ class VisualServo(ABC):
         Show camera pose versus time, as two plots: translation and rotation
         in RPY angles.
 
-        :seealso: :meth:`plot_p` :meth:`self.plot_vel` :meth:`plot_jcond` :meth:`plot_z` :meth:`plot_error`
+        .. seealso:: :meth:`plot_p` :meth:`self.plot_vel` :meth:`plot_jcond` :meth:`plot_z` :meth:`plot_error`
         """
 
         if len(self.history) == 0:
@@ -364,7 +364,7 @@ class VisualServo(ABC):
         Show image Jacobian condition versus time. Indicates whether the point configuration is close to
         singular.
 
-        :seealso: :meth:`plot_p` :meth:`self.plot_vel` :meth:`self.plot_pose` :meth:`plot_z` :meth:`plot_error`
+        .. seealso:: :meth:`plot_p` :meth:`self.plot_vel` :meth:`self.plot_pose` :meth:`plot_z` :meth:`plot_error`
         """
 
         if len(self.history) == 0:
@@ -386,7 +386,7 @@ class VisualServo(ABC):
         Show depth of all features versus time. If a depth estimator is
         used it shows true and estimated depth.
 
-        :seealso: :meth:`plot_p` :meth:`self.plot_vel`  :meth:`self.plot_pose` :meth:`plot_jcond` :meth:`plot_error`
+        .. seealso:: :meth:`plot_p` :meth:`self.plot_vel`  :meth:`self.plot_pose` :meth:`plot_jcond` :meth:`plot_error`
         """
         if len(self.history) == 0:
             return
@@ -413,7 +413,7 @@ class VisualServo(ABC):
         Show error of all features, norm of (desired - actual) versus time. If a depth estimator is
         used it shows true and estimated depth.
 
-        :seealso: :meth:`plot_p` :meth:`self.plot_vel`  :meth:`self.plot_pose` :meth:`plot_jcond` :meth:`plot_z`
+        .. seealso:: :meth:`plot_p` :meth:`self.plot_vel`  :meth:`self.plot_pose` :meth:`plot_jcond` :meth:`plot_z`
         """
 
         if len(self.history) == 0:
@@ -444,7 +444,7 @@ class VisualServo(ABC):
         Show simulation results, in separate figures, feature values, velocity,
         error and camera pose versus time.
 
-        :seealso: :meth:`plot_p` :meth:`self.plot_vel`  :meth:`self.plot_pose` :meth:`plot_jcond` :meth:`plot_z` :meth:`plot_error`
+        .. seealso:: :meth:`plot_p` :meth:`self.plot_vel`  :meth:`self.plot_pose` :meth:`plot_jcond` :meth:`plot_z` :meth:`plot_error`
         """
 
         plt.figure()
@@ -542,7 +542,7 @@ class PBVS(VisualServo):
             Jacobian condition number, error norm, image plane size and desired feature
             locations.
 
-        :seealso: :class:`IBVS` :class:`IBVS_l` :class:`IBVS_e` :class:`IBVS_polar` :class:`IBVS_sph`
+        .. seealso:: :class:`IBVS` :class:`IBVS_l` :class:`IBVS_e` :class:`IBVS_polar` :class:`IBVS_sph`
         """
 
         # invoke superclass constructor
@@ -570,7 +570,7 @@ class PBVS(VisualServo):
         * using world point data, estimate goal pose {G} with respect to camera pose
         * incrementally update the camera pose.
 
-        :seealso: :meth:`run` :meth:`VisualServo.run`
+        .. seealso:: :meth:`run` :meth:`VisualServo.run`
         """
 
         status = 0
@@ -697,7 +697,7 @@ class IBVS(VisualServo):
 
         Implicitly called by ``run`` to initialize state variables.
 
-        :seealso: :meth:`run` :meth:`VisualServo.init`
+        .. seealso:: :meth:`run` :meth:`VisualServo.init`
         """
         # initialize the vservo variables
         super().init()
@@ -722,7 +722,7 @@ class IBVS(VisualServo):
         * compute the image Jacobian and camera velocity
         * incrementally update the camera pose.
 
-        :seealso: :meth:`run` :meth:`VisualServo.run`
+        .. seealso:: :meth:`run` :meth:`VisualServo.run`
         """
 
         status = 0
@@ -967,7 +967,7 @@ class IBVS_l(VisualServo):
 
         Implicitly called by ``run`` to initialize state variables.
 
-        :seealso: :meth:`run` :meth:`VisualServo.init`
+        .. seealso:: :meth:`run` :meth:`VisualServo.init`
         """
         super().init()
         self.camera.clf()
@@ -993,7 +993,7 @@ class IBVS_l(VisualServo):
         * compute the image Jacobian and camera velocity
         * incrementally update the camera pose.
 
-        :seealso: :meth:`run` :meth:`VisualServo.run`
+        .. seealso:: :meth:`run` :meth:`VisualServo.run`
         """
         status = 0
 
@@ -1203,7 +1203,7 @@ class IBVS_e(VisualServo):
 
         Implicitly called by ``run`` to initialize state variables.
 
-        :seealso: :meth:`run` :meth:`VisualServo.init`
+        .. seealso:: :meth:`run` :meth:`VisualServo.init`
         """
 
         # desired feature coordinates.  This vector comprises the ellipse
@@ -1247,7 +1247,7 @@ class IBVS_e(VisualServo):
         * compute the image Jacobian and camera velocity
         * incrementally update the camera pose.
 
-        :seealso: :meth:`run` :meth:`VisualServo.run`
+        .. seealso:: :meth:`run` :meth:`VisualServo.run`
         """
 
         status = 0
@@ -1365,7 +1365,9 @@ class IBVS_sph(VisualServo):
         self.depth = depth
 
     @classmethod
-    def Example(cls, camera: SphericalCamera | None = None, **kwargs: Any) -> "IBVS_sph":
+    def Example(
+        cls, camera: SphericalCamera | None = None, **kwargs: Any
+    ) -> "IBVS_sph":
         # run a canned example
         print("canned example, spherical IBVS with 4 points")
         if camera is None:
@@ -1403,7 +1405,7 @@ class IBVS_sph(VisualServo):
         * compute the image Jacobian and camera velocity
         * incrementally update the camera pose.
 
-        :seealso: :meth:`run` :meth:`VisualServo.run`
+        .. seealso:: :meth:`run` :meth:`VisualServo.run`
         """
         status = 0
 

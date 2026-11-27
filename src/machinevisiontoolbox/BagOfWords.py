@@ -84,7 +84,9 @@ class BagOfWords:
             - Robotics, Vision & Control for Python, Section 12.4.2,
                 P. Corke, Springer 2023.
 
-        :seealso: :meth:`recall` :meth:`~machinevisiontoolbox.ImagePointFeatures.BaseFeature2D`
+        .. seealso::
+
+            :meth:`recall` :meth:`~machinevisiontoolbox.ImagePointFeatures.BaseFeature2D`
             :meth:`~machinevisiontoolbox.ImagePointFeatures.SIFT`
             `cv2.kmeans <https://docs.opencv.org/4.x/d5/d38/group__core__cluster.html#ga9a34dc06c6ec9460e90860f15bcd2f88>`_
         """
@@ -241,7 +243,7 @@ class BagOfWords:
         :return: number of words
         :rtype: int
 
-        :seealso: :meth:`nstopwords`
+        .. seealso:: :meth:`nstopwords`
         """
         return self._k
 
@@ -256,7 +258,7 @@ class BagOfWords:
         Word labels are arranged such that the top ``nstopwords`` labels are
         stop words.
 
-        :seealso: :meth:`nstopwords`
+        .. seealso:: :meth:`nstopwords`
         """
         return self._words
 
@@ -283,7 +285,7 @@ class BagOfWords:
 
         This is ``k`` - ``nstopwords``.
 
-        :seealso: :meth:`k` :meth:`nstopwords`
+        .. seealso:: :meth:`k` :meth:`nstopwords`
         """
         return self._k - self._nstopwords
 
@@ -295,7 +297,7 @@ class BagOfWords:
         :return: Number of stop words
         :rtype: int
 
-        :seealso: :meth:`k` :meth:`nwords`
+        .. seealso:: :meth:`k` :meth:`nwords`
         """
         return self._nstopwords
 
@@ -326,7 +328,7 @@ class BagOfWords:
 
         .. note:: The stop words are kept in the centroid array for the recall process.
 
-        :seealso: :meth:`similarity`
+        .. seealso:: :meth:`similarity`
         """
         return self._centroids
 
@@ -359,7 +361,7 @@ class BagOfWords:
 
         stopfeatures = freq[stopwords].sum()
         print(
-            f"Removing {stopfeatures} features ({stopfeatures/len(self.words) * 100:.1f}%) associated with {self.nstopwords} most frequent words"
+            f"Removing {stopfeatures} features ({stopfeatures / len(self.words) * 100:.1f}%) associated with {self.nstopwords} most frequent words"
         )
 
         k = np.full(index.shape, False, dtype=bool)
@@ -407,7 +409,7 @@ class BagOfWords:
         - a set of image features, in which case the similarity is computed between the
           bag and the query features, or
 
-        :seealso: :meth:`.closest`
+        .. seealso:: :meth:`.closest`
         """
         if isinstance(query, np.ndarray):
             wwfv = query
@@ -534,7 +536,7 @@ class BagOfWords:
         :return: index of the recalled image and similarity
         :rtype: int, float
 
-        :seealso: :meth:`similarity`
+        .. seealso:: :meth:`similarity`
         """
         s = S[:, i]
         index = np.argsort(-s)
@@ -550,7 +552,7 @@ class BagOfWords:
         :return: list of images containing this word
         :rtype: list
 
-        :seealso: :meth:`exemplars`
+        .. seealso:: :meth:`exemplars`
         """
         return np.unique(self._image_id[self.words == word])
 
@@ -584,7 +586,9 @@ class BagOfWords:
 
         Produces a grid of examples of a particular visual word.
 
-        :seealso: :meth:`contains`
+        .. seealso::
+
+            :meth:`contains`
             :meth:`~machinevisiontoolbox.ImagePointFeatures.BaseFeature2D.support`
             :meth:`~machinevisiontoolbox.Image.Tile`
         """

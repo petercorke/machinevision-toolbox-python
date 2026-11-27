@@ -6,11 +6,20 @@ import numpy as np
 import numpy.testing as nt
 
 from machinevisiontoolbox import Image
-from machinevisiontoolbox.base.color import *
+from machinevisiontoolbox.base.color import (
+    XYZ2RGBxform,
+    ccxyz,
+    color2name,
+    colorspace_convert,
+    gamma_decode,
+    gamma_encode,
+    lambda2xy,
+    luminos,
+    name2color,
+)
 
 
 class TestImageProcessingColor(unittest.TestCase):
-
     def test_color2name(self):
         name = color2name([1, 0, 0])
         self.assertIsInstance(name, str)
@@ -267,7 +276,6 @@ class TestImageProcessingColor(unittest.TestCase):
 
 
 class TestBaseColorFunctions(unittest.TestCase):
-
     def test_luminos_scalar(self):
         y = luminos(555e-9)
         # peak photopic luminosity (555 nm) ≈ 683 lm/W
@@ -358,7 +366,6 @@ class TestBaseColorFunctions(unittest.TestCase):
 
 # ----------------------------------------------------------------------------#
 if __name__ == "__main__":
-
     unittest.main()
 
     # import code

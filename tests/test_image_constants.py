@@ -7,7 +7,6 @@ import numpy.testing as nt
 from spatialmath import Polygon2
 
 from machinevisiontoolbox import Image
-from machinevisiontoolbox.base.color import *
 
 
 class TestImageConstants(unittest.TestCase):
@@ -118,7 +117,7 @@ class TestImageConstants(unittest.TestCase):
         self.assertEqual(im.dtype, np.float32)
         self.assertTrue(np.all(im._A == 0.74))
 
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(ValueError):
             im = Image.Constant((40, 41, 42), size=(5, 9), colororder="ABCD")
 
     def test_constant_new_style(self):
@@ -162,15 +161,12 @@ class TestImageConstants(unittest.TestCase):
             )
         )
 
-        im = (
-            Image.String(
-                r"""
+        im = Image.String(
+            r"""
                     001200
                     000345
                 """
-            )
-            - ord("0")
-        )
+        ) - ord("0")
 
         self.assertEqual(im.size, (6, 2))
         self.assertEqual(im.dtype, np.uint8)
@@ -528,8 +524,6 @@ class TestImageConstants(unittest.TestCase):
         self.assertTrue(im._A.sum(), 64 * 128 / 2)
 
     def test_polygons(self):
-        from spatialmath import Polygon2
-
         p1 = Polygon2([(10, 10), (12, 10), (12, 12), (10, 12)])  # 2x2
         p2 = Polygon2([(30, 30), (40, 30), (40, 40), (30, 40)])  # 10x10
 

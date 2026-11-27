@@ -156,19 +156,25 @@ jobs:
       - name: Install libegl
         run: sudo apt-get update && sudo apt-get install -y libegl1 libgl1
 
+      # The optional extras, so that the tests of PointCloud, the PyTorch methods and
+      # the ROS sources run and count; without them they are skipped and Codecov
+      # reports PointCloud at 22%, ImageTensor at 23% and Sources at 35%.
+      # PyTorch comes from the CPU index, which is much smaller.
       - name: Install package
         run: |
-          pip install .[dev,tool]
+          pip install .[dev,tool,open3d,ros]
+          pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
           cd packages/mvtb-data && pip install .
 
       - name: Run coverage
         env:
           MPLBACKEND: Agg
         run: |
-          coverage run --source=machinevisiontoolbox --omit="src/machinevisiontoolbox/blocks/*,src/machinevision/blocks/*" -m pytest --timeout=50
+          coverage run --source=machinevisiontoolbox -m pytest --timeout=50
           coverage xml
 
       - name: Upload to Codecov
         uses: codecov/codecov-action@v7
         with:
-          file: ./coverage.xml
+          files: ./coverage.xml
+          token: ${{ secrets.CODECOV_TOKEN }}

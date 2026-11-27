@@ -4,7 +4,6 @@ Low-level image reading from files, URLs, and byte buffers.
 
 from __future__ import annotations
 
-import copy
 import glob
 import urllib.error
 import urllib.request
@@ -15,7 +14,6 @@ from typing import Any, Callable, Iterator
 import cv2
 import matplotlib as mpl
 import matplotlib.cm as cm
-
 import numpy as np
 
 from machinevisiontoolbox.base.color import colorspace_convert, gamma_decode
@@ -123,7 +121,7 @@ def _ensure_mpl_backend() -> None:
         return
 
     try:
-        import google.colab  # noqa: F401
+        __import__("google.colab")
 
         mpl.use("module://matplotlib_inline.backend_inline")
         return
@@ -172,6 +170,32 @@ def safe_plt_show(block: bool | float | None = False) -> None:
             category=UserWarning,
         )
         plt.show(block=bool(block))
+
+
+def _idisp_key_help(clipboard: bool) -> str:
+    """Text listing the keys that :func:`idisp` responds to.
+
+    :param clipboard: True if the clipboard keys are available, that is ``pyclip``
+        is installed
+    :return: the help text, one key per line
+    """
+    lines = [
+        "idisp keys:",
+        "  ?  show this help",
+        "  q  close the window",
+    ]
+    if clipboard:
+        lines += [
+            "  c  copy the pixel position u,v to the clipboard",
+            "  C  append the pixel position to the clipboard",
+            "  v  copy the pixel position and value",
+            "  V  append the pixel position and value",
+            "  x  clear the clipboard",
+        ]
+    else:
+        lines.append("  c C v V x  clipboard keys, need pyclip: pip install pyclip")
+    lines.append("Matplotlib: f full screen, g grid, h home, p pan, o zoom, s save")
+    return "\n".join(lines)
 
 
 def idisp(
@@ -311,13 +335,13 @@ def idisp(
     be displayed, but the ``draw_xxx()`` functions can be used to draw on the image
     prior to display.
 
-    Example:
+    .. rubric:: Examples
 
-        .. code-block:: python
+    .. code-block:: python
 
-            from machinevisiontoolbox import iread, idisp
-            im, file = iread("monalisa.png", matplotlib=False)
-            idisp(im)
+        from machinevisiontoolbox import iread, idisp
+        im, file = iread("monalisa.png", matplotlib=False)
+        idisp(im)
 
 
     Most of the options apply to the Matplotlib case.
@@ -328,7 +352,7 @@ def idisp(
     Other graphics can be superimposed on the image using the Matplotlib plotting
     functions ``plot_xxx()``.
 
-    Example:
+    .. rubric:: Examples
 
     .. code-block:: python
 
@@ -402,6 +426,11 @@ def idisp(
     Certain keys can be pressed while the image is displayed:
 
         - ``q`` will close the window
+        - ``?`` will print this list of keys, in the terminal or the notebook output.
+          The clipboard keys are listed only if ``pyclip`` is installed.
+
+    .. versionadded:: 2.5.0
+        The ``?`` key.
 
     If ``pyclip`` is installed, the following clipboard keys are available:
 
@@ -429,10 +458,18 @@ def idisp(
           U1,V1\nU2,V2
         - The clipboard keys require that ``pyclip`` is installed.
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. versionchanged:: 2.5.0
+        The ``v`` and ``V`` keys copy plain numbers, for example ``2,1,(10, 20, 30)``.
+        On NumPy 2 they used to copy ``2,1,(np.uint8(10), np.uint8(20), np.uint8(30))``,
+        and raised an error for a monochrome image.
 
-    :seealso: :func:`matplotlib.imshow` `cv2.imshow
+    .. rubric:: References
+
+    - |RVC3|, Section 10.1.
+
+    .. seealso::
+
+        :func:`matplotlib.imshow` `cv2.imshow
         <https://docs.opencv.org/4.x/d7/dfc/group__highgui.html#ga453d42fe4cb60e5723281a89973ee563>`_
     """
 
@@ -743,13 +780,18 @@ def _idisp_matplotlib(
     #
     # only works for greyscale image
     if im.ndim == 2:
-        cmap = copy.copy(cmap)
-        if undercolor is not None:
-            cmap.set_under(color=undercolor)
-        if overcolor is not None:
-            cmap.set_over(color=overcolor)
-        if badcolor is not None:
-            cmap.set_bad(color=badcolor)
+        # with_extremes returns a copy, so the caller's colormap is not changed
+        extremes = {
+            key: color
+            for key, color in (
+                ("under", undercolor),
+                ("over", overcolor),
+                ("bad", badcolor),
+            )
+            if color is not None
+        }
+        if extremes:
+            cmap = cmap.with_extremes(**extremes)
     # elif im.ndim == 3:
     #     if badcolor is not None:
     #         cmap.set_bad(color=badcolor)
@@ -915,7 +957,19 @@ def _idisp_matplotlib(
         except IndexError:
             return ""
 
+    def pixel_text(u: int, v: int) -> str:
+        # the value of pixel (u, v) as plain Python numbers: "6" for a monochrome
+        # image, "(10, 20, 30)" for a color image.  NumPy 2 would show a scalar
+        # as "np.uint8(10)", which is no use pasted into a script or a spreadsheet.
+        val = im[v, u, ...]
+        if val.ndim == 0:
+            return str(val.item())
+        return str(tuple(val.tolist()))
+
     def key_press(event: Any) -> None:
+        if event.key == "?":
+            print(_idisp_key_help(_pyclip and pyclip is not None))
+            return
         if not _pyclip:
             return
         if pyclip is None:
@@ -939,14 +993,12 @@ def _idisp_matplotlib(
         elif event.key == "x":
             pyclip.copy("")
         elif event.key == "v":
-            val = im[v, u, ...]
-            pyclip.copy(f"{u},{v},{tuple(val)}")
+            pyclip.copy(f"{u},{v},{pixel_text(u, v)}")
         elif event.key == "V":
-            val = im[v, u, ...]
             prev = pyclip.paste()
             if isinstance(prev, bytes):
                 prev = prev.decode()
-            pyclip.copy(f"{prev}\n{u},{v},{tuple(val)}")
+            pyclip.copy(f"{prev}\n{u},{v},{pixel_text(u, v)}")
 
     fig.canvas.mpl_connect("key_press_event", key_press)
 
@@ -1080,7 +1132,7 @@ def iread(
     correction, image decimation or region of interest windowing.  Details are
     given at :func:`convert`.
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -1105,10 +1157,11 @@ def iread(
           and ``[abc]`` patterns, and includes hidden files (those starting with a dot) in the search results.
         - For URL input, the image is read directly from the URL without saving to a local file.  The URL must start with "http://" or "https://".  Wildcard patterns are not supported for URLs.
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
 
-    :seealso: :func:`iread_iter` :func:`convert` `cv2.imread <https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56>`_
+    - |RVC3|, Section 10.1.
+
+    .. seealso:: :func:`iread_iter` :func:`convert` `cv2.imread <https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56>`_
     """
 
     if isinstance(filename, str) and (
@@ -1141,7 +1194,6 @@ def iread(
             raise ValueError(f"Could not fetch {filename}: {e.reason}") from e
 
     if isinstance(filename, (str, Path)):
-        filename_str = str(filename)
         path = Path(filename).expanduser()
         if glob.has_magic(str(path)):
             images = []
@@ -1155,7 +1207,7 @@ def iread(
     try:
         return next(iterator)
     except StopIteration as exc:
-        raise ValueError(filename, "invalid filename") from exc
+        raise ValueError(f"invalid filename, got {filename!r}") from exc
 
 
 def iread_iter(
@@ -1185,7 +1237,7 @@ def iread_iter(
           recursive globbing with the ``**`` pattern, as well as the usual ``*``, ``?``
           and ``[abc]`` patterns. Hidden files (those starting with a dot) are included in the search results.
 
-    :seealso: :func:`iread` :func:`convert` `cv2.imread <https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56>`_
+    .. seealso:: :func:`iread` :func:`convert` `cv2.imread <https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56>`_
     """
 
     if isinstance(filename, (str, Path)):
@@ -1232,7 +1284,7 @@ def iread_iter(
         return
 
     else:
-        raise ValueError(filename, "invalid filename")
+        raise ValueError(f"invalid filename, got {filename!r}")
 
 
 def convert(
@@ -1399,14 +1451,14 @@ def iwrite(
     Writes the image ``im`` to ``filename`` using cv2.imwrite(), passing any keyword
     arguments as options.  The file type is taken from the extension in ``filename``.
 
-    Example:
+    .. rubric:: Examples
 
-        .. code-block:: python
+    .. code-block:: python
 
-            from machinevisiontoolbox import iwrite
-            import numpy as np
-            image = np.zeros((20,20))  # 20x20 black image
-            iwrite(image, "black.png")
+        from machinevisiontoolbox import iwrite
+        import numpy as np
+        image = np.zeros((20,20))  # 20x20 black image
+        iwrite(image, "black.png")
 
 
     .. note::
@@ -1422,7 +1474,9 @@ def iwrite(
         Any missing folders in the path of ``filename`` are created.  Previously
         ``cv2.imwrite`` returned ``False`` and wrote nothing.
 
-    :seealso: :func:`iread` `cv2.imwrite
+    .. seealso::
+
+        :func:`iread` `cv2.imwrite
         <https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html#gabbc7ef1aa2edfaa87772f1202d67e0ce>`_
     """
     # cv2.imwrite does not create folders, it just returns False
@@ -1468,11 +1522,15 @@ def pickpoints(
 
     .. note:: Picked coordinates have floating point values.
 
-    :seealso: :func:`idisp`
+    .. versionchanged:: 2.5.0
+        ``pickpoints`` with ``matplotlib=True`` raised ``NameError``; it now works.
+
+    .. seealso:: :func:`idisp`
     """
 
     if matplotlib:
-        points = plt.ginput(n)  # type: ignore[name-defined]
+        plt = _plt()
+        points = plt.ginput(n)
         return np.c_[points].T
     else:
 
@@ -1491,7 +1549,7 @@ def pickpoints(
 
 
 if __name__ == "__main__":
-    from machinevisiontoolbox import *
+    from machinevisiontoolbox import FileCollection
 
     images = FileCollection("seq/*.png")
 

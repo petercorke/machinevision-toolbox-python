@@ -2,8 +2,6 @@
 
 # test for Image input/output
 
-import contextlib
-import io
 import json
 import os
 import subprocess
@@ -27,7 +25,7 @@ except ImportError:
     _torch_available = False
 
 try:
-    import labelme  # noqa: F401
+    __import__("labelme")
 
     _labelme_available = True
 except ImportError:
@@ -50,7 +48,7 @@ from machinevisiontoolbox import (
     VideoFile,
     ZipArchive,
 )
-from machinevisiontoolbox.base import iread, mvtb_path_to_datafile
+from machinevisiontoolbox.base import mvtb_path_to_datafile
 
 
 def _has_file(*args):
@@ -62,7 +60,6 @@ def _has_file(*args):
 
 
 class TestImageSources(unittest.TestCase):
-
     def test_filecollection(self):
         # single str with wild card for folder of images
         # print('test_wildcardstr')
@@ -134,7 +131,7 @@ class TestImageSources(unittest.TestCase):
     def test_videofile(self):
         # video file
 
-        # traffic_sequence.mpg
+        # traffic_sequence.mp4
         v = VideoFile("traffic_sequence.mp4")
         self.assertEqual(v.nframes, 350)
 
@@ -241,7 +238,6 @@ class TestImageSources(unittest.TestCase):
 
 
 class TestZipArchiveFormats(unittest.TestCase):
-
     @staticmethod
     def _sample_members(tmpdir: Path) -> dict[str, bytes]:
         pgm = b"P5\n2 2\n255\n" + bytes([0, 255, 255, 0])
@@ -364,7 +360,6 @@ class TestZipArchiveFormats(unittest.TestCase):
 
 @unittest.skipUnless(_torch_available, "PyTorch not installed")
 class TestTensorStack(unittest.TestCase):
-
     def test_tensorstack_init_4d_rgb(self):
         """TensorStack initializes with (B, C, H, W) tensor."""
         batch = torch.randn(5, 3, 64, 64)
@@ -536,7 +531,6 @@ class TestTensorStack(unittest.TestCase):
 
 @unittest.skipUnless(_labelme_available, "labelme not installed")
 class TestLabelMeReader(unittest.TestCase):
-
     def test_labelme_read(self):
         """LabelMe returns image, polygons with attrs, and file flags."""
         from machinevisiontoolbox import LabelMeReader
@@ -551,9 +545,9 @@ class TestLabelMeReader(unittest.TestCase):
 
             import cv2 as cv
 
-            assert cv.imwrite(
-                image_path, image_data
-            ), f"cv.imwrite failed: {image_path}"
+            assert cv.imwrite(image_path, image_data), (
+                f"cv.imwrite failed: {image_path}"
+            )
 
             import base64
 
@@ -605,6 +599,27 @@ class TestLabelMeReader(unittest.TestCase):
 
             self.assertEqual(shapes[1].group_id, 3)
             self.assertEqual(shapes[1].flags, {"hard": False})
+
+
+class TestLabelMeReaderErrors(unittest.TestCase):
+    """A LabelMe file that cannot be read raises, it does not return a half-built reader."""
+
+    def test_missing_file_raises(self):
+        from machinevisiontoolbox import LabelMeReader
+
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaises(FileNotFoundError):
+                LabelMeReader(os.path.join(tmp, "missing.json"))
+
+    def test_invalid_json_raises(self):
+        from machinevisiontoolbox import LabelMeReader
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "bad.json")
+            with open(path, "w", encoding="utf-8") as f:
+                f.write("{ this is not json")
+            with self.assertRaises(json.JSONDecodeError):
+                LabelMeReader(path)
 
 
 class TestEarthViewKey(unittest.TestCase):

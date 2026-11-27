@@ -5,9 +5,9 @@ Core Image class providing pixel storage, arithmetic operators, and color-plane 
 from __future__ import annotations
 
 import warnings
-from collections.abc import Iterator, Sequence
+from collections.abc import Callable, Iterator, Sequence
 from pathlib import Path
-from typing import Any
+from typing import Any, TextIO, TypeAlias, cast
 
 import numpy as np
 import spatialmath.base as smb
@@ -23,8 +23,8 @@ from machinevisiontoolbox.base.graphics import (
     draw_point,
     draw_text,
 )
-from machinevisiontoolbox.base.types import DTYPE_ALIASES, float_image, int_image
 from machinevisiontoolbox.base.imageio import convert
+from machinevisiontoolbox.base.types import DTYPE_ALIASES, float_image, int_image
 from machinevisiontoolbox.ImageBlobs import ImageBlobsMixin
 from machinevisiontoolbox.ImageColor import ImageColorMixin
 from machinevisiontoolbox.ImageConstants import ImageConstantsMixin
@@ -34,21 +34,20 @@ from machinevisiontoolbox.ImageLineFeatures import ImageLineFeaturesMixin
 from machinevisiontoolbox.ImageMorph import ImageMorphMixin
 from machinevisiontoolbox.ImageMultiview import ImageMultiviewMixin
 from machinevisiontoolbox.ImagePointFeatures import ImagePointFeaturesMixin
-from machinevisiontoolbox.ImageTensor import ImageTensorMixin
 from machinevisiontoolbox.ImageProcessing import ImageProcessingMixin
 from machinevisiontoolbox.ImageRegionFeatures import ImageRegionFeaturesMixin
 from machinevisiontoolbox.ImageReshape import ImageReshapeMixin
 from machinevisiontoolbox.ImageSpatial import ImageSpatialMixin
+from machinevisiontoolbox.ImageTensor import ImageTensorMixin
 from machinevisiontoolbox.ImageWholeFeatures import ImageWholeFeaturesMixin
 from machinevisiontoolbox.mvtb_types import Array2d, Array3d, Dtype
 
 # import spatialmath.base.argcheck as argcheck
 
 
-"""
-This class encapsulates a Numpy array containing the pixel values.  The object
-supports arithmetic using overloaded operators, as well a large number of methods.
-"""
+# anything that can be the right operand of an arithmetic, logical or comparison
+# operator applied to an Image: another image, an array or a scalar
+ImageOperand: TypeAlias = "Image | np.ndarray | int | float | bool"
 
 
 class Image(
@@ -68,6 +67,14 @@ class Image(
     ImageMultiviewMixin,
     ImageTensorMixin,
 ):
+    """
+    Image class
+
+    This class encapsulates a NumPy array containing the pixel values.  The
+    object supports arithmetic using overloaded operators, as well as a large
+    number of methods.
+    """
+
     def __init__(
         self,
         image: Image | np.ndarray | None = None,
@@ -77,9 +84,9 @@ class Image(
         dtype: Dtype | bool | None = None,
         name: str | None = None,
         id: int | None = None,
-        domain=None,
+        domain: tuple[Any, Any] | None = None,
         binary: bool = False,
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
         """
         Create an Image instance
@@ -180,7 +187,7 @@ class Image(
             img.plane(0)
             img.plane("alpha")
 
-        :seealso: :meth:`colororder` :meth:`colororder_str`
+        .. seealso:: :meth:`colororder` :meth:`colororder_str`
 
         **Image domain**
 
@@ -244,9 +251,9 @@ class Image(
         2, 4 or 7 the number of planes must be given explicitly in ``colororder``, the
         third element of ``size``.
 
-        :seealso: :meth:`view1d`
+        .. seealso:: :meth:`view1d`
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -259,6 +266,19 @@ class Image(
             >>> Image([[1, 2], [3, 1000]])
             >>> Image([[0.1, 0.2], [0.3, 0.4]])
             >>> Image([[True, False], [False, True]])
+            >>> a = np.array([[1, 2], [3, 4]], dtype=np.uint16)
+            >>> Image(a).dtype  # narrowed to uint8, since the values fit
+            >>> Image(a, dtype=True).dtype  # keep the dtype of the array
+            >>> Image(a, dtype="uint16").dtype  # or ask for one
+
+        .. note:: **The pixel type may be smaller than the array's.**  By default
+            (``dtype=None``) an integer array becomes the smallest integer type that holds
+            all of its values, and a floating point array becomes ``float32``.  So a
+            ``uint16`` or ``int64`` array whose values all lie below 256, such as a dark
+            16-bit frame, gives a ``uint8`` image.  This also applies to images that other
+            parts of the Toolbox build from arrays, for example the frames of a
+            ``ROSBag``.  Pass ``dtype=True`` to keep the dtype of the array, or a
+            dtype such as ``dtype="uint16"`` to choose one.
 
         .. warning:: If an image is constructed from an existing :class:`Image` instance or a Numpy array,
             the encapsulated Numpy array is, by default, a *reference* to the passed image data.
@@ -344,7 +364,11 @@ class Image(
             image = image[:, :, 0]  # squeeze out singleton plane
 
         if kwargs:
-            image = convert(image, dtype=dtype if defer_dtype_to_convert else None, **kwargs)  # type: ignore[arg-type]
+            image = convert(
+                image,
+                dtype=dtype if defer_dtype_to_convert else None,  # type: ignore[arg-type]
+                **kwargs,
+            )
 
         # assign the image to the object, copying if requested
         if copy:
@@ -497,7 +521,9 @@ class Image(
         """Iterate over image planes."""
         return self.planes()
 
-    def __array__(self, dtype: Dtype | None = None, copy: bool | None = None) -> np.ndarray:
+    def __array__(
+        self, dtype: Dtype | None = None, copy: bool | None = None
+    ) -> np.ndarray:
         """
         Convert to a plain NumPy array
 
@@ -519,7 +545,7 @@ class Image(
         dtype conversion or an explicit copy is requested, either of which
         produces a new, independent (writeable) array.
 
-        :seealso: :attr:`array`
+        .. seealso:: :attr:`array`
         """
         arr = self.array
         if dtype is not None:
@@ -528,7 +554,9 @@ class Image(
             arr = arr.copy()
         return arr
 
-    def __array_ufunc__(self, ufunc, method: str, *inputs, **kwargs):
+    def __array_ufunc__(
+        self, ufunc: np.ufunc, method: str, *inputs: Any, **kwargs: Any
+    ) -> Any:
         """
         Support NumPy ufunc calls on image data.
 
@@ -560,7 +588,7 @@ class Image(
         .. important:: The NumPy ``out=`` argument is intentionally not supported. Images are
             treated as immutable values, so in-place ufunc writes are rejected.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -577,7 +605,7 @@ class Image(
         - ``np.add(a, b)`` dispatches here via NumPy ufunc protocol
         - ``a + b`` dispatches to the Toolbox ``__add__`` operator implementation
 
-        :seealso: :meth:`array`
+        .. seealso:: :meth:`array`
         """
         if method != "__call__":
             return NotImplemented
@@ -590,7 +618,7 @@ class Image(
             self,
         )
 
-        def wrap_result(result):
+        def wrap_result(result: Any) -> Any:
             if not isinstance(result, np.ndarray):
                 return result
 
@@ -617,7 +645,13 @@ class Image(
 
         return wrap_result(result)
 
-    def __array_function__(self, func, types, args, kwargs):
+    def __array_function__(
+        self,
+        func: Callable[..., Any],
+        types: tuple[type, ...],
+        args: tuple[Any, ...],
+        kwargs: dict[str, Any],
+    ) -> Any:
         """
         Support selected high-level NumPy functions on images.
 
@@ -642,7 +676,7 @@ class Image(
         The NumPy ``out=`` argument is intentionally not supported for image
         immutability.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -653,7 +687,7 @@ class Image(
             >>> np.sum(img)
             >>> np.ravel(img).shape
 
-        :seealso: :meth:`__array_ufunc__`
+        .. seealso:: :meth:`__array_ufunc__`
         """
         if "out" in kwargs:
             raise TypeError("NumPy function out= is not supported for Image")
@@ -661,7 +695,7 @@ class Image(
         if not all(issubclass(t, (self.__class__, np.ndarray)) for t in types):
             return NotImplemented
 
-        def coerce(value):
+        def coerce(value: Any) -> Any:
             if isinstance(value, self.__class__):
                 return value._A
             if isinstance(value, tuple):
@@ -679,7 +713,7 @@ class Image(
             self,
         )
 
-        def wrap_result(value):
+        def wrap_result(value: Any) -> Any:
             if isinstance(value, tuple):
                 return tuple(wrap_result(v) for v in value)
             if isinstance(value, list):
@@ -711,7 +745,7 @@ class Image(
         :return: summary of image
         :rtype: str
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -725,7 +759,7 @@ class Image(
         whereas the ``str`` method provides a more detailed summary, including
         statistics about the pixel values.
 
-        :seealso: :meth:`stats` :meth:`__repr__`
+        .. seealso:: :meth:`stats` :meth:`__repr__`
         """
         # basic image parameters
         s = f"Image: {self.width} x {self.height} ({self.dtype})"
@@ -789,7 +823,7 @@ class Image(
         :return: summary of image enclosed in angle brackets
         :rtype: str
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -830,7 +864,7 @@ class Image(
             s += f", u=({self.domain[0][0]:.3g},{self.domain[0][-1]:.3g}), v=({self.domain[1][0]:.3g},{self.domain[1][-1]:.3g})"
         return s + ")"
 
-    def rprint(self, **kwargs) -> "Image":
+    def rprint(self, **kwargs: Any) -> "Image":
         """
         Print image pixels in compact format and return image
 
@@ -849,7 +883,7 @@ class Image(
 
         Very compact display of pixel numerical values in grid layout and return the image itself.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -877,7 +911,7 @@ class Image(
             - For a multiplane images the planes are printed sequentially, along
               with the plane's name.
 
-        :seealso: :meth:`print` :meth:`Image.strhcat` :meth:`Image.showpixels`
+        .. seealso:: :meth:`print` :meth:`Image.strhcat` :meth:`Image.showpixels`
         """
         self.print(**kwargs)
         return self
@@ -888,7 +922,7 @@ class Image(
         separator: str = " ",
         precision: int = 2,
         header: bool = False,
-        file=None,
+        file: TextIO | None = None,
     ) -> None:
         """
         Print image pixels in compact format
@@ -908,7 +942,7 @@ class Image(
 
         Very compact display of pixel numerical values in grid layout.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -925,7 +959,7 @@ class Image(
             - For a multiplane images the planes are printed sequentially, along
               with the plane's name.
 
-        :seealso: :meth:`rprint` :meth:`Image.strhcat` :meth:`Image.showpixels`
+        .. seealso:: :meth:`rprint` :meth:`Image.strhcat` :meth:`Image.showpixels`
         """
 
         def format_plane(plane: Image, fmt: str, indent: str = "  ") -> list[str]:
@@ -985,8 +1019,6 @@ class Image(
         :rtype: str
         :raises ValueError: if the arrays have different numbers of rows
 
-        AUTO_EDIT
-
         For image processing this is useful for displaying small test images.
 
         The arrays are formatted and concatenated horizontally with a vertical separator.
@@ -1006,7 +1038,7 @@ class Image(
         The number of rows in each image must be the same, but the number of columns can
         vary.
 
-        :seealso: :meth:`Image.print` :meth:`Image.showpixels` :func:`Image`
+        .. seealso:: :meth:`Image.print` :meth:`Image.showpixels` :func:`Image`
         """
 
         # convert to a list of numpy arrays
@@ -1105,7 +1137,7 @@ class Image(
         The color order is a dict where the key is the color plane name, eg. 'R'
         and the value is the index of the plane in the 3D pixel value array.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1127,7 +1159,7 @@ class Image(
         .. note:: Changing the color order does not change the order of the planes
             in the image array, it simply changes their label.
 
-        :seealso: :meth:`colororder_str` :meth:`colordict` :meth:`plane` :meth:`red` :meth:`green` :meth:`blue`
+        .. seealso:: :meth:`colororder_str` :meth:`colordict` :meth:`plane` :meth:`red` :meth:`green` :meth:`blue`
         """
         return self._colororder
 
@@ -1199,7 +1231,7 @@ class Image(
                 raise TypeError(f"OpenCV requires {type_list}, got {array.dtype}")
 
     @staticmethod
-    def colordict(colororder) -> dict[str, int]:
+    def colordict(colororder: str | dict[str, int]) -> dict[str, int]:
         """
         Parse a color order specification
 
@@ -1215,7 +1247,7 @@ class Image(
         * colon separated string, eg. ``"R:G:B"``, ``"L*:a*:b*"``
         * dictionary, eg. ``dict(R=0, G=1, B=2)``
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1230,19 +1262,21 @@ class Image(
             cdict = colororder
         elif isinstance(colororder, str):
             if ":" in colororder:
-                colororder = colororder.split(":")
+                names = colororder.split(":")
             else:
-                colororder = list(colororder)
+                names = list(colororder)
 
             cdict = {}
-            for i, color in enumerate(colororder):
+            for i, color in enumerate(names):
                 cdict[color] = i
         else:
             raise ValueError("color order must be a dict or string")
         return cdict
 
     @staticmethod
-    def colororder2dict(colororder, start: int = 0) -> dict[str, int]:
+    def colororder2dict(
+        colororder: str | dict[str, int] | None, start: int = 0
+    ) -> dict[str, int]:
         """
         Parse a color order specification to a color dictionary
 
@@ -1256,13 +1290,11 @@ class Image(
 
         The color order the value can be given in a variety of forms:
 
-        AUTO_EDIT
-
         * simple string, one plane per character, eg. ``"RGB"``
         * colon separated string, eg. ``"R:G:B"``, ``"L*:a*:b*"``
         * dictionary, eg. ``dict(R=0, G=1, B=2)``
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1283,12 +1315,12 @@ class Image(
                 return colororder
         elif isinstance(colororder, str):
             if ":" in colororder:
-                colororder = colororder.split(":")
+                names = colororder.split(":")
             else:
-                colororder = list(colororder)
+                names = list(colororder)
 
             cdict = {}
-            for i, color in enumerate(colororder):
+            for i, color in enumerate(names):
                 cdict[color] = i + start
             return cdict
         elif colororder is None:
@@ -1306,7 +1338,7 @@ class Image(
         :return: list of color channels in plane order
         :rtype: list
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1316,7 +1348,7 @@ class Image(
         .. note:: The color planes are sorted by their index value.  There is no
             check that the lowest plane index is zero.
 
-        :seealso: :meth:`colordict2str` :meth:`colororder2dict`
+        .. seealso:: :meth:`colordict2str` :meth:`colororder2dict`
         """
         return [x[0] for x in sorted(cdict.items(), key=lambda x: x[1])]
 
@@ -1330,7 +1362,7 @@ class Image(
         :return: color channel names in plane order as a colon-separated string
         :rtype: str
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1340,9 +1372,8 @@ class Image(
         .. note:: The color planes are sorted by their index value.  There is no
             check that the lowest plane index is zero.
 
-        :seealso: :meth:`colordict2list` :meth:`colororder2dict`
+        .. seealso:: :meth:`colordict2list` :meth:`colororder2dict`
 
-        AUTO_EDIT
         """
         return ":".join(Image.colordict2list(cdict))
 
@@ -1354,7 +1385,7 @@ class Image(
         :return: Image color plane order as a colon separated string.
         :rtype: str
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1362,7 +1393,7 @@ class Image(
             >>> img = Image.Read('flowers1.png')
             >>> img.colororder_str
 
-        :seealso: :meth:`colororder`
+        .. seealso:: :meth:`colororder`
         """
         if self.colororder is not None:
             s = sorted(self.colororder.items(), key=lambda x: x[1])
@@ -1379,7 +1410,7 @@ class Image(
         The name is shown by the Image repr and when images are displayed
         graphically.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1392,7 +1423,7 @@ class Image(
         .. note:: Images loaded from a file have their name initially set to
             the full file pathname.
 
-        :seealso: :meth:`Read`
+        .. seealso:: :meth:`Read`
         """
         return self._name
 
@@ -1409,7 +1440,7 @@ class Image(
         :return: True if image has floating point values
         :rtype: bool
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1419,7 +1450,7 @@ class Image(
             >>> img = Image.Read('flowers1.png', dtype='float32')
             >>> img.isfloat
 
-        :seealso: :meth:`isint` :meth:`isbool`
+        .. seealso:: :meth:`isint` :meth:`isbool`
         """
         return np.issubdtype(self.dtype, np.floating)
 
@@ -1431,7 +1462,7 @@ class Image(
         :return: True if image has integer pixel values
         :rtype: bool
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1441,7 +1472,7 @@ class Image(
             >>> img = Image.Read('flowers1.png', dtype='float32')
             >>> img.isint
 
-        :seealso: :meth:`isfloat` :meth:`isbool`
+        .. seealso:: :meth:`isfloat` :meth:`isbool`
         """
         return np.issubdtype(self.dtype, np.integer)
 
@@ -1453,7 +1484,7 @@ class Image(
         :return: True if image has boolean pixel values
         :rtype: bool
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1462,7 +1493,7 @@ class Image(
             >>> img.isint
             >>> img.isbool
 
-        :seealso: :meth:`isint` :meth:`isfloat`
+        .. seealso:: :meth:`isint` :meth:`isfloat`
         """
         return np.issubdtype(self.dtype, bool)
 
@@ -1474,7 +1505,7 @@ class Image(
         :return: NumPy datatype of image
         :rtype: numpy.dtype
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1484,7 +1515,7 @@ class Image(
             >>> img = Image.Read('flowers1.png', dtype='float32')
             >>> img.dtype
 
-        :seealso: :meth:`to` :meth:`to_int` :meth:`to_float` :meth:`like` :meth:`cast` :func:`numpy.dtype`
+        .. seealso:: :meth:`to` :meth:`to_int` :meth:`to_float` :meth:`like` :meth:`cast` :func:`numpy.dtype`
         """
         return self._A.dtype
 
@@ -1496,7 +1527,7 @@ class Image(
         :return: number of NaN pixels in image
         :rtype: int
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1505,7 +1536,7 @@ class Image(
             >>> img = Image([[1, 2], [3, nan]], dtype='float32')
             >>> img.numnan
 
-        :seealso: :meth:`numinf`
+        .. seealso:: :meth:`numinf`
         """
         return int(np.isnan(self._A).sum())
 
@@ -1517,7 +1548,7 @@ class Image(
         :return: number of Inf pixels in image
         :rtype: int
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1526,7 +1557,7 @@ class Image(
             >>> img = Image([[1, 2], [3, inf]], dtype='float32')
             >>> img.numinf
 
-        :seealso: :meth:`numnan`
+        .. seealso:: :meth:`numnan`
         """
         return int(np.isinf(self._A).sum())
 
@@ -1540,7 +1571,7 @@ class Image(
         :return: Width of image in pixels
         :rtype: int
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1548,7 +1579,7 @@ class Image(
             >>> img = Image.Read('flowers1.png')
             >>> img.width
 
-        :seealso: :meth:`height` :meth:`size` :meth:`umax`
+        .. seealso:: :meth:`height` :meth:`size` :meth:`umax`
         """
         return self._A.shape[1]
 
@@ -1560,7 +1591,7 @@ class Image(
         :return: Height of image in pixels
         :rtype: int
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1568,7 +1599,7 @@ class Image(
             >>> img = Image.Read('flowers1.png')
             >>> img.height
 
-        :seealso: :meth:`width` :meth:`size` :meth:`vmax`
+        .. seealso:: :meth:`width` :meth:`size` :meth:`vmax`
         """
         return self._A.shape[0]
 
@@ -1580,7 +1611,7 @@ class Image(
         :return: Maximum u-coordinate in image in pixels
         :rtype: int
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1589,7 +1620,7 @@ class Image(
             >>> img.umax
             >>> img.width
 
-        :seealso: :meth:`width`
+        .. seealso:: :meth:`width`
         """
         return self._A.shape[1] - 1
 
@@ -1601,7 +1632,7 @@ class Image(
         :return: Maximum v-coordinate in image in pixels
         :rtype: int
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1610,7 +1641,7 @@ class Image(
             >>> img.vmax
             >>> img.height
 
-        :seealso: :meth:`height`
+        .. seealso:: :meth:`height`
         """
         return self._A.shape[0] - 1
 
@@ -1623,7 +1654,7 @@ class Image(
         :return: 1D array of values [0 ... width-1]
         :rtype: ndarray(W)
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1639,7 +1670,7 @@ class Image(
         .. warning:: Computed using :meth:`numpy.arange` and for ``step>1`` the
             maximum coordinate may not be returned.
 
-        :seealso: :meth:`umax` :meth:`vspan`
+        .. seealso:: :meth:`umax` :meth:`vspan`
         """
         if self.domain is None:
             return np.arange(0, self.width, step)
@@ -1655,7 +1686,7 @@ class Image(
         :return: 1D array of values [0 ... height-1]
         :rtype: ndarray(H)
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1671,7 +1702,7 @@ class Image(
         .. warning:: Computed using :meth:`numpy.arange` and for ``step>1`` the
             maximum coordinate may not be returned.
 
-        :seealso: :meth:`vmax` :meth:`uspan`
+        .. seealso:: :meth:`vmax` :meth:`uspan`
         """
         if self.domain is None:
             return np.arange(0, self.height, step)
@@ -1686,7 +1717,7 @@ class Image(
         :return: Size of image (width, height)
         :rtype: tuple
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1696,7 +1727,7 @@ class Image(
 
         .. note:: The dimensions are in a different order compared to :meth:`shape`.
 
-        :seealso: :meth:`width` :meth:`height` :meth:`shape`
+        .. seealso:: :meth:`width` :meth:`height` :meth:`shape`
         """
         return (self._A.shape[1], self._A.shape[0])
 
@@ -1708,7 +1739,7 @@ class Image(
         :return: Coordinate (u,v) of the centre pixel
         :rtype: tuple
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1721,7 +1752,7 @@ class Image(
         .. note:: If the image has an even dimension the centre will lie
             between pixels.
 
-        :seealso: :meth:`center` :meth:`centre_int`
+        .. seealso:: :meth:`center` :meth:`centre_int`
         """
         return (self._A.shape[1] / 2, self._A.shape[0] / 2)
 
@@ -1733,7 +1764,7 @@ class Image(
         :return: Coordinate (u,v) of the centre pixel
         :rtype: tuple
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1748,7 +1779,7 @@ class Image(
               between pixels.
             - Same as ``centre``, just US spelling
 
-        :seealso: :meth:`center_int`
+        .. seealso:: :meth:`center_int`
         """
         return self.centre
 
@@ -1760,7 +1791,7 @@ class Image(
         :return: Coordinate (u,v) of the centre pixel
         :rtype: tuple
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1773,7 +1804,7 @@ class Image(
         .. note:: If the image has an even dimension the centre coordinate will
               be truncated toward zero.
 
-        :seealso: :meth:`centre`
+        .. seealso:: :meth:`centre`
         """
         return (self._A.shape[1] // 2, self._A.shape[0] // 2)
 
@@ -1787,7 +1818,7 @@ class Image(
 
         Integer coordinate of centre pixel.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1802,7 +1833,7 @@ class Image(
               be truncated toward zero.
             - Same as ``centre_int``, just US spelling
 
-        :seealso: :meth:`center`
+        .. seealso:: :meth:`center`
         """
         return self.centre_int
 
@@ -1816,7 +1847,7 @@ class Image(
 
         .. note:: Number of planes is not considered.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1825,7 +1856,7 @@ class Image(
             >>> img.npixels
             >>> img.width * img.height
 
-        :seealso: :meth:`size`
+        .. seealso:: :meth:`size`
         """
         return self._A.shape[0] * self._A.shape[1]
 
@@ -1837,7 +1868,7 @@ class Image(
         :return: Shape of internal NumPy array
         :rtype: 2-tuple, or 3-tuple if color
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1849,7 +1880,7 @@ class Image(
 
         .. note:: The dimensions are in a different order compared to :meth:`size`.
 
-        :seealso: :meth:`size` :meth:`nplanes` :meth:`ndim` :meth:`iscolor`
+        .. seealso:: :meth:`size` :meth:`nplanes` :meth:`ndim` :meth:`iscolor`
         """
         return self._A.shape
 
@@ -1861,7 +1892,7 @@ class Image(
         :return: number of image dimensions
         :rtype: int
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1871,7 +1902,7 @@ class Image(
             >>> img = Image.Read('street.png')
             >>> img.ndim
 
-        :seealso: :meth:`nplanes` :meth:`shape`
+        .. seealso:: :meth:`nplanes` :meth:`shape`
         """
         return self._A.ndim
 
@@ -1884,7 +1915,7 @@ class Image(
         :return: whether pixel coordinate lies within image bounds
         :rtype: bool, ndarray(N)
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1916,7 +1947,7 @@ class Image(
         :return: number of image dimensions
         :rtype: int
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1926,7 +1957,7 @@ class Image(
             >>> img = Image.Read('street.png')
             >>> img.iscolor
 
-        :seealso: :meth:`isrgb` :meth:`nplanes`
+        .. seealso:: :meth:`isrgb` :meth:`nplanes`
         """
         return self._A.ndim > 2
 
@@ -1938,7 +1969,7 @@ class Image(
         :return: Image has BGR color order
         :rtype: bool
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1948,7 +1979,7 @@ class Image(
 
         .. note:: Is False if image is not color.
 
-        :seealso: :meth:`colororder`
+        .. seealso:: :meth:`colororder`
         """
         return self.colororder_str == "B:G:R"
 
@@ -1960,7 +1991,7 @@ class Image(
         :return: Image has RGB color order
         :rtype: bool
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1970,7 +2001,7 @@ class Image(
 
         .. note:: Is False if image is not color.
 
-        :seealso: :meth:`colororder`
+        .. seealso:: :meth:`colororder`
         """
         return self.colororder_str == "R:G:B"
 
@@ -1990,7 +2021,7 @@ class Image(
         datatype.  Integer values are scaled according to the maximum value
         of the datatype, floating values are in the range 0.0 to 1.0.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2002,7 +2033,7 @@ class Image(
             >>> img.print()
             >>> img.to('uint8').print()
 
-        :seealso: :meth:`astype` :meth:`to_int` :meth:`to_float`
+        .. seealso:: :meth:`astype` :meth:`to_int` :meth:`to_float`
         """
         # convert image to different type, does rescaling
         # as just changes type. array_as() and the constructor both
@@ -2025,7 +2056,7 @@ class Image(
         Create a new image, same size as input image, with pixels of a different
         datatype.  Values are retained, only the datatype is changed.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2037,7 +2068,7 @@ class Image(
             >>> img.print()
             >>> img.astype('uint8').print()
 
-        :seealso: :meth:`to`
+        .. seealso:: :meth:`to`
         """
         if isinstance(dtype, str):
             dtype = DTYPE_ALIASES.get(dtype, dtype)
@@ -2056,7 +2087,7 @@ class Image(
         Return a reference to the encapsulated NumPy array that holds the pixel
         values.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2072,7 +2103,7 @@ class Image(
         .. deprecated:: 2.0.0
             Use :meth:`array` instead.
 
-        :seealso: :meth:`A` :meth:`colororder`
+        .. seealso:: :meth:`A` :meth:`colororder`
         """
         warnings.warn(
             "Deprecated in 2.0.0: use .array instead of .image.",
@@ -2092,7 +2123,7 @@ class Image(
         Return a read-only view of the encapsulated NumPy array that holds the pixel
         values.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2110,7 +2141,7 @@ class Image(
            manipulation of the image data -- and for that reason the returned array is read-only.
            To create a new image with modified pixel data, use the :meth:`Image` constructor to create a new image with a modified array.
 
-        :seealso: :meth:`array_as` :meth:`rgb` :meth:`bgr` :meth:`colororder`
+        .. seealso:: :meth:`array_as` :meth:`rgb` :meth:`bgr` :meth:`colororder`
         """
         view = self._A.view()
         view.flags.writeable = False
@@ -2133,7 +2164,7 @@ class Image(
 
         Replace the encapsulated NumPy array with another.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2150,7 +2181,7 @@ class Image(
             Use :meth:`array` instead for accessing the NumPy image data and the
             :meth:`Image` constructor for creating a new ``Image`` with a different array.
 
-        :seealso: :meth:`array` :meth:`image`
+        .. seealso:: :meth:`array` :meth:`image`
         """
         warnings.warn(
             "Deprecated in 2.0.0: use .array instead of .A.",
@@ -2178,7 +2209,7 @@ class Image(
 
         The image is guaranteed to be in RGB order irrespective of current color order.
 
-        :seealso: :meth:`image` :meth:`bgr` :meth:`colororder`
+        .. seealso:: :meth:`image` :meth:`bgr` :meth:`colororder`
         """
         if not self.iscolor:
             raise ValueError("greyscale image has no rgb property")
@@ -2199,7 +2230,7 @@ class Image(
 
         The image is guaranteed to be in BGR (OpenCV standard) order irrespective of current color order.
 
-        :seealso: :meth:`image` :meth:`rgb` :meth:`colororder`
+        .. seealso:: :meth:`image` :meth:`rgb` :meth:`colororder`
         """
         if not self.iscolor:
             raise ValueError("greyscale image has no bgr property")
@@ -2232,7 +2263,7 @@ class Image(
         * boolean class, False is mapped to zero and True is mapped to the
           maximum positive value.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2254,7 +2285,7 @@ class Image(
         .. deprecated:: 2.0.0
             Use :meth:`array_as` instead.
 
-        :seealso: :meth:`array_as` :meth:`to_float` :meth:`cast` :meth:`like`
+        .. seealso:: :meth:`array_as` :meth:`to_float` :meth:`cast` :meth:`like`
         """
         warnings.warn(
             "Deprecated in 2.0.0: use .array_as(int_type) instead of .to_int().",
@@ -2283,7 +2314,7 @@ class Image(
           value.
         * boolean class, False is mapped to 0.0 and True is mapped to 1.0.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2302,7 +2333,7 @@ class Image(
         .. deprecated:: 2.0.0
             Use :meth:`array_as` instead.
 
-        :seealso: :meth:`array_as` :meth:`to_int` :meth:`cast` :meth:`like`
+        .. seealso:: :meth:`array_as` :meth:`to_int` :meth:`cast` :meth:`like`
         """
         warnings.warn(
             "Deprecated in 2.0.0: use .array_as(float_type) instead of .to_float().",
@@ -2333,7 +2364,7 @@ class Image(
         bool       False → 0, True → max_int                 False → 0.0, True → 1.0
         =========  ========================================  ====================================
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2355,7 +2386,7 @@ class Image(
 
         .. warning:: This method assumes that all integer values are unsigned.
 
-        :seealso: :meth:`array` :func:`array_float` :meth:`cast` :meth:`like`
+        .. seealso:: :meth:`array` :func:`array_float` :meth:`cast` :meth:`like`
         """
         if dtype is None:
             return self._A
@@ -2382,7 +2413,7 @@ class Image(
         The value, scalar or integer, is **cast** to the same type as the image.
         The result has the same numeric value, but the type is changed.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2394,7 +2425,7 @@ class Image(
 
         .. note:: Scalars are cast to NumPy types not native Python types.
 
-        :seealso: :meth:`like`
+        .. seealso:: :meth:`like`
         """
         return self._A.dtype.type(value)
 
@@ -2425,7 +2456,7 @@ class Image(
             than the maximum value of the destination class are wrapped not
             clipped.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2433,7 +2464,7 @@ class Image(
             >>> img = Image.Read('flowers1.png')
             >>> img.like(0.5)
 
-        :seealso: :meth:`cast` :meth:`to_int` :meth:`to_float`
+        .. seealso:: :meth:`cast` :meth:`to_int` :meth:`to_float`
 
         """
         if self.isint:
@@ -2483,7 +2514,7 @@ class Image(
 
         For the datatype of the image, return its minimum possible value
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2493,7 +2524,7 @@ class Image(
             >>> img = Image.Zeros(size=20, dtype='uint8')
             >>> img.minval
 
-        :seealso: :meth:`maxval`
+        .. seealso:: :meth:`maxval`
         """
         if self.isint:
             return np.iinfo(self.dtype).min
@@ -2510,7 +2541,7 @@ class Image(
 
         For the datatype of the image, return its maximum possible value
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2520,7 +2551,7 @@ class Image(
             >>> img = Image.Zeros(size=20, dtype='uint8')
             >>> img.maxval
 
-        :seealso: :meth:`minval`
+        .. seealso:: :meth:`minval`
         """
         if self.isint:
             return np.iinfo(self.dtype).max
@@ -2538,7 +2569,7 @@ class Image(
         The true value is 1.0 for a floating point image and maximum integer
         value for an integer value.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2548,7 +2579,7 @@ class Image(
             >>> img = Image.Zeros(size=20, dtype='uint8')
             >>> img.true
 
-        :seealso: :meth:`false` :meth:`maxval`
+        .. seealso:: :meth:`false` :meth:`maxval`
         """
         if self.isint:
             return self.maxval
@@ -2566,7 +2597,7 @@ class Image(
         The false value is 0.0 for a floating point image and 0
         value for an integer value.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2576,7 +2607,7 @@ class Image(
             >>> img = Image.Zeros(size=20, dtype='uint8')
             >>> img.false
 
-        :seealso: :meth:`true`
+        .. seealso:: :meth:`true`
         """
         return 0
 
@@ -2593,7 +2624,7 @@ class Image(
         For a 2D or greyscale image this is one, otherwise it is the third
         dimension of the image.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2606,7 +2637,7 @@ class Image(
         .. note:: A greyscale image is stored internally as a 2D NumPy array
             which has zero planes, but ``nplanes`` will return 1 in that case.
 
-        :seealso: :meth:`iscolor` :meth:`shape` :meth:`ndim`
+        .. seealso:: :meth:`iscolor` :meth:`shape` :meth:`ndim`
         """
         if self._A is None:
             return 0
@@ -2615,45 +2646,64 @@ class Image(
         else:
             return int(self._A.shape[-1])
 
-    def planes(self) -> Iterator[Image]:
+    def planes(self, copy: bool = False) -> Iterator[Image]:
         """
         Iterator for image planes
 
+        :param copy: if True each plane is an independent, C-contiguous copy,
+            otherwise it is a view that shares its pixels with the image,
+            defaults to False
+        :type copy: bool, optional
         :return out: image containing a single plane
         :rtype: :class:`Image`
 
         Iterator that returns sequential image planes.
 
-        Example:
+        .. note:: By default each plane is a view that shares its pixels with the
+            image, and is not C-contiguous.  Use ``copy=True`` for planes that can be
+            drawn into, or changed without changing the image.  See :meth:`plane`.
+
+        .. versionchanged:: 2.5.0
+            Added the ``copy`` option.
+
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> img = Image.Read("flowers4.png") # in BGR order
+            >>> img = Image.Read("flowers4.png") # in RGB order
             >>> for plane in img.planes():
             >>>     print(plane)
+
+        .. seealso:: :meth:`plane` :meth:`__getitem__`
         """
         for i in range(self.nplanes):
-            yield self.plane(i)
+            yield self.plane(i, copy=copy)
 
-    def plane(self, planes) -> "Image":
+    def plane(
+        self, planes: int | str | list[int] | tuple[int, ...], copy: bool = False
+    ) -> "Image":
         """
         Extract plane(s) from color image
 
         :param planes: planes to extract
         :type planes: int, list, str
+        :param copy: if True the result is an independent, C-contiguous copy,
+            otherwise a single plane is a view that shares its pixels with the
+            image, defaults to False
+        :type copy: bool, optional
         :raises ValueError: if image is not color
         :return out: image containing only the selected planes
         :rtype: :class:`Image`
 
         Create a new image from the selected planes of the image.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> img = Image.Read("flowers4.png") # in BGR order
+            >>> img = Image.Read("flowers4.png") # in RGB order
             >>> img.colororder_str
             >>> img.nplanes
             >>> red = img.plane(0) # red plane
@@ -2664,8 +2714,10 @@ class Image(
             >>> green_blue
             >>> green_blue.iscolor
             >>> green_blue.nplanes
-            >>> red_blue = img.plane([0, 2]) # blue and red planes
+            >>> red_blue = img.plane([0, 2]) # red and blue planes
             >>> red_blue
+            >>> bgr = img.plane("BGR") # planes reordered
+            >>> bgr.colororder_str
 
         .. note::
 
@@ -2674,15 +2726,24 @@ class Image(
             - To select more than one plane, use either a sequence of integers or a string
               of colon separated plane names.
             - For a single-plane image the index must be zero.
+            - By default a single plane, selected by an int or a name, is a view that
+              shares its pixels with the image.  Several planes, selected by a name string
+              or a list, are a new array, but a planar one.  Neither is C-contiguous, so
+              drawing into the result raises a ``ValueError``.  With ``copy=True`` the
+              result is always an independent, C-contiguous copy that can be drawn into,
+              and changing it does not change the image.  See :class:`Image`.
 
-        :seealso: :meth:`red` :meth:`green` :meth:`blue` :meth:``__getitem__``
+        .. versionchanged:: 2.5.0
+            Added the ``copy`` option.
+
+        .. seealso:: :meth:`planes` :meth:`red` :meth:`green` :meth:`blue` :meth:`__getitem__`
         """
 
         colororder: dict[str, Any] | None
         iplanes: Any
         if isinstance(planes, int):
             if planes == 0 and self.nplanes == 1:
-                return self
+                return self.copy() if copy else self
             if planes < 0 or planes >= self.nplanes:
                 raise ValueError("plane index out of range")
             iplanes = [planes]
@@ -2692,14 +2753,14 @@ class Image(
                 raise ValueError("plane names require colororder")
             iplanes = []
             colororder = {}
+            names: Sequence[str] = planes
             if ":" in planes:
-                planes = planes.split(":")
-                planes = [p for p in planes if p != ""]
-            for plane in planes:
+                names = [p for p in planes.split(":") if p != ""]
+            for name in names:
                 try:
-                    i = self.colororder[plane]
+                    i = self.colororder[name]
                     iplanes.append(i)
-                    colororder[plane] = len(colororder)  # copy to new dict
+                    colororder[name] = len(colororder)  # copy to new dict
                 except KeyError:
                     raise ValueError("bad plane name specified")
         elif isinstance(planes, (tuple, list)):
@@ -2718,11 +2779,11 @@ class Image(
         if isinstance(iplanes, list) and len(iplanes) == 1:
             iplanes = iplanes[0]
             colororder = None
-        return self.__class__(self._A[:, :, iplanes], colororder=colororder)
+        return self.__class__(self._A[:, :, iplanes], colororder=colororder, copy=copy)
 
     def __getitem__(
         self, keys: int | str | tuple[slice, slice] | tuple[slice, slice, slice]
-    ):
+    ) -> Any:
         """
         Return pixel value or slice from image
 
@@ -2744,18 +2805,32 @@ class Image(
         - a 3-tuple containing at least one slice objects, return this region of uv and planes as an
           ``Image`` with one or more planes.
         - an int, return this plane as an ``Image``.
-        - a string, return this named plane or planes as an ``Image``.
+        - a string, return this named plane or planes as an ``Image``.  A string
+          of plane names without colons, such as ``"BGR"``, is read one letter
+          per plane; use colons, such as ``"a*:b*"``, for names longer than one
+          letter.  The result has its planes, and its ``colororder``, in the order given.
 
-        Example:
+        Any other key raises a ``ValueError``.  In particular a lone slice such as
+        ``img[1:3]`` is not valid, because it could mean columns, rows or planes: give
+        the column and row slices, for example ``img[1:3, :]``.  To reverse the planes,
+        or reverse the order of the columns or rows, use slices with a negative step,
+        for example ``img[:, :, ::-1]``.
+
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> img = Image.Read("flowers4.png") # in RGB order
+            >>> img = Image.Read("flowers4.png")
+            >>> img.colororder_str
             >>> red = img[0] # red plane
             >>> red # greyscale image
             >>> green = img["G"]
             >>> green # greyscale image
+            >>> bgr = img["BGR"] # planes reordered
+            >>> bgr.colororder_str
+            >>> bgr = img[:, :, ::-1] # the same, using a negative step
+            >>> bgr.colororder_str
             >>> roi = img[100:200, 300:400]
             >>> roi # color image
             >>> roi = img[100:200, 300:400, 1:]
@@ -2771,19 +2846,28 @@ class Image(
             ``Image`` instance.  If the result is a single plane the result is a
             greyscale image.
 
-        .. note:: Indexing pixel values this way is slow, use :meth:`pixel(u,v)` for faster
+        .. note:: Indexing pixel values this way is slow, use :meth:`pixel` for faster
             access, or ``img.A[v,u]`` for direct access to the underlying NumPy array.
+
+        .. note:: The result is a *view* that shares its pixels with ``img`` when the key is
+            a plane number, a tuple of slices, or a string naming one plane, so changing one
+            changes the other.  It is a new array when the string names several planes.  Either way the result may not be
+            C-contiguous: a plane of a color image, a region of interest and a reversed slice
+            are all strided, and a string such as ``"BGR"`` gives a planar layout.
+            The ``draw_*`` methods and OpenCV functions that write into an image refuse such
+            an array.  Use ``Image(img[...].A, copy=True)``, or :meth:`plane` with ``copy=True``,
+            to make a contiguous copy that shares nothing with ``img``.  See :class:`Image`.
 
         .. warning:: The order of the indices is column, row and plane. This
             is the opposite of the order used for NumPy index on the underlying
             array.  It is consistent with the column-first convention used across the
             Toolbox and is consistent with the :math:`(u,v)` coordinate system for images.
 
-        .. versionadded:: 1.0.0
+        .. versionchanged:: 1.0.0
             The order of the indices changed to column, row, plane.  Previously
             it was row, column, plane.
 
-        :seealso: :meth:`red` :meth:`green` :meth:`blue` :meth:`plane` :meth:`roi` :meth:`pixel`
+        .. seealso:: :meth:`red` :meth:`green` :meth:`blue` :meth:`plane` :meth:`roi` :meth:`pixel`
         """
 
         if (
@@ -2803,13 +2887,21 @@ class Image(
         ):
             # integer keys for row and column, the result is a scalar or vector over planes
             return self._A[keys[1], keys[0], keys[2]]
-        elif isinstance(keys, int):
-            # single integer index, it's a color plane index
-            return self.__class__(self._A[..., keys])
+        elif isinstance(keys, (int, np.integer)) and not isinstance(keys, bool):
+            # single integer index, it's a color plane index; as for NumPy, a
+            # negative index counts from the last plane
+            if -self.nplanes <= keys < 0:
+                keys += self.nplanes
+            return self.plane(int(keys))
         elif isinstance(keys, str):
             # color plane by name
             return self.plane(keys)
-        elif isinstance(keys, (list, tuple)):
+        elif isinstance(keys, list):
+            raise ValueError(
+                f"invalid index {keys!r}: a list is not a valid key, use "
+                "plane() to select a list of planes"
+            )
+        elif isinstance(keys, tuple):
             # by slices
             if self.iscolor:
                 if len(keys) == 2:
@@ -2854,7 +2946,7 @@ class Image(
             return self.__class__(out, colororder=colororder)
 
         else:
-            raise ValueError("invalid slice")
+            raise ValueError(f"invalid index or slice {keys!r}")
 
     @staticmethod
     def _lenkey(key: int | slice, max: int) -> int:
@@ -2922,7 +3014,7 @@ class Image(
             array.  It is consistent with the column-first convention used across the
             Toolbox and is consistent with the :math:`(u,v)` coordinate system for images.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2934,7 +3026,7 @@ class Image(
             >>> pix = img.pixel(100, 200)
             >>> pix # color pixel value (R, G, B)
 
-        :seealso: :meth:`__getitem__` :meth:`roi`
+        .. seealso:: :meth:`__getitem__` :meth:`roi`
         """
         return self._A[v, u]
 
@@ -2943,7 +3035,7 @@ class Image(
         mask: Image | Polygon2 | list[Polygon2],
         coords: bool = False,
         return_mask: bool = False,
-    ):
+    ) -> Any:
         """
         Return pixel values at locations specified by a mask
 
@@ -2960,7 +3052,7 @@ class Image(
         of pixel values.  If ``coords`` is True, the result is an (P+2)xN array where
         the first two rows are the u and v coordinates of the selected pixels.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2972,7 +3064,7 @@ class Image(
             >>> pixels.shape
             >>> pixels[:,:5] # first 5 pixels, with coordinates
 
-        :seealso: :meth:`pixel` :meth:`__getitem__` :meth:`roi`
+        .. seealso:: :meth:`pixel` :meth:`__getitem__` :meth:`roi`
         """
         if isinstance(mask, Image):
             if mask.ndim != 2:
@@ -3007,7 +3099,7 @@ class Image(
         :return out: greyscale image representing the red image plane
         :rtype: :class:`Image`
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3024,7 +3116,7 @@ class Image(
             Image.Read("flowers4.png").red().disp()
 
 
-        :seealso: :meth:`plane` :meth:`green` :meth:`blue`
+        .. seealso:: :meth:`plane` :meth:`green` :meth:`blue`
         """
         return self.plane("R")
 
@@ -3036,7 +3128,7 @@ class Image(
         :return out: greyscale image representing the green image plane
         :rtype: :class:`Image`
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3052,7 +3144,7 @@ class Image(
             from machinevisiontoolbox import Image
             Image.Read("flowers4.png").green().disp()
 
-        :seealso: :meth:`plane` :meth:`red` :meth:`blue`
+        .. seealso:: :meth:`plane` :meth:`red` :meth:`blue`
         """
         return self.plane("G")
 
@@ -3064,7 +3156,7 @@ class Image(
         :return out: greyscale image representing the blue image plane
         :rtype: :class:`Image`
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3080,7 +3172,7 @@ class Image(
             from machinevisiontoolbox import Image
             Image.Read("flowers4.png").blue().disp()
 
-        :seealso: :meth:`plane` :meth:`red` :meth:`green`
+        .. seealso:: :meth:`plane` :meth:`red` :meth:`green`
         """
         return self.plane("B")
 
@@ -3092,7 +3184,7 @@ class Image(
     # ------------------------- operators ------------------------------ #
 
     # arithmetic
-    def __mul__(self, other) -> "Image":
+    def __mul__(self, other: ImageOperand) -> "Image":
         """
         Overloaded ``*`` operator
 
@@ -3106,7 +3198,7 @@ class Image(
         * scalar ``*`` image
         * image ``*`` scalar
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3122,10 +3214,10 @@ class Image(
         """
         return self._binop(self, other, lambda x, y: x * y)
 
-    def __rmul__(self, other) -> "Image":
+    def __rmul__(self, other: ImageOperand) -> "Image":
         return self._binop(self, other, lambda x, y: y * x)
 
-    def __imul__(self, other) -> "Image":
+    def __imul__(self, other: ImageOperand) -> "Image":
         """
         Overloaded in-place ``*=`` operator
 
@@ -3134,12 +3226,12 @@ class Image(
 
         Multiply an Image in place by another image or a scalar.
 
-        :seealso: :meth:`__mul__`
+        .. seealso:: :meth:`__mul__`
         """
         self._A = self._binop(self, other, lambda x, y: x * y)._A
         return self
 
-    def __pow__(self, other) -> "Image":
+    def __pow__(self, other: ImageOperand) -> "Image":
         """
         Overloaded ``**`` operator
 
@@ -3148,7 +3240,7 @@ class Image(
 
         Compute the element-wise power of an Image.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3164,7 +3256,7 @@ class Image(
             raise ValueError("exponent must be a scalar")
         return self._binop(self, other, lambda x, y: x**y)
 
-    def __add__(self, other) -> "Image":
+    def __add__(self, other: ImageOperand) -> "Image":
         """
         Overloaded ``+`` operator
 
@@ -3178,7 +3270,7 @@ class Image(
         * scalar ``+`` image
         * image ``+`` scalar
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3194,10 +3286,10 @@ class Image(
         """
         return self._binop(self, other, lambda x, y: x + y)
 
-    def __radd__(self, other) -> "Image":
+    def __radd__(self, other: ImageOperand) -> "Image":
         return self._binop(self, other, lambda x, y: y + x)
 
-    def __iadd__(self, other) -> "Image":
+    def __iadd__(self, other: ImageOperand) -> "Image":
         """
         Overloaded in-place ``+=`` operator
 
@@ -3206,12 +3298,12 @@ class Image(
 
         Add another image or a scalar to an Image in place.
 
-        :seealso: :meth:`__add__`
+        .. seealso:: :meth:`__add__`
         """
         self._A = self._binop(self, other, lambda x, y: x + y)._A
         return self
 
-    def __sub__(self, other) -> "Image":
+    def __sub__(self, other: ImageOperand) -> "Image":
         """
         Overloaded ``-`` operator
 
@@ -3225,7 +3317,7 @@ class Image(
         * scalar ``-`` image
         * image ``-`` scalar
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3241,10 +3333,10 @@ class Image(
         """
         return self._binop(self, other, lambda x, y: x - y)
 
-    def __rsub__(self, other) -> "Image":
+    def __rsub__(self, other: ImageOperand) -> "Image":
         return self._binop(self, other, lambda x, y: y - x)
 
-    def __isub__(self, other) -> "Image":
+    def __isub__(self, other: ImageOperand) -> "Image":
         """
         Overloaded in-place ``-=`` operator
 
@@ -3253,12 +3345,12 @@ class Image(
 
         Subtract another image or a scalar from an Image in place.
 
-        :seealso: :meth:`__sub__`
+        .. seealso:: :meth:`__sub__`
         """
         self._A = self._binop(self, other, lambda x, y: x - y)._A
         return self
 
-    def __truediv__(self, other) -> "Image":
+    def __truediv__(self, other: ImageOperand) -> "Image":
         """
         Overloaded ``/`` operator
 
@@ -3272,7 +3364,7 @@ class Image(
         * scalar ``/`` image
         * image ``/`` scalar
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3287,10 +3379,10 @@ class Image(
         """
         return self._binop(self, other, lambda x, y: x / y)
 
-    def __rtruediv__(self, other) -> "Image":
+    def __rtruediv__(self, other: ImageOperand) -> "Image":
         return self._binop(self, other, lambda x, y: y / x)
 
-    def __itruediv__(self, other) -> "Image":
+    def __itruediv__(self, other: ImageOperand) -> "Image":
         """
         Overloaded in-place ``/=`` operator
 
@@ -3299,12 +3391,12 @@ class Image(
 
         Divide an Image in place by another image or a scalar.
 
-        :seealso: :meth:`__truediv__`
+        .. seealso:: :meth:`__truediv__`
         """
         self._A = self._binop(self, other, lambda x, y: x / y)._A
         return self
 
-    def __floordiv__(self, other) -> "Image":
+    def __floordiv__(self, other: ImageOperand) -> "Image":
         """
         Overloaded ``//`` operator
 
@@ -3318,7 +3410,7 @@ class Image(
         * scalar ``//`` image
         * image ``//`` scalar
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3331,10 +3423,10 @@ class Image(
         """
         return self._binop(self, other, lambda x, y: x // y)
 
-    def __rfloordiv__(self, other) -> "Image":
+    def __rfloordiv__(self, other: ImageOperand) -> "Image":
         return self._binop(self, other, lambda x, y: y // x)
 
-    def __ifloordiv__(self, other) -> "Image":
+    def __ifloordiv__(self, other: ImageOperand) -> "Image":
         """
         Overloaded in-place ``//=`` operator
 
@@ -3343,7 +3435,7 @@ class Image(
 
         Divide an Image in place by another image or a scalar, rounding down.
 
-        :seealso: :meth:`__floordiv__`
+        .. seealso:: :meth:`__floordiv__`
         """
         self._A = self._binop(self, other, lambda x, y: x // y)._A
         return self
@@ -3358,7 +3450,7 @@ class Image(
 
         Compute the element-wise negation of an Image.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3371,7 +3463,7 @@ class Image(
         return self._unop(self, lambda x: -x)
 
     # bitwise
-    def __and__(self, other) -> "Image":
+    def __and__(self, other: ImageOperand) -> "Image":
         """
         Overloaded ``&`` operator
 
@@ -3385,7 +3477,7 @@ class Image(
         * scalar ``&`` image
         * image ``&`` scalar
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3398,7 +3490,7 @@ class Image(
         """
         return self._binop(self, other, lambda x, y: x & y)
 
-    def __iand__(self, other) -> "Image":
+    def __iand__(self, other: ImageOperand) -> "Image":
         """
         Overloaded in-place ``&=`` operator
 
@@ -3407,12 +3499,12 @@ class Image(
 
         Bitwise-AND an Image in place with another image or a scalar.
 
-        :seealso: :meth:`__and__`
+        .. seealso:: :meth:`__and__`
         """
         self._A = self._binop(self, other, lambda x, y: x & y)._A
         return self
 
-    def __or__(self, other) -> "Image":
+    def __or__(self, other: ImageOperand) -> "Image":
         """
         Overloaded ``|`` operator
 
@@ -3426,7 +3518,7 @@ class Image(
         * scalar ``|`` image
         * image ``|`` scalar
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3439,7 +3531,7 @@ class Image(
         """
         return self._binop(self, other, lambda x, y: x | y)
 
-    def __ior__(self, other) -> "Image":
+    def __ior__(self, other: ImageOperand) -> "Image":
         """
         Overloaded in-place ``|=`` operator
 
@@ -3448,12 +3540,12 @@ class Image(
 
         Bitwise-OR an Image in place with another image or a scalar.
 
-        :seealso: :meth:`__or__`
+        .. seealso:: :meth:`__or__`
         """
         self._A = self._binop(self, other, lambda x, y: x | y)._A
         return self
 
-    def __xor__(self, other) -> "Image":
+    def __xor__(self, other: ImageOperand) -> "Image":
         """
         Overloaded ``^`` operator
 
@@ -3467,7 +3559,7 @@ class Image(
         * scalar ``^`` image
         * image ``^`` scalar
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3480,7 +3572,7 @@ class Image(
         """
         return self._binop(self, other, lambda x, y: x ^ y)
 
-    def __ixor__(self, other) -> "Image":
+    def __ixor__(self, other: ImageOperand) -> "Image":
         """
         Overloaded in-place ``^=`` operator
 
@@ -3489,12 +3581,12 @@ class Image(
 
         Bitwise-XOR an Image in place with another image or a scalar.
 
-        :seealso: :meth:`__xor__`
+        .. seealso:: :meth:`__xor__`
         """
         self._A = self._binop(self, other, lambda x, y: x ^ y)._A
         return self
 
-    def __lshift__(self, other) -> "Image":
+    def __lshift__(self, other: ImageOperand) -> "Image":
         """
         Overloaded ``<<`` operator
 
@@ -3503,7 +3595,7 @@ class Image(
 
         Left shift pixel values in an Image.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3516,7 +3608,7 @@ class Image(
             raise ValueError("left shift must be by integer amount")
         return self._binop(self, other, lambda x, y: x << y)
 
-    def __ilshift__(self, other) -> "Image":
+    def __ilshift__(self, other: ImageOperand) -> "Image":
         """
         Overloaded in-place ``<<=`` operator
 
@@ -3525,14 +3617,14 @@ class Image(
 
         Left-shift pixel values of an Image in place.
 
-        :seealso: :meth:`__lshift__`
+        .. seealso:: :meth:`__lshift__`
         """
         if not isinstance(other, int):
             raise ValueError("left shift must be by integer amount")
         self._A = self._binop(self, other, lambda x, y: x << y)._A
         return self
 
-    def __rshift__(self, other) -> "Image":
+    def __rshift__(self, other: ImageOperand) -> "Image":
         """
         Overloaded ``>>`` operator
 
@@ -3541,7 +3633,7 @@ class Image(
 
         Right shift pixel values in an Image.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3554,7 +3646,7 @@ class Image(
             raise ValueError("left shift must be by integer amount")
         return self._binop(self, other, lambda x, y: x >> y)
 
-    def __irshift__(self, other) -> "Image":
+    def __irshift__(self, other: ImageOperand) -> "Image":
         """
         Overloaded in-place ``>>=`` operator
 
@@ -3563,14 +3655,14 @@ class Image(
 
         Right-shift pixel values of an Image in place.
 
-        :seealso: :meth:`__rshift__`
+        .. seealso:: :meth:`__rshift__`
         """
         if not isinstance(other, int):
             raise ValueError("right shift must be by integer amount")
         self._A = self._binop(self, other, lambda x, y: x >> y)._A
         return self
 
-    def __mod__(self, other) -> "Image":
+    def __mod__(self, other: Image | int | float | bool) -> "Image":
         """
         Overloaded ``%`` operator
 
@@ -3586,7 +3678,7 @@ class Image(
         resulting image has one more plane than the original image and the new plane is filled with
         the scalar value.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3597,13 +3689,14 @@ class Image(
             >>> z = img % 0
             >>> print(z.nplanes)
 
-        :seealso: :meth:`Pstack`
+        .. seealso:: :meth:`Pstack`
         """
         if smb.isscalar(other):
             other = Image.Constant(other, size=self.size, dtype=str(self._A.dtype))
-        return self.Pstack((self, other))
+        # other is now an Image, but mypy cannot see that smb.isscalar() narrows it
+        return self.Pstack((self, cast(Image, other)))
 
-    def __imod__(self, other) -> "Image":
+    def __imod__(self, other: Image | int | float | bool) -> "Image":
         """
         Overloaded in-place ``%=`` operator
 
@@ -3613,11 +3706,11 @@ class Image(
         Stack the planes of another image (or a scalar plane) onto this Image
         in place.
 
-        :seealso: :meth:`__mod__`
+        .. seealso:: :meth:`__mod__`
         """
         if smb.isscalar(other):
             other = Image.Constant(other, size=self.size, dtype=str(self._A.dtype))
-        self._A = self.Pstack((self, other))._A
+        self._A = self.Pstack((self, cast(Image, other)))._A
         return self
 
     # relational
@@ -3625,7 +3718,7 @@ class Image(
     # Unlike __add__ etc., these two are defined on object with return type bool, so
     # pyright flags the override as incompatible — the ignore is justified here.
     def __eq__(  # type: ignore[override]  # pyright: ignore[reportIncompatibleMethodOverride]
-        self, other
+        self, other: ImageOperand
     ) -> "Image":
         """
         Overloaded ``==`` operator
@@ -3640,7 +3733,7 @@ class Image(
             * scalar ``==`` image
             * image ``==`` scalar
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3649,11 +3742,11 @@ class Image(
             >>> (img == 2).print()
             >>> (img == Image([[0, 2], [3, 4]])).print()
 
-        :seealso: :meth:`true` :meth:`false`
+        .. seealso:: :meth:`true` :meth:`false`
         """
         return self._binop(self, other, lambda x, y: x == y)
 
-    def sameas(self, other, colororder: bool = True) -> bool:
+    def sameas(self, other: object, colororder: bool = True) -> bool:
         """
         Compare two images for exact equality and return a scalar bool.
 
@@ -3673,7 +3766,7 @@ class Image(
             * color order is identical (if ``colororder`` is ``True``)
             * all pixel values are identical
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3698,7 +3791,7 @@ class Image(
         return bool(np.all((self == other).A))
 
     def __ne__(  # type: ignore[override]  # pyright: ignore[reportIncompatibleMethodOverride]  # same reason as __eq__
-        self, other
+        self, other: ImageOperand
     ) -> "Image":
         """
         Overloaded ``!=`` operator
@@ -3713,7 +3806,7 @@ class Image(
             * scalar ``!=`` image
             * image ``!=`` scalar
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3722,11 +3815,11 @@ class Image(
             >>> (img != 2).print()
             >>> (img != Image([[0, 2], [3, 4]])).print()
 
-        :seealso: :meth:`true` :meth:`false`
+        .. seealso:: :meth:`true` :meth:`false`
         """
         return self._binop(self, other, lambda x, y: x != y)
 
-    def __gt__(self, other) -> "Image":
+    def __gt__(self, other: ImageOperand) -> "Image":  # type: ignore[misc]  # ndarray has the reflected comparison
         """
         Overloaded ``>`` operator
 
@@ -3740,7 +3833,7 @@ class Image(
             * scalar ``>`` image
             * image ``>`` scalar
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3749,11 +3842,11 @@ class Image(
             >>> (img > 2).print()
             >>> (img > Image([[0, 2], [3, 4]])).print()
 
-        :seealso: :meth:`true` :meth:`false`
+        .. seealso:: :meth:`true` :meth:`false`
         """
         return self._binop(self, other, lambda x, y: x > y)
 
-    def __ge__(self, other) -> "Image":
+    def __ge__(self, other: ImageOperand) -> "Image":  # type: ignore[misc]  # ndarray has the reflected comparison
         """
         Overloaded ``>=`` operator
 
@@ -3767,7 +3860,7 @@ class Image(
             * scalar ``>=`` image
             * image ``>=`` scalar
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3776,11 +3869,11 @@ class Image(
             >>> (img >= 2).print()
             >>> (img >= Image([[0, 2], [3, 4]])).print()
 
-        :seealso: :meth:`true` :meth:`false`
+        .. seealso:: :meth:`true` :meth:`false`
         """
         return self._binop(self, other, lambda x, y: x >= y)
 
-    def __lt__(self, other) -> "Image":
+    def __lt__(self, other: ImageOperand) -> "Image":  # type: ignore[misc]  # ndarray has the reflected comparison
         """
         Overloaded ``<`` operator
 
@@ -3794,7 +3887,7 @@ class Image(
             * scalar ``<`` image
             * image ``<`` scalar
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3803,11 +3896,11 @@ class Image(
             >>> (img < 2).print()
             >>> (img < Image([[0, 2], [3, 4]])).print()
 
-        :seealso: :meth:`true` :meth:`false`
+        .. seealso:: :meth:`true` :meth:`false`
         """
         return self._binop(self, other, lambda x, y: x < y)
 
-    def __le__(self, other) -> "Image":
+    def __le__(self, other: ImageOperand) -> "Image":  # type: ignore[misc]  # ndarray has the reflected comparison
         """
         Overloaded ``<=`` operator
 
@@ -3821,7 +3914,7 @@ class Image(
             * scalar ``<=`` image
             * image ``<=`` scalar
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3830,7 +3923,7 @@ class Image(
             >>> (img <= 2).print()
             >>> (img <= Image([[0, 2], [3, 4]])).print()
 
-        :seealso: :meth:`true` :meth:`false`
+        .. seealso:: :meth:`true` :meth:`false`
         """
         return self._binop(self, other, lambda x, y: x <= y)
 
@@ -3846,7 +3939,7 @@ class Image(
             * floating image: True is 1.0, False is 0.0
             * integer image: True is maximum value, False is 0 True is 1 and False is 0.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3859,7 +3952,12 @@ class Image(
         return self._unop(self, lambda x: ~x)
 
     @staticmethod
-    def _binop(left, right, op, logical=False) -> "Image":
+    def _binop(
+        left: "Image",
+        right: ImageOperand,
+        op: Callable[..., Any],
+        logical: bool = False,
+    ) -> "Image":
         if isinstance(right, left.__class__):
             # both images
             if left.nplanes == right.nplanes:
@@ -3879,13 +3977,17 @@ class Image(
                     np.stack(out, axis=2), colororder=right.colororder
                 )
             else:
-                raise ValueError("planes mismatch")
+                raise ValueError(
+                    f"images have different numbers of planes, {left.nplanes} and {right.nplanes}"
+                )
         else:
             # right is a scalar or numpy array
             return left.__class__(op(left._A, right), colororder=left.colororder)
 
     @staticmethod
-    def _logicalop(left, right, op) -> "Image":
+    def _logicalop(
+        left: "Image", right: ImageOperand, op: Callable[..., Any]
+    ) -> "Image":
         true = left.cast(left.true)
         false = left.cast(left.false)
 
@@ -3898,7 +4000,7 @@ class Image(
         return left.__class__(out, colororder=left.colororder)
 
     @staticmethod
-    def _unop(left, op) -> "Image":
+    def _unop(left: "Image", op: Callable[..., Any]) -> "Image":
         return left.__class__(op(left._A), colororder=left.colororder)
 
     # ---------------------------- functions ---------------------------- #
@@ -3912,7 +4014,7 @@ class Image(
 
         Return element-wise absolute value of pixel values.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3931,7 +4033,7 @@ class Image(
 
         Return element-wise square root of pixel values.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -3983,7 +4085,7 @@ class Image(
         .. warning:: The image is drawn into in place, see :meth:`draw_box` for the
             requirement that the pixel data is C-contiguous.
 
-        :seealso: :func:`~machinevisiontoolbox.base.graphics.draw_line`
+        .. seealso:: :func:`~machinevisiontoolbox.base.graphics.draw_line`
         """
         draw_line(self._A, start, end, **kwargs)
 
@@ -4003,33 +4105,36 @@ class Image(
         :type radius: int
         :param kwargs: parameters passed to :func:`~machinevisiontoolbox.base.graphics.draw_circle`
 
-        Example, "burn" some circles (confetti) into the Mona Lisa:
+        .. rubric:: Examples
 
-            .. code-block:: pycon
+        "Burn" some circles (confetti) into the Mona Lisa:
+
+        .. code-block:: pycon
 
             >>> from machinevisiontoolbox import Image
             >>> import matplotlib as mpl
+            >>> import numpy as np
             >>> img = Image.Read("monalisa.png")
             >>> colors = mpl.color_sequences["petroff10"]
             >>> for color in colors:
             ...     u = np.random.randint(20, img.umax-20)
-                    v = np.random.randint(20, img.vmax-20)
-                    r = np.random.randint(10, 50)
-                    img.draw_circle((u, v), r, thickness=-1, color=[255*c for c in color])
-            >>> img.disp(img)
-
+            ...     v = np.random.randint(20, img.vmax-20)
+            ...     r = np.random.randint(10, 50)
+            ...     img.draw_circle((u, v), r, thickness=-1, color=[255*c for c in color])
+            >>> img.disp()
 
         .. plot::
 
             from machinevisiontoolbox import Image
             import matplotlib as mpl
+            import numpy as np
             img = Image.Read("monalisa.png")
             for color in mpl.color_sequences["petroff10"]:
                 u = np.random.randint(20, img.umax-20)
                 v = np.random.randint(20, img.vmax-20)
                 r = np.random.randint(10, 50)
                 img.draw_circle((u, v), r, thickness=-1, color=[255*c for c in color])
-            img.disp(img)
+            img.disp()
 
         .. note:: If ``image`` has multiple planes then ``color`` should have the same number
             of elements as the image has planes. If it is a scalar that value is used
@@ -4039,7 +4144,7 @@ class Image(
         .. warning:: The image is drawn into in place, see :meth:`draw_box` for the
             requirement that the pixel data is C-contiguous.
 
-        :seealso: :func:`~machinevisiontoolbox.base.graphics.draw_circle`
+        .. seealso:: :func:`~machinevisiontoolbox.base.graphics.draw_circle`
         """
         if center is not None and centre is None:
             centre = center
@@ -4083,7 +4188,7 @@ class Image(
             might not be: create it with ``Image(array, copy=True)`` to get a
             contiguous copy.  See :class:`Image`.
 
-        :seealso: :func:`~machinevisiontoolbox.base.graphics.draw_box`
+        .. seealso:: :func:`~machinevisiontoolbox.base.graphics.draw_box`
         """
         draw_box(self._A, **kwargs)
 
@@ -4098,14 +4203,14 @@ class Image(
 
         The box position is specified by the parameters accepted by :func:`~machinevisiontoolbox.base.graphics.draw_box`
 
-        Example:
+        .. rubric:: Examples
 
-            .. code-block:: python
+        .. code-block:: python
 
-                from machinevisiontoolbox import Image
-                img = Image.Read("monalisa.png")
-                img.draw_labelbox("Face", lb=(243,111), rt=(394,329), color="yellow", fontheight=20)
-                img.disp()
+            from machinevisiontoolbox import Image
+            img = Image.Read("monalisa.png")
+            img.draw_labelbox("Face", lb=(243,111), rt=(394,329), color="yellow", fontheight=20)
+            img.disp()
 
 
         .. plot::
@@ -4123,7 +4228,7 @@ class Image(
         .. warning:: The image is drawn into in place, see :meth:`draw_box` for the
             requirement that the pixel data is C-contiguous.
 
-        :seealso: :func:`~machinevisiontoolbox.base.graphics.draw_labelbox`
+        .. seealso:: :func:`~machinevisiontoolbox.base.graphics.draw_labelbox`
         """
         draw_labelbox(self._A, text, **kwargs)
 
@@ -4138,14 +4243,14 @@ class Image(
         :type text: str
         :param kwargs: parameters passed to :func:`~machinevisiontoolbox.base.graphics.draw_text`
 
-        Example:
+        .. rubric:: Examples
 
-            .. code-block:: python
+        .. code-block:: python
 
-                from machinevisiontoolbox import Image
-                img = Image.Read("monalisa.png")
-                img.draw_text((340,290), "Smile!", fontheight=40, color="yellow")
-                img.disp()
+            from machinevisiontoolbox import Image
+            img = Image.Read("monalisa.png")
+            img.draw_text((340,290), "Smile!", fontheight=40, color="yellow")
+            img.disp()
 
 
         .. plot::
@@ -4163,7 +4268,7 @@ class Image(
         .. warning:: The image is drawn into in place, see :meth:`draw_box` for the
             requirement that the pixel data is C-contiguous.
 
-        :seealso: :func:`~machinevisiontoolbox.base.graphics.draw_text`
+        .. seealso:: :func:`~machinevisiontoolbox.base.graphics.draw_text`
         """
         draw_text(self._A, pos, text, **kwargs)
 
@@ -4185,7 +4290,7 @@ class Image(
         :type text: str, optional
         :param kwargs: parameters passed to :func:`~machinevisiontoolbox.base.graphics.draw_point`
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -4211,7 +4316,7 @@ class Image(
         .. warning:: The image is drawn into in place, see :meth:`draw_box` for the
             requirement that the pixel data is C-contiguous.
 
-        :seealso: :func:`~machinevisiontoolbox.base.graphics.draw_text`
+        .. seealso:: :func:`~machinevisiontoolbox.base.graphics.draw_text`
         """
         draw_point(self._A, pos, marker, text, **kwargs)
 
@@ -4239,7 +4344,7 @@ class Image(
         the result's color order is constructed by concatenating the color orders
         of the input images.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -4251,9 +4356,8 @@ class Image(
             >>> rgb.nplanes
             >>> rgb.colororder_str
 
-        :seealso: :meth:`Vstack` :meth:`Hstack`
+        .. seealso:: :meth:`Vstack` :meth:`Hstack`
 
-        AUTO_EDIT
         """
         nplanes = images[0].nplanes
         for image in images[1:]:
@@ -4289,7 +4393,7 @@ class Image(
         :return: horizontally flipped image
         :rtype: :class:`Image`
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -4297,7 +4401,7 @@ class Image(
             >>> img = Image([[1, 2, 3], [4, 5, 6]])
             >>> img.fliplr().A
 
-        :seealso: :meth:`flipud`
+        .. seealso:: :meth:`flipud`
         """
         return self.__class__(np.fliplr(self._A), colororder=self.colororder)
 
@@ -4308,7 +4412,7 @@ class Image(
         :return: vertically flipped image
         :rtype: :class:`Image`
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -4316,7 +4420,7 @@ class Image(
             >>> img = Image([[1, 2, 3], [4, 5, 6]])
             >>> img.flipud().A
 
-        :seealso: :meth:`fliplr`
+        .. seealso:: :meth:`fliplr`
         """
         return self.__class__(np.flipud(self._A), colororder=self.colororder)
 
@@ -4350,7 +4454,7 @@ class Image(
         by the maximum value of the image dtype, and negative infinity values are
         replaced by the negative maximum value of the image dtype.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -4394,8 +4498,6 @@ class Image(
 Image.__module__ = "machinevisiontoolbox"
 
 if __name__ == "__main__":
-    from pathlib import Path
-
     import pytest
 
     pytest.main(

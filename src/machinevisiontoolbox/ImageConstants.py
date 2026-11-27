@@ -11,6 +11,8 @@ from typing import TYPE_CHECKING, Any, Sequence, cast
 if TYPE_CHECKING:
     from typing import Self
 
+    from machinevisiontoolbox.ImageCore import Image
+
 import cv2
 import numpy as np
 from spatialmath import Polygon2
@@ -38,7 +40,7 @@ def _getshape(
     h: int | None,
     colororder: str | None,
     size: int | Sequence[int] | None,
-):
+) -> list[int]:
     p = None
 
     if size is not None:
@@ -58,7 +60,8 @@ def _getshape(
 
     if w is None or h is None:
         raise ValueError("dimensions not specified by size, w, h")
-    shape = [h, w]
+    # h and w are ints by here, but mypy cannot see it through the Sequence option
+    shape = cast(list[int], [h, w])
 
     if size is not None and isinstance(size, Iterable) and len(size) == 3:
         p = size[2]
@@ -81,10 +84,10 @@ def _resolve_pattern_options(
     size: Any,
     dtype: Dtype | None,
     colororder: str | None,
-    like: Any,
+    like: Image | None,
     default_size: Any,
     default_dtype: Dtype,
-):
+) -> tuple[Any, Any, str | None]:
     if like is not None and not isinstance(like, cls):
         raise TypeError("like must be an Image")
 
@@ -113,7 +116,7 @@ def _resolve_pattern_options(
     return size, dtype, colororder
 
 
-def _pattern_image(cls, image: np.ndarray, colororder: str | None):
+def _pattern_image(cls, image: np.ndarray, colororder: str | None) -> Any:
     if colororder is not None:
         image = np.repeat(
             image[..., np.newaxis], len(cls.colordict(colororder)), axis=2
@@ -122,6 +125,10 @@ def _pattern_image(cls, image: np.ndarray, colororder: str | None):
 
 
 class ImageConstantsMixin(ImageMixinBase):
+    """
+    Methods of :class:`Image` that create images of constant, random or patterned pixel values
+    """
+
     # ======================= patterns ================================== #
 
     @classmethod
@@ -131,7 +138,7 @@ class ImageConstantsMixin(ImageMixinBase):
         size: int | Sequence[int] | None = None,
         colororder: str | None = None,
         dtype: Dtype | None = None,
-        like=None,
+        like: Image | None = None,
     ) -> Self:
         """
         Create image with zero value pixels
@@ -154,7 +161,7 @@ class ImageConstantsMixin(ImageMixinBase):
         Create a greyscale image of zero-valued pixels. If only one dimension is
         given the image is square.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -165,7 +172,7 @@ class ImageConstantsMixin(ImageMixinBase):
             >>> Image.Zeros(size=(10,20,3), colororder='RGB')
             >>> Image.Zeros(size=20, dtype='float', colororder="RGB") # create color image, all black
 
-        :seealso: :meth:`Constant`
+        .. seealso:: :meth:`Constant`
         """
 
         size, dtype, colororder = _resolve_pattern_options(
@@ -189,7 +196,7 @@ class ImageConstantsMixin(ImageMixinBase):
         colororder: str | None = None,
         dtype: Dtype | None = None,
         size: Sequence[int] | None = None,
-        like=None,
+        like: Image | None = None,
     ) -> Self:
         """
         Create image with all pixels having same value
@@ -215,7 +222,7 @@ class ImageConstantsMixin(ImageMixinBase):
         then the image has ``len(value)`` planes, each initialized to the
         corresponding element of ``value``.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -228,7 +235,7 @@ class ImageConstantsMixin(ImageMixinBase):
         .. note:: If ``len(value) == 3`` and ``colororder`` is not specified
             then RGB is assumed.
 
-        :seealso: :meth:`Zeros`
+        .. seealso:: :meth:`Zeros`
         """
         default_dtype = "float" if isinstance(value, float) else "uint8"
 
@@ -297,7 +304,7 @@ class ImageConstantsMixin(ImageMixinBase):
         rows are separated by a pipe.  There are no spaces.  All rows must be
         the same length.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -348,10 +355,10 @@ class ImageConstantsMixin(ImageMixinBase):
 
         .. note:: The default datatype for the image is ``uint8``
 
-        :seealso: :meth:`Constant`
+        .. seealso:: :meth:`Constant`
         """
 
-        def str2array(s):
+        def str2array(s: str) -> list[list[int]]:
             if "|" in s:
                 pixels = []
                 for row in s.split("|"):
@@ -398,7 +405,7 @@ class ImageConstantsMixin(ImageMixinBase):
         dtype: Dtype | None = None,
         maxval: int | float | None = None,
         pdf: np.ndarray | None = None,
-        like=None,
+        like: Image | None = None,
     ) -> Self:
         """
         Create image with random pixel values
@@ -441,7 +448,7 @@ class ImageConstantsMixin(ImageMixinBase):
             supported for ``uint8`` images, and if given then ``maxval`` is ignored.
 
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -475,6 +482,8 @@ class ImageConstantsMixin(ImageMixinBase):
         .. plot::
 
             from machinevisiontoolbox import Image
+            import matplotlib.pyplot as plt
+
             img = Image.Read("street.png")
             h = img.hist()
             img2 = Image.Random(size=img.size, pdf=h.pdf)
@@ -484,7 +493,7 @@ class ImageConstantsMixin(ImageMixinBase):
             orig.set_title("Original image histogram")
             random.set_title("Random image histogram")
 
-        :seealso: :meth:`Constant`
+        .. seealso:: :meth:`Constant`
         """
 
         size, dtype, colororder = _resolve_pattern_options(
@@ -554,7 +563,7 @@ class ImageConstantsMixin(ImageMixinBase):
         bg: Any = 0,
         dtype: Dtype | None = None,
         colororder: str | None = None,
-        like=None,
+        like: Image | None = None,
     ) -> Self:
         """
         Create image containing grid of squares
@@ -582,7 +591,7 @@ class ImageConstantsMixin(ImageMixinBase):
 
         The image background is set to ``bg`` and the circles are filled with ``fg``.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -649,7 +658,7 @@ class ImageConstantsMixin(ImageMixinBase):
         bg: Any = 0,
         dtype: Dtype | None = None,
         colororder: str | None = None,
-        like=None,
+        like: Image | None = None,
     ) -> Self:
         """
         Create image containing grid of circles
@@ -677,7 +686,7 @@ class ImageConstantsMixin(ImageMixinBase):
 
         The image background is set to ``bg`` and the circles are filled with ``fg``.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -746,7 +755,7 @@ class ImageConstantsMixin(ImageMixinBase):
         size: int | Sequence[int] | None = None,
         dtype: Dtype | None = None,
         colororder: str | None = None,
-        like=None,
+        like: Image | None = None,
     ) -> Self:
         """
         Create image of linear ramps
@@ -777,7 +786,7 @@ class ImageConstantsMixin(ImageMixinBase):
         * float image: 0 to 1
         * int image: 0 to maximum positive value of the integer type
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -845,7 +854,7 @@ class ImageConstantsMixin(ImageMixinBase):
         size: int | Sequence[int] | None = None,
         dtype: Dtype | None = None,
         colororder: str | None = None,
-        like=None,
+        like: Image | None = None,
     ) -> Self:
         """
         Create image of sinusoidal intensity pattern
@@ -874,7 +883,7 @@ class ImageConstantsMixin(ImageMixinBase):
             * float image: 0 to 1
             * int image: 0 to maximum positive value of the integer type
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -931,7 +940,7 @@ class ImageConstantsMixin(ImageMixinBase):
         size: int | Sequence[int] | None = None,
         dtype: Dtype | None = None,
         colororder: str | None = None,
-        like=None,
+        like: Image | None = None,
     ) -> Self:
         """Create chequerboard pattern
 
@@ -959,7 +968,7 @@ class ImageConstantsMixin(ImageMixinBase):
         * float image: black squares 0.0, white squares 1.0
         * int image: black squares 0, white squares maximum positive value of the integer type
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1018,7 +1027,7 @@ class ImageConstantsMixin(ImageMixinBase):
         shift: int = 0,
         dtype: str | np.dtype = "uint8",
         colororder: str | None = None,
-        like=None,
+        like: Image | None = None,
     ) -> Self:
         """
         Create an image containing filled polygons
@@ -1068,7 +1077,7 @@ class ImageConstantsMixin(ImageMixinBase):
             filled square of pixels with rows from 10 to 20 and columns from 10 to 20.  It
             will have an area of 11x11 = 121 pixels, not 10x10 = 100 pixels.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1079,7 +1088,7 @@ class ImageConstantsMixin(ImageMixinBase):
             >>> img = Image.Polygons([p1, p2], size=50)
             >>> img
 
-        :seealso: :meth:`sm.Polygon2` :meth:`cv2.fillPoly`
+        .. seealso:: :meth:`sm.Polygon2` :meth:`cv2.fillPoly`
         """
         if isinstance(polygons, Polygon2):
             polygons = [polygons]
@@ -1116,8 +1125,6 @@ class ImageConstantsMixin(ImageMixinBase):
 
 
 if __name__ == "__main__":
-    from pathlib import Path
-
     import pytest
 
     pytest.main(

@@ -39,7 +39,7 @@ def mkgrid(
 
     If ``n`` or ``side`` are scalar it is assumed to apply in the x- and y-directions.
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -62,7 +62,7 @@ def mkgrid(
         sx = sidev[0]
         sy = sidev[1]
     else:
-        raise ValueError("bad s")
+        raise ValueError(f"side must have 1 or 2 elements, got {len(sidev)}")
 
     nv = smb.getvector(n)
     if len(nv) == 1:
@@ -142,7 +142,7 @@ def mkcube(
     can be changed using ``centre`` or it can be arbitrarily positioned and
     oriented by specifying its ``pose``.
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -163,24 +163,36 @@ def mkcube(
     can be changed using ``centre`` or it can be arbitrarily positioned and
     oriented by specifying its ``pose``.
 
-    Example:
+    .. rubric:: Examples
+
+    .. code-block:: pycon
 
         >>> from machinevisiontoolbox import mkcube
         >>> import matplotlib.pyplot as plt
         >>> S = mkcube(edge=True)  # cube of side length 1
         >>> fig = plt.figure()
-        >>> ax = fig.gca(projection='3d')
+        >>> ax = fig.add_subplot(projection='3d')
         >>> ax.plot_wireframe(*S)
+
+    .. plot::
+
+        from machinevisiontoolbox import mkcube
+        import matplotlib.pyplot as plt
+
+        S = mkcube(edge=True)  # cube of side length 1
+        fig = plt.figure()
+        ax = fig.add_subplot(projection='3d')
+        ax.plot_wireframe(*S)
 
     We can also use MATLAB-like syntax:
 
-        .. code-block:: python
+    .. code-block:: python
 
-            X, Y, Z = mkcube(edge=True)
-            ax.plot_wireframe(X, Y, Z)
+        X, Y, Z = mkcube(edge=True)
+        ax.plot_wireframe(X, Y, Z)
 
 
-    :seealso: :func:`mksphere`, :func:`mkcylinder`
+    .. seealso:: :func:`mksphere`, :func:`mkcylinder`
     """
 
     if pose is not None and centre is not None:
@@ -255,16 +267,16 @@ def mksphere(
     sphere is drawn about the origin but its position can be changed using
     the ``centre`` option.
 
-    Example:
+    .. rubric:: Examples
 
-        .. code-block:: python
+    .. code-block:: python
 
-            from machinevisiontoolbox import mksphere
-            import matplotlib.pyplot as plt
-            S = mksphere()
-            fig = plt.figure()
-            ax = fig.gca(projection='3d')
-            ax.plot_wireframe(*S)
+        from machinevisiontoolbox import mksphere
+        import matplotlib.pyplot as plt
+        S = mksphere()
+        fig = plt.figure()
+        ax = fig.gca(projection='3d')
+        ax.plot_wireframe(*S)
 
 
     We can also use MATLAB-like syntax:
@@ -275,7 +287,7 @@ def mksphere(
             ax.plot_wireframe(X, Y, Z)
 
 
-    :seealso: :func:`mkcube`, :func:`mkcylinder`
+    .. seealso:: :func:`mkcube`, :func:`mkcylinder`
     """
 
     theta = np.linspace(-pi, pi, n).reshape((1, n))
@@ -331,19 +343,19 @@ def mkcylinder(
     If len(r)>2 then it allows the creation of a more complex shape with radius
     as a function of z.
 
-    Example:
+    .. rubric:: Examples
 
-        .. code-block:: python
+    .. code-block:: python
 
-            from machinevisiontoolbox import mkcylinder
-            import matplotlib.pyplot as plt
-            # draw a horizontal diablo shape
-            r = np.linspace(0, 2*pi, 50)
-            S = mkcylinder(r=np.cos(r) + 1.5, symmetric=True, pose=SE3.Rx(pi/2))
-            fig = plt.figure()
-            ax = fig.gca(projection='3d')
-            ax.plot_wireframe(*S)
-            plt.show()
+        from machinevisiontoolbox import mkcylinder
+        import matplotlib.pyplot as plt
+        # draw a horizontal diablo shape
+        r = np.linspace(0, 2*pi, 50)
+        S = mkcylinder(r=np.cos(r) + 1.5, symmetric=True, pose=SE3.Rx(pi/2))
+        fig = plt.figure()
+        ax = fig.gca(projection='3d')
+        ax.plot_wireframe(*S)
+        plt.show()
 
 
     .. note:: We can also use MATLAB-like syntax:
@@ -354,7 +366,7 @@ def mkcylinder(
             ax.plot_wireframe(X, Y, Z)
 
 
-    :seealso: :func:`mkcube`, :func:`mksphere`
+    .. seealso:: :func:`mkcube`, :func:`mksphere`
     """
 
     if isinstance(r, (int, float)):

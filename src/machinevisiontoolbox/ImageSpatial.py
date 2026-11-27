@@ -2,18 +2,19 @@
 Spatial operations: distance transforms, connected components, labelling, and histograms.
 """
 
+import warnings
+from typing import TYPE_CHECKING, Any, Callable, Literal, overload
+
 import cv2
 import numpy as np
 import scipy as sp
 import spatialmath.base.argcheck as argcheck
-import warnings
-from typing import TYPE_CHECKING, Any, Callable
 
 from machinevisiontoolbox._image_typing import ImageMixinBase
 from machinevisiontoolbox.Kernel import Kernel
 
 if TYPE_CHECKING:
-    pass
+    from machinevisiontoolbox.ImageWholeFeatures import CannyHistogram
 
 
 class ImageSpatialMixin(ImageMixinBase):
@@ -86,7 +87,9 @@ class ImageSpatialMixin(ImageMixinBase):
         try:
             return border_opt[border]
         except KeyError:
-            raise ValueError(border, "border is not a valid option")
+            raise ValueError(
+                f"border must be one of {list(border_opt)}, got {border!r}"
+            )
 
     @staticmethod
     def _bordertype_sp(
@@ -121,7 +124,9 @@ class ImageSpatialMixin(ImageMixinBase):
         try:
             return border_opt[border]
         except KeyError:
-            raise ValueError(border, "border is not a valid option")
+            raise ValueError(
+                f"border must be one of {list(border_opt)}, got {border!r}"
+            )
 
     def smooth(
         self,
@@ -153,7 +158,7 @@ class ImageSpatialMixin(ImageMixinBase):
         :math:`\sigma = 0.3 \mathtt{h} + 0.8` which ensures that most of the Gaussian is
         contained within the window.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -167,14 +172,15 @@ class ImageSpatialMixin(ImageMixinBase):
             - If input image is integer it is converted to float, convolved,
               then converted back to integer.
 
-        :references:
-            - |RVC3|, Section 11.5.1.
+        .. rubric:: References
 
-        :seealso: :meth:`machinevisiontoolbox.Kernel.Gauss` :meth:`convolve`
+        - |RVC3|, Section 11.5.1.
+
+        .. seealso:: :meth:`machinevisiontoolbox.Kernel.Gauss` :meth:`convolve`
         """
 
         if not argcheck.isscalar(sigma):
-            raise ValueError(sigma, "sigma must be a scalar")
+            raise ValueError(f"sigma must be a scalar, got {sigma!r}")
 
         # make the smoothing kernel
         K = Kernel.Gauss(sigma, h)
@@ -187,6 +193,7 @@ class ImageSpatialMixin(ImageMixinBase):
         mode: str = "same",
         border: str = "reflect",
         bordervalue: int | float = 0,
+        dtype: Literal["same", "int16", "float32", "float64"] = "same",
     ) -> Any:
         """
         Image convolution
@@ -199,6 +206,9 @@ class ImageSpatialMixin(ImageMixinBase):
         :type border: str, optional
         :param bordervalue: padding value, defaults to 0
         :type bordervalue: scalar, optional
+        :param dtype: datatype of the result, defaults to ``'same'``, the datatype
+            of the input image
+        :type dtype: str, optional
         :return: input image convolved with kernel
         :rtype:
             :class:`.Image`
@@ -229,7 +239,7 @@ class ImageSpatialMixin(ImageMixinBase):
         ``'none'``          do not look outside of border
         ================  ====================================================
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -238,11 +248,35 @@ class ImageSpatialMixin(ImageMixinBase):
             >>> img = Image.Read('monalisa.png')
             >>> img.convolve(K=np.ones((11,11))).disp()
 
+        =============  =============================================================
+        ``dtype``      description
+        =============  =============================================================
+        ``'same'``     result has the datatype of the input image (default)
+        ``'int16'``    signed 16-bit integer, for ``uint8`` or ``int16`` input
+        ``'float32'``  single precision, for any input except ``float64``
+        ``'float64'``  double precision, for any input
+        =============  =============================================================
+
+        .. versionchanged:: 2.5.0
+            Added the ``dtype`` argument.
+
         .. note::
             - The kernel is typically square with an odd side length.
-            - The result has the same datatype as the input image.  For a kernel
-              where the results could be negative (eg. edge detection kernel)
-              this will cause issues such as value wraparound.
+            - OpenCV sums the products of kernel and pixel values in a wider
+              type than the image, so the sum itself does not overflow.  The
+              sum is then converted to the datatype of the result, and values
+              outside its range are **clipped** (saturated), not wrapped.  With
+              the default ``dtype='same'`` a ``uint8`` result is limited to 0
+              to 255, so for a kernel whose results can be negative (for
+              example an edge detection kernel) every negative result becomes 0,
+              and for a kernel that sums to more than one (for example
+              ``np.ones((11, 11))``) bright regions saturate at 255.  Use
+              ``dtype='float32'`` to keep the sign and the magnitude.
+            - A ``uint8`` image convolved to ``dtype='int16'`` keeps the sign,
+              but also clips, at -32768 and 32767, which a large kernel can
+              reach.  ``dtype='float32'`` holds the result of any realistic kernel.
+            - Only combinations OpenCV supports are allowed, a result cannot be
+              less precise than a floating point input.
             - If the image is color (has multiple planes) the kernel is
               applied to each plane, resulting in an output image with the same
               number of planes.
@@ -252,12 +286,14 @@ class ImageSpatialMixin(ImageMixinBase):
             Because convolution is a sum of products, a single NaN within the kernel's
             window propagates to make the output pixel NaN.  Use :meth:`fixbad` for handling NaN values.
 
-        :references:
-            - |RVC3|, Section 11.5.1.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.5.1.
 
         .. important:: Uses OpenCV functions ``cv2.filter2D`` and ``cv2.copyMakeBorder`` which accept multiple-channel, CV_8U, CV_16U, CV_16S, CV_32F or CV_64F images.
 
-        :seealso:
+        .. seealso::
+
             :class:`~machinevisiontoolbox.Kernel.Kernel`
             :meth:`~smooth`
             `cv2.filter2D <https://docs.opencv.org/4.x/d4/d86/group__imgproc__filter.html#ga27c049795ce870216ddfb366086b5a04>`_
@@ -274,6 +310,28 @@ class ImageSpatialMixin(ImageMixinBase):
 
         K = argcheck.getmatrix(K, shape=[None, None], dtype="float32")
 
+        # the output depth that cv2.filter2D accepts for each input datatype
+        ddepths = {
+            "same": -1,
+            "int16": cv2.CV_16S,
+            "float32": cv2.CV_32F,
+            "float64": cv2.CV_64F,
+        }
+        allowed = {
+            np.dtype("uint8"): ("same", "int16", "float32", "float64"),
+            np.dtype("uint16"): ("same", "float32", "float64"),
+            np.dtype("int16"): ("same", "int16", "float32", "float64"),
+            np.dtype("float32"): ("same", "float32"),
+            np.dtype("float64"): ("same", "float64"),
+        }
+        if dtype not in ddepths:
+            raise ValueError(f"dtype must be one of {list(ddepths)}, got {dtype!r}")
+        if self._A.dtype in allowed and dtype not in allowed[self._A.dtype]:
+            raise ValueError(
+                f"dtype {dtype!r} is not possible for a {self._A.dtype} image, "
+                f"must be one of {list(allowed[self._A.dtype])}"
+            )
+
         # OpenCV does correlation, not convolution, so we flip the kernel
         # to compensate.  Flip horizontally and vertically.
         K = np.flip(K)
@@ -287,7 +345,7 @@ class ImageSpatialMixin(ImageMixinBase):
         modeopt = ["valid", "same", "full"]
 
         if mode not in modeopt:
-            raise ValueError(mode, "opt is not a valid option")
+            raise ValueError(f"mode must be one of {modeopt}, got {mode!r}")
 
         self._opencv_type_check(
             self._A, "multiple-channel", "CV_8U", "CV_16U", "CV_16S", "CV_32F", "CV_64F"
@@ -319,7 +377,10 @@ class ImageSpatialMixin(ImageMixinBase):
             )
 
         out = cv2.filter2D(
-            src=img, ddepth=-1, kernel=K, borderType=self._bordertype_cv(border)
+            src=img,
+            ddepth=ddepths[dtype],
+            kernel=K,
+            borderType=self._bordertype_cv(border),
         )
 
         if mode == "valid" or crop:
@@ -327,7 +388,9 @@ class ImageSpatialMixin(ImageMixinBase):
                 out = out[kh : out.shape[0] - kh, kw : out.shape[1] - kw]
             else:
                 out = out[kh : out.shape[0] - kh, kw : out.shape[1] - kw, :]
-        return self.__class__(out, colororder=self.colororder)
+        # name the datatype, otherwise Image narrows int16 and uint16 to uint8
+        # and float64 to float32
+        return self.__class__(out, colororder=self.colororder, dtype=out.dtype)
 
     # def sobel(self, kernel=None):
     #     if kernel is None:
@@ -360,7 +423,18 @@ class ImageSpatialMixin(ImageMixinBase):
 
         Compute horizontal and vertical gradient images.
 
-        Example:
+        The gradient images are ``float32``, or ``float64`` for a ``float64``
+        image, whatever the type of the input image, since a gradient can be
+        negative and a ``uint8`` result would clip every negative value to zero.
+        With the default Sobel kernel, which is normalised, the gradients of a
+        ``uint8`` image lie between -127.5 and 127.5.
+
+        .. versionchanged:: 2.5.0
+            The gradients of an integer image are ``float32``.  They were the
+            datatype of the image, so a ``uint8`` image lost all of its negative
+            gradients.
+
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -368,16 +442,25 @@ class ImageSpatialMixin(ImageMixinBase):
             >>> img = Image.Read('monalisa.png', grey=True)
             >>> Iu, Iv = img.gradients()
 
-        :references:
-            - |RVC3|, Section 11.5.1.3.
+        .. rubric:: References
 
-        :seealso: :class:`~machinevisiontoolbox.Kernel.Kernel`
+        - |RVC3|, Section 11.5.1.3.
+
+        .. seealso:: :class:`~machinevisiontoolbox.Kernel.Kernel`
         """
         if K is None:
             K = Kernel.Sobel()
 
-        Iu = self.convolve(K, mode=mode, border=border, bordervalue=bordervalue)
-        Iv = self.convolve(K.T, mode=mode, border=border, bordervalue=bordervalue)
+        # a gradient is signed, so do not let it be clipped to the input datatype
+        dtype: Literal["float32", "float64"] = (
+            "float64" if self._A.dtype == np.float64 else "float32"
+        )
+        Iu = self.convolve(
+            K, mode=mode, border=border, bordervalue=bordervalue, dtype=dtype
+        )
+        Iv = self.convolve(
+            K.T, mode=mode, border=border, bordervalue=bordervalue, dtype=dtype
+        )
         return Iu, Iv
 
     def direction(
@@ -398,7 +481,7 @@ class ImageSpatialMixin(ImageMixinBase):
 
             \theta_{u,v} = \tan^{-1} \frac{\mat{I}_{v: u,v}}{\mat{I}_{u: u,v}}
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -407,10 +490,11 @@ class ImageSpatialMixin(ImageMixinBase):
             >>> Iu, Iv = img.gradients()
             >>> direction = Iu.direction(Iv)
 
-        :references:
-            - |RVC3|, Section 11.5.1.3.
+        .. rubric:: References
 
-        :seealso: :meth:`gradients`
+        - |RVC3|, Section 11.5.1.3.
+
+        .. seealso:: :meth:`gradients`
         """
         if horizontal.shape != vertical.shape:
             raise ValueError("images must the same shape")
@@ -431,12 +515,14 @@ class ImageSpatialMixin(ImageMixinBase):
         positive for high gradient in orthogonal directions, and negative
         for high gradient in a single direction.
 
-        :references:
-            - |RVC3|, Section 12.3.1.
+        .. rubric:: References
+
+        - |RVC3|, Section 12.3.1.
 
         .. important:: Uses OpenCV function ``cv2.cornerHarris`` which accepts single-channel, CV_8U, CV_32F or CV_64F images (color images are automatically converted to greyscale).
 
-        :seealso:
+        .. seealso::
+
             :meth:`gradients`
             :meth:`Harris`
             `cv2.cornerHarris <https://docs.opencv.org/4.x/dd/d1a/group__imgproc__feature.html#gac1fc3598018010880e370e2f709b4345>`_
@@ -489,7 +575,7 @@ class ImageSpatialMixin(ImageMixinBase):
         - If ``se`` is None then ``h`` is the half width of a :math:`w \times
           w` square structuring element of ones, where :math:`w =2h+1`.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -503,17 +589,18 @@ class ImageSpatialMixin(ImageMixinBase):
             - Is slow since the function ``func`` must be invoked once for
               every output pixel.
 
-        :references:
-            - |RVC3|, Section 11.5.3.
+        .. rubric:: References
 
-        :seealso: :func:`scipy.ndimage.generic_filter`
+        - |RVC3|, Section 11.5.3.
+
+        .. seealso:: :func:`scipy.ndimage.generic_filter`
         """
         # replace window's mex function with scipy's ndimage.generic_filter
         if self.iscolor:
             raise ValueError("single channel images only")
 
         if not callable(func):
-            raise TypeError(func, "func not callable")
+            raise TypeError(f"func not callable, got {func!r}")
 
         if h is not None and se is None:
             w = 2 * h + 1
@@ -538,7 +625,7 @@ class ImageSpatialMixin(ImageMixinBase):
         Compute a zero-crossing image, where pixels are true if they are adjacent to
         a change in sign.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -551,10 +638,12 @@ class ImageSpatialMixin(ImageMixinBase):
         .. note:: Uses morphological filtering with 3x3 structuring element, which can
             lead to erroneous values in border pixels.
 
-        :references:
-            - |RVC3|, Section 11.5.1.3.
+        .. rubric:: References
 
-        :seealso:
+        - |RVC3|, Section 11.5.1.3.
+
+        .. seealso::
+
             :meth:`Laplace`
             :meth:`LoG`
         """
@@ -584,21 +673,23 @@ class ImageSpatialMixin(ImageMixinBase):
         consecutive smoothings is the difference of Gaussian which is an
         approximation to the Laplacian of Gaussian.
 
-        Examples:
+        .. rubric:: Examples
 
-            .. code-block:: python
+        .. code-block:: python
 
-                mona = Image.Read("monalisa.png", dtype="float");
-                G, L, scales = mona.scalespace(8, sigma=8);
+            mona = Image.Read("monalisa.png", dtype="float");
+            G, L, scales = mona.scalespace(8, sigma=8);
 
 
         .. note:: The two image sequences have the same length, the original image is
             not included in the list of smoothed images.
 
-        :references:
-            - |RVC3|, Section 12.3.2.
+        .. rubric:: References
 
-        :seealso:
+        - |RVC3|, Section 12.3.2.
+
+        .. seealso::
+
             :meth:`pyramid`
             :meth:`smooth`
             :class:`~.Gauss`
@@ -646,7 +737,7 @@ class ImageSpatialMixin(ImageMixinBase):
         array of images each one having dimensions half that of the previous
         image. The pyramid is computed down to a non-halvable image size.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -660,12 +751,14 @@ class ImageSpatialMixin(ImageMixinBase):
             - Works for greyscale images only.
             - Converts a color image to greyscale.
 
-        :references:
-            - |RVC3|, Section 12.3.2.
+        .. rubric:: References
+
+        - |RVC3|, Section 12.3.2.
 
         .. important:: Uses OpenCV function ``cv2.pyrDown`` which accepts single-channel, CV_8U, CV_16U, CV_16S, CV_32F or CV_64F images (color images are automatically converted to greyscale).
 
-        :seealso:
+        .. seealso::
+
             :meth:`smooth`
             :meth:`scalespace`
             `cv2.pyrDown <https://docs.opencv.org/4.x/d4/d86/group__imgproc__filter.html#gaf9bba239dfca11654cb7f50f889fc2ff>`_
@@ -678,15 +771,14 @@ class ImageSpatialMixin(ImageMixinBase):
         )
 
         if not argcheck.isscalar(sigma):
-            raise ValueError(sigma, "sigma must be a scalar")
+            raise ValueError(f"sigma must be a scalar, got {sigma!r}")
 
         if N is None:
             N = max(im.shape)
         else:
             if (not argcheck.isscalar(N)) and (N >= 0) and (N <= max(im.shape)):
                 raise ValueError(
-                    N,
-                    "N must be a scalar and 0 <= N <= max(im.shape)",
+                    f"N must be a scalar and 0 <= N <= max(im.shape), got {N!r}",
                 )
 
         # TODO options to accept different border types,
@@ -712,96 +804,168 @@ class ImageSpatialMixin(ImageMixinBase):
         pyrimlist = [self.__class__(p) for p in pyr]
         return pyrimlist
 
+    @overload
     def canny(
         self,
-        sigma: int | float = 1,
-        th0: float | int | None = None,
-        th1: float | int | None = None,
+        sigma: float | None = ...,
+        th0: float | None = ...,
+        th1: float | None = ...,
+        percentile: float = ...,
+        k: float = ...,
+        hist: Literal[False] = ...,
+    ) -> Any: ...
+
+    @overload
+    def canny(
+        self,
+        sigma: float | None = ...,
+        th0: float | None = ...,
+        th1: float | None = ...,
+        percentile: float = ...,
+        k: float = ...,
+        *,
+        hist: Literal[True],
+    ) -> "tuple[Any, CannyHistogram]": ...
+
+    def canny(
+        self,
+        sigma: float | None = None,
+        th0: float | None = None,
+        th1: float | None = None,
+        percentile: float = 90,
+        k: float = 0.5,
+        hist: bool = False,
     ) -> Any:
-        """
+        r"""
         Canny edge detection
 
-        :param sigma: standard deviation for Gaussian kernel smoothing, defaults to 1
-        :type sigma: float, optional
-        :param th0: lower threshold
-        :type th0: float
-        :param th1: upper threshold
-        :type th1: float
-        :return: edge image
-        :rtype: :class:`Image` instance
+        :param sigma: standard deviation of a Gaussian used to smooth the image
+            before edge detection, defaults to None (no smoothing)
+        :param th0: lower hysteresis threshold, defaults to None
+        :param th1: upper hysteresis threshold, defaults to None
+        :param percentile: percentile of the gradient magnitude used as the upper
+            threshold when no threshold is given, defaults to 90
+        :param k: ratio of the lower threshold to the upper threshold, defaults to 0.5
+        :param hist: also return a histogram of the gradient magnitude, defaults to False
+        :raises ValueError: a threshold is given as well as a non-default ``percentile``
+        :return: edge image, or edge image and gradient histogram if ``hist`` is True
 
         Computes an edge image obtained using the Canny edge detector algorithm.
         Hysteresis filtering is applied to the gradient image: edge pixels >
         ``th1`` are connected to adjacent pixels > ``th0``, those below ``th0``
         are set to zero.
 
-        Example:
+        The thresholds apply to the gradient magnitude computed by OpenCV, which
+        is :math:`|G_x| + |G_y|` where :math:`G_x` and :math:`G_y` are the
+        outputs of the 3x3 Sobel kernels applied to the image after conversion
+        to ``uint8``.  This is not normalized, so a step of height 255 gives a
+        gradient of 1020.
+
+        The thresholds are set in one of two ways:
+
+        1. Explicitly.  ``th0`` and ``th1`` are passed to OpenCV.  If only one is
+           given the other is set using ``k``: ``th0 = k * th1`` or
+           ``th1 = th0 / k``.
+        2. Automatically, if neither is given.  The upper threshold is the
+           ``percentile`` of the gradient magnitude of the (optionally smoothed)
+           image, and the lower threshold is ``k`` times that.  A percentile
+           of 80 to 90 is typical.
+
+        With ``hist=True`` the gradient magnitude, which is the quantity that
+        is thresholded, is also returned as a :class:`CannyHistogram`.  Its
+        attributes ``th0`` and ``th1`` are the thresholds that were used, and
+        its ``plot`` method shows them on the histogram.  This helps in
+        choosing thresholds.
+
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
             >>> img = Image.Read('monalisa.png')
             >>> edges = img.canny()
+            >>> edges = img.canny(sigma=2, percentile=80)
+            >>> edges = img.canny(th0=100, th1=300)
+            >>> edges, h = img.canny(hist=True)
+            >>> h.th0, h.th1
 
         .. note::
             - Produces a zero image with single pixel wide edges having
               non-zero values.
-            - Larger values correspond to stronger edges.
-            - If ``th1`` is zero then no hysteresis filtering is performed.
             - A color image is automatically converted to greyscale first.
 
-        :references:
-            - "A Computational Approach To Edge Detection", J. Canny,
-              IEEE Trans. Pattern Analysis and Machine Intelligence,
-              8(6):679–698, 1986.
-            - |RVC3|, Section 11.5.1.3.
+        .. versionchanged:: 2.5.0
+            ``sigma``, ``th0`` and ``th1`` now take effect.  Previously they
+            were ignored and the thresholds were always set from the mean of
+            the image.  ``sigma`` now defaults to None, no smoothing.  The
+            automatic thresholds are now set from the ``percentile`` of the
+            gradient magnitude and ``k``.  The arguments ``percentile``,
+            ``k`` and ``hist`` are new.
 
+        .. rubric:: References
+
+        - "A Computational Approach To Edge Detection", J. Canny,
+          IEEE Trans. Pattern Analysis and Machine Intelligence,
+          8(6):679–698, 1986.
+        - |RVC3|, Section 11.5.1.3.
+
+        .. seealso:: :meth:`smooth` :meth:`~machinevisiontoolbox.ImageWholeFeatures.Histogram`
         """
+        if not 0 < percentile < 100:
+            raise ValueError("percentile must be in the range (0, 100)")
+        if not 0 < k <= 1:
+            raise ValueError("k must be in the range (0, 1]")
+        explicit = th0 is not None or th1 is not None
+        if explicit and percentile != 90:
+            raise ValueError("percentile cannot be used when a threshold is given")
 
-        # convert to greyscale:
+        # convert to greyscale, and smooth if requested
         img = self.mono()
+        if sigma is not None and sigma > 0:
+            img = img.smooth(sigma=sigma)
+        gray = img.array_as("uint8")
 
-        # set defaults (eg thresholds, eg one as a function of the other)
-        if th0 is None:
-            if np.issubdtype(th0, np.floating):
-                th0 = 0.1
-            else:
-                # isint
-                th0 = np.round(0.1 * np.iinfo(img.dtype).max)
-        if th1 is None:
-            th1 = 1.5 * th0
+        # We call cv2.Sobel rather than gradients() deliberately.  The thresholds
+        # are compared by cv2.Canny with its own gradient magnitude, which is the
+        # unnormalized 3x3 Sobel with the L1 norm |Gx| + |Gy| (apertureSize=3,
+        # L2gradient=False), 8 times the gain of Kernel.Sobel().  Using the same
+        # calculation means that a percentile of this gradient, and the
+        # thresholds shown in the histogram, are exactly the values that Canny
+        # applies.  gradients() would differ in scale, in border handling
+        # (reflect versus OpenCV's reflect_101), and on a uint8 image in its
+        # output type.
+        gx = cv2.Sobel(gray, cv2.CV_32F, 1, 0, ksize=3)
+        gy = cv2.Sobel(gray, cv2.CV_32F, 0, 1, ksize=3)
+        grad = np.abs(gx) + np.abs(gy)
 
-        # compute gradients Ix, Iy using gaussian kernel
-        dg = Kernel.DGauss(sigma)
-
-        sigma = 0.3333
-
-        Ix = self.convolve(dg.K)
-        Iy = self.convolve(dg.K.T)
-
-        # Ix, Iy must be 16-bit input image
-        Ix = np.array(Ix._A, dtype=np.int16)
-        Iy = np.array(Iy._A, dtype=np.int16)
-
-        v = np.mean(self._A)
-        # apply automatic Canny edge detection using the computed median
-        lower = max(0, (1.0 - sigma) * v)
-        upper = min(1, (1.0 + sigma) * v)
+        if explicit:
+            if th0 is None:
+                th0 = k * th1  # type: ignore[operator]
+            elif th1 is None:
+                th1 = th0 / k
+        else:
+            th1 = float(np.percentile(grad, percentile))
+            th0 = k * th1
 
         out = cv2.Canny(
-            image=self.array_as("uint8"),
-            threshold1=lower,
-            threshold2=upper,
+            image=gray,
+            threshold1=float(th0),
+            threshold2=float(th1),  # type: ignore[arg-type]
             L2gradient=False,
         )
+        edges = self.__class__(out)
 
-        return self.__class__(out)
+        if hist:
+            from machinevisiontoolbox.ImageWholeFeatures import CannyHistogram
+
+            return edges, CannyHistogram(self.__class__(grad), float(th0), float(th1))  # type: ignore[arg-type]
+        return edges
 
     def rankfilter(
         self,
         footprint: np.ndarray | None = None,
         h: int | None = None,
-        rank: int | str = -1,
+        rank: int | str = "median",
         border: str = "replicate",
         bordervalue: int | float = 0,
     ) -> Any:
@@ -812,8 +976,8 @@ class ImageSpatialMixin(ImageMixinBase):
         :type footprint: ndarray(N,M), optional
         :param h: half width of structuring element
         :type h: int, optional
-        :param rank: rank of filter
-        :type rank: int, str
+        :param rank: rank of filter, defaults to ``"median"``
+        :type rank: int, str, optional
         :param border: option for boundary handling, defaults to 'replicate'
         :type border: str, optional
         :param bordervalue: padding value, defaults to 0
@@ -833,7 +997,7 @@ class ImageSpatialMixin(ImageMixinBase):
             - ``footprint`` a 2D Numpy array containing zero or one values, or
             - ``h`` which is the half width :math:`w=2h+1` of an array of ones
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -851,10 +1015,15 @@ class ImageSpatialMixin(ImageMixinBase):
             - The input can be logical, uint8, uint16, float or double, the
               output is always double.
 
-        :references:
-            - |RVC3|, Section 11.5.3.
+        .. rubric:: References
 
-        :seealso: :obj:`scipy.ndimage.rank_filter`
+        - |RVC3|, Section 11.5.3.
+
+        .. versionchanged:: 2.5.0
+            ``rank`` now defaults to ``"median"``.  The previous default of -1
+            was always rejected, so ``rank`` had to be given.
+
+        .. seealso:: :obj:`scipy.ndimage.rank_filter`
         """
         if h is not None:
             w = 2 * h + 1
@@ -873,9 +1042,9 @@ class ImageSpatialMixin(ImageMixinBase):
             elif rank in ("med", "median"):
                 rank = n // 2
             else:
-                raise ValueError(rank, "unknown rank name")
+                raise ValueError(f"unknown rank name, got {rank!r}")
         elif not isinstance(rank, int):
-            raise TypeError(rank, "rank must be int or str")
+            raise TypeError(f"rank must be int or str, got {rank!r}")
 
         if rank < 0:
             raise ValueError("rank must be >= 0")
@@ -897,7 +1066,7 @@ class ImageSpatialMixin(ImageMixinBase):
         self,
         footprint: np.ndarray | None = None,
         h: int | None = None,
-        rank: int | str = -1,
+        rank: int | str = "median",
         border: str = "replicate",
         bordervalue: int | float = 0,
     ) -> Any:
@@ -932,7 +1101,7 @@ class ImageSpatialMixin(ImageMixinBase):
         Return the median filtered image.  For every :math:`w \times w, w=2h+1`
         window take the median value as the output pixel value.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -949,10 +1118,11 @@ class ImageSpatialMixin(ImageMixinBase):
         .. note:: This filter is effective for removing impulse (aka
             salt and pepper) noise.
 
-        :references:
-            - |RVC3|, Section 11.5.3.
+        .. rubric:: References
 
-        :seealso: :meth:`rankfilter`
+        - |RVC3|, Section 11.5.3.
+
+        .. seealso:: :meth:`rankfilter`
         """
         w = 2 * h + 1
         r = int((w**2 - 1) / 2)
@@ -974,9 +1144,10 @@ class ImageSpatialMixin(ImageMixinBase):
         :rtype: :class:`Image`
 
         Compute the distance transform. For each zero input pixel, compute its
-        distance to the nearest non-zero input pixel.
+        distance to the nearest non-zero input pixel.  Any non-zero value counts
+        as foreground, so the input need not be binary or have the values 0 and 255.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -996,23 +1167,31 @@ class ImageSpatialMixin(ImageMixinBase):
               to zero.
             - The signed-distance function is ``image.distance_transform() - image.distance_transform(invert=True)``
 
-        :references:
-            - |RVC3|, Section 11.6.4.
+        .. versionchanged:: 2.5.0
+            Any non-zero pixel is treated as foreground.  Previously the image
+            was inverted as ``255 - x``, which only worked for images whose
+            pixels were 0 or 255.  For any other values there was no zero pixel
+            left, and the result was about 65000 everywhere.
+
+        .. rubric:: References
+
+        - |RVC3|, Section 11.6.4.
 
         .. important:: Uses OpenCV function ``cv2.distanceTransform`` which accepts single-channel, CV_8U images.
 
-        :seealso: `opencv.distanceTransform <https://docs.opencv.org/4.x/d7/d1b/group__imgproc__misc.html#ga8a0b7fdfcb7a13dde018988ba3a43042>`_
+        .. seealso:: `opencv.distanceTransform <https://docs.opencv.org/4.x/d7/d1b/group__imgproc__misc.html#ga8a0b7fdfcb7a13dde018988ba3a43042>`_
         """
         self._opencv_type_check(self._A, "single-channel", "CV_8U")
-        # OpenCV does distance to nearest zero pixel
+        # OpenCV does distance of each non-zero pixel to the nearest zero pixel
         # this function does distance to nearest non-zero pixel by default,
-        # and the OpenCV thing if invert=True
+        # and the OpenCV thing if invert=True.  Any non-zero value is
+        # foreground, so make a 0/1 image rather than inverting as 255 - x.
         if invert:
             # distance to nearest zero pixel
-            im = self.array_as("uint8")
+            im = (self._A != 0).astype(np.uint8)
         else:
-            # distance to nearest non-zero pixel, invert the image
-            im = self.invert().array_as("uint8")
+            # distance to nearest non-zero pixel
+            im = (self._A == 0).astype(np.uint8)
 
         normdict = {
             "L1": cv2.DIST_L1,
@@ -1047,7 +1226,7 @@ class ImageSpatialMixin(ImageMixinBase):
         indicating which region the corresponding input pixel belongs to.  The
         background has label 0.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1068,19 +1247,21 @@ class ImageSpatialMixin(ImageMixinBase):
             - 8-way connectivity introduces ambiguities, a chequerboard is
               two blobs.
 
-        :references:
-            - |RVC3|, Section 12.1.2.1.
+        .. rubric:: References
+
+        - |RVC3|, Section 12.1.2.1.
 
         .. important:: Uses OpenCV function ``cv2.connectedComponents`` which accepts single-channel, CV_8U images.
 
-        :seealso:
+        .. seealso::
+
             :meth:`blobs`
             `cv2.connectedComponents <https://docs.opencv.org/4.x/d3/dc0/group__imgproc__shape.html#gaedef8c7340499ca391d459122e51bef5>`_
             :meth:`labels_graphseg`
             :meth:`labels_MSER`
         """
         if not (connectivity in [4, 8]):
-            raise ValueError(connectivity, "connectivity must be 4 or 8")
+            raise ValueError(f"connectivity must be 4 or 8, got {connectivity!r}")
 
         self._opencv_type_check(self._A, "single-channel", "CV_8U")
         # make labels uint32s, unique and never recycled?
@@ -1090,7 +1271,7 @@ class ImageSpatialMixin(ImageMixinBase):
         elif ltype == "uint16":
             cvtype = cv2.CV_16U
         else:
-            raise TypeError(ltype, "ltype must be either int32 or uint16")
+            raise TypeError(f"ltype must be either int32 or uint16, got {ltype!r}")
 
         retval, labels = cv2.connectedComponents(
             image=self.array_as("uint8"), connectivity=connectivity, ltype=cvtype
@@ -1114,7 +1295,7 @@ class ImageSpatialMixin(ImageMixinBase):
         indicating which region the corresponding input pixel belongs to.  The
         background has label 0.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1125,13 +1306,15 @@ class ImageSpatialMixin(ImageMixinBase):
             >>> N
             >>> labels.print()
 
-        :references:
-            - Linear time maximally stable extremal regions,
-              David Nistér and Henrik Stewénius,
-              In Computer Vision–ECCV 2008, pages 183–196. Springer, 2008.
-            - |RVC3|, Section 12.1.2.2.
+        .. rubric:: References
 
-        :seealso:
+        - Linear time maximally stable extremal regions,
+          David Nistér and Henrik Stewénius,
+          In Computer Vision–ECCV 2008, pages 183–196. Springer, 2008.
+        - |RVC3|, Section 12.1.2.2.
+
+        .. seealso::
+
             :meth:`labels_binary`
             :meth:`labels_graphseg`
             :meth:`blobs`
@@ -1170,13 +1353,15 @@ class ImageSpatialMixin(ImageMixinBase):
         indicating which region the corresponding input pixel belongs to.  The
         background has label 0.
 
-        :references:
-            - Efficient graph-based image segmentation,
-              Pedro F Felzenszwalb and Daniel P Huttenlocher,
-              volume 59, pages 167–181. Springer, 2004.
-            - |RVC3|, Section 12.1.2.2.
+        .. rubric:: References
 
-        :seealso:
+        - Efficient graph-based image segmentation,
+          Pedro F Felzenszwalb and Daniel P Huttenlocher,
+          volume 59, pages 167–181. Springer, 2004.
+        - |RVC3|, Section 12.1.2.2.
+
+        .. seealso::
+
             :meth:`labels_binary`
             :meth:`labels_MSER`
             :meth:`blobs`
@@ -1209,7 +1394,7 @@ class ImageSpatialMixin(ImageMixinBase):
         and a value of 0 indicates identical pixel patterns and is increasingly
         positive as image dissimilarity increases.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1222,10 +1407,12 @@ class ImageSpatialMixin(ImageMixinBase):
 
         .. note:: Not invariant to pixel value scale or offset.
 
-        :references:
-            - |RVC3|, Section 11.5.2.
+        .. rubric:: References
 
-        :seealso:
+        - |RVC3|, Section 11.5.2.
+
+        .. seealso::
+
             :meth:`zsad`
             :meth:`ssd`
             :meth:`ncc`
@@ -1238,7 +1425,8 @@ class ImageSpatialMixin(ImageMixinBase):
         # for im in self:
         # m = np.abs(im._A - image2._A)
         # out.append(np.sum(m))
-        m = np.abs(image1._A - image2._A)
+        # convert first: subtracting uint8 arrays would wrap around at 256
+        m = np.abs(image1._A.astype(float) - image2._A)
         out = np.sum(m)
         return out
 
@@ -1259,7 +1447,7 @@ class ImageSpatialMixin(ImageMixinBase):
         scalar and a value of 0 indicates identical pixel patterns and is
         increasingly positive as image dissimilarity increases.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1272,10 +1460,12 @@ class ImageSpatialMixin(ImageMixinBase):
 
         .. note:: Not invariant to pixel value scale or offset.
 
-        :references:
-            - |RVC3|, Section 11.5.2.
+        .. rubric:: References
 
-        :seealso:
+        - |RVC3|, Section 11.5.2.
+
+        .. seealso::
+
             :meth:`zssd`
             :meth:`sad`
             :meth:`ncc`
@@ -1283,7 +1473,8 @@ class ImageSpatialMixin(ImageMixinBase):
 
         if not np.all(image1.shape == image2.shape):
             raise ValueError("image2 shape is not equal to image1")
-        m = np.power((image1._A - image2._A), 2)
+        # convert first: subtracting uint8 arrays would wrap around at 256
+        m = np.power(image1._A.astype(float) - image2._A, 2)
         return np.sum(m)
 
     def ncc(
@@ -1303,7 +1494,7 @@ class ImageSpatialMixin(ImageMixinBase):
         scalar in the interval -1 (non match) to 1 (perfect match) that
         indicates similarity.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1318,10 +1509,12 @@ class ImageSpatialMixin(ImageMixinBase):
             - The ``ncc`` similarity measure is invariant to scale changes in
               image intensity.
 
-        :references:
-            - |RVC3|, Section 11.5.2.
+        .. rubric:: References
 
-        :seealso:
+        - |RVC3|, Section 11.5.2.
+
+        .. seealso::
+
             :meth:`zncc`
             :meth:`sad`
             :meth:`ssd`
@@ -1329,12 +1522,15 @@ class ImageSpatialMixin(ImageMixinBase):
         if not np.all(image1.shape == image2.shape):
             raise ValueError("image2 shape is not equal to image1")
 
-        denom = np.sqrt(np.sum(image1._A**2) * np.sum(image2._A**2))
+        # convert first: squaring uint8 arrays would wrap around at 256
+        a = image1._A.astype(float)
+        b = image2._A.astype(float)
+        denom = np.sqrt(np.sum(a**2) * np.sum(b**2))
 
         if denom < 1e-10:
             return 0
         else:
-            return np.sum(image1._A * image2._A) / denom
+            return np.sum(a * b) / denom
 
     def zsad(
         image1: Any, image2: Any
@@ -1354,7 +1550,7 @@ class ImageSpatialMixin(ImageMixinBase):
         (relative to their mean values) and is increasingly positive as image
         dissimilarity increases.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1369,10 +1565,12 @@ class ImageSpatialMixin(ImageMixinBase):
             - The ``zsad`` similarity measure is invariant to changes in image
               brightness offset.
 
-        :references:
-            - |RVC3|, Section 11.5.2.
+        .. rubric:: References
 
-        :seealso:
+        - |RVC3|, Section 11.5.2.
+
+        .. seealso::
+
             :meth:`zsad`
             :meth:`ssd`
             :meth:`ncc`
@@ -1402,7 +1600,7 @@ class ImageSpatialMixin(ImageMixinBase):
         scalar and a value of 0 indicates identical pixel patterns (relative to their maen) and is
         increasingly positive as image dissimilarity increases.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1417,10 +1615,12 @@ class ImageSpatialMixin(ImageMixinBase):
             - The ``zssd`` similarity measure is invariant to changes in image
               brightness offset.
 
-        :references:
-            - |RVC3|, Section 11.5.2.
+        .. rubric:: References
 
-        :seealso:
+        - |RVC3|, Section 11.5.2.
+
+        .. seealso::
+
             :meth:`zssd`
             :meth:`sad`
             :meth:`ncc`
@@ -1451,7 +1651,7 @@ class ImageSpatialMixin(ImageMixinBase):
         scalar in the interval -1 (non match) to 1 (perfect match) that
         indicates similarity.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1466,10 +1666,12 @@ class ImageSpatialMixin(ImageMixinBase):
             - The ``zncc`` similarity measure is invariant to affine changes (offset and scale factor)
               in image intensity (brightness offset and scale).
 
-        :references:
-            - |RVC3|, Section 11.5.2.
+        .. rubric:: References
 
-        :seealso:
+        - |RVC3|, Section 11.5.2.
+
+        .. seealso::
+
             :meth:`zncc`
             :meth:`sad`
             :meth:`ssd`
@@ -1504,7 +1706,7 @@ class ImageSpatialMixin(ImageMixinBase):
         the template ``T`` to the same-sized neighbourhood surrounding the
         corresponding input pixel in image.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1522,12 +1724,13 @@ class ImageSpatialMixin(ImageMixinBase):
               crosses the image boundary, and these output pixels are set
               to NaN.
 
-        :references:
-            - |RVC3|, Section 11.5.2.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.5.2.
 
         .. important:: Uses OpenCV function ``cv2.matchTemplate`` which accepts multiple-channel, CV_8U or CV_32F images.
 
-        :seealso: `cv2.matchTemplate <https://docs.opencv.org/4.x/df/dfb/group__imgproc__object.html#ga586ebfb0a7fb604b35a23d85391329be>`_
+        .. seealso:: `cv2.matchTemplate <https://docs.opencv.org/4.x/df/dfb/group__imgproc__object.html#ga586ebfb0a7fb604b35a23d85391329be>`_
         """
 
         # check inputs
@@ -1545,8 +1748,11 @@ class ImageSpatialMixin(ImageMixinBase):
         im = self._A
         T_im = T._A
         if metric[0] == "z":
-            T_im -= np.mean(T_im)  # remove offset from template
-            im = im - np.mean(im)  # remove offset from image
+            # remove the offset from the template and from the image, into new
+            # float32 arrays: the template belongs to the caller, and an 8-bit
+            # image cannot be changed in place by a float mean
+            T_im = T_im.astype(np.float32) - np.mean(T_im, dtype=np.float32)
+            im = im.astype(np.float32) - np.mean(im, dtype=np.float32)
 
         try:
             out = cv2.matchTemplate(image=im, templ=T_im, method=metricdict[metric])

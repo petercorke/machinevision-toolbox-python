@@ -26,8 +26,8 @@ from unittest.mock import MagicMock, patch
 import numpy as np
 import pytest
 
-from machinevisiontoolbox import Image
 import machinevisiontoolbox.Sources as _sources
+from machinevisiontoolbox import Image
 from machinevisiontoolbox.Sources import (
     ROSMessage,
     SyncROSStreams,
@@ -96,7 +96,7 @@ class TestResolveTypestore(unittest.TestCase):
         self.assertIsNotNone(ts)
 
     def test_case_insensitive(self):
-        ts1 = _resolve_typestore("ROS1_NOETIC")
+        _resolve_typestore("ROS1_NOETIC")
         ts2 = _resolve_typestore("ros1_noetic")
         # both should return a typestore without raising
         self.assertIsNotNone(ts2)
@@ -127,7 +127,6 @@ class TestResolveTypestore(unittest.TestCase):
 @_skip_import
 @_skip_bags
 class TestRosBagRos1(unittest.TestCase):
-
     def _bag(self, **kwargs):
         return ROSBag(str(ROS1_BAG), release="noetic", **kwargs)
 
@@ -212,7 +211,7 @@ class TestRosBagRos1(unittest.TestCase):
     def test_context_manager_closes(self):
         bag = self._bag()
         with bag:
-            imgs = list(bag)
+            list(bag)
         # reader should be closed after exiting context
         self.assertIsNone(bag.reader)
 
@@ -243,7 +242,6 @@ class TestRosBagRos1(unittest.TestCase):
 @_skip_import
 @_skip_bags
 class TestRosBagRos2(unittest.TestCase):
-
     def _bag(self, **kwargs):
         return ROSBag(str(ROS2_BAG), release="humble", **kwargs)
 
@@ -284,7 +282,6 @@ class TestRosBagRos2(unittest.TestCase):
 
 
 class TestRosMessage(unittest.TestCase):
-
     def _make(self, **kwargs):
         defaults = dict(
             topic="/test",
@@ -316,7 +313,7 @@ class TestRosMessage(unittest.TestCase):
 def _make_mock_stream(output="image", message="sensor_msgs/CompressedImage"):
     """Build a ROSTopic-like object bypassing roslibpy entirely."""
     try:
-        import roslibpy
+        __import__("roslibpy")
     except ImportError:
         pytest.skip("roslibpy not installed")
 
@@ -334,11 +331,11 @@ def _make_mock_stream(output="image", message="sensor_msgs/CompressedImage"):
 
 @pytest.mark.skipif(not _roslibpy_importable, reason="roslibpy not installed")
 class TestRosTopicCallback(unittest.TestCase):
-
     def _jpeg_msg(self, r=128, g=100, b=50):
         """Build a minimal roslibpy compressed-image message dict."""
         import base64
         import io
+
         from PIL import Image as PILImg
 
         arr = np.full((4, 4, 3), [r, g, b], dtype=np.uint8)
@@ -399,6 +396,7 @@ class TestRosTopicCallback(unittest.TestCase):
         stream = _make_mock_stream(output="image")
         import base64
         import io
+
         from PIL import Image as PILImg
 
         arr = np.zeros((4, 4, 3), dtype=np.uint8)
@@ -421,7 +419,6 @@ class TestRosTopicCallback(unittest.TestCase):
 
 @pytest.mark.skipif(not _roslibpy_importable, reason="roslibpy not installed")
 class TestRosTopicValidation(unittest.TestCase):
-
     def test_invalid_output_value(self):
         with self.assertRaises(ValueError):
             _make_mock_stream(output="bad_value")
@@ -558,7 +555,6 @@ def _fake_stream(*timestamps):
 
 
 class TestSyncRosStreams(unittest.TestCase):
-
     def test_requires_two_streams(self):
         s = _fake_stream(1)
         with self.assertRaises(ValueError):
@@ -590,7 +586,6 @@ class TestSyncRosStreams(unittest.TestCase):
         self.assertEqual(b.timestamp, t)
 
     def test_within_tolerance_matches(self):
-        tol = 20_000_000  # 20 ms in ns
         t0 = 1_000_000_000
         # stream2 is 10 ms ahead — within 20 ms tolerance
         s1 = _fake_stream(t0)
@@ -655,7 +650,7 @@ class TestSyncRosStreams(unittest.TestCase):
 
 _websockets_available = False
 try:
-    import websockets  # noqa: F401
+    __import__("websockets")
 
     _websockets_available = True
 except ImportError:

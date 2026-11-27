@@ -4,29 +4,31 @@ Video, camera, image-collection, and ZIP-archive sources for streaming images.
 
 from __future__ import annotations
 
+import base64
 import fnmatch
 import io
 import json
-import base64
+import os
 import pathlib
 import shutil
 import struct
 import subprocess
 import sys
 import tarfile
-import threading
-from dataclasses import dataclass
-import os
 import tempfile
+import threading
 import time
 import urllib.request
 import warnings
 import zipfile
 from collections import Counter, deque
-from collections.abc import Iterator
-from tqdm import tqdm
+from collections.abc import Callable, Iterator
+from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, IO, Any, Literal, cast
+from types import TracebackType
+from typing import IO, TYPE_CHECKING, Any, Literal, cast
+
+from tqdm import tqdm
 
 if TYPE_CHECKING:
     import torch
@@ -40,16 +42,17 @@ import numpy as np
 from ansitable import ANSITable, Column
 from spatialmath import Polygon2
 
-from machinevisiontoolbox.ImageCore import Image
-from machinevisiontoolbox.PointCloud import PointCloud
 from machinevisiontoolbox.base import mvtb_path_to_datafile
 from machinevisiontoolbox.base.imageio import iread, iread_iter, safe_plt_show
+from machinevisiontoolbox.ImageCore import Image
+from machinevisiontoolbox.PointCloud import PointCloud
 
 try:
     from rosbags.rosbag1 import Reader as _RosBagReader1
     from rosbags.rosbag2 import Reader as _RosBagReader2
     from rosbags.serde import SerdeError as _SerdeError
-    from rosbags.typesys import Stores as _Stores, get_typestore as _get_typestore
+    from rosbags.typesys import Stores as _Stores
+    from rosbags.typesys import get_typestore as _get_typestore
 
     _rosbags_available = True
 except ImportError:
@@ -158,7 +161,9 @@ def _image_payload_end(raw: bytes, msgtype: str, cdr: bool = False) -> int | Non
         if cdr:
             pos += (-(pos - origin)) % 4  # CDR aligns fields to their size
         if pos + 4 > len(raw):
-            raise ValueError("truncated")
+            raise ValueError(
+                f"message truncated: need {pos + 4} bytes, have {len(raw)}"
+            )
         value = struct.unpack_from(order + "I", raw, pos)[0]
         pos += 4
         return value
@@ -167,7 +172,7 @@ def _image_payload_end(raw: bytes, msgtype: str, cdr: bool = False) -> int | Non
         nonlocal pos
         pos += n
         if pos > len(raw):
-            raise ValueError("truncated")
+            raise ValueError(f"message truncated: need {pos} bytes, have {len(raw)}")
 
     try:
         if cdr:
@@ -228,6 +233,15 @@ def _footer_depth_units(footer: bytes, order: str = "<") -> float | None:
 
 
 class ImageSource(ABC):
+    """
+    Abstract base class of the image sources
+
+    An image source yields images one at a time: from a video file or camera, a
+    collection of image files, an archive, a ROS bag and so on.  A subclass
+    implements ``__len__`` and ``__iter__``, and inherits :meth:`disp` to display
+    the images and :meth:`tensor` to stack them into a single PyTorch tensor.
+    """
+
     @abstractmethod
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         """Base constructor for image sources.
@@ -250,7 +264,7 @@ class ImageSource(ABC):
     def tensor(
         self,
         device: str = "cpu",
-        normalize="imagenet",
+        normalize: str | tuple[Any, Any] | None = "imagenet",
         dtype: "torch.dtype | None" = None,
     ) -> "torch.Tensor":
         """
@@ -278,15 +292,14 @@ class ImageSource(ABC):
         This is particularly useful for :class:`VideoFile` and
         :class:`FileArchive`.
 
-        Example:
+        .. rubric:: Examples
 
-            .. code-block:: pycon
+        .. code-block:: pycon
 
             >>> from machinevisiontoolbox import VideoFile
-            >>> t = VideoFile("traffic_sequence.mpg").tensor(normalize=None)
+            >>> t = VideoFile("traffic_sequence.mp4").tensor(normalize=None)
             >>> t.shape
-            torch.Size([N, 3, H, W])
-
+            torch.Size([350, 3, 576, 704])
         """
         try:
             import torch as _torch
@@ -345,7 +358,7 @@ class ImageSource(ABC):
         fps: float | None = None,
         title: str | None = None,
         loop: bool = False,
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
         """
         Display images from the source interactively.
@@ -367,7 +380,7 @@ class ImageSource(ABC):
 
         Display images from the source.  For example::
 
-            VideoFile("traffic_sequence.mpg").disp(fps=10)
+            VideoFile("traffic_sequence.mp4").disp(fps=10)
 
         will display an animation of the video at 10 frames per second.
 
@@ -392,7 +405,7 @@ class ImageSource(ABC):
             :class:`VideoCamera` or :class:`ROSTopic` those controls are
             disabled automatically.
 
-        :seealso: :class:`ImageSequence`
+        .. seealso:: :class:`ImageSequence`
         """
         import matplotlib.pyplot as plt
 
@@ -414,14 +427,14 @@ class ImageSource(ABC):
             "d": 500,
         }
 
-        def _label(item, i):
+        def _label(item: Any, i: int) -> str:
             ts = getattr(item, "timestamp", None)
             if ts is not None:
                 dt = datetime.fromtimestamp(ts / 1e9, tz=timezone.utc).astimezone()
                 return dt.isoformat(timespec="milliseconds") + f" [{i}]"
             return f"[{i}]"
 
-        def _make_overlay(fig):
+        def _make_overlay(fig: Any) -> Any:
             return fig.text(
                 0,
                 0,
@@ -432,7 +445,7 @@ class ImageSource(ABC):
                 verticalalignment="bottom",
             )
 
-        def _win_title(item):
+        def _win_title(item: Any) -> str:
             return title or getattr(item, "topic", None) or ""
 
         fig = None
@@ -453,7 +466,7 @@ class ImageSource(ABC):
 
             state = {"fps": playback_fps, "paused": False, "quit": False}
 
-            def on_key(event, s=state):
+            def on_key(event: Any, s: dict[str, Any] = state) -> None:
                 if event.key in ("q", "x"):
                     s["quit"] = True
                 elif event.key == " ":
@@ -506,7 +519,7 @@ class ImageSource(ABC):
         else:
             view_state = {"next": False, "quit": False, "skip": 0}
 
-            def on_key(event, s=view_state):
+            def on_key(event: Any, s: dict[str, Any] = view_state) -> None:
                 if event.key == " ":
                     s["next"] = True
                 elif event.key in ("q", "x"):
@@ -576,30 +589,33 @@ class VideoFile(ImageSource):
     in the ``images`` folder of the ``mvtb-data`` package, installed as a
     Toolbox dependency.
 
-    Example:
+    .. rubric:: Examples
 
-        .. code-block:: python
+    .. code-block:: python
 
-            from machinevisiontoolbox import VideoFile
-            video = VideoFile("traffic_sequence.mpg")
-            len(video)
-            for im in video:
-                pass
+        from machinevisiontoolbox import VideoFile
+        video = VideoFile("traffic_sequence.mp4")
+        len(video)
+        for im in video:
+            pass
 
 
     or using a context manager to ensure the file handle is always released:
 
-        .. code-block:: python
+    .. code-block:: python
 
-            with VideoFile("traffic_sequence.mpg") as video:
-                for im in video:
-                    pass
+        with VideoFile("traffic_sequence.mp4") as video:
+            for im in video:
+                pass
 
 
-    :references:
-        - |RVC3|, Section 11.1.4.
+    .. rubric:: References
 
-    :seealso: :func:`~machinevisiontoolbox.base.imageio.convert`
+    - |RVC3|, Section 11.1.4.
+
+    .. seealso::
+
+        :func:`~machinevisiontoolbox.base.imageio.convert`
         `opencv.VideoCapture <https://docs.opencv.org/4.x/d8/dfe/classcv_1_1VideoCapture.html#a57c0e81e83e60f36c83027dc2a188e80>`_
     """
 
@@ -674,7 +690,12 @@ class VideoFile(ImageSource):
     def __enter__(self) -> VideoFile:
         return self
 
-    def __exit__(self, exc_type, exc, tb) -> None:
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        tb: TracebackType | None,
+    ) -> None:
         if self.cap is not None:
             self.cap.release()
             self.cap = None
@@ -694,14 +715,14 @@ class VideoCamera(ImageSource):
     The resulting object is an iterator over the frames from the video
     camera. The iterator returns :class:`~machinevisiontoolbox.Image` objects.
 
-    Example:
+    .. rubric:: Examples
 
-        .. code-block:: python
+    .. code-block:: python
 
-            from machinevisiontoolbox import VideoCamera
-            video = VideoCamera(0)
-            for im in video:
-                pass
+        from machinevisiontoolbox import VideoCamera
+        video = VideoCamera(0)
+        for im in video:
+            pass
 
 
     alternatively:
@@ -734,10 +755,13 @@ class VideoCamera(ImageSource):
         enumerate the cameras that are present on the current machine
         together with their best-available names.
 
-    :references:
-        - |RVC3|, Section 11.1.3.
+    .. rubric:: References
 
-    :seealso: :meth:`list` :class:`WebCam` :func:`~machinevisiontoolbox.base.imageio.convert`
+    - |RVC3|, Section 11.1.3.
+
+    .. seealso::
+
+        :meth:`list` :class:`WebCam` :func:`~machinevisiontoolbox.base.imageio.convert`
         `cv2.VideoCapture <https://docs.opencv.org/4.x/d8/dfe/classcv_1_1VideoCapture.html#a57c0e81e83e60f36c83027dc2a188e80>`_
     """
 
@@ -867,7 +891,7 @@ class VideoCamera(ImageSource):
         ==============================  =========================================================
 
 
-        :seealso: :meth:`set`
+        .. seealso:: :meth:`set`
         """
         if property is not None:
             return self.cap.get(self.properties[property])
@@ -908,7 +932,7 @@ class VideoCamera(ImageSource):
         ``"ios:whitebalance"``          white balance of image for Apple AVFOUNDATION backend
         ==============================  =========================================================
 
-        :seealso: :meth:`get`
+        .. seealso:: :meth:`get`
         """
         return self.cap.set(self.properties[property], value)
 
@@ -920,7 +944,7 @@ class VideoCamera(ImageSource):
         :return: width of video frame in pixels
         :rtype: int
 
-        :seealso: :meth:`height` :meth:`shape`
+        .. seealso:: :meth:`height` :meth:`shape`
         """
         return int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
 
@@ -932,7 +956,7 @@ class VideoCamera(ImageSource):
         :return: height of video frame in pixels
         :rtype: int
 
-        :seealso: :meth:`width` :meth:`shape`
+        .. seealso:: :meth:`width` :meth:`shape`
         """
         return int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
@@ -960,7 +984,7 @@ class VideoCamera(ImageSource):
         :return: height and width of video frame in pixels
         :rtype: int, int
 
-        :seealso: :meth:`height` :meth:`width`
+        .. seealso:: :meth:`height` :meth:`width`
         """
         return (self.height, self.width)
 
@@ -987,16 +1011,17 @@ class VideoCamera(ImageSource):
         The name mapping is best-effort: if the platform query fails the
         ``name`` key is ``None``.
 
-        Example::
+        .. rubric:: Examples
 
-            $ python
+        .. code-block:: pycon
+
             >>> from machinevisiontoolbox import VideoCamera
             >>> for cam in VideoCamera.list():
             ...     print(cam)
             {'id': 0, 'width': 1280, 'height': 720, 'fps': 30, 'name': 'FaceTime HD Camera'}
             {'id': 1, 'width': 1920, 'height': 1080, 'fps': 30, 'name': 'iPhone Camera'}
 
-        :seealso: :class:`VideoCamera`
+        .. seealso:: :class:`VideoCamera`
         """
 
         def _query_macos() -> list[str]:
@@ -1084,7 +1109,12 @@ class VideoCamera(ImageSource):
     def __enter__(self) -> VideoCamera:
         return self
 
-    def __exit__(self, exc_type, exc, tb) -> None:
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        tb: TracebackType | None,
+    ) -> None:
         self.release()
 
 
@@ -1132,15 +1162,15 @@ class FileCollection(ImageSource):
     in the ``images`` folder of the ``mvtb-data`` package, installed as a
     Toolbox dependency.
 
-    Example:
+    .. rubric:: Examples
 
-        .. code-block:: python
+    .. code-block:: python
 
-            from machinevisiontoolbox import FileCollection
-            images = FileCollection('campus/*.png')
-            len(images)
-            for image in images:  # iterate over images
-                pass
+        from machinevisiontoolbox import FileCollection
+        images = FileCollection('campus/*.png')
+        len(images)
+        for image in images:  # iterate over images
+            pass
 
 
     alternatively:
@@ -1159,10 +1189,13 @@ class FileCollection(ImageSource):
                     pass
 
 
-    :references:
-        - |RVC3|, Section 11.1.2.
+    .. rubric:: References
 
-    :seealso: :func:`~machinevisiontoolbox.base.imageio.convert`
+    - |RVC3|, Section 11.1.2.
+
+    .. seealso::
+
+        :func:`~machinevisiontoolbox.base.imageio.convert`
         `cv2.imread <https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56>`_
     """
 
@@ -1241,12 +1274,12 @@ class FileCollection(ImageSource):
 
     def __str__(self) -> str:
         if self._lazy:
-            return f"FileCollection(lazy mode)"
+            return "FileCollection(lazy mode)"
         return "\n".join([str(f) for f in self.names])
 
     def __repr__(self) -> str:
         if self._lazy:
-            return f"FileCollection(lazy mode)"
+            return "FileCollection(lazy mode)"
         return f"FileCollection(nimages={len(self.images)})"
 
     def __next__(self) -> Image:
@@ -1315,7 +1348,12 @@ class FileCollection(ImageSource):
         self._lazy_iter = None
         return self
 
-    def __exit__(self, exc_type, exc, tb) -> None:
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        tb: TracebackType | None,
+    ) -> None:
         # Exit lazy mode
         self._lazy = False
         self._lazy_iter = None
@@ -1333,18 +1371,18 @@ class ImageSequence(ImageSource):
     nanosecond epoch) and ``topic`` attribute are used for the display overlay
     when present.
 
-    Example:
+    .. rubric:: Examples
 
-        .. code-block:: python
+    .. code-block:: python
 
-            from machinevisiontoolbox import ROSBag, ImageSequence
-            bag = ROSBag("mybag.bag", msgfilter="Image")
-            seq = ImageSequence(bag)
-            seq.disp()                        # step through one frame at a time
-            seq.disp(animate=True, fps=5)     # timed playback
+        from machinevisiontoolbox import ROSBag, ImageSequence
+        bag = ROSBag("mybag.bag", msgfilter="Image")
+        seq = ImageSequence(bag)
+        seq.disp()                        # step through one frame at a time
+        seq.disp(animate=True, fps=5)     # timed playback
 
 
-    :seealso: :class:`PointCloudSequence`
+    .. seealso:: :class:`PointCloudSequence`
     """
 
     _frames: list
@@ -1374,7 +1412,7 @@ class ImageSequence(ImageSource):
     def __enter__(self) -> ImageSequence:
         return self
 
-    def __exit__(self, *_):
+    def __exit__(self, *_: Any) -> None:
         pass
 
     def __repr__(self) -> str:
@@ -1593,15 +1631,15 @@ class FileArchive(ImageSource):
     ``"*.png"`` or ``"*.pgm"``.  Note that ``filter`` is a Unix shell style
     wildcard expression, not a Python regexp.
 
-    Example:
+    .. rubric:: Examples
 
-        .. code-block:: python
+    .. code-block:: python
 
-            from machinevisiontoolbox import FileArchive
-            images = FileArchive('bridge-l.zip')
-            len(images)
-            for image in images:  # iterate over files
-                pass
+        from machinevisiontoolbox import FileArchive
+        images = FileArchive('bridge-l.zip')
+        len(images)
+        for image in images:  # iterate over files
+            pass
 
 
     alternatively:
@@ -1620,10 +1658,13 @@ class FileArchive(ImageSource):
                     pass
 
 
-    :references:
-        - |RVC3|, Section 11.1.2.
+    .. rubric:: References
 
-    :seealso: :meth:`open` :func:`~machinevisiontoolbox.base.imageio.convert`
+    - |RVC3|, Section 11.1.2.
+
+    .. seealso::
+
+        :meth:`open` :func:`~machinevisiontoolbox.base.imageio.convert`
         `cv2.imread <https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56>`_
     """
 
@@ -1768,7 +1809,12 @@ class FileArchive(ImageSource):
     def __enter__(self) -> FileArchive:
         return self
 
-    def __exit__(self, exc_type, exc, tb) -> None:
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        tb: TracebackType | None,
+    ) -> None:
         self._archive.close()
 
 
@@ -1829,14 +1875,14 @@ class WebCam(ImageSource):
     The resulting object is an iterator over the frames returned from the
     remote camera. The iterator returns :class:`~machinevisiontoolbox.Image` objects.
 
-    Example:
+    .. rubric:: Examples
 
-        .. code-block:: python
+    .. code-block:: python
 
-            from machinevisiontoolbox import WebCam
-            webcam = WebCam('https://webcam.dartmouth.edu/webcam/image.jpg')
-            for image in webcam:  # iterate over frames
-                pass
+        from machinevisiontoolbox import WebCam
+        webcam = WebCam('https://webcam.dartmouth.edu/webcam/image.jpg')
+        for image in webcam:  # iterate over frames
+            pass
 
 
     alternatively:
@@ -1869,10 +1915,13 @@ class WebCam(ImageSource):
         with an iPhone, Continuity Camera makes the phone appear as a local
         camera instead, see :class:`VideoCamera`.
 
-    :references:
-        - |RVC3|, Section 11.1.5.
+    .. rubric:: References
 
-    :seealso: :class:`VideoCamera` :func:`~machinevisiontoolbox.base.imageio.convert`
+    - |RVC3|, Section 11.1.5.
+
+    .. seealso::
+
+        :class:`VideoCamera` :func:`~machinevisiontoolbox.base.imageio.convert`
         `cv2.VideoCapture <https://docs.opencv.org/4.x/d8/dfe/classcv_1_1VideoCapture.html#a57c0e81e83e60f36c83027dc2a188e80>`_
     """
 
@@ -1931,7 +1980,12 @@ class WebCam(ImageSource):
     def __enter__(self) -> WebCam:
         return self
 
-    def __exit__(self, exc_type, exc, tb) -> None:
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        tb: TracebackType | None,
+    ) -> None:
         if self.cap is not None:
             self.cap.release()
             self.cap = None
@@ -1977,13 +2031,13 @@ class EarthView(ImageSource):
     ``"roads"``      a binary image which is an occupancy grid, roads are free space
     ===============  ========================================================================
 
-    Example:
+    .. rubric:: Examples
 
-        .. code-block:: python
+    .. code-block:: python
 
-            from machinevisiontoolbox import EarthView
-            earth = EarthView()  # create an Earth viewer
-            image = earth.grab(-27.475722, 153.0285, zoom=17)
+        from machinevisiontoolbox import EarthView
+        earth = EarthView()  # create an Earth viewer
+        image = earth.grab(-27.475722, 153.0285, zoom=17)
 
 
     .. warning:: You must have a Google account and a valid key, backed
@@ -2001,10 +2055,11 @@ class EarthView(ImageSource):
           Services → Credentials*), so a leaked key can't be used for
           anything else, and consider a daily request quota to bound costs.
 
-    :references:
-        - |RVC3|, Section 11.1.6.
+    .. rubric:: References
 
-    :seealso: :meth:`grab` :func:`~machinevisiontoolbox.base.imageio.convert`
+    - |RVC3|, Section 11.1.6.
+
+    .. seealso:: :meth:`grab` :func:`~machinevisiontoolbox.base.imageio.convert`
     """
 
     key: str | None
@@ -2165,7 +2220,7 @@ _PC2_DTYPE = {
 }
 
 
-def _resolve_typestore(release: str):
+def _resolve_typestore(release: str) -> Any:
     """Return a typestore for the given ROS release name.
 
     The *release* string is matched case-insensitively against
@@ -2710,49 +2765,47 @@ class ROSTopic(ImageSource):
         ``sensor_msgs/PointCloud2`` with ``x``, ``y``, ``z`` fields and an
         ``rgb`` field when color data is present.
 
-        Example publishing a ``std_msgs/String`` message:
+        .. rubric:: Examples
 
-            .. code-block:: python
+        Publishing a ``std_msgs/String`` message:
 
-                pub = ROSTopic("/cmd_text", message="std_msgs/String", subscribe=False)
-                pub.publish({"data": "hello"})
-                pub.release()
+        .. code-block:: python
 
+            pub = ROSTopic("/cmd_text", message="std_msgs/String", subscribe=False)
+            pub.publish({"data": "hello"})
+            pub.release()
 
-        Example publishing a ``geometry_msgs/Twist`` message:
+        Publishing a ``geometry_msgs/Twist`` message:
 
-            .. code-block:: python
+        .. code-block:: python
 
-                pub = ROSTopic("/cmd_vel", message="geometry_msgs/Twist", subscribe=False)
-                pub.publish(
-                    {
-                        "linear": {"x": 0.2, "y": 0.0, "z": 0.0},
-                        "angular": {"x": 0.0, "y": 0.0, "z": 0.5},
-                    }
-                )
-                pub.release()
+            pub = ROSTopic("/cmd_vel", message="geometry_msgs/Twist", subscribe=False)
+            pub.publish(
+                {
+                    "linear": {"x": 0.2, "y": 0.0, "z": 0.0},
+                    "angular": {"x": 0.0, "y": 0.0, "z": 0.5},
+                }
+            )
+            pub.release()
 
+        Publishing an :class:`~machinevisiontoolbox.Image` with an explicit timestamp:
 
-        Example publishing an :class:`~machinevisiontoolbox.Image` with an explicit timestamp:
+        .. code-block:: python
 
-            .. code-block:: python
+            img = _make_image(np.zeros((240, 320, 3), dtype=np.uint8), colororder="RGB")
+            pub = ROSTopic("/camera/image_raw", message="sensor_msgs/Image", subscribe=False)
+            pub.publish(img, timestamp_ns=1_700_000_000_123_456_789)
+            pub.release()
 
-                img = _make_image(np.zeros((240, 320, 3), dtype=np.uint8), colororder="RGB")
-                pub = ROSTopic("/camera/image_raw", message="sensor_msgs/Image", subscribe=False)
-                pub.publish(img, timestamp_ns=1_700_000_000_123_456_789)
-                pub.release()
+        Publishing a :class:`PointCloud` with an explicit timestamp:
 
+        .. code-block:: python
 
-        Example publishing a :class:`PointCloud` with an explicit timestamp:
-
-            .. code-block:: python
-
-                points = np.array([[0.0, 1.0], [0.0, 0.2], [1.0, 1.2]], dtype=np.float32)
-                pc = PointCloud(points)
-                pub = ROSTopic("/cloud", message="sensor_msgs/PointCloud2", subscribe=False)
-                pub.publish(pc, timestamp_ns=1_700_000_000_223_456_789)
-                pub.release()
-
+            points = np.array([[0.0, 1.0], [0.0, 0.2], [1.0, 1.2]], dtype=np.float32)
+            pc = PointCloud(points)
+            pub = ROSTopic("/cloud", message="sensor_msgs/PointCloud2", subscribe=False)
+            pub.publish(pc, timestamp_ns=1_700_000_000_223_456_789)
+            pub.release()
 
         The topic is advertised lazily on first publish.
         """
@@ -2812,7 +2865,12 @@ class ROSTopic(ImageSource):
     def __enter__(self) -> ROSTopic:
         return self
 
-    def __exit__(self, exc_type, exc, tb) -> None:
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        tb: TracebackType | None,
+    ) -> None:
         self.release()
 
     def __repr__(self) -> str:
@@ -2830,7 +2888,7 @@ class ROSTopic(ImageSource):
         :return: width in pixels, or ``None`` if no frame has been received yet
         :rtype: int or None
 
-        :seealso: :meth:`height` :meth:`shape`
+        .. seealso:: :meth:`height` :meth:`shape`
         """
         if self._latest_frame is None:
             return None
@@ -2844,7 +2902,7 @@ class ROSTopic(ImageSource):
         :return: height in pixels, or ``None`` if no frame has been received yet
         :rtype: int or None
 
-        :seealso: :meth:`width` :meth:`shape`
+        .. seealso:: :meth:`width` :meth:`shape`
         """
         if self._latest_frame is None:
             return None
@@ -2859,7 +2917,7 @@ class ROSTopic(ImageSource):
             been received yet
         :rtype: tuple(int, int) or None
 
-        :seealso: :meth:`height` :meth:`width`
+        .. seealso:: :meth:`height` :meth:`width`
         """
         if self._latest_frame is None:
             return None
@@ -2887,16 +2945,16 @@ class SyncROSStreams:
     ``tolerance`` they are emitted together.  Otherwise it discards the single
     oldest frame and continues.
 
-    Example:
+    .. rubric:: Examples
 
-        .. code-block:: python
+    .. code-block:: python
 
-            rgb = ROSTopic("/camera/color/image_raw/compressed")
-            depth = ROSTopic("/camera/depth/image_rect_raw/compressed")
-            with SyncROSStreams([rgb, depth], tolerance=0.03) as sync:
-                for rgb_im, depth_im in sync:
-                    # process aligned pair
-                    pass
+        rgb = ROSTopic("/camera/color/image_raw/compressed")
+        depth = ROSTopic("/camera/depth/image_rect_raw/compressed")
+        with SyncROSStreams([rgb, depth], tolerance=0.03) as sync:
+            for rgb_im, depth_im in sync:
+                # process aligned pair
+                pass
 
 
     **Interaction with ``ROSTopic`` blocking mode**
@@ -2980,7 +3038,12 @@ class SyncROSStreams:
             stream.__enter__()
         return self
 
-    def __exit__(self, exc_type, exc, tb) -> None:
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        tb: TracebackType | None,
+    ) -> None:
         for stream in self.streams:
             stream.__exit__(exc_type, exc, tb)
 
@@ -3218,6 +3281,8 @@ class ROSBag(ImageSource):
         self._warned_footers: set[int] = set()
         # topics whose depth unit is not known, reported once each
         self._warned_depth: set[str] = set()
+        # topics with a truncated message, reported once each
+        self._warned_truncated: set[str] = set()
 
     def __repr__(self) -> str:
         return (
@@ -3255,7 +3320,7 @@ class ROSBag(ImageSource):
         :return: formatted time string
         :rtype: str
 
-        :seealso: `strftime format codes <https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes>`_
+        .. seealso:: `strftime format codes <https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes>`_
         """
         dt = datetime.fromtimestamp(
             timestamp_ns / 1_000_000_000, tz=timezone.utc
@@ -3272,7 +3337,7 @@ class ROSBag(ImageSource):
         ``None`` accepts all topics.
 
         :type: str, list of str, or None
-        :seealso: :attr:`msgfilter`
+        .. seealso:: :attr:`msgfilter`
         """
         return self._topic_filter
 
@@ -3290,7 +3355,7 @@ class ROSBag(ImageSource):
         ``None`` accepts all message types.
 
         :type: str, list of str, or None
-        :seealso: :attr:`topicfilter`
+        .. seealso:: :attr:`topicfilter`
         """
         return self._msgfilter
 
@@ -3298,7 +3363,7 @@ class ROSBag(ImageSource):
     def msgfilter(self, msgfilter: str | list[str] | None) -> None:
         self._msgfilter = msgfilter
 
-    def _allowed(self, x) -> bool:
+    def _allowed(self, x: Any) -> bool:
         msg_ok = (
             self._msgfilter is None
             or (
@@ -3322,7 +3387,7 @@ class ROSBag(ImageSource):
         return msg_ok and topic_ok
 
     @staticmethod
-    def _stamp_to_ns(stamp) -> int:
+    def _stamp_to_ns(stamp: Any) -> int:
         """
         Robustly converts a ROS1 or ROS2 stamp to total nanoseconds as an integer.
         Handles 'sec/nanosec' (ROS2) and 'secs/nsecs' (ROS1) naming.
@@ -3440,7 +3505,10 @@ class ROSBag(ImageSource):
         return counts
 
     def print(
-        self, progress: bool = True, file=None, show_allowed: bool = True
+        self,
+        progress: bool = True,
+        file: IO[str] | None = None,
+        show_allowed: bool = True,
     ) -> None:
         """Print a summary table of topics in the ROS bag.
 
@@ -3499,7 +3567,12 @@ class ROSBag(ImageSource):
         self._open_reader()
         return self
 
-    def __exit__(self, exc_type, exc, tb) -> None:
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        tb: TracebackType | None,
+    ) -> None:
         self._close_reader()
 
     # Map of ROS encoding strings to (numpy_dtype, channels, color_plane_order)
@@ -3593,9 +3666,19 @@ class ROSBag(ImageSource):
         # First pass: ROS 1 wire format (ros1 and ros2 typestores).
         # For an image the end of the message is computed from its layout, so any
         # trailing bytes (eg. the RealSense SDK footer) are ignored.
-        end = _image_payload_end(rawdata, msgtype) if msgtype.endswith("Image") else None
+        end = (
+            _image_payload_end(rawdata, msgtype) if msgtype.endswith("Image") else None
+        )
         raw = rawdata if end is None else rawdata[:end]
-        for name in self._ROS1_STORES_ORDERED + self._ROS2_STORES_ORDERED:
+        # A ROS 2 bag directory always holds CDR messages.  Trying the ROS 1 wire
+        # format on them can succeed by accident (a PNG CompressedImage did, with the
+        # ROS 1 Noetic store), so that pass is only for ROS 1 style .bag files.
+        ros1_candidates = (
+            []
+            if self._is_ros2
+            else self._ROS1_STORES_ORDERED + self._ROS2_STORES_ORDERED
+        )
+        for name in ros1_candidates:
             if name not in available:
                 continue
             store = _get_typestore(next(s for s in _Stores if s.name == name))
@@ -3733,9 +3816,7 @@ class ROSBag(ImageSource):
         if self._is_realsense and len(footer) == 4:
             if not any(footer):
                 return None  # 0.0, a color image
-            units = _footer_depth_units(
-                footer, _wire_byteorder(rawdata, self._is_ros2)
-            )
+            units = _footer_depth_units(footer, _wire_byteorder(rawdata, self._is_ros2))
             if units is not None:
                 return units
         if connection.id not in self._warned_footers:
@@ -3814,8 +3895,28 @@ class ROSBag(ImageSource):
                             f"{self.format_local_time(timestamp)} Error occurred while deserializing message: {e}"
                         )
                     continue
-                except _LENGTH_ERRORS:
-                    if self.verbose:
+                except (*_LENGTH_ERRORS, struct.error) as e:  # type: ignore[misc]
+                    # newer rosbags wrap the struct.error in a SerdeError
+                    if isinstance(e, struct.error) or isinstance(
+                        e.__cause__, struct.error
+                    ):
+                        # the message ends before its type says it should: typically
+                        # the last message of a recording that was cut short
+                        if self.verbose:
+                            print(
+                                f"{self.format_local_time(timestamp)} Truncated {connection.msgtype} on {connection.topic!r}, skipped: {e}"
+                            )
+                        elif connection.topic not in self._warned_truncated:
+                            self._warned_truncated.add(connection.topic)
+                            warnings.warn(
+                                f"{self.filename}: a {connection.msgtype} message on "
+                                f"{connection.topic!r} is truncated, perhaps because the "
+                                "recording was cut short.  It is skipped, as are any others "
+                                "like it on this topic; use verbose=True to list them.",
+                                RuntimeWarning,
+                                stacklevel=2,
+                            )
+                    elif self.verbose:
                         print(
                             f"{self.format_local_time(timestamp)} Could not deserialize {connection.msgtype} on {connection.topic!r} "
                             f"using release '{self.release}' — try --release auto or a specific release (melodic, noetic, …)"
@@ -3842,10 +3943,11 @@ class ROSBag(ImageSource):
                     else:
                         colororder = "bgr"
 
-                    # check for a per-topic override
+                    # an override of the color order, for all topics or per topic;
+                    # without one, keep what the decoder gave us (BGR or greyscale)
                     if isinstance(self.colororder, dict):
-                        colororder = self.colororder.get(connection.topic, None)
-                    else:
+                        colororder = self.colororder.get(connection.topic, colororder)
+                    elif self.colororder is not None:
                         colororder = self.colororder
 
                     if colororder is not None and not _wants_mono(self.args):
@@ -3865,7 +3967,6 @@ class ROSBag(ImageSource):
                     yield img
 
                 elif connection.msgtype.endswith("Image"):
-
                     if hasattr(msg, "encoding"):
                         encoding = msg.encoding
                         if encoding not in self._ROS_ENCODING_MAP:
@@ -4050,18 +4151,18 @@ class PointCloudSequence:
 
     Requires the ``open3d`` package.
 
-    Example:
+    .. rubric:: Examples
 
-        .. code-block:: python
+    .. code-block:: python
 
-            from machinevisiontoolbox import ROSBag, PointCloudSequence
-            bag = ROSBag("mybag.bag", msgfilter="PointCloud2")
-            seq = PointCloudSequence(bag)
-            seq.disp()                       # step through one cloud at a time
-            seq.disp(animate=True, fps=10)   # timed playback
+        from machinevisiontoolbox import ROSBag, PointCloudSequence
+        bag = ROSBag("mybag.bag", msgfilter="PointCloud2")
+        seq = PointCloudSequence(bag)
+        seq.disp()                       # step through one cloud at a time
+        seq.disp(animate=True, fps=10)   # timed playback
 
 
-    :seealso: :class:`ImageSequence`
+    .. seealso:: :class:`ImageSequence`
     """
 
     _clouds: list
@@ -4127,7 +4228,7 @@ class PointCloudSequence:
         - ``[-]`` — decrease playback speed
         - ``[q]`` / ``[x]`` — quit
 
-        :seealso: :class:`ImageSequence`
+        .. seealso:: :class:`ImageSequence`
         """
         import time
 
@@ -4155,7 +4256,7 @@ class PointCloudSequence:
             "d": 500,
         }
 
-        def _label(item, i):
+        def _label(item: Any, i: int) -> str:
             ts = getattr(item, "timestamp", None)
             if ts is not None:
                 dt = datetime.fromtimestamp(ts / 1e9, tz=timezone.utc).astimezone()
@@ -4176,7 +4277,7 @@ class PointCloudSequence:
 
         shown_first = False
 
-        def _update_cloud(pcd, first=False):
+        def _update_cloud(pcd: Any, first: bool = False) -> None:
             nonlocal shown_first
             vis.clear_geometries()
             vis.add_geometry(pcd, reset_bounding_box=first)
@@ -4192,19 +4293,19 @@ class PointCloudSequence:
                 "last_t": 0.0,
             }
 
-            def _on_quit(_vis):
+            def _on_quit(_vis: Any) -> bool:
                 state["quit"] = True
                 return False
 
-            def _on_pause(_vis):
+            def _on_pause(_vis: Any) -> bool:
                 state["paused"] = not state["paused"]
                 return False
 
-            def _on_faster(_vis):
+            def _on_faster(_vis: Any) -> bool:
                 state["fps"] = state["fps"] * 1.5
                 return False
 
-            def _on_slower(_vis):
+            def _on_slower(_vis: Any) -> bool:
                 state["fps"] = max(1.0, state["fps"] / 1.5)
                 return False
 
@@ -4239,13 +4340,19 @@ class PointCloudSequence:
                 time.sleep(0.001)
 
         else:
-            view_state = {"next": True, "quit": False, "skip": 0, "i": 0, "first": True}
+            view_state: dict[str, Any] = {
+                "next": True,
+                "quit": False,
+                "skip": 0,
+                "i": 0,
+                "first": True,
+            }
 
-            def _on_quit(_vis):
+            def _on_quit(_vis: Any) -> bool:
                 view_state["quit"] = True
                 return False
 
-            def _on_next(_vis):
+            def _on_next(_vis: Any) -> bool:
                 view_state["next"] = True
                 return False
 
@@ -4254,8 +4361,8 @@ class PointCloudSequence:
             vis.register_key_callback(ord(" "), _on_next)
             for key, jump in _jump.items():
 
-                def _mk_jump(n):
-                    def _on_jump(_vis):
+                def _mk_jump(n: int) -> Callable[[Any], bool]:
+                    def _on_jump(_vis: Any) -> bool:
                         view_state["skip"] = n
                         view_state["next"] = True
                         return False
@@ -4315,22 +4422,28 @@ class TensorStack(ImageSource):
     :param kwargs: options applied to image frames, see
         :func:`~machinevisiontoolbox.base.imageio.convert`
 
-    Example:
+    .. rubric:: Examples
 
-        .. code-block:: pycon
+    .. code-block:: pycon
 
         >>> from machinevisiontoolbox import TensorStack
         >>> import torch
         >>> batch = torch.randn(10, 3, 64, 64)  # 10 RGB images
         >>> source = TensorStack(batch, colororder="RGB")
+        >>> print(source)
+        TensorStack(10 frames, shape (3, 64, 64), dtype float32)
         >>> len(source)
         10
         >>> img = source[7]  # Returns Image wrapping tensor[7] (zero-copy view)
+        >>> print(img)
+        Image: 64 x 64 (float32), R:G:B
+          R: span=[-3.33973, 3.61569]; mean=-0.0275616, 𝜎=1.00145; median=-0.01917
+          G: span=[-3.5052, 4.08658]; mean=0.0193997, 𝜎=1.00146; median=0.0170656
+          B: span=[-3.73214, 3.53697]; mean=-0.0117258, 𝜎=1.00667; median=-0.0202868
         >>> for img in source:
-        ...     features = extract(img)  # Process each image lazily
+        ...     features = mycode(img)  # Your algorithm goes here, process each image lazily
 
-
-    :seealso: :meth:`Image.Tensor`
+    .. seealso:: :meth:`Image.Tensor`
     """
 
     def __init__(
@@ -4444,6 +4557,12 @@ class LabelMeReader:
 
     :param filename: path to LabelMe JSON file, or an ``http(s)://`` URL
     :type filename: str
+    :raises OSError: if the file cannot be opened or the URL cannot be fetched
+    :raises json.JSONDecodeError: if the content is not valid JSON
+
+    .. versionchanged:: 2.5.0
+        An unreadable file or invalid JSON now raises, where it used to return an
+        incompletely initialised reader.
 
     LabelMe is a popular annotation tool that saves annotations in a JSON format.  This
     class reads the JSON file and extracts the image, polygonal shapes, and associated
@@ -4464,26 +4583,26 @@ class LabelMeReader:
 
     Rectangle shapes are converted to 4-vertex polygons.
 
-    Example:
+    .. rubric:: Examples
 
-        .. code-block:: python
+    .. code-block:: python
 
-            from machinevisiontoolbox import LabelMeReader
-            lme = LabelMeReader("https://github.com/wkentaro/labelme/raw/main/examples/tutorial/apc2016_obj3.json")
-            len(lme.shapes)  # number of annotated shapes
-            flags = lme.flags  # file-level flags
-            image = lme.image  # labeled image (if available)
-            for polygon in lme.shapes:
-                print(polygon.points)  # polygon vertices
-                print(polygon.group_id)  # group ID (if any)
-                print(polygon.flags)  # shape-level flags
+        from machinevisiontoolbox import LabelMeReader
+        lme = LabelMeReader("https://github.com/wkentaro/labelme/raw/main/examples/tutorial/apc2016_obj3.json")
+        len(lme.shapes)  # number of annotated shapes
+        flags = lme.flags  # file-level flags
+        image = lme.image  # labeled image (if available)
+        for polygon in lme.shapes:
+            print(polygon.points)  # polygon vertices
+            print(polygon.group_id)  # group ID (if any)
+            print(polygon.flags)  # shape-level flags
 
     .. note:: The ``labelme`` package provides a more comprehensive interface to
         LabelMe annotations, including support for all shape types and attributes, but
         it is quite bloated with many package dependencies. This class is a lightweight
         alternative focused on polygonal shapes and basic flags.
 
-    :seealso: :meth:`pixels_mask` :class:`~machinevisiontoolbox.Image.Polygons` :class:`~machinevisiontoolbox.Image`, :class:`Polygon2`
+    .. seealso:: :meth:`pixels_mask` :class:`~machinevisiontoolbox.Image.Polygons` :class:`~machinevisiontoolbox.Image`, :class:`Polygon2`
     """
 
     filename: str
@@ -4492,17 +4611,14 @@ class LabelMeReader:
     def __init__(self, filename: str) -> None:
         self.filename = filename
 
-        try:
-            if str(filename).startswith(("http://", "https://")):
-                import urllib.request
+        if str(filename).startswith(("http://", "https://")):
+            import urllib.request
 
-                with urllib.request.urlopen(filename) as response:  # noqa: S310
-                    self.data = json.loads(response.read().decode("utf-8"))
-            else:
-                with open(self.filename, "r", encoding="utf-8") as f:
-                    self.data = json.load(f)
-        except (OSError, json.JSONDecodeError, TypeError, ValueError):
-            return None
+            with urllib.request.urlopen(filename) as response:  # noqa: S310
+                self.data = json.loads(response.read().decode("utf-8"))
+        else:
+            with open(self.filename, "r", encoding="utf-8") as f:
+                self.data = json.load(f)
         self._nshapes = len(self.data.get("shapes", []))
         self._version = self.data.get("version")
 
@@ -4525,7 +4641,9 @@ class LabelMeReader:
         import base64
         import binascii
         from io import BytesIO
-        from PIL import Image as PILImage, UnidentifiedImageError
+
+        from PIL import Image as PILImage
+        from PIL import UnidentifiedImageError
 
         imdata = self.data.get("imageData")
         array = None

@@ -110,9 +110,7 @@ class TestImageFiducials(unittest.TestCase):
         board = ArUcoBoard(
             layout=(2, 2), sidelength=0.04, separation=0.01, dict="4x4_50", firsttag=10
         )
-        camera = CentralCamera(
-            f=0.015, rho=1e-5, imagesize=(1000, 1000), pp=(500, 500)
-        )
+        camera = CentralCamera(f=0.015, rho=1e-5, imagesize=(1000, 1000), pp=(500, 500))
 
         # reference: only the board's own markers in view
         T0, stats0, ids0, markers0 = board.estimatePose(
@@ -142,9 +140,7 @@ class TestImageFiducials(unittest.TestCase):
         board = ArUcoBoard(
             layout=(2, 2), sidelength=0.04, separation=0.01, dict="4x4_50", firsttag=10
         )
-        camera = CentralCamera(
-            f=0.015, rho=1e-5, imagesize=(1000, 1000), pp=(500, 500)
-        )
+        camera = CentralCamera(f=0.015, rho=1e-5, imagesize=(1000, 1000), pp=(500, 500))
 
         # a marker that is not on the board, and a scene with no markers at all
         other = self._single_marker_scene("4x4_50", marker_id=3, side=200, canvas=1000)

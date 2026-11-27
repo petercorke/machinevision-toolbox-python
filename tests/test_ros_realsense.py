@@ -25,8 +25,6 @@ import pytest
 
 pytest.importorskip("rosbags")
 
-from rosbags.typesys import Stores, get_typestore
-
 from create_ros_fixture import (
     RS_COLOR_TOPIC,
     RS_DEPTH_TOPIC,
@@ -35,6 +33,8 @@ from create_ros_fixture import (
     realsense_color_frame,
     realsense_depth_frame,
 )
+from rosbags.typesys import Stores, get_typestore
+
 from machinevisiontoolbox import ROSBag
 from machinevisiontoolbox.Sources import (
     _LENGTH_ERRORS,
@@ -109,7 +109,9 @@ def serialize_image(
 
 
 @pytest.mark.parametrize("wire", WIRES)
-@pytest.mark.parametrize("msgtype", ["sensor_msgs/msg/Image", "sensor_msgs/msg/CompressedImage"])
+@pytest.mark.parametrize(
+    "msgtype", ["sensor_msgs/msg/Image", "sensor_msgs/msg/CompressedImage"]
+)
 @pytest.mark.parametrize("frame_id", ["", "c", "cam", "camera_1"])  # alignment
 @pytest.mark.parametrize("encoding", ["mono16", "rgb8", "mono8"])
 @pytest.mark.parametrize("extra", [b"", b"\x00" * 4, b"\x6f\x12\x83\x3a", b"\x01" * 8])
@@ -130,7 +132,10 @@ def test_payload_end_rejects_what_is_not_an_image(wire):
     assert _image_payload_end(raw[:20], msgtype, cdr) is None  # inside the header
     # the data array is not height * step bytes long, so this is not a valid Image
     for data_len in (3 * 10 - 1, 3 * 10 + 1, 0):
-        assert _image_payload_end(serialize_image(wire, data_len=data_len), msgtype, cdr) is None
+        assert (
+            _image_payload_end(serialize_image(wire, data_len=data_len), msgtype, cdr)
+            is None
+        )
     assert _image_payload_end(bytes(range(200)), msgtype, cdr) is None
 
 
@@ -148,7 +153,9 @@ def test_footer_is_a_positive_finite_float32(order):
         assert _footer_depth_units(struct.pack(order + "f", bad), order) is None
 
 
-@pytest.mark.parametrize("footer", [b"", b"\x00", b"\x6f\x12\x83", b"\x6f\x12\x83\x3a\x00"])
+@pytest.mark.parametrize(
+    "footer", [b"", b"\x00", b"\x6f\x12\x83", b"\x6f\x12\x83\x3a\x00"]
+)
 def test_footer_must_be_four_bytes(footer):
     assert _footer_depth_units(footer) is None
 
@@ -166,7 +173,9 @@ CASES = [
 
 
 @pytest.mark.parametrize("wire, footer, streaminfo, release", CASES)
-def test_realsense_style_bag_is_read_exactly(tmp_path, wire, footer, streaminfo, release):
+def test_realsense_style_bag_is_read_exactly(
+    tmp_path, wire, footer, streaminfo, release
+):
     path = tmp_path / "rs.bag"
     make_realsense_bag(path, footer=footer, wire=wire, streaminfo=streaminfo, n=3)
 

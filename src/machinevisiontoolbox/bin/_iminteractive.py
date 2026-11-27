@@ -8,10 +8,11 @@ histogram display onto any matplotlib figure that is showing an
 """
 
 import faulthandler
+
 import matplotlib.pyplot as plt
+import numpy as np
 from matplotlib.patches import Circle, Rectangle
 from spatialmath.base import set_window_title
-import numpy as np
 
 # Enable C-level crash tracebacks (SIGSEGV, SIGBUS, etc.)
 faulthandler.enable()

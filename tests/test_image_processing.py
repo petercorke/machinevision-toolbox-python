@@ -15,7 +15,6 @@ from machinevisiontoolbox import Image
 
 
 class TestImageProcessingBase(unittest.TestCase):
-
     def test_LUT_basic(self):
         """Test lookup table application"""
         # Create simple image
@@ -523,7 +522,6 @@ class TestImageProcessingBase(unittest.TestCase):
 
 
 class TestImageProcessingOperations(unittest.TestCase):
-
     def test_clip(self):
         img = Image([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
         out = img.clip(3, 7)
@@ -638,7 +636,6 @@ class TestImageProcessingOperations(unittest.TestCase):
 
 
 class TestImageProcessingKernel(unittest.TestCase):
-
     def test_similarity(self):
 
         a = np.array(
@@ -700,5 +697,4 @@ class TestImageProcessingKernel(unittest.TestCase):
 
 # ----------------------------------------------------------------------- #
 if __name__ == "__main__":
-
     unittest.main()

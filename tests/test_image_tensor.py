@@ -16,7 +16,6 @@ except ImportError:
 
 @unittest.skipUnless(_torch_available, "PyTorch not installed")
 class TestImageTensor(unittest.TestCase):
-
     def test_to_tensor_shape_mono(self):
         """Mono image produces tensor of shape (1, H, W)"""
         img = Image.Zeros(size=(64, 64), dtype="uint8")

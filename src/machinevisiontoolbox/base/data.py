@@ -31,20 +31,20 @@ def mvtb_load_matfile(filename: str) -> dict[str, Any]:
           first be looked for in the folder ``machinevisiontoolbox/data``, then
           the current working directory.
 
-    :seealso: :func:`mvtb_path_to_datafile` :func:`scipy.io.loadmat`
+    .. seealso:: :func:`mvtb_path_to_datafile` :func:`scipy.io.loadmat`
     """
     from collections import namedtuple
 
     from scipy.io import loadmat
-    from scipy.io.matlab.mio5_params import mat_struct
+    from scipy.io.matlab import mat_struct
 
     # get results as a dict
     data = mvtb_load_data(filename, loadmat, squeeze_me=True, struct_as_record=False)
 
-    # if elements are a scipy.io.matlab.mio5_params.mat_struct, that is, they
+    # if elements are a scipy.io.matlab.mat_struct, that is, they
     # were a MATLAB struct, convert them to a namedtuple
     for key, value in data.items():
-        if isinstance(value, mat_struct):  # scipy private API # type: ignore[arg-type]
+        if isinstance(value, mat_struct):
             # print("fixing")
             nt = namedtuple("matstruct", value._fieldnames)  # type: ignore[misc]  # field names are only known at run time
             data[key] = nt(*[getattr(value, n) for n in value._fieldnames])
@@ -71,7 +71,7 @@ def mvtb_load_jsonfile(filename: str) -> dict[str, Any]:
           first be looked for in the folder ``machinevisiontoolbox/data``, then
           the current working directory.
 
-    :seealso: :func:`mvtb_path_to_datafile`
+    .. seealso:: :func:`mvtb_path_to_datafile`
     """
     import json
 
@@ -105,7 +105,7 @@ def mvtb_load_data(filename: str, handler: Callable[..., Any], **kwargs: Any) ->
         first be looked for in the folder ``machinevisiontoolbox/data``, then
         the current working directory.
 
-    :seealso: :func:`mvtb_path_to_datafile`
+    .. seealso:: :func:`mvtb_path_to_datafile`
     """
     path = mvtb_path_to_datafile(filename)
     return handler(path, **kwargs)
@@ -143,7 +143,7 @@ def mvtb_path_to_datafile(
     Otherwise, the file is sought within the ``mvtbdata`` package and if found,
     return that absolute path.
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 

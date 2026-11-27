@@ -81,7 +81,7 @@ class ViewPoint(_Vertex, _Common):
         the camera is not ``fixed`` it will be adjusted during the
         optimization.
 
-        :seealso: :class:`pgraph.Vertex`
+        .. seealso:: :class:`pgraph.Vertex`
         """
         super().__init__()
 
@@ -116,7 +116,7 @@ class Landmark(_Vertex, _Common):
         Represent a world point in the bundle adjustment problem.  If the
         point is not ``fixed`` it will be adjusted during the optimization.
 
-        :seealso: :class:`pgraph.Vertex`
+        .. seealso:: :class:`pgraph.Vertex`
         """
         super().__init__()
         self._P = P
@@ -148,7 +148,7 @@ class Observation(pgraph.Edge):
         Represent the observation of a point by a camera in the bundle
         adjustment problem.
 
-        :seealso: :meth:`pgraph.Edge`
+        .. seealso:: :meth:`pgraph.Edge`
         """
         super().__init__(camera, landmark, cost=0)
         self._p = uv
@@ -192,10 +192,11 @@ class BundleAdjust:
         .. warning:: This class assumes that all camera views have the same camera
             intrinsics.
 
-        :references:
-            - |RVC3|, Section 14.3.2.
+        .. rubric:: References
 
-        :seealso: :meth:`optimize` :class:`~machinevisiontoolbox.Camera.CentralCamera` :class:`pgraph.UGraph`
+        - |RVC3|, Section 14.3.2.
+
+        .. seealso:: :meth:`optimize` :class:`~machinevisiontoolbox.Camera.CentralCamera` :class:`pgraph.UGraph`
         """
         self.camera = camera
 
@@ -251,7 +252,7 @@ class BundleAdjust:
         :return: Number of camera views
         :rtype: int
 
-        :seealso: :meth:`add_view`
+        .. seealso:: :meth:`add_view`
         """
         return self._nviews
 
@@ -263,7 +264,7 @@ class BundleAdjust:
         :return: Number of landmarks
         :rtype: int
 
-        :seealso: :meth:`add_landmark`
+        .. seealso:: :meth:`add_landmark`
         """
         return self._nlandmarks
 
@@ -278,7 +279,7 @@ class BundleAdjust:
         This includes fixed views and landmarks whose state will not be
         updated in the optimization.
 
-        :seealso: :meth:`nvarstate`
+        .. seealso:: :meth:`nvarstate`
         """
         return 6 * self.nviews + 3 * self.nlandmarks
 
@@ -294,7 +295,7 @@ class BundleAdjust:
         fixed views and landmarks. It only includes cameras and landmarks
         whose state will be updated in the optimization.
 
-        :seealso: :meth:`nstates`
+        .. seealso:: :meth:`nstates`
         """
         return 6 * (self.nviews - len(self.fixedviews)) + 3 * (
             self.nlandmarks - len(self.fixedlandmarks)
@@ -324,7 +325,7 @@ class BundleAdjust:
         .. note:: Adds a :class:`ViewPoint` object as a node in the
             underlying scene graph.
 
-        :seealso: :meth:`add_landmark` :meth:`add_projection`
+        .. seealso:: :meth:`add_landmark` :meth:`add_projection`
         """
         if isinstance(pose, SE3):
             t = pose.t
@@ -368,7 +369,7 @@ class BundleAdjust:
         .. note:: Adds a :class:`Landmark` object as a node in the
             underlying scene graph.
 
-        :seealso: :meth:`add_view` :meth:`add_projection`
+        .. seealso:: :meth:`add_view` :meth:`add_projection`
         """
         base.assertvector(P, 3)
 
@@ -405,7 +406,7 @@ class BundleAdjust:
         .. note:: Adds a :class:`Observation` object as an edge in the
             underlying scene graph.
 
-        :seealso: :meth:`add_view` :meth:`add_landmark`
+        .. seealso:: :meth:`add_view` :meth:`add_landmark`
         """
         if len(uv) != 2:
             raise ValueError("uv must be a 2-vector")
@@ -438,7 +439,7 @@ class BundleAdjust:
         Provides access to bundle adjustment problems from data files as distributed with the SBA package.
         Details of the file format are given in the source code comments.
 
-        Example:
+        .. rubric:: Examples
 
         To solve the 7-point bundle adjustment problem distributed with
         SBA 1.6:
@@ -453,7 +454,7 @@ class BundleAdjust:
             - Sparse Bundle Adjustment package by Manolis Lourakis,
               http://users.ics.forth.gr/~lourakis/sba
 
-        :seealso: :meth:`add_view` :meth:`add_landmark` :meth:`add_projection`
+        .. seealso:: :meth:`add_view` :meth:`add_landmark` :meth:`add_projection`
         """
         # Adopted from sba-1.6/matlab/eucsbademo.m
 
@@ -575,10 +576,11 @@ class BundleAdjust:
         camera poses and landmark positions in order to minimize the total
         reprojection error.
 
-        :references:
-            - |RVC3|, Section 14.3.2.
+        .. rubric:: References
 
-        :seealso: :meth:`nstates` :meth:`solve` :meth:`build_linear_system`
+        - |RVC3|, Section 14.3.2.
+
+        .. seealso:: :meth:`nstates` :meth:`solve` :meth:`build_linear_system`
         """
 
         self.update_index()
@@ -672,10 +674,11 @@ class BundleAdjust:
               since fixed elements are omitted from the variable state
               vector used for the optimization.
 
-        :references:
-            - |RVC3|, Section 14.3.2, F.2.4.
+        .. rubric:: References
 
-        :seealso: :meth:`build_linear_system`
+        - |RVC3|, Section 14.3.2, F.2.4.
+
+        .. seealso:: :meth:`build_linear_system`
         """
         # create the Hessian and error vector
         H, b, e = self.build_linear_system(x)
@@ -702,10 +705,11 @@ class BundleAdjust:
         Build the block structured Hessian matrix based on current bundle
         adjustment state and the Jacobians.
 
-        :references:
-            - |RVC3|, Section 14.3.2, F.2.4.
+        .. rubric:: References
 
-        :seealso: :meth:`spy` :meth:`~Camera.CentralCamera.derivatives`
+        - |RVC3|, Section 14.3.2, F.2.4.
+
+        .. seealso:: :meth:`spy` :meth:`~Camera.CentralCamera.derivatives`
         """
 
         # this function is slow.  lil matrices have similar speed to dok
@@ -722,14 +726,12 @@ class BundleAdjust:
 
         # loop over views
         for view in self.views:
-
             # get camera pose
             k = view.index
             X = x[k : k + 6]
 
             # loop over all points viewed from this camera
             for landmark, edge in view.incidences():
-
                 k = landmark.index
                 P = x[k : k + 3]  # get landmark position
 
@@ -785,7 +787,7 @@ class BundleAdjust:
         Use Matplotlib to display the zero and non-zero elements of the
         Hessian.
 
-        :seealso: :meth:`build_linear_system`
+        .. seealso:: :meth:`build_linear_system`
         """
         H, *_ = self.build_linear_system(x)
         plt.spy(H)
@@ -803,7 +805,7 @@ class BundleAdjust:
         problem initialization by calls to :meth:`add_view` and
         :meth:`add_landmark`.
 
-        :seealso: :meth:`setstate` :meth:`nstates` :meth:`add_view` :meth:`add_landmark`
+        .. seealso:: :meth:`setstate` :meth:`nstates` :meth:`add_view` :meth:`add_landmark`
         """
         x = []
 
@@ -826,7 +828,7 @@ class BundleAdjust:
         Those nodes corresponding to fixed cameras or landmarks are
         unchanged.
 
-        :seealso: :meth:`updatestate` :meth:`getstate`
+        .. seealso:: :meth:`updatestate` :meth:`getstate`
         """
 
         for view in self.views:  # step through view nodes
@@ -856,7 +858,7 @@ class BundleAdjust:
         the state vector.  Those elements corresponding to fixed cameras or
         landmarks are unchanged.
 
-        :seealso: :meth:`setstate` :meth:`nstates`
+        .. seealso:: :meth:`setstate` :meth:`nstates`
         """
         xnew = np.zeros(x.shape)
 
@@ -909,7 +911,7 @@ class BundleAdjust:
         Compute the total reprojection error, of all projected landmarks
         on all camera viewpoints. Is ideally zero.
 
-        :seealso: :meth:`getresidual`
+        .. seealso:: :meth:`getresidual`
         """
 
         if x is None:
@@ -931,7 +933,7 @@ class BundleAdjust:
         represent the Euclidean reprojection error for camera :math:`i`
         observing landmark :math:`j`.
 
-        :seealso: :meth:`errors`
+        .. seealso:: :meth:`errors`
         """
         # this is the squared reprojection errors
         self.update_index()
@@ -942,14 +944,12 @@ class BundleAdjust:
         residual = np.zeros((self.nviews, self.nlandmarks))
         # loop over views
         for view in self.views:
-
             # get view pose
             k = view.index
             X = x[k : k + 6]
 
             # loop over all points viewed from this camera
             for landmark, edge in view.incidences():
-
                 k = landmark.index
                 P = x[k : k + 3]  # get landmark position
 
@@ -999,7 +999,7 @@ class BundleAdjust:
         Display the nodes and edges of the scene graph as an embedded graph.
         Overlay camera icons to indicate the camera viewpoint nodes.
 
-        :seealso: :meth:`graph`
+        .. seealso:: :meth:`graph`
         """
         # plt.clf()  # causes spurious 2d plot with Jupyter
         ax = base.plotvol3(ax=ax)

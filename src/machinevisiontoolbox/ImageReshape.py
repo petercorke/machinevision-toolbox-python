@@ -4,12 +4,7 @@ Geometric transformations: resizing, cropping, rotation, padding, and stacking o
 
 import math
 from collections.abc import Callable
-from typing import Any, cast
-
-try:
-    from typing import Self
-except ImportError:
-    from typing_extensions import Self
+from typing import TYPE_CHECKING, Any, Self, cast
 
 import cv2
 import matplotlib.pyplot as plt
@@ -21,7 +16,6 @@ from spatialmath import SE2
 from spatialmath import base as smb
 
 import machinevisiontoolbox.base as mvb
-from typing import TYPE_CHECKING
 from machinevisiontoolbox._image_typing import ImageMixinBase
 
 if TYPE_CHECKING:
@@ -71,7 +65,7 @@ class ImageReshapeMixin(ImageMixinBase):
 
         Trim pixels from the edges of the image.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -122,7 +116,7 @@ class ImageReshapeMixin(ImageMixinBase):
 
         Pad the edges of the image with pixels equal to ``value``.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -195,7 +189,7 @@ class ImageReshapeMixin(ImageMixinBase):
         .. note:: If the image size is not an exact multiple of the grid size, the
             last rows and columns of the image will not be included in any of the tiles.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -213,7 +207,7 @@ class ImageReshapeMixin(ImageMixinBase):
             subimages = mona.dice(grid=3)
             Image.Tile(subimages, bgcolor=(255,255,255)).disp()
 
-        :seealso: :meth:`Tile`
+        .. seealso:: :meth:`Tile`
         """
         if isinstance(overlap, int):
             overlap = (overlap, overlap)
@@ -274,7 +268,7 @@ class ImageReshapeMixin(ImageMixinBase):
         composite output image, can be optionally returned if ``return_offsets``
         is True.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -291,7 +285,7 @@ class ImageReshapeMixin(ImageMixinBase):
             Image.Hstack((img, img, img)).disp()
 
 
-        :seealso: :meth:`Vstack` :meth:`Pstack` :meth:`Tile`
+        .. seealso:: :meth:`Vstack` :meth:`Pstack` :meth:`Tile`
         """
         width = (len(images) - 1) * sep
         height = 0
@@ -367,7 +361,7 @@ class ImageReshapeMixin(ImageMixinBase):
         composite output image, can be optionally returned if ``return_offsets``
         is True.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -383,7 +377,7 @@ class ImageReshapeMixin(ImageMixinBase):
             img = Image.Read('street.png')
             Image.Hstack((img, img, img)).disp()
 
-        :seealso: :meth:`Hstack` :meth:`Pstack` :meth:`Tile`
+        .. seealso:: :meth:`Hstack` :meth:`Pstack` :meth:`Tile`
         """
         height = (len(images) - 1) * sep
         width = 0
@@ -460,7 +454,7 @@ class ImageReshapeMixin(ImageMixinBase):
         example,  4 tiles would be placed into a 2x2 grid (width x height), 5 tiles in a
         2x3 grid, etc.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -476,7 +470,7 @@ class ImageReshapeMixin(ImageMixinBase):
 
         .. note:: All tiles must have the same size, datatype and colororder.
 
-        :seealso: :meth:`dice` :meth:`Hstack` :meth:`Vstack`
+        .. seealso:: :meth:`dice` :meth:`Hstack` :meth:`Vstack`
         """
         # exemplars, shape=(-1, columns), **kwargs)
 
@@ -563,7 +557,7 @@ class ImageReshapeMixin(ImageMixinBase):
               artifacts.  The standard deviation should be chosen as a function
               of the maximum spatial-frequency in the image.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -572,13 +566,14 @@ class ImageReshapeMixin(ImageMixinBase):
             >>> img.print()
             >>> img.decimate(2, sigma=0).print()
 
-        :references:
-            - |RVC3|, Section 11.7.2.
+        .. rubric:: References
 
-        :seealso: :meth:`replicate` :meth:`scale`
+        - |RVC3|, Section 11.7.2.
+
+        .. seealso:: :meth:`replicate` :meth:`scale`
         """
         if (m - np.ceil(m)) != 0:
-            raise ValueError(m, "decimation factor m must be an integer")
+            raise ValueError(f"decimation factor m must be an integer, got {m!r}")
 
         if sigma is None:
             sigma = m / 2
@@ -603,7 +598,7 @@ class ImageReshapeMixin(ImageMixinBase):
         Create an image where each input pixel becomes an :math:`n \times n`
         patch of pixel values. This is a simple way of upscaling an image.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -618,10 +613,11 @@ class ImageReshapeMixin(ImageMixinBase):
             - The resulting image is "blocky", apply Gaussian smoothing to
               reduce this.
 
-        :references:
-            - |RVC3|, Section 11.7.2.
+        .. rubric:: References
 
-        :seealso: :meth:`decimate`
+        - |RVC3|, Section 11.7.2.
+
+        .. seealso:: :meth:`decimate`
         """
         # TODO merge with other version, handle color
         if self.iscolor:
@@ -664,7 +660,7 @@ class ImageReshapeMixin(ImageMixinBase):
 
             \bf{I}_{u,v} | u_{min} \le u \le u_{max}, v_{min} \le v \le v_{max}
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -672,7 +668,7 @@ class ImageReshapeMixin(ImageMixinBase):
             >>> img = Image.Read('monalisa.png')
             >>> smile = img.roi([265, 342, 264, 286])
 
-        :seealso: :meth:`__getitem__` :meth:`pixel`
+        .. seealso:: :meth:`__getitem__` :meth:`pixel`
         """
         if bbox is None:
             # use Rectangle widget to allow user to draw it
@@ -742,7 +738,7 @@ class ImageReshapeMixin(ImageMixinBase):
         the left, while ``bias``>0.5 moves the crop window down or to the
         right.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -771,14 +767,15 @@ class ImageReshapeMixin(ImageMixinBase):
             background.samesize(foreground).disp()
 
 
-        :references:
-            - |RVC3|, Section 11.4.1.1.
+        .. rubric:: References
 
-        :seealso: :meth:`trim` :meth:`scale`
+        - |RVC3|, Section 11.4.1.1.
+
+        .. seealso:: :meth:`trim` :meth:`scale`
         """
         # check inputs
         if bias < 0 or bias > 1:
-            raise ValueError(bias, "bias must be in range [0, 1]")
+            raise ValueError(f"bias must be in range [0, 1], got {bias!r}")
 
         im = self._A
 
@@ -834,7 +831,7 @@ class ImageReshapeMixin(ImageMixinBase):
         ``'area'``     resampling using pixel area relation
         =============  ====================================
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -843,14 +840,15 @@ class ImageReshapeMixin(ImageMixinBase):
             >>> img.scale(2)
             >>> img.scale(0.5)
 
-        :references:
-            - |RVC3|, Section 11.7.2.
+        .. rubric:: References
 
-        :seealso: `opencv.resize <https://docs.opencv.org/4.x/da/d54/group__imgproc__transform.html#ga47a974309e9102f5f08231edc7e7529d>`_
+        - |RVC3|, Section 11.7.2.
+
+        .. seealso:: `opencv.resize <https://docs.opencv.org/4.x/da/d54/group__imgproc__transform.html#ga47a974309e9102f5f08231edc7e7529d>`_
         """
         # check inputs
         if not smb.isscalar(sfactor):
-            raise TypeError(sfactor, "factor is not a scalar")
+            raise TypeError(f"factor is not a scalar, got {sfactor!r}")
 
         interp: int
         if interpolation is None:
@@ -902,7 +900,7 @@ class ImageReshapeMixin(ImageMixinBase):
 
         Rotate the image counter-clockwise by angle ``angle`` in radians.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -923,7 +921,7 @@ class ImageReshapeMixin(ImageMixinBase):
         # using-opencv/
 
         if not smb.isscalar(angle):
-            raise ValueError(angle, "angle is not a valid scalar")
+            raise ValueError(f"angle is not a valid scalar, got {angle!r}")
 
         if center is not None and centre is None:
             centre = center
@@ -956,7 +954,7 @@ class ImageReshapeMixin(ImageMixinBase):
         and a vertical domain that spans colatitude angle :math:`\theta \in [0,
         \pi]`.
 
-        :seealso: :meth:`~base.meshgrid` :meth:`interp2d`
+        .. seealso:: :meth:`~base.meshgrid` :meth:`interp2d`
         """
         Phi, Theta = np.meshgrid(self.domain[0], self.domain[1])
         nPhi, nTheta = mvb.spherical_rotate(Phi, Theta, R)
@@ -989,7 +987,9 @@ class ImageReshapeMixin(ImageMixinBase):
 
         .. important:: Can be called as a class method or an instance method.
 
-        Example of instance method:
+        .. rubric:: Examples
+
+        Using an instance method:
 
         .. runblock:: pycon
 
@@ -1000,7 +1000,7 @@ class ImageReshapeMixin(ImageMixinBase):
             >>> V
             >>> Image(U**2 + V**2).print()
 
-        Example of class method:
+        Using a class method:
 
         .. runblock:: pycon
 
@@ -1010,7 +1010,7 @@ class ImageReshapeMixin(ImageMixinBase):
             >>> V
             >>> Image(U**2 + V**2).print()
 
-        :seealso: :func:`~base.meshgrid`
+        .. seealso:: :func:`~base.meshgrid`
         """
         if isinstance(self, type):
             if width is None or height is None:
@@ -1051,7 +1051,7 @@ class ImageReshapeMixin(ImageMixinBase):
 
         .. note::  Uses OpenCV.
 
-        :seealso: :meth:`interp2d` :meth:`domain` `opencv.remap <https://docs.opencv.org/4.x/da/d54/group__imgproc__transform.html#gab75ef31ce5cdfb5c44b6da5f3b908ea4>`_
+        .. seealso:: :meth:`interp2d` :meth:`domain` `opencv.remap <https://docs.opencv.org/4.x/da/d54/group__imgproc__transform.html#gab75ef31ce5cdfb5c44b6da5f3b908ea4>`_
         """
         # TODO more interpolation modes
 
@@ -1106,7 +1106,7 @@ class ImageReshapeMixin(ImageMixinBase):
 
         .. note::  Uses SciPy
 
-        :seealso: :meth:`domain` :meth:`meshgrid` :meth:`vspan` :func:`scipy.interpolate.griddata`
+        .. seealso:: :meth:`domain` :meth:`meshgrid` :meth:`vspan` :func:`scipy.interpolate.griddata`
         """
 
         if Ud is None and Vd is None:
@@ -1153,7 +1153,7 @@ class ImageReshapeMixin(ImageMixinBase):
 
         .. math:: Y_{u,v} = X_{u^\prime, v^\prime} \mbox{, where } \begin{pmatrix} u^\prime \\ v^\prime \end{pmatrix} = \mat{M} \begin{pmatrix} u \\ v \\ 1 \end{pmatrix}
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1186,7 +1186,7 @@ class ImageReshapeMixin(ImageMixinBase):
             ...
             >>> out.disp()
 
-        :seealso: :meth:`warp` `opencv.warpAffine <https://docs.opencv.org/4.x/da/d54/group__imgproc__transform.html#ga0203d9ee5fcd28d40dbc4a1ea4451983>`_
+        .. seealso:: :meth:`warp` `opencv.warpAffine <https://docs.opencv.org/4.x/da/d54/group__imgproc__transform.html#ga0203d9ee5fcd28d40dbc4a1ea4451983>`_
         """
         flags = cv2.INTER_CUBIC
         if inverse:
@@ -1273,10 +1273,11 @@ class ImageReshapeMixin(ImageMixinBase):
         Pixels that are not present in the original image are set to the value
         specified by ``background``.
 
-        :references:
-            - |RVC3|, Section 14.8.
+        .. rubric:: References
 
-        :seealso: :meth:`warp` `opencv.warpPerspective <https://docs.opencv.org/4.x/da/d54/group__imgproc__transform.html#gaf73673a7e8e18ec6963e3774e6a94b87>`_
+        - |RVC3|, Section 14.8.
+
+        .. seealso:: :meth:`warp` `opencv.warpPerspective <https://docs.opencv.org/4.x/da/d54/group__imgproc__transform.html#gaf73673a7e8e18ec6963e3774e6a94b87>`_
         """
 
         if not smb.ismatrix(H, (3, 3)):
@@ -1335,7 +1336,7 @@ class ImageReshapeMixin(ImageMixinBase):
         where :math:`k_i` are radial distortion coefficients and :math:`p_i` are
         tangential distortion coefficients.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1347,7 +1348,7 @@ class ImageReshapeMixin(ImageMixinBase):
             >>> out = images[12].undistort(K, distortion)
             >>> out.disp()
 
-        :seealso: :meth:`~machinevisiontoolbox.CentralCamera.images2C` `opencv.undistort <https://docs.opencv.org/4.x/da/d54/group__imgproc__transform.html#ga69f2545a8b62a6b0fc2ee060dc30559d>`_
+        .. seealso:: :meth:`~machinevisiontoolbox.CentralCamera.images2C` `opencv.undistort <https://docs.opencv.org/4.x/da/d54/group__imgproc__transform.html#ga69f2545a8b62a6b0fc2ee060dc30559d>`_
         """
         undistorted = cv2.undistort(src=self._A, cameraMatrix=K, distCoeffs=dist)
         return self.__class__(undistorted, colororder=self.colororder)
@@ -1384,7 +1385,7 @@ class ImageReshapeMixin(ImageMixinBase):
         one row per pixel, and each row is the pixel value, the values of its
         planes.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 

@@ -9,24 +9,24 @@ Usage::
 
 import argparse
 
+import matplotlib
+import numpy as np
+from ansitable import ANSITable, Column
 from colored import Fore, Style
 
 from machinevisiontoolbox import Image
 from machinevisiontoolbox.bin._bintools import CustomDefaultsHelpFormatter
-from ansitable import ANSITable, Column
-import matplotlib
-import numpy as np
 
 # Set by figure keypress callback when the user requests immediate exit.
 exit_requested = False
-cs_image: np.ndarray  # image in the display colorspace, set by main()
-colorspace: str  # name of that colorspace, set by main()
+cs_image = np.empty((0, 0))  # image in the display colorspace, set by main()
+colorspace = ""  # name of that colorspace, set by main()
 
 
 def getargs():
     parser = argparse.ArgumentParser(
         formatter_class=CustomDefaultsHelpFormatter,
-        description=f"Display an image using Machine Vision Toolbox for Python.",
+        description="Display an image using Machine Vision Toolbox for Python.",
     )
     parser.add_argument(
         "files",
@@ -84,6 +84,7 @@ def getargs():
 
 def visualize_image(image, args, block):
     import matplotlib.pyplot as plt
+
     from machinevisiontoolbox.bin._iminteractive import ImageInteractor
 
     if args.verbose:
@@ -148,7 +149,7 @@ def visualize_image(image, args, block):
                     )
             table.print()
     else:
-        global cs_image, colorspace, exit_requested
+        global cs_image, colorspace
 
         if args.colorspace is not None:
             cs_image = (
@@ -173,9 +174,7 @@ def visualize_image(image, args, block):
         ax = fig.gca()
 
         # Attach interactive rectangle / line-profile overlay.
-        _nav_help = (
-            "  x   close image and advance to next file\n" "  q   close window\n"
-        )
+        _nav_help = "  x   close image and advance to next file\n  q   close window\n"
         ImageInteractor(fig, ax, image, nav_help=_nav_help)
 
         def _on_exit(event):
@@ -192,8 +191,6 @@ def visualize_image(image, args, block):
 
 # format the pixel value display
 def format_coord(u: float, v: float) -> str:
-    global cs_image, colorspace
-
     u = int(u + 0.5)
     v = int(v + 0.5)
 
@@ -230,15 +227,12 @@ def format_coord(u: float, v: float) -> str:
 
 
 def main():
-    global exit_requested
-
     args = getargs()
 
     if args.backend is not None:
         matplotlib.use(args.backend)
 
     import matplotlib.pyplot as plt  # noqa: F401 — initialises backend, used via globals
-    from machinevisiontoolbox.bin._iminteractive import ImageInteractor  # noqa: F401
 
     if len(args.files) > 10:
         args.block = True

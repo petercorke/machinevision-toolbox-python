@@ -6,37 +6,35 @@ from pathlib import Path
 import numpy as np
 import numpy.testing as nt
 
-import machinevisiontoolbox as mvt
 from machinevisiontoolbox.base import color
 
 
 class TestColor(unittest.TestCase):
-
     def test_blackbody(self):
 
         e = color.blackbody(500e-9, 4000)
-        self.assertAlmostEqual(e, 2.86512308e+12, delta=1e4)
+        self.assertAlmostEqual(e, 2.86512308e12, delta=1e4)
 
         e = color.blackbody([400e-9, 500e-9], 4000)
         self.assertEqual(len(e), 2)
-        self.assertAlmostEqual(e[0], 1.44662486e+12, delta=1e4)
-        self.assertAlmostEqual(e[1], 2.86512308e+12, delta=1e4)
+        self.assertAlmostEqual(e[0], 1.44662486e12, delta=1e4)
+        self.assertAlmostEqual(e[1], 2.86512308e12, delta=1e4)
 
     def test_loadspectrum(self):
 
-        data_dir = Path.cwd() / 'machinevisiontoolbox' / 'data'
+        Path.cwd() / "machinevisiontoolbox" / "data"
 
         nm = 1e-9
         λ = np.linspace(400, 700, 30) * nm
-        brick = color.loadspectrum(λ, 'redbrick')
+        brick = color.loadspectrum(λ, "redbrick")
         self.assertEqual(brick.shape, (30,))
 
-        cone = color.loadspectrum(λ, 'cones')
+        cone = color.loadspectrum(λ, "cones")
         self.assertEqual(cone.shape, (30, 3))
 
         # tests outside of interpolation range
         λ2 = np.linspace(300, 1000, 50) * nm
-        solar = color.loadspectrum(λ2, 'solar')
+        solar = color.loadspectrum(λ2, "solar")
         self.assertEqual(solar.shape, (50,))
 
         # lam_water = np.linspace(400, 700, 30) * nm
@@ -51,15 +49,13 @@ class TestColor(unittest.TestCase):
         rg = color.lambda2rg(555e-9)
         self.assertEqual(rg.shape, (1, 2))
 
-        rg = color.lambda2rg(lam=np.array([555e-9, 666e-9]),
-                             e=np.array([4, 1]))
+        rg = color.lambda2rg(lam=np.array([555e-9, 666e-9]), e=np.array([4, 1]))
         self.assertEqual(rg.shape, (1, 2))
 
         xy = color.lambda2xy(555e-9)
         self.assertEqual(xy.shape, (1, 2))
 
-        xy = color.lambda2rg(lam=np.r_[555e-9, 666e-9],
-                             e=np.r_[4, 1, 2])
+        xy = color.lambda2rg(lam=np.r_[555e-9, 666e-9], e=np.r_[4, 1, 2])
         self.assertEqual(xy.shape, (1, 2))
 
         # create Bayer pattern
@@ -75,7 +71,7 @@ class TestColor(unittest.TestCase):
         nt.assert_array_almost_equal(cc, cc_ans)
 
         # chromaticity is invariant to intensity (im/2)
-        cc = color.tristim2cc(im/2)
+        cc = color.tristim2cc(im / 2)
         cc_ans = np.array([[[1, 0], [0, 1]], [[0, 1], [0, 0]]])
         nt.assert_array_almost_equal(cc, cc_ans)
 
@@ -131,31 +127,31 @@ class TestColor(unittest.TestCase):
     def test_name2color(self):
         """Test named color lookup"""
         # Basic colors
-        red = color.name2color('red')
+        red = color.name2color("red")
         self.assertEqual(len(red), 3)
         self.assertEqual(red[0], 1)
 
-        blue = color.name2color('blue')
+        blue = color.name2color("blue")
         self.assertEqual(blue[2], 1)
 
         # Short names
-        r = color.name2color('r')
+        r = color.name2color("r")
         self.assertEqual(r[0], 1)
 
         # Test different color spaces
-        g_xy = color.name2color('g', 'xy')
+        g_xy = color.name2color("g", "xy")
         self.assertEqual(len(g_xy), 2)
 
     def test_name2color_colororder(self):
         """colororder= must still return an ndarray, not a list -- regression
         test for a bug where the reordering used a list comprehension and
         silently dropped the ndarray return type"""
-        red_rgb = color.name2color('red', colororder={'R': 0, 'G': 1, 'B': 2})
+        red_rgb = color.name2color("red", colororder={"R": 0, "G": 1, "B": 2})
         self.assertIsInstance(red_rgb, np.ndarray)
         nt.assert_array_almost_equal(red_rgb, [1, 0, 0])
 
         # reordered: B first, so red's 1.0 moves to the last position
-        red_bgr = color.name2color('red', colororder={'B': 0, 'G': 1, 'R': 2})
+        red_bgr = color.name2color("red", colororder={"B": 0, "G": 1, "R": 2})
         self.assertIsInstance(red_bgr, np.ndarray)
         nt.assert_array_almost_equal(red_bgr, [0, 0, 1])
 
@@ -171,8 +167,8 @@ class TestColor(unittest.TestCase):
         white = np.array([1, 1, 1])
         cc = color.tristim2cc(white)
         # White point should be around [1/3, 1/3]
-        self.assertAlmostEqual(cc[0], 1/3, delta=0.01)
-        self.assertAlmostEqual(cc[1], 1/3, delta=0.01)
+        self.assertAlmostEqual(cc[0], 1 / 3, delta=0.01)
+        self.assertAlmostEqual(cc[1], 1 / 3, delta=0.01)
 
         # Pure red
         red = np.array([1, 0, 0])
@@ -210,6 +206,5 @@ class TestColor(unittest.TestCase):
 
 
 # ---------------------------------------------------------------------------#
-if __name__ == '__main__':
-
+if __name__ == "__main__":
     unittest.main()

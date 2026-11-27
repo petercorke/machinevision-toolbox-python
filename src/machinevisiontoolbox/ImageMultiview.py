@@ -4,17 +4,14 @@ Multi-view geometry operations: homography, stereo, and epipolar methods.
 
 from __future__ import annotations
 
-import sys
 from typing import TYPE_CHECKING, Any
 
 import cv2
 import numpy as np
+
 from machinevisiontoolbox._image_typing import ImageMixinBase
 
-if sys.version_info >= (3, 11):
-    from typing import Self
-else:
-    from typing_extensions import Self
+from typing import Self
 
 if TYPE_CHECKING:
     from machinevisiontoolbox.ImageCore import Image
@@ -24,7 +21,7 @@ class ImageMultiviewMixin(ImageMixinBase):
     # ======================= stereo ================================== #
 
     def stereo_simple(
-        self, right: Image, hw: int, drange: tuple[int, int] | list[int]
+        self, right: Image, hw: int, drange: tuple[int, int] | list[int] | int
     ) -> tuple[Self, Self, np.ndarray]:
         """
         Simple stereo matching
@@ -33,8 +30,9 @@ class ImageMultiviewMixin(ImageMixinBase):
         :type right: :class:`Image`
         :param hw: window half width
         :type hw: int
-        :param drange: disparity range
-        :type drange: array_like(2)
+        :param drange: disparity range (minimum, maximum), or a single integer
+            ``n`` which means ``(0, n)``
+        :type drange: array_like(2) or int
         :return: disparity image, similarity image, disparity space image
         :rtype: :class:`Image`, :class:`Image`, ndarray(H,W,D)
 
@@ -48,27 +46,45 @@ class ImageMultiviewMixin(ImageMixinBase):
           the strength of the stereo match.  This is a ZNCC measure where 1 is a
           perfect match, greater than 0.8 is a decent match.
         - the disparity space image, a 3D array, whose first two dimensions are
-          the same size as the input imagesm and whose third dimension is the
+          the same size as the input images and whose third dimension is the
           number of disparities.  Each fibre DSI[v,u,:] is window similarity
           versus disparity.
 
-        Example:
+        .. rubric:: Examples
 
-            .. code-block:: python
+        .. code-block:: python
 
-                rocks_l = Image.Read("rocks2-l.png", reduce=2)
-                rocks_r = Image.Read("rocks2-r.png", reduce=2)
-                disparity, similarity, DSI = rocks_l.stereo_simple(rocks_r, hw=3, drange=[40, 90])
+            rocks_l = Image.Read("rocks2-l.png", reduce=2)
+            rocks_r = Image.Read("rocks2-r.png", reduce=2)
+            disparity, similarity, DSI = rocks_l.stereo_simple(rocks_r, hw=3, drange=[40, 90])
 
 
         .. note:: The images are assumed to be epipolar aligned.
 
-        :references:
-            - |RVC3|, Section 14.4.
+        .. note:: The disparity and similarity images, and each plane of the DSI,
+            have a band of ``hw`` NaN valued pixels along the top, bottom and right
+            edges, where the window extends beyond the image.  The band along the
+            left edge is ``hw + drange[0]`` wide for the disparity and similarity
+            images, and ``hw + drange[0] + d`` wide for the DSI plane of
+            disparity ``d`` (counting from 0), since the shifted window in the
+            right image must also lie within the image.
+
+        .. rubric:: References
+
+        - |RVC3|, Section 14.4.
 
         .. warning:: Not fast.
 
-        :seealso: :meth:`DSI_refine` :meth:`stereo_BM` :meth:`stereo_SGBM`
+        .. versionchanged:: 2.5.0
+            The outputs are the same size as the input images, as documented.
+            Previously they were larger by ``2*hw`` in each direction, with
+            the result for pixel (u, v) at (u+hw, v+hw).  The disparity at a
+            pixel is now the best of its valid disparities, and NaN only if
+            none are valid, and an integer image is padded with NaN instead
+            of 0, so windows that extend beyond the image are invalid for
+            every image type.
+
+        .. seealso:: :meth:`DSI_refine` :meth:`stereo_BM` :meth:`stereo_SGBM`
         """
 
         def window_stack(image, hw):
@@ -89,15 +105,20 @@ class ImageMultiviewMixin(ImageMixinBase):
                             constant_values=np.nan,
                         )
                     )
-            return np.dstack(stack)
+            # each padded plane is 2*hw larger than the image in each direction,
+            # keep the part whose windows are centred on the image's pixels
+            h, w_img = image.shape
+            return np.dstack(stack)[hw : hw + h, hw : hw + w_img, :]
 
         if isinstance(drange, int):
             drange = (0, drange)
 
         # left = self.mono().image.astype(np.float32)
         # right = right.mono().image.astype(np.float32)
-        left_arr = self.mono()._A
-        right_arr = right.mono()._A
+        # work in float32 for any image type, so that the window stack can be
+        # padded with NaN (it cannot in an integer array, where it becomes 0)
+        left_arr = self.mono()._A.astype(np.float32)
+        right_arr = right.mono()._A.astype(np.float32)
 
         # convert to window stacks
         left_arr = window_stack(left_arr, hw)
@@ -108,7 +129,7 @@ class ImageMultiviewMixin(ImageMixinBase):
         right_arr = right_arr - right_arr.mean(axis=2)[..., np.newaxis]
 
         # shift right image to the right
-        right_arr = right_arr[:, : -drange[0], :]
+        right_arr = right_arr[:, : right_arr.shape[1] - drange[0], :]
         right_arr = np.pad(
             right_arr,
             ((0, 0), (drange[0], 0), (0, 0)),
@@ -123,9 +144,7 @@ class ImageMultiviewMixin(ImageMixinBase):
         #  - NaN 0 / 0  invalid value encountered in true_divide
         # - inf  x / 0  divide by zero encountered in true_divide
         with np.errstate(divide="ignore", invalid="ignore"):
-
             for d in np.arange(drange[1] - drange[0]):  # lgtm[py/unused-loop-variable]
-
                 # compute the ZNCC
                 sumLL = np.sum(left_arr**2, axis=2)
                 sumRR = np.sum(right_arr**2, axis=2)
@@ -152,79 +171,98 @@ class ImageMultiviewMixin(ImageMixinBase):
         # stack the similarity images at each disparity into the 3D DSI
         dsi = np.dstack(similarities)
 
-        # disparity is the index of the maxima in the disparity direction
-        disparity = np.argmax(dsi, axis=2).astype(np.float32) + drange[0]
+        # disparity is the index of the maxima in the disparity direction.  A
+        # NaN similarity means that disparity is not valid for that pixel, for
+        # example the window would extend beyond the image, so ignore it.  A
+        # pixel with no valid disparity at all is NaN.
+        invalid = np.isnan(dsi)
+        filled = np.where(invalid, -np.inf, dsi)
+        disparity = np.argmax(filled, axis=2).astype(np.float32) + drange[0]
 
         # maxima is the maximum similarity in the disparity direction
-        maxima = np.max(dsi, axis=2)
+        maxima = np.max(filled, axis=2)
 
-        # wherever maxima is nan set disparity to nan, similarity will be
-        # done for border regions
-        disparity = np.where(np.isnan(maxima), np.nan, disparity)
-
-        disparity[:, : drange[0]] = np.nan
+        # wherever there is no valid disparity, the disparity and similarity are NaN
+        none_valid = invalid.all(axis=2)
+        disparity = np.where(none_valid, np.nan, disparity).astype(np.float32)
+        maxima = np.where(none_valid, np.nan, maxima)
 
         return self.__class__(disparity, dtype=np.float32), self.__class__(maxima), dsi
 
     @classmethod
-    def DSI_refine(
-        cls, DSI: np.ndarray, drange: tuple[int, int] | None = None
-    ) -> tuple[Self, Self]:
+    def DSI_refine(cls, DSI: np.ndarray, dmin: int = 0) -> tuple[Self, Self]:
         """
         Refine disparity from disparity space image
 
         :param DSI: disparity space image
         :type DSI: ndarray(H,W,D)
-        :param drange: disparity range, defaults to span of DSI values
-        :type drange: array_like(2), optional
-        :return: refined disparity image
-        :rtype: :class:`Image`
+        :param dmin: disparity of the first plane of the DSI, defaults to 0
+        :type dmin: int, optional
+        :return: refined disparity image and the curvature at the peak
+        :rtype: 2-tuple of :class:`Image`
 
         Performs subpixel interpolation on the peaks in the DSI to provide disparity
-        estimates to a fraction of a pixel.
+        estimates to a fraction of a pixel.  A parabola is fitted to the peak and
+        the two values either side of it, and the position of the parabola's peak
+        is the refined disparity.
 
-        Example:
+        Each plane of the DSI is a disparity, and the first plane is the first
+        element of the ``drange`` passed to :meth:`stereo_simple`.  The DSI does
+        not record this, so by default the returned disparities are relative to
+        it: 0 is the first plane, 1 is the second, and so on, and a fraction
+        gives the position between planes.  Pass ``dmin`` equal to ``drange[0]``
+        to turn them into true disparity values.
 
-            .. code-block:: python
+        The result is NaN where there is no valid peak: where the best disparity
+        is the first or last plane, so one neighbour is missing, where a
+        neighbour is NaN, or where every plane is NaN.  Planes that are NaN are
+        never chosen as the peak.
 
-                rocks_l = Image.Read("rocks2-l.png", reduce=2)
-                rocks_r = Image.Read("rocks2-r.png", reduce=2)
-                disparity, similarity, DSI = rocks_l.stereo_simple(rocks_r, hw=3, drange=[40, 90])
-                disparity = Image.DSI_refine(DSI)
+        .. rubric:: Examples
 
+        .. code-block:: python
 
-        :references:
-            - |RVC3|, Section 14.4.1.
+            rocks_l = Image.Read("rocks2-l.png", reduce=2)
+            rocks_r = Image.Read("rocks2-r.png", reduce=2)
+            disparity, similarity, DSI = rocks_l.stereo_simple(rocks_r, hw=3, drange=[40, 90])
+            disparity, curvature = Image.DSI_refine(DSI, dmin=40)
 
-        :seealso: :meth:`stereo_simple`
+        .. versionchanged:: 2.5.0
+            The ``drange`` argument is replaced by ``dmin``.  ``drange`` was
+            compared with plane indices, not disparities, which made it unusable
+            unless the first disparity was 0.  A DSI plane that is NaN no longer
+            gives a NaN result for a pixel that has a valid peak.
+
+        .. rubric:: References
+
+        - |RVC3|, Section 14.4.1.
+
+        .. seealso:: :meth:`stereo_simple`
         """
-        DSI_flat = DSI.reshape((-1, DSI.shape[2]))
+        invalid = np.isnan(DSI)
+        # best plane, never a NaN one (argmax would return the first NaN)
+        peak = np.argmax(np.where(invalid, -np.inf, DSI), axis=2)
 
-        yp: list[float] = []
-        y: list[float] = []
-        yn: list[float] = []
+        # the peak needs a plane either side of it
+        nplanes = DSI.shape[2]
+        interior = (peak > 0) & (peak < nplanes - 1) & ~invalid.all(axis=2)
 
-        disparity = np.argmax(DSI, axis=2)
-        if drange is None:
-            drange = (int(disparity.min()), int(disparity.max()))
-        for i, d in enumerate(disparity.ravel()):
-            if drange[0] < d < drange[1]:
-                yp.append(DSI_flat[i, d - 1])
-                y.append(DSI_flat[i, d])
-                yn.append(DSI_flat[i, d + 1])
-            else:
-                yp.append(np.nan)
-                y.append(np.nan)
-                yn.append(np.nan)
+        # values at the peak and either side, wherever the peak is not interior
+        # use the peak itself, and the result is masked out below
+        def plane(offset: int) -> np.ndarray:
+            index = np.where(interior, peak + offset, peak)
+            return np.take_along_axis(DSI, index[:, :, np.newaxis], axis=2)[:, :, 0]
 
-        YP = np.array(yp).reshape(DSI.shape[:2])
-        Y = np.array(y).reshape(DSI.shape[:2])
-        YN = np.array(yn).reshape(DSI.shape[:2])
+        YP, Y, YN = plane(-1), plane(0), plane(1)
 
         A = YP + YN - 2 * Y
         B = YN - YP
 
-        d_subpix = disparity - B / (2 * A)
+        # a flat peak (A == 0) has no parabola
+        ok = interior & (A != 0)
+        d_subpix = np.full(peak.shape, np.nan)
+        d_subpix[ok] = peak[ok] - B[ok] / (2 * A[ok]) + dmin
+        A = np.where(interior, A, np.nan)
 
         return cls(d_subpix), cls(A)
 
@@ -232,7 +270,7 @@ class ImageMultiviewMixin(ImageMixinBase):
         self,
         right: Image,
         hw: int,
-        drange: tuple[int, int] | list[int],
+        drange: tuple[int, int] | list[int] | int,
         speckle: tuple[int, int] | None = None,
     ) -> Self:
         """
@@ -242,8 +280,9 @@ class ImageMultiviewMixin(ImageMixinBase):
         :type right: :class:`Image`
         :param hw: window half width
         :type hw: int
-        :param drange: disparity range
-        :type drange: array_like(2)
+        :param drange: disparity range (minimum, maximum), or a single integer
+            ``n`` which means ``(0, n)``
+        :type drange: array_like(2) or int
         :param speckle: speckle filter parameters, defaults to None
         :type speckle: array_like(2), optional
         :raises ValueError: block size too small
@@ -260,21 +299,22 @@ class ImageMultiviewMixin(ImageMixinBase):
         filter parameters are (A, V).  The disparity values within a detected
         speckle are set to that of its enclosing region.
 
-        Example:
+        .. rubric:: Examples
 
-            .. code-block:: python
+        .. code-block:: python
 
-                rocks_l = Image.Read("rocks2-l.png", reduce=2)
-                rocks_r = Image.Read("rocks2-r.png", reduce=2)
-                disparity = rocks_l.stereo_BM(rocks_r, hw=3, drange=[40, 90], speckle=(200, 2))
+            rocks_l = Image.Read("rocks2-l.png", reduce=2)
+            rocks_r = Image.Read("rocks2-r.png", reduce=2)
+            disparity = rocks_l.stereo_BM(rocks_r, hw=3, drange=[40, 90], speckle=(200, 2))
 
 
         .. note:: The images are assumed to be epipolar aligned.
 
-        :references:
-            - |RVC3|, Section 14.4.2.7.
+        .. rubric:: References
 
-        :seealso: :meth:`stereo_SGBM` :meth:`stereo_simple` `opencv.StereoBM <https://docs.opencv.org/4.x/d9/dba/classcv_1_1StereoBM.html>`_
+        - |RVC3|, Section 14.4.2.7.
+
+        .. seealso:: :meth:`stereo_SGBM` :meth:`stereo_simple` `opencv.StereoBM <https://docs.opencv.org/4.x/d9/dba/classcv_1_1StereoBM.html>`_
         """
         # https://docs.opencv.org/4.x/d9/dba/classcv_1_1StereoBM.html
 
@@ -312,7 +352,7 @@ class ImageMultiviewMixin(ImageMixinBase):
         self,
         right: Image,
         hw: int,
-        drange: tuple[int, int] | list[int],
+        drange: tuple[int, int] | list[int] | int,
         speckle: tuple[int, int] | None = None,
     ) -> Self:
         """
@@ -322,8 +362,9 @@ class ImageMultiviewMixin(ImageMixinBase):
         :type right: :class:`Image`
         :param hw: window half width
         :type hw: int
-        :param drange: disparity range
-        :type drange: array_like(2)
+        :param drange: disparity range (minimum, maximum), or a single integer
+            ``n`` which means ``(0, n)``
+        :type drange: array_like(2) or int
         :param speckle: speckle filter parameters, defaults to None
         :type speckle: array_like(2), optional
         :raises ValueError: block size too small
@@ -340,25 +381,26 @@ class ImageMultiviewMixin(ImageMixinBase):
         filter parameters are (A, V).  The disparity values within a detected
         speckle are set to that of its enclosing region.
 
-        Example:
+        .. rubric:: Examples
 
-            .. code-block:: python
+        .. code-block:: python
 
-                rocks_l = Image.Read("rocks2-l.png", reduce=2)
-                rocks_r = Image.Read("rocks2-r.png", reduce=2)
-                disparity = rocks_l.stereo_SGBM(rocks_r, hw=3, drange=[40, 90], speckle=(200, 2))
+            rocks_l = Image.Read("rocks2-l.png", reduce=2)
+            rocks_r = Image.Read("rocks2-r.png", reduce=2)
+            disparity = rocks_l.stereo_SGBM(rocks_r, hw=3, drange=[40, 90], speckle=(200, 2))
 
 
         .. note:: The images are assumed to be epipolar aligned.
 
-        :references:
-            - Stereo processing by semiglobal matching and mutual information,
-              Heiko Hirschmuller,
-              IEEE Transactions on Pattern Analysis and Machine Intelligence,
-              30(2):328–341, 2008.
-            - |RVC3|, Section 14.4.2.7.
+        .. rubric:: References
 
-        :seealso: :meth:`stereo_SGBM` :meth:`stereo_simple` `opencv.StereoSGBM <https://docs.opencv.org/4.x/d2/d85/classcv_1_1StereoSGBM.html>`_
+        - Stereo processing by semiglobal matching and mutual information,
+          Heiko Hirschmuller,
+          IEEE Transactions on Pattern Analysis and Machine Intelligence,
+          30(2):328–341, 2008.
+        - |RVC3|, Section 14.4.2.7.
+
+        .. seealso:: :meth:`stereo_SGBM` :meth:`stereo_simple` `opencv.StereoSGBM <https://docs.opencv.org/4.x/d2/d85/classcv_1_1StereoSGBM.html>`_
         """
         # https://docs.opencv.org/4.x/d2/d85/classcv_1_1StereoSGBM.html#details
 
@@ -413,25 +455,26 @@ class ImageMultiviewMixin(ImageMixinBase):
         homographies that can be used to rectify the images so that they are
         epipolar aligned.
 
-        Examples:
+        .. rubric:: Examples
 
-            .. code-block:: python
+        .. code-block:: python
 
-                walls_l = Image.Read('walls-l.png', reduce=2)
-                walls_r = Image.Read('walls-r.png', reduce=2)
-                sf_l = walls_l.SIFT()
-                sf_r = walls_r.SIFT()
-                matches = sf_l.match(sf_r);
-                F, resid = matches.estimate(CentralCamera.points2F, method="ransac", confidence=0.95);
-                H_l, H_r = walls_l.rectify_homographies(matches, F)
-                walls_l_rect = walls_l.warp_perspective(H_l)
-                walls_r_rect = walls_r.warp_perspective(H_r)
+            walls_l = Image.Read('walls-l.png', reduce=2)
+            walls_r = Image.Read('walls-r.png', reduce=2)
+            sf_l = walls_l.SIFT()
+            sf_r = walls_r.SIFT()
+            matches = sf_l.match(sf_r);
+            F, resid = matches.estimate(CentralCamera.points2F, method="ransac", confidence=0.95);
+            H_l, H_r = walls_l.rectify_homographies(matches, F)
+            walls_l_rect = walls_l.warp_perspective(H_l)
+            walls_r_rect = walls_r.warp_perspective(H_r)
 
 
-        :references:
-            - |RVC3|, Section 14.4.3.
+        .. rubric:: References
 
-        :seealso: :meth:`warp_perspective` :class:`Match` `opencv.stereoRectifyUncalibrated <https://docs.opencv.org/4.x/d9/d0c/group__calib3d.html#gaadc5b14471ddc004939471339294f052>`_
+        - |RVC3|, Section 14.4.3.
+
+        .. seealso:: :meth:`warp_perspective` :class:`Match` `opencv.stereoRectifyUncalibrated <https://docs.opencv.org/4.x/d9/d0c/group__calib3d.html#gaadc5b14471ddc004939471339294f052>`_
         """
         retval, H1, H2 = cv2.stereoRectifyUncalibrated(
             points1=m.inliers.p1.T, points2=m.inliers.p2.T, F=F, imgSize=self.size

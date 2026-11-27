@@ -4,8 +4,8 @@ Spatial filtering, convolution, edge detection, and general image processing ope
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Callable, Self
 import warnings
+from typing import TYPE_CHECKING, Any, Callable, Self
 
 import cv2
 import numpy as np
@@ -50,7 +50,7 @@ class ImageProcessingMixin(ImageMixinBase):
             - (256,N) where the LUT columns are applied to the ``N`` planes of
               the input image.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -61,12 +61,13 @@ class ImageProcessingMixin(ImageMixinBase):
 
         .. note:: Works only for ``uint8`` and ``int8`` image and LUT.
 
-        :references:
-            - |RVC3|, Section 11.3.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.3.
 
         .. important:: Uses OpenCV function ``cv2.LUT`` which accepts multiple-channel, CV_8U images.
 
-        :seealso: `cv2.LUT <https://docs.opencv.org/4.x/d2/de8/group__core__array.html#gab55b8d062b7f5587720ede032d34156f>`_
+        .. seealso:: `cv2.LUT <https://docs.opencv.org/4.x/d2/de8/group__core__array.html#gab55b8d062b7f5587720ede032d34156f>`_
         """
         self._opencv_type_check(self._A, "multiple-channel", "CV_8U")
         image = self.array_as("uint8")
@@ -118,7 +119,7 @@ class ImageProcessingMixin(ImageMixinBase):
         The function ``func`` is called with the image or pixel value as the first argument,
         followed by any additional keyword arguments.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -134,10 +135,11 @@ class ImageProcessingMixin(ImageMixinBase):
               of calls to ``func``.
 
 
-        :references:
-            - |RVC3|, Section 11.3.
+        .. rubric:: References
 
-        :seealso: :meth:`apply2` :meth:`numpy.vectorize`
+        - |RVC3|, Section 11.3.
+
+        .. seealso:: :meth:`apply2` :meth:`numpy.vectorize`
         """
         if vectorize:
             func = np.vectorize(func, **kwargs)
@@ -183,7 +185,7 @@ class ImageProcessingMixin(ImageMixinBase):
           as its argument.
 
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -199,10 +201,11 @@ class ImageProcessingMixin(ImageMixinBase):
             - Slow when ``vectorize`` is ``True`` which involves a large number
               of calls to ``func``.
 
-        :references:
-            - |RVC3|, Section 11.4.
+        .. rubric:: References
 
-        :seealso: :meth:`apply` :meth:`numpy.vectorize`
+        - |RVC3|, Section 11.4.
+
+        .. seealso:: :meth:`apply` :meth:`numpy.vectorize`
         """
         if self.size != other.size:
             raise ValueError("two images must have same size")
@@ -224,7 +227,7 @@ class ImageProcessingMixin(ImageMixinBase):
         Pixels in the returned image will have values in the range [``min``, ``max``]
         inclusive.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -232,7 +235,7 @@ class ImageProcessingMixin(ImageMixinBase):
             >>> img = Image([[1, 2], [3, 4]])
             >>> img.clip(2, 3).A
 
-        :seealso: :func:`numpy.clip`
+        .. seealso:: :func:`numpy.clip`
         """
         return self.__class__(np.clip(self._A, min, max), colororder=self.colororder)
 
@@ -253,7 +256,7 @@ class ImageProcessingMixin(ImageMixinBase):
         :return: rolled image
         :rtype: :class:`Image` instance
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -264,7 +267,7 @@ class ImageProcessingMixin(ImageMixinBase):
             >>> img.roll(rv=1).A
             >>> img.roll(ru=1, rv=-1).A
 
-        :seealso: :func:`numpy.roll`
+        .. seealso:: :func:`numpy.roll`
         """
         if dx is not None:
             ru = dx
@@ -283,7 +286,7 @@ class ImageProcessingMixin(ImageMixinBase):
         Return a histogram normalized version of the image which highlights
         image detail in low-contrast areas of an image.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -296,12 +299,13 @@ class ImageProcessingMixin(ImageMixinBase):
               that is, all grey levels ae equally likely to occur.
             - Color images automatically converted to greyscale
 
-        :references:
-            - |RVC3|, Section 11.3.
+        .. rubric:: References
+
+        - |RVC3|, Section 11.3.
 
         .. important:: Uses OpenCV function ``cv2.equalizeHist`` which accepts single-channel, CV_8U images.
 
-        :seealso: `cv2.equalizeHist <https://docs.opencv.org/4.x/d6/dc7/group__imgproc__hist.html#ga7e54091f0c937d49bf84152a16f76d6e>`_
+        .. seealso:: `cv2.equalizeHist <https://docs.opencv.org/4.x/d6/dc7/group__imgproc__hist.html#ga7e54091f0c937d49bf84152a16f76d6e>`_
         """
         self._opencv_type_check(self._A, "single-channel", "CV_8U")
         out = cv2.equalizeHist(src=self.array_as("uint8"))
@@ -332,7 +336,7 @@ class ImageProcessingMixin(ImageMixinBase):
         greater than ``range[1]`` will be mapped to a value greater than
         ``max``.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -340,9 +344,10 @@ class ImageProcessingMixin(ImageMixinBase):
             >>> img = Image([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
             >>> img.stretch().A
 
-        :references:
+        .. rubric:: References
 
-            - |RVC3|, Section 12.1.
+
+        - |RVC3|, Section 12.1.
         """
 
         # TODO make all infinity values = None?
@@ -464,7 +469,7 @@ class ImageProcessingMixin(ImageMixinBase):
         |                 | by ``p`` (0 to 100).                                |
         +-----------------+-----------------------------------------------------+
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -475,17 +480,19 @@ class ImageProcessingMixin(ImageMixinBase):
             >>> img.threshold('percentile', p=90)
 
 
-        :references:
-            - A Threshold Selection Method from Gray-Level Histograms, N. Otsu. IEEE
-              Trans. Systems, Man and Cybernetics Vol SMC-9(1), Jan 1979, pp 62-66.
-            - Automatic measurement of sister chromatid exchange frequency" Zack (Zack
-              GW, Rogers WE, Latt SA (1977), J. Histochem. Cytochem. 25 (7): 741–53.
-            - |RVC3|, Section 12.1.1.
+        .. rubric:: References
+
+        - A Threshold Selection Method from Gray-Level Histograms, N. Otsu. IEEE
+          Trans. Systems, Man and Cybernetics Vol SMC-9(1), Jan 1979, pp 62-66.
+        - Automatic measurement of sister chromatid exchange frequency" Zack (Zack
+          GW, Rogers WE, Latt SA (1977), J. Histochem. Cytochem. 25 (7): 741–53.
+        - |RVC3|, Section 12.1.1.
 
         .. note:: Uses NumPy thresholding and toolbox-native Otsu and triangle
             threshold selection, not OpenCV functions, to support a wider range of datatypes and automatic threshold selection methods.
 
-        :seealso:
+        .. seealso::
+
             :meth:`threshold_interactive` :meth:`threshold_adaptive_` :meth:`otsu`
             :meth:`triangle`
         """
@@ -543,12 +550,12 @@ class ImageProcessingMixin(ImageMixinBase):
             elif auto == "percentile":
                 autothresh = np.percentile(arr, p)
             else:
-                raise ValueError(auto, "unknown automatic threshold method")
+                raise ValueError(f"unknown automatic threshold method, got {auto!r}")
 
             threshold = autothresh
 
         if not argcheck.isscalar(threshold):
-            raise ValueError(threshold, "threshold must be a scalar")
+            raise ValueError(f"threshold must be a scalar, got {threshold!r}")
 
         if mode == "binary":
             imt = np.where(arr > threshold, true_value, false_value).astype(
@@ -565,7 +572,7 @@ class ImageProcessingMixin(ImageMixinBase):
         elif mode in ("/tozero", "tozero_inv"):
             imt = np.where(arr <= threshold, arr, 0)
         else:
-            raise ValueError(mode, "unknown threshold method")
+            raise ValueError(f"unknown threshold method, got {mode!r}")
 
         if mode in ("binary", "binary_inv"):
             out = self.__class__(imt)
@@ -624,10 +631,11 @@ class ImageProcessingMixin(ImageMixinBase):
 
         .. math:: Y_{u,v} = \left\{ \begin{array}{l} X_{u,v} \mbox{, if } X_{u,v} > t \\ 0 \mbox{, otherwise} \end{array} \right.
 
-        :references:
-            - |RVC3|, Section 12.1.1.1.
+        .. rubric:: References
 
-        :seealso: :meth:`threshold` :meth:`threshold_adaptive` :meth:`otsu` `opencv.threshold <https://docs.opencv.org/4.x/d7/d1b/group__imgproc__misc.html#gae8a4a146d1ca78c626a53577199e9c57>`_
+        - |RVC3|, Section 12.1.1.1.
+
+        .. seealso:: :meth:`threshold` :meth:`threshold_adaptive` :meth:`otsu` `opencv.threshold <https://docs.opencv.org/4.x/d7/d1b/group__imgproc__misc.html#gae8a4a146d1ca78c626a53577199e9c57>`_
         """
 
         # ACKNOWLEDGEMENT: https://matplotlib.org/devdocs/gallery/widgets/range_slider.html
@@ -639,7 +647,7 @@ class ImageProcessingMixin(ImageMixinBase):
 
         mode = mode.lower()
         if mode not in ("binary", "tozero"):
-            raise ValueError(mode, "unknown threshold mode")
+            raise ValueError(f"unknown threshold mode, got {mode!r}")
 
         img = self._A
         img_min = float(np.min(img))
@@ -671,9 +679,7 @@ class ImageProcessingMixin(ImageMixinBase):
 
         fig, axs = plt.subplots(1, 2, figsize=(10, 5))
         plt.subplots_adjust(bottom=0.1 if _use_ipywidgets else 0.25)
-        set_window_title(
-            fig, "Interactive Image Threshold" if title is None else title
-        )
+        set_window_title(fig, "Interactive Image Threshold" if title is None else title)
 
         im = axs[0].imshow(apply_mode(t), cmap="gray")
         if mode == "binary":
@@ -768,12 +774,14 @@ class ImageProcessingMixin(ImageMixinBase):
         window minus ``C``.  ``h`` should reflect the scale of the objects
         that are to be segmented from the background.
 
-        :references:
-            - |RVC3|, Section 12.1.1.1.
+        .. rubric:: References
+
+        - |RVC3|, Section 12.1.1.1.
 
         .. important:: Uses OpenCV function ``cv2.adaptiveThreshold`` which accepts single-channel, CV_8U images.
 
-        :seealso:
+        .. seealso::
+
             :meth:`threshold`
             :meth:`threshold_interactive`
             :meth:`otsu`
@@ -834,7 +842,7 @@ class ImageProcessingMixin(ImageMixinBase):
         maximizes the variance between the classes of pixels below and above
         the threshold ``t``.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -848,16 +856,17 @@ class ImageProcessingMixin(ImageMixinBase):
               MATLAB Machine Vision Toolbox.
             - Works for greyscale integer and floating-point images.
 
-        :references:
-            - A Threshold Selection Method from Gray-Level Histograms, N. Otsu.
-              IEEE Trans. Systems, Man and Cybernetics Vol SMC-9(1), Jan 1979,
-              pp 62-66.
-            - An improved method for image thresholding on the valley-emphasis
-              method. H-F Ng, D. Jargalsaikhan etal. Signal and Info Proc.
-              Assocn. Annual Summit and Conf (APSIPA). 2013. pp1-4
-            - |RVC3|, Section 12.1.1.
+        .. rubric:: References
 
-        :seealso: :meth:`triangle` :meth:`threshold` :meth:`threshold_interactive` :meth:`threshold_adaptive`
+        - A Threshold Selection Method from Gray-Level Histograms, N. Otsu.
+          IEEE Trans. Systems, Man and Cybernetics Vol SMC-9(1), Jan 1979,
+          pp 62-66.
+        - An improved method for image thresholding on the valley-emphasis
+          method. H-F Ng, D. Jargalsaikhan etal. Signal and Info Proc.
+          Assocn. Annual Summit and Conf (APSIPA). 2013. pp1-4
+        - |RVC3|, Section 12.1.1.
+
+        .. seealso:: :meth:`triangle` :meth:`threshold` :meth:`threshold_interactive` :meth:`threshold_adaptive`
         """
         image = self.mono() if self.iscolor else self
 
@@ -909,7 +918,7 @@ class ImageProcessingMixin(ImageMixinBase):
         Compute an automatic threshold using the triangle algorithm from the
         image histogram.  Works for greyscale integer and floating-point images.
 
-        :seealso: :meth:`threshold` :meth:`otsu`
+        .. seealso:: :meth:`threshold` :meth:`otsu`
         """
         image = self.mono() if self.iscolor else self
 
@@ -997,7 +1006,7 @@ class ImageProcessingMixin(ImageMixinBase):
 
             \mathbf{Y} = \alpha \mathbf{X}_1 + \beta \mathbf{X}_2 + \gamma
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1012,7 +1021,7 @@ class ImageProcessingMixin(ImageMixinBase):
 
         .. important:: Uses OpenCV function ``cv2.addWeighted`` which accepts multiple-channel, CV_8U, CV_16U, CV_16S, CV_32F or CV_64F images.
 
-        :seealso: :meth:`choose` `cv2.addWeighted <https://docs.opencv.org/4.x/d2/de8/group__core__array.html#gafafb2513349db3bcff51f54ee5592a19>`_
+        .. seealso:: :meth:`choose` `cv2.addWeighted <https://docs.opencv.org/4.x/d2/de8/group__core__array.html#gafafb2513349db3bcff51f54ee5592a19>`_
         """
 
         if self.shape != image2.shape:
@@ -1042,7 +1051,9 @@ class ImageProcessingMixin(ImageMixinBase):
             gamma=gamma,
             dtype=cvdepth,
         )
-        return self.__class__(out, colororder=self.colororder)
+        # keep the type OpenCV gave: Image(out) alone would narrow float64 to
+        # float32, and a uint16 image that fits to uint8
+        return self.__class__(out, dtype=out.dtype, colororder=self.colororder)
 
     def choose(self, image2: Any, mask: Any) -> Self:
         r"""
@@ -1074,7 +1085,7 @@ class ImageProcessingMixin(ImageMixinBase):
         If ``image2`` is a string it is taken as a colorname which is looked up
         using ``name2color``.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1100,7 +1111,7 @@ class ImageProcessingMixin(ImageMixinBase):
 
         .. important:: Uses OpenCV functions ``cv2.bitwise_and`` and ``cv2.bitwise_xor`` which accept multiple-channel, CV_8U, CV_16U, CV_16S, CV_32S, CV_32F or CV_64F images.
 
-        :seealso: :func:`~machinevisiontoolbox.base.color.name2color` `opencv.bitwise_and <https://docs.opencv.org/4.x/d2/de8/group__core__array.html#ga60b4d04b251ba5eb1392c34425497e14>`_
+        .. seealso:: :func:`~machinevisiontoolbox.base.color.name2color` `opencv.bitwise_and <https://docs.opencv.org/4.x/d2/de8/group__core__array.html#ga60b4d04b251ba5eb1392c34425497e14>`_
         """
         im1 = self._A
 
@@ -1148,7 +1159,6 @@ class ImageProcessingMixin(ImageMixinBase):
                 im1 = np.repeat(np.atleast_3d(im1), im2.shape[2], axis=2)
 
         ones = np.ones_like(mask, dtype=np.uint8)
-        m = cv2.bitwise_and(src1=mask, src2=ones)
         m_not = cv2.bitwise_xor(src1=mask, src2=ones)
 
         out = cv2.bitwise_and(src1=im1, src2=im1, mask=m_not) + cv2.bitwise_and(
@@ -1200,7 +1210,7 @@ class ImageProcessingMixin(ImageMixinBase):
         The ``position`` of the pasted ``pattern`` in the image can be specified
         by its top left corner (umin, vmin) or its centre in the image.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1260,9 +1270,13 @@ class ImageProcessingMixin(ImageMixinBase):
         top = int(top)
 
         if (top + ph) > ch:
-            raise ValueError(ph, "pattern falls off bottom edge")
+            raise ValueError(
+                f"pattern falls off bottom edge: top {top} + height {ph} > image height {ch}"
+            )
         if (left + pw) > cw:
-            raise ValueError(pw, "pattern falls off right edge")
+            raise ValueError(
+                f"pattern falls off right edge: left {left} + width {pw} > image width {cw}"
+            )
 
         npc = pattern.nplanes
         nc = self.nplanes
@@ -1326,12 +1340,14 @@ class ImageProcessingMixin(ImageMixinBase):
 
             # only fg is valid
             fg_mask = cv2.bitwise_and(
-                src1=fg_set, src2=cv2.bitwise_xor(src1=bg_set, src2=1)  # type: ignore[call-overload]
+                src1=fg_set,
+                src2=cv2.bitwise_xor(src1=bg_set, src2=1),  # type: ignore[call-overload]
             )
 
             # only bg is valid
             bg_mask = cv2.bitwise_and(
-                src1=cv2.bitwise_xor(src1=fg_set, src2=1), src2=bg_set  # type: ignore[call-overload]
+                src1=cv2.bitwise_xor(src1=fg_set, src2=1),  # type: ignore[call-overload]
+                src2=bg_set,
             )
 
             # merge them
@@ -1368,7 +1384,7 @@ class ImageProcessingMixin(ImageMixinBase):
 
         .. math:: Y_{u,v} = \left\{ \begin{array}{l} 1.0 \mbox{, if } X_{u,v} = 0 \\ 0.0 \mbox{, otherwise} \end{array}\right.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1408,7 +1424,6 @@ class ImageProcessingMixin(ImageMixinBase):
 
 
 if __name__ == "__main__":
-
     pass
 
     # tests = Path(__file__).parent.parent.parent / "tests"

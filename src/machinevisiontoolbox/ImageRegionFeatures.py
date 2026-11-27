@@ -4,13 +4,14 @@ Detection and description of region-based features (Harris corners, FAST, etc.) 
 
 # https://docs.opencv.org/4.4.0/d7/d60/classcv_1_1SIFT.html
 
-import cv2
-import numpy as np
 from typing import TYPE_CHECKING, Any
 
+import cv2
+import numpy as np
+
 from machinevisiontoolbox._image_typing import ImageMixinBase
-from machinevisiontoolbox.decorators import array_result
 from machinevisiontoolbox.base.graphics import plot_labelbox
+from machinevisiontoolbox.decorators import array_result
 
 try:
     import pytesseract as _pytesseract
@@ -38,7 +39,7 @@ class ImageRegionFeaturesMixin(ImageMixinBase):
         like a list and can be indexed, sliced and used as an iterator in
         for loops and comprehensions.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -48,10 +49,11 @@ class ImageRegionFeaturesMixin(ImageMixinBase):
             >>> len(mser)  # number of features
             >>> mser[:5].bbox
 
-        :references:
-            - |RVC3|, Section 12.1.1.2.
+        .. rubric:: References
 
-        :seealso: :class:`MSERFeature`, `cv2.MSER_create <https://docs.opencv.org/4.5.2/d3/d28/classcv_1_1MSER.html>`_
+        - |RVC3|, Section 12.1.1.2.
+
+        .. seealso:: :class:`MSERFeature`, `cv2.MSER_create <https://docs.opencv.org/4.5.2/d3/d28/classcv_1_1MSER.html>`_
         """
 
         return MSERFeature(self, **kwargs)
@@ -71,7 +73,7 @@ class ImageRegionFeaturesMixin(ImageMixinBase):
         :return: detected strings and metadata
         :rtype: list of :class:`OCRWord`
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -85,10 +87,11 @@ class ImageRegionFeaturesMixin(ImageMixinBase):
 
         .. warning:: `PyTessearct <https://github.com/madmaze/pytesseract>`_ must be installed.
 
-        :references:
-            - |RVC3|, Section 12.4.1.
+        .. rubric:: References
 
-        :seealso: :class:`OCRWord`
+        - |RVC3|, Section 12.4.1.
+
+        .. seealso:: :class:`OCRWord`
         """
         if not _pytesseract_available:
             print(
@@ -137,7 +140,7 @@ class MSERFeature:
         return an object that represents the MSERs found.
         This class behaves like a list and each MSER is an element of the list.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -148,14 +151,15 @@ class MSERFeature:
             >>> msers[0]
             >>> msers.bbox
 
-        :references:
-            - J. Matas, O. Chum, M. Urban, and T. Pajdla.
-              "Robust wide baseline stereo from maximally stable extremal regions."
-              Proc. of British Machine Vision Conference, pages 384-396, 2002.
-            - |RVC3|, Section 12.1.2.2.
+        .. rubric:: References
+
+        - J. Matas, O. Chum, M. Urban, and T. Pajdla.
+          "Robust wide baseline stereo from maximally stable extremal regions."
+          Proc. of British Machine Vision Conference, pages 384-396, 2002.
+        - |RVC3|, Section 12.1.2.2.
 
 
-        :seealso: :meth:`bbox` :meth:`points`
+        .. seealso:: :meth:`bbox` :meth:`points`
         """
 
         self._points: list[np.ndarray] = []
@@ -172,7 +176,7 @@ class MSERFeature:
 
             self._points = [
                 np.asarray(mser).T for mser in msers
-            ]  # transpose point arrays to be Nx2
+            ]  # transpose point arrays to be 2xN
             # --- OpenCV 4/5 compat ---------------------------------------
             # When no regions are found, OpenCV 5's detectRegions() returns
             # an empty tuple () for bboxes instead of an empty ndarray(0,4)
@@ -187,11 +191,7 @@ class MSERFeature:
             # change. Logged as its own issue (#54), not something this
             # compat fix can address.
             # -----------------------------------------------------------------
-            lrtb = (
-                np.zeros((0, 4), dtype=int)
-                if len(bboxes) == 0
-                else np.array(bboxes)
-            )
+            lrtb = np.zeros((0, 4), dtype=int) if len(bboxes) == 0 else np.array(bboxes)
             lrtb[:, 2:] = lrtb[:, 0:2] + lrtb[:, 2:]  # convert to lrtb
             self._bboxes = lrtb
 
@@ -202,7 +202,7 @@ class MSERFeature:
         :return: number of features
         :rtype: int
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -211,7 +211,7 @@ class MSERFeature:
             >>> mser = img.MSER()
             >>> len(mser)  # number of features
 
-        :seealso: :meth:`__getitem__`
+        .. seealso:: :meth:`__getitem__`
         """
         return len(self._points)
 
@@ -227,7 +227,7 @@ class MSERFeature:
 
         This method allows a ``MSERFeature`` object to be indexed, sliced or iterated.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -238,12 +238,12 @@ class MSERFeature:
             >>> mser[:5]   # first 5 MSER features
             >>> mser[::50]  # every 50th MSER feature
 
-        :seealso: :meth:`len`
+        .. seealso:: :meth:`len`
         """
         new = self.__class__()
 
         if isinstance(i, int):
-            new._points = self._points[i]  # type: ignore[assignment]
+            new._points = [self._points[i]]
             new._bboxes = self._bboxes[np.newaxis, i, :]  # result is 2D
         elif isinstance(i, slice):
             new._points = self._points[i]
@@ -268,7 +268,7 @@ class MSERFeature:
         :return: Brief readable description of MSER
         :rtype: str
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -278,10 +278,10 @@ class MSERFeature:
             >>> str(msers)
             >>> str(msers[0])
         """
-        if len(self) > 1:
+        if len(self) != 1:
             return f"MSER features, {len(self)} regions"
         else:
-            s = f"MSER feature: u: {self._bboxes[0,0]} - {self._bboxes[0,2]}, v: {self._bboxes[0,1]} - {self._bboxes[0,3]}"
+            s = f"MSER feature: u: {self._bboxes[0, 0]} - {self._bboxes[0, 2]}, v: {self._bboxes[0, 1]} - {self._bboxes[0, 3]}"
             return s
 
     def __repr__(self) -> str:
@@ -291,7 +291,7 @@ class MSERFeature:
         :return: Brief readable description of MSER
         :rtype: str
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -315,7 +315,7 @@ class MSERFeature:
         If the object contains just one region the result is an array, otherwise
         it is a list of arrays (with different numbers of rows).
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -327,7 +327,7 @@ class MSERFeature:
             >>> msers[0].points
             >>> msers[2:4].points
 
-        :seealso: :meth:`bbox`
+        .. seealso:: :meth:`bbox`
         """
         return self._points
 
@@ -343,7 +343,7 @@ class MSERFeature:
         If the object contains just one region the result is a 1D array,
         otherwise it is a 2D arrays with one row per bounding box.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -353,7 +353,7 @@ class MSERFeature:
             >>> msers[0].bbox
             >>> msers[:4].bbox
 
-        :seealso: :meth:`points`
+        .. seealso:: :meth:`points`
 
         """
         return self._bboxes
@@ -386,7 +386,7 @@ class OCRWord:
         ``ltrb``    bounding box [left, top, right, bottom]
         ==========  =======================================================
 
-        :seealso: :meth:`~machinevisiontoolbox.ImageFeatures.ImageFeaturesMixin.ocr`
+        .. seealso:: :meth:`~machinevisiontoolbox.ImageFeatures.ImageFeaturesMixin.ocr`
         """
         self.dict = {}
         for key in ocr.keys():
@@ -412,7 +412,7 @@ class OCRWord:
         :return: left side coordinate of bounding box in pixels
         :rtype: int
 
-        :seealso: :meth:`t` :meth:`ltrb`
+        .. seealso:: :meth:`t` :meth:`ltrb`
         """
         return self.dict["left"]
 
@@ -424,7 +424,7 @@ class OCRWord:
         :return: top side coordinate of bounding box in pixels
         :rtype: int
 
-        :seealso: :meth:`l` :meth:`ltrb`
+        .. seealso:: :meth:`l` :meth:`ltrb`
         """
         return self.dict["top"]
 
@@ -436,7 +436,7 @@ class OCRWord:
         :return: width of bounding box in pixels
         :rtype: int
 
-        :seealso: :meth:`h` :meth:`ltrb`
+        .. seealso:: :meth:`h` :meth:`ltrb`
         """
         return self.dict["width"]
 
@@ -448,7 +448,7 @@ class OCRWord:
         :return: height of bounding box in pixels
         :rtype: int
 
-        :seealso: :meth:`w` :meth:`ltrb`
+        .. seealso:: :meth:`w` :meth:`ltrb`
         """
         return self.dict["height"]
 
@@ -460,7 +460,7 @@ class OCRWord:
         :return: bounding box [left top right bottom] in pixels
         :rtype: list
 
-        :seealso: :meth:`l` :meth:`t` :meth:`w` :meth:`h`
+        .. seealso:: :meth:`l` :meth:`t` :meth:`w` :meth:`h`
         """
         return [
             self.dict["left"],
@@ -477,7 +477,7 @@ class OCRWord:
         :return: confidence of word (percentage)
         :rtype: int
 
-        :seealso: :meth:`text`
+        .. seealso:: :meth:`text`
         """
         return self.dict["conf"]
 
@@ -489,7 +489,7 @@ class OCRWord:
         :return: word
         :rtype: str
 
-        :seealso: :meth:`conf`
+        .. seealso:: :meth:`conf`
         """
         return self.dict["text"]
 
@@ -500,7 +500,7 @@ class OCRWord:
         Plot a label box around the word in the image, and show the OCR string
         in the label field.
 
-        :seealso: :func:`~machinevisiontoolbox.base.graphics.plot_labelbox`
+        .. seealso:: :func:`~machinevisiontoolbox.base.graphics.plot_labelbox`
         """
         try:
             plot_labelbox(

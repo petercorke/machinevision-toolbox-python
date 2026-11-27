@@ -17,13 +17,15 @@ import sys
 import textwrap
 from importlib.metadata import PackageNotFoundError, version
 
-import numpy as np
 import cv2
+import matplotlib
+import numpy as np
 from spatialmath import *  # lgtm [py/polluting-import]
 from spatialmath import SE3
 from spatialmath.base import *  # lgtm [py/polluting-import]
 
 from machinevisiontoolbox import *  # lgtm [py/unused-import]
+from machinevisiontoolbox import Image, PointCloud
 from machinevisiontoolbox.bin._bintools import LineWrapRawTextDefaultsHelpFormatter
 
 try:
@@ -247,7 +249,7 @@ for Python
         textwrap.wrap(
             versions,
             break_long_words=False,
-            subsequent_indent=" " * len("You" "re running:  "),
+            subsequent_indent=" " * len("Youre running:  "),
             width=80,
         )
     )
@@ -299,20 +301,28 @@ def run_smoke_test() -> bool:
         checks.append((f"Image.Read + smooth() (OpenCV-backed): {e}", False))
 
     try:
-        import open3d  # noqa: F401  -- presence check; PointCloud does the real work
+        __import__("open3d")  # presence check; PointCloud does the real work
     except ImportError as e:
         checks.append(
-            (f"PointCloud.Read('bunny.ply') + voxel_grid(): Open3D not installed ({e})", False)
+            (
+                f"PointCloud.Read('bunny.ply') + voxel_grid(): Open3D not installed ({e})",
+                False,
+            )
         )
     else:
         try:
             bunny = PointCloud.Read("bunny.ply")
             voxels = bunny.voxel_grid(voxel_size=0.01)
             ok = len(bunny) > 0 and len(voxels._voxels.get_voxels()) > 0
-            checks.append(("PointCloud.Read('bunny.ply') + voxel_grid() (Open3D-backed)", ok))
+            checks.append(
+                ("PointCloud.Read('bunny.ply') + voxel_grid() (Open3D-backed)", ok)
+            )
         except Exception as e:  # noqa: BLE001 - a self-check reports any failure, it must not crash
             checks.append(
-                (f"PointCloud.Read('bunny.ply') + voxel_grid() (Open3D-backed): {e}", False)
+                (
+                    f"PointCloud.Read('bunny.ply') + voxel_grid() (Open3D-backed): {e}",
+                    False,
+                )
             )
 
     for name, passed in checks:
@@ -345,7 +355,7 @@ def main():
 
     if args.backend is not None:
         print(f"Using matplotlib backend {args.backend}")
-        plt.use(args.backend)
+        matplotlib.use(args.backend)
 
     make_banner(args, torch_modules)
 
@@ -388,7 +398,7 @@ def main():
         c.InteractiveShell.ast_node_interactivity = "last_expr_or_assign"
 
     code = [
-        f"%matplotlib{' '+args.backend if args.backend is not None else ''}",
+        f"%matplotlib{' ' + args.backend if args.backend is not None else ''}",
         "import matplotlib.pyplot as plt",
         "_prec = get_ipython().run_line_magic('precision', '%.3g'); "
         "print(f'Default numeric formatting: {_prec}')",
@@ -411,7 +421,7 @@ def main():
             images = []
             for i, filename in enumerate(args.images, 1):
                 if len(args.images) > 1:
-                    print(f"  {filename} --> img[{i-1}]")
+                    print(f"  {filename} --> img[{i - 1}]")
                 else:
                     print(f"  {filename} --> img")
                 images.append(Image.Read(filename))

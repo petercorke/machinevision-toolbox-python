@@ -3,14 +3,11 @@
 import unittest
 
 import cv2
-import numpy as np
-import numpy.testing as nt
 
 from machinevisiontoolbox import Image
 
 
 class TestImageRegionFeatures(unittest.TestCase):
-
     def test_mser_basic(self):
         """Test MSER feature detection"""
         im = Image.Read("castle.png")

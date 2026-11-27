@@ -3,16 +3,15 @@
 Smoke tests for Visual Servo classes.
 """
 
-
 import unittest
 
-from machinevisiontoolbox import CentralCamera, IBVS, PBVS, mkgrid
-from spatialmath import SE3
 import numpy as np
+from spatialmath import SE3
+
+from machinevisiontoolbox import IBVS, PBVS, CentralCamera, mkgrid
 
 
 class TestPbvs(unittest.TestCase):
-
     def test_run(self):
 
         camera = CentralCamera.Default(
@@ -31,7 +30,6 @@ class TestPbvs(unittest.TestCase):
 
 
 class TestIbvs(unittest.TestCase):
-
     def test_run(self):
 
         camera = CentralCamera.Default(

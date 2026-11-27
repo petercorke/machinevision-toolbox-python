@@ -26,7 +26,7 @@ class Kernel:
         processing operations. They are created by a number of class
         methods that generate common kernels such as Gaussian, Laplacian, etc.
 
-        :seealso: :meth:`Gauss` :meth:`Laplace` :meth:`Sobel` :meth:`DoG` :meth:`LoG` :meth:`DGauss` :meth:`Circle` :meth:`Box`
+        .. seealso:: :meth:`Gauss` :meth:`Laplace` :meth:`Sobel` :meth:`DoG` :meth:`LoG` :meth:`DGauss` :meth:`Circle` :meth:`Box`
         """
         if not isinstance(K, np.ndarray) and K.ndim != 2:
             raise ValueError("kernel must be a 2D ndarray")
@@ -126,7 +126,9 @@ class Kernel:
     def ndim(self) -> int:
         return 2
 
-    def __array__(self, dtype: Dtype | None = None, copy: bool | None = None) -> np.ndarray:
+    def __array__(
+        self, dtype: Dtype | None = None, copy: bool | None = None
+    ) -> np.ndarray:
         """
         Convert to a plain NumPy array
 
@@ -166,7 +168,7 @@ class Kernel:
 
         Very compact display of kernel numerical values in grid layout.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -214,7 +216,7 @@ class Kernel:
         contained within the window. This is the same rule of thumb used by OpenCV's
         ``cv2.getGaussianKernel`` function.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -226,11 +228,9 @@ class Kernel:
             >>> K = Kernel.Gauss(sigma=2)
             >>> K.shape
 
-        Example:
+        .. code-block:: python
 
-            .. code-block:: python
-
-                Kernel.Gauss(5, 15).disp3d()
+            Kernel.Gauss(5, 15).disp3d()
 
 
         .. plot::
@@ -244,10 +244,11 @@ class Kernel:
             - If the kernel is strongly truncated, ie. it is non-zero at the
               edges of the window then the volume will be less than one.
 
-        :references:
-            - |RVC3|, Section 11.5.1.1.
+        .. rubric:: References
 
-        :seealso: :meth:`DGauss`
+        - |RVC3|, Section 11.5.1.1.
+
+        .. seealso:: :meth:`DGauss`
         """
 
         # make sure sigma, w are valid input
@@ -285,7 +286,7 @@ class Kernel:
                 0 & 1 & 0
                 \end{bmatrix}
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -297,10 +298,11 @@ class Kernel:
         .. note::
             - This kernel has an isotropic response to image gradient.
 
-        :references:
-            - |RVC3|, Section 11.5.1.3.
+        .. rubric:: References
 
-        :seealso: :meth:`LoG` :meth:`zerocross`
+        - |RVC3|, Section 11.5.1.3.
+
+        .. seealso:: :meth:`LoG` :meth:`zerocross`
         """
         # fmt: off
         K = np.array([[ 0,  1,  0],
@@ -327,7 +329,7 @@ class Kernel:
                 1 & 0 & -1
                 \end{bmatrix}
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -340,10 +342,11 @@ class Kernel:
             - This kernel is an effective vertical-edge detector
             - The y-derivative (horizontal-edge) kernel is ``K.T``
 
-        :references:
-            - |RVC3|, Section 11.5.1.3.
+        .. rubric:: References
 
-        :seealso: :meth:`DGauss`
+        - |RVC3|, Section 11.5.1.3.
+
+        .. seealso:: :meth:`DGauss`
         """
         # fmt: off
         K = np.array([[1, 0, -1],
@@ -383,7 +386,7 @@ class Kernel:
         - :math:`2 \mbox{ceil}(3 \sigma) + 1`, or
         - :math:`2\mathtt{h} + 1`
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -392,11 +395,9 @@ class Kernel:
             >>> K
             >>> K.print()
 
-        Example:
+        .. code-block:: python
 
-            .. code-block:: python
-
-                Kernel.DoG(5, 15).disp3d()
+            Kernel.DoG(5, 15).disp3d()
 
 
         .. plot::
@@ -410,10 +411,11 @@ class Kernel:
               used as an efficient approximation.
             - This is a "Mexican hat" shaped kernel
 
-        :references:
-            - |RVC3|, Section 11.5.1.3.
+        .. rubric:: References
 
-        :seealso: :meth:`LoG` :meth:`Gauss`
+        - |RVC3|, Section 11.5.1.3.
+
+        .. seealso:: :meth:`LoG` :meth:`Gauss`
         """
 
         # sigma1 > sigma2
@@ -458,7 +460,7 @@ class Kernel:
         - :math:`2 \mbox{ceil}(3 \sigma) + 1`, or
         - :math:`2\mathtt{h} + 1`
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -467,11 +469,9 @@ class Kernel:
             >>> K
             >>> K.print()
 
-        Example:
+        .. code-block:: python
 
-            .. code-block:: python
-
-                Kernel.LoG(5, 15).disp3d()
+            Kernel.LoG(5, 15).disp3d()
 
 
         .. plot::
@@ -482,10 +482,11 @@ class Kernel:
 
         .. note:: This is the classic "Mexican hat" shaped kernel
 
-        :references:
-            - |RVC3|, Section 11.5.1.3.
+        .. rubric:: References
 
-        :seealso: :meth:`Laplace` :meth:`DoG` :meth:`Gauss` :meth:`zerocross`
+        - |RVC3|, Section 11.5.1.3.
+
+        .. seealso:: :meth:`Laplace` :meth:`DoG` :meth:`Gauss` :meth:`zerocross`
         """
 
         if h is None:
@@ -530,7 +531,7 @@ class Kernel:
         - :math:`2 \mbox{ceil}(3 \sigma) + 1`, or
         - :math:`2\mathtt{h} + 1`
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -539,11 +540,9 @@ class Kernel:
             >>> K
             >>> K.print()
 
-        Example:
+        .. code-block:: python
 
-            .. code-block:: python
-
-                Kernel.DGauss(5, 15).disp3d()
+            Kernel.DGauss(5, 15).disp3d()
 
 
         .. plot::
@@ -557,10 +556,11 @@ class Kernel:
             - The vertical derivative, :math:`dG/dy`, is the transpose of this kernel.
             - This kernel is an effective edge detector.
 
-        :references:
-            - |RVC3|, Section 11.5.1.3.
+        .. rubric:: References
 
-        :seealso: :meth:`HGauss` :meth:`Gauss` :meth:`Sobel`
+        - |RVC3|, Section 11.5.1.3.
+
+        .. seealso:: :meth:`HGauss` :meth:`Gauss` :meth:`Sobel`
         """
         if h is None:
             h = np.ceil(3.0 * sigma)
@@ -609,7 +609,7 @@ class Kernel:
         - :math:`2 \mbox{ceil}(3 \sigma) + 1`, or
         - :math:`2\mathtt{h} + 1`
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -618,14 +618,12 @@ class Kernel:
             >>> Hxx
             >>> Hxx.print()
 
-        Example:
+        .. code-block:: python
 
-            .. code-block:: python
-
-                Hxx, Hyy, Hxy = Kernel.HGauss(5, 15)
-                Hxx.disp3d()
-                Hyy.disp3d()
-                Hxy.disp3d()
+            Hxx, Hyy, Hxy = Kernel.HGauss(5, 15)
+            Hxx.disp3d()
+            Hyy.disp3d()
+            Hxy.disp3d()
 
 
         .. plot::
@@ -646,7 +644,7 @@ class Kernel:
             Hxx, Hyy, Hxy = Kernel.HGauss(5, 15)
             Hxy.disp3d()
 
-        :seealso: :meth:`DGauss` :meth:`Gauss` :meth:`Sobel`
+        .. seealso:: :meth:`DGauss` :meth:`Gauss` :meth:`Sobel`
         """
         if h is None:
             h = np.ceil(3.0 * sigma)
@@ -698,7 +696,7 @@ class Kernel:
         The kernel is centred within a square array with side length given
         by :math:`2\mathtt{h} + 1`.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -708,10 +706,11 @@ class Kernel:
             >>> K.print()
             >>> Kernel.Circle([2, 3])
 
-        :references:
-            - |RVC3|, Section 11.5.1.1.
+        .. rubric:: References
 
-        :seealso: :meth:`Box`
+        - |RVC3|, Section 11.5.1.1.
+
+        .. seealso:: :meth:`Box`
         """
 
         # check valid input:
@@ -765,7 +764,7 @@ class Kernel:
         The kernel is centred within a square array with side length given
         by :math:`2\mathtt{h} + 1`.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -775,10 +774,11 @@ class Kernel:
             >>> K.print()
             >>> Kernel.Box(2, normalize=False)
 
-        :references:
-            - |RVC3|, Section 11.5.1.1.
+        .. rubric:: References
 
-        :seealso: :meth:`Circle`
+        - |RVC3|, Section 11.5.1.1.
+
+        .. seealso:: :meth:`Circle`
         """
         # check valid input:
         wi = 2 * h + 1

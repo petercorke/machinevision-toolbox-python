@@ -4,15 +4,18 @@ Drawing primitives (boxes, circles, text) and color lookup onto OpenCV images.
 
 from __future__ import annotations
 
+import re
 from collections.abc import Iterable
 from typing import Any
 from typing import Iterable as TypingIterable
-import re
 
 import cv2
 import numpy as np
 import spatialmath.base as smb
-from matplotlib.patches import Rectangle
+from matplotlib import cbook, colors
+from matplotlib.artist import Artist
+from matplotlib.patches import Patch, Rectangle
+from matplotlib.text import Text
 
 from machinevisiontoolbox.base import name2color
 
@@ -184,16 +187,16 @@ def draw_box(
 
     where left-bottom is (xmin, ymin), left-top is (xmax, ymax)
 
-    Example:
+    .. rubric:: Examples
 
-        .. code-block:: python
+    .. code-block:: python
 
-            from machinevisiontoolbox import draw_box, idisp
-            import numpy as np
-            img = np.zeros((1000, 1000), dtype='uint8')
-            draw_box(img, lbrt=[100, 300, 700, 500], thickness=2, color=200) # outline box
-            draw_box(img, lbwh=[300, 400, 500, 400], thickness=-1, color=250) # filled box
-            idisp(img)
+        from machinevisiontoolbox import draw_box, idisp
+        import numpy as np
+        img = np.zeros((1000, 1000), dtype='uint8')
+        draw_box(img, lbrt=[100, 300, 700, 500], thickness=2, color=200) # outline box
+        draw_box(img, lbwh=[300, 400, 500, 400], thickness=-1, color=250) # filled box
+        idisp(img)
 
 
     .. plot::
@@ -216,7 +219,7 @@ def draw_box(
     .. warning:: The image is drawn into in place, and ``image`` must be C-contiguous
         which OpenCV requires, otherwise a ``ValueError`` is raised.
 
-    :seealso: :func:`~smtb.base.graphics.plot_box`  `opencv.rectangle <https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga07d2f74cadcf8e305e810ce8eed13bc9>`_
+    .. seealso:: :func:`~smtb.base.graphics.plot_box`  `opencv.rectangle <https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga07d2f74cadcf8e305e810ce8eed13bc9>`_
     """
     _require_c_contiguous(image)
 
@@ -314,6 +317,7 @@ def plot_labelbox(
     textcolor: Any = None,
     labelcolor: Any = None,
     position: str = "topleft",
+    text_style: dict[str, Any] | None = None,
     **boxargs: Any,
 ) -> Rectangle:
     """
@@ -323,30 +327,42 @@ def plot_labelbox(
     :type text: str
     :param fmt: format string for the simply specifying the box edge style, eg. ``"y--"`` for a dashed yellow box
     :type fmt: str, optional
-    :param textcolor: text color, defaults to None
+    :param textcolor: text color, defaults to the Matplotlib default, black
     :type textcolor: str, array_like(3), optional
-    :param labelcolor: label background color
+    :param labelcolor: label background color, defaults to the edge color of the box
     :type labelcolor: str, array_like(3), optional
     :param position: place to draw the label: 'topleft' (default), 'topright, 'bottomleft' or 'bottomright'
-    :type above: str, optional
+    :type position: str, optional
+    :param text_style: Matplotlib text options for the label, such as
+        ``dict(fontsize=12, fontweight="bold")``, defaults to None
     :param boxargs: arguments passed to :func:`plot_box`
 
     Plot a box with a label above it. The position of the box is specified using
-    the same arguments as for ``plot_box``. The label font is specified using
-    the same arguments as for ``plot_text``.  If ``labelcolor`` is specified it
-    is used as the background color for the text label, otherwise the box color
-    is used.
+    the same arguments as for ``plot_box``. The label is drawn by ``plot_text``, and
+    ``text_style`` holds any of its Matplotlib text options.
 
-    Example:
+    The label's text color and background each have three possible sources, and the
+    most specific one wins: ``text_style`` (``color``, ``backgroundcolor`` or the
+    ``facecolor`` of ``bbox``), then ``textcolor`` and ``labelcolor``, then the default.
+    The default background is the final edge color of the box, however that was set
+    (``color``, ``edgecolor`` or the format string). Other keys of ``bbox`` in
+    ``text_style``, such as a border or rounded corners, are merged over the default
+    borderless background.
 
-        .. code-block:: python
+    .. versionchanged:: 2.5.0
+        Added ``text_style``, and the label background now follows the edge color
+        of the box, not only the ``color`` option.
 
-            from machinevisiontoolbox import plot_labelbox
-            import numpy as np
-            img = np.zeros((1000, 1000), dtype='uint8')
-            idisp(img) # create a Matplotlib window
-            plot_labelbox("labelled box", lbwh=[100, 250, 300, 400], color="yellow")
-            plot_labelbox('another labelled box', position="bottomright", lbwh=[300, 450, 500, 400], color="red")
+    .. rubric:: Examples
+
+    .. code-block:: python
+
+        from machinevisiontoolbox import plot_labelbox
+        import numpy as np
+        img = np.zeros((1000, 1000), dtype='uint8')
+        idisp(img) # create a Matplotlib window
+        plot_labelbox("labelled box", lbwh=[100, 250, 300, 400], color="yellow")
+        plot_labelbox('another labelled box', position="bottomright", lbwh=[300, 450, 500, 400], color="red")
 
 
     .. plot::
@@ -361,7 +377,7 @@ def plot_labelbox(
 
 
 
-    :seealso: :func:`~spatialmath.base.plot_box`, :func:`~spatialmath.base.plot_text`
+    .. seealso:: :func:`~spatialmath.base.plot_box`, :func:`~spatialmath.base.plot_text`
     """
     if fmt is None:
         args = []
@@ -370,9 +386,6 @@ def plot_labelbox(
     rect = smb.plot_box(*args, **boxargs)
 
     bbox = rect.get_bbox()
-
-    if labelcolor is None:
-        labelcolor = boxargs.get("color")
 
     if position == "topleft":
         pos = (bbox.xmin, bbox.ymin)
@@ -390,15 +403,31 @@ def plot_labelbox(
         pos = (bbox.xmax, bbox.ymax)
         valign = "top"
         halign = "right"
+    else:
+        raise ValueError(
+            "position must be 'topleft', 'topright', 'bottomleft' or 'bottomright', "
+            f"got {position!r}"
+        )
 
-    smb.plot_text(
-        pos,
-        text,
-        color=textcolor,
-        verticalalignment=valign,
-        horizontalalignment=halign,
-        bbox=dict(facecolor=labelcolor, linewidth=0, edgecolor=None),
+    # the text options: the defaults, then the shorthands, then text_style, with
+    # short option names such as ``size`` and ``ha`` converted to the full names
+    style = mpl_styling(
+        None,
+        dict(verticalalignment=valign, horizontalalignment=halign, color=textcolor),
+        text_style,
+        artist=Text,
     )
+
+    # the background: the box edge color, then labelcolor, then text_style
+    background = labelcolor
+    if background is None:
+        background = rect.get_edgecolor()
+    background = style.pop("backgroundcolor", background)
+    style["bbox"] = dict(facecolor=background, linewidth=0, edgecolor=None) | style.get(
+        "bbox", {}
+    )
+
+    smb.plot_text(pos, text, **style)
 
     return rect
 
@@ -459,16 +488,16 @@ def draw_labelbox(
     for :func:`draw_text`. If ``labelcolor`` is specified it is used as the
     background color for the text label, otherwise the box color is used.
 
-    Example:
+    .. rubric:: Examples
 
-        .. code-block:: python
+    .. code-block:: python
 
-            from machinevisiontoolbox import draw_labelbox, idisp
-            import numpy as np
-            img = np.zeros((500, 500))
-            draw_labelbox(img, "labelled box", lbwh=[100, 200, 400, 500], textcolor=0, labelcolor=100, color=200, thickness=2, fontsize=1)
-            draw_labelbox(img, "another labelled box", position="bottomright", lbwh=[300, 450, 500, 400], textcolor=0, labelcolor=100, color=200, thickness=2, fontsize=1)
-            idisp(img)
+        from machinevisiontoolbox import draw_labelbox, idisp
+        import numpy as np
+        img = np.zeros((500, 500))
+        draw_labelbox(img, "labelled box", lbwh=[100, 200, 400, 500], textcolor=0, labelcolor=100, color=200, thickness=2, fontsize=1)
+        draw_labelbox(img, "another labelled box", position="bottomright", lbwh=[300, 450, 500, 400], textcolor=0, labelcolor=100, color=200, thickness=2, fontsize=1)
+        idisp(img)
 
 
     .. plot::
@@ -489,7 +518,7 @@ def draw_labelbox(
     .. warning:: The image is drawn into in place, and ``image`` must be C-contiguous
         which OpenCV requires, otherwise a ``ValueError`` is raised.
 
-    :seealso: :func:`draw_box`, :func:`draw_text`
+    .. seealso:: :func:`draw_box`, :func:`draw_text`
     """
     _require_c_contiguous(image)
 
@@ -591,15 +620,15 @@ def draw_text(
     ``'italic'``          Hershey italic
     ====================  =============================================
 
-    Example:
+    .. rubric:: Examples
 
-        .. code-block:: python
+    .. code-block:: python
 
-            from machinevisiontoolbox import draw_text, idisp
-            import numpy as np
-            img = np.zeros((1000, 1000), dtype='uint8')
-            draw_text(img, (100, 150), 'Hello world!', color=200, fontheight=60)
-            idisp(img)
+        from machinevisiontoolbox import draw_text, idisp
+        import numpy as np
+        img = np.zeros((1000, 1000), dtype='uint8')
+        draw_text(img, (100, 150), 'Hello world!', color=200, fontheight=60)
+        idisp(img)
 
 
     .. plot::
@@ -626,7 +655,7 @@ def draw_text(
     .. warning:: The image is drawn into in place, and ``image`` must be C-contiguous
         which OpenCV requires, otherwise a ``ValueError`` is raised.
 
-    :seealso: :func:`~spatialmath.base.graphics.plot_text` `opencv.putText <https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga5126f47f883d730f633d74f07456c576>`_
+    .. seealso:: :func:`~spatialmath.base.graphics.plot_text` `opencv.putText <https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga5126f47f883d730f633d74f07456c576>`_
     """
     _require_c_contiguous(image)
 
@@ -642,7 +671,14 @@ def draw_text(
     else:
         lt = cv2.LINE_8
     cv2.putText(
-        image, text or "", _roundvec(pos), _fontdict[font], fontsize, color, fontthickness, lt
+        image,
+        text or "",
+        _roundvec(pos),
+        _fontdict[font],
+        fontsize,
+        color,
+        fontthickness,
+        lt,
     )
     return image
 
@@ -680,8 +716,14 @@ def draw_point(
     :param fontthickness: font thickness in pixels, defaults to 2
     :type fontthickness: int, optional
     :raises TypeError: can't draw color into a greyscale image
+    :raises ValueError: if the marker string has more than one color letter, has no
+        marker character, or no color is given by ``color`` or by a letter
     :return: passed image as modified
     :rtype: ndarray(H,W), ndarray(H,W,P)
+
+    .. versionchanged:: 2.5.0
+        These cases raise ``ValueError`` with a message; they raised ``TypeError``
+        or ``ValueError`` from deeper in the code.
 
     The ``text`` label is placed to the right of the marker, and vertically centred.
     The color of the marker can be different to the color of the text, the
@@ -729,17 +771,17 @@ def draw_point(
           for each color plane. For a color image ``color`` can be
           a string color name.
 
-    Example:
+    .. rubric:: Examples
 
-        .. code-block:: python
+    .. code-block:: python
 
-            from machinevisiontoolbox import draw_point, idisp
-            import numpy as np
-            img = np.zeros((1000, 1000), dtype='uint8')
-            draw_point(img, (100, 300), '*', fontsize=1, color=200)
-            draw_point(img, (500, 300), '*', 'labelled point', fontsize=1, color=200)
-            draw_point(img, np.random.randint(1000, size=(2,10)), '+', 'point {0}', color=100, fontsize=0.8)
-            idisp(img)
+        from machinevisiontoolbox import draw_point, idisp
+        import numpy as np
+        img = np.zeros((1000, 1000), dtype='uint8')
+        draw_point(img, (100, 300), '*', fontsize=1, color=200)
+        draw_point(img, (500, 300), '*', 'labelled point', fontsize=1, color=200)
+        draw_point(img, np.random.randint(1000, size=(2,10)), '+', 'point {0}', color=100, fontsize=0.8)
+        idisp(img)
 
 
     .. plot::
@@ -756,7 +798,7 @@ def draw_point(
     .. warning:: The image is drawn into in place, and ``image`` must be C-contiguous
         which OpenCV requires, otherwise a ``ValueError`` is raised.
 
-    :seealso: :func:`~spatialmath.base.graphics.plot_point` `opencv.putText <https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga5126f47f883d730f633d74f07456c576>`_
+    .. seealso:: :func:`~spatialmath.base.graphics.plot_point` `opencv.putText <https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga5126f47f883d730f633d74f07456c576>`_
     """
     _require_c_contiguous(image)
 
@@ -779,8 +821,12 @@ def draw_point(
             x = [pos[0]]
             y = [pos[1]]
     else:
-        raise ValueError("bad input")
+        raise ValueError(
+            "pos must be a 2xN array, a 2-tuple or list, or a list of 2-tuples, "
+            f"got {type(pos).__name__}"
+        )
 
+    marker_in = marker
     newmarker = ""
     markercolor = ""
     for m in marker:
@@ -789,6 +835,21 @@ def draw_point(
         else:
             newmarker += m
     marker = newmarker
+
+    if len(markercolor) > 1:
+        raise ValueError(
+            f"marker has more than one color letter, got {markercolor!r} in the "
+            f"marker string {marker_in!r}"
+        )
+    if marker == "":
+        raise ValueError(
+            f"marker string {marker_in!r} has no marker character, such as '+' or '*'"
+        )
+    if color is None and markercolor == "":
+        raise ValueError(
+            "no color: give color=, or a color letter in the marker string, "
+            "such as 'r+'"
+        )
 
     # get the centre of the marker, cv2.getTextSize is a very loose bounding box
     #  the code below is a bit expensive but the only way to precisely position
@@ -860,15 +921,15 @@ def draw_line(
     The coordinates can be tuples, lists or NumPy arrays.  The values are rounded to
     the nearest integer.
 
-    Example:
+    .. rubric:: Examples
 
-        .. code-block:: python
+    .. code-block:: python
 
-            from machinevisiontoolbox import draw_line, idisp
-            import numpy as np
-            img = np.zeros((1000, 1000), dtype='uint8')
-            draw_line(img, (100, 300), (700, 900), color=200, thickness=10)
-            idisp(img)
+        from machinevisiontoolbox import draw_line, idisp
+        import numpy as np
+        img = np.zeros((1000, 1000), dtype='uint8')
+        draw_line(img, (100, 300), (700, 900), color=200, thickness=10)
+        idisp(img)
 
 
     .. plot::
@@ -887,7 +948,7 @@ def draw_line(
     .. warning:: The image is drawn into in place, and ``image`` must be C-contiguous
         which OpenCV requires, otherwise a ``ValueError`` is raised.
 
-    :seealso: :func:`~spatialmath.base.graphics.plot_line` `opencv.line <https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga7078a9fae8c7e7d13d24dac2520ae4a2>`_
+    .. seealso:: :func:`~spatialmath.base.graphics.plot_line` `opencv.line <https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga7078a9fae8c7e7d13d24dac2520ae4a2>`_
     """
     _require_c_contiguous(image)
     color = _color(image, color)
@@ -932,17 +993,17 @@ def draw_circle(
     The centre coordinate can be a tuple, list or NumPy array.  The values are rounded to
     the nearest integer.  The radius is also rounded to the nearest integer.
 
-    Example:
+    .. rubric:: Examples
 
-        .. code-block:: python
+    .. code-block:: python
 
-            from machinevisiontoolbox import draw_circle, idisp
-            import numpy as np
-            img = np.zeros((1000, 1000), dtype='uint8')
-            draw_circle(img, (300,400), 150, thickness=2, color=200)
-            draw_circle(img, (500,700), 250, thickness=-1, color=50)  # filled
-            draw_circle(img, (900,900), 200, thickness=-1, color=100)  # filled
-            idisp(img)
+        from machinevisiontoolbox import draw_circle, idisp
+        import numpy as np
+        img = np.zeros((1000, 1000), dtype='uint8')
+        draw_circle(img, (300,400), 150, thickness=2, color=200)
+        draw_circle(img, (500,700), 250, thickness=-1, color=50)  # filled
+        draw_circle(img, (900,900), 200, thickness=-1, color=100)  # filled
+        idisp(img)
 
 
     .. plot::
@@ -963,7 +1024,7 @@ def draw_circle(
     .. warning:: The image is drawn into in place, and ``image`` must be C-contiguous
         which OpenCV requires, otherwise a ``ValueError`` is raised.
 
-    :seealso: :func:`~spatialmath.base.graphics.plot_circle` `opencv.circle <https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#gaf10604b069374903dbd0f0488cb43670>`_
+    .. seealso:: :func:`~spatialmath.base.graphics.plot_circle` `opencv.circle <https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#gaf10604b069374903dbd0f0488cb43670>`_
     """
     _require_c_contiguous(image)
     color = _color(image, color)
@@ -976,9 +1037,126 @@ def draw_circle(
     return image
 
 
+# A copy of ``spatialmath.base.parse_fmt``, proposed in
+# https://github.com/rai-opensource/spatialmath-python/pull/321.  Remove it, and
+# import that one, once the spatialmath release that has it is the minimum required.
+_FMT_LINESTYLES2 = ("--", "-.")
+_FMT_LINESTYLES1 = ("-", ":")
+_FMT_MARKERS = ".,ov^<>1234sp*hH+xDd|_PX8"
+_FMT_COLORS = "bgrcmykw"
+
+
+def parse_fmt(fmt: str | tuple[str, ...] | list[str] | None) -> dict[str, str]:
+    """
+    Parse a MATLAB-style format string into Matplotlib options
+
+    :param fmt: a format string such as ``"r--"``, ``"ko"`` or ``"C2:"``, or a
+        tuple or list whose first element is one, or None
+    :type fmt: str, tuple or list of str, or None
+    :raises ValueError: if the string is not a valid format string
+    :return: the options the string sets, as ``color``, ``marker`` and
+        ``linestyle`` keys
+    :rtype: dict
+
+    The string is a color, a marker and a line style in any order, and each is
+    optional:
+
+    - color: one of ``b g r c m y k w``, a cycle color such as ``C0``, or the whole
+      string can be any Matplotlib color, such as ``"red"``, ``"0.5"`` or ``"#ff8000"``
+    - marker: one of ``. , o v ^ < > 1 2 3 4 8 s p P * h H + x X D d | _``
+    - line style: one of ``-``, ``--``, ``-.`` or ``:``
+
+    The result holds only what the string sets, so it can be merged over a dict of
+    defaults without wiping them out::
+
+        >>> parse_fmt("r--")
+        {'color': 'r', 'linestyle': '--'}
+        >>> parse_fmt("--")
+        {'linestyle': '--'}
+        >>> parse_fmt("")
+        {}
+
+    As in Matplotlib, a marker with no line style means markers only, so
+    ``linestyle`` is ``"None"``::
+
+        >>> parse_fmt("go")
+        {'color': 'g', 'marker': 'o', 'linestyle': 'None'}
+
+    This is the same parsing that ``plot`` applies to its ``fmt`` argument, except
+    that a color, marker or line style that is not in the string is left out, and
+    is not set to a default.
+
+    .. note:: The characters accepted are the same as those of ``plot``, but not
+        the unusual ones: a space, ``"None"``, or the numbers that Matplotlib
+        accepts as markers.
+    """
+    if fmt is None:
+        return {}
+    if isinstance(fmt, (tuple, list)):
+        if len(fmt) == 0:
+            return {}
+        fmt = fmt[0]
+    if not isinstance(fmt, str):
+        raise ValueError(f"format must be a string, got {type(fmt).__name__}")
+
+    res: dict[str, str] = {}
+    if fmt == "":
+        return res
+
+    # the whole string is a color, such as "red" or "#ff8000"; "0" and "1" are
+    # a gray level to colors.is_color_like, but are a marker ("1" is a tri_down)
+    if fmt not in ("0", "1") and colors.is_color_like(fmt):
+        return {"color": fmt}
+
+    def bad(why: str) -> ValueError:
+        return ValueError(f"{fmt!r} is not a valid format string ({why})")
+
+    i = 0
+    while i < len(fmt):
+        c = fmt[i]
+        if fmt[i : i + 2] in _FMT_LINESTYLES2:
+            if "linestyle" in res:
+                raise bad("two linestyle symbols")
+            res["linestyle"] = fmt[i : i + 2]
+            i += 2
+        elif c in _FMT_LINESTYLES1:
+            if "linestyle" in res:
+                raise bad("two linestyle symbols")
+            res["linestyle"] = c
+            i += 1
+        elif c in _FMT_MARKERS:
+            if "marker" in res:
+                raise bad("two marker symbols")
+            res["marker"] = c
+            i += 1
+        elif c in _FMT_COLORS:
+            if "color" in res:
+                raise bad("two color symbols")
+            res["color"] = c
+            i += 1
+        elif c == "C":
+            m = re.match(r"C\d+", fmt[i:])
+            if m is None:
+                raise bad("'C' must be followed by a number")
+            if "color" in res:
+                raise bad("two color symbols")
+            res["color"] = m[0]
+            i += len(m[0])
+        else:
+            raise bad(f"unrecognized character {c!r}")
+
+    # as for plot(): a marker without a line style means no line
+    if "marker" in res and "linestyle" not in res:
+        res["linestyle"] = "None"
+    return res
+
+
 def mpl_styling(
-    fmt: str | tuple[str] | None = None, defaults: dict | None = None, kwargs: dict | None = None
-):
+    fmt: str | tuple[str] | None = None,
+    defaults: dict | None = None,
+    kwargs: dict | None = None,
+    artist: type[Artist] | None = None,
+) -> dict[str, Any]:
     """Merge Matplotlib style options
 
     :param fmt: a format string, defaults to None
@@ -987,6 +1165,12 @@ def mpl_styling(
     :type defaults: dict, optional
     :param kwargs: a dictionary of keyword arguments , defaults to None
     :type kwargs: dict, optional
+    :param artist: the Matplotlib class that the options will be passed to, such as
+        ``Line2D``, ``Patch`` or ``Text``, defaults to None
+    :type artist: type[Artist], optional
+
+    .. versionchanged:: 2.5.0
+        Added ``artist``.
 
     Matplotlib has two distinct ways of specifying styling for plots:
 
@@ -1009,6 +1193,12 @@ def mpl_styling(
     arguments ``kwargs``.  The precedence in decreasing order is: ``kwargs``, ``fmt``,
     ``defaults``.
 
+    Matplotlib accepts many options under two names, for example ``lw`` for
+    ``linewidth`` and ``c`` for ``color``, but refuses a call that has both.  If
+    ``artist`` is given, ``defaults`` and ``kwargs`` are first converted to the
+    full option names for that class, so ``lw=4`` replaces a default of
+    ``linewidth=2``.  If ``artist`` is None the options are merged by name as given.
+
     As a convenience to users, many Toolbox functions accept a ``fmt`` argument, which
     is passed to this function to merge with the keyword arguments.  This allows users
     to specify styling in a compact format string, while still allowing for more
@@ -1024,83 +1214,15 @@ def mpl_styling(
 
     """
 
-    def parse_matplotlib_fmt(fmt: str):
-        """
-        Parses a Matplotlib format string for color, marker, and linestyle.
+    res = parse_fmt(fmt)
+    if artist is not None and issubclass(artist, Patch) and "marker" in res:
+        shown = fmt[0] if isinstance(fmt, (tuple, list)) else fmt
+        raise ValueError(
+            f"format string {shown!r} has a marker, which a {artist.__name__} cannot draw"
+        )
 
-        Args:
-            fmt (str): The format string (e.g., 'ro--', 'g^:', '-.b*').
-
-        Returns:
-            dict: {color, marker, linestyle} with None for missing components.
-        """
-        # 1. Define patterns
-        # Styles: Match longer strings first to avoid greedy partial matches
-        style_pattern = r"(--|-\.|-|:)"
-        # Colors: Standard single-letter codes
-        color_pattern = r"[bgrcmykw]"
-        # Markers: Standard Matplotlib marker symbols
-        marker_pattern = r"[.,ov^<>12348spP*hH+xXDd|_]"
-
-        res: dict[str, Any] = {"color": None, "marker": None, "linestyle": None}
-        working_fmt = fmt
-
-        # 2. Extract Linestyle first (prevents '.' in '-.' being seen as a marker)
-        style_match = re.search(style_pattern, working_fmt)
-        if style_match:
-            res["linestyle"] = style_match.group(0)
-            working_fmt = working_fmt.replace(res["linestyle"], "", 1)
-
-        # 3. Extract Color
-        color_match = re.search(color_pattern, working_fmt)
-        if color_match:
-            res["color"] = color_match.group(0)
-            working_fmt = working_fmt.replace(res["color"], "", 1)
-
-        # 4. Extract Marker (from what remains)
-        marker_match = re.search(marker_pattern, working_fmt)
-        if marker_match:
-            res["marker"] = marker_match.group(0)
-            working_fmt = working_fmt.replace(res["marker"], "", 1)
-
-        if len(working_fmt.strip()) > 0:
-            raise ValueError(
-                f"Unrecognized format components in '{fmt}': '{working_fmt}'"
-            )
-
-        return res
-
-    """
-    Process a Matplotlib format string and return its components.
-
-    Args:
-        fmt (str): The format string to process.
-    """
-    if fmt is None or len(fmt) == 0:
-        res = {}
-    else:
-        if isinstance(fmt, (tuple, list)):
-            fmt = fmt[0]
-
-        res = parse_matplotlib_fmt(fmt)
-
-    # Override with defaults if not specified in fmt
+    if artist is not None:
+        defaults = cbook.normalize_kwargs(defaults or {}, artist)
+        kwargs = cbook.normalize_kwargs(kwargs or {}, artist)
     options = (defaults or {}) | res | (kwargs or {})
     return {k: v for k, v in options.items() if v is not None}
-
-
-if __name__ == "__main__":
-    import numpy as np
-
-
-#     import numpy as np
-#     from machinevisiontoolbox import idisp, iread, Image
-
-#     from machinevisiontoolbox import draw_labelbox
-
-#     img = np.zeros((1000, 1000, 3), dtype="float32")
-#     draw_box(img, lrbt=[100, 400, 100, 400], color="red", thickness=-1)
-#     draw_box(img, lrbt=[500, 800, 100, 400], color="green", thickness=-1)
-#     draw_box(img, lrbt=[100, 400, 500, 800], color="blue", thickness=-1)
-#     draw_box(img, lrbt=[500, 800, 500, 800], color="white", thickness=-1)
-#     idisp(img, block=True)

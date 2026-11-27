@@ -2,12 +2,9 @@
 
 # test for Image input/output
 
-import contextlib
-import io
 import os
 import unittest
 import urllib.error
-from collections.abc import Iterable
 from pathlib import Path
 
 import numpy as np
@@ -53,7 +50,9 @@ class TestBaseImageIO(unittest.TestCase):
 
         # URL image
         try:
-            im = iread("https://raw.githubusercontent.com/petercorke/machinevision-toolbox-python/main/packages/mvtb-data/mvtbdata/images/monalisa.png")
+            im = iread(
+                "https://raw.githubusercontent.com/petercorke/machinevision-toolbox-python/main/packages/mvtb-data/mvtbdata/images/monalisa.png"
+            )
         except (ValueError, urllib.error.URLError) as e:
             raise unittest.SkipTest(f"Network unavailable: {e}") from e
         self.assertIsInstance(im[0], np.ndarray)
@@ -148,8 +147,6 @@ class TestConvert(unittest.TestCase):
         color_im = np.zeros((10, 10, 3), dtype=np.uint8)
         color_im[:, :, 0] = 100
 
-        from machinevisiontoolbox.base.imageio import convert
-
         mono_im = convert(color_im, mono=True)
 
         self.assertEqual(len(mono_im.shape), 2)
@@ -161,8 +158,6 @@ class TestConvert(unittest.TestCase):
         bgr_im[:, :, 0] = 100  # Blue channel
         bgr_im[:, :, 2] = 200  # Red channel
 
-        from machinevisiontoolbox.base.imageio import convert
-
         rgb_im = convert(bgr_im, rgb=True)
 
         self.assertEqual(rgb_im.shape, bgr_im.shape)
@@ -173,8 +168,6 @@ class TestConvert(unittest.TestCase):
         """Test dtype conversion to uint8"""
         im = (np.random.rand(10, 10) * 255).astype(np.uint8)
 
-        from machinevisiontoolbox.base.imageio import convert
-
         result = convert(im, dtype="uint8")
 
         self.assertEqual(result.dtype, np.uint8)
@@ -182,8 +175,6 @@ class TestConvert(unittest.TestCase):
     def test_convert_dtype_float32(self):
         """Test dtype conversion to float32"""
         im = np.random.randint(0, 256, (10, 10), dtype=np.uint8)
-
-        from machinevisiontoolbox.base.imageio import convert
 
         result = convert(im, dtype="float32")
 
@@ -193,8 +184,6 @@ class TestConvert(unittest.TestCase):
         """Test image reduction (subsampling)"""
         im = np.ones((20, 30), dtype=np.uint8)
 
-        from machinevisiontoolbox.base.imageio import convert
-
         result = convert(im, reduce=2)
 
         self.assertEqual(result.shape, (10, 15))
@@ -203,8 +192,6 @@ class TestConvert(unittest.TestCase):
         """Test region of interest extraction"""
         im = np.arange(100, dtype=np.uint8).reshape(10, 10)
         roi = [2, 8, 1, 5]  # umin, umax, vmin, vmax
-
-        from machinevisiontoolbox.base.imageio import convert
 
         result = convert(im, roi=roi)
 
@@ -217,8 +204,6 @@ class TestConvert(unittest.TestCase):
         rgba_im[:, :, 0] = 100
         rgba_im[:, :, 3] = 255
 
-        from machinevisiontoolbox.base.imageio import convert
-
         result = convert(rgba_im, alpha=False)
 
         self.assertEqual(result.shape[2], 3)
@@ -229,8 +214,6 @@ class TestConvert(unittest.TestCase):
         rgba_im[:, :, 0] = 100
         rgba_im[:, :, 3] = 255
 
-        from machinevisiontoolbox.base.imageio import convert
-
         result = convert(rgba_im, alpha=True)
 
         self.assertEqual(result.shape[2], 4)
@@ -238,8 +221,6 @@ class TestConvert(unittest.TestCase):
     def test_convert_copy(self):
         """Test copy flag with dtype conversion"""
         im = np.ones((10, 10), dtype=np.uint8)
-
-        from machinevisiontoolbox.base.imageio import convert
 
         # When there's a transformation (dtype change), copy flag should take effect
         result = convert(im, dtype="float32", copy=True)
@@ -251,8 +232,6 @@ class TestConvert(unittest.TestCase):
     def test_convert_no_copy(self):
         """Test default behavior without copy"""
         im = np.ones((10, 10), dtype=np.uint8)
-
-        from machinevisiontoolbox.base.imageio import convert
 
         result = convert(im)
 
@@ -431,8 +410,6 @@ class TestConvertAdvanced(unittest.TestCase):
         bgr_im[:, :, 1] = 150  # Green
         bgr_im[:, :, 2] = 200  # Red
 
-        from machinevisiontoolbox.base.imageio import convert
-
         mono = convert(bgr_im, mono=True)
 
         self.assertEqual(len(mono.shape), 2)
@@ -441,8 +418,6 @@ class TestConvertAdvanced(unittest.TestCase):
     def test_convert_with_gamma(self):
         """Test gamma correction in convert"""
         im = (np.random.rand(10, 10) * 255).astype(np.uint8)
-
-        from machinevisiontoolbox.base.imageio import convert
 
         # gamma decode should apply gamma correction
         result = convert(im, gamma="sRGB")
@@ -453,8 +428,6 @@ class TestConvertAdvanced(unittest.TestCase):
         """Test float image conversion between dtypes"""
         im = np.random.rand(10, 10).astype(np.float32)
 
-        from machinevisiontoolbox.base.imageio import convert
-
         result = convert(im, dtype="float64")
 
         self.assertEqual(result.dtype, np.float64)
@@ -463,8 +436,6 @@ class TestConvertAdvanced(unittest.TestCase):
         """Test uint16 to uint8 conversion"""
         im = np.random.randint(0, 65535, (10, 10), dtype=np.uint16)
 
-        from machinevisiontoolbox.base.imageio import convert
-
         result = convert(im, dtype="uint8")
 
         self.assertEqual(result.dtype, np.uint8)
@@ -472,8 +443,6 @@ class TestConvertAdvanced(unittest.TestCase):
     def test_convert_uint8_to_float(self):
         """Test uint8 to float conversion"""
         im = np.random.randint(0, 256, (10, 10), dtype=np.uint8)
-
-        from machinevisiontoolbox.base.imageio import convert
 
         result = convert(im, dtype="float32")
 
@@ -489,8 +458,6 @@ class TestConvertAdvanced(unittest.TestCase):
         rgb_im[:, :, 1] = 150  # Green
         rgb_im[:, :, 2] = 200  # Blue
 
-        from machinevisiontoolbox.base.imageio import convert
-
         mono = convert(rgb_im, mono=True)
 
         self.assertEqual(len(mono.shape), 2)
@@ -498,8 +465,6 @@ class TestConvertAdvanced(unittest.TestCase):
     def test_convert_with_multiple_options(self):
         """Test convert with multiple options combined"""
         im = np.random.randint(0, 256, (20, 30, 3), dtype=np.uint8)
-
-        from machinevisiontoolbox.base.imageio import convert
 
         result = convert(im, mono=True, reduce=2, dtype="float32")
 
@@ -570,16 +535,12 @@ class TestConvertErrorHandling(unittest.TestCase):
         """Test convert with invalid dtype"""
         im = np.ones((10, 10), dtype=np.uint8)
 
-        from machinevisiontoolbox.base.imageio import convert
-
         with self.assertRaises(ValueError):
             convert(im, dtype="invalid_type")
 
     def test_convert_invalid_roi_values(self):
         """Test convert with invalid ROI values"""
         im = np.arange(100, dtype=np.uint8).reshape(10, 10)
-
-        from machinevisiontoolbox.base.imageio import convert
 
         # This should either work or raise an error gracefully
         # Testing that it doesn't crash unexpectedly
@@ -622,7 +583,9 @@ class TestIreadAdvanced(unittest.TestCase):
         """Test iread with URL"""
         # This tests the URL loading path
         try:
-            im, filename = iread("https://raw.githubusercontent.com/petercorke/machinevision-toolbox-python/main/packages/mvtb-data/mvtbdata/images/monalisa.png")
+            im, filename = iread(
+                "https://raw.githubusercontent.com/petercorke/machinevision-toolbox-python/main/packages/mvtb-data/mvtbdata/images/monalisa.png"
+            )
         except (ValueError, urllib.error.URLError) as e:
             raise unittest.SkipTest(f"Network unavailable: {e}") from e
         self.assertIsInstance(im, np.ndarray)
@@ -659,8 +622,6 @@ class TestConvertColorOrder(unittest.TestCase):
         rgb_im[:, :, 1] = 150  # Green
         rgb_im[:, :, 2] = 200  # Blue
 
-        from machinevisiontoolbox.base.imageio import convert
-
         bgr_im = convert(rgb_im, rgb=True)
 
         self.assertEqual(bgr_im.shape, rgb_im.shape)
@@ -669,8 +630,6 @@ class TestConvertColorOrder(unittest.TestCase):
         """Test that 2D images stay 2D after conversion"""
         im = np.random.randint(0, 256, (20, 20), dtype=np.uint8)
 
-        from machinevisiontoolbox.base.imageio import convert
-
         result = convert(im, reduce=2)
 
         self.assertEqual(len(result.shape), 2)
@@ -678,8 +637,6 @@ class TestConvertColorOrder(unittest.TestCase):
     def test_convert_preserves_3d_shape(self):
         """Test that 3D images stay 3D after conversion"""
         im = np.random.randint(0, 256, (20, 20, 3), dtype=np.uint8)
-
-        from machinevisiontoolbox.base.imageio import convert
 
         result = convert(im, reduce=2)
 
@@ -789,8 +746,6 @@ class TestConvertRoiEdgeCases(unittest.TestCase):
         """Test ROI that covers full image"""
         im = np.arange(100, dtype=np.uint8).reshape(10, 10)
 
-        from machinevisiontoolbox.base.imageio import convert
-
         result = convert(im, roi=[0, 10, 0, 10])
 
         self.assertIsInstance(result, np.ndarray)
@@ -798,8 +753,6 @@ class TestConvertRoiEdgeCases(unittest.TestCase):
     def test_convert_roi_small_region(self):
         """Test ROI with very small region"""
         im = np.arange(100, dtype=np.uint8).reshape(10, 10)
-
-        from machinevisiontoolbox.base.imageio import convert
 
         result = convert(im, roi=[5, 6, 5, 6])
 
@@ -809,8 +762,6 @@ class TestConvertRoiEdgeCases(unittest.TestCase):
     def test_convert_roi_with_color(self):
         """Test ROI extraction on color image"""
         im = np.random.randint(0, 256, (20, 20, 3), dtype=np.uint8)
-
-        from machinevisiontoolbox.base.imageio import convert
 
         result = convert(im, roi=[5, 15, 5, 15])
 
@@ -856,8 +807,6 @@ class TestConvertDataTypeAliases(unittest.TestCase):
         """Test 'int' dtype alias converts to uint8"""
         im = np.random.rand(10, 10).astype(np.float32)
 
-        from machinevisiontoolbox.base.imageio import convert
-
         result = convert(im, dtype="int")
 
         self.assertEqual(result.dtype, np.uint8)
@@ -865,8 +814,6 @@ class TestConvertDataTypeAliases(unittest.TestCase):
     def test_convert_dtype_float_alias(self):
         """Test 'float' dtype alias converts to float32"""
         im = np.random.randint(0, 256, (10, 10), dtype=np.uint8)
-
-        from machinevisiontoolbox.base.imageio import convert
 
         result = convert(im, dtype="float")
 
@@ -876,8 +823,6 @@ class TestConvertDataTypeAliases(unittest.TestCase):
         """Test 'double' dtype alias converts to float64"""
         im = np.random.randint(0, 256, (10, 10), dtype=np.uint8)
 
-        from machinevisiontoolbox.base.imageio import convert
-
         result = convert(im, dtype="double")
 
         self.assertEqual(result.dtype, np.float64)
@@ -885,8 +830,6 @@ class TestConvertDataTypeAliases(unittest.TestCase):
     def test_convert_dtype_half_alias(self):
         """Test 'half' dtype alias converts to float16"""
         im = np.random.randint(0, 256, (10, 10), dtype=np.uint8)
-
-        from machinevisiontoolbox.base.imageio import convert
 
         result = convert(im, dtype="half")
 
@@ -1027,6 +970,33 @@ class TestIdisp_matplotlib_paths(unittest.TestCase):
         result = idisp(im, matplotlib=False, badcolor="red")
         self.assertIsNone(result)
 
+    def test_idisp_extreme_colors_without_a_deprecation_warning(self):
+        """Colormap.set_under, set_over and set_bad are pending deprecation"""
+        import warnings
+
+        import matplotlib
+        import matplotlib.pyplot as plt
+
+        from machinevisiontoolbox.base.imageio import idisp
+
+        matplotlib.use("Agg")
+        im = np.random.randint(100, 200, (30, 30), dtype=np.uint8)
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", PendingDeprecationWarning)
+            idisp(
+                im,
+                undercolor="blue",
+                overcolor="yellow",
+                badcolor="red",
+                vrange=(120, 180),
+                block=False,
+            )
+        cmap = plt.gca().images[0].get_cmap()
+        np.testing.assert_allclose(cmap.get_under(), (0.0, 0.0, 1.0, 1.0))
+        np.testing.assert_allclose(cmap.get_over(), (1.0, 1.0, 0.0, 1.0))
+        np.testing.assert_allclose(cmap.get_bad(), (1.0, 0.0, 0.0, 1.0))
+        plt.close("all")
+
     def test_idisp_undercolor_overcolor(self):
         """Test idisp with undercolor and overcolor"""
         im = np.random.randint(100, 200, (30, 30), dtype=np.uint8)
@@ -1089,8 +1059,6 @@ class TestConvertBgra(unittest.TestCase):
         bgra_im[:, :, 0] = 100  # Blue
         bgra_im[:, :, 3] = 255  # Alpha
 
-        from machinevisiontoolbox.base.imageio import convert
-
         result = convert(bgra_im, alpha=False)
 
         # Should have 3 channels after removing alpha
@@ -1101,8 +1069,6 @@ class TestConvertBgra(unittest.TestCase):
         bgra_im = np.zeros((10, 10, 4), dtype=np.uint8)
         bgra_im[:, :, 0] = 100  # Blue
         bgra_im[:, :, 3] = 255  # Alpha
-
-        from machinevisiontoolbox.base.imageio import convert
 
         result = convert(bgra_im, alpha=True)
 
@@ -1129,8 +1095,6 @@ class TestConvertGamma(unittest.TestCase):
         """Test sRGB gamma decoding"""
         im = np.random.randint(0, 256, (10, 10), dtype=np.uint8)
 
-        from machinevisiontoolbox.base.imageio import convert
-
         result = convert(im, gamma="sRGB")
 
         # Result should be different from input due to gamma correction
@@ -1142,8 +1106,6 @@ class TestConvertGamma(unittest.TestCase):
     def test_convert_gamma_with_other_options(self):
         """Test gamma with other transformations"""
         im = np.random.randint(0, 256, (20, 20), dtype=np.uint8)
-
-        from machinevisiontoolbox.base.imageio import convert
 
         result = convert(im, gamma="sRGB", reduce=2)
 
@@ -1223,11 +1185,11 @@ class TestIdisp_with_figures(unittest.TestCase):
 
         try:
             # Display first image with coordformat=None to avoid interactive issues
-            result1 = idisp(im1, ax=ax, reuse=True, coordformat=None)
+            idisp(im1, ax=ax, reuse=True, coordformat=None)
             # Reuse path returns None when successful
 
             # Display second image reusing axis
-            result2 = idisp(im2, ax=ax, reuse=True, coordformat=None)
+            idisp(im2, ax=ax, reuse=True, coordformat=None)
             # Both calls should complete without error
         except (AttributeError, TypeError):
             # In headless environments, canvas operations may fail
@@ -1235,7 +1197,6 @@ class TestIdisp_with_figures(unittest.TestCase):
 
     def test_idisp_multiple_figures(self):
         """Test idisp with multiple figures sequentially"""
-        import matplotlib.pyplot as plt
 
         from machinevisiontoolbox.base.imageio import idisp
 
@@ -1278,7 +1239,6 @@ class TestIdisp_with_figures(unittest.TestCase):
 
     def test_idisp_height_width_parameters(self):
         """Test idisp with explicit height/width"""
-        import matplotlib.pyplot as plt
 
         from machinevisiontoolbox.base.imageio import idisp
 
@@ -1289,7 +1249,6 @@ class TestIdisp_with_figures(unittest.TestCase):
 
     def test_idisp_with_colormap_ncolors(self):
         """Test idisp with colormap and number of colors"""
-        import matplotlib.pyplot as plt
 
         from machinevisiontoolbox.base.imageio import idisp
 
@@ -1300,7 +1259,6 @@ class TestIdisp_with_figures(unittest.TestCase):
 
     def test_idisp_bgr_color_order(self):
         """Test idisp with BGR color order"""
-        import matplotlib.pyplot as plt
 
         from machinevisiontoolbox.base.imageio import idisp
 
@@ -1311,7 +1269,6 @@ class TestIdisp_with_figures(unittest.TestCase):
 
     def test_idisp_darken_true(self):
         """Test idisp with darken=True (darkens by 0.5)"""
-        import matplotlib.pyplot as plt
 
         from machinevisiontoolbox.base.imageio import idisp
 
@@ -1324,8 +1281,6 @@ class TestIdisp_with_figures(unittest.TestCase):
         """Test idisp with savefigname to save figure"""
         import os
         import tempfile
-
-        import matplotlib.pyplot as plt
 
         from machinevisiontoolbox.base.imageio import idisp
 
@@ -1346,7 +1301,7 @@ class TestIdisp_with_figures(unittest.TestCase):
 
         # Create figure first
         fig = plt.figure()
-        ax = fig.add_subplot(111)
+        fig.add_subplot(111)
 
         im = np.random.randint(0, 256, (30, 30), dtype=np.uint8)
 
@@ -1356,7 +1311,6 @@ class TestIdisp_with_figures(unittest.TestCase):
 
     def test_idisp_vrange_with_colormap(self):
         """Test idisp vrange with colormap normalization"""
-        import matplotlib.pyplot as plt
 
         from machinevisiontoolbox.base.imageio import idisp
 
@@ -1367,7 +1321,6 @@ class TestIdisp_with_figures(unittest.TestCase):
 
     def test_idisp_undercolor_overcolor_with_vrange(self):
         """Test undercolor/overcolor with vrange clipping"""
-        import matplotlib.pyplot as plt
 
         from machinevisiontoolbox.base.imageio import idisp
 
@@ -1384,7 +1337,6 @@ class TestIdisp_with_figures(unittest.TestCase):
 
     def test_idisp_uint16_with_vrange(self):
         """Test uint16 image with custom vrange"""
-        import matplotlib.pyplot as plt
 
         from machinevisiontoolbox.base.imageio import idisp
 
@@ -1395,7 +1347,6 @@ class TestIdisp_with_figures(unittest.TestCase):
 
     def test_idisp_float_with_vrange(self):
         """Test float image with vrange normalization"""
-        import matplotlib.pyplot as plt
 
         from machinevisiontoolbox.base.imageio import idisp
 
@@ -1406,7 +1357,6 @@ class TestIdisp_with_figures(unittest.TestCase):
 
     def test_idisp_3channel_different_sizes(self):
         """Test idisp with various 3-channel image sizes"""
-        import matplotlib.pyplot as plt
 
         from machinevisiontoolbox.base.imageio import idisp
 
@@ -1418,7 +1368,6 @@ class TestIdisp_with_figures(unittest.TestCase):
 
     def test_idisp_axes_grid_combination(self):
         """Test idisp with axes and grid combination"""
-        import matplotlib.pyplot as plt
 
         from machinevisiontoolbox.base.imageio import idisp
 
@@ -1429,7 +1378,6 @@ class TestIdisp_with_figures(unittest.TestCase):
 
     def test_idisp_frame_plain_combination(self):
         """Test idisp with frame and plain options"""
-        import matplotlib.pyplot as plt
 
         from machinevisiontoolbox.base.imageio import idisp
 
@@ -1465,11 +1413,11 @@ class TestIdisp_with_figures(unittest.TestCase):
         try:
             # First greyscale
             im_grey = np.random.randint(0, 256, (30, 30), dtype=np.uint8)
-            result1 = idisp(im_grey, ax=ax, reuse=True, coordformat=None)
+            idisp(im_grey, ax=ax, reuse=True, coordformat=None)
 
             # Then color
             im_color = np.random.randint(0, 256, (30, 30, 3), dtype=np.uint8)
-            result2 = idisp(im_color, ax=ax, reuse=True, coordformat=None)
+            idisp(im_color, ax=ax, reuse=True, coordformat=None)
 
             # Reuse path should complete without error
         except (AttributeError, TypeError):

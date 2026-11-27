@@ -15,9 +15,9 @@ import matplotlib.path as mpath
 import matplotlib.pyplot as plt
 import numpy as np
 import spatialmath.base as smb
+from scipy import interpolate
 from spatialmath import Polygon2
 from spatialmath.base import set_window_title
-from scipy import interpolate
 
 # import io as io
 from machinevisiontoolbox.base.data import mvtb_path_to_datafile
@@ -51,8 +51,6 @@ def _loaddata(filename: str, verbose: bool = False, **kwargs: Any) -> np.ndarray
 
     ``_loaddata(filename)`` returns ``data`` from ``filename``, otherwise
     returns None
-
-    Example:
 
     .. note::
 
@@ -114,7 +112,7 @@ def loadspectrum(
     ``filename`` and interpolate it to the wavelengths [meters] specified in 𝜆.
     The spectral data can be scalar (D=1) or vector (D>1) valued.
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -137,11 +135,10 @@ def loadspectrum(
           <https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.interp1d.html>`_
           for more info.
 
-    :references:
-        - |RVC3|, Section 10.1.
-    """
-    global _spectra
+    .. rubric:: References
 
+    - |RVC3|, Section 10.1.
+    """
     if filename not in _spectra:
         # save an interpolator for every spectrum
         if not filename.endswith(".dat"):
@@ -192,7 +189,7 @@ def blackbody(λ: np.ndarray | float, T: float) -> np.ndarray | float:
     If 𝜆 is an array, then the result is an array of
     blackbody radiation power density at the corresponding elements of 𝜆.
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -202,8 +199,9 @@ def blackbody(λ: np.ndarray | float, T: float) -> np.ndarray | float:
         >>> e = blackbody(l, 6500)                # emission of sun
         >>> print(e[:5])
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
+
+    - |RVC3|, Section 10.1.
     """
 
     # physical constants
@@ -244,7 +242,7 @@ def lambda2rg(
     illumination spectrum :math:`\texttt{e}(\lambda)` defined at corresponding
     wavelengths of :math:`\lambda`.
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -274,10 +272,11 @@ def lambda2rg(
           instructions given by Stiles & Burch (1959)" and renormalized to
           primaries at 15500 (645.16), 19000 (526.32), and 22500 (444.44) cm-1.
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
 
-    :seealso: :func:`lambda2xy` :func:`cmfrgb`
+    - |RVC3|, Section 10.1.
+
+    .. seealso:: :func:`lambda2xy` :func:`cmfrgb`
     """
 
     # check input
@@ -327,7 +326,7 @@ def cmfrgb(λ: ArrayLike, e: ArrayLike | None = None, **kwargs: Any) -> np.ndarr
     wavelengths of :math:`\lambda`. This is the tristimulus that has the same
     visual sensation as :math:`\texttt{e}(\lambda)`.
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -338,10 +337,11 @@ def cmfrgb(λ: ArrayLike, e: ArrayLike | None = None, **kwargs: Any) -> np.ndarr
         >>> e = loadspectrum(l, "solar")
         >>> cmfrgb(l, e)
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
 
-    :seealso: :func:`~lambda2rg`
+    - |RVC3|, Section 10.1.
+
+    .. seealso:: :func:`~lambda2rg`
     """
 
     λ = smb.getvector(λ)  # λ is (N,1)
@@ -393,7 +393,7 @@ def tristim2cc(tri: np.ndarray) -> np.ndarray:
     result is an image with two planes corresponding to r and g, or x and y
     (depending on whether the input image was RGB or XYZ).
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -403,8 +403,9 @@ def tristim2cc(tri: np.ndarray) -> np.ndarray:
         >>> cc = tristim2cc(img)
         >>> cc.shape
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
+
+    - |RVC3|, Section 10.1.
     """
 
     # TODO check if tri is correct shape? can be vector or matrix
@@ -454,7 +455,7 @@ def lambda2xy(λ: np.ndarray | float, *args: Any) -> np.ndarray:
     result is an array where the rows are the chromaticity coordinates at the
     corresponding elements of :math:`\lambda`.
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -463,10 +464,11 @@ def lambda2xy(λ: np.ndarray | float, *args: Any) -> np.ndarray:
         >>> lambda2xy([550e-9, 600e-9])
 
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
 
-    :seealso: :func:`lambda2rg` :func:`cmfxyz` :func:`ccxyz`
+    - |RVC3|, Section 10.1.
+
+    .. seealso:: :func:`lambda2rg` :func:`cmfxyz` :func:`ccxyz`
     """
 
     # argcheck
@@ -511,7 +513,7 @@ def cmfxyz(
     wavelengths of :math:`\lambda`. This is the XYZ tristimulus that has the
     same visual sensation as :math:`\texttt{e}(\lambda)`.
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -525,10 +527,11 @@ def cmfxyz(
     .. note::  CIE 1931 2-deg XYZ CMFs from from `Color & Vision Research Laboratory <http://cvrl.ioo.ucl.ac.uk>`_
 
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
 
-    :seealso: :func:`lambda2xy` :func:`ccxyz`
+    - |RVC3|, Section 10.1.
+
+    .. seealso:: :func:`lambda2xy` :func:`ccxyz`
     """
     λ = smb.getvector(λ)
 
@@ -559,7 +562,7 @@ def luminos(λ: np.ndarray | float, **kwargs: Any) -> np.ndarray | float:
     array whose elements are the luminosity at the corresponding
     :math:`\lambda`.
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -572,10 +575,11 @@ def luminos(λ: np.ndarray | float, **kwargs: Any) -> np.ndarray | float:
         - Luminosity has units of lumens, which are the intensity with which
           wavelengths are perceived by the light-adapted human eye.
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
 
-    :seealso: :func:`rluminos`
+    - |RVC3|, Section 10.1.
+
+    .. seealso:: :func:`rluminos`
     """
     λ = smb.getvector(λ)
 
@@ -602,7 +606,7 @@ def rluminos(λ: np.ndarray | float, **kwargs: Any) -> np.ndarray | float:
     vector whose elements are the luminosity at the corresponding
     :math:`\lambda`.
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -616,8 +620,9 @@ def rluminos(λ: np.ndarray | float, **kwargs: Any) -> np.ndarray | float:
           intensity with which wavelengths are perceived by the light-adapted
           human eye.
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
+
+    - |RVC3|, Section 10.1.
     """
 
     λ = smb.getvector(λ)
@@ -649,7 +654,7 @@ def ccxyz(λ: np.ndarray | float, e: np.ndarray | float | None = None) -> np.nda
     wavelengths of :math:`\lambda`. This is the tristimulus that has the same
     visual sensation as :math:`\texttt{e}(\lambda)`.
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -661,10 +666,11 @@ def ccxyz(λ: np.ndarray | float, e: np.ndarray | float | None = None) -> np.nda
         >>> e = loadspectrum(l, "solar")
         >>> lambda2rg(l, e)
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
 
-    :seealso: :func:`cmfxyz` :func:`lambda2xy`
+    - |RVC3|, Section 10.1.
+
+    .. seealso:: :func:`cmfxyz` :func:`lambda2xy`
     """
 
     λ = smb.getvector(λ)
@@ -706,7 +712,7 @@ def _loadrgbdict(fname: str) -> dict[str, np.ndarray]:
     """
 
     if not isinstance(fname, str):
-        raise ValueError(fname, "file name must be a string")
+        raise ValueError(f"file name must be a string, got {fname!r}")
 
     data = _loaddata(fname, comments="#", dtype=None, encoding="ascii")
 
@@ -727,7 +733,7 @@ def name2color(
     colorspace: str = "RGB",
     dtype: str | type | np.dtype = "float",
     colororder: dict[str, int] | None = None,
-) -> np.ndarray | list[str] | None:
+) -> np.ndarray | None:
     """
     Map color name to value
 
@@ -739,8 +745,9 @@ def name2color(
     :type dtype: str, type or numpy.dtype
     :param colororder: dictionary mapping color name to index
     :type colororder: dict, optional
-    :return: color tristimulus or chromaticity value; or list of matching color names
-    :rtype: ndarray(3), ndarray(2); list[str]
+    :return: color tristimulus or chromaticity value, or ``None`` if the name is not known
+    :rtype: ndarray(3), ndarray(2) or None
+    :raises ValueError: unknown ``colorspace``, or ``name`` contains a wildcard
 
     Looks up the RGB tristimulus for this color using ``matplotlib.colors`` and
     converts it to the desired ``colorspace``.
@@ -757,10 +764,20 @@ def name2color(
     to the index in the output array.  For an image, this dictionary is given by the
     :meth:`~machinevisiontoolbox.Image.colororder` method.
 
-    If a Python-style regexp is passed, then the return value is a list
-    of matching color names.
+    If the name is not a known color the return value is ``None``.  An unknown
+    ``colorspace`` raises a :class:`ValueError`.  To find color names that match
+    a pattern use :func:`color_names`.
 
-    Example:
+    .. versionchanged:: 2.5.0
+        An unknown ``colorspace`` raises :class:`ValueError`.  It used to return
+        ``None``, as for an unknown color name.
+
+    .. versionchanged:: 2.5.0
+        A name containing a wildcard (``.``, ``?`` or ``*``) raises
+        :class:`ValueError`.  It used to return a list of the matching color
+        names, which is now done by :func:`color_names`.
+
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -769,15 +786,16 @@ def name2color(
         >>> name2color("r", dtype="uint8")
         >>> name2color("red", colororder={"R": 2, "G": 1, "B": 0})
         >>> name2color("r", "xy")
-        >>> name2color("lime green")
-        >>> name2color(".*burnt.*")
+        >>> name2color("limegreen")
+        >>> name2color("lime green")  # None: Matplotlib's names have no spaces
 
     .. note:: Uses color database from Matplotlib.
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
 
-    :seealso: :func:`~color2name`
+    - |RVC3|, Section 10.1.
+
+    .. seealso:: :func:`~color2name` :func:`color_names`
     """
 
     def csconvert(name: str, cs: str) -> np.ndarray:
@@ -796,31 +814,94 @@ def name2color(
             Lab = colorspace_convert(rgb, "rgb", "lab")
             return Lab[1:]
         else:
-            raise ValueError("unknown colorspace")
+            raise ValueError(
+                f"unknown colorspace {cs!r}, must be rgb, xyz, lab, xy or ab"
+            )
+
+    # check the colorspace here, so that it is not mistaken for an unknown color
+    # name by the handler below
+    cs = colorspace.lower()
+    if cs not in ("rgb", "xyz", "lab", "l*a*b*", "xy", "ab"):
+        raise ValueError(
+            f"unknown colorspace {colorspace!r}, must be rgb, xyz, lab, xy or ab"
+        )
 
     if any([c in ".?*" for c in name]):
-        # has a wildcard
-        return list(
-            filter(
-                re.compile(name).match,
-                [key for key in colors.get_named_colors_mapping().keys()],
-            )
+        raise ValueError(
+            f"{name!r} contains a wildcard, name2color no longer matches patterns, "
+            "use color_names(pattern)"
         )
-    else:
-        try:
-            color = csconvert(name, colorspace.lower())
-            if np.issubdtype(dtype, np.integer):
-                # if dtype is an integer type, scale the color to the range [0,M]
-                color = (color * np.iinfo(dtype).max).astype(dtype)
-            if colororder is not None:
-                # reorder the elements of the color if colororder is given
-                # colororder is a dict mapping plane name to index -- fancy
-                # index rather than a list comprehension, to keep the
-                # ndarray return type promised by this function's contract
-                color = color[[colororder[c] for c in colorspace]]
-            return color
-        except ValueError:
-            return None
+
+    try:
+        color = csconvert(name, cs)
+        if np.issubdtype(dtype, np.integer):
+            # if dtype is an integer type, scale the color to the range [0,M]
+            color = (color * np.iinfo(dtype).max).astype(dtype)
+        if colororder is not None:
+            # reorder the elements of the color if colororder is given
+            # colororder is a dict mapping plane name to index -- fancy
+            # index rather than a list comprehension, to keep the
+            # ndarray return type promised by this function's contract
+            color = color[[colororder[c] for c in colorspace]]
+        return color
+    except ValueError:
+        return None
+
+
+def color_names(pattern: str | None = None) -> list[str]:
+    r"""
+    List the known color names
+
+    :param pattern: Python regular expression that the whole name must match,
+        defaults to None
+    :type pattern: str, optional
+    :return: color names, all of them or those that match ``pattern``
+    :rtype: list[str]
+    :raises ValueError: ``pattern`` is not a valid regular expression
+
+    The names are those of the color database of Matplotlib, which is also used
+    by :func:`name2color` and :func:`color2name`.
+
+    If ``pattern`` is given only the names that match it are returned.
+
+    .. important::
+
+        ``pattern`` is a **Python regular expression**, as used by the
+        :mod:`re` module, **not** a shell style wildcard such as ``*.png``.
+        In a regular expression ``.*`` means any number of any characters,
+        whereas ``*`` or ``?`` at the start of a pattern is an error.  The whole
+        name must match, so to find names that contain ``coral`` use
+        ``".*coral.*"``, not ``"coral"`` or ``"*coral*"``.
+
+    .. rubric:: Examples
+
+    .. runblock:: pycon
+
+        >>> from machinevisiontoolbox import color_names
+        >>> color_names(".*burnt.*")
+        >>> color_names("(red|green|blue)")
+        >>> len(color_names())
+
+    .. versionadded:: 2.5.0
+        Replaces the wildcard feature of :func:`name2color`.
+
+    .. rubric:: References
+
+    - |RVC3|, Section 10.1.
+
+    .. seealso:: :func:`name2color` :func:`color2name` :mod:`re`
+    """
+    names = list(colors.get_named_colors_mapping().keys())
+    if pattern is None:
+        return names
+    try:
+        regexp = re.compile(pattern)
+    except re.error as e:
+        raise ValueError(
+            f"{pattern!r} is not a valid Python regular expression ({e}), "
+            "note that * and ? are not shell style wildcards, use .* for any text"
+        ) from e
+    return [name for name in names if regexp.fullmatch(name)]
 
 
 def color2name(color: np.ndarray | list[float], colorspace: str = "RGB") -> str:
@@ -837,7 +918,7 @@ def color2name(color: np.ndarray | list[float], colorspace: str = "RGB") -> str:
     Converts the given value from the specified ``colorspace`` to RGB and finds
     the closest (Euclidean distance) value in ``matplotlib.colors``.
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -847,14 +928,14 @@ def color2name(color: np.ndarray | list[float], colorspace: str = "RGB") -> str:
 
     .. note::
 
-        - Color name may contain a wildcard, eg. "?burnt"
         - Uses color database from Matplotlib
         - Tristiumuls values are [0,1]
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
 
-    :seealso: :func:`~name2color`
+    - |RVC3|, Section 10.1.
+
+    .. seealso:: :func:`~name2color`
     """
 
     # map numeric tuple to color name
@@ -890,7 +971,9 @@ def color2name(color: np.ndarray | list[float], colorspace: str = "RGB") -> str:
         k = np.nanargmin(dist)
         return list(colors.get_named_colors_mapping())[k]
     else:
-        raise ValueError("unknown colorspace")
+        raise ValueError(
+            f"unknown colorspace {colorspace!r}, must be rgb, xyz, lab, xy or ab"
+        )
 
 
 def colorname(
@@ -944,7 +1027,7 @@ def XYZ2RGBxform(
     to an RGB tristimulus value.  The transformation applies to linear, non
     gamma encoded, tristimulus values.
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -956,7 +1039,7 @@ def XYZ2RGBxform(
         - Use the inverse of the transform for RGB to XYZ.
         - Works with linear RGB colorspace, not gamma encoded
 
-    :seealso: :func:`gamma_decode`
+    .. seealso:: :func:`gamma_decode`
     """
 
     if isinstance(white, str):
@@ -1128,12 +1211,12 @@ def plot_chromaticity_diagram(
     locus, and internal pixels are an approximation of their true color (at the
     specified ``brightness``).
 
-    Example:
+    .. rubric:: Examples
 
-        .. code-block:: python
+    .. code-block:: python
 
-            from machinevisiontoolbox import plot_chromaticity_diagram
-            plot_chromaticity_diagram()  # show filled chromaticity diagram
+        from machinevisiontoolbox import plot_chromaticity_diagram
+        plot_chromaticity_diagram()  # show filled chromaticity diagram
 
 
     .. plot::
@@ -1144,10 +1227,11 @@ def plot_chromaticity_diagram(
     .. note:: The colors shown within the locus only approximate the true
             colors, due to the gamut of the display device.
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
 
-    :seealso: :func:`plot_spectral_locus`
+    - |RVC3|, Section 10.1.
+
+    .. seealso:: :func:`plot_spectral_locus`
     """
     if colorspace.lower() == "xy":
         CS = _xy_chromaticity_diagram(Y=brightness, N=N)
@@ -1160,7 +1244,7 @@ def plot_chromaticity_diagram(
         plt.xlabel("a*")
         plt.ylabel("b*")
     else:
-        raise ValueError("bad colorspace")
+        raise ValueError(f"unknown colorspace {colorspace!r}, must be xy or ab")
 
     set_window_title(plt.gcf(), "Chromaticity Diagram" if title is None else title)
 
@@ -1204,12 +1288,12 @@ def plot_spectral_locus(
     Typically, would be used in conjunction with :func:`plot_chromaticity_diagram`
     to plot chromaticity diagram with labelled boundary.
 
-    Example:
+    .. rubric:: Examples
 
-        .. code-block:: python
+    .. code-block:: python
 
-            from machinevisiontoolbox import plot_spectral_locus
-            plot_spectral_locus()  # add the border
+        from machinevisiontoolbox import plot_spectral_locus
+        plot_spectral_locus()  # add the border
 
 
     .. plot::
@@ -1217,7 +1301,7 @@ def plot_spectral_locus(
         from machinevisiontoolbox import plot_spectral_locus
         plot_spectral_locus()
 
-    :seealso: :func:`plot_chromaticity_diagram`
+    .. seealso:: :func:`plot_chromaticity_diagram`
     """
 
     nm = 1e-9
@@ -1226,8 +1310,10 @@ def plot_spectral_locus(
 
     if colorspace in ("XY", "xy"):
         locus = ccxyz(λ)[:, :2]
-    elif colorspace in ("rg"):
+    elif colorspace == "rg":
         locus = lambda2rg(λ, method="cubic")
+    else:
+        raise ValueError(f"unknown colorspace {colorspace!r}, must be xy or rg")
 
     if ax is None:
         ax = plt.subplot(1, 1, 1)
@@ -1257,7 +1343,7 @@ def plot_spectral_locus(
             x = rgb[:, 0] / np.sum(rgb, axis=1)
             y = rgb[:, 1] / np.sum(rgb, axis=1)
         else:
-            raise ValueError("bad colorspace")
+            raise ValueError(f"unknown colorspace {colorspace!r}, must be xy or rg")
 
         ax.plot(x, y, "ko")
 
@@ -1279,7 +1365,7 @@ def cie_primaries() -> np.ndarray:
     ``cie_primaries`` is a 3-vector with the wavelengths [m] of the
     CIE-1976 red, green and blue primaries respectively.
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -1321,8 +1407,13 @@ def _to_float(image: np.ndarray) -> np.ndarray:
     """
     if image.dtype == np.float64:
         return image
-    if np.issubdtype(image.dtype, np.integer) and image.dtype.type not in _INTEGER_IMAGE_TYPES:
-        raise ValueError(f"integer image data must be uint8 or uint16, not {image.dtype}")
+    if (
+        np.issubdtype(image.dtype, np.integer)
+        and image.dtype.type not in _INTEGER_IMAGE_TYPES
+    ):
+        raise ValueError(
+            f"integer image data must be uint8 or uint16, not {image.dtype}"
+        )
     return float_image(image, "float32")
 
 
@@ -1335,7 +1426,16 @@ def _from_float(x: np.ndarray, dtype: np.dtype) -> np.ndarray:
 
 # colorspaces whose values have natural units, not a 0 to 1 range: hue in degrees, L* from
 # 0 to 100, a* and b* that can be negative, and so on.  They are floating point only.
-_NATURAL_UNIT_SPACES = ("hsv", "hls", "lab", "l*a*b*", "luv", "l*u*v*", "xyz", "xyz_709")
+_NATURAL_UNIT_SPACES = (
+    "hsv",
+    "hls",
+    "lab",
+    "l*a*b*",
+    "luv",
+    "l*u*v*",
+    "xyz",
+    "xyz_709",
+)
 
 
 def _space_name(name: str) -> str:
@@ -1380,7 +1480,7 @@ def colorspace_convert(
     CIE L*u*v*                  ``'luv'``, ``'l*u*v*'``
     =======================     ========================
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -1408,7 +1508,7 @@ def colorspace_convert(
         spaces, and now gives float32 in natural units.  ``float64`` and ``uint16``
         images are accepted for every conversion.
 
-    :seealso: :func:`gamma_decode` `cv2.cvtColor <https://docs.opencv.org/4.x/d8/d01/group__imgproc__color__conversions.html#ga397ae87e1288a81d2363b61574eb8cab>`_
+    .. seealso:: :func:`gamma_decode` `cv2.cvtColor <https://docs.opencv.org/4.x/d8/d01/group__imgproc__color__conversions.html#ga397ae87e1288a81d2363b61574eb8cab>`_
     """
 
     operation = _convertflag(src, dst)
@@ -1460,7 +1560,9 @@ def colorspace_convert(
     if arr.ndim == 1:
         converted = converted.reshape(nplanes)
     elif arr.ndim == 2:
-        converted = converted.reshape(-1, nplanes) if nplanes > 1 else converted.reshape(-1)
+        converted = (
+            converted.reshape(-1, nplanes) if nplanes > 1 else converted.reshape(-1)
+        )
 
     if dst_natural:
         return converted.astype(out_dtype)
@@ -1586,15 +1688,16 @@ def gamma_encode(
           type as the input unless ``dtype`` is given, which converts and scales it.
           Integer results are rounded and clipped to their range.
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
+
+    - |RVC3|, Section 10.1.
 
     .. versionchanged:: 2.5.0
         Added the ``dtype`` argument.  The result now has the type of the input,
         where an integer image gave float32 or ``uint8``.  A 1D array is now
         accepted with the sRGB mapping.
 
-    :seealso: :func:`gamma_decode` :func:`colorspace_convert`
+    .. seealso:: :func:`gamma_decode` :func:`colorspace_convert`
     """
 
     if not isinstance(gamma, (int, float, str)):
@@ -1646,15 +1749,16 @@ def gamma_decode(
           type as the input unless ``dtype`` is given, which converts and scales it.
           Integer results are rounded and clipped to their range.
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
+
+    - |RVC3|, Section 10.1.
 
     .. versionchanged:: 2.5.0
         Added the ``dtype`` argument.  The result now has the type of the input,
         where ``uint16`` data gave ``uint8`` and ``float64`` data gave float32.  A 1D
         array is now accepted with the sRGB mapping.
 
-    :seealso: :func:`gamma_encode`
+    .. seealso:: :func:`gamma_encode`
     """
 
     if not isinstance(gamma, (int, float, str)):
@@ -1683,7 +1787,7 @@ def _srgb_inverse(Rg: np.ndarray) -> np.ndarray:
     - ``_srgb_imverse(Rg)`` maps an sRGB gamma encoded image to linear
         tristimulus values.
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -1695,9 +1799,9 @@ def _srgb_inverse(Rg: np.ndarray) -> np.ndarray:
 
     Rg = np.clip(Rg, 0, 1)
     a = 0.0404482362771076
-    return np.where(Rg <= a, Rg / 12.92, ((np.maximum(Rg, a) + 0.055) / 1.055) ** 2.4).astype(
-        Rg.dtype
-    )
+    return np.where(
+        Rg <= a, Rg / 12.92, ((np.maximum(Rg, a) + 0.055) / 1.055) ** 2.4
+    ).astype(Rg.dtype)
 
 
 def _srgb(R: np.ndarray) -> np.ndarray:
@@ -1712,7 +1816,7 @@ def _srgb(R: np.ndarray) -> np.ndarray:
     - ``_srgb(R)`` maps linear tristimulus values to an sRGB gamma encoded
         image.
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -1784,7 +1888,7 @@ def shadow_invariant(
     :type exp: bool, optional
     :param sharpen: a sharpening transform, defaults to None
     :type sharpen: ndarray(3,3), optional
-    :param primaries: camera peak filter responses (nm), defaults to None
+    :param primaries: peak wavelengths of the camera filters, in any units since only their ratios matter, defaults to None
     :type primaries: array_like(3), optional
     :return: greyscale shadow invariant image
     :rtype: ndarray(H,W)
@@ -1797,21 +1901,34 @@ def shadow_invariant(
     filters in the order red, green, blue.  If these aren't provided they
     default to 610, 538, and 460nm.
 
-    Example:
+    .. rubric:: Examples
 
-        >>> im = iread('parks.png', gamma='sRGB', dtype='double')
+    .. code-block:: pycon
+
+        >>> im, _ = iread('parks.png', gamma='sRGB', dtype='double')
+        >>> idisp(im)
         >>> gs = shadow_invariant(im, 0.7)
         >>> idisp(gs)
+
+    .. plot::
+
+        from machinevisiontoolbox import iread, idisp, shadow_invariant
+
+        im, _ = iread('parks.png', gamma='sRGB', dtype='double')
+        idisp(im)
+        gs = shadow_invariant(im, 0.7)
+        idisp(gs)
 
     .. note::
         - The input image is assumed to be linear, that is, it has been
           gamma decoded.
 
-    :references:
-        - “Dealing with shadows: Capturing intrinsic scene appear for image-based outdoor localisation,”
-          P. Corke, R. Paul, W. Churchill, and P. Newman
-          Proc. Int. Conf. Intelligent Robots and Systems (IROS), pp. 2085–2 2013.
-        - |RVC3|, Section 10.4.2.
+    .. rubric:: References
+
+    - “Dealing with shadows: Capturing intrinsic scene appear for image-based outdoor localisation,”
+      P. Corke, R. Paul, W. Churchill, and P. Newman
+      Proc. Int. Conf. Intelligent Robots and Systems (IROS), pp. 2085–2 2013.
+    - |RVC3|, Section 10.4.2.
     """
 
     # Convert the image into a vector (h*w,channel)
@@ -1852,16 +1969,15 @@ def shadow_invariant(
     if θ is None:
         # compute direction from the spectral peaks of the camera filters
         if primaries is None:
-            # Planckian illumination constant
-            c2 = 1.4388e-2
-
             #  spectral peaks of the Sony ICX204 sensor used in BB2 camera
             primaries = np.array([610, 538, 460]) * 1e-9
 
-            e_r = -c2 / primaries[0]
-            e_b = -c2 / primaries[2]
-            c = np.r_[e_b, -e_r]
-            c /= np.linalg.norm(c)
+        # Planckian illumination constant
+        c2 = 1.4388e-2
+        e_r = -c2 / primaries[0]
+        e_b = -c2 / primaries[2]
+        c = np.r_[e_b, -e_r]
+        c /= np.linalg.norm(c)
     else:
         # otherwise use the provided angle
         c = np.array([np.cos(θ), np.sin(θ)])
@@ -1901,7 +2017,7 @@ def esttheta(im: Any, sharpen: np.ndarray | None = None) -> float:
     .. note:: The user selects boundary points by clicking the mouse. After the
         last point, hit the Enter key and the region will be closed.
 
-    :seealso: :func:`shadow_invariant`
+    .. seealso:: :func:`shadow_invariant`
     """
 
     def pickregion(im: Any) -> np.ndarray:

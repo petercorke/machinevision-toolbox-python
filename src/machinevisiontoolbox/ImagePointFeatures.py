@@ -4,7 +4,8 @@ Detection and matching of keypoint and descriptor features (SIFT, ORB, etc.) in 
 
 import builtins
 import math
-from typing import TYPE_CHECKING, Any, Iterator
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, Any, Iterator, Self
 
 import cv2
 import matplotlib.lines as mlines
@@ -49,6 +50,7 @@ class BaseFeature2D:
         scale: bool = False,
         orient: bool = False,
         image: np.ndarray | None = None,
+        strength: bool = True,
     ) -> None:
         """
         Create set of 2D point features
@@ -61,6 +63,12 @@ class BaseFeature2D:
         :type scale: bool, optional
         :param orient: features have an inherent orientation, defaults to False
         :type orient: bool, optional
+        :param strength: features have a strength (detector response), defaults to True
+        :type strength: bool, optional
+
+        The :attr:`scale`, :attr:`orientation` and :attr:`strength` properties raise
+        ``ValueError`` for a set of features that does not have that quantity, for example
+        :attr:`orientation` of FAST features.
 
         A :class:`~machinevisiontoolbox.ImagePointFeatures.BaseFeature2D` object:
 
@@ -81,13 +89,51 @@ class BaseFeature2D:
 
         self._has_scale: bool = scale
         self._has_orient: bool = orient
+        self._has_strength: bool = strength
         self._image: Any = image
         self._feature_type: str | None = None
+        self._detector: str | None = None
         if kp is None:
             self._kp: list[cv2.KeyPoint] = []
         else:
             self._kp = list(kp)
         self._descriptor: np.ndarray | None = des
+
+    def _require(self, flag: bool, what: str) -> None:
+        """Raise ValueError if these features do not have ``what``"""
+        if not flag:
+            kind = self._feature_type or self.__class__.__name__
+            raise ValueError(f"{kind} features have no {what}")
+
+    def _like(self) -> Self:
+        """A new empty set of the same kind, with the metadata of this one
+
+        The flags that say which of scale, orientation and strength the features
+        have, the feature type and the image they came from are copied, so a set made
+        by slicing, adding or sorting keeps them.
+        """
+        new = self.__class__()
+        new._has_scale = self._has_scale
+        new._has_orient = self._has_orient
+        new._has_strength = self._has_strength
+        new._feature_type = self._feature_type
+        new._detector = self._detector
+        new._image = self._image
+        return new
+
+    @property
+    def _label(self) -> str:
+        """Name of the algorithm that makes these features, for display
+
+        A feature is a detected keypoint and its descriptor.  Most algorithms, such
+        as SIFT, provide both, so are named for the algorithm.  For a detector joined
+        to a different descriptor by :meth:`Image.ComboFeature` it is
+        ``"detector+descriptor"``, for example ``"FAST+BRIEF"``.
+        """
+        name = self._feature_type or self.__class__.__name__.removesuffix("Feature")
+        if self._detector is not None and self._detector != name:
+            name = f"{self._detector}+{name}"
+        return name
 
     def __len__(self) -> int:
         """
@@ -96,7 +142,7 @@ class BaseFeature2D:
         :return: number of features
         :rtype: int
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -105,23 +151,25 @@ class BaseFeature2D:
             >>> orb = img.ORB()
             >>> len(orb)  # number of features
 
-        :seealso: :meth:`.__getitem__`
+        .. seealso:: :meth:`.__getitem__`
         """
         return len(self._kp)  # Number of features (base method)
 
-    def __getitem__(self, i) -> "BaseFeature2D":
+    def __getitem__(
+        self, i: int | slice | Sequence[int] | np.ndarray
+    ) -> "BaseFeature2D":
         """
         Get item from point feature object (base method)
 
         :param i: index
-        :type i: int or slice
+        :type i: int, slice, sequence of int, or ndarray of int or bool
         :raises IndexError: index out of range
         :return: subset of point features
         :rtype: BaseFeature2D instance
 
         This method allows a ``BaseFeature2D`` object to be indexed, sliced or iterated.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -131,11 +179,9 @@ class BaseFeature2D:
             >>> print(orb[:5])  # first 5 ORB features
             >>> print(orb[::50])  # every 50th ORB feature
 
-        :seealso: :meth:`.__len__`
+        .. seealso:: :meth:`.__len__`
         """
-        new = self.__class__()  # Get item from point feature object (base method)
-        new._has_scale = self._has_scale
-        new._has_orient = self._has_orient
+        new = self._like()  # Get item from point feature object (base method)
         # compute canonical integer index list for both _kp and descriptor
         n = len(self)
         if isinstance(i, int):
@@ -170,11 +216,14 @@ class BaseFeature2D:
         :return: string representation
         :rtype: str
 
-        For a feature object of length one display the feature type, position,
+        For a feature object of length one display the algorithm, position,
         strength and id.  For a feature object with multiple features display
-        the feature type and number of features.
+        the algorithm and number of features.  A feature is a detected keypoint with
+        its descriptor.  The algorithm is named once if it provides both, for
+        example SIFT, and as ``"detector+descriptor"`` if they are different, for
+        example FAST+BRIEF, made by :meth:`Image.ComboFeature`.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -185,16 +234,15 @@ class BaseFeature2D:
             >>> orb[0]  # feature 0
         """
         if len(self) > 1:  # String representation of feature (base method)
-            return f"{self.__class__.__name__} features, {len(self)} points"
+            return f"{self._label} features, {len(self)} points"
         else:
-            s = (
-                f"{self.__class__.__name__}: ({self.u:.1f}, {self.v:.1f}),"
-                f" strength={self.strength:.2f}"
-            )
+            s = f"{self._label} feature: ({self.u:.1f}, {self.v:.1f}),"
+            if self._has_strength:
+                s += f" strength={self.strength:.2f}"
             if self._has_scale:
                 s += f", scale={self.scale:.1f}"
             if self._has_orient:
-                s += f", orient={self.orientation:.1f}°"
+                s += f", orient={np.degrees(self.orientation):.1f}°"
             s += f", id={self.id}"
             return s
 
@@ -205,7 +253,7 @@ class BaseFeature2D:
         :return: string representation
         :rtype: str
 
-        :seealso: :meth:`str`
+        .. seealso:: :meth:`str`
         """
         return str(self)  # Display features in readable form
 
@@ -219,17 +267,16 @@ class BaseFeature2D:
 
         Print the features in a simple format, one line per feature.
 
-        :seealso: :meth:`table`
+        .. seealso:: :meth:`table`
         """
         for i, f in enumerate(self):  # List matches
-            s = (
-                f"{self._feature_type} feature {i}: ({f.u:.1f}, {f.v:.1f}),"
-                f" strength={f.strength:.2f}"
-            )
+            s = f"{self._label} feature {i}: ({f.u:.1f}, {f.v:.1f}),"
+            if f._has_strength:
+                s += f" strength={f.strength:.2f}"
             if f._has_scale:
                 s += f", scale={f.scale:.1f}"
             if f._has_orient:
-                s += f", orient={f.orientation:.1f}°"
+                s += f", orient={np.degrees(f.orientation):.1f}°"
             s += f", id={f.id}"
             print(s)
 
@@ -240,13 +287,14 @@ class BaseFeature2D:
         Each row is in the table includes: the index in the feature vector,
         centroid coordinate, feature strength, feature scale and image id.
 
-        :seealso: ``str``
+        .. seealso:: ``str``
         """
         columns = [
             Column("#"),
             Column("centroid"),
-            Column("strength", fmt="{:.3g}"),
         ]  # Print features in tabular form
+        if self._has_strength:
+            columns.append(Column("strength", fmt="{:.3g}"))
         if self._has_scale:
             columns.append(Column("scale", fmt="{:.3g}"))
         if self._has_orient:
@@ -254,11 +302,13 @@ class BaseFeature2D:
         columns.append(Column("id", fmt="{:d}"))
         table = ANSITable(*columns, border="thin")
         for i, f in enumerate(self):
-            values = [f.strength]
+            values = []
+            if self._has_strength:
+                values.append(f.strength)
             if self._has_scale:
                 values.append(f.scale)
             if self._has_orient:
-                values.append(f.orientation)
+                values.append(np.degrees(f.orientation))
 
             table.row(i, f"{f.u:.1f}, {f.v:.1f}", *values, f.id)
         table.print()
@@ -280,7 +330,12 @@ class BaseFeature2D:
         .. warning:: Takes the first ``nfeat`` features in each grid cell, not the
             ``nfeat`` strongest.  Sort the features by strength to achieve this.
 
-        :seealso: :meth:`sort`
+        .. versionchanged:: 2.5.0
+            The result keeps the descriptors and the scale, orientation and strength
+            of the features, and a feature at the right or bottom edge of the image
+            no longer raises ``IndexError``.
+
+        .. seealso:: :meth:`sort`
         """
 
         try:  # Sort features into grid
@@ -292,21 +347,22 @@ class BaseFeature2D:
         image = self._image
         if image is None:
             raise ValueError("no image associated with features")
-        binwidth = image.width // nw
-        binheight = image.height // nh
 
-        keep = []
+        keep: list[int] = []
         bins = np.zeros((nh, nw), dtype="int")
 
-        for f in self:
-            ix = int(f.p[0].item() // binwidth)
-            iy = int(f.p[1].item() // binheight)
+        for i, f in enumerate(self):
+            # the last cell takes the pixels left over when the size is not a
+            # multiple of the number of cells
+            ix = min(int(f.p[0].item() * nw // image.width), nw - 1)
+            iy = min(int(f.p[1].item() * nh // image.height), nh - 1)
 
             if bins[iy, ix] < nfeat:
-                keep.append(f)
+                keep.append(i)
                 bins[iy, ix] += 1
 
-        return self.__class__(keep)
+        # indexing keeps the descriptors and the flags, as slicing does
+        return self[keep]
 
     def __add__(self, other: "BaseFeature2D | builtins.list | None") -> "BaseFeature2D":
         """
@@ -314,7 +370,8 @@ class BaseFeature2D:
 
         :param other: set of features
         :type other: :class:`BaseFeature2D`
-        :raises TypeError: _description_
+        :raises TypeError: ``other`` is not a feature set, ``[]`` or ``None``, or
+            the two sets are of different feature types
         :return: set of features
         :rtype: :class:`BaseFeature2D` instance
 
@@ -322,7 +379,15 @@ class BaseFeature2D:
         equal to ``None`` or ``[]`` it is interpreted as an empty feature
         set, this is useful in a loop for aggregating feature sets.
 
-        Example:
+        .. versionchanged:: 2.5.0
+            Adding something that is not a feature set, ``[]`` or ``None``
+            raises ``TypeError``.  It used to raise ``AssertionError``.
+
+        .. versionchanged:: 2.5.0
+            Adding a set that has no features keeps the descriptors of the other
+            set.  They used to be lost.
+
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -336,43 +401,59 @@ class BaseFeature2D:
             >>> orb = img2.ORB() + orb
             >>> orb
 
-        :seealso: :meth:`__radd__`
+        .. seealso:: :meth:`__radd__`
         """
         if other is None or (
             isinstance(other, list) and len(other) == 0
         ):  # Add feature sets
             return self
-        assert isinstance(
-            other, BaseFeature2D
-        ), f"cannot add {type(other)} to BaseFeature2D"
+        if not isinstance(other, BaseFeature2D):
+            raise TypeError(
+                f"cannot add {type(other).__name__} to a feature set, "
+                "only another feature set, [] or None"
+            )
         if self._feature_type != other._feature_type:
             raise TypeError(
                 "can't add different feature types:",
                 self._feature_type,
                 other._feature_type,
             )
-        new = self.__class__()
-        new._feature_type = self._feature_type
+        new = self._like()
         new._kp = self._kp + other._kp
         if self._descriptor is not None and other._descriptor is not None:
             new._descriptor = np.vstack((self._descriptor, other._descriptor))
+        elif len(other) == 0:
+            # an algorithm that finds no features has no descriptors, which
+            # must not remove those of the other set
+            new._descriptor = self._descriptor
+        elif len(self) == 0:
+            new._descriptor = other._descriptor
         return new
 
-    def __radd__(self, other) -> "BaseFeature2D":
+    def __radd__(
+        self, other: "BaseFeature2D | builtins.list | int | None"
+    ) -> "BaseFeature2D":
         """
         Add feature sets
 
         :param other: set of features
         :type other: :class:`BaseFeature2D`
-        :raises TypeError: _description_
+        :raises TypeError: ``other`` is not a feature set, ``[]``, ``None`` or ``0``
         :return: set of features
         :rtype: :class:`BaseFeature2D`
 
         Add two feature sets to form a new feature sets.  If ``other`` is
-        equal to ``None`` or ``[]`` it is interpreted as an empty feature
-        set, this is useful in a loop for aggregating feature sets.
+        equal to ``None``, ``[]`` or ``0`` it is interpreted as an empty feature
+        set, this is useful in a loop for aggregating feature sets.  The ``0``
+        is the starting value of the builtin :func:`sum`, so a list of
+        feature sets can be combined by ``sum(features)``.
 
-        Example:
+        .. versionchanged:: 2.5.0
+            ``None`` and ``0`` are accepted, and anything else raises
+            ``TypeError`` with a message.  It used to raise ``ValueError("bad")``,
+            and ``sum()`` of feature sets did not work.
+
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -385,13 +466,22 @@ class BaseFeature2D:
             >>> orb += img1.ORB()
             >>> orb += img2.ORB()
             >>> orb
+            >>> orb = sum([img1.ORB(), img2.ORB()])
+            >>> orb
 
-        :seealso: :meth:`__add__`
+        .. seealso:: :meth:`__add__`
         """
-        if isinstance(other, list) and len(other) == 0:  # Add feature sets
+        # an empty set, or the 0 that sum() starts with
+        if (
+            other is None
+            or (isinstance(other, list) and len(other) == 0)
+            or (isinstance(other, int) and not isinstance(other, bool) and other == 0)
+        ):
             return self
-        else:
-            raise ValueError("bad")
+        raise TypeError(
+            f"cannot add a feature set to {type(other).__name__}, "
+            "only to [], None or 0 (as the start of sum)"
+        )
 
     @property
     @scalar_result
@@ -402,7 +492,7 @@ class BaseFeature2D:
         :return: Horizontal coordinate
         :rtype: float or list of float
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -424,7 +514,7 @@ class BaseFeature2D:
         :return: Vertical coordinate
         :rtype: float or list of float
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -445,7 +535,7 @@ class BaseFeature2D:
         :return: image id
         :rtype: int or list of int
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -468,8 +558,14 @@ class BaseFeature2D:
 
         :return: Orientation in radians
         :rtype: float or list of float
+        :raises ValueError: if the features have no orientation, such as FAST or Harris
+            features
 
-        Example:
+        .. versionchanged:: 2.5.0
+            Raises ``ValueError`` if the features have no orientation. It used to return
+            a constant for a detector that has no orientation.
+
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -479,7 +575,7 @@ class BaseFeature2D:
             >>> orb[0].orientation
             >>> orb[:5].orientation
         """
-        # TODO should be in radians
+        self._require(self._has_orient, "orientation")
         return [np.radians(kp.angle) for kp in self._kp]
 
     @property
@@ -490,8 +586,13 @@ class BaseFeature2D:
 
         :return: Scale
         :rtype: float or list of float
+        :raises ValueError: if the features have no scale, such as FAST or Harris features
 
-        Example:
+        .. versionchanged:: 2.5.0
+            Raises ``ValueError`` if the features have no scale. It used to return the
+            keypoint size, which is a constant for a detector that has no scale.
+
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -501,6 +602,7 @@ class BaseFeature2D:
             >>> orb[0].scale
             >>> orb[:5].scale
         """
+        self._require(self._has_scale, "scale")
         return [kp.size for kp in self._kp]
 
     @property
@@ -511,8 +613,12 @@ class BaseFeature2D:
 
         :return: Strength
         :rtype: float or list of float
+        :raises ValueError: if the features have no strength
 
-        Example:
+        .. versionchanged:: 2.5.0
+            Raises ``ValueError`` if the features have no strength.
+
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -522,6 +628,7 @@ class BaseFeature2D:
             >>> orb[0].strength
             >>> orb[:5].strength
         """
+        self._require(self._has_strength, "strength")
         return [kp.response for kp in self._kp]
 
     @property
@@ -533,7 +640,7 @@ class BaseFeature2D:
         :return: scale space octave containing the feature
         :rtype: float or list of float
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -546,15 +653,14 @@ class BaseFeature2D:
         return [kp.octave for kp in self._kp]
 
     @property
-    @array_result
     def descriptor(self) -> np.ndarray | None:  # Descriptor of feature
         """
         Descriptor of feature
 
-        :return: Descriptor
-        :rtype: ndarray(N,M)
+        :return: Descriptor, or None if the features have no descriptors
+        :rtype: ndarray(N,M) or None
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -566,8 +672,17 @@ class BaseFeature2D:
             >>> orb[:5].descriptor.shape
 
         .. note:: For single feature return a 1D array vector, for multiple features return a set of column vectors.
+
+        .. versionchanged:: 2.5.0
+            Returns None, instead of raising ``TypeError``, if the features have
+            no descriptors.
         """
-        return self._descriptor
+        des = self._descriptor
+        if des is None:
+            return None
+        # a single feature gives a 1D vector, as array_result does for the
+        # other properties
+        return des[0] if len(des) == 1 else des
 
     @property
     @array_result
@@ -578,7 +693,7 @@ class BaseFeature2D:
         :return: Feature centroids as matrix columns
         :rtype: ndarray(2,N)
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -623,7 +738,7 @@ class BaseFeature2D:
         the closest match in row :math:`i` is the best matching feature to feature
         :math:`i`.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -639,7 +754,7 @@ class BaseFeature2D:
             - For the metric "ncc" the best match is the largest distance.  A value over
               0.8 is often considered to be a good match.
 
-        :seealso: :meth:`match`
+        .. seealso:: :meth:`match`
         """
         metric_dict = {"L1": 1, "L2": 2}  # Distance between feature sets
 
@@ -664,7 +779,6 @@ class BaseFeature2D:
                 else:
                     d = np.linalg.norm(des1[i, :] - des2[j, :], ord=metric_dict[metric])
                 D[i, j] = d
-                D[j, i] = d
         return D
 
     def match(
@@ -692,7 +806,8 @@ class BaseFeature2D:
         :type metric: str, optional
         :param sort: sort features by strength, defaults to True
         :type sort: bool, optional
-        :raises ValueError: bad metric name provided
+        :raises ValueError: bad metric name provided, or the two sets have different
+            kinds of descriptor, for example SIFT and ORB
         :return: set of candidate matches
         :rtype: :class:`FeatureMatch` instance
 
@@ -705,7 +820,7 @@ class BaseFeature2D:
             error, which is why this is auto-selected rather than left for
             the caller to always remember.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -715,7 +830,7 @@ class BaseFeature2D:
             >>> m = orb1.match(orb2)
             >>> len(m)
 
-        :seealso: :class:`FeatureMatch` :meth:`distance`
+        .. seealso:: :class:`FeatureMatch` :meth:`distance`
         """
 
         # TODO: implement thresh  # Match point features
@@ -731,8 +846,19 @@ class BaseFeature2D:
         # sorting
         # return
 
+        des1 = self.descriptor
+        des2 = other.descriptor
+        if des1 is None or des2 is None:
+            raise ValueError("features have no descriptors")
+        if des1.dtype != des2.dtype or des1.shape[1] != des2.shape[1]:
+            raise ValueError(
+                "cannot match features with different kinds of descriptor: "
+                f"{self._feature_type} ({des1.shape[1]} {des1.dtype}) and "
+                f"{other._feature_type} ({des2.shape[1]} {des2.dtype})"
+            )
+
         if metric is None:
-            metric = "hamming" if self.descriptor.dtype == np.uint8 else "L2"
+            metric = "hamming" if des1.dtype == np.uint8 else "L2"
 
         metricdict = {
             "L1": cv2.NORM_L1,
@@ -755,7 +881,7 @@ class BaseFeature2D:
         else:
             k = 2
 
-        matches0 = bf.knnMatch(self.descriptor, other.descriptor, k=k)
+        matches0 = bf.knnMatch(des1, des2, k=k)
 
         # the elements of matches are:
         #  queryIdx: first feature set (self)
@@ -803,7 +929,7 @@ class BaseFeature2D:
         Return ``N`` features selected in constant steps from the input feature
         vector, ie. feature 0, s, 2s, etc.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -818,6 +944,7 @@ class BaseFeature2D:
         k = k[:N]
         new = self[k]
         new._feature_type = self._feature_type
+        new._detector = self._detector
         return new
 
     def sort(
@@ -833,7 +960,7 @@ class BaseFeature2D:
         :return: sorted features
         :rtype: :class:`BaseFeature2D` instance
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -866,11 +993,10 @@ class BaseFeature2D:
             if self._descriptor is not None:
                 self._descriptor = np.take(self._descriptor, sorted_index, axis=0)
         else:
-            new = self.__class__()
+            new = self._like()
             new._kp = [self._kp[i] for i in sorted_index]
             if self._descriptor is not None:
                 new._descriptor = np.take(self._descriptor, sorted_index, axis=0)
-            new._feature_type = self._feature_type
             return new
         return None
 
@@ -888,7 +1014,7 @@ class BaseFeature2D:
         The support region about the feature's centroid is extracted,
         rotated and scaled.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -953,7 +1079,7 @@ class BaseFeature2D:
         nstrongest       N                   strength
         ===============  ==================  ===================================
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -984,7 +1110,7 @@ class BaseFeature2D:
                 k = (limits[0] <= v) & (v <= limits[1])
             elif filter == "minstrength":
                 v = features.strength
-                k = limits >= v
+                k = v >= limits
             elif filter == "percentstrength":
                 v = features.strength
                 vmax = v.max()
@@ -1021,7 +1147,7 @@ class BaseFeature2D:
 
         If ``image`` is None then the keypoints are rendered over a black background.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1230,8 +1356,8 @@ class BaseFeature2D:
                     )
                     draw_line(
                         img,
-                        (centre[0], circum[0]),
-                        (centre[1], circum[1]),
+                        centre,
+                        circum,
                         color=handcolor,
                         thickness=handthickness,
                     )
@@ -1308,7 +1434,21 @@ class BaseFeature2D:
 
 
 class FeatureMatch:
-    def __init__(self, m, fv1: BaseFeature2D, fv2: BaseFeature2D, inliers=None) -> None:
+    """
+    A set of matches between two sets of point features
+
+    Returned by :meth:`BaseFeature2D.match`.  It can be indexed, sliced and
+    iterated over, and has the corresponding points ``p1`` and ``p2`` and the
+    match ``distance``.  Inlier and outlier status is set by :meth:`estimate`.
+    """
+
+    def __init__(
+        self,
+        m: list[tuple[int, int, float]],
+        fv1: BaseFeature2D,
+        fv2: BaseFeature2D,
+        inliers: Sequence[bool] | np.ndarray | None = None,
+    ) -> None:
         """
         Create feature match object
 
@@ -1336,28 +1476,33 @@ class FeatureMatch:
         .. note:: This constructor would not be called directly, it is used by the
             ``match`` method of the :class:`BaseFeature2D` subclass.
 
-        :seealso: :obj:`BaseFeature2D.match` `cv2.KeyPoint <https://docs.opencv.org/4.5.2/d2/d29/classcv_1_1KeyPoint.html#a507d41b54805e9ee5042b922e68e4372>`_
+        .. seealso:: :obj:`BaseFeature2D.match` `cv2.KeyPoint <https://docs.opencv.org/4.5.2/d2/d29/classcv_1_1KeyPoint.html#a507d41b54805e9ee5042b922e68e4372>`_
         """
         self._matches = m
         self._kp1 = fv1
         self._kp2 = fv2
-        self._inliers = inliers
+        # always an ndarray of bool, or None if the status has not been set
+        self._inliers: np.ndarray | None = (
+            None if inliers is None else np.asarray(inliers, dtype=bool)
+        )
         self._inverse_dict1: dict[int, int] | None = None
         self._inverse_dict2: dict[int, int] | None = None
 
-    def __getitem__(self, i) -> "FeatureMatch":
+    def __getitem__(
+        self, i: int | slice | Sequence[int] | np.ndarray
+    ) -> "FeatureMatch":
         """
         Get matches from feature match object
 
         :param i: match subset
-        :type i: int or Slice
+        :type i: int, slice, sequence of int, or ndarray of int or bool
         :raises IndexError: index out of range
         :return: subset of matches
         :rtype: Match instance
 
         Allow indexing, slicing or iterating over the set of matches
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1368,30 +1513,35 @@ class FeatureMatch:
             >>> matches[:5]  # first 5 matches
             >>> matches[0]   # first match
 
-        :seealso: :meth:`.__len__`
+        .. seealso:: :meth:`.__len__`
         """
-        inliers = None
+        if not isinstance(i, (int, slice, np.ndarray)):
+            if isinstance(i, (str, bytes)) or not isinstance(i, Sequence):
+                raise ValueError(
+                    f"index must be an int, slice, sequence or array, got {type(i).__name__}"
+                )
+            # a list or tuple of ints or bools
+            i = np.asarray(i)
+            if i.size == 0:
+                i = i.astype(int)
+
         if isinstance(i, int):
             matches = [self._matches[i]]
-            if self._inliers is not None:
-                inliers = self._inliers[i]
+            select: Any = [i]
         elif isinstance(i, slice):
             matches = self._matches[i]
-            if self._inliers is not None:
-                inliers = self._inliers[i]
-        elif isinstance(i, np.ndarray):
-            if np.issubdtype(i.dtype, bool):
-                matches = [m for m, g in zip(self._matches, i) if g]
-                if self._inliers is not None:
-                    inliers = [m for m, g in zip(self._inliers, i) if g]
-            elif np.issubdtype(i.dtype, np.integer):
-                matches = [self._matches[k] for k in i]
-                if self._inliers is not None:
-                    inliers = [self._inliers[k] for k in i]
-            else:
-                raise ValueError("bad index dtype")
+            select = i
+        elif np.issubdtype(i.dtype, bool):
+            matches = [m for m, g in zip(self._matches, i) if g]
+            select = i
+        elif np.issubdtype(i.dtype, np.integer):
+            matches = [self._matches[k] for k in i]
+            select = i
         else:
-            raise ValueError("bad index")
+            raise ValueError(f"index array must be integer or bool, got {i.dtype}")
+
+        # indexing the array keeps the inlier status an ndarray, whatever the index
+        inliers = None if self._inliers is None else self._inliers[select]
         return FeatureMatch(matches, self._kp1, self._kp2, inliers)
 
     def __len__(self) -> int:
@@ -1401,7 +1551,7 @@ class FeatureMatch:
         :return: number of matches
         :rtype: int
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1411,7 +1561,7 @@ class FeatureMatch:
             >>> matches = orb1.match(orb2)
             >>> len(matches)
 
-        :seealso: :meth:`.__getitem__`
+        .. seealso:: :meth:`.__getitem__`
         """
         return len(self._matches)
 
@@ -1425,7 +1575,7 @@ class FeatureMatch:
         Return the correspondences as an array where each column contains
         the index into the first and second feature sets.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1461,7 +1611,7 @@ class FeatureMatch:
             - Useful when features in the sets come from multiple images and
               ``id`` is used to indicate the source image.
 
-        :seealso: :class:`BaseFeature2D` :obj:`BaseFeature2D.id` :meth:`by_id2`
+        .. seealso:: :class:`BaseFeature2D` :obj:`BaseFeature2D.id` :meth:`by_id2`
         """
         if self._inverse_dict1 is None:
             # first call, build a dict for efficient mapping
@@ -1498,7 +1648,7 @@ class FeatureMatch:
             - Useful when features in the sets come from multiple images and
               ``id`` is used to indicate the source image.
 
-        :seealso: :class:`BaseFeature2D` :obj:`BaseFeature2D.id` :meth:`by_id1`
+        .. seealso:: :class:`BaseFeature2D` :obj:`BaseFeature2D.id` :meth:`by_id1`
         """
         if self._inverse_dict2 is None:
             # first call, build a dict for efficient mapping
@@ -1522,7 +1672,7 @@ class FeatureMatch:
         indices and distance metric.  For multiple correspondences, show
         summary data.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1535,15 +1685,18 @@ class FeatureMatch:
         """
 
         if len(self) == 1:
+            # p1 and p2 are 1D arrays when there is a single match
+            p1 = np.ravel(self.p1)
+            p2 = np.ravel(self.p2)
             return (
-                f"{self.status} {self.distance:6.2f}: ({self.p1[0, 0]:.1f},"
-                f" {self.p1[1, 0]:.1f}) <--> ({self.p2[0, 0]:.1f}, {self.p2[1, 0]:.1f})"
+                f"{self.status} {self.distance:6.2f}: ({p1[0]:.1f},"
+                f" {p1[1]:.1f}) <--> ({p2[0]:.1f}, {p2[1]:.1f})"
             )
         else:
             s = f"{len(self)} matches"
             if self._inliers is not None:
                 ninlier = sum(self._inliers)
-                s += f", with {ninlier} ({ninlier/len(self)*100:.1f}%) inliers"
+                s += f", with {ninlier} ({ninlier / len(self) * 100:.1f}%) inliers"
             return s
 
     def __repr__(self) -> str:
@@ -1557,7 +1710,7 @@ class FeatureMatch:
         indices and distance metric.  For multiple correspondences, show
         summary data.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1572,17 +1725,23 @@ class FeatureMatch:
 
     @property
     @scalar_result
-    def status(self) -> str:
+    def status(self) -> "builtins.list[str]":
         """
         Inlier status of matches
 
-        :return: inlier status of matches
-        :rtype: bool
+        :return: ``"+"`` for an inlier and ``"-"`` for an outlier, or ``""`` if the
+            status has not been set
+        :rtype: str or ndarray(N) of str
+
+        A single string for one match, otherwise an array with one string per match.
+
+        .. versionchanged:: 2.5.0
+            Works for more than one match.  It used to raise ``ValueError``.
         """
         if self._inliers is not None:
-            return "+" if self._inliers else "-"
+            return ["+" if inlier else "-" for inlier in self._inliers]
         else:
-            return ""
+            return [""] * len(self)
 
     def list(self) -> None:
         """
@@ -1590,7 +1749,7 @@ class FeatureMatch:
 
         Print the matches in a simple format, one line per match.
 
-        :seealso: :meth:`table`
+        .. seealso:: :meth:`table`
         """
         for i, m in enumerate(self._matches):
             # TODO shouldn't have to flatten
@@ -1613,7 +1772,7 @@ class FeatureMatch:
         Each row in the table includes: the index of the match, inlier/outlier
         status, match strength, feature coordinates.
 
-        :seealso: :meth:`__str__`
+        .. seealso:: :meth:`__str__`
         """
         columns = [
             Column("#"),
@@ -1653,7 +1812,7 @@ class FeatureMatch:
             algorithm that applies a geometric constraint to the sets of
             putative matches.
 
-        :seealso: :obj:`CentralCamera.points2F`
+        .. seealso:: :obj:`CentralCamera.points2F`
         """
         if self._inliers is None:
             raise ValueError("inlier status has not been set")
@@ -1671,7 +1830,7 @@ class FeatureMatch:
             algorithm that applies a geometric constraint to the sets of
             putative matches.
 
-        :seealso: :obj:`entralCamera.points2F`
+        .. seealso:: :obj:`entralCamera.points2F`
         """
         if self._inliers is None:
             raise ValueError("inlier status has not been set")
@@ -1748,6 +1907,18 @@ class FeatureMatch:
     def plot_correspondence(
         self, *arg: Any, offset: tuple[int | float, int | float] = (0, 0), **kwargs: Any
     ) -> None:
+        """
+        Plot lines joining corresponding points
+
+        :param arg: line style passed to Matplotlib, for example ``"g"``
+        :param offset: offset (u,v) added to the points of the second set, for example
+            the width of the first image when the two are shown side by side,
+            defaults to (0, 0)
+        :param kwargs: options passed to :func:`matplotlib.pyplot.plot`
+
+        Draws a line from each point in the first set to its match in the second
+        set, in the current figure.
+        """
         p1 = self.p1
         p2 = self.p2
         plt.plot(
@@ -1761,10 +1932,51 @@ class FeatureMatch:
     def estimate(
         self, func: Any, method: str = "ransac", **args: Any
     ) -> tuple[Any, ...]:
-        solution = func(self.p1, self.p2, method=method, **args)
-        self._inliers = solution[-1]
+        """
+        Estimate a geometric relationship from the matches
 
-        return solution[:-1]
+        :param func: estimation function, for example
+            :meth:`~machinevisiontoolbox.Camera.CentralCamera.points2F` or
+            :meth:`~machinevisiontoolbox.Camera.CentralCamera.points2H`
+        :param method: robust estimation method passed to ``func``, defaults to ``"ransac"``
+        :param args: further options passed to ``func``
+        :return: the estimate and any other values that ``func`` returns, but not
+            the inlier mask if there is one
+
+        Calls ``func(p1, p2, method=method, **args)`` with the corresponding points.
+        If the last value that ``func`` returns is an inlier mask, a boolean array
+        with one element per match, which the robust methods ``"ransac"`` and
+        ``"lmeds"`` return, it is kept as the inlier status of the matches (see
+        :attr:`inliers` and :attr:`outliers`) and is not returned. Otherwise, for
+        example with ``method="8p"``, everything that ``func`` returns is returned and
+        the inlier status is cleared.
+
+        .. versionchanged:: 2.5.0
+            A non-robust method used to lose its last return value (the residual, or
+            the estimate itself if there was no residual) and leave it as the inlier
+            status.
+
+        .. rubric:: Examples
+
+        .. code-block:: python
+
+            F, resid = matches.estimate(CentralCamera.points2F, method="ransac", confidence=0.95)
+        """
+        solution = func(self.p1, self.p2, method=method, **args)
+        if not isinstance(solution, (tuple, list)):
+            solution = (solution,)  # a single value
+
+        last = solution[-1]
+        if (
+            isinstance(last, np.ndarray)
+            and last.dtype == bool
+            and last.shape == (len(self),)
+        ):
+            self._inliers = last
+            return tuple(solution[:-1])
+        else:
+            self._inliers = None  # no mask, so any earlier one no longer applies
+            return tuple(solution)
 
     @property
     @scalar_result
@@ -1775,7 +1987,7 @@ class FeatureMatch:
         :return: _description_
         :rtype: float or ndarray(N)
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1797,7 +2009,7 @@ class FeatureMatch:
         :return: feature coordinate
         :rtype: ndarray(2) or ndarray(2,N)
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1819,7 +2031,7 @@ class FeatureMatch:
         :return: feature coordinate
         :rtype: ndarray(2) or ndarray(2,N)
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1834,14 +2046,14 @@ class FeatureMatch:
 
     @property
     @array_result
-    def descriptor1(self) -> "builtins.list[np.ndarray]":
+    def descriptor1(self) -> "builtins.list[np.ndarray | None]":
         """
         Feature descriptor in first image
 
         :return: feature descriptor
         :rtype: ndarray(M) or ndarray(N,M)
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1856,14 +2068,14 @@ class FeatureMatch:
 
     @property
     @array_result
-    def descriptor2(self) -> "builtins.list[np.ndarray]":
+    def descriptor2(self) -> "builtins.list[np.ndarray | None]":
         """
         Feature descriptor in second image
 
         :return: feature descriptor
         :rtype: ndarray(M) or ndarray(N,M)
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1885,7 +2097,7 @@ class FeatureMatch:
         :return: feature id
         :rtype: int or ndarray(N)
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -1907,7 +2119,7 @@ class FeatureMatch:
         :return: feature id
         :rtype: int or ndarray(N)
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2105,31 +2317,36 @@ def _SURF_create(**kwargs: Any) -> Any:
 # -------------------------------------------------------------------------
 
 
+def _set_keypoint_ids(kp: list, image: Any, id: str | int) -> None:
+    """Set the ``class_id`` of each keypoint, as the ``id`` argument of the features says"""
+    if id == "image":
+        if image.id is not None:
+            # copy image id into the keypoints
+            for k in kp:
+                k.class_id = image.id
+    elif id == "index":
+        for i, k in enumerate(kp):
+            k.class_id = i
+    elif isinstance(id, int):
+        for k in kp:
+            k.class_id = id
+    else:
+        raise ValueError(f"id must be 'image', 'index' or an int, got {id!r}")
+
+
 class ImagePointFeaturesMixin(ImageMixinBase):
+    """
+    Methods of :class:`Image` that find point features, such as SIFT, ORB and Harris
+    """
+
     def _image2feature(
         self,
-        cls,
-        sortby=None,
-        nfeat=None,
-        id="image",
-        scale=False,
-        orient=False,
-        **kwargs,
+        cls: type[BaseFeature2D],
+        sortby: str | None = None,
+        nfeat: int | None = None,
+        id: str | int = "image",
+        **kwargs: Any,
     ) -> Any:
-        # https://datascience.stackexchange.com/questions/43213/freak-feature-extraction-opencv
-        algorithms: dict[str, Any] = {
-            "SIFT": getattr(cv2, "SIFT_create"),
-            "SURF": _SURF_create,
-            "ORB": getattr(cv2, "ORB_create"),
-            "Harris": _Harris_create,
-            # resolved only when used, so that a detector missing from this OpenCV
-            # (OpenCV 5 without the contrib modules) does not break the others
-            "BRISK": lambda **kw: _resolve_feature_create("BRISK")(**kw),
-            "AKAZE": lambda **kw: _resolve_feature_create("AKAZE")(**kw),
-            # 'FREAK': (cv2.FREAK_create, FREAKFeature),
-            # 'DAISY': (cv2.DAISY_create, DAISYFeature),
-        }
-
         # check if image is valid
         # TODO, MSER can handle color
         image = self.mono()
@@ -2137,28 +2354,19 @@ class ImagePointFeaturesMixin(ImageMixinBase):
         # get a reference to the appropriate detector
         algorithm = cls.__name__.replace("Feature", "")
         try:
-            detector = algorithms[algorithm](**kwargs)
+            factory, has_scale, has_orient = _DETECTORS[algorithm]
         except KeyError:
-            raise ValueError("bad algorithm specified")
+            raise ValueError("bad algorithm specified") from None
+
+        # every keyword argument belongs to the detector, none is claimed here
+        detector = factory(**kwargs)
 
         kp, des = detector.detectAndCompute(image._A, mask=None)
 
         # kp is a list of N KeyPoint objects
         # des is NxM ndarray of keypoint descriptors
 
-        if id == "image":
-            if image.id is not None:
-                # copy image id into the keypoints
-                for k in kp:
-                    k.class_id = image.id
-        elif id == "index":
-            for i, k in enumerate(kp):
-                k.class_id = i
-        elif isinstance(id, int):
-            for k in kp:
-                k.class_id = id
-        else:
-            raise ValueError("bad id")
+        _set_keypoint_ids(kp, image, id)
 
         # do sorting in here
 
@@ -2167,7 +2375,7 @@ class ImagePointFeaturesMixin(ImageMixinBase):
             des = des[:nfeat, :]
 
         # construct a new Feature2DBase subclass
-        features = cls(kp, des, scale=scale, orient=orient)
+        features = cls(kp, des, scale=has_scale, orient=has_orient)
 
         # add attributes
         features._feature_type = algorithm
@@ -2190,7 +2398,7 @@ class ImagePointFeaturesMixin(ImageMixinBase):
         Returns an iterable and sliceable object that contains SIFT features and
         descriptors.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2200,17 +2408,27 @@ class ImagePointFeaturesMixin(ImageMixinBase):
             >>> len(sift)  # number of features
             >>> print(sift[:5])
 
-        :references:
-            - Distinctive image features from scale-invariant keypoints.
-              David G. Lowe
-              Int. J. Comput. Vision, 60(2):91–110, November 2004.
-            - |RVC3|, Section 14.1.
+        .. plot::
+
+            from machinevisiontoolbox import Image
+
+            img = Image.Read("eiffel-1.png")
+            img.disp()
+            sift = img.SIFT()
+            sift.plot()
+
+        .. rubric:: References
+
+        - Distinctive image features from scale-invariant keypoints.
+          David G. Lowe
+          Int. J. Comput. Vision, 60(2):91–110, November 2004.
+        - |RVC3|, Section 14.1.
 
 
-        :seealso: :class:`SIFTFeature` `cv2.SIFT_create <https://docs.opencv.org/4.5.2/d7/d60/classcv_1_1SIFT.html>`_
+        .. seealso:: :class:`SIFTFeature` `cv2.SIFT_create <https://docs.opencv.org/4.5.2/d7/d60/classcv_1_1SIFT.html>`_
         """
 
-        return self._image2feature(SIFTFeature, scale=True, orient=True, **kwargs)
+        return self._image2feature(SIFTFeature, **kwargs)
 
     def SURF(self, **kwargs: Any) -> "SURFFeature":
         """
@@ -2235,26 +2453,27 @@ class ImagePointFeaturesMixin(ImageMixinBase):
             PyPI are not.  If it is not available this method raises an exception that
             says so.  :meth:`SIFT` is a freely available alternative.
 
-        Example:
+        .. rubric:: Examples
 
-        .. code-block:: python
+        .. code-block:: pycon
 
             >>> from machinevisiontoolbox import Image
             >>> img = Image.Read("eiffel-1.png")
             >>> surf = img.SURF()
             >>> len(surf)  # number of features
 
-        :references:
-            - SURF: Speeded up robust features.
-              Herbert Bay, Tinne Tuytelaars, and Luc Van Gool.
-              In European Conference on Computer Vision (ECCV), 2006.
-            - |RVC3|, Section 14.1.
+        .. rubric:: References
 
-        :seealso: :class:`SURFFeature` :meth:`SIFT` `cv2.xfeatures2d.SURF_create <https://docs.opencv.org/4.x/d5/df7/classcv_1_1xfeatures2d_1_1SURF.html>`_
+        - SURF: Speeded up robust features.
+          Herbert Bay, Tinne Tuytelaars, and Luc Van Gool.
+          In European Conference on Computer Vision (ECCV), 2006.
+        - |RVC3|, Section 14.1.
+
+        .. seealso:: :class:`SURFFeature` :meth:`SIFT` `cv2.xfeatures2d.SURF_create <https://docs.opencv.org/4.x/d5/df7/classcv_1_1xfeatures2d_1_1SURF.html>`_
 
         .. versionadded:: 2.5.0
         """
-        return self._image2feature(SURFFeature, scale=True, orient=True, **kwargs)
+        return self._image2feature(SURFFeature, **kwargs)
 
     def ORB(self, scoreType: str = "harris", **kwargs: Any) -> "ORBFeature":
         """
@@ -2271,7 +2490,7 @@ class ImagePointFeaturesMixin(ImageMixinBase):
         Returns an iterable and sliceable object that contains 2D features with
         properties.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2281,12 +2500,23 @@ class ImagePointFeaturesMixin(ImageMixinBase):
             >>> len(orb)  # number of features
             >>> print(orb[:5])
 
-        :seealso: :class:ORBFeature`, `cv2.ORB_create <https://docs.opencv.org/4.5.2/db/d95/classcv_1_1ORB.html>`_
+        .. plot::
+
+            from machinevisiontoolbox import Image
+
+            img = Image.Read("eiffel-1.png")
+            img.disp()
+            orb = img.ORB()
+            orb.plot()
+
+        .. seealso:: :class:ORBFeature`, `cv2.ORB_create <https://docs.opencv.org/4.5.2/db/d95/classcv_1_1ORB.html>`_
         """
 
         scoreoptions = {"harris": cv2.ORB_HARRIS_SCORE, "fast": cv2.ORB_FAST_SCORE}
         return self._image2feature(
-            ORBFeature, scoreType=scoreoptions[scoreType], **kwargs
+            ORBFeature,
+            scoreType=scoreoptions[scoreType],
+            **kwargs,
         )
 
     def BRISK(self, **kwargs: Any) -> "BRISKFeature":
@@ -2304,7 +2534,7 @@ class ImagePointFeaturesMixin(ImageMixinBase):
         Returns an iterable and sliceable object that contains BRISK features and
         descriptors.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2314,13 +2544,23 @@ class ImagePointFeaturesMixin(ImageMixinBase):
             >>> len(brisk)  # number of features
             >>> print(brisk[:5])
 
-        :references:
-            - Brisk: Binary robust invariant scalable keypoints.
-              Stefan Leutenegger, Margarita Chli, and Roland Yves Siegwart.
-              In Computer Vision (ICCV), 2011 IEEE International Conference on,
-              pages 2548–2555. IEEE, 2011.
+        .. plot::
 
-        :seealso: :class:`BRISKFeature` `cv2.BRISK_create <https://docs.opencv.org/4.5.2/d7/d60/classcv_1_1BRISK.html>`_
+            from machinevisiontoolbox import Image
+
+            img = Image.Read("eiffel-1.png")
+            img.disp()
+            brisk = img.BRISK()
+            brisk.plot()
+
+        .. rubric:: References
+
+        - Brisk: Binary robust invariant scalable keypoints.
+          Stefan Leutenegger, Margarita Chli, and Roland Yves Siegwart.
+          In Computer Vision (ICCV), 2011 IEEE International Conference on,
+          pages 2548–2555. IEEE, 2011.
+
+        .. seealso:: :class:`BRISKFeature` `cv2.BRISK_create <https://docs.opencv.org/4.5.2/d7/d60/classcv_1_1BRISK.html>`_
         """
         return self._image2feature(BRISKFeature, **kwargs)
 
@@ -2339,7 +2579,7 @@ class ImagePointFeaturesMixin(ImageMixinBase):
         Returns an iterable and sliceable object that contains AKAZE features and
         descriptors.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2349,12 +2589,23 @@ class ImagePointFeaturesMixin(ImageMixinBase):
             >>> len(akaze)  # number of features
             >>> print(akaze[:5])
 
-        :references:
-            - Fast explicit diffusion for accelerated features in nonlinear scale spaces.
-              Pablo F Alcantarilla, Jesús Nuevo, and Adrien Bartoli.
-              Trans. Pattern Anal. Machine Intell, 34(7):1281–1298, 2011.
+        .. plot::
 
-        :seealso:
+            from machinevisiontoolbox import Image
+
+            img = Image.Read("eiffel-1.png")
+            img.disp()
+            akaze = img.AKAZE()
+            akaze.plot()
+
+        .. rubric:: References
+
+        - Fast explicit diffusion for accelerated features in nonlinear scale spaces.
+          Pablo F Alcantarilla, Jesús Nuevo, and Adrien Bartoli.
+          Trans. Pattern Anal. Machine Intell, 34(7):1281–1298, 2011.
+
+        .. seealso::
+
             :class:`~machinevisiontoolbox.ImagePointFeatures.AKAZEFeature`
             `cv2.AKAZE <https://docs.opencv.org/4.5.2/d7/d60/classcv_1_1AKAZE.html>`_
         """
@@ -2389,7 +2640,7 @@ class ImagePointFeaturesMixin(ImageMixinBase):
         Returns an iterable and sliceable object that contains Harris features and
         descriptors.
 
-        Example:
+        .. rubric:: Examples
 
         .. runblock:: pycon
 
@@ -2399,76 +2650,257 @@ class ImagePointFeaturesMixin(ImageMixinBase):
             >>> len(harris)  # number of features
             >>> print(harris[:5])
 
+        .. plot::
+
+            from machinevisiontoolbox import Image
+
+            img = Image.Read("eiffel-1.png")
+            img.disp()
+            harris = img.Harris()
+            harris.plot()
+
         .. note:: The Harris corner detector and descriptor is not part of
             OpenCV and has been custom written for pedagogical purposes.
 
-        :references:
-            - A combined corner and edge detector.
-              CG Harris, MJ Stephens
-              Proceedings of the Fourth Alvey Vision Conference, 1988
-              Manchester, pp 147–151
-            - |RVC3|, Section 12.3.1.
+        .. rubric:: References
 
-        :seealso: :class:`HarrisFeature`
+        - A combined corner and edge detector.
+          CG Harris, MJ Stephens
+          Proceedings of the Fourth Alvey Vision Conference, 1988
+          Manchester, pp 147–151
+        - |RVC3|, Section 12.3.1.
+
+        .. seealso:: :class:`HarrisFeature`
         """
         return self._image2feature(HarrisFeature, **kwargs)
 
     def ComboFeature(
         self,
-        detector: Any,
-        descriptor: Any,
-        det_opts: dict[str, Any],
-        des_opts: dict[str, Any],
+        detector: str,
+        descriptor: str,
+        det_opts: dict[str, Any] | None = None,
+        des_opts: dict[str, Any] | None = None,
+        nfeat: int | None = None,
+        id: str | int = "image",
     ) -> BaseFeature2D:
         """
-        Combination feature detector and descriptor
+        Find features using one algorithm to detect and another to describe
 
-        :param detector: detector name
-        :type detector: str
-        :param descriptor: descriptor name
-        :type descriptor: str
-        :param det_opts: options for detector
-        :type det_opts: dict
-        :param des_opts: options for descriptor
+        :param detector: name of the detector, one of ``"FAST"``, ``"AGAST"``,
+            ``"GFTT"``, ``"Harris"``, ``"SIFT"``, ``"ORB"``, ``"BRISK"`` or
+            ``"AKAZE"``
+        :param descriptor: name of the descriptor, one of ``"SIFT"``, ``"ORB"``,
+            ``"BRISK"``, ``"AKAZE"``, ``"FREAK"``, ``"BRIEF"``, ``"DAISY"``,
+            ``"LATCH"``, ``"LUCID"`` or ``"BOOST"``
+        :param det_opts: options passed to the detector, defaults to None
+        :param des_opts: options passed to the descriptor, defaults to None
+        :param nfeat: keep at most this many of the strongest keypoints, defaults to
+            None, which keeps all of them.  A few can be lost, because a descriptor
+            needs a margin of image around a keypoint
+        :param id: what to put in each keypoint's ``id``: ``"image"`` (the image id),
+            ``"index"`` (0, 1, ...) or an int, defaults to ``"image"``
+        :raises ValueError: unknown detector or descriptor, a pair that cannot be
+            combined, or a descriptor that needs a color image given a greyscale one
         :return: set of 2D point features
         :rtype: :class:`BaseFeature2D` subclass
 
-        Detect corner features using the specified detector ``detector`` and
-        describe them using the specified descriptor ``descriptor``.  A large
-        number of possible combinations are possible.
+        Detect keypoints with ``detector`` and describe each one with ``descriptor``.
+        Most detectors, such as FAST, find corners but give no description of them,
+        and most descriptors, such as BRIEF, describe the image around a keypoint
+        but do not find one.  This method joins any detector to almost any
+        descriptor.  There are 8 detectors and 10 descriptors, which is
+        73 combinations that work out of 80:
 
-        .. warning:: Incomplete
+        +------------+-----------------------------------------------------------+
+        | descriptor |                          detector                         |
+        |            +------+-------+------+--------+------+-----+-------+-------+
+        |            | FAST | AGAST | GFTT | Harris | SIFT | ORB | BRISK | AKAZE |
+        +============+======+=======+======+========+======+=====+=======+=======+
+        |  **SIFT**  |  ✓   |   ✓   |  ✓   |   ✓    |  ✔   |  ✓  |   ✓   |   ✓   |
+        +------------+------+-------+------+--------+------+-----+-------+-------+
+        |  **ORB**   |  ✓   |   ✓   |  ✓   |   ✓    |  1   |  ✔  |   ✓   |   ✓   |
+        +------------+------+-------+------+--------+------+-----+-------+-------+
+        | **BRISK**  |  ✓   |   ✓   |  ✓   |   ✓    |  ✓   |  ✓  |   ✔   |   ✓   |
+        +------------+------+-------+------+--------+------+-----+-------+-------+
+        | **AKAZE**  |      |       |      |        |      |     |       |   ✔   |
+        +------------+------+-------+------+--------+------+-----+-------+-------+
+        | **FREAK**  |  ✓   |   ✓   |  ✓   |   ✓    |  ✓   |  ✓  |   ✓   |   ✓   |
+        +------------+------+-------+------+--------+------+-----+-------+-------+
+        | **BRIEF**  |  ✓   |   ✓   |  ✓   |   ✓    |  ✓   |  ✓  |   ✓   |   ✓   |
+        +------------+------+-------+------+--------+------+-----+-------+-------+
+        | **DAISY**  |  ✓   |   ✓   |  ✓   |   ✓    |  ✓   |  ✓  |   ✓   |   ✓   |
+        +------------+------+-------+------+--------+------+-----+-------+-------+
+        | **LATCH**  |  ✓   |   ✓   |  ✓   |   ✓    |  ✓   |  ✓  |   ✓   |   ✓   |
+        +------------+------+-------+------+--------+------+-----+-------+-------+
+        | **LUCID**  |  2   |   2   |  2   |   2    |  2   |  2  |   2   |   2   |
+        +------------+------+-------+------+--------+------+-----+-------+-------+
+        | **BOOST**  |  ✓   |   ✓   |  ✓   |   ✓    |  ✓   |  ✓  |   ✓   |   ✓   |
+        +------------+------+-------+------+--------+------+-----+-------+-------+
 
-        :seealso: :class:`BOOSTFeature` :class:`BRIEFFeature` :class:`DAISYFeature` :class:`FREAKFeature` :class:`LATCHFeature` :class:`LUCIDFeature`
+        The columns are the detectors and the rows are the descriptors.  In the table,
+
+        - ``✓`` is a combination that works
+        - ``✔`` is a combination that works, and is an algorithm that defines both a
+          detector and a descriptor, for example SIFT
+        - an empty cell is a combination that cannot be made.  The AKAZE descriptor
+          uses information that only the AKAZE detector records in its keypoints,
+          so it cannot be used with another detector.
+
+        1. The ORB descriptor reads a pyramid level from each keypoint, which the
+           SIFT detector uses for something else.  For SIFT keypoints it is set to
+           the full resolution image, so the ORB descriptor ignores their scale and
+           has no scale invariance.
+        2. The LUCID descriptor describes a color patch, so it needs a color image.
+
+        A set of features can also provide the scale, orientation and strength (the
+        detector's response) of each keypoint.  This depends on the detector, as in
+        this table, where ✓ means that it does:
+
+        +-----------------+-----------------------------------------------------------+
+        |     provides    |                          detector                         |
+        |                 +------+-------+------+--------+------+-----+-------+-------+
+        |                 | FAST | AGAST | GFTT | Harris | SIFT | ORB | BRISK | AKAZE |
+        +=================+======+=======+======+========+======+=====+=======+=======+
+        |   **position**  |  ✓   |   ✓   |  ✓   |   ✓    |  ✓   |  ✓  |   ✓   |   ✓   |
+        +-----------------+------+-------+------+--------+------+-----+-------+-------+
+        |    **scale**    |      |       |      |        |  ✓   |  ✓  |   ✓   |   ✓   |
+        +-----------------+------+-------+------+--------+------+-----+-------+-------+
+        | **orientation** |  3   |   3   |  3   |   3    |  ✓   |  ✓  |   ✓   |   ✓   |
+        +-----------------+------+-------+------+--------+------+-----+-------+-------+
+        |  **strength**   |  ✓   |   ✓   |  ✓   |   ✓    |  ✓   |  ✓  |   ✓   |   ✓   |
+        +-----------------+------+-------+------+--------+------+-----+-------+-------+
+
+        3. The detector does not provide orientation, but the BRISK and FREAK
+           descriptors compute orientation internally.
+
+        The result is a set of the class of the descriptor, for example
+        :class:`BRIEFFeature`, and can be matched with another set made with the
+        same descriptor.  The detector can differ, and the descriptors of the two
+        sets must be of the same kind.
+
+        .. rubric:: Examples
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read("eiffel-1.png")
+            >>> features = img.ComboFeature("FAST", "BRIEF", nfeat=500)
+            >>> print(features)
+            >>> len(features)
+            >>> features.descriptor.shape
+
+        .. rubric:: References
+
+        - Comparison of the detectors and descriptors: Performance analysis of
+          keypoint detectors and binary descriptors under varying degrees of
+          photometric and geometric transformations.
+          Shuvo Kumar Paul, Pourya Hoseini, Mircea Nicolescu and Monica Nicolescu.
+          `arXiv:2012.04135 <https://arxiv.org/abs/2012.04135>`_, 2020.
+        - AGAST: Adaptive and generic corner detection based on the accelerated
+          segment test.
+          Elmar Mair, Gregory D. Hager, Darius Burschka, Michael Suppa and
+          Gerhard Hirzinger.
+          In European Conference on Computer Vision (ECCV), 2010.
+        - AKAZE: Fast explicit diffusion for accelerated features in nonlinear
+          scale spaces.
+          Pablo F. Alcantarilla, Jesús Nuevo and Adrien Bartoli.
+          IEEE Trans. Pattern Anal. Machine Intell., 34(7):1281–1298, 2011.
+        - BOOST: Boosting binary keypoint descriptors.
+          Tomasz Trzcinski, Mario Christoudias, Vincent Lepetit and Pascal Fua.
+          In Computer Vision and Pattern Recognition (CVPR), 2013.  Also:
+          Learning image descriptors with boosting.
+          Tomasz Trzcinski, Mario Christoudias and Vincent Lepetit.
+          IEEE Trans. Pattern Anal. Machine Intell., 2013.
+        - BRIEF: Binary robust independent elementary features.
+          Michael Calonder, Vincent Lepetit, Christoph Strecha and Pascal Fua.
+          In European Conference on Computer Vision (ECCV), pages 778–792, 2010.
+        - BRISK: Binary robust invariant scalable keypoints.
+          Stefan Leutenegger, Margarita Chli and Roland Yves Siegwart.
+          In International Conference on Computer Vision (ICCV), pages 2548–2555,
+          2011.
+        - DAISY: An efficient dense descriptor applied to wide baseline stereo.
+          Engin Tola, Vincent Lepetit and Pascal Fua.
+          IEEE Trans. Pattern Anal. Machine Intell., 32(5):815–830, May 2010.
+        - FAST: Machine learning for high-speed corner detection.
+          Edward Rosten and Tom Drummond.
+          In European Conference on Computer Vision (ECCV), pages 430–443, 2006.
+        - FREAK: Fast retina keypoint.
+          Alexandre Alahi, Raphael Ortiz and Pierre Vandergheynst.
+          In Computer Vision and Pattern Recognition (CVPR), pages 510–517, 2012.
+        - GFTT: Good features to track.
+          Jianbo Shi and Carlo Tomasi.
+          In Computer Vision and Pattern Recognition (CVPR), pages 593–600, 1994.
+        - Harris: A combined corner and edge detector.
+          CG Harris and MJ Stephens.
+          Proceedings of the Fourth Alvey Vision Conference, Manchester,
+          pages 147–151, 1988.
+        - LATCH: Learned arrangements of three patch codes.
+          Gil Levi and Tal Hassner.
+          `arXiv:1501.03719 <https://arxiv.org/abs/1501.03719>`_, 2015.
+        - LUCID: Locally uniform comparison image descriptor.
+          Andrew Ziegler, Eric Christiansen, David Kriegman and Serge J. Belongie.
+          In Advances in Neural Information Processing Systems (NIPS), 2012.
+        - ORB: An efficient alternative to SIFT or SURF.
+          Ethan Rublee, Vincent Rabaud, Kurt Konolige and Gary Bradski.
+          In International Conference on Computer Vision (ICCV), pages 2564–2571,
+          2011.
+        - SIFT: Distinctive image features from scale-invariant keypoints.
+          David G. Lowe.
+          Int. J. Comput. Vision, 60(2):91–110, November 2004.
+
+        .. versionadded:: 2.5.0
+
+        .. seealso:: :class:`BOOSTFeature` :class:`BRIEFFeature` :class:`DAISYFeature` :class:`FREAKFeature` :class:`LATCHFeature` :class:`LUCIDFeature`
         """
+        try:
+            det_factory, has_scale, has_orient = _COMBO_DETECTORS[detector]
+        except KeyError:
+            raise ValueError(
+                f"unknown detector {detector!r}, must be one of "
+                f"{', '.join(_COMBO_DETECTORS)}"
+            ) from None
+        try:
+            des_factory, cls, needs_color, finds_orient = _DESCRIPTORS[descriptor]
+        except KeyError:
+            raise ValueError(
+                f"unknown descriptor {descriptor!r}, must be one of "
+                f"{', '.join(_DESCRIPTORS)}"
+            ) from None
+        reason = _unsupported_pair(detector, descriptor)
+        if reason is not None:
+            raise ValueError(f"cannot combine {detector} with {descriptor}: {reason}")
+        if needs_color and self.nplanes != 3:
+            raise ValueError(
+                f"{descriptor} describes a color patch, so needs a color image"
+            )
 
-        # WORK IN PROGRESS
+        mono = self.mono()
+        kp = list(det_factory(**(det_opts or {})).detect(mono._A, None))
+        if nfeat is not None:
+            kp = sorted(kp, key=lambda k: k.response, reverse=True)[:nfeat]
 
-        detectors: dict[str, Any] = {
-            "AGAST": getattr(cv2, "AgastFeatureDetector_create"),
-            "FAST": getattr(cv2, "FastFeatureDetector_create"),
-            "GoodFeaturesToTrack": getattr(cv2, "GFTTDetector_create"),
-        }
+        if detector == "SIFT" and descriptor == "ORB":
+            # SIFT packs its scale space level and layer into the keypoint's octave,
+            # and ORB reads it as its own pyramid level, which fails.  Describing
+            # at full resolution is the only sensible reading
+            kp = [
+                cv2.KeyPoint(k.pt[0], k.pt[1], k.size, k.angle, k.response, 0, -1)
+                for k in kp
+            ]
 
-        descriptors = {
-            "BOOST": (cv2.xfeatures2d.BoostDesc_create, BOOSTFeature),  # type: ignore[attr-defined]
-            "BRIEF": (cv2.xfeatures2d.BriefDescriptorExtractor_create, BRIEFFeature),  # type: ignore[attr-defined]
-            "DAISY": (cv2.xfeatures2d.BriefDescriptorExtractor_create, DAISYFeature),  # type: ignore[attr-defined]
-            "FREAK": (cv2.xfeatures2d.BriefDescriptorExtractor_create, FREAKFeature),  # type: ignore[attr-defined]
-            "LATCH": (cv2.xfeatures2d.BriefDescriptorExtractor_create, LATCHFeature),  # type: ignore[attr-defined]
-            "LUCID": (cv2.xfeatures2d.BriefDescriptorExtractor_create, LUCIDFeature),  # type: ignore[attr-defined]
-        }
-        # eg. Feature2D('FAST', 'FREAK')
-        if detector in detectors:
-            # call it
-            kp = detectors[detector](self._A, **det_opts)
-        elif callable(detector):
-            # call it
-            kp = detector(self._A, **det_opts)
-        else:
-            raise ValueError("unknown detector")
+        # the descriptor may drop keypoints too close to the edge
+        kp, des = des_factory(**(des_opts or {})).compute(
+            self._A if needs_color else mono._A, kp
+        )
 
-        raise NotImplementedError("ComboFeature is a work in progress")
+        # after description, since the AKAZE descriptor uses class_id
+        _set_keypoint_ids(kp, mono, id)
+
+        features = cls(kp, des, scale=has_scale, orient=has_orient or finds_orient)
+        features._feature_type = descriptor
+        features._detector = detector
+        features._image = self
+        return features
 
 
 class _Harris_create:
@@ -2486,6 +2918,11 @@ class _Harris_create:
         self.peakscale = scale
         self.patch = patch
         self.scale = None
+
+    def detect(
+        self, image: np.ndarray, mask: np.ndarray | None = None
+    ) -> list[cv2.KeyPoint]:
+        return self.detectAndCompute(image, mask)[0]
 
     def detectAndCompute(
         self, image: np.ndarray, mask: np.ndarray | None = None
@@ -2539,3 +2976,83 @@ if __name__ == "__main__":
             "-v",
         ]
     )
+
+
+# What each detector behind Image.SIFT(), Image.ORB() etc. is built from, and what it
+# provides.  The flags are facts about the algorithm, so they live here rather than
+# being passed in by each caller (where a keyword such as ``scale`` would collide with
+# an option of the detector itself, as Harris has one).  The factories are resolved
+# only when used, so that a detector missing from this OpenCV (OpenCV 5 without the
+# contrib modules) does not break the others.
+#
+#   name: (factory, has scale, has orientation)
+_DETECTORS: dict[str, tuple[Any, bool, bool]] = {
+    "SIFT": (lambda **kw: getattr(cv2, "SIFT_create")(**kw), True, True),
+    "SURF": (_SURF_create, True, True),
+    "ORB": (lambda **kw: getattr(cv2, "ORB_create")(**kw), True, True),
+    "BRISK": (lambda **kw: _resolve_feature_create("BRISK")(**kw), True, True),
+    "AKAZE": (lambda **kw: _resolve_feature_create("AKAZE")(**kw), True, True),
+    "Harris": (_Harris_create, False, False),
+}
+
+
+def _contrib_create(name: str) -> Any:
+    """A factory for an OpenCV algorithm that lives in the contrib modules in OpenCV 5"""
+
+    def create(**kwargs: Any) -> Any:
+        try:
+            return _resolve_feature_create(name)(**kwargs)
+        except AttributeError:
+            raise RuntimeError(
+                f"{name} is not available in this OpenCV, which needs its contrib "
+                "modules: pip install opencv-contrib-python"
+            ) from None
+
+    return create
+
+
+# Detectors that Image.ComboFeature can join to a descriptor, each of which has a
+# ``detect`` method, with what the keypoints it finds provide.
+#
+#   name: (factory, has scale, has orientation)
+_COMBO_DETECTORS: dict[str, tuple[Any, bool, bool]] = {
+    "FAST": (
+        lambda **kw: getattr(cv2, "FastFeatureDetector_create")(**kw),
+        False,
+        False,
+    ),
+    "AGAST": (_contrib_create("AgastFeatureDetector"), False, False),
+    "GFTT": (lambda **kw: getattr(cv2, "GFTTDetector_create")(**kw), False, False),
+    "Harris": (_Harris_create, False, False),
+    "SIFT": _DETECTORS["SIFT"],
+    "ORB": _DETECTORS["ORB"],
+    "BRISK": _DETECTORS["BRISK"],
+    "AKAZE": _DETECTORS["AKAZE"],
+}
+
+# Descriptors that Image.ComboFeature can join to a detector, each of which has a
+# ``compute`` method.
+#
+#   name: (factory, class of the result, needs a color image, finds an orientation)
+_DESCRIPTORS: dict[str, tuple[Any, type[BaseFeature2D], bool, bool]] = {
+    "SIFT": (_DETECTORS["SIFT"][0], SIFTFeature, False, False),
+    "ORB": (_DETECTORS["ORB"][0], ORBFeature, False, False),
+    "BRISK": (_DETECTORS["BRISK"][0], BRISKFeature, False, True),
+    "AKAZE": (_DETECTORS["AKAZE"][0], AKAZEFeature, False, False),
+    "FREAK": (_contrib_create("FREAK"), FREAKFeature, False, True),
+    "BRIEF": (_contrib_create("BriefDescriptorExtractor"), BRIEFFeature, False, False),
+    "DAISY": (_contrib_create("DAISY"), DAISYFeature, False, False),
+    "LATCH": (_contrib_create("LATCH"), LATCHFeature, False, False),
+    "LUCID": (_contrib_create("LUCID"), LUCIDFeature, True, False),
+    "BOOST": (_contrib_create("BoostDesc"), BOOSTFeature, False, False),
+}
+
+
+def _unsupported_pair(detector: str, descriptor: str) -> str | None:
+    """Why this detector cannot be joined to this descriptor, or None if it can"""
+    if descriptor == "AKAZE" and detector != "AKAZE":
+        return (
+            "the AKAZE descriptor needs the scale space index that only the AKAZE "
+            "detector records"
+        )
+    return None

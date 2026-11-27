@@ -60,6 +60,7 @@ dependencies = [
 
 # Options:
 #  dev - development tools
+#  blocks - bdsim block diagram blocks (the machinevisiontoolbox.blocks module)
 #  docs - documentation building tools
 #  jupyter - jupyter notebook support
 #  open3d - open3d support
@@ -67,7 +68,9 @@ dependencies = [
 #  ocr - OCR support via pytesseract
 #  tool - dependencies for the mvtbtool interactive shell
 
-dev = ["pytest", "pytest-timeout", "pytest-xvfb", "coverage", "ruff", "nbmake", "mypy"]
+dev = ["pytest", "pytest-timeout", "pytest-xvfb", "coverage", "ruff", "nbmake", "mypy", "bdsim>=1.5.0"]
+
+blocks = ["bdsim>=1.5.0"]
 
 ros = ["rosbags", "roslibpy", "websockets"]
 
@@ -88,15 +91,20 @@ jupyter = ["ipywidgets", "ipympl"]
 
 open3d = ["open3d"]
 
-torch = ["torch"]
+torch = ["torch", "torchvision"]
+
+ultralytics = ["torch", "torchvision", "ultralytics"]
 
 ocr = ["pytesseract"]
 
 all = [
+    "bdsim>=1.5.0",
     "ipywidgets",
     "ipympl",
     "open3d",
     "torch",
+    "torchvision",
+    "ultralytics",
     "pytesseract",
     "rosbags",
     "roslibpy",
@@ -111,12 +119,20 @@ testpaths = ["tests"]
 addopts = "--tb=short"
 
 [tool.ruff]
-line-length = 120
+# 88 matches RTB, bdsim and sphinx-pyrunblock
+line-length = 88
 # the notebooks that reproduce the book code have a bare except in their setup cell
 extend-exclude = ["tests/RVC"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "BLE", "S110"]
+# the formatter wraps code but not long strings or comments, so E501 would only
+# report what `ruff format` cannot fix
+ignore = ["E501"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
 
 [tool.ruff.lint.per-file-ignores]
 # these files re-export their submodules with star imports on purpose, so that
@@ -162,6 +178,3 @@ exclude = ["/packages", "/docs", "/tests", "/.git", "/.github"]
 # nd, enew = local variable names; nin, inports = BDSIM block identifiers
 ignore-words-list = "nd,enew,nin,inports"
 skip = "*.pyc,htmlcov"
-
-[tool.coverage.run]
-omit = ["src/machinevisiontoolbox/blocks/*", "src/machinevision/blocks/*"]

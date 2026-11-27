@@ -45,14 +45,16 @@ def int_image(
 
     * a floating point class, the pixel values are scaled from an input range of
       [0.0, 1.0] to a range spanning zero to the maximum positive value of
-      ``intclass``.
+      ``intclass``.  Values outside [0.0, 1.0] are clipped first, so 1.2 gives the
+      maximum value and -0.5 gives zero.  Without this, they would wrap around to
+      an unrelated value.
     * an integer class, the pixels are scaled and cast to ``intclass``. The
       scale factor is the ratio of ``maxintval`` to the maximum positive value
       of ``inclass``.
     * the boolean class, False is mapped to zero and True is mapped to the
       maximum positive value of ``inclass``.
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -62,13 +64,16 @@ def int_image(
         >>> int_image(im, 'int16')
         >>> im = np.array([[False, True],[True, False]])
         >>> int_image(im)
+        >>> im = np.array([-0.5, 0.5, 1.2])
+        >>> int_image(im)  # values outside 0 to 1 are clipped
 
     .. note:: Works for greyscale or color (arbitrary number of planes) image
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
 
-    :seealso: :func:`float_image`
+    - |RVC3|, Section 10.1.
+
+    .. seealso:: :func:`float_image`
     """
 
     intclass = np.dtype(intclass)
@@ -78,7 +83,7 @@ def int_image(
 
     elif np.issubdtype(image.dtype, np.floating):
         # rescale to integer
-        scaled = image * np.float64(np.iinfo(intclass).max)
+        scaled = np.clip(image, 0.0, 1.0) * np.float64(np.iinfo(intclass).max)
         return np.rint(scaled).astype(intclass)
 
     elif np.issubdtype(image.dtype, np.integer):
@@ -117,7 +122,7 @@ def float_image(
       value.
     * the boolean class, False is mapped to 0.0 and True is mapped to 1.0.
 
-    Example:
+    .. rubric:: Examples
 
     .. runblock:: pycon
 
@@ -130,10 +135,11 @@ def float_image(
 
     .. note:: Works for greyscale or color (arbitrary number of planes) image
 
-    :references:
-        - |RVC3|, Section 10.1.
+    .. rubric:: References
 
-    :seealso: :func:`int_image`
+    - |RVC3|, Section 10.1.
+
+    .. seealso:: :func:`int_image`
     """
 
     floatclass = np.dtype(floatclass)
