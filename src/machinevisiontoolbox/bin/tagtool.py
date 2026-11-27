@@ -25,7 +25,7 @@ from machinevisiontoolbox.bin._bintools import (
 def getargs():
     parser = argparse.ArgumentParser(
         formatter_class=CustomDefaultsHelpFormatter,
-        description=f"Display AR tags in image using Machine Vision Toolbox for Python."
+        description="Display AR tags in image using Machine Vision Toolbox for Python."
         "AR tags are highlighted with their IDs and the canonic top-left corner is marked.",
         epilog="A camera model is required to determine poses, this requires that focal length is specified.",
     )
@@ -262,7 +262,6 @@ def process_image(image, args, block):
 
 def main():
     args = getargs()
-    json_data = []
 
     if len(args.files) > 10:
         args.block = True

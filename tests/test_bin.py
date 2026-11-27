@@ -13,21 +13,21 @@ import sys
 import unittest
 
 try:
-    import rosbags  # noqa: F401
+    __import__("rosbags")
 
     _rosbags_available = True
 except ImportError:
     _rosbags_available = False
 
 try:
-    import pytesseract  # noqa: F401
+    __import__("pytesseract")
 
     _pytesseract_available = True
 except ImportError:
     _pytesseract_available = False
 
 try:
-    import open3d  # noqa: F401
+    __import__("open3d")
 
     _open3d_available = True
 except ImportError:
@@ -67,6 +67,27 @@ class TestMvtbtool(unittest.TestCase):
         else:
             self.assertIn("Open3D not installed", stdout, msg=stdout)
             self.assertEqual(result.returncode, 1, msg=stdout)
+
+    def test_backend_option_is_applied(self):
+        """--backend used to stop with NameError: name 'plt' is not defined."""
+        try:
+            __import__("IPython")
+        except ImportError:
+            self.skipTest("IPython not installed")
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "machinevisiontoolbox.bin.mvtbtool",
+                "--backend",
+                "Agg",
+            ],
+            input=b"exit\n",
+            capture_output=True,
+            timeout=120,
+        )
+        self.assertNotIn(b"NameError", result.stderr, msg=result.stderr.decode())
+        self.assertIn(b"Using matplotlib backend Agg", result.stdout)
 
 
 class TestImtool(unittest.TestCase):

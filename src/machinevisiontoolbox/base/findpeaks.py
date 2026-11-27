@@ -84,7 +84,9 @@ def findpeaks(
         n = round(scale / dx) * 2 + 1
         kernel = np.ones((n,))
         (k,) = np.nonzero(y == sp.signal.order_filter(y, kernel, n - 1))
-        k = np.array([kk for kk in k if kk >= scale and kk <= len(y) - scale])
+        k = np.array(
+            [kk for kk in k if kk >= scale and kk < len(y) - scale], dtype=np.intp
+        )
     else:
         # take the zero crossings
         dy = np.diff(y)
@@ -307,7 +309,6 @@ def findpeaks3d(v: np.ndarray, npeaks: int | None = None) -> np.ndarray:
     # create 3x3x3 structuring element and maximum filter
     se_nhood = np.ones((3, 3, 3))
     se_nhood[1, 1, 1] = 0
-    eps = np.finfo(np.float64).eps
     maxima = v > sp.ndimage.maximum_filter(v, footprint=se_nhood, mode="nearest")
 
     # find the locations of the minima
@@ -328,10 +329,6 @@ def findpeaks3d(v: np.ndarray, npeaks: int | None = None) -> np.ndarray:
 
 
 if __name__ == "__main__":
-    import numpy as np
-
-    from machinevisiontoolbox.base import *
-
     y = np.array([0, 0, 1, 2, 0, 0, 0, 3, 1, 0, 0, 0, 0])
     print(findpeaks(y, scale=3))
     print(findpeaks(y, scale=3, interp=True))
