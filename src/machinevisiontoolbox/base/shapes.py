@@ -165,19 +165,31 @@ def mkcube(
 
     .. rubric:: Examples
 
-    >>> from machinevisiontoolbox import mkcube
-    >>> import matplotlib.pyplot as plt
-    >>> S = mkcube(edge=True)  # cube of side length 1
-    >>> fig = plt.figure()
-    >>> ax = fig.gca(projection='3d')
-    >>> ax.plot_wireframe(*S)
+    .. code-block:: pycon
+
+        >>> from machinevisiontoolbox import mkcube
+        >>> import matplotlib.pyplot as plt
+        >>> S = mkcube(edge=True)  # cube of side length 1
+        >>> fig = plt.figure()
+        >>> ax = fig.add_subplot(projection='3d')
+        >>> ax.plot_wireframe(*S)
+
+    .. plot::
+
+        from machinevisiontoolbox import mkcube
+        import matplotlib.pyplot as plt
+
+        S = mkcube(edge=True)  # cube of side length 1
+        fig = plt.figure()
+        ax = fig.add_subplot(projection='3d')
+        ax.plot_wireframe(*S)
 
     We can also use MATLAB-like syntax:
 
-        .. code-block:: python
+    .. code-block:: python
 
-            X, Y, Z = mkcube(edge=True)
-            ax.plot_wireframe(X, Y, Z)
+        X, Y, Z = mkcube(edge=True)
+        ax.plot_wireframe(X, Y, Z)
 
 
     .. seealso:: :func:`mksphere`, :func:`mkcylinder`
