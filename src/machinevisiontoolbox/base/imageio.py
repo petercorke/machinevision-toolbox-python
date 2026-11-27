@@ -1134,7 +1134,7 @@ def iread(
     correction, image decimation or region of interest windowing.  Details are
     given at :func:`convert`.
 
-    .. versionchanged:: 2.6.0
+    .. versionchanged:: 2.5.0
         A file that cannot be found raises :class:`FileNotFoundError`, with a
         short traceback and the names of similar files, instead of
         :class:`ValueError`.
