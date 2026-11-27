@@ -3434,7 +3434,7 @@ class ROSBag(ImageSource):
         # exists locally, otherwise searches the mvtb-data companion package.
         try:
             path = str(mvtb_path_to_datafile("data", path))
-        except (ValueError, ModuleNotFoundError):
+        except (FileNotFoundError, ValueError, ModuleNotFoundError):
             pass  # fall through; rosbags will raise a clear error on open
 
         self._is_ros2 = _BagPath(path).is_dir()

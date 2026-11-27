@@ -94,7 +94,7 @@ def main():
     for i, file in enumerate(args.files):
         try:
             img = Image.Read(file, rgb=False)
-        except ValueError:
+        except (FileNotFoundError, ValueError):
             print(f"File {file} not found")
             continue
 

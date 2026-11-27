@@ -241,7 +241,7 @@ def main():
         try:
             img = Image.Read(file, alpha=args.alpha)
             print(img)
-        except ValueError:
+        except (FileNotFoundError, ValueError):
             print(f"File {file} not found")
 
         if i == len(args.files) - 1:

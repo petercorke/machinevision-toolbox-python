@@ -55,7 +55,7 @@ def _has_file(*args):
     try:
         mvtb_path_to_datafile(*args)
         return True
-    except ValueError:
+    except FileNotFoundError:
         return False
 
 

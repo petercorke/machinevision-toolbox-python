@@ -57,7 +57,9 @@ class ImageIOMixin(ImageMixinBase):
         :param rgb: force color image to be in RGB order, defaults to True
         :type rgb: bool, optional
         :param kwargs: options applied to image frames, see :func:`~machinevisiontoolbox.base.imageio.convert`
-        :raises ValueError: file not found, or no file selected in browser
+        :raises FileNotFoundError: file is neither in the current folder nor in
+            the mvtb-data ``images`` folder
+        :raises ValueError: no file selected in browser
         :raises ImportError: ``filename`` omitted but tkinter is unavailable
         :return: image from file
         :rtype: :class:`Image`
@@ -68,6 +70,11 @@ class ImageIOMixin(ImageMixinBase):
 
         If ``filename`` is omitted a native file-browser dialogue is opened,
         initially showing the ``images`` folder of the ``mvtb_data`` package.
+
+        .. versionchanged:: 2.6.0
+            A file that cannot be found raises :class:`FileNotFoundError`, with
+            a short traceback and the names of similar files, instead of
+            :class:`ValueError`.
 
         .. rubric:: Examples
 
@@ -98,7 +105,11 @@ class ImageIOMixin(ImageMixinBase):
             raise ValueError("expecting a string or path")
 
         # read the image
-        data = iread(filename, rgb=rgb, alpha=alpha, **kwargs)
+        try:
+            data = iread(filename, rgb=rgb, alpha=alpha, **kwargs)
+        except FileNotFoundError as exc:
+            # raise afresh, so the traceback is one frame and not four
+            raise FileNotFoundError(*exc.args) from None
 
         # result is a tuple(image, filename) or a list of tuples
 

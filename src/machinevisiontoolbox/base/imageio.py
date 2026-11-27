@@ -53,7 +53,7 @@ def _pick_imagefile() -> Path:
     """
     try:
         initialdir = mvtb_path_to_datafile("images")
-    except (ModuleNotFoundError, ValueError):
+    except (ModuleNotFoundError, FileNotFoundError, ValueError):
         initialdir = Path.home()
 
     try:
@@ -1111,6 +1111,8 @@ def iread(
     :type args: tuple
     :param kwargs: key word arguments passed to :func:`convert`
     :type kwargs: dict
+    :raises FileNotFoundError: the file is neither in the current folder nor in
+        the ``images`` folder of the mvtb-data package
     :return: image and filename
     :rtype: tuple (ndarray, str) or list of tuples, image is
         a 2D or 3D NumPy ndarray
@@ -1131,6 +1133,11 @@ def iread(
     perform datatype conversion, color to grey scale conversion, gamma
     correction, image decimation or region of interest windowing.  Details are
     given at :func:`convert`.
+
+    .. versionchanged:: 2.6.0
+        A file that cannot be found raises :class:`FileNotFoundError`, with a
+        short traceback and the names of similar files, instead of
+        :class:`ValueError`.
 
     .. rubric:: Examples
 
@@ -1208,6 +1215,9 @@ def iread(
         return next(iterator)
     except StopIteration as exc:
         raise ValueError(f"invalid filename, got {filename!r}") from exc
+    except FileNotFoundError as exc:
+        # raise afresh, so the traceback stops here and not in the helpers
+        raise FileNotFoundError(*exc.args) from None
 
 
 def iread_iter(

@@ -282,7 +282,7 @@ class TestIreadOptions(unittest.TestCase):
 
     def test_iread_invalid_file(self):
         """Test iread with non-existent file"""
-        with self.assertRaises(ValueError):
+        with self.assertRaises(FileNotFoundError):
             iread("nonexistent_file_12345.png")
 
     def test_iread_file_path(self):

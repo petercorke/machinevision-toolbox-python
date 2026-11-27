@@ -5,6 +5,7 @@ package, sidestepping PyPI size limits by keeping large data independent of code
 
 from __future__ import annotations
 
+import difflib
 import importlib
 import importlib.resources
 from pathlib import Path
@@ -111,6 +112,33 @@ def mvtb_load_data(filename: str, handler: Callable[..., Any], **kwargs: Any) ->
     return handler(path, **kwargs)
 
 
+def _not_found_message(filename: tuple[str | Path, ...], root: Path) -> str:
+    """Readable message for a file that is neither local nor in mvtbdata
+
+    The message names the file as the caller wrote it, without the folder
+    inside ``mvtbdata`` that was added to the search, and suggests files with
+    similar names if there are any.
+    """
+    folder = root.joinpath(*filename[:-1])
+    where = "mvtbdata"
+    if len(filename) > 1:
+        where += f"/{Path(*filename[:1])}"
+        name = Path(*filename[1:])
+    else:
+        name = Path(filename[0])
+    msg = f"file {str(name)!r} not found in the current folder or in {where}"
+    if folder.is_dir():
+        # best matches first, ties in alphabetical order
+        names = sorted(p.name for p in folder.iterdir() if not p.name.startswith("."))
+        score = {n: difflib.SequenceMatcher(None, name.name, n).ratio() for n in names}
+        close = sorted((n for n in names if score[n] >= 0.6), key=lambda n: -score[n])[
+            :3
+        ]
+        if close:
+            msg += "; did you mean " + ", ".join(close) + "?"
+    return msg
+
+
 def mvtb_path_to_datafile(
     *filename: str | Path, local: bool = True, string: bool = False
 ) -> Path | str:
@@ -123,7 +151,7 @@ def mvtb_path_to_datafile(
     :type local: bool
     :param string: return as string, default False
     :type string: bool
-    :raises FileNotFoundError: File does not exist
+    :raises FileNotFoundError: File is neither local nor in the mvtbdata package
     :return: Absolute path
     :rtype: Path or str
 
@@ -163,7 +191,7 @@ def mvtb_path_to_datafile(
             else:
                 return path
         else:
-            raise ValueError(f"file {filename} not found locally")
+            raise FileNotFoundError(f"file {str(path)!r} not found")
 
     # file is either local or in mvtbdata
     path = Path(filename[-1]).expanduser()
@@ -192,4 +220,4 @@ def mvtb_path_to_datafile(
         else:
             return path
     else:
-        raise ValueError(f"file {filename} not found locally or in mvtbdata ({root})")
+        raise FileNotFoundError(_not_found_message(filename, root))

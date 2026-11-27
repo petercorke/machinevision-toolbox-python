@@ -21,7 +21,12 @@ def picker(monkeypatch):
 
 
 @pytest.mark.parametrize(
-    "error", [ModuleNotFoundError("mvtbdata"), ValueError("missing images")]
+    "error",
+    [
+        ModuleNotFoundError("mvtbdata"),
+        FileNotFoundError("missing images"),
+        ValueError("missing images"),
+    ],
 )
 def test_missing_data_uses_home(monkeypatch, picker, error):
     monkeypatch.setattr(imageio, "mvtb_path_to_datafile", Mock(side_effect=error))
