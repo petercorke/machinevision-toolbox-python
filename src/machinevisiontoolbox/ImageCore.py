@@ -2887,13 +2887,21 @@ class Image(
         ):
             # integer keys for row and column, the result is a scalar or vector over planes
             return self._A[keys[1], keys[0], keys[2]]
-        elif isinstance(keys, int):
-            # single integer index, it's a color plane index
-            return self.__class__(self._A[..., keys])
+        elif isinstance(keys, (int, np.integer)) and not isinstance(keys, bool):
+            # single integer index, it's a color plane index; as for NumPy, a
+            # negative index counts from the last plane
+            if -self.nplanes <= keys < 0:
+                keys += self.nplanes
+            return self.plane(int(keys))
         elif isinstance(keys, str):
             # color plane by name
             return self.plane(keys)
-        elif isinstance(keys, (list, tuple)):
+        elif isinstance(keys, list):
+            raise ValueError(
+                f"invalid index {keys!r}: a list is not a valid key, use "
+                "plane() to select a list of planes"
+            )
+        elif isinstance(keys, tuple):
             # by slices
             if self.iscolor:
                 if len(keys) == 2:

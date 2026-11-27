@@ -18,6 +18,7 @@ import textwrap
 from importlib.metadata import PackageNotFoundError, version
 
 import cv2
+import matplotlib
 import numpy as np
 from spatialmath import *  # lgtm [py/polluting-import]
 from spatialmath import SE3
@@ -354,7 +355,7 @@ def main():
 
     if args.backend is not None:
         print(f"Using matplotlib backend {args.backend}")
-        plt.use(args.backend)
+        matplotlib.use(args.backend)
 
     make_banner(args, torch_modules)
 
