@@ -21,7 +21,7 @@ from spatialmath.base import set_window_title
 
 # import io as io
 from machinevisiontoolbox.base.data import mvtb_path_to_datafile
-from machinevisiontoolbox.base.types import float_image, int_image
+from machinevisiontoolbox.base.types import DTYPE_ALIASES, float_image, int_image
 
 # TODO
 # need to remove references to image class here
@@ -1379,7 +1379,72 @@ def cie_primaries() -> np.ndarray:
 # ------------------------------------------------------------------------- #
 
 
-def colorspace_convert(image: ArrayLike, src: str, dst: str) -> np.ndarray:
+# ------------------------------------------------------------------------- #
+# dtype handling shared by colorspace_convert, gamma_encode and gamma_decode
+#
+# Image-like data is either an integer type (uint8 or uint16), spanning 0 to the
+# maximum value of the type, or a float type, spanning 0 to 1.
+
+_INTEGER_IMAGE_TYPES = (np.uint8, np.uint16)
+
+
+def _resolve_dtype(dtype: Any) -> np.dtype:
+    """Resolve a dtype argument, including the Toolbox aliases such as "float"."""
+    if isinstance(dtype, str):
+        dtype = DTYPE_ALIASES.get(dtype, dtype)
+    dtype = np.dtype(dtype)
+    if np.issubdtype(dtype, np.integer) and dtype.type not in _INTEGER_IMAGE_TYPES:
+        raise ValueError(f"integer image data must be uint8 or uint16, not {dtype}")
+    if not (np.issubdtype(dtype, np.integer) or np.issubdtype(dtype, np.floating)):
+        raise ValueError(f"unsupported data type {dtype}")
+    return dtype
+
+
+def _to_float(image: np.ndarray) -> np.ndarray:
+    """Float version of image data: 0 to 1 for integers, float32 or float64.
+
+    Floating point data keeps its precision, except float16 which is widened.
+    """
+    if image.dtype == np.float64:
+        return image
+    if (
+        np.issubdtype(image.dtype, np.integer)
+        and image.dtype.type not in _INTEGER_IMAGE_TYPES
+    ):
+        raise ValueError(
+            f"integer image data must be uint8 or uint16, not {image.dtype}"
+        )
+    return float_image(image, "float32")
+
+
+def _from_float(x: np.ndarray, dtype: np.dtype) -> np.ndarray:
+    """Convert float image data to ``dtype``, scaling and clipping if it is an integer."""
+    if np.issubdtype(dtype, np.floating):
+        return x.astype(dtype)
+    return int_image(np.clip(x, 0, 1), dtype)
+
+
+# colorspaces whose values have natural units, not a 0 to 1 range: hue in degrees, L* from
+# 0 to 100, a* and b* that can be negative, and so on.  They are floating point only.
+_NATURAL_UNIT_SPACES = (
+    "hsv",
+    "hls",
+    "lab",
+    "l*a*b*",
+    "luv",
+    "l*u*v*",
+    "xyz",
+    "xyz_709",
+)
+
+
+def _space_name(name: str) -> str:
+    return name.replace(":", "").lower()
+
+
+def colorspace_convert(
+    image: ArrayLike, src: str, dst: str, dtype: Any = None
+) -> np.ndarray:
     """
     Convert images between colorspaces
 
@@ -1389,8 +1454,11 @@ def colorspace_convert(image: ArrayLike, src: str, dst: str) -> np.ndarray:
     :type src: str
     :param dst: output colorspace name
     :type dst: str
+    :param dtype: output data type, defaults to the type of ``image``
+    :type dtype: str or NumPy dtype, optional
+    :raises ValueError: integer data in, or asked for in, a colorspace with natural units
     :return: output image
-    :rtype: ndarray(N,M,3), (N,3)
+    :rtype: ndarray(N,M,3), (N,3), (3,)
 
     Convert images or rowwise color coordinates from one color space to another.
     The work is done by OpenCV and assumes that the input image is linear, not
@@ -1420,27 +1488,85 @@ def colorspace_convert(image: ArrayLike, src: str, dst: str) -> np.ndarray:
         >>> colorspace_convert([0, 0, 1], 'rgb', 'hls')
 
     .. note::
+        * Integer data (``uint8`` or ``uint16``) in the RGB, BGR, grey and YCrCb color
+          spaces spans 0 to the maximum value of its type, and float data spans 0 to 1.
+          The result has the type of ``image`` unless ``dtype`` is given, which converts
+          and scales it.
+        * HSV, HLS, XYZ, L*a*b* and L*u*v* are always floating point, in their natural
+          units: hue is in degrees, L* is 0 to 100, and a* and b* can be negative.  An
+          integer image converted to one of these gives float32, and an integer type
+          cannot be the source or destination (``ValueError``).
+        * A list or tuple of numbers is floating point.
         * Color space names 'grey' and 'gray' are synonyms, as are 'xyz' and 'xyz_709', 'lab' and 'l*a*b*', and 'luv' and 'l*u*v*'.
         * Colons within the color space names, as returned by :meth:`~machinevisiontoolbox.Image.colororder_str`, are ignored, so 'rgb' and 'r:g:b' are treated as the same color space.
         * Case is ignored in color space names, so 'RGB' and 'rgb' are treated as the same color space.
+
+    .. versionchanged:: 2.5.0
+        Added the ``dtype`` argument.  Integer values in a 3-vector or Nx3 array are now
+        scaled to 0 to 1, where before they were treated as floats.  An 8-bit image
+        converted to HSV, XYZ or L*a*b* used to have OpenCV's 8-bit encoding of those
+        spaces, and now gives float32 in natural units.  ``float64`` and ``uint16``
+        images are accepted for every conversion.
 
     .. seealso:: :func:`gamma_decode` `cv2.cvtColor <https://docs.opencv.org/4.x/d8/d01/group__imgproc__color__conversions.html#ga397ae87e1288a81d2363b61574eb8cab>`_
     """
 
     operation = _convertflag(src, dst)
+    src_natural = _space_name(src) in _NATURAL_UNIT_SPACES
+    dst_natural = _space_name(dst) in _NATURAL_UNIT_SPACES
 
-    if isinstance(image, np.ndarray) and image.ndim == 3:
-        # its a color image
-        return cv2.cvtColor(image, code=operation)
+    if isinstance(image, np.ndarray):
+        arr = image
     else:
-        # not an image, see if it's Nx3
-        image = smb.getmatrix(image, (None, 3), dtype=np.float32)
-        image = image.reshape((-1, 1, 3))  # type: ignore[union-attr]
-        converted = cv2.cvtColor(image, code=operation)
-        if converted.shape[0] == 1:
-            return converted.flatten().astype(np.float64)
-        else:
-            return converted.reshape((-1, 3)).astype(np.float64)
+        # a list or tuple of numbers is floating point
+        arr = np.asarray(image, dtype=np.float64)
+    is_int = np.issubdtype(arr.dtype, np.integer)
+    if src_natural and is_int:
+        raise ValueError(
+            f"{src} data has natural units (for example hue in degrees) so it must be "
+            "floating point, not an integer type"
+        )
+
+    # the output type: that of the input, but an integer input gives float32 in a
+    # colorspace with natural units since it cannot be represented as an integer
+    if dtype is not None:
+        out_dtype = _resolve_dtype(dtype)
+    elif dst_natural and is_int:
+        out_dtype = np.dtype(np.float32)
+    elif arr.dtype == np.float16 or arr.dtype == np.bool_:
+        out_dtype = np.dtype(np.float32)
+    else:
+        out_dtype = _resolve_dtype(arr.dtype)
+    if dst_natural and np.issubdtype(out_dtype, np.integer):
+        raise ValueError(
+            f"{dst} data has natural units (for example hue in degrees) so it must be "
+            "floating point, not an integer type"
+        )
+
+    # OpenCV works here on float32 data, which handles every conversion and type
+    if arr.ndim == 3:
+        shaped = arr
+    elif arr.ndim == 1 and arr.shape[0] == 3:
+        shaped = arr.reshape(1, 1, 3)
+    elif arr.ndim == 2 and arr.shape[1] == 3:
+        shaped = arr.reshape(-1, 1, 3)
+    else:
+        raise ValueError("expecting an image or an Nx3 array of color coordinates")
+    f32 = np.ascontiguousarray(_to_float(shaped), dtype=np.float32)
+    converted = cv2.cvtColor(f32, code=operation)
+
+    # restore the shape of the input
+    nplanes = converted.shape[2] if converted.ndim == 3 else 1
+    if arr.ndim == 1:
+        converted = converted.reshape(nplanes)
+    elif arr.ndim == 2:
+        converted = (
+            converted.reshape(-1, nplanes) if nplanes > 1 else converted.reshape(-1)
+        )
+
+    if dst_natural:
+        return converted.astype(out_dtype)
+    return _from_float(converted, out_dtype)
 
 
 def _convertflag(src: str, dst: str) -> int:
@@ -1448,7 +1574,9 @@ def _convertflag(src: str, dst: str) -> int:
     dst = dst.replace(":", "").lower()
 
     if src == "rgb":
-        if dst in ("grey", "gray"):
+        if dst == "bgr":
+            return cv2.COLOR_RGB2BGR
+        elif dst in ("grey", "gray"):
             return cv2.COLOR_RGB2GRAY
         elif dst in ("xyz", "xyz_709"):
             return cv2.COLOR_RGB2XYZ
@@ -1465,7 +1593,9 @@ def _convertflag(src: str, dst: str) -> int:
         else:
             raise ValueError(f"destination colorspace {dst} not known")
     elif src == "bgr":
-        if dst in ("grey", "gray"):
+        if dst == "rgb":
+            return cv2.COLOR_BGR2RGB
+        elif dst in ("grey", "gray"):
             return cv2.COLOR_BGR2GRAY
         elif dst in ("xyz", "xyz_709"):
             return cv2.COLOR_BGR2XYZ
@@ -1522,7 +1652,9 @@ def _convertflag(src: str, dst: str) -> int:
 # ------------------------------------------------------------------------- #
 
 
-def gamma_encode(image: np.ndarray, gamma: float | str = "sRGB") -> np.ndarray:
+def gamma_encode(
+    image: np.ndarray, gamma: float | str = "sRGB", dtype: Any = None
+) -> np.ndarray:
     r"""
     Gamma encoding
 
@@ -1530,8 +1662,10 @@ def gamma_encode(image: np.ndarray, gamma: float | str = "sRGB") -> np.ndarray:
     :type image: ndarray(H,W), ndarray(H,W,N)
     :param gamma: gamma exponent or "srgb"
     :type gamma: float, str
+    :param dtype: data type of the result, defaults to the type of ``image``
+    :type dtype: str or NumPy dtype, optional
     :return: gamma encoded version of image
-    :rtype: ndarray(H,W), ndarray(H,W,N)
+    :rtype: ndarray(N), ndarray(H,W), ndarray(H,W,N)
 
     Maps linear tristimulus values to a gamma encoded values using either:
 
@@ -1547,57 +1681,42 @@ def gamma_encode(image: np.ndarray, gamma: float | str = "sRGB") -> np.ndarray:
           :math:`\gamma=0.45`.
         - For images with multiple planes, the gamma encoding is applied
           to each plane.
-        - For images of type double, the pixels are assumed to be in the
-          range 0 to 1.
-        - For images of type int, the pixels are assumed in the range 0 to
-          the maximum value of their class.  Pixels are converted first to
-          double, encoded, then converted back to the integer class.
+        - The array can have any number of dimensions, including a 1D array of
+          values.
+        - Integer data (``uint8`` or ``uint16``) is assumed to span 0 to the maximum
+          value of its type, and float data to span 0 to 1.  The result has the same
+          type as the input unless ``dtype`` is given, which converts and scales it.
+          Integer results are rounded and clipped to their range.
 
     .. rubric:: References
 
     - |RVC3|, Section 10.1.
+
+    .. versionchanged:: 2.5.0
+        Added the ``dtype`` argument.  The result now has the type of the input,
+        where an integer image gave float32 or ``uint8``.  A 1D array is now
+        accepted with the sRGB mapping.
 
     .. seealso:: :func:`gamma_decode` :func:`colorspace_convert`
     """
 
     if not isinstance(gamma, (int, float, str)):
         raise ValueError("gamma must be string or scalar")
-
-    if isinstance(gamma, str) and gamma.lower() == "srgb":
-        imagef = float_image(image)
-
-        if imagef.ndim == 2:
-            # greyscale
-            return _srgb(imagef)
-        elif imagef.ndim == 3:
-            # multi-dimensional
-            out = np.empty(imagef.shape, dtype=imagef.dtype)
-            for p in range(imagef.ndim):
-                out[:, :, p] = _srgb(imagef[:, :, p])
-        else:
-            raise ValueError("expecting 2d or 3d image")
-
-        if np.issubdtype(image.dtype, np.integer):
-            # original image was float, convert back
-            return int_image(out)
-        else:
-            return out
-
-    elif isinstance(gamma, (int, float)):
-        # normal power law:
-        # import code
-        # code.interact(local=dict(globals(), **locals()))
-        if np.issubdtype(image.dtype, np.floating):
-            return image**gamma
-        else:
-            # int image
-            maxg = np.float32((np.iinfo(image.dtype).max))
-            return ((image.astype(np.float32) / maxg) ** gamma) * maxg
+    image = np.asarray(image)
+    out_dtype = _resolve_dtype(dtype if dtype is not None else image.dtype)
+    imagef = _to_float(image)
+    if isinstance(gamma, str):
+        if gamma.lower() != "srgb":
+            raise ValueError("gamma must be string or scalar")
+        out = _srgb(imagef)
     else:
-        raise ValueError("gamma must be string or scalar")
+        out = imagef**gamma
+    return _from_float(out, out_dtype)
 
 
-def gamma_decode(image: np.ndarray, gamma: float | str = "sRGB") -> np.ndarray:
+def gamma_decode(
+    image: np.ndarray, gamma: float | str = "sRGB", dtype: Any = None
+) -> np.ndarray:
     r"""
     Gamma decoding
 
@@ -1605,8 +1724,10 @@ def gamma_decode(image: np.ndarray, gamma: float | str = "sRGB") -> np.ndarray:
     :type image: ndarray(H,W), ndarray(H,W,N)
     :param gamma: gamma exponent or "srgb"
     :type gamma: float, str
+    :param dtype: data type of the result, defaults to the type of ``image``
+    :type dtype: str or NumPy dtype, optional
     :return: gamma decoded version of image
-    :rtype: ndarray(H,W), ndarray(H,W,N)
+    :rtype: ndarray(N), ndarray(H,W), ndarray(H,W,N)
 
     Maps linear tristimulus values to a gamma encoded values using either:
 
@@ -1621,49 +1742,37 @@ def gamma_decode(image: np.ndarray, gamma: float | str = "sRGB") -> np.ndarray:
           :math:`\gamma=2.2`.
         - For images with multiple planes, the gamma correction is applied
           to each plane.
-        - For images of type double, the pixels are assumed to be in the
-          range 0 to 1.
-        - For images of type int, the pixels are assumed in the range 0 to
-          the maximum value of their class.  Pixels are converted first to
-          double, encoded, then converted back to the integer class.
+        - The array can have any number of dimensions, including a 1D array of
+          values.
+        - Integer data (``uint8`` or ``uint16``) is assumed to span 0 to the maximum
+          value of its type, and float data to span 0 to 1.  The result has the same
+          type as the input unless ``dtype`` is given, which converts and scales it.
+          Integer results are rounded and clipped to their range.
 
     .. rubric:: References
 
     - |RVC3|, Section 10.1.
+
+    .. versionchanged:: 2.5.0
+        Added the ``dtype`` argument.  The result now has the type of the input,
+        where ``uint16`` data gave ``uint8`` and ``float64`` data gave float32.  A 1D
+        array is now accepted with the sRGB mapping.
 
     .. seealso:: :func:`gamma_encode`
     """
 
     if not isinstance(gamma, (int, float, str)):
         raise ValueError("gamma must be string or scalar")
-
-    imagef = float_image(image)  # convert to float image
-
-    if isinstance(gamma, str) and gamma.lower() == "srgb":
-        # sRGB gamma decode
-
-        if imagef.ndim == 2:
-            # greyscale
-            out = _srgb_inverse(imagef)
-
-        elif imagef.ndim == 3:
-            # multi-dimensional
-            out = np.empty(imagef.shape, dtype=imagef.dtype)
-            for p in range(imagef.shape[2]):
-                out[:, :, p] = _srgb_inverse(imagef[:, :, p])
-        else:
-            raise ValueError("expecting 2d or 3d image")
-
+    image = np.asarray(image)
+    out_dtype = _resolve_dtype(dtype if dtype is not None else image.dtype)
+    imagef = _to_float(image)
+    if isinstance(gamma, str):
+        if gamma.lower() != "srgb":
+            raise ValueError("gamma must be string or scalar")
+        out = _srgb_inverse(imagef)
     else:
-        # normal power law decoding
-
         out = imagef**gamma
-
-    if np.issubdtype(image.dtype, np.integer):
-        # original image was integer, convert back to int
-        return int_image(out)
-    else:
-        return out
+    return _from_float(out, out_dtype)
 
 
 def _srgb_inverse(Rg: np.ndarray) -> np.ndarray:
@@ -1688,14 +1797,11 @@ def _srgb_inverse(Rg: np.ndarray) -> np.ndarray:
         - And colorspace.m from Peter Corke's Machine Vision Toolbox
     """
 
-    R = np.empty(Rg.shape, dtype=np.float32)
     Rg = np.clip(Rg, 0, 1)
     a = 0.0404482362771076
-    i = np.where(Rg <= a)
-    noti = np.where(Rg > a)
-    R[i] = Rg[i] / 12.92
-    R[noti] = ((Rg[noti] + 0.055) / 1.055) ** 2.4
-    return R
+    return np.where(
+        Rg <= a, Rg / 12.92, ((np.maximum(Rg, a) + 0.055) / 1.055) ** 2.4
+    ).astype(Rg.dtype)
 
 
 def _srgb(R: np.ndarray) -> np.ndarray:
@@ -1720,14 +1826,11 @@ def _srgb(R: np.ndarray) -> np.ndarray:
         - And colorspace.m from Peter Corke's Machine Vision Toolbox
     """
 
-    Rg = np.empty(R.shape, dtype=np.float32)
     a = 0.0031306684425005883
     b = 0.416666666666666667
-    i = np.where(R <= a)
-    noti = np.where(R > a)
-    Rg[i] = R[i] * 12.92
-    Rg[noti] = np.real(1.055 * (R[noti] ** b) - 0.055)
-    return Rg
+    return np.where(R <= a, R * 12.92, 1.055 * np.maximum(R, a) ** b - 0.055).astype(
+        R.dtype
+    )
 
 
 # ------------------------------------------------------------------------- #
