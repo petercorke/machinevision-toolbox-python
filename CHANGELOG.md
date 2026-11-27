@@ -2,6 +2,39 @@
 
 ## [2.5.0](https://github.com/petercorke/machinevision-toolbox-python/compare/v2.4.1...v2.5.0) (2026-11-27)
 
+**New features**
+
+* `Histogram.compare()`, with seven comparison measures
+* `Image.ComboFeature` joins any supported detector to any descriptor, for example FAST with BRIEF
+* SURF features (needs an OpenCV build that includes the non-free modules)
+* PointCloud and VoxelGrid draw in the notebook cell with `disp(notebook=True)`; PointCloud also gains `concatenate()`, `unpaint()` and painting by color name
+* New notebooks: point clouds, and CNN segmentation and detection with Torch
+
+**Improvements**
+
+* Depth images from a ROSBag, or any integer depth image with `depth_units`, come out as float32 metres, with 0 as NaN
+* Graphics options are tidier, and MATLAB-style shorthand such as `"r:"` and short Matplotlib names such as `lw` work consistently
+* `idisp` has a `?` key that lists its keys, and plotting functions set window titles
+* Notebooks in the browser now behave like desktop Jupyter
+
+**Changes**
+
+* `name2color()` no longer accepts wildcards. A name containing `.`, `?` or `*` raises `ValueError`. To list the names that match a pattern, use the new `color_names()`, which takes a regular expression
+* `Image.Read` returns C-contiguous pixels, and drawing into a strided image raises an error
+* `int_image()` clips floats to 0 to 1
+* `gamma_encode()`, `gamma_decode()` and `colorspace_convert()` treat array shape and type consistently. The result has the type of the input unless the new `dtype` argument says otherwise, and 1D arrays work. An 8-bit image converted to HSV, L*a*b* or XYZ now gives float32 in natural units (hue in degrees, L* 0 to 100), where before it had OpenCV's 8-bit encoding. A 3-vector or Nx3 array of integers is scaled to 0 to 1, where before it gave silently wrong colors
+* A missing image file raises `FileNotFoundError`, not `ValueError`, with a short traceback and a message that suggests similar file names. Code that caught `ValueError` for a missing file must catch `FileNotFoundError`* `pcd.normals(radius=..., max_nn=...)`, the old method call, still works but is deprecated and warns. Use `estimate_normals()`; `normals` is the property that returns the normals
+
+**Under the hood**
+
+* mypy passes with no errors, `py.typed` is shipped, test coverage is much higher, Codacy rates the code A, and over 60 bugs were found and fixed
+
+**Compatibility**
+
+* Python 3.10 is no longer supported. Python 3.11 to 3.14 are tested
+* The in-browser notebooks need a browser with JSPI support: Chrome 137 or later, Safari 27 or later, Firefox 153 or later
+* OpenCV 4 and 5 are both supported, including some OpenCV 5.1 edge cases
+
 
 ### Features
 
