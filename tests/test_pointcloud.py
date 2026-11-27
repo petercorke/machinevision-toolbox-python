@@ -375,6 +375,7 @@ class TestFallThrough(unittest.TestCase):
 
 
 # ----------------------------------------------------------------------- #
+@unittest.skipUnless(open3d_available, "open3d not installed")
 class TestDispNotebookOptions(unittest.TestCase):
     """disp(notebook=True) names an option that Plotly cannot draw"""
 
