@@ -132,6 +132,42 @@ class TestPointCloudNotebookDisplay(unittest.TestCase):
 
 
 @unittest.skipUnless(open3d_available, "open3d not installed")
+class TestNormals(unittest.TestCase):
+    """``normals`` is a property, and also still the old method of that name"""
+
+    def setUp(self):
+        self.pc = PointCloud.Read("bunny.ply")
+
+    def test_property_is_an_array_of_columns(self):
+        self.assertEqual(self.pc.normals.shape, (3, 0))  # none yet
+        self.pc.estimate_normals(radius=0.1, max_nn=30)
+        n = self.pc.normals
+        self.assertEqual(n.shape, (3, len(self.pc)))
+        nt.assert_allclose(np.linalg.norm(n, axis=0), 1)
+        self.assertIsInstance(n, np.ndarray)
+
+    def test_old_call_estimates_the_normals_and_warns(self):
+        # the printed book has pcd.normals(radius=0.1, max_nn=30)
+        with self.assertWarnsRegex(DeprecationWarning, "estimate_normals") as w:
+            result = self.pc.normals(radius=0.1, max_nn=30)
+        self.assertIsNone(result)
+        # the warning is reported at the caller's line, not inside the Toolbox
+        self.assertEqual(w.filename, __file__)
+
+        other = PointCloud.Read("bunny.ply")
+        other.estimate_normals(radius=0.1, max_nn=30)
+        nt.assert_allclose(self.pc.normals, other.normals)
+
+    def test_array_behaves_as_an_array(self):
+        self.pc.estimate_normals(radius=0.1, max_nn=30)
+        n = self.pc.normals
+        self.assertEqual(n.T.shape, (len(self.pc), 3))
+        self.assertEqual(n[:, 0].shape, (3,))
+        nt.assert_allclose(np.sum(n * n, axis=0), 1)
+        self.assertEqual(type(np.asarray(n)), np.ndarray)
+
+
+@unittest.skipUnless(open3d_available, "open3d not installed")
 class TestVoxelGridNotebookDisplay(unittest.TestCase):
     def setUp(self):
         self.vg = PointCloud(np.random.rand(3, 2000)).voxel_grid(0.25)
