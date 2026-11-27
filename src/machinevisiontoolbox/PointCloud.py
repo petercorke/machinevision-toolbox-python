@@ -66,7 +66,7 @@ def _show_in_notebook(
             f"the options it accepts are {sorted(supported - {'geometry_list'})}"
         )
     try:
-        import plotly  # noqa: F401
+        __import__("plotly")
     except ImportError:
         raise ImportError(
             "disp(notebook=True) draws with Plotly, which is not installed. "
@@ -1188,8 +1188,6 @@ class VoxelGrid:
 
 
 if __name__ == "__main__":
-    from pathlib import Path
-
     import pytest
 
     pytest.main(

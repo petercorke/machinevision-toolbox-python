@@ -1226,20 +1226,3 @@ def mpl_styling(
         kwargs = cbook.normalize_kwargs(kwargs or {}, artist)
     options = (defaults or {}) | res | (kwargs or {})
     return {k: v for k, v in options.items() if v is not None}
-
-
-if __name__ == "__main__":
-    import numpy as np
-
-
-#     import numpy as np
-#     from machinevisiontoolbox import idisp, iread, Image
-
-#     from machinevisiontoolbox import draw_labelbox
-
-#     img = np.zeros((1000, 1000, 3), dtype="float32")
-#     draw_box(img, lrbt=[100, 400, 100, 400], color="red", thickness=-1)
-#     draw_box(img, lrbt=[500, 800, 100, 400], color="green", thickness=-1)
-#     draw_box(img, lrbt=[100, 400, 500, 800], color="blue", thickness=-1)
-#     draw_box(img, lrbt=[500, 800, 500, 800], color="white", thickness=-1)
-#     idisp(img, block=True)

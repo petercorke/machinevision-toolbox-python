@@ -52,8 +52,6 @@ def _loaddata(filename: str, verbose: bool = False, **kwargs: Any) -> np.ndarray
     ``_loaddata(filename)`` returns ``data`` from ``filename``, otherwise
     returns None
 
-    .. rubric:: Examples
-
     .. note::
 
         - Comments are assumed to be as original data files were part of the
@@ -141,8 +139,6 @@ def loadspectrum(
 
     - |RVC3|, Section 10.1.
     """
-    global _spectra
-
     if filename not in _spectra:
         # save an interpolator for every spectrum
         if not filename.endswith(".dat"):
@@ -790,7 +786,8 @@ def name2color(
         >>> name2color("r", dtype="uint8")
         >>> name2color("red", colororder={"R": 2, "G": 1, "B": 0})
         >>> name2color("r", "xy")
-        >>> name2color("lime green")
+        >>> name2color("limegreen")
+        >>> name2color("lime green")  # None: Matplotlib's names have no spaces
 
     .. note:: Uses color database from Matplotlib.
 
@@ -1803,9 +1800,21 @@ def shadow_invariant(
 
     .. rubric:: Examples
 
-    >>> im = iread('parks.png', gamma='sRGB', dtype='double')
-    >>> gs = shadow_invariant(im, 0.7)
-    >>> idisp(gs)
+    .. code-block:: pycon
+
+        >>> im, _ = iread('parks.png', gamma='sRGB', dtype='double')
+        >>> idisp(im)
+        >>> gs = shadow_invariant(im, 0.7)
+        >>> idisp(gs)
+
+    .. plot::
+
+        from machinevisiontoolbox import iread, idisp, shadow_invariant
+
+        im, _ = iread('parks.png', gamma='sRGB', dtype='double')
+        idisp(im)
+        gs = shadow_invariant(im, 0.7)
+        idisp(gs)
 
     .. note::
         - The input image is assumed to be linear, that is, it has been

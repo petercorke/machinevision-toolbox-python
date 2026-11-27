@@ -2,15 +2,13 @@
 
 import unittest
 
-import matplotlib.pyplot as plt
 import numpy as np
 import numpy.testing as nt
-from spatialmath import SE3
 
 from machinevisiontoolbox import CentralCamera, Image, PointCloud
 
 try:
-    import open3d  # noqa: F401
+    __import__("open3d")
 
     open3d_available = True
 except ImportError:
@@ -54,7 +52,7 @@ class TestPointCloud(unittest.TestCase):
 
 
 try:
-    import plotly  # noqa: F401
+    __import__("plotly")
 
     plotly_available = True
 except ImportError:

@@ -1159,7 +1159,6 @@ class ImageProcessingMixin(ImageMixinBase):
                 im1 = np.repeat(np.atleast_3d(im1), im2.shape[2], axis=2)
 
         ones = np.ones_like(mask, dtype=np.uint8)
-        m = cv2.bitwise_and(src1=mask, src2=ones)
         m_not = cv2.bitwise_xor(src1=mask, src2=ones)
 
         out = cv2.bitwise_and(src1=im1, src2=im1, mask=m_not) + cv2.bitwise_and(
