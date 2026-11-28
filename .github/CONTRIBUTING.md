@@ -13,6 +13,14 @@ Please use the issue template and include:
 
 Issues labelled [`good first issue`](https://github.com/petercorke/machinevision-toolbox-python/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) or [`help wanted`](https://github.com/petercorke/machinevision-toolbox-python/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22) are a good place to start.
 
+## Allow edits from maintainers
+
+When you open a pull request from a fork, tick **Allow edits by maintainers** (it is under
+the description box; on an existing PR, it is in the right-hand sidebar).  Without it we
+cannot bring your branch up to date with `main`, which the repository requires before a
+merge, and every small fix of ours has to go through a second PR of our own, with your
+commits rebased into it, instead of being added to yours.
+
 ## Contributing code
 
 - Keep pull requests scoped to a single feature or fix. If you have several unrelated changes, open separate PRs so each can be reviewed and merged independently.
