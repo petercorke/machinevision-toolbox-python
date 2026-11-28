@@ -15,6 +15,7 @@ Thanks for contributing to MVTB!
 - [ ] Added/updated tests for this change, if applicable
 - [ ] New/changed code is type-hinted with modern syntax (`X | Y`, `list[X]`, not `Union`/`Optional`/`List`)
 - [ ] Docstrings updated (reST style: `:param:`, `:returns:`; type hints in the signature cover types now, `:type:`/`:rtype:` are rarely needed)
+- [ ] If this PR is from a fork, **Allow edits by maintainers** is ticked (without it we cannot update your branch from `main`, and have to re-submit your commits as a PR of our own)
 
 > **Automated bot comments to expect:** Codacy will comment with style/coverage findings — most of it is pre-existing backlog (see issues labeled [`tech-debt`](../../issues?q=is%3Aissue+label%3Atech-debt)), not something your PR introduced, so don't be alarmed. If this PR adds or bumps a dependency, Dependabot may separately comment flagging a known vulnerability — if so, use a newer patched version if one exists, or just note it in this PR and a maintainer will decide; you don't need to solve it yourself.
 
